@@ -11,7 +11,7 @@ defmodule Flight.Application do
       # Start the Ecto repository
       supervisor(Flight.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(FlightWeb.Endpoint, []),
+      supervisor(FlightWeb.Endpoint, [])
       # Start your own worker by calling: Flight.Worker.start_link(arg1, arg2, arg3)
       # worker(Flight.Worker, [arg1, arg2, arg3]),
     ]
