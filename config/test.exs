@@ -17,3 +17,7 @@ config :flight, Flight.Repo,
   database: "flight_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :bcrypt_elixir, log_rounds: 4
+
+config :flight, :user_token_salt, "gwfyeA8B5"

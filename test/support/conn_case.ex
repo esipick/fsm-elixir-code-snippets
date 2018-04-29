@@ -20,6 +20,8 @@ defmodule FlightWeb.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
       import FlightWeb.Router.Helpers
+      import Flight.Fixtures
+      import Flight.TestHelpers
 
       # The default endpoint for testing
       @endpoint FlightWeb.Endpoint

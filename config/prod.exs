@@ -26,6 +26,8 @@ config :flight, Flight.Repo,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
   ssl: true
 
+config :flight, :user_token_salt, Map.fetch!(System.get_env(), "USER_TOKEN_SALT")
+
 # Do not print debug messages in production
 config :logger, level: :info
 

@@ -23,7 +23,11 @@ defmodule FlightWeb.Router do
   scope "/api", FlightWeb do
     pipe_through(:api)
 
-    post("/login", SessionController, :login)
-    resources("/users", UserController, only: [:show])
+    post("/login", SessionController, :api_login)
+
+    resources("/users", UserController, only: [:show, :update]) do
+      get("/flyer_details", FlyerDetailController, :show)
+      put("/flyer_details", FlyerDetailController, :update)
+    end
   end
 end

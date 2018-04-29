@@ -22,6 +22,7 @@ defmodule Flight.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Flight.DataCase
+      import Flight.Fixtures
     end
   end
 

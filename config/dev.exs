@@ -62,3 +62,5 @@ config :flight, Flight.Repo,
   database: "flight_dev",
   hostname: "localhost",
   pool_size: 10
+
+config :flight, :user_token_salt, "gwfyeA8B5"
