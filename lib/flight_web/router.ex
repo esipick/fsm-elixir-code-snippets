@@ -9,6 +9,10 @@ defmodule FlightWeb.Router do
     plug(:put_secure_browser_headers)
   end
 
+  pipeline :admin_layout do
+    plug(:put_layout, {FlightWeb.LayoutView, :admin})
+  end
+
   pipeline :api do
     plug(:accepts, ["json"])
   end
@@ -18,6 +22,11 @@ defmodule FlightWeb.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
+  end
+
+  scope "/admin", FlightWeb.Admin do
+    pipe_through([:browser, :admin_layout])
+    get("/dashboard", PageController, :dashboard)
   end
 
   scope "/api", FlightWeb do

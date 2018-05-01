@@ -2,7 +2,10 @@ exports.config = {
   // See http://brunch.io/#documentation for docs.
   files: {
     javascripts: {
-      joinTo: "js/app.js"
+      joinTo: {
+        "js/app.js": /^(?!admin)/,
+        "js/admin/admin.js": /^js\/admin/,
+      },
 
       // To use a separate vendor.js bundle, specify two files path
       // http://brunch.io/docs/config#-files-
@@ -12,15 +15,36 @@ exports.config = {
       // }
       //
       // To change the order of concatenation of files, explicitly mention here
-      // order: {
-      //   before: [
-      //     "vendor/js/jquery-2.1.1.js",
-      //     "vendor/js/bootstrap.min.js"
-      //   ]
-      // }
+      order: {
+        before: [
+          "js/admin/vendor/jquery.min.js",
+          "js/admin/vendor/popper.min.js",
+          "js/admin/vendor/bootstrap.min.js",
+          "js/admin/vendor/perfect-scrollbar.jquery.min.js",
+          "js/admin/vendor/moment.min.js",
+          "js/admin/vendor/sweetalert2.min.js",
+          "js/admin/vendor/jquery.validate.min.js",
+          "js/admin/vendor/jquery.bootstrap-wizard.js",
+          "js/admin/vendor/bootstrap-selectpicker.js",
+          "js/admin/vendor/bootstrap-switch.js",
+          "js/admin/vendor/bootstrap-datetimepicker.js",
+          "js/admin/vendor/jquery.dataTables.min.js",
+          "js/admin/vendor/bootstrap-tagsinput.js",
+          "js/admin/vendor/jasny-bootstrap.min.js",
+          "js/admin/vendor/fullcalendar.min.js",
+          "js/admin/vendor/jquery-jvectormap.js",
+          "js/admin/vendor/nouislider.min.js",
+          "js/admin/vendor/chartjs.min.js",
+          "js/admin/vendor/bootstrap-notify.js",
+          "js/admin/vendor/now-ui-dashboard.js"
+        ]
+      }
     },
     stylesheets: {
-      joinTo: "css/app.css"
+      joinTo: {
+        "css/app.css": /^(?!admin)/,
+        "css/admin/admin.css": /^css\/admin/
+      }
     },
     templates: {
       joinTo: "js/app.js"
@@ -52,7 +76,8 @@ exports.config = {
 
   modules: {
     autoRequire: {
-      "js/app.js": ["js/app"]
+      "js/app.js": ["js/app"],
+      "js/admin/admin.js": ["js/admin/admin"]
     }
   },
 
