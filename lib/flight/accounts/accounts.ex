@@ -2,7 +2,9 @@ defmodule Flight.Accounts do
   import Ecto.Query, warn: false
   alias Flight.Repo
 
-  alias Flight.Accounts.{User, FlyerDetails}
+  alias Flight.Accounts.{User, FlyerDetails, UserRole}
+
+  require Flight.Accounts.Role
 
   def list_users do
     Repo.all(User)
@@ -10,6 +12,16 @@ defmodule Flight.Accounts do
 
   def get_user!(id), do: Repo.get!(User, id)
   def get_user(id), do: Repo.get(User, id)
+
+  def get_user(id, roles) do
+    from(
+      u in User,
+      inner_join: r in assoc(u, :roles),
+      where: r.slug in ^roles,
+      where: u.id == ^id
+    )
+    |> Repo.one()
+  end
 
   def get_user_by_email(email), do: Repo.get_by(User, email: email)
 
@@ -31,6 +43,23 @@ defmodule Flight.Accounts do
 
   def change_user(%User{} = user) do
     User.changeset(user, %{})
+  end
+
+  def assign_roles(user, roles) do
+    for role <- roles do
+      (Repo.get_by(UserRole, user_id: user.id, role_id: role.id) ||
+         %UserRole{user_id: user.id, role_id: role.id})
+      |> UserRole.changeset(%{})
+      |> Repo.insert_or_update!()
+    end
+  end
+
+  def has_role?(user, role) do
+    user = Repo.preload(user, :roles)
+
+    user.roles
+    |> Enum.map(& &1.id)
+    |> Enum.member?(role.id)
   end
 
   def get_flyer_details_for_user_id(user_id) do

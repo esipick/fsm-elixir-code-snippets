@@ -31,7 +31,7 @@ Tip 2: you can also add an image using data-image tag
 
   <div class="logo">
     <a href="/#" class="simple-text logo-mini">
-        <img src="assets/img/logo-randon-aviation.jpg"/>
+        <img src="/images/logo-randon-aviation.jpg"/>
     </a>
     <div class="navbar-minimize">
       <button id="minimizeSidebar" class="btn btn-simple btn-icon btn-neutral btn-round">
@@ -44,7 +44,7 @@ Tip 2: you can also add an image using data-image tag
   <div class="sidebar-wrapper">
     <div class="user">
         <div class="photo">
-            <img src="assets/img/james.jpg" />
+            <img src="/images/james.jpg" />
         </div>
         <div class="info">
             <a data-toggle="collapse" href="#collapseExample" class="collapsed">
@@ -200,7 +200,7 @@ Tip 2: you can also add an image using data-image tag
                         <script>
                           for (i = 0; i < 12; i++) {
                             document.write('<tr>');
-                            document.write('<td class="text-nowrap"><span class="photo"><img src="assets/img/max.jpg"></span><b>Max Fischer</b></td>');
+                            document.write('<td class="text-nowrap"><span class="photo"><img src="/images/max.jpg"></span><b>Max Fischer</b></td>');
                             document.write('<td><a href="tel:801555-5555">(801)555-5555</a></td>');
                             document.write('<td>Monday, Apr 15 2018</td>');
                             document.write('<td>$6,540</td>');

@@ -3,7 +3,7 @@ defmodule FlightWeb.FlyerDetailController do
   import Flight.Auth.Authorization
   alias Flight.Auth.Permission
 
-  plug(FlightWeb.AuthenticateUser)
+  plug(FlightWeb.AuthenticateApiUser)
   plug(:get_user)
   plug(:get_flyer_details)
   plug(:auth_update when action in [:update])

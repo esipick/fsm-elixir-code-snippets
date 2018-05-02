@@ -9,8 +9,16 @@ defmodule FlightWeb.Router do
     plug(:put_secure_browser_headers)
   end
 
+  pipeline :no_layout do
+    plug(:put_layout, false)
+  end
+
   pipeline :admin_layout do
     plug(:put_layout, {FlightWeb.LayoutView, :admin})
+  end
+
+  pipeline :admin_authenticate do
+    plug(FlightWeb.AuthenticateWebUser, roles: ["admin"])
   end
 
   pipeline :api do
@@ -24,9 +32,18 @@ defmodule FlightWeb.Router do
     get("/", PageController, :index)
   end
 
+  # Unauthenticated pages
   scope "/admin", FlightWeb.Admin do
-    pipe_through([:browser, :admin_layout])
+    pipe_through([:browser, :no_layout])
+    get("/login", SessionController, :login)
+    post("/login", SessionController, :login_submit)
+  end
+
+  scope "/admin", FlightWeb.Admin do
+    pipe_through([:browser, :admin_layout, :admin_authenticate])
     get("/dashboard", PageController, :dashboard)
+
+    resources("/users", UserController, only: [:index])
   end
 
   scope "/api", FlightWeb do

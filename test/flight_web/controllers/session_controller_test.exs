@@ -10,7 +10,7 @@ defmodule FlightWeb.SessionControllerTest do
         |> post("/api/login", %{email: "food@bard.com", password: "oh hey there"})
         |> json_response(200)
 
-      assert {:ok, user_id} = FlightWeb.AuthenticateUser.user_id_from_token(json["token"])
+      assert {:ok, user_id} = FlightWeb.AuthenticateApiUser.user_id_from_token(json["token"])
       assert user_id == user.id
 
       assert json ==

@@ -7,7 +7,7 @@ Tip 2: you can also add an image using data-image tag
 
   <div class="logo">
     <a href="/#" class="simple-text logo-mini">
-        <img src="assets/img/logo-randon-aviation.jpg"/>
+        <img src="/images/logo-randon-aviation.jpg"/>
     </a>
     <div class="navbar-minimize">
       <button id="minimizeSidebar" class="btn btn-simple btn-icon btn-neutral btn-round">
@@ -20,11 +20,11 @@ Tip 2: you can also add an image using data-image tag
   <div class="sidebar-wrapper">
     <div class="user">
         <div class="photo">
-            <img src="assets/img/james.jpg" />
+            <img src="/images/james.jpg" />
         </div>
         <div class="info">
             <a data-toggle="collapse" href="#collapseExample" class="collapsed">
-                <span>Randon Russell<b class="caret"></b></span>
+                <span><%= @conn.assigns.current_user.first_name %> <%= @conn.assigns.current_user.last_name %><b class="caret"></b></span>
             </a>
             <div class="clearfix"></div>
             <div class="collapse" id="collapseExample">
@@ -61,37 +61,37 @@ Tip 2: you can also add an image using data-image tag
     <ul class="nav">
 
         <li>
-            <a href="dashboard.php">
+            <a href="/admin/dashboard">
                 <i class="now-ui-icons design_app"></i>
                 <p>Dashboard</p>
             </a>
         </li>
         <li>
-            <a href="instructors.php">
+            <a href="/admin/users?role=instructors">
                 <i class="now-ui-icons users_single-02"></i>
                 <p>Instructors</p>
             </a>
         </li>
         <li>
-            <a href="students.php">
+            <a href="/admin/users?role=students">
                 <i class="now-ui-icons education_hat"></i>
                 <p>Students</p>
             </a>
         </li>
         <li>
-            <a href="renters.php">
+            <a href="/admin/users?role=renters">
                 <i class="now-ui-icons business_badge"></i>
                 <p>Renters</p>
             </a>
         </li>
         <li>
-            <a href="aircraft.php">
+            <a href="/admin/aircrafts">
                 <i class="now-ui-icons objects_spaceship"></i>
                 <p>Aircraft</p>
             </a>
         </li>
         <li>
-            <a href="admins.php">
+            <a href="/admin/users?role=admins">
                 <i class="now-ui-icons business_briefcase-24"></i>
                 <p>Admins</p>
             </a>

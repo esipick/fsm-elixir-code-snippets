@@ -3,7 +3,7 @@ defmodule FlightWeb.UserController do
 
   alias Flight.Accounts
 
-  plug(FlightWeb.AuthenticateUser)
+  plug(FlightWeb.AuthenticateApiUser)
   plug(:get_user)
 
   def show(conn, %{"id" => id}) do

@@ -32,6 +32,17 @@ defmodule Flight.Accounts.AccountsTest do
       assert Accounts.get_user!(user.id) == user
     end
 
+    test "get_user/2 returns user with roles" do
+      user = user_fixture() |> assign_role("admin")
+      user_id = user.id
+      assert %User{id: ^user_id} = Accounts.get_user(user.id, ["admin"])
+    end
+
+    test "get_user/2 does not return user without roles" do
+      user = user_fixture() |> assign_role("student")
+      refute Accounts.get_user(user.id, ["admin"])
+    end
+
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} =
                Accounts.create_user(%{
@@ -88,6 +99,19 @@ defmodule Flight.Accounts.AccountsTest do
     test "change_user/1 returns a user changeset" do
       user = user_fixture()
       assert %Ecto.Changeset{} = Accounts.change_user(user)
+    end
+  end
+
+  describe "roles" do
+    test "assign_role/2 assigns role to user" do
+      user = user_fixture()
+
+      assert [%Accounts.UserRole{user_id: user_id}] =
+               Accounts.assign_roles(user, [Accounts.Role.admin()])
+
+      assert user_id == user.id
+
+      assert Repo.one(assoc(user, :roles)).slug == "admin"
     end
   end
 

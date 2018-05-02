@@ -9,7 +9,7 @@ defmodule FlightWeb.SessionController do
     if user do
       case Accounts.check_password(user, password) do
         {:ok, user} ->
-          render(conn, "login.json", user: user, token: FlightWeb.AuthenticateUser.token(user))
+          render(conn, "login.json", user: user, token: FlightWeb.AuthenticateApiUser.token(user))
 
         {:error, _} ->
           conn

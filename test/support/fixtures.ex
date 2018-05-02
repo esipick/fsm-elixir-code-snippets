@@ -16,6 +16,17 @@ defmodule Flight.Fixtures do
     user
   end
 
+  def role_fixture(attrs \\ %{}) do
+    role =
+      %Accounts.Role{
+        slug: "admin"
+      }
+      |> Accounts.Role.changeset(attrs)
+      |> Repo.insert!()
+
+    role
+  end
+
   def flyer_details_fixture(attrs \\ %{}, user \\ user_fixture()) do
     {:ok, flyer_details} =
       attrs
