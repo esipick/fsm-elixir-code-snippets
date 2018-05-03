@@ -220,7 +220,7 @@ Tip 2: you can also add an image using data-image tag
 
                   <div class="tab-pane" id="link2" aria-expanded="true">
                     <h6>Add a student</h6>
-                    <form>
+                    <form method="get" action="new-student.php">
                       <div class="row mb-4">
                         <div class="col-md-4 pr-1">
                           <div class="form-group">
@@ -235,7 +235,7 @@ Tip 2: you can also add an image using data-image tag
                           </div>
                         </div>
                         <div class="col-md-2 pl-1">
-                          <a href="new-student.php" class="btn btn-primary m-0">Send Invite</a>
+                          <input type="submit" value="send invite" class="btn btn-primary m-0"/>
                         </div>
                       </div>
                     </form>

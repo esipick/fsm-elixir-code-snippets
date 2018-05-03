@@ -92,24 +92,33 @@ table .photo {
 .show > .navbar .navbar-nav > a.btn.dropdown-toggle:hover {
   background-color: #F3F3F9;
 }
-.btn-sm {
-  border-radius: 2px;
-}
 .btn-primary {
   background-color: #2CA8FF;
 }
-.btn-primary:hover,
-.btn-primary:focus,
-.btn-primary:active,
-.btn-primary.active,
-.btn-primary:active:focus,
-.btn-primary:active:hover,
-.btn-primary.active:focus,
-.btn-primary.active:hover,
-.show > .btn-primary.dropdown-toggle,
-.show > .btn-primary.dropdown-toggle:focus,
-.show > .btn-primary.dropdown-toggle:hover {
+.btn-primary.active, 
+.btn-primary.active:focus, 
+.btn-primary.active:hover, 
+.btn-primary:active, 
+.btn-primary:active:focus, 
+.btn-primary:active:hover, 
+.btn-primary:focus, 
+.btn-primary:hover, 
+.show>.btn-primary.dropdown-toggle, 
+.show>.btn-primary.dropdown-toggle:focus, 
+.show>.btn-primary.dropdown-toggle:hover {
   background-color: #2CA8FF;
+}
+.btn-sm {
+  border-radius: 2px;
+}
+.btn-round {
+  border-radius: 30px;
+}
+.btn-lg {
+  font-size: 12px;
+}
+input.btn {
+  font-weight: normal; /*fixes bold form input text*/
 }
 
 .sidebar[data-color="blue"]:after,
@@ -389,4 +398,9 @@ dl .disc.expired {background-color: #FF5572;}
 
 .bootstrap-switch .bootstrap-switch-handle-on {
   background: #2CA8Fe;
+}
+
+
+.login-page .card-login .input-group:last-child {
+  margin-bottom: 8px;
 }

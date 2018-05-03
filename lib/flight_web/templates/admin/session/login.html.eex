@@ -30,7 +30,9 @@
                   <h2 class="text-center">Login</h2>
 
                   <%= if get_flash(@conn, :error) do %>
-                    <div class="error" style="color: white"><%= get_flash(@conn, :error) %></div>
+                    <div class="alert alert-danger">
+                      <span><%= get_flash(@conn, :error) %></span>
+                    </div>
                   <% end %>
                   <!-- <h7 class="text-center">Login</h7> -->
                 </div>
