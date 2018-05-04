@@ -3,25 +3,73 @@ defmodule Flight.Accounts.User do
   import Ecto.Changeset
 
   schema "users" do
-    field(:balance, :integer)
     field(:email, :string)
     field(:first_name, :string)
     field(:last_name, :string)
     field(:password, :string, virtual: true)
     field(:password_hash, :string)
-    many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles")
+    field(:balance, :integer)
+    field(:phone_number, :string)
+    field(:address_1, :string)
+    field(:city, :string)
+    field(:state, :string)
+    field(:zipcode, :string)
+    field(:flight_training_number, :string)
+    field(:medical_rating, :string)
+    field(:medical_expires_at, Flight.Date)
+    field(:certificate_number, :string)
+    field(:billing_rate, :integer)
+    field(:pay_rate, :integer)
+    field(:awards, :string)
+    many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
+
+    many_to_many(
+      :flyer_certificates,
+      Flight.Accounts.FlyerCertificate,
+      join_through: "user_flyer_certificates",
+      on_replace: :delete
+    )
 
     timestamps()
   end
 
   @doc false
-  def changeset(user, attrs) do
+  def create_changeset(user, attrs) do
     user
     |> cast(attrs, [:email, :first_name, :last_name, :password, :balance])
     |> validate_required([:email, :first_name, :last_name, :balance])
     |> validate_password(:password)
     |> put_pass_hash()
     |> validate_required([:password_hash])
+  end
+
+  def profile_changeset(user, attrs, roles, flyer_certificates) do
+    user
+    |> cast(attrs, [
+      :email,
+      :first_name,
+      :last_name,
+      :password,
+      :balance,
+      :phone_number,
+      :address_1,
+      :city,
+      :state,
+      :zipcode,
+      :flight_training_number,
+      :medical_rating,
+      :medical_expires_at,
+      :certificate_number,
+      :billing_rate,
+      :pay_rate,
+      :awards
+    ])
+    |> validate_required([:email, :first_name, :last_name, :balance])
+    |> validate_password(:password)
+    |> put_assoc(:roles, roles)
+    |> put_assoc(:flyer_certificates, flyer_certificates)
+    |> validate_length(:roles, min: 1)
+    |> validate_format(:phone_number, ~r/^\(?([0-9]{3})\)?[-.●]?([0-9]{3})[-.●]?([0-9]{4})$/)
   end
 
   def validate_password(changeset, field, options \\ []) do

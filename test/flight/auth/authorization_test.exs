@@ -42,7 +42,7 @@ defmodule Flight.Auth.AuthorizationTest do
 
       assert has_permission_slug?(
                user,
-               Permission.permission_slug(:flyer_details, :modify, :personal)
+               Permission.permission_slug(:users, :modify, :personal)
              )
     end
 
@@ -55,23 +55,21 @@ defmodule Flight.Auth.AuthorizationTest do
   describe "user_can?" do
     test "true if user has permission" do
       user = user_fixture() |> assign_role("student")
-      details = flyer_details_fixture(%{}, user)
-      assert user_can?(user, [Permission.new(:flyer_details, :view, {:personal, details})])
+      assert user_can?(user, [Permission.new(:users, :view, {:personal, user})])
     end
 
     test "true if user has at least one permission" do
       user = user_fixture() |> assign_role("student")
-      details = flyer_details_fixture(%{}, user)
 
       assert user_can?(user, [
-               Permission.new(:flyer_details, :view, {:personal, details}),
-               Permission.new(:flyer_details, :view, :all)
+               Permission.new(:users, :view, {:personal, user}),
+               Permission.new(:users, :view, :all)
              ])
     end
 
     test "false if role doesn't have permission" do
       user = user_fixture() |> assign_role("student")
-      refute user_can?(user, [Permission.new(:flyer_details, :view, :all)])
+      refute user_can?(user, [Permission.new(:users, :view, :all)])
     end
 
     test "false if no permissions" do
@@ -83,24 +81,22 @@ defmodule Flight.Auth.AuthorizationTest do
   describe "halt_unless_user_can?" do
     test "returns conn if no func and user has permission", %{conn: conn} do
       user = user_fixture() |> assign_role("student")
-      details = flyer_details_fixture(%{}, user)
       conn = assign(conn, :current_user, user)
 
       assert %Plug.Conn{halted: false} =
                halt_unless_user_can?(conn, [
-                 Permission.new(:flyer_details, :view, {:personal, details})
+                 Permission.new(:users, :view, {:personal, user})
                ])
     end
 
     test "returns whatever the func returns if passed", %{conn: conn} do
       user = user_fixture() |> assign_role("student")
-      details = flyer_details_fixture(%{}, user)
       conn = assign(conn, :current_user, user)
 
       assert halt_unless_user_can?(
                conn,
                [
-                 Permission.new(:flyer_details, :view, {:personal, details})
+                 Permission.new(:users, :view, {:personal, user})
                ],
                fn -> :foo end
              ) == :foo
@@ -112,7 +108,7 @@ defmodule Flight.Auth.AuthorizationTest do
 
       assert %Plug.Conn{halted: true, status: 401} =
                halt_unless_user_can?(conn, [
-                 Permission.new(:flyer_details, :view, :all)
+                 Permission.new(:users, :view, :all)
                ])
     end
   end

@@ -4,7 +4,7 @@ defmodule Flight.Accounts.Role do
 
   alias Flight.Accounts.Role
 
-  @available_roles ["admin", "instructor", "student", "renter"]
+  @available_role_slugs ["admin", "instructor", "student", "renter"]
 
   schema "roles" do
     field(:slug, :string)
@@ -17,12 +17,12 @@ defmodule Flight.Accounts.Role do
   def changeset(role, attrs) do
     role
     |> cast(attrs, [:slug])
-    |> validate_inclusion(:slug, @available_roles)
+    |> validate_inclusion(:slug, @available_role_slugs)
     |> validate_required([:slug])
   end
 
-  def available_roles do
-    @available_roles
+  def available_role_slugs do
+    @available_role_slugs
   end
 
   def admin do
@@ -54,6 +54,6 @@ defmodule Flight.Accounts.Role do
   end
 
   defmacro is_valid_role(role) do
-    quote do: unquote(role) in unquote(@available_roles)
+    quote do: unquote(role) in unquote(@available_role_slugs)
   end
 end

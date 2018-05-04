@@ -43,7 +43,7 @@ defmodule FlightWeb.Router do
     pipe_through([:browser, :admin_layout, :admin_authenticate])
     get("/dashboard", PageController, :dashboard)
 
-    resources("/users", UserController, only: [:index])
+    resources("/users", UserController, only: [:index, :show, :edit, :update])
   end
 
   scope "/api", FlightWeb do

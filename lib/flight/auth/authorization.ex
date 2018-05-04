@@ -45,28 +45,28 @@ defmodule Flight.Auth.Authorization do
 
   def admin_permission_slugs() do
     MapSet.new([
-      permission_slug(:flyer_details, :modify, :all)
+      permission_slug(:users, :modify, :all)
     ])
   end
 
   def instructor_permission_slugs() do
     MapSet.new([
-      permission_slug(:flyer_details, :modify, :personal),
-      permission_slug(:flyer_details, :view, :personal)
+      permission_slug(:users, :modify, :personal),
+      permission_slug(:users, :view, :all)
     ])
   end
 
   def student_permission_slugs() do
     MapSet.new([
-      permission_slug(:flyer_details, :modify, :personal),
-      permission_slug(:flyer_details, :view, :personal)
+      permission_slug(:users, :modify, :personal),
+      permission_slug(:users, :view, :personal)
     ])
   end
 
   def renter_permission_slugs() do
     MapSet.new([
-      permission_slug(:flyer_details, :modify, :personal),
-      permission_slug(:flyer_details, :view, :personal)
+      permission_slug(:users, :modify, :personal),
+      permission_slug(:users, :view, :personal)
     ])
   end
 end

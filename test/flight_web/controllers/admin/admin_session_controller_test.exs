@@ -7,6 +7,13 @@ defmodule FlightWeb.Admin.SessionControllerTest do
       |> get("/admin/login")
       |> html_response(200)
     end
+
+    test "redirects to dashboard if logged in", %{conn: conn} do
+      conn
+      |> web_auth_admin()
+      |> get("/admin/login")
+      |> response_redirected_to("/admin/dashboard")
+    end
   end
 
   describe "POST /admin/login" do

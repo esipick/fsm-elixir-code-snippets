@@ -3,16 +3,16 @@ defmodule Flight.Auth.PermissionTest do
 
   alias Flight.Auth.Permission
 
-  describe "flyer_details" do
+  describe "users" do
     test "personal" do
-      details = flyer_details_fixture()
-      assert Permission.personal_scope_checker(details.user, :flyer_details, details)
+      user = user_fixture()
+      assert Permission.personal_scope_checker(user, :users, user)
     end
 
     test "personal fails" do
       other_user = user_fixture()
-      details = flyer_details_fixture()
-      refute Permission.personal_scope_checker(other_user, :flyer_details, details)
+      user = user_fixture()
+      refute Permission.personal_scope_checker(other_user, :users, user)
     end
   end
 
@@ -26,33 +26,32 @@ defmodule Flight.Auth.PermissionTest do
 
   describe "permission_slug" do
     test "personal scope" do
-      assert Permission.permission_slug(Permission.new(:flyer_details, :modify, {:personal, nil})) ==
-               "flyer_details:modify:personal"
+      assert Permission.permission_slug(Permission.new(:users, :modify, {:personal, nil})) ==
+               "users:modify:personal"
     end
 
     test "all scope" do
-      assert Permission.permission_slug(Permission.new(:flyer_details, :modify, :all)) ==
-               "flyer_details:modify:all"
+      assert Permission.permission_slug(Permission.new(:users, :modify, :all)) ==
+               "users:modify:all"
     end
 
     test "resource verb simple_scope" do
-      assert Permission.permission_slug(:flyer_details, :modify, :personal) ==
-               "flyer_details:modify:personal"
+      assert Permission.permission_slug(:users, :modify, :personal) == "users:modify:personal"
     end
   end
 
   describe "checker" do
     test "all" do
-      permission = Permission.new(:flyer_details, :modify, :all)
+      permission = Permission.new(:users, :modify, :all)
       assert Permission.scope_checker(permission, user_fixture())
     end
 
     test "personal" do
-      details = flyer_details_fixture()
-      perm = Permission.new(:flyer_details, :modify, {:personal, details})
+      user = user_fixture()
+      perm = Permission.new(:users, :modify, {:personal, user})
 
-      assert Permission.scope_checker(perm, details.user) ==
-               Permission.personal_scope_checker(details.user, :flyer_details, details)
+      assert Permission.scope_checker(perm, user) ==
+               Permission.personal_scope_checker(user, :users, user)
     end
   end
 end

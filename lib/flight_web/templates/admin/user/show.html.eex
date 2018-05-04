@@ -1,0 +1,257 @@
+<div class="row">
+  <div class="col-md-4">
+    <div class="card card-user">
+      <div class="card-body text-center">
+        <div class="author">
+            <img class="avatar border-gray" src="assets/img/max.jpg" alt="...">
+            <h5 class="title">Max Fischer</h5>
+          <p class="description"><a href="tel:1-408-555-5555">(801) 867-5309</a></p>
+        </div>
+
+
+        <%= if has_cirriculum?(@user) do %>
+          <div class="card-section detail-list course-progress">
+            <h7>Course Progress</h7>
+            <dl class="d-flex justify-content-between">
+              <dt>Private Pilot License</dt>
+              <dd>80%</dd>
+            </dl>
+            <div class="course-progress-bar"><span style="width: 80%;"></span></div>
+            <dl class="d-flex justify-content-between">
+              <dt>Commercial Pilot License</dt>
+              <dd>0%</dd>
+            </dl>
+            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
+            <dl class="d-flex justify-content-between">
+              <dt>Instrument Flight Rating</dt>
+              <dd>0%</dd>
+            </dl>
+            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
+          </div>
+        <% end %>
+
+
+        <div class="card-section detail-list course-progress">
+          <a href="/admin/users/<%= @user.id %>/edit" class="btn btn-primary">Edit Profile</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card ">
+      <div class="card-header">
+        <ul class="nav nav-pills nav-pills-primary" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#link1" role="tablist">Profile</a>
+          </li>
+
+          <%= if has_billing?(@user) do %>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="tab" href="#link2" role="tablist">Billing</a>
+            </li>
+          <% end %>
+
+          <%= if has_appointments?(@user) do %>
+          <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#link3" role="tablist">Appointments</a>
+          </li>
+          <% end %>
+
+        </ul>
+      </div>
+      <div class="card-body">
+        <div class="tab-content">
+          <div class="tab-pane active detail-list" id="link1">
+            <dl class="d-flex justify-content-between">
+              <dt>Name</dt>
+              <dd><%= @user.first_name %> <%= @user.last_name %></dd>
+            </dl>
+            <dl class="d-flex justify-content-between">
+              <dt>Phone #</dt>
+              <dd><a href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a></dd>
+            </dl>
+            <dl class="d-flex justify-content-between">
+              <dt>Email</dt>
+              <dd><a href="mailto:<%= @user.email %>"><%= @user.email %></a></dd>
+            </dl>
+            <dl class="d-flex justify-content-between">
+              <dt>Address</dt>
+              <dd><%= @user.address_1 %></br>
+                <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></dd>
+            </dl>
+            <dl class="d-flex justify-content-between">
+              <dt>Flight Training # (FTN)</dt>
+              <dd>12345678</dd>
+            </dl>
+            <dl class="d-flex justify-content-between">
+              <dt>Medical</dt>
+              <dd>3rd class
+                <small>expires: Nov 12 2020</small>
+              </dd>
+            </dl>
+          </div>
+
+
+
+          <%= if has_billing?(@user) do %>
+            <div class="tab-pane detail-list list-billing" id="link2">
+              <div class="d-flex justify-content-center">
+                <div class="text-center mb-2 mt-2">
+                  <h7>Account Balance</h7>
+                  <h2 class="mb-2">$8,345.00</h2>
+                  <!-- Button trigger modal -->
+                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+                    add funds
+                  </button>
+
+                  <!-- Modal -->
+                  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLongTitle">Add Funds to Max Fischer</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body detail-list">
+                          <dl class="d-flex justify-content-between flex-row-reverse">
+                            <dt>$8,345.00</dt>
+                            <dd><p>Current Balance</p></dd>
+                          </dl>
+                          <dl class="d-flex justify-content-between flex-row-reverse">
+                            <dt><input type="text" class="form-control"/></dt>
+                            <dd><p>Amount to add</p></dd>
+                          </dl>
+                          <dl class="d-flex justify-content-between flex-row-reverse">
+                            <dt>$8,345.00</dt>
+                            <dd><p>New Balance</p></dd>
+                          </dl>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <h7>Transaction History</h7>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>
+                  - $350.00 <br/>
+                  <a href="#e" class="btn btn-primary btn-sm">cancel</a>
+                </dt>
+                <dd>
+                  <p>Requested by Randon Russell</p>
+                  <small>May 12 2018</small>
+                  <p class="transaction-status">pending student approval</p>
+                </dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>
+                  - $350.00 <br/>
+                  <a href="#e" class="btn btn-primary btn-sm">cancel</a>
+                </dt>
+                <dd>
+                  <p>Requested by Randon Russell</p>
+                  <small>May 12 2018</small>
+                  <p class="transaction-status">pending student approval</p>
+                </dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>+ $350.00</dt>
+                <dd>
+                  <p>Added by Max Fischer</p>
+                  <small>May 12 2018</small>
+                </dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>+ $350.00</dt>
+                <dd>
+                  <p>Added by Max Fischer</p>
+                  <small>May 12 2018</small>
+                </dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>-$350.00</dt>
+                <dd>
+                  <p>Requested by Randon Russell</p>
+                  <small>May 12 2018</small>
+                </dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>-$350.00</dt>
+                <dd>
+                  <p>Requested by Randon Russell</p>
+                  <small>May 12 2018</small>
+                </dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>-$350.00</dt>
+                <dd>
+                  <p>Requested by Randon Russell</p>
+                  <small>May 12 2018</small>
+                </dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>-$350.00</dt>
+                <dd>
+                  <p>Requested by Randon Russell</p>
+                  <small>May 12 2018</small>
+                </dd>
+              </dl>
+            </div>
+
+          <% end %>
+
+
+          <%= if has_appointments?(@user) do %>
+            <div class="tab-pane detail-list list-billing" id="link3">
+              <dl class="d-flex justify-content-between">
+                <dt>Monday, Apr 15 2018</dt>
+                <dd>
+                  <dl class="d-flex justify-content-between">
+                    <dt>Time</dt>
+                    <dd>7:30-9:30 AM</dd>
+                  </dl>
+                  <dl class="d-flex justify-content-between">
+                    <dt>Equipment</dt>
+                    <dd><a href="aircraft-profile.php">Archer N40670</a></dd>
+                  </dl>
+                  <dl class="d-flex justify-content-between">
+                    <dt>Instructor</dt>
+                    <dd><a href="instructor-profile.php">Greg Powell</a></dd>
+                  </dl>
+                </dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Friday, Apr 22 2018</dt>
+                <dd>
+                  <dl class="d-flex justify-content-between">
+                    <dt>Time</dt>
+                    <dd>8-10:00 AM</dd>
+                  </dl>
+                  <dl class="d-flex justify-content-between">
+                    <dt>Equipment</dt>
+                    <dd><a href="aircraft-profile.php">Diamond N834DS</a></dd>
+                  </dl>
+                  <dl class="d-flex justify-content-between">
+                    <dt>Instructor</dt>
+                    <dd><a href="instructor-profile.php">Randon Russell</a></dd>
+                  </dl>
+                </dd>
+              </dl>
+            </div>
+          <% end %>
+
+
+        </div>
+      </div>
+    </div> <!-- end card -->
+  </div>
+
+</div>

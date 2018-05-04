@@ -60,50 +60,14 @@ Tip 2: you can also add an image using data-image tag
     </div>
     <ul class="nav">
 
-        <li>
-            <a href="/admin/dashboard">
-                <i class="now-ui-icons design_app"></i>
-                <p>Dashboard</p>
+      <%= for item <- FlightWeb.SidebarItem.build(@conn.request_path, @conn.query_string) do %>
+        <li class="<%= if item.active, do: "active", else: "" %>">
+            <a href="<%= item.path %>">
+                <i class="now-ui-icons <%= item.icon_class %>"></i>
+                <p><%= item.label %></p>
             </a>
         </li>
-        <li>
-            <a href="/admin/users?role=instructors">
-                <i class="now-ui-icons users_single-02"></i>
-                <p>Instructors</p>
-            </a>
-        </li>
-        <li>
-            <a href="/admin/users?role=students">
-                <i class="now-ui-icons education_hat"></i>
-                <p>Students</p>
-            </a>
-        </li>
-        <li>
-            <a href="/admin/users?role=renters">
-                <i class="now-ui-icons business_badge"></i>
-                <p>Renters</p>
-            </a>
-        </li>
-        <li>
-            <a href="/admin/aircrafts">
-                <i class="now-ui-icons objects_spaceship"></i>
-                <p>Aircraft</p>
-            </a>
-        </li>
-        <li>
-            <a href="/admin/users?role=admins">
-                <i class="now-ui-icons business_briefcase-24"></i>
-                <p>Admins</p>
-            </a>
-        </li>
-
-        <!-- <li>
-            <a href="school.php">
-                <i class="now-ui-icons loader_gear"></i>
-                <p>School Settings</p>
-            </a>
-        </li> -->
-
+      <% end %>
     </ul>
   </div>
 </div>

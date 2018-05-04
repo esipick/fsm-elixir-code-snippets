@@ -11,6 +11,17 @@ defmodule Flight.TestHelpers do
     Plug.Conn.put_req_header(conn, "authorization", FlightWeb.AuthenticateApiUser.token(user))
   end
 
+  def web_auth(conn, %Flight.Accounts.User{} = user) do
+    conn
+    |> Plug.Test.init_test_session([])
+    |> Plug.Conn.put_session(:user_id, user.id)
+  end
+
+  def web_auth_admin(conn) do
+    user = Flight.Fixtures.user_fixture() |> Flight.Fixtures.assign_role("admin")
+    web_auth(conn, user)
+  end
+
   defmacro redirected_to_login(conn) do
     quote do
       assert redirected_to(unquote(conn)) == "/admin/login"

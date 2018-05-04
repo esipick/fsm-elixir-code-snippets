@@ -5,8 +5,6 @@ defmodule Flight.Accounts.UserRole do
   schema "user_roles" do
     belongs_to(:user, Flight.Accounts.User)
     belongs_to(:role, Flight.Accounts.Role)
-
-    timestamps()
   end
 
   @doc false

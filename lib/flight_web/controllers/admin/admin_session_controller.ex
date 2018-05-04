@@ -3,6 +3,8 @@ defmodule FlightWeb.Admin.SessionController do
 
   alias Flight.Accounts
 
+  plug(:redirect_if_logged_in when action in [:login, :login_submit])
+
   def login(conn, _params) do
     render(conn, "login.html")
   end
@@ -13,7 +15,7 @@ defmodule FlightWeb.Admin.SessionController do
     if user do
       case Accounts.check_password(user, password) do
         {:ok, user} ->
-          if Accounts.has_role?(user, Accounts.Role.admin()) do
+          if Accounts.has_role?(user, "admin") do
             conn
             |> FlightWeb.AuthenticateWebUser.log_in(user.id)
             |> redirect(to: "/admin/dashboard")
@@ -34,6 +36,16 @@ defmodule FlightWeb.Admin.SessionController do
       conn
       |> put_flash(:error, "Invalid username or password.")
       |> redirect(to: "/admin/login")
+    end
+  end
+
+  defp redirect_if_logged_in(conn, _) do
+    if get_session(conn, :user_id) do
+      conn
+      |> redirect(to: "/admin/dashboard")
+      |> halt()
+    else
+      conn
     end
   end
 end

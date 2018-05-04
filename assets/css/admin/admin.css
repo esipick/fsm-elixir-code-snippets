@@ -342,7 +342,7 @@ dl .disc.expired {background-color: #FF5572;}
 .text-expired {color: #FF5572;}
 
 .panel-header {
-  background-image: url('../img/bg-plane.jpg');
+  background-image: url('/images/bg-plane.jpg');
   background-size: 138%;
   background-position: 0 888px;
   background-color: #24282B;

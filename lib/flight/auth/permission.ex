@@ -14,7 +14,7 @@ defmodule Flight.Auth.Permission do
   """
 
   defstruct [:resource, :verb, :scope]
-  @resources [:flyer_details]
+  @resources [:users]
   @verbs [:view, :modify]
 
   @doc """
@@ -56,7 +56,7 @@ defmodule Flight.Auth.Permission do
 
   def personal_scope_checker(user, resource_slug, resource) when not is_nil(resource) do
     case {resource_slug, resource} do
-      {:flyer_details, %Flight.Accounts.FlyerDetails{user_id: user_id}} -> user.id == user_id
+      {:users, %Flight.Accounts.User{id: user_id}} -> user.id == user_id
       _ -> raise "Unknown resource_slug and resource: #{resource_slug} #{resource}"
     end
   end

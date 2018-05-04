@@ -27,6 +27,17 @@ defmodule Flight.Fixtures do
     role
   end
 
+  def flyer_certificate_fixture(attrs \\ %{}) do
+    cert =
+      %Accounts.FlyerCertificate{
+        slug: "cfi"
+      }
+      |> Accounts.FlyerCertificate.changeset(attrs)
+      |> Repo.insert!()
+
+    cert
+  end
+
   def flyer_details_fixture(attrs \\ %{}, user \\ user_fixture()) do
     {:ok, flyer_details} =
       attrs
@@ -52,11 +63,10 @@ defmodule Flight.Fixtures do
         |> Accounts.Role.changeset(%{})
         |> Repo.insert_or_update!()
 
-      user_role =
-        (Repo.get_by(Accounts.UserRole, user_id: user.id, role_id: role.id) ||
-           %Accounts.UserRole{user_id: user.id, role_id: role.id})
-        |> Accounts.UserRole.changeset(%{})
-        |> Repo.insert_or_update!()
+      (Repo.get_by(Accounts.UserRole, user_id: user.id, role_id: role.id) ||
+         %Accounts.UserRole{user_id: user.id, role_id: role.id})
+      |> Accounts.UserRole.changeset(%{})
+      |> Repo.insert_or_update!()
     end
 
     user
