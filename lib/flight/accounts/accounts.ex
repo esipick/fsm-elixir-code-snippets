@@ -2,7 +2,7 @@ defmodule Flight.Accounts do
   import Ecto.Query, warn: false
   alias Flight.Repo
 
-  alias Flight.Accounts.{User, FlyerDetails, UserRole, Role, FlyerCertificate}
+  alias Flight.Accounts.{User, UserRole, Role, FlyerCertificate}
 
   require Flight.Accounts.Role
 
@@ -41,7 +41,6 @@ defmodule Flight.Accounts do
     user = Repo.preload(user, [:roles, :flyer_certificates])
     roles = Repo.all(from(r in Role, where: r.slug in ^role_slugs))
     certs = Repo.all(from(c in FlyerCertificate, where: c.slug in ^flyer_certficate_slugs))
-    IO.inspect(flyer_certficate_slugs)
 
     valid_roles? = Enum.count(role_slugs) == Enum.count(roles)
     valid_certs? = Enum.count(flyer_certficate_slugs) == Enum.count(certs)

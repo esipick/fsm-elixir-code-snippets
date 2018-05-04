@@ -51,9 +51,6 @@ defmodule FlightWeb.Router do
 
     post("/login", SessionController, :api_login)
 
-    resources("/users", UserController, only: [:show, :update]) do
-      get("/flyer_details", FlyerDetailController, :show)
-      put("/flyer_details", FlyerDetailController, :update)
-    end
+    resources("/users", UserController, only: [:show, :update])
   end
 end

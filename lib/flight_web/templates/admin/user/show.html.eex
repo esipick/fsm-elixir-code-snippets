@@ -3,7 +3,6 @@
     <div class="card card-user">
       <div class="card-body text-center">
         <div class="author">
-            <img class="avatar border-gray" src="assets/img/max.jpg" alt="...">
             <h5 class="title">Max Fischer</h5>
           <p class="description"><a href="tel:1-408-555-5555">(801) 867-5309</a></p>
         </div>
@@ -74,19 +73,58 @@
               <dt>Email</dt>
               <dd><a href="mailto:<%= @user.email %>"><%= @user.email %></a></dd>
             </dl>
+            <%= if has_address?(@user) do %>
+              <dl class="d-flex justify-content-between">
+                <dt>Address</dt>
+                <dd><%= @user.address_1 %></br>
+                  <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></dd>
+              </dl>
+            <% end %>
+            <%= if has_cirriculum?(@user) do %>
+              <dl class="d-flex justify-content-between">
+                <dt>Flight Training # (FTN)</dt>
+                <dd><%= @user.flight_training_number %></dd>
+              </dl>
+            <% end %>
+            <%= if has_pay_rates?(@user) do %>
+              <dl class="d-flex justify-content-between">
+                <dt>Billing Rate</dt>
+                <dd>$<%= @user.billing_rate %>/hr</dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Pay Rate</dt>
+                <dd>$<%= @user.pay_rate %>/hr</dd>
+              </dl>
+            <% end %>
+            <%= if has_teaching_info?(@user) do %>
+              <dl class="d-flex justify-content-between">
+                <dt>Awards</dt>
+                <dd><%= @user.awards %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Certificates</dt>
+                <dd>
+                  <%= human_flyer_certificates(@user.flyer_certificates) %>
+                  <small>cert# <%= @user.certificate_number %></small>
+                </dd>
+              </dl>
+            <% end %>
+            <% if has_medical?(@user) do %>
+              <dl class="d-flex justify-content-between">
+                <dt>Medical</dt>
+                <dd><%= human_readable_medical_rating(@user.medical_rating) %>
+                  <%= if @user.medical_expires_at do %>
+                    <small>expires: <%= format_date(@user.medical_expires_at) %></small>
+                  <% end %>
+                </dd>
+              </dl>
+            <% end %>
             <dl class="d-flex justify-content-between">
-              <dt>Address</dt>
-              <dd><%= @user.address_1 %></br>
-                <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></dd>
-            </dl>
-            <dl class="d-flex justify-content-between">
-              <dt>Flight Training # (FTN)</dt>
-              <dd>12345678</dd>
-            </dl>
-            <dl class="d-flex justify-content-between">
-              <dt>Medical</dt>
-              <dd>3rd class
-                <small>expires: Nov 12 2020</small>
+              <dt>Permission Roles</dt>
+              <dd>
+                <%= for role <- @user.roles do %>
+                  <%= human_role(role.slug) %></br>
+                <% end %>
               </dd>
             </dl>
           </div>

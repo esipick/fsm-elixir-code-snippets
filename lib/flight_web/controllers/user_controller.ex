@@ -6,7 +6,7 @@ defmodule FlightWeb.UserController do
   plug(FlightWeb.AuthenticateApiUser)
   plug(:get_user)
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, _params) do
     render(conn, "show.json", user: conn.assigns.user)
   end
 

@@ -18,8 +18,8 @@ defmodule Flight.Accounts.User do
     field(:medical_rating, :string)
     field(:medical_expires_at, Flight.Date)
     field(:certificate_number, :string)
-    field(:billing_rate, :integer)
-    field(:pay_rate, :integer)
+    field(:billing_rate, :integer, default: 75)
+    field(:pay_rate, :integer, default: 50)
     field(:awards, :string)
     many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
 
@@ -69,7 +69,11 @@ defmodule Flight.Accounts.User do
     |> put_assoc(:roles, roles)
     |> put_assoc(:flyer_certificates, flyer_certificates)
     |> validate_length(:roles, min: 1)
-    |> validate_format(:phone_number, ~r/^\(?([0-9]{3})\)?[-.●]?([0-9]{3})[-.●]?([0-9]{4})$/)
+    |> validate_format(
+      :phone_number,
+      ~r/^\(?([0-9]{3})\)?[-.●]?([0-9]{3})[-.●]?([0-9]{4})$/,
+      message: "must be in the format: 555-555-5555"
+    )
   end
 
   def validate_password(changeset, field, options \\ []) do
@@ -80,6 +84,8 @@ defmodule Flight.Accounts.User do
       end
     end)
   end
+
+  def human_readable_medical_approval()
 
   defp valid_password?(password) when byte_size(password) > 7 do
     {:ok, password}
