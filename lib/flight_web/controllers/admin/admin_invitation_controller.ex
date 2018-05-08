@@ -21,8 +21,13 @@ defmodule FlightWeb.Admin.InvitationController do
     role = Accounts.get_role!(role_id)
 
     case Accounts.create_invitation(data) do
-      {:ok, _invitation} ->
-        redirect(conn, to: "/admin/invitations?role=#{role.slug}")
+      {:ok, invitation} ->
+        conn
+        |> put_flash(
+          :success,
+          "Successfully sent invitation. Please have #{invitation.first_name} check their email to complete the sign up process."
+        )
+        |> redirect(to: "/admin/invitations?role=#{role.slug}")
 
       {:error, changeset} ->
         invitations = Accounts.visible_invitations_with_role(role.slug)
