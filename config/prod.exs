@@ -20,10 +20,6 @@ config :flight, FlightWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE")
 
-config :flight,
-       :web_base_url,
-       "https://03207d0d286a45a6ae160262e5b72fb4.vfs.cloud9.us-west-2.amazonaws.com"
-
 config :flight, Flight.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: System.get_env("DATABASE_URL"),

@@ -7,6 +7,7 @@ use Mix.Config
 
 # General application configuration
 config :flight, ecto_repos: [Flight.Repo]
+config :flight, :web_base_url, System.get_env("FLIGHT_WEB_BASE_URL") || "http://localhost:4000"
 
 # Configures the endpoint
 config :flight, FlightWeb.Endpoint,
