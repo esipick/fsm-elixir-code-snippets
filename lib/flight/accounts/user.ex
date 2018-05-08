@@ -2,8 +2,6 @@ defmodule Flight.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @phone_number_regex ~r/^\(?([0-9]{3})\)?[-.● ]?([0-9]{3})[-.● ]?([0-9]{4})$/
-
   schema "users" do
     field(:email, :string)
     field(:first_name, :string)
@@ -82,7 +80,7 @@ defmodule Flight.Accounts.User do
     |> validate_password(:password)
     |> validate_format(
       :phone_number,
-      @phone_number_regex,
+      Flight.Format.phone_number_regex(),
       message: "must be in the format: 555-555-5555"
     )
     |> normalize_phone_number()
@@ -101,7 +99,7 @@ defmodule Flight.Accounts.User do
     phone_number = get_field(changeset, :phone_number)
 
     if changeset.valid? && is_binary(phone_number) do
-      case Regex.run(@phone_number_regex, phone_number) do
+      case Regex.run(Flight.Format.phone_number_regex(), phone_number) do
         [_, first, second, third] ->
           put_change(changeset, :phone_number, "#{first}-#{second}-#{third}")
 

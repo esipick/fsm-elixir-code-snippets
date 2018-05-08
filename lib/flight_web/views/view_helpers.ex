@@ -23,4 +23,22 @@ defmodule FlightWeb.ViewHelpers do
       other -> other
     end
   end
+
+  def plural_label_for_role(role) do
+    case role.slug do
+      "admin" -> "Admins"
+      "instructor" -> "Instructors"
+      "student" -> "Students"
+      "renter" -> "Renters"
+    end
+  end
+
+  def singular_label_for_role(role) do
+    case role.slug do
+      "admin" -> "Admin"
+      "instructor" -> "Instructor"
+      "student" -> "Student"
+      "renter" -> "Renter"
+    end
+  end
 end

@@ -20,22 +20,12 @@ defmodule FlightWeb.Admin.UserListData do
 
     if role do
       %UserListData{
-        role_label: label_for_role(role),
         role: role,
         user_table_data: table_data_for_role(role),
         invitations: []
       }
     else
       raise "Unknown role_slug: #{role_slug}"
-    end
-  end
-
-  def label_for_role(role) do
-    case role.slug do
-      "admin" -> "Admins"
-      "instructor" -> "Instructors"
-      "student" -> "Students"
-      "renter" -> "Renters"
     end
   end
 
@@ -63,7 +53,7 @@ defmodule FlightWeb.Admin.UserListData do
       %FlightWeb.Admin.UserTableDetailedRow{
         user_id: user.id,
         name: "#{user.first_name} #{user.last_name}",
-        phone_number: "(801) 555-5555",
+        phone_number: Flight.Format.display_phone_number(user.phone_number),
         next_appointment: "Unknown",
         account_balance: user.balance,
         owes: 500
