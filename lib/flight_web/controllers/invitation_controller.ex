@@ -17,7 +17,7 @@ defmodule FlightWeb.InvitationController do
   end
 
   def accept_submit(conn, %{"token" => token, "user" => user_data}) do
-    case Accounts.create_user(user_data) do
+    case Accounts.create_user_from_invitation(user_data, conn.assigns.invitation) do
       {:ok, _user} ->
         redirect(conn, to: "/invitations/#{token}/success")
 

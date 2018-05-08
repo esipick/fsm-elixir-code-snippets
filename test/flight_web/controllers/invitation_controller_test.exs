@@ -29,7 +29,9 @@ defmodule FlightWeb.InvitationControllerTest do
 
   describe "POST /invitations/:token" do
     test "creates user", %{conn: conn} do
-      invitation = invitation_fixture()
+      invitation = invitation_fixture(%{role_id: Accounts.Role.admin().id})
+
+      assert !invitation.accepted_at
 
       payload = %{
         user: %{
@@ -45,6 +47,12 @@ defmodule FlightWeb.InvitationControllerTest do
       |> response_redirected_to("/invitations/#{invitation.token}/success")
 
       user = Accounts.get_user_by_email("food@bards.com")
+
+      invitation = Accounts.get_invitation(invitation.id)
+
+      assert invitation.accepted_at
+
+      assert Accounts.has_role?(user, "admin")
 
       assert user
       assert {:ok, _} = Accounts.check_password(user, "justin time")

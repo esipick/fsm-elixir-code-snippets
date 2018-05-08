@@ -20,6 +20,10 @@ config :flight, FlightWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE")
 
+config :flight,
+       :web_base_url,
+       "https://03207d0d286a45a6ae160262e5b72fb4.vfs.cloud9.us-west-2.amazonaws.com"
+
 config :flight, Flight.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: System.get_env("DATABASE_URL"),
@@ -30,6 +34,10 @@ config :flight, :user_token_salt, Map.fetch!(System.get_env(), "USER_TOKEN_SALT"
 
 # Do not print debug messages in production
 config :logger, level: :info
+
+config :flight, Flight.Mailer,
+  adapter: Bamboo.SendgridAdapter,
+  api_key: System.get_env("SENDGRID_API_KEY")
 
 # ## SSL Support
 #
@@ -51,8 +59,6 @@ config :logger, level: :info
 # We also recommend setting `force_ssl`, ensuring no data is
 # ever sent via http, always redirecting to https:
 #
-#     config :flight, FlightWeb.Endpoint,
-#       force_ssl: [hsts: true]
 #
 # Check `Plug.SSL` for all available options in `force_ssl`.
 

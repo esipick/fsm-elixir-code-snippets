@@ -20,6 +20,8 @@ config :flight, FlightWeb.Endpoint,
     ]
   ]
 
+config :flight, :web_base_url, System.get_env("FLIGHT_WEB_BASE_URL") || "http://localhost:4000"
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed
@@ -64,3 +66,5 @@ config :flight, Flight.Repo,
   pool_size: 10
 
 config :flight, :user_token_salt, "gwfyeA8B5"
+
+config :flight, Flight.Mailer, adapter: Bamboo.LocalAdapter

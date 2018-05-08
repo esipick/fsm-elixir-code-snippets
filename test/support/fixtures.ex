@@ -18,7 +18,7 @@ defmodule Flight.Fixtures do
   def role_fixture(attrs \\ %{}) do
     role =
       %Accounts.Role{
-        slug: "admin"
+        slug: Flight.Random.hex(20)
       }
       |> Accounts.Role.changeset(attrs)
       |> Repo.insert!()

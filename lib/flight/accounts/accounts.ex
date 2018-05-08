@@ -146,6 +146,8 @@ defmodule Flight.Accounts do
   # Invitations
   #
 
+  def get_invitation(id), do: Repo.get(Invitation, id)
+
   def get_invitation_for_email(email) do
     Repo.get_by(Flight.Accounts.Invitation, email: email)
   end
@@ -154,10 +156,11 @@ defmodule Flight.Accounts do
     Repo.get_by(Flight.Accounts.Invitation, token: token)
   end
 
-  def invitations_with_role(role_slug) do
+  def visible_invitations_with_role(role_slug) do
     from(
       i in Invitation,
       inner_join: r in assoc(i, :role),
+      where: is_nil(i.accepted_at),
       where: r.slug == ^role_slug
     )
     |> Repo.all()
@@ -177,5 +180,31 @@ defmodule Flight.Accounts do
     %Invitation{}
     |> Invitation.create_changeset(attrs)
     |> Repo.insert()
+  end
+
+  def create_user_from_invitation(user_data, invitation) do
+    {:ok, result} =
+      Repo.transaction(fn ->
+        case create_user(user_data) do
+          {:ok, user} ->
+            accept_invitation(invitation)
+            role = get_role(invitation.role_id)
+            assign_roles(user, [role])
+
+            send_invitation_email(invitation)
+
+            {:ok, user}
+
+          error ->
+            error
+        end
+      end)
+
+    result
+  end
+
+  def send_invitation_email(invitation) do
+    Flight.Email.invitation_email(invitation)
+    |> Flight.Mailer.deliver_later()
   end
 end

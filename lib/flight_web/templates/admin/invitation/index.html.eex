@@ -16,6 +16,11 @@
                   </ul>
                   <!-- <a href="new-student.php" class="btn btn-primary">Add Student</a> -->
                 </div>
+                  <%= if get_flash(@conn, :success) do %>
+                    <div class="alert alert-success">
+                      <span><%= get_flash(@conn, :success) %></span></br>
+                    </div>
+                  <% end %>
                     <h6>Add a student</h6>
                     <%= form_for @changeset, "/admin/invitations", [as: :data, action: "post"], fn f -> %>
                       <%= if Enum.count(f.errors) > 0 do %>
@@ -69,7 +74,7 @@
                                 <td>No</td>
                                 <td class="text-muted">sent 4/11/18</td> -->
                                 <td class="text-right">
-                                  <a href="#" class="btn btn-sm btn-primary">Resend</a>
+                                  <a href="/admin/invitations/<%= invitation.id %>/resend" class="btn btn-sm btn-primary">Resend</a>
                                 </td>
                               </tr>
                             <% end %>

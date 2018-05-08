@@ -21,7 +21,7 @@ defmodule Flight.Mixfile do
   def application do
     [
       mod: {Flight.Application, []},
-      extra_applications: [:logger, :runtime_tools, :comeonin, :timex]
+      extra_applications: [:logger, :runtime_tools, :comeonin, :timex, :bamboo]
     ]
   end
 
@@ -41,9 +41,12 @@ defmodule Flight.Mixfile do
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
+
+      # Flight dependencies
+      {:bamboo, "~> 0.8"},
+      {:bcrypt_elixir, "~> 1.0"},
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 4.0"},
-      {:bcrypt_elixir, "~> 1.0"},
       {:timex, "~> 3.1"}
     ]
   end

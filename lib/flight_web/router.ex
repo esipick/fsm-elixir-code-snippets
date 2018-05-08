@@ -47,7 +47,11 @@ defmodule FlightWeb.Router do
     get("/dashboard", PageController, :dashboard)
 
     resources("/users", UserController, only: [:index, :show, :edit, :update])
-    resources("/invitations", InvitationController, only: [:create, :index])
+
+    resources("/invitations", InvitationController, only: [:create, :index]) do
+      post("/resend", InvitationController, :resend)
+      get("/resend", InvitationController, :resend)
+    end
   end
 
   scope "/api", FlightWeb do
@@ -56,5 +60,9 @@ defmodule FlightWeb.Router do
     post("/login", SessionController, :api_login)
 
     resources("/users", UserController, only: [:show, :update])
+  end
+
+  if Mix.env() == :dev do
+    forward("/email_inbox", Bamboo.EmailPreviewPlug)
   end
 end

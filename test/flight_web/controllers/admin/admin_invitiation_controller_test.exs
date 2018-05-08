@@ -1,5 +1,5 @@
 defmodule FlightWeb.Admin.InvitationControllerTest do
-  use FlightWeb.ConnCase, async: true
+  use FlightWeb.ConnCase, async: false
 
   alias Flight.Accounts
 
@@ -17,6 +17,22 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
 
         assert content =~ invitation.first_name
       end
+    end
+
+    test "doesn't render accepted invitations", %{conn: conn} do
+      role_slug = "admin"
+      role_fixture(%{slug: role_slug})
+
+      invitation = invitation_fixture(%{}, Accounts.role_for_slug(role_slug))
+      Accounts.accept_invitation(invitation)
+
+      content =
+        conn
+        |> web_auth_admin()
+        |> get("/admin/invitations?role=#{role_slug}")
+        |> html_response(200)
+
+      refute content =~ invitation.email
     end
   end
 
@@ -38,6 +54,17 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
 
       invitation = Accounts.get_invitation_for_email("jonesy@hello.com")
       assert invitation
+    end
+  end
+
+  describe "POST /admin/invitations/:id/resend" do
+    test "works", %{conn: conn} do
+      invitation = invitation_fixture(%{}, Accounts.Role.admin())
+
+      conn
+      |> web_auth_admin()
+      |> post("/admin/invitations/#{invitation.id}/resend")
+      |> response_redirected_to("/admin/invitations?role=admin")
     end
   end
 end
