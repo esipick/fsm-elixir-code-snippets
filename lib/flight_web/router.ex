@@ -27,12 +27,15 @@ defmodule FlightWeb.Router do
 
   scope "/", FlightWeb do
     # Use the default browser stack
-    pipe_through(:browser)
+    pipe_through([:browser, :no_layout])
 
     get("/", PageController, :index)
+    get("/invitations/:token", InvitationController, :accept)
+    get("/invitations/:token/success", InvitationController, :accept_success)
+    post("/invitations/:token", InvitationController, :accept_submit)
   end
 
-  # Unauthenticated pages
+  # Unauthenticated admin pages
   scope "/admin", FlightWeb.Admin do
     pipe_through([:browser, :no_layout])
     get("/login", SessionController, :login)
@@ -44,6 +47,7 @@ defmodule FlightWeb.Router do
     get("/dashboard", PageController, :dashboard)
 
     resources("/users", UserController, only: [:index, :show, :edit, :update])
+    resources("/invitations", InvitationController, only: [:create, :index])
   end
 
   scope "/api", FlightWeb do

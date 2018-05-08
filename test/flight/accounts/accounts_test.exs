@@ -7,14 +7,12 @@ defmodule Flight.Accounts.AccountsTest do
     alias Flight.Accounts.User
 
     @valid_attrs %{
-      balance: 42,
       email: "some email",
       first_name: "some first name",
       last_name: "some last name",
       password: "some password"
     }
     @update_attrs %{
-      balance: 43,
       email: "some updated email",
       first_name: "some updated first name",
       last_name: "some updated last name",
@@ -46,14 +44,13 @@ defmodule Flight.Accounts.AccountsTest do
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} =
                Accounts.create_user(%{
-                 balance: 42,
                  email: "foo@bar.com",
                  first_name: "Tammy",
                  last_name: "Jones",
                  password: "password"
                })
 
-      assert user.balance == 42
+      assert user.balance == 0
       assert user.email == "foo@bar.com"
       assert user.first_name == "Tammy"
       assert user.last_name == "Jones"
@@ -62,7 +59,7 @@ defmodule Flight.Accounts.AccountsTest do
 
     test "create_user/1 fails with no password" do
       assert {:error, changeset} = Accounts.create_user(Enum.into(%{password: ""}, @valid_attrs))
-      assert errors_on(changeset).password_hash
+      assert errors_on(changeset).password
     end
 
     test "check_password fails for invalid password" do
@@ -78,7 +75,6 @@ defmodule Flight.Accounts.AccountsTest do
       user = user_fixture()
       assert {:ok, user} = Accounts.update_user(user, @update_attrs)
       assert %User{} = user
-      assert user.balance == 43
       assert user.email == "some updated email"
       assert user.first_name == "some updated first name"
       assert user.last_name == "some updated last name"
@@ -125,6 +121,23 @@ defmodule Flight.Accounts.AccountsTest do
                )
 
       assert user.medical_expires_at == ~D[2018-03-03]
+    end
+
+    test "update_user_profile/2 normalizes phone_number" do
+      user = user_fixture() |> assign_role("admin")
+      role_fixture(%{slug: "student"})
+
+      assert {:ok, user} =
+               Accounts.update_user_profile(
+                 user,
+                 %{"phone_number" => "(801) 707-1847"},
+                 [
+                   "student"
+                 ],
+                 []
+               )
+
+      assert user.phone_number == "801-707-1847"
     end
 
     test "update_user/2 with invalid data returns error changeset" do
@@ -187,6 +200,38 @@ defmodule Flight.Accounts.AccountsTest do
       user = user_fixture()
       flyer_certificate_fixture(%{slug: "cfi"})
       refute Accounts.has_flyer_certificate?(user, "cfi")
+    end
+  end
+
+  describe "invitations" do
+    test "create_invitation/1 creates invitation" do
+      assert {:ok, %Accounts.Invitation{} = invitation} =
+               Accounts.create_invitation(%{
+                 first_name: "foo",
+                 last_name: "bar",
+                 email: "foo@bar.com",
+                 role_id: Accounts.Role.admin().id
+               })
+
+      assert invitation.first_name == "foo"
+      assert invitation.last_name == "bar"
+      assert invitation.email == "foo@bar.com"
+      assert is_binary(invitation.token)
+      assert invitation.role_id == Accounts.Role.admin().id
+    end
+
+    test "accept_invitation/1 accepts if not accepted" do
+      invitation = invitation_fixture()
+      assert is_nil(invitation.accepted_at)
+
+      assert {:ok, %Accounts.Invitation{accepted_at: %NaiveDateTime{}}} =
+               Accounts.accept_invitation(invitation)
+    end
+
+    test "accept_invitation/1 fails if already accepted" do
+      invitation = invitation_fixture()
+      {:ok, invitation} = Accounts.accept_invitation(invitation)
+      assert {:error, :already_accepted} = Accounts.accept_invitation(invitation)
     end
   end
 

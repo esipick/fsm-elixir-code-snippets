@@ -1,5 +1,6 @@
 defmodule FlightWeb.Admin.UserView do
   use FlightWeb, :view
+  import FlightWeb.ViewHelpers
 
   alias Flight.Accounts
 
@@ -53,34 +54,9 @@ defmodule FlightWeb.Admin.UserView do
     Accounts.has_flyer_certificate?(user, cert_slug)
   end
 
-  def format_date(date) when is_binary(date), do: date
-  def format_date(nil), do: ""
-
-  def format_date(date) do
-    Flight.Date.format(date)
-  end
-
   def flyer_certificate_inputs() do
     Flight.Accounts.flyer_certificates()
     |> Enum.map(&{String.upcase(&1.slug), &1.slug})
-  end
-
-  def human_error_messages(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn _, _, {message, _} ->
-      message
-    end)
-    |> Enum.reduce([], fn {key, message_list}, acc ->
-      Enum.map(message_list, fn message ->
-        "#{Phoenix.Naming.humanize(human_key_transform(key))} #{message}"
-      end) ++ acc
-    end)
-  end
-
-  def human_key_transform(key) do
-    case key do
-      :medical_expires_at -> :medical_expiration
-      other -> other
-    end
   end
 
   def human_flyer_certificates(flyer_certificates) do

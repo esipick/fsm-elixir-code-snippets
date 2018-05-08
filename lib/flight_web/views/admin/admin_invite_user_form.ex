@@ -1,23 +1,11 @@
-defmodule FlightWeb.Admin.UserProfileForm do
+defmodule FlightWeb.Admin.InviteUserForm do
   import Ecto.Changeset
 
   @schema %{
     first_name: :string,
     last_name: :string,
     email: :string,
-    roles: :list,
-    phone_number: :string,
-    address_1: :string,
-    city: :string,
-    state: :string,
-    zipcode: :string,
-    flight_training_number: :string,
-    medical_rating: :string,
-    medical_expires_at: :date,
-    certificates: :list,
-    certificate_number: :string,
-    billing_rate: :integer,
-    pay_rate: :integer
+    role_id: :integer
   }
 
   def new do
@@ -40,8 +28,6 @@ defmodule FlightWeb.Admin.UserProfileForm do
   defp validate(changeset) do
     changeset
     |> validate_required([:first_name, :last_name, :email])
-    |> validate_inclusion(:medical_rating, 0..3)
-    |> validate_acceptance(:accept_tos)
   end
 
   defp process_params(params) do

@@ -16,7 +16,7 @@
               </div>
               <%= form_for @changeset, "/admin/users/#{@user.id}", [as: :user, action: "put", class: "form-horizontal"], fn f -> %>
                 <div class="card-body">
-                  <%= if Enum.count(@changeset.errors) > 0 do %>
+                  <%= if Enum.count(f.errors) > 0 do %>
                     <div class="alert alert-danger">
                       <%= for error <- human_error_messages(@changeset) do %>
                         <span><%= error %></span></br>
@@ -135,7 +135,7 @@
                       </div>
                     </div>
                     <div class="row">
-                      <label class="col-md-3 col-form-label">Certifications</label>
+                      <label class="col-md-3 col-form-label">Certificates</label>
                       <div class="col-md-9 checkbox-radios">
                         <%= for {label, value} <- flyer_certificate_inputs() do %>
                           <div class="form-check">

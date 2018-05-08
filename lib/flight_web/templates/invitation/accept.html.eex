@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Randon Aviation</title>
+    <%= render FlightWeb.Admin.PartialView, "_css.html", assigns %>
+    <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>
+  </head>
+  <body class="sidebar-none">
+    <div class="wrapper">
+
+    <!-- sidebar removed -->
+
+    <div class="main-panel">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-transparent  navbar-absolute bg-primary fixed-top">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            <div class="navbar-toggle">
+              <button type="button" class="navbar-toggler">
+                <span class="navbar-toggler-bar bar1"></span>
+                <span class="navbar-toggler-bar bar2"></span>
+                <span class="navbar-toggler-bar bar3"></span>
+              </button>
+            </div>
+            <a class="navbar-brand" href="#">Flight School Manager</a>
+          </div>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-end" id="navigation">
+            <ul class="navbar-nav">
+
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <!-- End Navbar -->
+      <div class="panel-header">
+        <div class="header text-center">
+          <h2 class="title">Welcome to Randon Aviation</h2>
+          <p class="category">You've been invited to join and download the Randon Aviation Flight School Manager app. Lets create your account below. Once your account is created, download the app using the link and log in to get started!</a>
+          </p>
+        </div>
+      </div>
+      <div class="content">
+        <div class="row">
+          <div class="col-md-5 ml-auto mr-auto">
+            <div class="card text-center">
+              <div class="card-header ">
+                <h4 class="card-title">Student Registration</h4>
+              </div>
+              <%= form_for @changeset, "/invitations/#{@invitation.token}", [as: :user, action: "post"], fn f -> %>
+                <%= if Enum.count(f.errors) > 0 do %>
+                  <div class="alert alert-danger">
+                    <%= for error <- human_error_messages(@changeset) do %>
+                      <span><%= error %></span></br>
+                    <% end %>
+                  </div>
+                <% end %>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6 pr-1">
+                      <div class="form-group">
+                        <label class="sr-only">First Name</label>
+                        <%= text_input f, :first_name, class: "form-control", placeholder: "First Name" %>
+                      </div>
+                    </div>
+                    <div class="col-md-6 pl-1">
+                      <div class="form-group">
+                        <label class="sr-only">Last Name</label>
+                        <%= text_input f, :last_name, class: "form-control", placeholder: "Last Name" %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="exampleInputEmail1" class="sr-only">Email address</label>
+                        <%= email_input f, :email, class: "form-control", placeholder: "Email" %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="sr-only">Create Password</label>
+                        <%= password_input f, :password, class: "form-control", value: "", placeholder: "Password" %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- <div class="form-check text-left ml-3">
+                    <label class="form-check-label">
+                      <input class="form-check-input" type="checkbox">
+                      <span class="form-check-sign"></span>
+                      I agree to the
+                      <a href="#something">terms and conditions</a>.
+                    </label>
+                  </div> -->
+                </div> <!-- end card body -->
+                <div class="card-footer mb-3">
+                  <input type="submit" class="btn btn-primary btn-round btn-lg" value="Sign Up" />
+                  <div class="col-md-8 ml-auto mr-auto">
+                    <p class="text-muted mt-4"><small>By signing up, you are agreeing to the Flight School Manager <a href="#linktoterms">Terms and Conditions</a> .</small></p>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <!-- right column -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <!-- <h4 class="card-title">Students</h4> -->
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                  <ul class="nav nav-pills nav-pills-primary" role="tablist">
+                    <li class="nav-item">
+                      <a class="nav-link" href="/admin/users?role=<%= @role.slug %>" role="tablist" aria-expanded="false"><%= @role.slug %></a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link active" href="/admin/users?role=<%= @role.slug %>" role="tablist" aria-expanded="true">Invitations</a>
+                    </li>
+                  </ul>
+                  <!-- <a href="new-student.php" class="btn btn-primary">Add Student</a> -->
+                </div>
+                    <h6>Add a student</h6>
+                    <%= form_for @changeset, "/admin/invitations", [as: :data, action: "post"], fn f -> %>
+                      <%= if Enum.count(f.errors) > 0 do %>
+                        <div class="alert alert-danger">
+                          <%= for error <- human_error_messages(@changeset) do %>
+                            <span><%= error %></span></br>
+                          <% end %>
+                        </div>
+                      <% end %>
+                      <%= hidden_input f, :role_id, value: @role.id %>
+                      <div class="row mb-4">
+                        <div class="col-md-4 pr-1">
+                          <div class="form-group">
+                            <label class="sr-only" >Student Name</label>
+                            <%= text_input f, :first_name, class: "form-control", placeholder: "First Name" %>
+                            <%= text_input f, :last_name, class: "form-control", placeholder: "Last Name" %>
+                          </div>
+                        </div>
+                        <div class="col-md-4 pl-1">
+                          <div class="form-group">
+                            <label class="sr-only" for="exampleInputEmail1">Student Email</label>
+                            <%= email_input f, :email, class: "form-control", placeholder: "Email" %>
+                          </div>
+                        </div>
+                        <div class="col-md-2 pl-1">
+                          <input type="submit" class="btn btn-primary m-0" value="Send Invite" />
+                        </div>
+                      </div>
+                    <% end %>
+
+                    <div class="row">
+                      <div class="col-12">
+                        <h6>Pending Invites</h6>
+                        <table id="datatable2" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Email</th>
+                              <!-- <th>Accepted</th>
+                              <th>Account Created</th>
+                              <th class="disabled-sorting text-right">&nbsp;</th> -->
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <%= for invitation <- @invitations do %>
+                              <tr>
+                                <td><%= invitation.first_name %> <%= invitation.last_name %></td>
+                                <td><%= invitation.email %></td>
+                                <!-- <td>No</td>
+                                <td>No</td>
+                                <td class="text-muted">sent 4/11/18</td> -->
+                                <td class="text-right">
+                                  <a href="#" class="btn btn-sm btn-primary">Resend</a>
+                                </td>
+                              </tr>
+                            <% end %>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+
+
+              <!-- end content-->
+            </div>
+            <!--  end card  -->
+          </div>
+          <!-- end col-md-12 -->
+        </div>
+        <!-- end row -->
+      </div>

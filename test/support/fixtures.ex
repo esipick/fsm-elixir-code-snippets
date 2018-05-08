@@ -5,7 +5,6 @@ defmodule Flight.Fixtures do
     {:ok, user} =
       attrs
       |> Enum.into(%{
-        balance: 42,
         email: "user-#{Flight.Random.string(10)}@email.com",
         first_name: "some first name",
         last_name: "some last name",
@@ -38,19 +37,33 @@ defmodule Flight.Fixtures do
     cert
   end
 
-  def flyer_details_fixture(attrs \\ %{}, user \\ user_fixture()) do
-    {:ok, flyer_details} =
-      attrs
-      |> Enum.into(%{
-        address_1: "1234 Hi",
-        city: "Bigfork",
-        state: "MT",
-        faa_tracking_number: "ABC1234"
-      })
-      |> Accounts.set_flyer_details_for_user(user)
+  def invitation_fixture(attrs \\ %{}, role \\ role_fixture()) do
+    invitation =
+      %Accounts.Invitation{
+        first_name: "Jess",
+        last_name: "Hamilton",
+        email: "#{Flight.Random.hex(20)}-user@email.com",
+        role_id: role.id
+      }
+      |> Accounts.Invitation.create_changeset(attrs)
+      |> Repo.insert!()
 
-    %{flyer_details | user: user}
+    %{invitation | role: role}
   end
+
+  # def flyer_details_fixture(attrs \\ %{}, user \\ user_fixture()) do
+  #   {:ok, flyer_details} =
+  #     attrs
+  #     |> Enum.into(%{
+  #       address_1: "1234 Hi",
+  #       city: "Bigfork",
+  #       state: "MT",
+  #       faa_tracking_number: "ABC1234"
+  #     })
+  #     |> Accounts.set_flyer_details_for_user(user)
+  #
+  #   %{flyer_details | user: user}
+  # end
 
   def assign_role(user, role) do
     assign_roles(user, [role])

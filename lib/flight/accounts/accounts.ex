@@ -2,7 +2,7 @@ defmodule Flight.Accounts do
   import Ecto.Query, warn: false
   alias Flight.Repo
 
-  alias Flight.Accounts.{User, UserRole, Role, FlyerCertificate}
+  alias Flight.Accounts.{User, UserRole, Role, FlyerCertificate, Invitation}
 
   require Flight.Accounts.Role
 
@@ -33,7 +33,7 @@ defmodule Flight.Accounts do
 
   def update_user(%User{} = user, attrs) do
     user
-    |> User.create_changeset(attrs)
+    |> User.api_update_changeset(attrs)
     |> Repo.update()
   end
 
@@ -86,6 +86,9 @@ defmodule Flight.Accounts do
   # Role
   #
 
+  def get_role!(id), do: Repo.get!(Role, id)
+  def get_role(id), do: Repo.get(Role, id)
+
   def assign_roles(user, roles) do
     for role <- roles do
       (Repo.get_by(UserRole, user_id: user.id, role_id: role.id) ||
@@ -137,5 +140,42 @@ defmodule Flight.Accounts do
     user.flyer_certificates
     |> Enum.map(& &1.slug)
     |> Enum.member?(cert_slug)
+  end
+
+  #
+  # Invitations
+  #
+
+  def get_invitation_for_email(email) do
+    Repo.get_by(Flight.Accounts.Invitation, email: email)
+  end
+
+  def get_invitation_for_token(token) do
+    Repo.get_by(Flight.Accounts.Invitation, token: token)
+  end
+
+  def invitations_with_role(role_slug) do
+    from(
+      i in Invitation,
+      inner_join: r in assoc(i, :role),
+      where: r.slug == ^role_slug
+    )
+    |> Repo.all()
+  end
+
+  def accept_invitation(invitation) do
+    if !invitation.accepted_at do
+      invitation
+      |> Invitation.accept_changeset(%{accepted_at: NaiveDateTime.utc_now()})
+      |> Repo.update()
+    else
+      {:error, :already_accepted}
+    end
+  end
+
+  def create_invitation(attrs) do
+    %Invitation{}
+    |> Invitation.create_changeset(attrs)
+    |> Repo.insert()
   end
 end

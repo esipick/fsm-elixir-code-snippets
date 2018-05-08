@@ -16,8 +16,7 @@ defmodule FlightWeb.UserViewTest do
       user_fixture(%{
         first_name: "Tim",
         last_name: "Johnson",
-        email: "foo@bar.com",
-        balance: 170_000
+        email: "foo@bar.com"
       })
 
     assert render(FlightWeb.UserView, "user.json", user: user) == %{
@@ -25,7 +24,7 @@ defmodule FlightWeb.UserViewTest do
              first_name: "Tim",
              last_name: "Johnson",
              email: "foo@bar.com",
-             balance: 170_000
+             balance: 0
            }
   end
 end

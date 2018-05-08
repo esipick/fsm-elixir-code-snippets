@@ -3,52 +3,20 @@ defmodule FlightWeb.Admin.UserControllerTest do
 
   alias Flight.Accounts
 
-  test "GET /admin/users?role=instructor", %{conn: conn} do
-    user = user_fixture() |> assign_role("instructor")
+  describe "GET /admin/users" do
+    test "renders for all roles", %{conn: conn} do
+      for role_slug <- Accounts.Role.available_role_slugs() do
+        user = user_fixture() |> assign_role(role_slug)
 
-    content =
-      conn
-      |> web_auth_admin()
-      |> get("/admin/users?role=instructor")
-      |> html_response(200)
+        content =
+          conn
+          |> web_auth_admin()
+          |> get("/admin/users?role=#{role_slug}")
+          |> html_response(200)
 
-    assert content =~ user.first_name
-  end
-
-  test "GET /admin/users?role=student", %{conn: conn} do
-    user = user_fixture() |> assign_role("student")
-
-    content =
-      conn
-      |> web_auth_admin()
-      |> get("/admin/users?role=student")
-      |> html_response(200)
-
-    assert content =~ user.first_name
-  end
-
-  test "GET /admin/users?role=renter", %{conn: conn} do
-    user = user_fixture() |> assign_role("renter")
-
-    content =
-      conn
-      |> web_auth_admin()
-      |> get("/admin/users?role=renter")
-      |> html_response(200)
-
-    assert content =~ user.first_name
-  end
-
-  test "GET /admin/users?role=admin", %{conn: conn} do
-    user = user_fixture() |> assign_role("admin")
-
-    content =
-      conn
-      |> web_auth_admin()
-      |> get("/admin/users?role=admin")
-      |> html_response(200)
-
-    assert content =~ user.first_name
+        assert content =~ user.first_name
+      end
+    end
   end
 
   describe "GET /admin/users/:id" do

@@ -9,7 +9,7 @@ defmodule Flight.Repo.Migrations.AddProfileFieldsToUser do
       add(:state, :string)
       add(:zipcode, :string)
       add(:flight_training_number, :string)
-      add(:medical_rating, :string)
+      add(:medical_rating, :integer)
       add(:medical_expires_at, :date)
       add(:certificate_number, :string)
       add(:billing_rate, :integer)
