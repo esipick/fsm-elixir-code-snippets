@@ -177,9 +177,21 @@ defmodule Flight.Accounts do
   end
 
   def create_invitation(attrs) do
-    %Invitation{}
-    |> Invitation.create_changeset(attrs)
-    |> Repo.insert()
+    changeset =
+      %Invitation{}
+      |> Invitation.create_changeset(attrs)
+
+    email = Ecto.Changeset.get_field(changeset, :email)
+
+    user = get_user_by_email(email)
+
+    if !user do
+      Repo.insert(changeset)
+    else
+      changeset
+      |> Ecto.Changeset.add_error(:email, "already exists for another user.")
+      |> Ecto.Changeset.apply_action(:insert)
+    end
   end
 
   def create_user_from_invitation(user_data, invitation) do

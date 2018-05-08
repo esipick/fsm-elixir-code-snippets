@@ -19,7 +19,7 @@ defmodule Flight.Accounts.Invitation do
     |> cast(attrs, [:first_name, :last_name, :email, :role_id])
     |> generate_token()
     |> validate_required([:first_name, :last_name, :email, :role_id, :token])
-    |> unique_constraint(:email)
+    |> unique_constraint(:email, message: "already has an invitation.")
     |> unique_constraint(:token)
   end
 

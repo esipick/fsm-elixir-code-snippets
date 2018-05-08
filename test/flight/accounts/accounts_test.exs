@@ -221,6 +221,20 @@ defmodule Flight.Accounts.AccountsTest do
       assert invitation.role_id == Accounts.Role.admin().id
     end
 
+    test "create_invitation/1 fails if user already exists with email" do
+      user_fixture(%{email: "foo@bar.com"})
+
+      assert {:error, changeset} =
+               Accounts.create_invitation(%{
+                 first_name: "foo",
+                 last_name: "bar",
+                 email: "foo@bar.com",
+                 role_id: Accounts.Role.admin().id
+               })
+
+      assert errors_on(changeset).email |> List.first() =~ "already exists"
+    end
+
     test "accept_invitation/1 accepts if not accepted" do
       invitation = invitation_fixture()
       assert is_nil(invitation.accepted_at)
