@@ -1,5 +1,6 @@
 defmodule FlightWeb.Admin.InvitationControllerTest do
   use FlightWeb.ConnCase, async: false
+  use Bamboo.Test, shared: true
 
   alias Flight.Accounts
 
@@ -53,6 +54,8 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
       |> response_redirected_to("/admin/invitations?role=instructor")
 
       invitation = Accounts.get_invitation_for_email("jonesy@hello.com")
+
+      assert_delivered_email(Flight.Email.invitation_email(invitation))
       assert invitation
     end
   end
@@ -65,6 +68,8 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
       |> web_auth_admin()
       |> post("/admin/invitations/#{invitation.id}/resend")
       |> response_redirected_to("/admin/invitations?role=admin")
+
+      assert_delivered_email(Flight.Email.invitation_email(invitation))
     end
   end
 end

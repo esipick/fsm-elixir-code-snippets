@@ -186,7 +186,14 @@ defmodule Flight.Accounts do
     user = get_user_by_email(email)
 
     if !user do
-      Repo.insert(changeset)
+      case Repo.insert(changeset) do
+        {:ok, invitation} = payload ->
+          send_invitation_email(invitation)
+          payload
+
+        other ->
+          other
+      end
     else
       changeset
       |> Ecto.Changeset.add_error(:email, "already exists for another user.")
@@ -202,8 +209,6 @@ defmodule Flight.Accounts do
             accept_invitation(invitation)
             role = get_role(invitation.role_id)
             assign_roles(user, [role])
-
-            send_invitation_email(invitation)
 
             {:ok, user}
 

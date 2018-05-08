@@ -219,6 +219,8 @@ defmodule Flight.Accounts.AccountsTest do
       assert invitation.email == "foo@bar.com"
       assert is_binary(invitation.token)
       assert invitation.role_id == Accounts.Role.admin().id
+
+      assert_delivered_email(Flight.Email.invitation_email(invitation))
     end
 
     test "create_invitation/1 fails if user already exists with email" do
@@ -247,23 +249,6 @@ defmodule Flight.Accounts.AccountsTest do
       invitation = invitation_fixture()
       {:ok, invitation} = Accounts.accept_invitation(invitation)
       assert {:error, :already_accepted} = Accounts.accept_invitation(invitation)
-    end
-
-    test "create_user_from_invitation/2 sends email" do
-      invitation = invitation_fixture(%{}, Flight.Accounts.Role.admin())
-
-      {:ok, _} =
-        Accounts.create_user_from_invitation(
-          %{
-            first_name: "Jealous",
-            last_name: "Pickle",
-            email: "justwow@zombo.com",
-            password: "hello there"
-          },
-          invitation
-        )
-
-      assert_delivered_email(Flight.Email.invitation_email(invitation))
     end
 
     test "send_invitation_email/1 sends email" do
