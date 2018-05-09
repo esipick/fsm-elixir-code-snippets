@@ -52,14 +52,14 @@
                 <h4 class="card-title">Student Registration</h4>
               </div>
               <%= form_for @changeset, "/invitations/#{@invitation.token}", [as: :user, action: "post"], fn f -> %>
-                <%= if Enum.count(f.errors) > 0 do %>
-                  <div class="alert alert-danger">
-                    <%= for error <- human_error_messages(@changeset) do %>
-                      <span><%= error %></span></br>
-                    <% end %>
-                  </div>
-                <% end %>
                 <div class="card-body">
+                  <%= if Enum.count(f.errors) > 0 do %>
+                    <div class="alert alert-danger">
+                      <%= for error <- human_error_messages(@changeset) do %>
+                        <span><%= error %></span></br>
+                      <% end %>
+                    </div>
+                  <% end %>
                   <div class="row">
                     <div class="col-md-6 pr-1">
                       <div class="form-group">
