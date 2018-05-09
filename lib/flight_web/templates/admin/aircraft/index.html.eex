@@ -1,14 +1,15 @@
 <div class="row">
           <div class="col-md-12">
             <div class="card">
-              <div class="card-header">
-                <!-- <h4 class="card-title">Instructor Mangement</h4> -->
+              <div class="card-header text-right">
+                 <h4 class="card-title pull-left">Aircrafts</h4> 
+                <a href="/admin/aircrafts/new" class="btn btn-primary">Add New</a>
               </div>
               <div class="card-body">
                 <div class="table-responsive">
                   <table class="table">
                     <thead>
-                      <th>Airplane</th>
+                      <th>Aircraft</th>
                       <th>Equipment</th>
                       <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
                       <th data-toggle="tooltip" data-placement="top" title="Has Simulator">Sim</th>
