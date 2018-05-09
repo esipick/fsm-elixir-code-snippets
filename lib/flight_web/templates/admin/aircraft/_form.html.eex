@@ -1,0 +1,111 @@
+<% form_url = if @is_edit, do: "/admin/aircrafts/#{@aircraft.id}", else: "/admin/aircrafts" %>
+<%= form_for @changeset, form_url, [as: :data, action: "put", class: "form-horizontal"], fn f -> %>
+  <div class="card-body">
+    <%= if Enum.count(f.errors) > 0 do %>
+      <div class="alert alert-danger">
+        <%= for error <- human_error_messages(@changeset) do %>
+          <span><%= error %></span></br>
+        <% end %>
+      </div>
+    <% end %>
+    <div class="row">
+      <label class="col-md-3 col-form-label">Make</label>
+      <div class="col-md-9">
+        <div class="form-group">
+          <%= text_input f, :make, class: "form-control" %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-md-3 col-form-label">Model</label>
+      <div class="col-md-9">
+        <div class="form-group">
+          <%= text_input f, :model, class: "form-control" %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-md-3 col-form-label">Tail #</label>
+      <div class="col-md-9">
+        <div class="form-group">
+          <%= text_input f, :tail_number, class: "form-control" %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-md-3 col-form-label">Serial #</label>
+      <div class="col-md-9">
+        <div class="form-group">
+          <%= text_input f, :serial_number, class: "form-control" %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-md-3 col-form-label">Equipment</label>
+      <div class="col-md-9">
+        <div class="form-group">
+          <%= text_input f, :equipment, class: "form-control" %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-md-3 col-form-label">IFR Certified</label>
+      <div class="col-md-9 checkbox-radios">
+        <div class="form-check">
+          <label class="form-check-label">
+            <%= checkbox f, :ifr_certified %>
+            <span class="form-check-sign"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-md-3 col-form-label">Simulator</label>
+      <div class="col-md-9 checkbox-radios">
+        <div class="form-check">
+          <label class="form-check-label">
+            <%= checkbox f, :simulator %>
+            <span class="form-check-sign"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-md-3 col-form-label">Last Recorded Tach Time</label>
+      <div class="col-md-9">
+        <div class="form-group">
+          <%= number_input f, :last_tach_time, class: "form-control" %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-md-3 col-form-label">Rate Per Hour</label>
+      <div class="col-md-9">
+        <div class="form-group">
+          <%= number_input f, :rate_per_hour, class: "form-control" %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-md-3 col-form-label">Block Rate Per Hour</label>
+      <div class="col-md-9">
+        <div class="form-group">
+          <%= number_input f, :block_rate_per_hour, class: "form-control" %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-footer ">
+    <div class="row">
+      <label class="col-md-3"></label>
+      <div class="col-md-9">
+        <%= if @is_edit do %>
+          <a href="/admin/aircrafts/<%= @aircraft.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+        <% else %>
+          <a href="/admin/aircrafts" class="btn btn-fill btn-default mr-2">Cancel</a>
+        <% end %>
+        <input type="submit" class="btn btn-fill btn-primary" value="Save">
+      </div>
+    </div>
+  </div>
+<% end %>

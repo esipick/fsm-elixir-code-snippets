@@ -41,4 +41,11 @@ defmodule FlightWeb.ViewHelpers do
       "renter" -> "Renter"
     end
   end
+
+  def display_boolean(boolean) do
+    case boolean do
+      true -> "Yes"
+      false -> "No"
+    end
+  end
 end

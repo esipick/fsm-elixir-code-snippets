@@ -52,6 +52,12 @@ defmodule FlightWeb.Router do
       post("/resend", InvitationController, :resend)
       get("/resend", InvitationController, :resend)
     end
+
+    resources(
+      "/aircrafts",
+      AircraftController,
+      only: [:create, :update, :edit, :show, :index, :new]
+    )
   end
 
   scope "/api", FlightWeb do

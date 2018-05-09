@@ -1,0 +1,93 @@
+<div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <!-- <h4 class="card-title">Instructor Mangement</h4> -->
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <th>Airplane</th>
+                      <th>Equipment</th>
+                      <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
+                      <th data-toggle="tooltip" data-placement="top" title="Has Simulator">Sim</th>
+                      <th data-toggle="tooltip" data-placement="top" title="Next Inspection Due">Next Inspection</th>
+                      <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
+                      <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
+                      <th data-toggle="tooltip" data-placement="top" title="Last Recorded Tach Time">Tach Time</th>
+                    </thead>
+                    <tbody>
+                      <%= for aircraft <- @aircrafts do %>
+                        <tr>
+                          <td><span class="text-nowrap"><b><%= aircraft.make %></b></span></br>
+                          <small><%= aircraft.model %></small>
+                          </td>
+                          <td><%= aircraft.equipment %></td>
+                          <td><%= display_boolean(aircraft.ifr_certified) %></td>
+                          <td><%= display_boolean(aircraft.simulator) %></td>
+                          <td><a href="#e" data-toggle="modal" data-target="#inspectionModal"><b>–</b></a>
+                          </td>
+                          <td>$<%= aircraft.rate_per_hour %></td>
+                          <td>$<%= aircraft.block_rate_per_hour %></td>
+                          <td><%= aircraft.last_tach_time %></td>
+                          <td class="text-right"><a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm">view</a></td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="inspectionModal" tabindex="-1" role="dialog" aria-labelledby="inspectionModalCenterTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="inspectionModalLongTitle">Inspections for Archer N40670</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body detail-list">
+                          <dl class="d-flex justify-content-between flex-row-reverse">
+                            <dt>Tach 8100</dt>
+                            <dd>100HR</dd>
+                          </dl>
+                          <dl class="d-flex justify-content-between flex-row-reverse">
+                            <dt>4/22/19</dt>
+                            <dd>Annual</dd>
+                          </dl>
+                          <dl class="d-flex justify-content-between flex-row-reverse">
+                            <dt class="text-right">
+                              <p class="mb-0 text-expiring">5/5/18</p>
+                              <small class="text-expiring">EXPIRES SOON</small>
+                            </dt>
+                            <dd>Transponder</dd>
+                          </dl>
+                          <dl class="d-flex justify-content-between flex-row-reverse">
+                            <dt class="text-right">
+                              <p class="mb-0 text-expired">3/12/18</p>
+                              <small class="text-expired">EXPIRED</small>
+                            </dt>
+                            <dd>Altimeter</dd>
+                          </dl>
+                          <dl class="d-flex justify-content-between flex-row-reverse">
+                            <dt>4/22/19</dt>
+                            <dd>ELT</dd>
+                          </dl>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
+            <!--  end card  -->
+          </div>
+          <!-- end col-md-12 -->
+        </div>
+        <!-- end row -->
+      </div>
