@@ -1,4 +1,4 @@
-defmodule Flight.Fixtures do
+defmodule Flight.AccountsFixtures do
   alias Flight.{Accounts, Repo, Scheduling}
 
   def user_fixture(attrs \\ %{}) do
@@ -49,26 +49,6 @@ defmodule Flight.Fixtures do
       |> Repo.insert!()
 
     %{invitation | role: role}
-  end
-
-  def aircraft_fixture(attrs \\ %{}) do
-    invitation =
-      %Scheduling.Aircraft{
-        make: "Sesna",
-        model: "Thing",
-        tail_number: Flight.Random.hex(15),
-        serial_number: Flight.Random.hex(15),
-        ifr_certified: true,
-        equipment: Flight.Random.hex(15),
-        simulator: true,
-        last_tach_time: 400,
-        rate_per_hour: 130,
-        block_rate_per_hour: 120
-      }
-      |> Scheduling.Aircraft.changeset(attrs)
-      |> Repo.insert!()
-
-    invitation
   end
 
   # def flyer_details_fixture(attrs \\ %{}, user \\ user_fixture()) do

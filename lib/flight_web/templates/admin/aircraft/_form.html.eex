@@ -1,5 +1,5 @@
 <% form_url = if @is_edit, do: "/admin/aircrafts/#{@aircraft.id}", else: "/admin/aircrafts" %>
-<%= form_for @changeset, form_url, [as: :data, action: "put", class: "form-horizontal"], fn f -> %>
+<%= form_for @changeset, form_url, [as: :data, method: (if @is_edit, do: "put", else: "post"), class: "form-horizontal"], fn f -> %>
   <div class="card-body">
     <%= if Enum.count(f.errors) > 0 do %>
       <div class="alert alert-danger">

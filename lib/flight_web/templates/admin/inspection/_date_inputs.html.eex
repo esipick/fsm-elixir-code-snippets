@@ -1,0 +1,16 @@
+    <div class="row">
+      <label class="col-md-3 col-form-label">Name</label>
+      <div class="col-md-9">
+        <div class="form-group">
+          <%= text_input @f, :name, class: "form-control" %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-md-3 col-form-label">Expiration</label>
+      <div class="col-md-9">
+        <div class="form-group">
+          <%= text_input @f, :expiration, class: "form-control", placeholder: "MM/DD/YYYY", value: format_date(input_value(@f, :expiration)) %>
+        </div>
+      </div>
+    </div>

@@ -57,7 +57,11 @@ defmodule FlightWeb.Router do
       "/aircrafts",
       AircraftController,
       only: [:create, :update, :edit, :show, :index, :new]
-    )
+    ) do
+      resources("/inspections", InspectionController, only: [:create, :new])
+    end
+
+    resources("/inspections", InspectionController, only: [:edit, :update, :delete])
   end
 
   scope "/api", FlightWeb do

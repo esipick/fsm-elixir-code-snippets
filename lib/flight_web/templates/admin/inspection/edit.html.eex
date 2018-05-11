@@ -1,0 +1,48 @@
+<div class="row">
+  <div class="col-md-4">
+    <div class="card card-user">
+      <div class="card-body text-center">
+        <div class="author">
+          <h5 class="title">Edit Inspection</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card">
+      <%= form_for @changeset, "/admin/inspections/#{@inspection.id}", [as: :inspection, method: "put", class: "form-horizontal"], fn f -> %>
+        <div class="card-body">
+
+          <%= if Enum.count(f.errors) > 0 do %>
+            <div class="alert alert-danger">
+              <%= for error <- human_error_messages(@changeset) do %>
+                <span><%= error %></span></br>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%= hidden_input f, :aircraft_id, value: @inspection.aircraft_id %>
+
+          <%= case @form_type do
+            :tach -> render("_tach_inputs.html", f: f)
+            :date -> render("_date_inputs.html", f: f)
+          end %>
+        </div>
+        <div class="card-footer ">
+          <div class="row">
+            <label class="col-md-3"></label>
+            <div class="col-md-9">
+              <a href="/admin/aircrafts/<%= @inspection.aircraft_id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+              <input type="submit" class="btn btn-fill btn-primary" value="Save">
+            </div>
+          </div>
+        </div>
+      <% end %>
+        <div class="card-body">
+      <%= form_tag "/admin/inspections/#{@inspection.id}", method: "delete" do %>
+        <input type="submit" class="btn btn-fill btn-primary" value="Delete">
+      <% end %>
+    </div>
+    </div> <!-- end card -->
+  </div>
+</div>

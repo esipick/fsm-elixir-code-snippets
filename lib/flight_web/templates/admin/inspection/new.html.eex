@@ -1,0 +1,55 @@
+<div class="row">
+          <div class="col-md-4">
+            <div class="card card-user">
+              <div class="card-body text-center">
+                <div class="author">
+                  <h5 class="title">New Inspection</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header">
+                <ul class="nav nav-pills nav-pills-primary" role="tablist">
+                  <li>Type: </li>
+                  <li class="nav-item">
+                    <a class="nav-link <%= if @form_type == :date, do: "active", else: "" %>" href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new?type=date" role="tablist">Date Inspection</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link <%= if @form_type == :tach, do: "active", else: "" %>" href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new?type=tach" role="tablist">Tach Inspection</a>
+                  </li>
+                </ul>
+              </div>
+              <% inspection_key = if @form_type == :tach, do: :tach_inspection, else: :date_inspection %>
+              <%= form_for @changeset, "/admin/aircrafts/#{@aircraft.id}/inspections", [as: inspection_key, method: "post", class: "form-horizontal"], fn f -> %>
+                <div class="card-body">
+
+                  <%= if Enum.count(f.errors) > 0 do %>
+                    <div class="alert alert-danger">
+                      <%= for error <- human_error_messages(@changeset) do %>
+                        <span><%= error %></span></br>
+                      <% end %>
+                    </div>
+                  <% end %>
+
+                  <%= hidden_input f, :aircraft_id, value: @aircraft.id %>
+
+                  <%= case @form_type do
+                    :tach -> render("_tach_inputs.html", f: f)
+                    :date -> render("_date_inputs.html", f: f)
+                  end %>
+                </div>
+                <div class="card-footer ">
+                  <div class="row">
+                    <label class="col-md-3"></label>
+                    <div class="col-md-9">
+                      <a href="/admin/aircrafts/<%= @aircraft.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+                      <input type="submit" class="btn btn-fill btn-primary" value="Save">
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+          </div> <!-- end card -->
+        </div>
+      </div>

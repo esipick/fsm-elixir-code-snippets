@@ -22,7 +22,7 @@
                     </div>
                   <% end %>
                     <h6><%= add_user_label_for_role(@role) %></h6>
-                    <%= form_for @changeset, "/admin/invitations", [as: :data, action: "post"], fn f -> %>
+                    <%= form_for @changeset, "/admin/invitations", [as: :data, method: "post"], fn f -> %>
                       <%= if Enum.count(f.errors) > 0 do %>
                         <div class="alert alert-danger">
                           <%= for error <- human_error_messages(@changeset) do %>

@@ -13,6 +13,7 @@ defmodule Flight.Scheduling.Aircraft do
     field(:equipment, :string)
     field(:simulator, :boolean, default: false)
     field(:tail_number, :string)
+    has_many(:inspections, Flight.Scheduling.Inspection)
 
     timestamps()
   end

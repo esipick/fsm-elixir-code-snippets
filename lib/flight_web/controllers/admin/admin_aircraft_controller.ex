@@ -24,8 +24,10 @@ defmodule FlightWeb.Admin.AircraftController do
   end
 
   def show(conn, _params) do
+    aircraft = Flight.Repo.preload(conn.assigns.aircraft, :inspections)
+
     conn
-    |> render("show.html", aircraft: conn.assigns.aircraft)
+    |> render("show.html", aircraft: aircraft)
   end
 
   def index(conn, _params) do

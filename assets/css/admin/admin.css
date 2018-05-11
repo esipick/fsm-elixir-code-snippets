@@ -100,16 +100,16 @@ table .photo {
   background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);
 
 }
-.btn-primary.active, 
-.btn-primary.active:focus, 
-.btn-primary.active:hover, 
-.btn-primary:active, 
-.btn-primary:active:focus, 
-.btn-primary:active:hover, 
-.btn-primary:focus, 
-.btn-primary:hover, 
-.show>.btn-primary.dropdown-toggle, 
-.show>.btn-primary.dropdown-toggle:focus, 
+.btn-primary.active,
+.btn-primary.active:focus,
+.btn-primary.active:hover,
+.btn-primary:active,
+.btn-primary:active:focus,
+.btn-primary:active:hover,
+.btn-primary:focus,
+.btn-primary:hover,
+.show>.btn-primary.dropdown-toggle,
+.show>.btn-primary.dropdown-toggle:focus,
 .show>.btn-primary.dropdown-toggle:hover {
   background-color: #2CA8FF;
 }
@@ -352,7 +352,7 @@ dl .disc.expired {background-color: #FF5572;}
 .text-expired {color: #FF5572;}
 
 .panel-header {
-  background-image: url('../img/bg-plane.jpg');
+  background-image: url('/images/bg-plane.jpg');
   background-size: 138%;
   background-position: 0 888px;
   background-color: #24282B;

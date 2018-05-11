@@ -1,206 +1,206 @@
 <div class="row">
-          <div class="col-md-4">
-            <div class="card card-user">
-              <div class="card-body text-center">
-                <div class="author">
-                    <h5 class="title">Max Fischer</h5>
-                  <p class="description"><a href="tel:1-408-555-5555">(801) 867-5309</a></p>
-                </div>
+  <div class="col-md-4">
+    <div class="card card-user">
+      <div class="card-body text-center">
+        <div class="author">
+            <h5 class="title">Max Fischer</h5>
+          <p class="description"><a href="tel:1-408-555-5555">(801) 867-5309</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h3>Edit Profile</h3>
+      </div>
+      <%= form_for @changeset, "/admin/users/#{@user.id}", [as: :user, method: "put", class: "form-horizontal"], fn f -> %>
+        <div class="card-body">
+          <%= if Enum.count(f.errors) > 0 do %>
+            <div class="alert alert-danger">
+              <%= for error <- human_error_messages(@changeset) do %>
+                <span><%= error %></span></br>
+              <% end %>
+            </div>
+          <% end %>
+          <div class="row">
+            <label class="col-md-3 col-form-label">First Name</label>
+            <div class="col-md-9">
+              <div class="form-group">
+                <%= text_input f, :first_name, class: "form-control" %>
               </div>
             </div>
           </div>
-          <div class="col-md-8">
-            <div class="card">
-              <div class="card-header">
-                <h3>Edit Profile</h3>
+          <div class="row">
+            <label class="col-md-3 col-form-label">Last Name</label>
+            <div class="col-md-9">
+              <div class="form-group">
+                <%= text_input f, :last_name, class: "form-control" %>
               </div>
-              <%= form_for @changeset, "/admin/users/#{@user.id}", [as: :user, action: "put", class: "form-horizontal"], fn f -> %>
-                <div class="card-body">
-                  <%= if Enum.count(f.errors) > 0 do %>
-                    <div class="alert alert-danger">
-                      <%= for error <- human_error_messages(@changeset) do %>
-                        <span><%= error %></span></br>
-                      <% end %>
-                    </div>
-                  <% end %>
-                  <div class="row">
-                    <label class="col-md-3 col-form-label">First Name</label>
-                    <div class="col-md-9">
-                      <div class="form-group">
-                        <%= text_input f, :first_name, class: "form-control" %>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <label class="col-md-3 col-form-label">Last Name</label>
-                    <div class="col-md-9">
-                      <div class="form-group">
-                        <%= text_input f, :last_name, class: "form-control" %>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <label class="col-md-3 col-form-label">Phone #</label>
-                    <div class="col-md-9">
-                      <div class="form-group">
-                        <%= telephone_input f, :phone_number, class: "form-control", placeholder: "555-555-5555" %>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <label class="col-md-3 col-form-label">Email</label>
-                    <div class="col-md-9">
-                      <div class="form-group">
-                        <%= text_input f, :email, class: "form-control" %>
-                      </div>
-                    </div>
-                  </div>
-                  <%= if has_address?(@user) do %>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label">Address</label>
-                      <div class="col-md-9">
-                        <div class="form-group">
-                          <%= text_input f, :address_1, class: "form-control" %>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label">City</label>
-                      <div class="col-md-9">
-                        <div class="form-group">
-                          <%= text_input f, :city, class: "form-control" %>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label">State</label>
-                      <div class="col-md-9">
-                        <div class="form-group">
-                          <%= text_input f, :state, class: "form-control" %>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label">Zip</label>
-                      <div class="col-md-9">
-                        <div class="form-group">
-                          <%= text_input f, :zipcode, class: "form-control" %>
-                        </div>
-                      </div>
-                    </div>
-                  <% end %>
-                  <%= if has_cirriculum?(@user) do %>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label">Flight Training # (FTN)</label>
-                      <div class="col-md-9">
-                        <div class="form-group">
-                          <%= text_input f, :flight_training_number, class: "form-control" %>
-                        </div>
-                      </div>
-                    </div>
-                  <% end %>
-                  <%= if has_pay_rates?(@user) do %>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label">Billing Rate ($/hour)</label>
-                      <div class="col-md-9">
-                        <div class="form-group">
-                          <%= number_input f, :billing_rate, class: "form-control" %>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label">Pay Rate ($/hour)</label>
-                      <div class="col-md-9">
-                        <div class="form-group">
-                          <%= number_input f, :pay_rate, class: "form-control" %>
-                        </div>
-                      </div>
-                    </div>
-                  <% end %>
-                  <%= if has_teaching_info?(@user) do %>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label">Awards</label>
-                      <div class="col-md-9">
-                        <div class="form-group">
-                          <%= text_input f, :awards, class: "form-control" %>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label">Certification #</label>
-                      <div class="col-md-9">
-                        <div class="form-group">
-                          <%= text_input f, :certificate_number, class: "form-control" %>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label">Certificates</label>
-                      <div class="col-md-9 checkbox-radios">
-                        <%= for {label, value} <- flyer_certificate_inputs() do %>
-                          <div class="form-check">
-                            <label class="form-check-label">
-                              <input type="checkbox" name="flyer_certificate_slugs[<%= value %>]" <%= if user_has_flyer_certificate?(@user, value), do: "checked", else: "" %> />
-                              <span class="form-check-sign"></span>
-                              <%= label %>
-                            </label>
-                          </div>
-                        <% end %>
-                      </div>
-                    </div>
-                  <% end %>
-                  <% if has_medical?(@user) do %>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label">Medical Approval</label>
-                      <div class="col-md-9 checkbox-radios">
-                        <%= for {label, value} <- medical_approval_inputs() do %>
-                          <div class="form-check form-check-radio form-check-inline">
-                            <label class="form-check-label">
-                              <%= radio_button f, :medical_rating, value, class: "form-check-input" %>
-                              <span class="form-check-sign"></span>
-                              <%= label %>
-                            </label>
-                          </div>
-                        <% end %>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <label class="col-md-3 col-form-label"><i>(expires)</i></label>
-                      <div class="col-md-9">
-                        <div class="form-group">
-                          <%= text_input f, :medical_expires_at, class: "form-control", value: format_date(input_value(f, :medical_expires_at)), placeholder: "MM/DD/YYYY" %>
-                        </div>
-                      </div>
-                    </div>
-                  <% end %>
-                  <div class="row">
-                    <label class="col-md-3 col-form-label">User Role/Permissions</label>
-                    <div class="col-md-9 checkbox-radios">
-                      <%= for {label, value} <- role_inputs() do %>
-                        <div class="form-check">
-                          <label class="form-check-label">
-                            <input type="checkbox" name="role_slugs[<%= value %>]" <%= if user_has_role?(@user, value), do: "checked", else: "" %> />
-                            <span class="form-check-sign"></span>
-                            <%= label %>
-                          </label>
-                        </div>
-                      <% end %>
-                    </div>
-                  </div>
-
-
+            </div>
+          </div>
+          <div class="row">
+            <label class="col-md-3 col-form-label">Phone #</label>
+            <div class="col-md-9">
+              <div class="form-group">
+                <%= telephone_input f, :phone_number, class: "form-control", placeholder: "555-555-5555" %>
               </div>
-              <div class="card-footer ">
-                <div class="row">
-                  <label class="col-md-3"></label>
-                  <div class="col-md-9">
-                    <a href="/admin/users/<%= @user.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
-                    <input type="submit" class="btn btn-fill btn-primary" value="Save">
-                  </div>
+            </div>
+          </div>
+          <div class="row">
+            <label class="col-md-3 col-form-label">Email</label>
+            <div class="col-md-9">
+              <div class="form-group">
+                <%= text_input f, :email, class: "form-control" %>
+              </div>
+            </div>
+          </div>
+          <%= if has_address?(@user) do %>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Address</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <%= text_input f, :address_1, class: "form-control" %>
                 </div>
               </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">City</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <%= text_input f, :city, class: "form-control" %>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">State</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <%= text_input f, :state, class: "form-control" %>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Zip</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <%= text_input f, :zipcode, class: "form-control" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <%= if has_cirriculum?(@user) do %>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Flight Training # (FTN)</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <%= text_input f, :flight_training_number, class: "form-control" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <%= if has_pay_rates?(@user) do %>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Billing Rate ($/hour)</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <%= number_input f, :billing_rate, class: "form-control" %>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Pay Rate ($/hour)</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <%= number_input f, :pay_rate, class: "form-control" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <%= if has_teaching_info?(@user) do %>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Awards</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <%= text_input f, :awards, class: "form-control" %>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Certification #</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <%= text_input f, :certificate_number, class: "form-control" %>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Certificates</label>
+              <div class="col-md-9 checkbox-radios">
+                <%= for {label, value} <- flyer_certificate_inputs() do %>
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input type="checkbox" name="flyer_certificate_slugs[<%= value %>]" <%= if user_has_flyer_certificate?(@user, value), do: "checked", else: "" %> />
+                      <span class="form-check-sign"></span>
+                      <%= label %>
+                    </label>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          <% if has_medical?(@user) do %>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Medical Approval</label>
+              <div class="col-md-9 checkbox-radios">
+                <%= for {label, value} <- medical_approval_inputs() do %>
+                  <div class="form-check form-check-radio form-check-inline">
+                    <label class="form-check-label">
+                      <%= radio_button f, :medical_rating, value, class: "form-check-input" %>
+                      <span class="form-check-sign"></span>
+                      <%= label %>
+                    </label>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label"><i>(expires)</i></label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <%= text_input f, :medical_expires_at, class: "form-control", value: format_date(input_value(f, :medical_expires_at)), placeholder: "MM/DD/YYYY" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <div class="row">
+            <label class="col-md-3 col-form-label">User Role/Permissions</label>
+            <div class="col-md-9 checkbox-radios">
+              <%= for {label, value} <- role_inputs() do %>
+                <div class="form-check">
+                  <label class="form-check-label">
+                    <input type="checkbox" name="role_slugs[<%= value %>]" <%= if user_has_role?(@user, value), do: "checked", else: "" %> />
+                    <span class="form-check-sign"></span>
+                    <%= label %>
+                  </label>
+                </div>
               <% end %>
-            </div> <!-- end card -->
+            </div>
           </div>
 
+
+      </div>
+      <div class="card-footer ">
+        <div class="row">
+          <label class="col-md-3"></label>
+          <div class="col-md-9">
+            <a href="/admin/users/<%= @user.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+            <input type="submit" class="btn btn-fill btn-primary" value="Save">
+          </div>
         </div>
+      </div>
+      <% end %>
+    </div> <!-- end card -->
+  </div>
+
+</div>

@@ -69,10 +69,16 @@
                       <dd>
                         <dl class="d-flex justify-content-between">
                           <dd>
-                            <a href="/admin/aircrafts/<%= @aircraft.id %>/edit" class="btn btn-primary">New Inspection</a>
+                            <a href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new" class="btn btn-primary">New Inspection</a>
                           </dd>
                         </dl>
-                        <dl class="d-flex justify-content-between">
+                        <%= for inspection <- @aircraft.inspections do %>
+                          <%= case Flight.Scheduling.Inspection.to_specific(inspection) do
+                            %Flight.Scheduling.DateInspection{} = date_inspection -> render("_date_inspection_list_item.html", date_inspection: date_inspection)
+                            %Flight.Scheduling.TachInspection{} = tach_inspection -> render("_tach_inspection_list_item.html", tach_inspection: tach_inspection)
+                          end %>
+                        <% end %>
+                        <!-- <dl class="d-flex justify-content-between">
                           <dt>100Hr</dt>
                           <dd>8100</dd>
                           <dd>
@@ -94,7 +100,7 @@
                         <dl class="d-flex justify-content-between">
                           <dt>ELT</dt>
                           <dd>4/22/19</dd>
-                        </dl>
+                        </dl> -->
                       </dd>
                     </dl>
                     <dl class="d-flex justify-content-between">

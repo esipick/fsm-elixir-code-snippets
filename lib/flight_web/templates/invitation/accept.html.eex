@@ -51,7 +51,7 @@
               <div class="card-header ">
                 <h4 class="card-title">Student Registration</h4>
               </div>
-              <%= form_for @changeset, "/invitations/#{@invitation.token}", [as: :user, action: "post"], fn f -> %>
+              <%= form_for @changeset, "/invitations/#{@invitation.token}", [as: :user, method: "post"], fn f -> %>
                 <div class="card-body">
                   <%= if Enum.count(f.errors) > 0 do %>
                     <div class="alert alert-danger">

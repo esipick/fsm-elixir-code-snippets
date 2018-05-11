@@ -18,7 +18,7 @@ defmodule Flight.TestHelpers do
   end
 
   def web_auth_admin(conn) do
-    user = Flight.Fixtures.user_fixture() |> Flight.Fixtures.assign_role("admin")
+    user = Flight.AccountsFixtures.user_fixture() |> Flight.AccountsFixtures.assign_role("admin")
     web_auth(conn, user)
   end
 
