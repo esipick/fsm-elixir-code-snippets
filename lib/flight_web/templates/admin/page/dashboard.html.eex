@@ -9,7 +9,7 @@
                           <div class="icon icon-primary">
                             <i class="now-ui-icons education_hat"></i>
                           </div>
-                          <h3 class="info-title">126</h3>
+                          <h3 class="info-title"><%= @student_count %></h3>
                           <h6 class="stats-title">Students</h6>
                         </div>
                       </div>
@@ -20,7 +20,7 @@
                           <div class="icon icon-success">
                             <i class="now-ui-icons users_single-02"></i>
                           </div>
-                          <h3 class="info-title">8</h3>
+                          <h3 class="info-title"><%= @instructor_count %></h3>
                           <h6 class="stats-title">Instructors</h6>
                         </div>
                       </div>
@@ -31,7 +31,7 @@
                           <div class="icon icon-warning">
                             <i class="now-ui-icons business_badge"></i>
                           </div>
-                          <h3 class="info-title">250</h3>
+                          <h3 class="info-title"><%= @renter_count %></h3>
                           <h6 class="stats-title">Renters</h6>
                         </div>
                       </div>
@@ -42,7 +42,7 @@
                           <div class="icon icon-danger">
                             <i class="now-ui-icons objects_spaceship"></i>
                           </div>
-                          <h3 class="info-title">4</h3>
+                          <h3 class="info-title"><%= @aircraft_count %></h3>
                           <h6 class="stats-title">Aircraft</h6>
                         </div>
                       </div>
@@ -57,30 +57,21 @@
               <div class="card card-chart">
                 <div class="card-header">
                   <h5 class="card-category">Upcoming Inspections</h5>
-                  <h2 class="card-title">3</h2>
+                  <h2 class="card-title"><%= Enum.count(@expired_inspections) %></h2>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
                     <table class="table">
                       <tbody>
-                        <tr>
-                          <td class="text-nowrap"><a href="aircraft-profile.php"><span class="photo"><img src="/images/archer.jpg"></span>Archer N40670</a></td>
-                          <td class="text-right">
-                            <a href="aircraft-profile.php" class="text-expired" data-toggle="modal" data-target="#inspectionModal">3/12/18</a>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="text-nowrap"><a href="aircraft-profile.php"><span class="photo"><img src="/images/archer.jpg"></span>Corvallis N2234E</a></td>
-                          <td class="text-right">
-                            <a href="aircraft-profile.php" class="text-expiring" data-toggle="modal" data-target="#inspectionModal">8100</a>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="text-nowrap"><a href="aircraft-profile.php"><span class="photo"><img src="/images/archer.jpg"></span>Tundra N834DS</a></td>
-                          <td class="text-right">
-                            <a href="aircraft-profile.php" class="text-expiring" data-toggle="modal" data-target="#inspectionModal">5/28/18</a>
-                          </td>
-                        </tr>
+                        <%= for expired_inspection <- @expired_inspections do %>
+                          <tr>
+                            <td class="text-nowrap"><a href="/admin/aircrafts/<%= expired_inspection.aircraft.id %>"><span class="photo"><img src="/images/archer.jpg"></span><%= expired_inspection.aircraft.make %></a></td>
+                            <td class="text-right">
+                              <% status_class = if expired_inspection.status == :expiring, do: "text-expiring", else: "text-expired" %>
+                              <a href="/admin/inspections/<%= expired_inspection.inspection.id %>/edit" class="<%= status_class %>"><%= expired_inspection.inspection.name %> - <%= expired_inspection.description %></a>
+                            </td>
+                          </tr>
+                        <% end %>
                       </tbody>
                     </table>
                   </div>
