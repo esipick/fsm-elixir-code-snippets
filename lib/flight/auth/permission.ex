@@ -14,8 +14,8 @@ defmodule Flight.Auth.Permission do
   """
 
   defstruct [:resource, :verb, :scope]
-  @resources [:users]
-  @verbs [:view, :modify]
+  @resources [:users, :appointment_user, :appointment_instructor, :appointment_student]
+  @verbs [:view, :modify, :be]
 
   @doc """
   complex_scope can be of the following forms:

@@ -1,4 +1,4 @@
-defmodule FlightWeb.UserView do
+defmodule FlightWeb.API.UserView do
   use FlightWeb, :view
 
   def render("show.json", %{user: user}) do
@@ -12,6 +12,14 @@ defmodule FlightWeb.UserView do
       last_name: user.last_name,
       email: user.email,
       balance: user.balance
+    }
+  end
+
+  def render("skinny_user.json", %{user: user}) do
+    %{
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name
     }
   end
 end

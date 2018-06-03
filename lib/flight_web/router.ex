@@ -21,6 +21,10 @@ defmodule FlightWeb.Router do
     plug(FlightWeb.AuthenticateWebUser, roles: ["admin"])
   end
 
+  pipeline :api_authenticate do
+    plug(FlightWeb.AuthenticateApiUser)
+  end
+
   pipeline :api do
     plug(:accepts, ["json"])
   end
@@ -64,12 +68,18 @@ defmodule FlightWeb.Router do
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
   end
 
-  scope "/api", FlightWeb do
+  scope "/api", FlightWeb.API do
     pipe_through(:api)
 
     post("/login", SessionController, :api_login)
+  end
+
+  scope "/api", FlightWeb.API do
+    pipe_through([:api, :api_authenticate])
 
     resources("/users", UserController, only: [:show, :update])
+    get("/appointments/availability", AppointmentController, :availability)
+    resources("/appointments", AppointmentController, only: [:create, :index, :update])
   end
 
   if Mix.env() == :dev do

@@ -1,4 +1,4 @@
-defmodule FlightWeb.SessionController do
+defmodule FlightWeb.API.SessionController do
   use FlightWeb, :controller
 
   alias Flight.Accounts

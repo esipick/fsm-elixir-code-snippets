@@ -1,6 +1,17 @@
 defmodule Flight.Scheduling do
-  alias Flight.Scheduling.{Aircraft, Inspection, DateInspection, TachInspection}
+  alias Flight.Scheduling.{
+    Aircraft,
+    Appointment,
+    Availability,
+    Inspection,
+    DateInspection,
+    TachInspection
+  }
+
   alias Flight.Repo
+  import Ecto.Changeset
+  import Ecto.Query, warn: false
+  import Flight.Auth.Permission, only: [permission_slug: 3]
 
   def create_aircraft(attrs) do
     result =
@@ -127,5 +138,96 @@ defmodule Flight.Scheduling do
       error ->
         error
     end
+  end
+
+  ##
+  # Appointment
+  ##
+
+  def get_appointment(id), do: Repo.get(Appointment, id)
+
+  def create_appointment(attrs, appointment \\ %Appointment{}) do
+    changeset = Appointment.changeset(appointment, attrs)
+
+    if changeset.valid? do
+      {:ok, _} = apply_action(changeset, :insert)
+      start_at = get_field(changeset, :start_at)
+      end_at = get_field(changeset, :end_at)
+      user_id = get_field(changeset, :user_id)
+      instructor_user_id = get_field(changeset, :instructor_user_id)
+      aircraft_id = get_field(changeset, :aircraft_id)
+
+      excluded_appointment_ids =
+        if appointment.id do
+          [appointment.id]
+        else
+          []
+        end
+
+      status =
+        Availability.user_with_permission_status(
+          permission_slug(:appointment_user, :modify, :personal),
+          user_id,
+          start_at,
+          end_at,
+          excluded_appointment_ids
+        )
+
+      changeset =
+        case status do
+          :available -> changeset
+          other -> add_error(changeset, :user, "is #{other}", status: :unavailable)
+        end
+
+      # TODO: How to make this dovetale nicely with the calendar_availability endpoint? e.g. instead of querying for
+      # appointments directly, could instead query to find all available instructors for the given start/end and then
+      # detect whether they're in the list or not
+      changeset =
+        if instructor_user_id do
+          status =
+            Availability.user_with_permission_status(
+              permission_slug(:appointment_instructor, :modify, :personal),
+              instructor_user_id,
+              start_at,
+              end_at,
+              excluded_appointment_ids
+            )
+
+          case status do
+            :available -> changeset
+            other -> add_error(changeset, :instructor, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+      changeset =
+        if aircraft_id do
+          status =
+            Availability.aircraft_status(
+              aircraft_id,
+              start_at,
+              end_at,
+              excluded_appointment_ids
+            )
+
+          case status do
+            :available -> changeset
+            other -> add_error(changeset, :aircraft, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+      Repo.insert_or_update(changeset)
+    else
+      {:error, changeset}
+    end
+  end
+
+  def get_appointments(from, to) do
+    from(a in Appointment)
+    |> Availability.appointment_overlap_query(from, to)
+    |> Repo.all()
   end
 end

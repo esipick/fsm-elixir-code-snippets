@@ -1,4 +1,4 @@
-defmodule FlightWeb.SessionControllerTest do
+defmodule FlightWeb.API.SessionControllerTest do
   use FlightWeb.ConnCase, async: true
 
   describe "POST /api/login" do
@@ -14,7 +14,7 @@ defmodule FlightWeb.SessionControllerTest do
       assert user_id == user.id
 
       assert json ==
-               render_json(FlightWeb.SessionView, "login.json", user: user, token: json["token"])
+               render_json(FlightWeb.API.SessionView, "login.json", user: user, token: json["token"])
     end
 
     test "401 if incorrect password", %{conn: conn} do

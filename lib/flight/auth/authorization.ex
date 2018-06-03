@@ -22,6 +22,15 @@ defmodule Flight.Auth.Authorization do
     |> Enum.any?()
   end
 
+  def has_permission_slugs?(user, slugs) when is_list(slugs) do
+    is_empty? =
+      permission_slugs_for_user(user)
+      |> MapSet.intersection(MapSet.new(slugs))
+      |> Enum.empty?()
+
+    !is_empty?
+  end
+
   def has_permission_slug?(user, slug) do
     MapSet.member?(permission_slugs_for_user(user), slug)
   end
@@ -31,6 +40,15 @@ defmodule Flight.Auth.Authorization do
 
     Enum.reduce(user.roles, MapSet.new(), fn role, map ->
       MapSet.union(map, permissions_for_role_slug(role.slug))
+    end)
+  end
+
+  def role_slugs_for_permission_slug(permission_slug) do
+    Flight.Accounts.Role.available_role_slugs()
+    |> Enum.filter(fn role_slug ->
+      role_slug
+      |> permissions_for_role_slug()
+      |> MapSet.member?(permission_slug)
     end)
   end
 
@@ -52,21 +70,25 @@ defmodule Flight.Auth.Authorization do
   def instructor_permission_slugs() do
     MapSet.new([
       permission_slug(:users, :modify, :personal),
-      permission_slug(:users, :view, :all)
+      permission_slug(:users, :view, :all),
+      permission_slug(:appointment_instructor, :modify, :personal)
     ])
   end
 
   def student_permission_slugs() do
     MapSet.new([
       permission_slug(:users, :modify, :personal),
-      permission_slug(:users, :view, :personal)
+      permission_slug(:users, :view, :personal),
+      permission_slug(:appointment_user, :modify, :personal),
+      permission_slug(:appointment_student, :modify, :personal)
     ])
   end
 
   def renter_permission_slugs() do
     MapSet.new([
       permission_slug(:users, :modify, :personal),
-      permission_slug(:users, :view, :personal)
+      permission_slug(:users, :view, :personal),
+      permission_slug(:appointment_user, :modify, :personal)
     ])
   end
 end
