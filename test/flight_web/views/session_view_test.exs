@@ -1,4 +1,4 @@
-defmodule FlightWeb.SessionViewTest do
+defmodule FlightWeb.API.SessionViewTest do
   use FlightWeb.ConnCase, async: true
 
   import Phoenix.View
@@ -7,8 +7,8 @@ defmodule FlightWeb.SessionViewTest do
     user = user_fixture()
     token = "some token"
 
-    assert render(FlightWeb.SessionView, "login.json", user: user, token: token) == %{
-             user: render(FlightWeb.UserView, "user.json", user: user),
+    assert render(FlightWeb.API.SessionView, "login.json", user: user, token: token) == %{
+             user: render(FlightWeb.API.UserView, "user.json", user: user),
              token: "some token"
            }
   end

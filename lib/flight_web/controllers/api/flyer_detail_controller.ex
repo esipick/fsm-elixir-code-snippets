@@ -1,4 +1,4 @@
-# defmodule FlightWeb.FlyerDetailController do
+# defmodule FlightWeb.API.FlyerDetailController do
 #   use FlightWeb, :controller
 #   import Flight.Auth.Authorization
 #   alias Flight.Auth.Permission

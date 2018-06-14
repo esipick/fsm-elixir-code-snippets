@@ -1,5 +1,5 @@
 defmodule Flight.AccountsFixtures do
-  alias Flight.{Accounts, Repo, Scheduling}
+  alias Flight.{Accounts, Repo}
 
   def user_fixture(attrs \\ %{}) do
     {:ok, user} =
@@ -13,6 +13,18 @@ defmodule Flight.AccountsFixtures do
       |> Accounts.create_user()
 
     user
+  end
+
+  def student_fixture(attrs \\ %{}) do
+    user_fixture(attrs) |> assign_role("student")
+  end
+
+  def instructor_fixture(attrs \\ %{}) do
+    user_fixture(attrs) |> assign_role("student")
+  end
+
+  def admin_fixture(attrs \\ %{}) do
+    user_fixture(attrs) |> assign_role("student")
   end
 
   def role_fixture(attrs \\ %{}) do
@@ -70,18 +82,21 @@ defmodule Flight.AccountsFixtures do
   end
 
   def assign_roles(user, role_slugs) do
-    for slug <- role_slugs do
-      role =
-        (Repo.get_by(Accounts.Role, slug: slug) || %Accounts.Role{slug: slug})
-        |> Accounts.Role.changeset(%{})
+    roles =
+      for slug <- role_slugs do
+        role =
+          (Repo.get_by(Accounts.Role, slug: slug) || %Accounts.Role{slug: slug})
+          |> Accounts.Role.changeset(%{})
+          |> Repo.insert_or_update!()
+
+        (Repo.get_by(Accounts.UserRole, user_id: user.id, role_id: role.id) ||
+           %Accounts.UserRole{user_id: user.id, role_id: role.id})
+        |> Accounts.UserRole.changeset(%{})
         |> Repo.insert_or_update!()
 
-      (Repo.get_by(Accounts.UserRole, user_id: user.id, role_id: role.id) ||
-         %Accounts.UserRole{user_id: user.id, role_id: role.id})
-      |> Accounts.UserRole.changeset(%{})
-      |> Repo.insert_or_update!()
-    end
+        role
+      end
 
-    user
+    %{user | roles: roles}
   end
 end

@@ -2,7 +2,9 @@ defmodule Flight.SchedulingTest do
   use Flight.DataCase, async: true
 
   alias Flight.{Repo, Scheduling}
-  alias Flight.Scheduling.{Aircraft, Inspection}
+  alias Flight.Scheduling.{Aircraft, Appointment, Inspection}
+
+  import Flight.AccountsFixtures
 
   describe "aircrafts" do
     @valid_attrs %{
@@ -159,6 +161,329 @@ defmodule Flight.SchedulingTest do
       {:error, changeset} = Scheduling.update_inspection(inspection, %{name: nil})
 
       assert Enum.count(errors_on(changeset).name) > 0
+    end
+  end
+
+  #
+  # Appointments
+  #
+
+  describe "appointments" do
+    test "create_appointment/1 creates appointment" do
+      instructor = user_fixture() |> assign_role("instructor")
+      student = user_fixture() |> assign_role("student")
+      aircraft = aircraft_fixture()
+
+      now = NaiveDateTime.utc_now()
+
+      {:ok, %Appointment{} = appointment} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 1),
+          end_at: Timex.shift(now, hours: 2),
+          instructor_user_id: instructor.id,
+          user_id: student.id,
+          aircraft_id: aircraft.id
+        })
+
+      assert appointment.start_at == Timex.shift(now, hours: 1)
+      assert appointment.end_at == Timex.shift(now, hours: 2)
+      assert appointment.instructor_user_id == instructor.id
+      assert appointment.user_id == student.id
+      assert appointment.aircraft_id == aircraft.id
+    end
+
+    test "create_appointment/1 updates existing appointment" do
+      instructor = user_fixture() |> assign_role("instructor")
+      student = user_fixture() |> assign_role("student")
+      aircraft = aircraft_fixture()
+
+      now = NaiveDateTime.utc_now()
+
+      {:ok, %Appointment{} = appointment} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 1),
+          end_at: Timex.shift(now, hours: 2),
+          instructor_user_id: instructor.id,
+          user_id: student.id,
+          aircraft_id: aircraft.id
+        })
+
+      {:ok, %Appointment{} = updatedAppointment} =
+        Scheduling.create_appointment(
+          %{
+            start_at: Timex.shift(now, minutes: 30)
+          },
+          appointment
+        )
+
+      assert updatedAppointment.id == appointment.id
+      assert updatedAppointment.start_at == Timex.shift(now, minutes: 30)
+    end
+
+    test "create_appointment/1 succeeds if instructor scheduled outside other appointment" do
+      instructor = user_fixture() |> assign_role("instructor")
+      student = user_fixture() |> assign_role("student")
+      aircraft = aircraft_fixture()
+
+      now = NaiveDateTime.utc_now() |> Timex.shift(hours: -4)
+
+      {:ok, _} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 1),
+          end_at: Timex.shift(now, hours: 3),
+          instructor_user_id: instructor.id,
+          user_id: student.id,
+          aircraft_id: aircraft.id
+        })
+
+      other_student = user_fixture() |> assign_role("student")
+      other_aircraft = aircraft_fixture()
+
+      {:ok, _} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 4),
+          end_at: Timex.shift(now, hours: 6),
+          instructor_user_id: instructor.id,
+          user_id: other_student.id,
+          aircraft_id: other_aircraft.id
+        })
+
+      other_student = user_fixture() |> assign_role("student")
+      other_aircraft = aircraft_fixture()
+
+      {:ok, _} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: -1),
+          end_at: Timex.shift(now, hours: 0),
+          instructor_user_id: instructor.id,
+          user_id: other_student.id,
+          aircraft_id: other_aircraft.id
+        })
+    end
+
+    test "create_appointment/1 fails if instructor has overlapping appointment" do
+      instructor = user_fixture() |> assign_role("instructor")
+      student = user_fixture() |> assign_role("student")
+      aircraft = aircraft_fixture()
+
+      now = NaiveDateTime.utc_now() |> Timex.shift(hours: -4)
+
+      {:ok, _} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 1),
+          end_at: Timex.shift(now, hours: 3),
+          instructor_user_id: instructor.id,
+          user_id: student.id,
+          aircraft_id: aircraft.id
+        })
+
+      other_student = user_fixture() |> assign_role("student")
+      other_aircraft = aircraft_fixture()
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 2),
+          end_at: Timex.shift(now, hours: 4),
+          instructor_user_id: instructor.id,
+          user_id: other_student.id,
+          aircraft_id: other_aircraft.id
+        })
+
+      assert Enum.count(errors_on(changeset).instructor) == 1
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 0),
+          end_at: Timex.shift(now, hours: 2),
+          instructor_user_id: instructor.id,
+          user_id: other_student.id,
+          aircraft_id: other_aircraft.id
+        })
+
+      assert Enum.count(errors_on(changeset).instructor) == 1
+    end
+
+    test "create_appointment/1 fails if user has overlapping appointment" do
+      instructor = user_fixture() |> assign_role("instructor")
+      student = user_fixture() |> assign_role("student")
+      aircraft = aircraft_fixture()
+
+      now = NaiveDateTime.utc_now() |> Timex.shift(hours: -4)
+
+      {:ok, _} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 1),
+          end_at: Timex.shift(now, hours: 3),
+          instructor_user_id: instructor.id,
+          user_id: student.id,
+          aircraft_id: aircraft.id
+        })
+
+      other_instructor = user_fixture() |> assign_role("instructor")
+      other_aircraft = aircraft_fixture()
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 2),
+          end_at: Timex.shift(now, hours: 4),
+          instructor_user_id: other_instructor.id,
+          user_id: student.id,
+          aircraft_id: other_aircraft.id
+        })
+
+      assert Enum.count(errors_on(changeset).user) == 1
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 0),
+          end_at: Timex.shift(now, hours: 2),
+          instructor_user_id: other_instructor.id,
+          user_id: student.id,
+          aircraft_id: other_aircraft.id
+        })
+
+      assert Enum.count(errors_on(changeset).user) == 1
+    end
+
+    test "create_appointment/1 fails if aircraft has overlapping appointment" do
+      instructor = user_fixture() |> assign_role("instructor")
+      student = user_fixture() |> assign_role("student")
+      aircraft = aircraft_fixture()
+
+      now = NaiveDateTime.utc_now() |> Timex.shift(hours: -4)
+
+      {:ok, _} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 1),
+          end_at: Timex.shift(now, hours: 3),
+          instructor_user_id: instructor.id,
+          user_id: student.id,
+          aircraft_id: aircraft.id
+        })
+
+      other_instructor = user_fixture() |> assign_role("instructor")
+      other_student = user_fixture() |> assign_role("student")
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 2),
+          end_at: Timex.shift(now, hours: 4),
+          instructor_user_id: other_instructor.id,
+          user_id: other_student.id,
+          aircraft_id: aircraft.id
+        })
+
+      assert Enum.count(errors_on(changeset).aircraft) == 1
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 0),
+          end_at: Timex.shift(now, hours: 2),
+          instructor_user_id: other_instructor.id,
+          user_id: other_student.id,
+          aircraft_id: aircraft.id
+        })
+
+      assert Enum.count(errors_on(changeset).aircraft) == 1
+    end
+
+    test "create_appointment/1 fails if end_at is not greater than start_at" do
+      now = NaiveDateTime.utc_now()
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 1),
+          end_at: Timex.shift(now, hours: -1),
+          user_id: student_fixture().id
+        })
+
+      assert Enum.count(errors_on(changeset).end_at) == 1
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: now,
+          end_at: now,
+          user_id: student_fixture().id
+        })
+
+      assert Enum.count(errors_on(changeset).end_at) == 1
+    end
+
+    test "create_appointment/1 fails if neither instructor nor aircraft is selected" do
+      now = NaiveDateTime.utc_now()
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 2),
+          end_at: Timex.shift(now, hours: 4),
+          user_id: student_fixture().id
+        })
+
+      assert Enum.count(errors_on(changeset).aircraft) == 1
+    end
+
+    test "create_appointment/1 fails if user is not renter/student/instructor" do
+      admin = user_fixture() |> assign_role("admin")
+
+      now = NaiveDateTime.utc_now()
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 2),
+          end_at: Timex.shift(now, hours: 4),
+          user_id: admin.id,
+          aircraft_id: aircraft_fixture().id
+        })
+
+      assert Enum.count(errors_on(changeset).user) == 1
+
+      for role <- ["renter", "student"] do
+        {:ok, _} =
+          Scheduling.create_appointment(%{
+            start_at: Timex.shift(now, hours: 2),
+            end_at: Timex.shift(now, hours: 4),
+            user_id: (user_fixture() |> assign_role(role)).id,
+            aircraft_id: aircraft_fixture().id
+          })
+      end
+    end
+
+    test "create_appointment/1 fails if instructor user does not have instructor role" do
+      now = NaiveDateTime.utc_now()
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 2),
+          end_at: Timex.shift(now, hours: 4),
+          user_id: student_fixture().id,
+          instructor_user_id: (user_fixture() |> assign_role("student")).id,
+          aircraft_id: aircraft_fixture().id
+        })
+
+      assert Enum.count(errors_on(changeset).instructor) == 1
+    end
+
+    ##
+    # get_appointments(from, to)
+    ##
+
+    test "get_appointments/2 returns appointments within range" do
+      appointment1 =
+        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+
+      _appointment2 =
+        appointment_fixture(%{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]})
+
+      appointment3 =
+        appointment_fixture(%{start_at: ~N[2018-03-03 22:59:59], end_at: ~N[2018-03-03 23:59:59]})
+
+      appointments = Scheduling.get_appointments(~N[2018-03-03 00:00:00], ~N[2018-03-04 00:00:00])
+
+      assert [%Appointment{}, %Appointment{}] = appointments
+
+      appointmentIds = Enum.map(appointments, & &1.id)
+
+      assert MapSet.new(appointmentIds) == MapSet.new([appointment1.id, appointment3.id])
     end
   end
 end

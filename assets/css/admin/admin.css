@@ -1,7 +1,9 @@
 body {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Lato',Helvetica Neue,Arial,sans-serif;
 }
-
+button, input, optgroup, select, textarea {
+    font-family: 'Lato',Helvetica Neue,Arial,sans-serif;
+}
 h1,h2,h3,h4,h5,h6, dl dt {
   font-weight: 900;
 }
@@ -26,6 +28,9 @@ h7 {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .3px;
+}
+.navbar.navbar-absolute {
+  box-shadow: none;
 }
 .navbar a:not(.btn):not(.dropdown-item) {
   color: #BBBCCD;
@@ -140,14 +145,14 @@ table .photo {
 .btn-lg {
   font-size: 12px;
 }
-input.btn {
-  font-weight: normal; /*fixes bold form input text*/
-}
+input.btn { }
+
+
 
 .sidebar[data-color="blue"]:after,
 .off-canvas-sidebar[data-color="blue"]:after {
   /* background: #00C9FF; */
-  
+
   background-image: -webkit-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
   background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
   background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
@@ -232,6 +237,9 @@ table.dataTable {
 
 body.sidebar-none .main-panel {
   width: 100%;
+}
+.main-panel .header {
+  margin-bottom: 40px;
 }
 
 .card {
@@ -398,14 +406,17 @@ dl .disc.expired {background-color: #FF5572;}
 .text-expired {color: #FF5572;}
 
 .panel-header {
-  background-image: url('/images/bg-plane.jpg');
+  height: auto;
+  min-height: 260px;
+  background-image: url('/images/bg-plane-bw.jpg');
   background-size: 138%;
   background-position: 0 888px;
   background-color: #24282B;
   background-blend-mode: overlay;
 }
 .panel-header-sm {
-  height: 128px;
+  min-height: 128px;
+  height: 128px; /* both are necessary to overheight the .panel-header properties */
 }
 
 .title {
@@ -474,4 +485,50 @@ dl .disc.expired {background-color: #FF5572;}
 }
 .border-bottom {
   border-bottom: solid 1px #e9ecef;
+}
+
+
+
+
+
+/* Small devices (landscape phones, 375px and up) */
+@media (min-width: 375px) {
+	.panel-header {
+    background-size: 135%;
+    background-position: 0 688px;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+	.panel-header {
+    background-size: 135%;
+    background-position: 0 688px;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+	.panel-header {
+    background-size: 135%;
+    background-position: 0 800px;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) { 
+	.panel-header {
+    background-position: 0 988px;
+  }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+	.panel-header {
+    background-position: 0 1188px;
+  }
+}
+
+@media (min-width: 1600px) {
+
 }

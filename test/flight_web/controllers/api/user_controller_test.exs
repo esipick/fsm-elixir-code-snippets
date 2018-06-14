@@ -1,4 +1,4 @@
-defmodule FlightWeb.UserControllerTest do
+defmodule FlightWeb.API.UserControllerTest do
   use FlightWeb.ConnCase
 
   describe "GET /api/users/:id" do
@@ -13,7 +13,7 @@ defmodule FlightWeb.UserControllerTest do
 
       assert json ==
                render_json(
-                 FlightWeb.UserView,
+                 FlightWeb.API.UserView,
                  "show.json",
                  user: user
                )
@@ -46,7 +46,7 @@ defmodule FlightWeb.UserControllerTest do
 
       assert json ==
                render_json(
-                 FlightWeb.UserView,
+                 FlightWeb.API.UserView,
                  "show.json",
                  user: user
                )

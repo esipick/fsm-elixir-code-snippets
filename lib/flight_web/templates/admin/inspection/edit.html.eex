@@ -27,9 +27,7 @@
             <a href="/admin/aircrafts/<%= @inspection.aircraft_id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
             <input type="submit" class="btn btn-fill btn-primary" value="Save">
           </div>                
-            <%= form_tag "/admin/inspections/#{@inspection.id}", method: "delete" do %>
-              <input type="submit" class="btn btn-fill btn-danger" value="Remove">
-            <% end %>
+          <a href="" class="btn btn-fill btn-danger">Remove</a>
         </div>
       <% end %>
       

@@ -11,7 +11,7 @@ defmodule FlightWeb.Endpoint do
     Plug.Static,
     at: "/",
     from: :flight,
-    gzip: false,
+    gzip: true,
     only: ~w(css fonts images js favicon.ico robots.txt)
   )
 

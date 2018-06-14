@@ -1,4 +1,4 @@
-defmodule FlightWeb.FlyerDetailControllerTest do
+defmodule FlightWeb.API.FlyerDetailControllerTest do
   use FlightWeb.ConnCase, async: true
 
   # describe "GET /api/users/:id/flyer_details" do

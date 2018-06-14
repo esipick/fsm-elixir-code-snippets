@@ -1,6 +1,8 @@
 defmodule Flight.SchedulingFixtures do
-  alias Flight.Scheduling.{Aircraft, Inspection, DateInspection, TachInspection}
+  alias Flight.Scheduling.{Aircraft, Appointment, Inspection, DateInspection, TachInspection}
   alias Flight.{Repo}
+
+  import Flight.AccountsFixtures
 
   def aircraft_fixture(attrs \\ %{}) do
     invitation =
@@ -20,6 +22,28 @@ defmodule Flight.SchedulingFixtures do
       |> Repo.insert!()
 
     invitation
+  end
+
+  def appointment_fixture(
+        attrs \\ %{},
+        user \\ student_fixture(),
+        instructor \\ instructor_fixture(),
+        aircraft \\ aircraft_fixture()
+      ) do
+    date = ~N[2018-03-03 10:00:00]
+
+    appointment =
+      %Appointment{
+        start_at: Timex.shift(date, hours: 2),
+        end_at: Timex.shift(date, hours: 4),
+        user_id: user.id,
+        instructor_user_id: instructor.id,
+        aircraft_id: aircraft.id
+      }
+      |> Appointment.changeset(attrs)
+      |> Repo.insert!()
+
+    %{appointment | aircraft: aircraft, instructor_user: instructor, user: user}
   end
 
   def date_inspection_fixture(attrs \\ %{}, aircraft \\ aircraft_fixture()) do

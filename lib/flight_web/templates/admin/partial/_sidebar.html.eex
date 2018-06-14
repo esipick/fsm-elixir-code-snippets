@@ -7,8 +7,7 @@ Tip 2: you can also add an image using data-image tag
 
   <div class="logo">
     <a href="/#" class="simple-text logo-mini">
-        <img src="/images/logo-randon-aviation.jpg"/>
-        <!--<img src="/images/fsm-icon.png"/>-->
+        <img src="<%= static_path(@conn, "/images/logo-randon-aviation.jpg") %>"/>
     </a>
     <div class="navbar-minimize">
       <button id="minimizeSidebar" class="btn btn-simple btn-icon btn-neutral btn-round">

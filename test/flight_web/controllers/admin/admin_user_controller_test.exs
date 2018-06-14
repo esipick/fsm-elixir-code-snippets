@@ -67,6 +67,8 @@ defmodule FlightWeb.Admin.UserControllerTest do
       |> put("/admin/users/#{user.id}", payload)
       |> response_redirected_to("/admin/users/#{user.id}")
 
+      user = Accounts.get_user(user.id)
+
       assert Accounts.has_role?(user, "instructor")
       assert Accounts.has_role?(user, "student")
       refute Accounts.has_role?(user, "admin")

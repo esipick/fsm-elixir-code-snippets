@@ -102,6 +102,14 @@ defmodule Flight.Accounts do
     Repo.all(Ecto.assoc(role, :users))
   end
 
+  def users_with_roles([]) do
+    []
+  end
+
+  def users_with_roles(roles) do
+    Repo.all(Ecto.assoc(roles, :users))
+  end
+
   def has_role?(user, role_slug) do
     user = Repo.preload(user, :roles)
 
