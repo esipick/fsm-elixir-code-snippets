@@ -39,6 +39,12 @@ defmodule FlightWeb.Admin.SessionController do
     end
   end
 
+  def logout(conn, _) do
+    conn
+    |> FlightWeb.AuthenticateWebUser.log_out()
+    |> redirect(to: "/admin/login")
+  end
+
   defp redirect_if_logged_in(conn, _) do
     if get_session(conn, :user_id) do
       conn

@@ -16,6 +16,15 @@ defmodule FlightWeb.Admin.SessionControllerTest do
     end
   end
 
+  describe "GET /admin/logout" do
+    test "redirects to dashboard if logged in", %{conn: conn} do
+      conn
+      |> web_auth_admin()
+      |> get("/admin/logout")
+      |> response_redirected_to("/admin/login")
+    end
+  end
+
   describe "POST /admin/login" do
     test "redirects to dashboard on success", %{conn: conn} do
       user_fixture(%{email: "hello@bar.com", password: "hey hey you"})

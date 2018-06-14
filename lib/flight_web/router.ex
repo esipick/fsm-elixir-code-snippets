@@ -50,6 +50,8 @@ defmodule FlightWeb.Router do
     pipe_through([:browser, :admin_layout, :admin_authenticate])
     get("/dashboard", PageController, :dashboard)
 
+    get("/logout", SessionController, :logout)
+
     resources("/users", UserController, only: [:index, :show, :edit, :update])
 
     resources("/invitations", InvitationController, only: [:create, :index]) do
