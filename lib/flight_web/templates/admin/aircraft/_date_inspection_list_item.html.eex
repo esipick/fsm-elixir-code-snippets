@@ -1,7 +1,6 @@
-<dl class="d-flex justify-content-between">
-  <dt><%= @date_inspection.name %></dt>
-  <dd><%= format_date(@date_inspection.expiration) %></dd>
-  <dd>
-    <a href="/admin/inspections/<%= @date_inspection.id %>/edit" class="btn btn-primary">Edit</a>
-  </dd>
-</dl>
+
+<tr>
+  <td><%= @date_inspection.name %></td>
+  <td><%= format_date(@date_inspection.expiration) %></td>
+  <td class="text-right"><a href="/admin/inspections/<%= @date_inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
+</tr>

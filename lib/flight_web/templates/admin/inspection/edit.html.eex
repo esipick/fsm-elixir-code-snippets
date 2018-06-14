@@ -1,15 +1,9 @@
 <div class="row">
-  <div class="col-md-4">
-    <div class="card card-user">
-      <div class="card-body text-center">
-        <div class="author">
-          <h5 class="title">Edit Inspection</h5>
-        </div>
-      </div>
-    </div>
-  </div>
   <div class="col-md-8">
     <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Edit Inspection</h3>
+      </div>
       <%= form_for @changeset, "/admin/inspections/#{@inspection.id}", [as: :inspection, method: "put", class: "form-horizontal"], fn f -> %>
         <div class="card-body">
 
@@ -28,21 +22,18 @@
             :date -> render("_date_inputs.html", f: f)
           end %>
         </div>
-        <div class="card-footer ">
-          <div class="row">
-            <label class="col-md-3"></label>
-            <div class="col-md-9">
-              <a href="/admin/aircrafts/<%= @inspection.aircraft_id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
-              <input type="submit" class="btn btn-fill btn-primary" value="Save">
-            </div>
-          </div>
+        <div class="card-footer text-right">
+          <div class="pull-left">
+            <a href="/admin/aircrafts/<%= @inspection.aircraft_id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+            <input type="submit" class="btn btn-fill btn-primary" value="Save">
+          </div>                
+            <%= form_tag "/admin/inspections/#{@inspection.id}", method: "delete" do %>
+              <input type="submit" class="btn btn-fill btn-danger" value="Remove">
+            <% end %>
         </div>
       <% end %>
-        <div class="card-body">
-      <%= form_tag "/admin/inspections/#{@inspection.id}", method: "delete" do %>
-        <input type="submit" class="btn btn-fill btn-primary" value="Delete">
-      <% end %>
-    </div>
+      
+      
     </div> <!-- end card -->
   </div>
 </div>

@@ -1,7 +1,6 @@
-<dl class="d-flex justify-content-between">
-  <dt><%= @tach_inspection.name %></dt>
-  <dd><%= @tach_inspection.tach_time %></dd>
-  <dd>
-    <a href="/admin/inspections/<%= @tach_inspection.id %>/edit" class="btn btn-primary">Edit</a>
-  </dd>
-</dl>
+<tr>
+  <td><%= @tach_inspection.name %></td>
+  <td><%= @tach_inspection.tach_time %></td>
+  <td class="text-right"><a href="/admin/inspections/<%= @tach_inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
+</tr>
+

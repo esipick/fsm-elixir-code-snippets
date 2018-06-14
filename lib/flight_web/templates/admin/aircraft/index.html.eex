@@ -2,7 +2,7 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header text-right">
-                 <h4 class="card-title pull-left">Aircrafts</h4> 
+                 <h3 class="card-title pull-left">Aircrafts</h3> 
                 <a href="/admin/aircrafts/new" class="btn btn-primary">Add New</a>
               </div>
               <div class="card-body">
@@ -21,8 +21,8 @@
                     <tbody>
                       <%= for aircraft <- @aircrafts do %>
                         <tr>
-                          <td><span class="text-nowrap"><b><%= aircraft.make %></b></span></br>
-                          <small><%= aircraft.model %></small>
+                          <td><span class="text-nowrap"><b><%= aircraft.make %> <%= aircraft.model %></b></span></br>
+                          <small><%= aircraft.tail_number %></small>
                           </td>
                           <td><%= aircraft.equipment %></td>
                           <td><%= display_boolean(aircraft.ifr_certified) %></td>

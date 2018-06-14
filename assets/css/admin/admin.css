@@ -113,6 +113,24 @@ table .photo {
 .show>.btn-primary.dropdown-toggle:hover {
   background-color: #2CA8FF;
 }
+.btn-danger {
+  background-color: #F64461;
+  color: #fff;
+}
+.btn-danger.active,
+.btn-danger.active:focus,
+.btn-danger.active:hover,
+.btn-danger:active,
+.btn-danger:active:focus,
+.btn-danger:active:hover,
+.btn-danger:focus,
+.btn-danger:hover,
+.show>.btn-danger.dropdown-toggle,
+.show>.btn-danger.dropdown-toggle:focus,
+.show>.btn-danger.dropdown-toggle:hover {
+  background-color: #F64461;
+}
+
 .btn-sm {
   border-radius: 2px;
 }
@@ -307,7 +325,7 @@ body.sidebar-none .main-panel {
   color: #828393;
   margin-bottom: 4px;
 }
-.detail-list dd small {
+.detail-list dd small, .detail-list dt small {
   color: #BBBCCD;
   text-transform: uppercase;
   font-size: 10px;
@@ -315,12 +333,18 @@ body.sidebar-none .main-panel {
   letter-spacing: .3px;
   display: block;
 }
+.detail-list dd p small, .detail-list dt p small {
+  display: inline-block;
+}
 .detail-list dl dd dl {
   padding: 4px 0;
   border: none;
 }
 .detail-list dl dd dl dt {
   margin-right: 24px;
+}
+.detail-list dl dd.medium {
+  color: #828393;
 }
 .detail-list .transaction-status {
   font-size: 10px;
@@ -333,6 +357,28 @@ body.sidebar-none .main-panel {
 
 .detail-list.list-billing dd {
   text-align: left;
+}
+
+.detail-list dl dt dl {
+  border: none;
+  padding: 4px 0;
+}
+.detail-list dl dt dl dt {
+  margin-right: 16px;
+  padding-top: 5px;
+}
+
+.light {
+  font-weight: 300;
+}
+.medium {
+  font-weight: 500;
+}
+.bold {
+  font-weight: 700;
+}
+.black {
+  font-weight: 900;
 }
 
 dl .disc {
@@ -417,4 +463,15 @@ dl .disc.expired {background-color: #FF5572;}
 
 .login-page .card-login .input-group:last-child {
   margin-bottom: 8px;
+}
+
+.card-chart .card-footer {
+  margin-top: 0;
+}
+
+.border-none {
+  border: none !important;
+}
+.border-bottom {
+  border-bottom: solid 1px #e9ecef;
 }

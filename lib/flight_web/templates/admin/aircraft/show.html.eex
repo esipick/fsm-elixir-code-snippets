@@ -1,34 +1,13 @@
 <div class="row">
-          <div class="col-md-4">
-            <div class="card card-user">
-              <div class="card-body text-center">
-                <div class="author">
-                  <!-- <img class="avatar border-gray" src="assets/img/archer.jpg" alt="..."> -->
-                  <h5 class="title"><%= @aircraft.make %></h5>
-                  <p class="description"><%= @aircraft.model %></p>
-                </div>
-                <!-- <div class="card-section">
-                  <h7>Account Balance</h7>
-                  <h5>$-700.00</h5>
-                </div> -->
-                <a href="/admin/aircrafts/<%= @aircraft.id %>/edit" class="btn btn-primary">Edit Plane</a>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-8">
+          <div class="col-md-10 col-lg-8">
             <div class="card ">
               <div class="card-header">
-                <ul class="nav nav-pills nav-pills-primary" role="tablist">
-                  <li class="nav-item">
-                    <a class="nav-link active" href="#link1" role="tablist">Details</a>
-                  </li>
-                  <!-- <li class="nav-item">
-                    <a class="nav-link" href="#link2" role="tablist">Rental History</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="#link3" role="tablist">Schedule</a>
-                  </li> -->
-                </ul>
+                <div class="pull-right">
+                  <a href="/admin/aircrafts/<%= @aircraft.id %>/edit" class="btn btn-primary">Edit Aircraft</a>
+                </div>
+                <h3 class="card-title"><%= @aircraft.make %> <%= @aircraft.model %></h3>
+                <p class="description"><%= @aircraft.tail_number %></p>
+              
               </div>
               <div class="card-body">
                   <div class="detail-list">
@@ -65,52 +44,41 @@
                       <dd><%= @aircraft.last_tach_time %></dd>
                     </dl>
                     <dl class="d-flex justify-content-between">
-                      <dt>Inspections</dt>
-                      <dd>
-                        <dl class="d-flex justify-content-between">
-                          <dd>
-                            <a href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new" class="btn btn-primary">New Inspection</a>
-                          </dd>
-                        </dl>
-                        <%= for inspection <- @aircraft.inspections do %>
-                          <%= case Flight.Scheduling.Inspection.to_specific(inspection) do
-                            %Flight.Scheduling.DateInspection{} = date_inspection -> render("_date_inspection_list_item.html", date_inspection: date_inspection)
-                            %Flight.Scheduling.TachInspection{} = tach_inspection -> render("_tach_inspection_list_item.html", tach_inspection: tach_inspection)
-                          end %>
-                        <% end %>
-                        <!-- <dl class="d-flex justify-content-between">
-                          <dt>100Hr</dt>
-                          <dd>8100</dd>
-                          <dd>
-                            <a href="/admin/aircrafts/<%= @aircraft.id %>/edit" class="btn btn-primary">Edit</a>
-                          </dd>
-                        </dl>
-                        <dl class="d-flex justify-content-between">
-                          <dt>Annual</dt>
-                          <dd>4/22/19</dd>
-                        </dl>
-                        <dl class="d-flex justify-content-between">
-                          <dt>Transponder</dt>
-                          <dd>5/5/18</dd>
-                        </dl>
-                        <dl class="d-flex justify-content-between">
-                          <dt>Altimeter</dt>
-                          <dd>3/12/18</dd>
-                        </dl>
-                        <dl class="d-flex justify-content-between">
-                          <dt>ELT</dt>
-                          <dd>4/22/19</dd>
-                        </dl> -->
-                      </dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between">
                       <dt>Rate Per Hour</dt>
                       <dd>$<%= @aircraft.rate_per_hour %></dd>
                     </dl>
                     <dl class="d-flex justify-content-between">
                       <dt>Block Rate Per Hour</dt>
                       <dd>$<%= @aircraft.block_rate_per_hour %></dd>
+                    </dl>                    
+                    <dl class="d-flex justify-content-between border-none">
+                      <dt>Inspections</dt>
+                      <dd></dd>
                     </dl>
+                      
+                      <div class="table-responsive">
+                          <table class="table text-left">
+                            <thead class="text-primary">
+                              <tr>
+                                <th>Name</th>
+                                <th>Expiration</th>
+                                <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new" class="btn btn-primary btn-sm">Add New</a></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+
+                              <%= for inspection <- @aircraft.inspections do %>
+                                <%= case Flight.Scheduling.Inspection.to_specific(inspection) do
+                                  %Flight.Scheduling.DateInspection{} = date_inspection -> render("_date_inspection_list_item.html", date_inspection: date_inspection)
+                                  %Flight.Scheduling.TachInspection{} = tach_inspection -> render("_tach_inspection_list_item.html", tach_inspection: tach_inspection)
+                                end %>
+                              <% end %>
+                              
+                            </tbody>
+                          </table>
+                        </div> 
+                        
+                                            
                   </div>
               </div>
             </div> <!-- end card -->

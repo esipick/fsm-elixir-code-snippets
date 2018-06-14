@@ -1,21 +1,12 @@
 <div class="row">
-          <!-- <div class="col-md-4">
-            <div class="card card-user">
-              <div class="card-body text-center">
-                <div class="author">
-                    <h5 class="title">Max Fischer</h5>
-                  <p class="description"><a href="tel:1-408-555-5555">(801) 867-5309</a></p>
-                </div>
-              </div>
-            </div>
-          </div> -->
-          <div class="col-md-6">
-            <div class="card">
-              <div class="card-header">
-                <h3>New Aircraft</h3>
-              </div>
-              <%= render "_form.html", changeset: @changeset, aircraft: nil, is_edit: false %>
-            </div> <!-- end card -->
-          </div>
-
+    <div class="sol-sm 12 col-md-10 col-lg-9">
+      <div class="card">
+        
+        <div class="card-header">
+          <h3 class="card-title">New Aircraft</h3>
         </div>
+        <%= render "_form.html", changeset: @changeset, aircraft: nil, is_edit: false %>
+      
+      </div> <!-- end card -->
+    </div>
+  </div>

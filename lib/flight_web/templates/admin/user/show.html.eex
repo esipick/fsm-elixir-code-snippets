@@ -180,7 +180,18 @@
               <h7>Transaction History</h7>
               <dl class="d-flex justify-content-between flex-row-reverse">
                 <dt>
-                  - $350.00 <br/>
+                  <dl class="d-flex justify-content-between">
+                    <dt><small>Instructor</small></dt>
+                    <dd>$150.00</dd>
+                  </dl>
+                  <dl class="d-flex justify-content-between">
+                    <dt><small>Aircraft</small></dt>
+                    <dd>$200.00</dd>
+                  </dl>
+                  <dl class="d-flex justify-content-between">
+                    <dt><small>Total</small></dt>
+                    <dd>$350.00</dd>
+                  </dl>
                   <a href="#e" class="btn btn-primary btn-sm">cancel</a>
                 </dt>
                 <dd>
@@ -190,14 +201,15 @@
                 </dd>
               </dl>
               <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>
+                <dt class="text-right">
                   - $350.00 <br/>
-                  <a href="#e" class="btn btn-primary btn-sm">cancel</a>
+                  <p class="transaction-status">pending student approval</p>
+                  <a href="#e" class="btn btn-primary btn-sm">cancel request</a>
                 </dt>
                 <dd>
                   <p>Requested by Randon Russell</p>
                   <small>May 12 2018</small>
-                  <p class="transaction-status">pending student approval</p>
+                  <p><small>Instructor $150.00 \ Aircraft $200.00</small></p>
                 </dd>
               </dl>
               <dl class="d-flex justify-content-between flex-row-reverse">
