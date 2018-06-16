@@ -4,7 +4,10 @@ defmodule FlightWeb.API.SessionViewTest do
   import Phoenix.View
 
   test "login.json" do
-    user = user_fixture()
+    user =
+      user_fixture()
+      |> Flight.Repo.preload([:roles, :flyer_certificates])
+
     token = "some token"
 
     assert render(FlightWeb.API.SessionView, "login.json", user: user, token: token) == %{

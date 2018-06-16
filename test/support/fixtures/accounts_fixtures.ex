@@ -1,18 +1,20 @@
 defmodule Flight.AccountsFixtures do
   alias Flight.{Accounts, Repo}
+  alias Flight.Accounts.{User}
 
   def user_fixture(attrs \\ %{}) do
-    {:ok, user} =
-      attrs
-      |> Enum.into(%{
-        email: "user-#{Flight.Random.string(10)}@email.com",
+    user =
+      %User{
+        email: "user-#{Flight.Random.string(20)}@email.com",
         first_name: "some first name",
         last_name: "some last name",
-        password: "some password"
-      })
-      |> Accounts.create_user()
+        password: "some password",
+        stripe_customer_id: "cus_#{Flight.Random.hex(20)}"
+      }
+      |> User.create_changeset(attrs)
+      |> Repo.insert!()
 
-    user
+    %{user | password: nil}
   end
 
   def student_fixture(attrs \\ %{}) do
@@ -20,11 +22,11 @@ defmodule Flight.AccountsFixtures do
   end
 
   def instructor_fixture(attrs \\ %{}) do
-    user_fixture(attrs) |> assign_role("student")
+    user_fixture(attrs) |> assign_role("instructor")
   end
 
   def admin_fixture(attrs \\ %{}) do
-    user_fixture(attrs) |> assign_role("student")
+    user_fixture(attrs) |> assign_role("admin")
   end
 
   def role_fixture(attrs \\ %{}) do

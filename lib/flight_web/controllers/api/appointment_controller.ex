@@ -32,20 +32,12 @@ defmodule FlightWeb.API.AppointmentController do
     )
   end
 
-  def index(conn, %{"from" => from_str, "to" => to_str}) do
-    with {:ok, from} <- NaiveDateTime.from_iso8601(from_str),
-         {:ok, to} <- NaiveDateTime.from_iso8601(to_str) do
-      appointments =
-        Scheduling.get_appointments(from, to)
-        |> Flight.Repo.preload([:user, :instructor_user, :aircraft])
+  def index(conn, params) do
+    appointments =
+      Scheduling.get_appointments(params)
+      |> Flight.Repo.preload([:user, :instructor_user, :aircraft])
 
-      render(conn, "index.json", appointments: appointments)
-    else
-      {:error, :invalid_format} ->
-        conn
-        |> put_status(400)
-        |> json(%{error: "Invalid date formats"})
-    end
+    render(conn, "index.json", appointments: appointments)
   end
 
   def create(conn, %{"data" => appointment_data}) do
@@ -54,21 +46,21 @@ defmodule FlightWeb.API.AppointmentController do
         appointment_data["user_id"],
         appointment_data["instructor_user_id"]
       ] ->
-        render_unauthorized(conn, "Requesting user must be either user_id or instructor_user_id")
+        render_bad_request(conn, "Requesting user must be either user_id or instructor_user_id")
 
       appointment_data["user_id"] == conn.assigns.current_user.id &&
           !has_permission_slug?(
             conn.assigns.current_user,
             permission_slug(:appointment_user, :modify, :personal)
           ) ->
-        render_unauthorized(conn)
+        render_bad_request(conn)
 
       appointment_data["instructor_user_id"] == conn.assigns.current_user.id &&
           !has_permission_slug?(
             conn.assigns.current_user,
             permission_slug(:appointment_instructor, :modify, :personal)
           ) ->
-        render_unauthorized(conn)
+        render_bad_request(conn)
 
       true ->
         case Flight.Scheduling.create_appointment(appointment_data) do
@@ -95,21 +87,21 @@ defmodule FlightWeb.API.AppointmentController do
         user_id,
         instructor_user_id
       ] ->
-        render_unauthorized(conn, "Requesting user must be either user_id or instructor_user_id")
+        render_bad_request(conn, "Requesting user must be either user_id or instructor_user_id")
 
       user_id == conn.assigns.current_user.id &&
           !has_permission_slug?(
             conn.assigns.current_user,
             permission_slug(:appointment_user, :modify, :personal)
           ) ->
-        render_unauthorized(conn)
+        render_bad_request(conn)
 
       instructor_user_id == conn.assigns.current_user.id &&
           !has_permission_slug?(
             conn.assigns.current_user,
             permission_slug(:appointment_instructor, :modify, :personal)
           ) ->
-        render_unauthorized(conn)
+        render_bad_request(conn)
 
       true ->
         case Flight.Scheduling.create_appointment(appointment_data, conn.assigns.appointment) do
@@ -125,22 +117,10 @@ defmodule FlightWeb.API.AppointmentController do
     end
   end
 
-  def render_unauthorized(conn, message \\ "Unauthorized creation") do
+  def render_bad_request(conn, message \\ "Unauthorized creation") do
     conn
-    |> put_status(401)
+    |> put_status(400)
     |> json(%{error: message})
-  end
-
-  def json_errors(errors) do
-    for {thing, {message, options}} <- errors do
-      %{
-        thing =>
-          %{
-            message: message
-          }
-          |> Map.merge(Enum.into(options, %{}))
-      }
-    end
   end
 
   defp get_appointment(conn, _) do

@@ -3,7 +3,9 @@ defmodule FlightWeb.API.SessionControllerTest do
 
   describe "POST /api/login" do
     test "logs in successfully", %{conn: conn} do
-      user = user_fixture(%{email: "food@bard.com", password: "oh hey there"})
+      user =
+        user_fixture(%{email: "food@bard.com", password: "oh hey there"})
+        |> Flight.Repo.preload([:roles, :flyer_certificates])
 
       json =
         conn
@@ -14,7 +16,12 @@ defmodule FlightWeb.API.SessionControllerTest do
       assert user_id == user.id
 
       assert json ==
-               render_json(FlightWeb.API.SessionView, "login.json", user: user, token: json["token"])
+               render_json(
+                 FlightWeb.API.SessionView,
+                 "login.json",
+                 user: user,
+                 token: json["token"]
+               )
     end
 
     test "401 if incorrect password", %{conn: conn} do

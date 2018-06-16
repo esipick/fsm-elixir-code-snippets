@@ -12,6 +12,7 @@ defmodule Flight.Accounts do
 
   def get_user!(id), do: Repo.get!(User, id)
   def get_user(id), do: Repo.get(User, id)
+  def get_users(), do: Repo.all(User)
 
   def get_user(id, roles) do
     from(
@@ -26,9 +27,28 @@ defmodule Flight.Accounts do
   def get_user_by_email(email), do: Repo.get_by(User, email: email)
 
   def create_user(attrs \\ %{}) do
-    %User{}
-    |> User.create_changeset(attrs)
-    |> Repo.insert()
+    attrs =
+      attrs
+      |> Poison.encode!()
+      |> Poison.decode!()
+
+    changeset =
+      %User{}
+      |> User.create_changeset(attrs)
+
+    if changeset.valid? do
+      case Flight.Billing.create_stripe_customer(attrs["email"]) do
+        {:ok, customer} ->
+          %User{}
+          |> User.create_changeset(attrs |> Map.put("stripe_customer_id", customer.id))
+          |> Repo.insert()
+
+        error ->
+          error
+      end
+    else
+      {:error, changeset}
+    end
   end
 
   def update_user(%User{} = user, attrs) do
@@ -80,6 +100,63 @@ defmodule Flight.Accounts do
 
   def check_password(user, password) do
     Comeonin.Bcrypt.check_pass(user, password)
+  end
+
+  ###
+  # Form fields
+  ###
+
+  def editable_fields(%Flight.Accounts.User{} = user) do
+    user = Flight.Repo.preload(user, :roles)
+
+    user.roles
+    |> Enum.map(&editable_fields_for_role_slug(&1.slug))
+    |> List.flatten()
+    |> MapSet.new()
+  end
+
+  def editable_fields_for_role_slug("student") do
+    [
+      :email,
+      :first_name,
+      :last_name,
+      :phone_number,
+      :address_1,
+      :city,
+      :state,
+      :zipcode,
+      :flight_training_number,
+      :medical_rating,
+      :medical_expires_at,
+      :certificate_number
+    ]
+  end
+
+  def editable_fields_for_role_slug("instructor") do
+    [
+      :email,
+      :first_name,
+      :last_name,
+      :phone_number,
+      :address_1,
+      :city,
+      :state,
+      :zipcode,
+      :flight_training_number,
+      :medical_rating,
+      :medical_expires_at,
+      :certificate_number,
+      :flyer_certificates,
+      :awards
+    ]
+  end
+
+  def editable_fields_for_role_slug("renter") do
+    [:email, :first_name, :last_name, :phone_number, :flight_training_number]
+  end
+
+  def editable_fields_for_role_slug("admin") do
+    [:email, :first_name, :last_name, :phone_number]
   end
 
   #

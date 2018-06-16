@@ -12,6 +12,7 @@ defmodule Flight.Scheduling do
   import Ecto.Changeset
   import Ecto.Query, warn: false
   import Flight.Auth.Permission, only: [permission_slug: 3]
+  import Pipe
 
   def create_aircraft(attrs) do
     result =
@@ -225,9 +226,38 @@ defmodule Flight.Scheduling do
     end
   end
 
-  def get_appointments(from, to) do
-    from(a in Appointment)
-    |> Availability.appointment_overlap_query(from, to)
+  def get_appointments(options) do
+    query = from(a in Appointment)
+
+    from_value =
+      case NaiveDateTime.from_iso8601(options["from"] || "") do
+        {:ok, date} -> date
+        _ -> nil
+      end
+
+    to_value =
+      case NaiveDateTime.from_iso8601(options["to"] || "") do
+        {:ok, date} -> date
+        _ -> nil
+      end
+
+    user_id_value = options["user_id"]
+    instructor_user_id_value = options["instructor_user_id"]
+    aircraft_id_value = options["aircraft_id"]
+
+    query
+    |> pass_unless(
+      from_value && to_value,
+      &Availability.appointment_overlap_query(&1, from_value, to_value)
+    )
+    |> pass_unless(user_id_value, &from(a in &1, where: a.user_id == ^user_id_value))
+    |> pass_unless(aircraft_id_value, &from(a in &1, where: a.aircraft_id == ^aircraft_id_value))
+    |> pass_unless(
+      instructor_user_id_value,
+      &from(a in &1, where: a.instructor_user_id == ^instructor_user_id_value)
+    )
+    |> limit(50)
+    |> order_by([a], desc: a.start_at)
     |> Repo.all()
   end
 end

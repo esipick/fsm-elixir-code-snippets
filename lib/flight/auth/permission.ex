@@ -14,7 +14,17 @@ defmodule Flight.Auth.Permission do
   """
 
   defstruct [:resource, :verb, :scope]
-  @resources [:users, :appointment_user, :appointment_instructor, :appointment_student]
+
+  @resources [
+    :users,
+    :appointment_user,
+    :appointment_instructor,
+    :appointment_student,
+    :transaction_approve,
+    :transaction_user,
+    :transaction_creator,
+    :objective_score
+  ]
   @verbs [:view, :modify, :be]
 
   @doc """
@@ -54,10 +64,29 @@ defmodule Flight.Auth.Permission do
     end
   end
 
+  # Refactor this to just use user_id universally instead of this dynamic pattern matching
   def personal_scope_checker(user, resource_slug, resource) when not is_nil(resource) do
     case {resource_slug, resource} do
-      {:users, %Flight.Accounts.User{id: user_id}} -> user.id == user_id
-      _ -> raise "Unknown resource_slug and resource: #{resource_slug} #{resource}"
+      {:users, %Flight.Accounts.User{id: user_id}} ->
+        user.id == user_id
+
+      {:objective_score, %Flight.Curriculum.ObjectiveScore{user_id: user_id}} ->
+        user.id == user_id
+
+      {:objective_score, user_id} when is_binary(user_id) ->
+        user_id == "#{user.id}"
+
+      {:transaction_creator, user_id} when is_integer(user_id) or is_binary(user_id) ->
+        "#{user_id}" == "#{user.id}"
+
+      {:transaction_user, user_id} when is_integer(user_id) or is_binary(user_id) ->
+        "#{user_id}" == "#{user.id}"
+
+      {:transaction_approve, user_id} when is_integer(user_id) or is_binary(user_id) ->
+        "#{user_id}" == "#{user.id}"
+
+      _ ->
+        raise "Unknown resource_slug and resource: #{resource_slug} #{resource}"
     end
   end
 end

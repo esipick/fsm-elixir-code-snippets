@@ -109,7 +109,7 @@
                 </dd>
               </dl>
             <% end %>
-            <% if has_medical?(@user) do %>
+            <%= if has_medical?(@user) do %>
               <dl class="d-flex justify-content-between">
                 <dt>Medical</dt>
                 <dd><%= human_readable_medical_rating(@user.medical_rating) %>

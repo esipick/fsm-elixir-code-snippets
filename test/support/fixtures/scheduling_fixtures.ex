@@ -5,7 +5,7 @@ defmodule Flight.SchedulingFixtures do
   import Flight.AccountsFixtures
 
   def aircraft_fixture(attrs \\ %{}) do
-    invitation =
+    aircraft =
       %Aircraft{
         make: "Sesna",
         model: "Thing",
@@ -21,7 +21,7 @@ defmodule Flight.SchedulingFixtures do
       |> Aircraft.changeset(attrs)
       |> Repo.insert!()
 
-    invitation
+    aircraft
   end
 
   def appointment_fixture(

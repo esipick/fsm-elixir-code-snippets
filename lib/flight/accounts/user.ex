@@ -21,6 +21,7 @@ defmodule Flight.Accounts.User do
     field(:billing_rate, :integer, default: 75)
     field(:pay_rate, :integer, default: 50)
     field(:awards, :string)
+    field(:stripe_customer_id, :string)
     many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
 
     many_to_many(
@@ -36,20 +37,38 @@ defmodule Flight.Accounts.User do
   @doc false
   def create_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :first_name, :last_name, :password])
+    |> cast(attrs, [:email, :first_name, :last_name, :password, :stripe_customer_id, :balance])
     |> validate_required([:email, :first_name, :last_name, :password])
     |> unique_constraint(:email)
     |> validate_password(:password)
     |> put_pass_hash()
   end
 
-  def api_update_changeset(user, attrs) do
+  def stripe_customer_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :first_name, :last_name])
-    |> validate_required([:email, :first_name, :last_name])
-    |> unique_constraint(:email)
-    |> validate_password(:password)
-    |> put_pass_hash()
+    |> cast(attrs, [:stripe_customer_id])
+    |> validate_required([:stripe_customer_id])
+  end
+
+  def api_update_changeset(user, attrs, roles \\ nil, flyer_certificates \\ nil) do
+    user
+    |> cast(attrs, [
+      :email,
+      :first_name,
+      :last_name,
+      :password,
+      :phone_number,
+      :address_1,
+      :city,
+      :state,
+      :zipcode,
+      :flight_training_number,
+      :medical_rating,
+      :medical_expires_at,
+      :certificate_number,
+      :awards
+    ])
+    |> base_validations(roles, flyer_certificates)
   end
 
   def profile_changeset(user, attrs, roles, flyer_certificates) do
@@ -72,18 +91,41 @@ defmodule Flight.Accounts.User do
       :pay_rate,
       :awards
     ])
-    |> unique_constraint(:email)
-    |> put_assoc(:roles, roles)
-    |> put_assoc(:flyer_certificates, flyer_certificates)
-    |> validate_length(:roles, min: 1)
-    |> validate_required([:email, :first_name, :last_name])
-    |> validate_password(:password)
-    |> validate_format(
-      :phone_number,
-      Flight.Format.phone_number_regex(),
-      message: "must be in the format: 555-555-5555"
-    )
-    |> normalize_phone_number()
+    |> base_validations(roles, flyer_certificates)
+  end
+
+  def base_validations(changeset, roles \\ nil, flyer_certificates \\ nil) do
+    changeset =
+      changeset
+      |> validate_required([:email, :first_name, :last_name])
+      |> unique_constraint(:email)
+      |> validate_length(:roles, min: 1)
+      |> validate_password(:password)
+      |> validate_format(
+        :phone_number,
+        Flight.Format.phone_number_regex(),
+        message: "must be in the format: 555-555-5555"
+      )
+      |> normalize_phone_number()
+
+    changeset =
+      if roles do
+        changeset |> put_assoc(:roles, roles)
+      else
+        changeset
+      end
+
+    if flyer_certificates do
+      changeset |> put_assoc(:flyer_certificates, flyer_certificates)
+    else
+      changeset
+    end
+  end
+
+  def balance_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:balance])
+    |> validate_required([:balance])
   end
 
   def validate_password(changeset, field, options \\ []) do
@@ -118,7 +160,9 @@ defmodule Flight.Accounts.User do
   defp valid_password?(_), do: {:error, "The password is too short"}
 
   defp put_pass_hash(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
-    change(changeset, Comeonin.Bcrypt.add_hash(password))
+    changeset
+    |> change(Comeonin.Bcrypt.add_hash(password))
+    |> delete_change(:password)
   end
 
   defp put_pass_hash(changeset), do: changeset

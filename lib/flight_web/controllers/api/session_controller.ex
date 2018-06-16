@@ -9,6 +9,10 @@ defmodule FlightWeb.API.SessionController do
     if user do
       case Accounts.check_password(user, password) do
         {:ok, user} ->
+          user =
+            user
+            |> Flight.Repo.preload([:roles, :flyer_certificates])
+
           render(conn, "login.json", user: user, token: FlightWeb.AuthenticateApiUser.token(user))
 
         {:error, _} ->

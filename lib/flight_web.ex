@@ -23,6 +23,8 @@ defmodule FlightWeb do
       import Plug.Conn
       import FlightWeb.Router.Helpers
       import FlightWeb.Gettext
+      import FlightWeb.API.RenderHelpers
+      import Flight.Auth.Authorization.Extensions
     end
   end
 

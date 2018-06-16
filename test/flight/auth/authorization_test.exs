@@ -2,6 +2,7 @@ defmodule Flight.Auth.AuthorizationTest do
   use FlightWeb.ConnCase
 
   import Flight.Auth.Authorization
+  import Flight.Auth.Authorization.Extensions
   alias Flight.Auth.Permission
 
   describe "permissions_for_role_slug" do

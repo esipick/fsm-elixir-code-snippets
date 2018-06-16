@@ -21,11 +21,6 @@ defmodule Flight.Accounts.AccountsTest do
     }
     @invalid_attrs %{balance: nil, email: nil, name: nil, password: nil}
 
-    test "list_users/0 returns all users" do
-      user = user_fixture()
-      assert Accounts.list_users() == [user]
-    end
-
     test "get_user!/1 returns the user with given id" do
       user = user_fixture()
       assert Accounts.get_user!(user.id) == user
@@ -42,6 +37,7 @@ defmodule Flight.Accounts.AccountsTest do
       refute Accounts.get_user(user.id, ["admin"])
     end
 
+    @tag :integration
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} =
                Accounts.create_user(%{
@@ -55,6 +51,7 @@ defmodule Flight.Accounts.AccountsTest do
       assert user.email == "foo@bar.com"
       assert user.first_name == "Tammy"
       assert user.last_name == "Jones"
+      assert user.stripe_customer_id
       assert {:ok, _} = Accounts.check_password(user, "password")
     end
 

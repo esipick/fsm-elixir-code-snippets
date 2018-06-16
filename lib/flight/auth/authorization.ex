@@ -1,20 +1,6 @@
 defmodule Flight.Auth.Authorization do
   import Flight.Auth.Permission
 
-  def halt_unless_user_can?(conn, permissions, permissed_func \\ nil) do
-    if user_can?(conn.assigns.current_user, permissions) do
-      if permissed_func do
-        permissed_func.()
-      else
-        conn
-      end
-    else
-      conn
-      |> Plug.Conn.resp(401, "")
-      |> Plug.Conn.halt()
-    end
-  end
-
   def user_can?(user, permissions) do
     for permission <- permissions do
       has_permission_slug?(user, permission_slug(permission)) && scope_checker(permission, user)
@@ -63,7 +49,10 @@ defmodule Flight.Auth.Authorization do
 
   def admin_permission_slugs() do
     MapSet.new([
-      permission_slug(:users, :modify, :all)
+      permission_slug(:users, :modify, :all),
+      permission_slug(:objective_score, :view, :all),
+      permission_slug(:objective_score, :modify, :all),
+      permission_slug(:transaction_creator, :modify, :all)
     ])
   end
 
@@ -71,7 +60,13 @@ defmodule Flight.Auth.Authorization do
     MapSet.new([
       permission_slug(:users, :modify, :personal),
       permission_slug(:users, :view, :all),
-      permission_slug(:appointment_instructor, :modify, :personal)
+      permission_slug(:appointment_instructor, :modify, :personal),
+      permission_slug(:objective_score, :view, :all),
+      permission_slug(:objective_score, :modify, :all),
+      permission_slug(:transaction_approve, :modify, :personal),
+      permission_slug(:transaction_creator, :modify, :all),
+      permission_slug(:transaction_creator, :view, :personal),
+      permission_slug(:transaction_user, :view, :personal)
     ])
   end
 
@@ -80,7 +75,11 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:users, :modify, :personal),
       permission_slug(:users, :view, :personal),
       permission_slug(:appointment_user, :modify, :personal),
-      permission_slug(:appointment_student, :modify, :personal)
+      permission_slug(:appointment_student, :modify, :personal),
+      permission_slug(:objective_score, :view, :personal),
+      permission_slug(:transaction_approve, :modify, :personal),
+      permission_slug(:transaction_creator, :modify, :personal),
+      permission_slug(:transaction_user, :view, :personal)
     ])
   end
 
@@ -88,7 +87,27 @@ defmodule Flight.Auth.Authorization do
     MapSet.new([
       permission_slug(:users, :modify, :personal),
       permission_slug(:users, :view, :personal),
-      permission_slug(:appointment_user, :modify, :personal)
+      permission_slug(:appointment_user, :modify, :personal),
+      permission_slug(:transaction_approve, :modify, :personal),
+      permission_slug(:transaction_creator, :modify, :personal),
+      permission_slug(:transaction_user, :view, :personal)
     ])
+  end
+end
+
+defmodule Flight.Auth.Authorization.Extensions do
+  def halt_unless_user_can?(conn, permissions, permissed_func \\ nil) do
+    if Flight.Auth.Authorization.user_can?(conn.assigns.current_user, permissions) do
+      if permissed_func do
+        permissed_func.()
+      else
+        conn
+      end
+    else
+      conn
+      |> Plug.Conn.put_resp_content_type("application/json")
+      |> Plug.Conn.resp(401, Poison.encode!(%{error: %{message: "Invalid permissions"}}))
+      |> Plug.Conn.halt()
+    end
   end
 end

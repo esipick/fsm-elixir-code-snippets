@@ -20,6 +20,18 @@ config :flight, FlightWeb.Endpoint,
     ]
   ]
 
+# config :stripy,
+#   secret_key: "sk_test_ZHmnpsn2AcEeUNMVWj5ueuZ7",
+#   endpoint: "https://api.stripe.com/v1/",
+#   version: "2018-05-21",
+#   httpoison: [recv_timeout: 5000, timeout: 8000]
+
+config :stripity_stripe, api_key: "sk_test_ZHmnpsn2AcEeUNMVWj5ueuZ7"
+
+config :stripity_stripe, :pool_options,
+  timeout: 5_000,
+  max_connections: 10
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed

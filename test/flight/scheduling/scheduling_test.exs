@@ -1,5 +1,5 @@
 defmodule Flight.SchedulingTest do
-  use Flight.DataCase, async: true
+  use Flight.DataCase
 
   alias Flight.{Repo, Scheduling}
   alias Flight.Scheduling.{Aircraft, Appointment, Inspection}
@@ -464,7 +464,7 @@ defmodule Flight.SchedulingTest do
     end
 
     ##
-    # get_appointments(from, to)
+    # get_appointments(options)
     ##
 
     test "get_appointments/2 returns appointments within range" do
@@ -477,13 +477,81 @@ defmodule Flight.SchedulingTest do
       appointment3 =
         appointment_fixture(%{start_at: ~N[2018-03-03 22:59:59], end_at: ~N[2018-03-03 23:59:59]})
 
-      appointments = Scheduling.get_appointments(~N[2018-03-03 00:00:00], ~N[2018-03-04 00:00:00])
+      appointments =
+        Scheduling.get_appointments(%{
+          "from" => "2018-03-03T00:00:00Z",
+          "to" => "2018-03-04T00:00:00Z"
+        })
 
       assert [%Appointment{}, %Appointment{}] = appointments
 
       appointmentIds = Enum.map(appointments, & &1.id)
 
       assert MapSet.new(appointmentIds) == MapSet.new([appointment1.id, appointment3.id])
+    end
+
+    test "get_appointments/2 returns appointments for user" do
+      appointment1 =
+        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+
+      _appointment2 =
+        appointment_fixture(%{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]})
+
+      id = appointment1.id
+
+      assert [%Appointment{id: ^id}] =
+               Scheduling.get_appointments(%{
+                 "user_id" => appointment1.user.id
+               })
+    end
+
+    test "get_appointments/2 returns appointments for instructor" do
+      appointment1 =
+        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+
+      _appointment2 =
+        appointment_fixture(%{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]})
+
+      id = appointment1.id
+
+      assert [%Appointment{id: ^id}] =
+               Scheduling.get_appointments(%{
+                 "instructor_user_id" => appointment1.instructor_user.id
+               })
+    end
+
+    test "get_appointments/2 returns appointments for aircraft" do
+      appointment1 =
+        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+
+      _appointment2 =
+        appointment_fixture(%{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]})
+
+      id = appointment1.id
+
+      assert [%Appointment{id: ^id}] =
+               Scheduling.get_appointments(%{
+                 "aircraft_id" => appointment1.aircraft.id
+               })
+    end
+
+    test "get_appointments/2 returns appointments for aircraft & student" do
+      appointment1 =
+        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+
+      _appointment2 =
+        appointment_fixture(
+          %{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]},
+          appointment1.user
+        )
+
+      id = appointment1.id
+
+      assert [%Appointment{id: ^id}] =
+               Scheduling.get_appointments(%{
+                 "user_id" => appointment1.user.id,
+                 "aircraft_id" => appointment1.aircraft.id
+               })
     end
   end
 end

@@ -196,7 +196,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       conn
       |> auth(student)
       |> post("/api/appointments", params)
-      |> json_response(401)
+      |> json_response(400)
     end
 
     test "instructor can't create appointment as student", %{conn: conn} do
@@ -217,7 +217,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       conn
       |> auth(instructor)
       |> post("/api/appointments", params)
-      |> json_response(401)
+      |> json_response(400)
     end
 
     test "student can't create appointment for other student", %{conn: conn} do
@@ -238,7 +238,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       conn
       |> auth(student)
       |> post("/api/appointments", params)
-      |> json_response(401)
+      |> json_response(400)
     end
 
     test "instructor can't create appointment for other instructor", %{conn: conn} do
@@ -259,7 +259,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       conn
       |> auth(instructor)
       |> post("/api/appointments", params)
-      |> json_response(401)
+      |> json_response(400)
     end
   end
 end

@@ -5,7 +5,7 @@ defmodule Flight.Mixfile do
     [
       app: :flight,
       version: "0.0.1",
-      elixir: "~> 1.4",
+      elixir: "~> 1.6.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -47,7 +47,8 @@ defmodule Flight.Mixfile do
       {:bcrypt_elixir, "~> 1.0"},
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 4.0"},
-      {:timex, "~> 3.1"}
+      {:timex, "~> 3.1"},
+      {:stripity_stripe, "~> 2.0"}
     ]
   end
 

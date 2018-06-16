@@ -29,6 +29,10 @@ defmodule FlightWeb.Router do
     plug(:accepts, ["json"])
   end
 
+  ###
+  # Admin Routes
+  ###
+
   scope "/", FlightWeb do
     # Use the default browser stack
     pipe_through([:browser, :no_layout])
@@ -70,6 +74,10 @@ defmodule FlightWeb.Router do
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
   end
 
+  ###
+  # API Routes
+  ###
+
   scope "/api", FlightWeb.API do
     pipe_through(:api)
 
@@ -79,9 +87,34 @@ defmodule FlightWeb.Router do
   scope "/api", FlightWeb.API do
     pipe_through([:api, :api_authenticate])
 
-    resources("/users", UserController, only: [:show, :update])
+    resources("/users", UserController, only: [:show, :update, :index]) do
+      get("/form_items", UserController, :form_items)
+    end
+
+    resources("/aircrafts", AircraftController, only: [:index])
+
+    resources("/transactions", TransactionController, only: [:create, :index]) do
+      post("/approve", TransactionController, :approve)
+    end
+
+    post("/transactions/preview", TransactionController, :preview)
+
+    post(
+      "/transactions/preferred_payment_method",
+      TransactionController,
+      :preferred_payment_method
+    )
+
+    post("/stripe_ephemeral_keys", TransactionController, :ephemeral_keys)
+
+    post("/objective_scores", ObjectiveScoreController, :create)
+    get("/objective_scores", ObjectiveScoreController, :index)
+    delete("/objective_scores", ObjectiveScoreController, :delete)
+
     get("/appointments/availability", AppointmentController, :availability)
     resources("/appointments", AppointmentController, only: [:create, :index, :update])
+
+    resources("/courses", CourseController, only: [:index])
   end
 
   if Mix.env() == :dev do

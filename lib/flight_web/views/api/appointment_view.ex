@@ -46,11 +46,7 @@ defmodule FlightWeb.API.AppointmentView do
 
   def render("availability_aircraft.json", %{availability_aircraft: aircraft}) do
     %{
-      aircraft: %{
-        id: aircraft.aircraft.id,
-        make: aircraft.aircraft.make,
-        model: aircraft.aircraft.model
-      },
+      aircraft: render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: aircraft.aircraft),
       status: aircraft.status
     }
   end
