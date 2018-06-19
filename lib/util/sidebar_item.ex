@@ -21,6 +21,12 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
+        path: "/admin/schools",
+        label: "Schools",
+        icon_class: "education_hat",
+        active: false
+      },
+      %SidebarItem{
         path: "/admin/users?role=instructor",
         label: "Instructors",
         icon_class: "users_single-02",

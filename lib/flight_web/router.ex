@@ -55,6 +55,8 @@ defmodule FlightWeb.Router do
     get("/dashboard", PageController, :dashboard)
 
     get("/logout", SessionController, :logout)
+    
+    resources("/schools", SchoolController, only: [:index, :show, :edit, :update])
 
     resources("/users", UserController, only: [:index, :show, :edit, :update])
 

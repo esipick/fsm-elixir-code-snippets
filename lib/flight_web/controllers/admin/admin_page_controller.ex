@@ -24,4 +24,8 @@ defmodule FlightWeb.Admin.PageController do
       expired_inspections: expired_inspections
     )
   end
+  
+  def schools(conn, _params) do
+    render(conn, "schools.html")
+  end
 end
