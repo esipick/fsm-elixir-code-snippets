@@ -106,6 +106,8 @@ defmodule FlightWeb.UserForm do
     }
   end
 
+  def human_readable_medical_rating(nil), do: nil
+
   def human_readable_medical_rating(medical_rating) when is_binary(medical_rating) do
     human_readable_medical_rating(String.to_integer(medical_rating))
   end

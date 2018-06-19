@@ -51,25 +51,42 @@ defmodule Flight.Accounts do
     end
   end
 
-  def update_user(%User{} = user, attrs) do
-    user
-    |> User.api_update_changeset(attrs)
-    |> Repo.update()
+  def api_update_user_profile(%User{} = user, attrs, flyer_certificates) do
+    update_user_profile(
+      user,
+      attrs,
+      nil,
+      flyer_certificates,
+      &User.api_update_changeset/4
+    )
   end
 
-  def update_user_profile(%User{} = user, attrs, role_slugs, flyer_certficate_slugs) do
+  defp update_user_profile(user, attrs, role_slugs, flyer_certificate_slugs, changeset_func) do
     user = Repo.preload(user, [:roles, :flyer_certificates])
-    roles = Repo.all(from(r in Role, where: r.slug in ^role_slugs))
-    certs = Repo.all(from(c in FlyerCertificate, where: c.slug in ^flyer_certficate_slugs))
 
-    valid_roles? = Enum.count(role_slugs) == Enum.count(roles)
-    valid_certs? = Enum.count(flyer_certficate_slugs) == Enum.count(certs)
+    {valid_roles?, roles} =
+      if role_slugs do
+        roles = Repo.all(from(r in Role, where: r.slug in ^role_slugs))
+        valid_roles? = Enum.count(role_slugs) == Enum.count(roles)
+        {valid_roles?, roles}
+      else
+        {true, nil}
+      end
+
+    {valid_certs?, certs} =
+      if flyer_certificate_slugs do
+        certs = Repo.all(from(c in FlyerCertificate, where: c.slug in ^flyer_certificate_slugs))
+        valid_certs? = Enum.count(flyer_certificate_slugs) == Enum.count(certs)
+        {valid_certs?, certs}
+      else
+        {true, nil}
+      end
 
     cond do
       !valid_roles? ->
         {:error,
          Ecto.Changeset.add_error(
-           User.profile_changeset(user, attrs, [], []),
+           changeset_func.(user, attrs, [], []),
            :roles,
            "are not all known: #{Enum.join(role_slugs, ", ")}"
          )}
@@ -77,21 +94,31 @@ defmodule Flight.Accounts do
       !valid_certs? ->
         {:error,
          Ecto.Changeset.add_error(
-           User.profile_changeset(user, attrs, [], []),
+           changeset_func.(user, attrs, [], []),
            :flyer_certificates,
-           "are not all known: #{Enum.join(flyer_certficate_slugs, ", ")}"
+           "are not all known: #{Enum.join(flyer_certificate_slugs, ", ")}"
          )}
 
       true ->
         {:ok, result} =
           Repo.transaction(fn ->
             user
-            |> User.profile_changeset(attrs, roles, certs)
+            |> changeset_func.(attrs, roles, certs)
             |> Repo.update()
           end)
 
         result
     end
+  end
+
+  def admin_update_user_profile(%User{} = user, attrs, role_slugs, flyer_certificate_slugs) do
+    update_user_profile(
+      user,
+      attrs,
+      role_slugs,
+      flyer_certificate_slugs,
+      &User.admin_update_changeset/4
+    )
   end
 
   def delete_user(%User{} = user) do

@@ -50,7 +50,7 @@ defmodule Flight.Accounts.User do
     |> validate_required([:stripe_customer_id])
   end
 
-  def api_update_changeset(user, attrs, roles \\ nil, flyer_certificates \\ nil) do
+  def api_update_changeset(user, attrs, _roles, flyer_certificates) do
     user
     |> cast(attrs, [
       :email,
@@ -68,10 +68,10 @@ defmodule Flight.Accounts.User do
       :certificate_number,
       :awards
     ])
-    |> base_validations(roles, flyer_certificates)
+    |> base_validations(nil, flyer_certificates)
   end
 
-  def profile_changeset(user, attrs, roles, flyer_certificates) do
+  def admin_update_changeset(user, attrs, roles, flyer_certificates) do
     user
     |> cast(attrs, [
       :email,
@@ -95,31 +95,22 @@ defmodule Flight.Accounts.User do
   end
 
   def base_validations(changeset, roles \\ nil, flyer_certificates \\ nil) do
-    changeset =
-      changeset
-      |> validate_required([:email, :first_name, :last_name])
-      |> unique_constraint(:email)
-      |> validate_length(:roles, min: 1)
-      |> validate_password(:password)
-      |> validate_format(
-        :phone_number,
-        Flight.Format.phone_number_regex(),
-        message: "must be in the format: 555-555-5555"
-      )
-      |> normalize_phone_number()
-
-    changeset =
-      if roles do
-        changeset |> put_assoc(:roles, roles)
-      else
-        changeset
-      end
-
-    if flyer_certificates do
-      changeset |> put_assoc(:flyer_certificates, flyer_certificates)
-    else
-      changeset
-    end
+    changeset
+    |> validate_required([:email, :first_name, :last_name])
+    |> unique_constraint(:email)
+    |> validate_length(:roles, min: 1)
+    |> validate_password(:password)
+    |> validate_format(
+      :phone_number,
+      Flight.Format.phone_number_regex(),
+      message: "must be in the format: 555-555-5555"
+    )
+    |> normalize_phone_number()
+    |> Pipe.pass_unless(roles, &put_assoc(&1, :roles, roles))
+    |> Pipe.pass_unless(
+      flyer_certificates,
+      &put_assoc(&1, :flyer_certificates, flyer_certificates)
+    )
   end
 
   def balance_changeset(user, attrs) do

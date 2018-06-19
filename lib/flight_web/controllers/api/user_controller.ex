@@ -41,13 +41,25 @@ defmodule FlightWeb.API.UserController do
     render(conn, "show.json", user: user)
   end
 
-  def update(conn, params) do
-    with {:ok, user} <- Accounts.update_user(conn.assigns.user, params["data"]) do
+  def update(conn, %{"data" => data_params}) do
+    with {:ok, user} <-
+           Accounts.api_update_user_profile(
+             conn.assigns.user,
+             data_params,
+             data_params["flyer_certificates"]
+           ) do
       user =
         user
         |> Flight.Repo.preload([:roles, :flyer_certificates])
 
       render(conn, "show.json", user: user)
+    else
+      {:error, changeset} ->
+        IO.inspect(changeset)
+
+        conn
+        |> put_status(400)
+        |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
     end
   end
 

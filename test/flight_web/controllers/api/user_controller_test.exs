@@ -55,10 +55,17 @@ defmodule FlightWeb.API.UserControllerTest do
 
   describe "PUT /api/users/:id" do
     test "renders json", %{conn: conn} do
-      user = student_fixture(%{first_name: "Justin"})
+      user =
+        student_fixture(%{first_name: "Justin"})
+        |> Flight.Repo.preload(:flyer_certificates)
+
+      assert user.flyer_certificates == []
+
+      cert = flyer_certificate_fixture()
 
       updates = %{
-        first_name: "Alex"
+        first_name: "Alex",
+        flyer_certificates: [cert.slug]
       }
 
       json =
@@ -72,6 +79,7 @@ defmodule FlightWeb.API.UserControllerTest do
         |> Flight.Repo.preload([:roles, :flyer_certificates])
 
       assert user.first_name == "Alex"
+      assert user.flyer_certificates == [cert]
 
       assert json ==
                render_json(

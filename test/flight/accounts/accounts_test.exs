@@ -78,10 +78,10 @@ defmodule Flight.Accounts.AccountsTest do
       assert user.last_name == "some updated last name"
     end
 
-    test "update_user_profile/2 update roles" do
+    test "admin_update_user_profile/2 update roles" do
       user = user_fixture() |> assign_role("admin")
       role_fixture(%{slug: "student"})
-      assert {:ok, user} = Accounts.update_user_profile(user, %{}, ["student"], [])
+      assert {:ok, user} = Accounts.admin_update_user_profile(user, %{}, ["student"], [])
 
       role =
         assoc(user, :roles)
@@ -91,10 +91,10 @@ defmodule Flight.Accounts.AccountsTest do
       assert role.slug == "student"
     end
 
-    test "update_user_profile/2 update flyer certificates" do
+    test "admin_update_user_profile/2 update flyer certificates" do
       user = user_fixture() |> assign_role("admin")
       flyer_certificate_fixture(%{slug: "cfi"})
-      assert {:ok, user} = Accounts.update_user_profile(user, %{}, ["admin"], ["cfi"])
+      assert {:ok, user} = Accounts.admin_update_user_profile(user, %{}, ["admin"], ["cfi"])
 
       cert =
         assoc(user, :flyer_certificates)
@@ -104,12 +104,12 @@ defmodule Flight.Accounts.AccountsTest do
       assert cert.slug == "cfi"
     end
 
-    test "update_user_profile/2 updates date" do
+    test "admin_update_user_profile/2 updates date" do
       user = user_fixture() |> assign_role("admin")
       role_fixture(%{slug: "student"})
 
       assert {:ok, user} =
-               Accounts.update_user_profile(
+               Accounts.admin_update_user_profile(
                  user,
                  %{"medical_expires_at" => "3/3/2018"},
                  [
@@ -121,12 +121,12 @@ defmodule Flight.Accounts.AccountsTest do
       assert user.medical_expires_at == ~D[2018-03-03]
     end
 
-    test "update_user_profile/2 normalizes phone_number" do
+    test "admin_update_user_profile/2 normalizes phone_number" do
       user = user_fixture() |> assign_role("admin")
       role_fixture(%{slug: "student"})
 
       assert {:ok, user} =
-               Accounts.update_user_profile(
+               Accounts.admin_update_user_profile(
                  user,
                  %{"phone_number" => "(801) 707-1847"},
                  [

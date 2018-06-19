@@ -22,7 +22,7 @@ defmodule FlightWeb.Admin.UserController do
   end
 
   def update(conn, %{"user" => user_form} = params) do
-    case Accounts.update_user_profile(
+    case Accounts.admin_update_user_profile(
            conn.assigns.requested_user,
            user_form,
            Map.keys(params["role_slugs"] || %{}),
