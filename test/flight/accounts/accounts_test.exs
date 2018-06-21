@@ -69,15 +69,6 @@ defmodule Flight.Accounts.AccountsTest do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
     end
 
-    test "update_user/2 with valid data updates the user" do
-      user = user_fixture()
-      assert {:ok, user} = Accounts.update_user(user, @update_attrs)
-      assert %User{} = user
-      assert user.email == "some updated email"
-      assert user.first_name == "some updated first name"
-      assert user.last_name == "some updated last name"
-    end
-
     test "admin_update_user_profile/2 update roles" do
       user = user_fixture() |> assign_role("admin")
       role_fixture(%{slug: "student"})
@@ -136,12 +127,6 @@ defmodule Flight.Accounts.AccountsTest do
                )
 
       assert user.phone_number == "801-707-1847"
-    end
-
-    test "update_user/2 with invalid data returns error changeset" do
-      user = user_fixture()
-      assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
-      assert user == Accounts.get_user!(user.id)
     end
 
     test "delete_user/1 deletes the user" do
