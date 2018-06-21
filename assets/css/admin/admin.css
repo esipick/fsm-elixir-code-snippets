@@ -148,6 +148,15 @@ table .photo {
 input.btn { }
 
 
+.badge-success {
+  background-color: #46CF7B;
+  border-color: #46CF7B;  
+}
+.badge-danger {
+  background-color: #F64461;
+  border-color: #F64461;  
+}
+
 
 .sidebar[data-color="blue"]:after,
 .off-canvas-sidebar[data-color="blue"]:after {
