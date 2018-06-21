@@ -157,6 +157,6 @@ defmodule Flight.Scheduling.Availability do
   end
 
   def exclude_appointment_query(query, ids) do
-    from(a in query, where: a.id not in ^ids)
+    from(a in query, where: a.id not in ^Enum.filter(ids, & &1))
   end
 end
