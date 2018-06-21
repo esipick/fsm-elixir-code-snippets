@@ -177,6 +177,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
     transaction = %Transaction{
       total: total,
       state: "pending",
+      type: "debit",
       user_id: form.user_id,
       creator_user_id: form.creator_user_id
     }

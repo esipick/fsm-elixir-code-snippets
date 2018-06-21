@@ -21,6 +21,7 @@ defmodule Flight.BillingFixtures do
     transaction =
       %Transaction{
         state: "pending",
+        type: "debit",
         total: 6000,
         user_id: user.id,
         creator_user_id: creator.id

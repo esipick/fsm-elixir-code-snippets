@@ -13,12 +13,6 @@ defmodule Flight.Accounts.AccountsTest do
       last_name: "some last name",
       password: "some password"
     }
-    @update_attrs %{
-      email: "some updated email",
-      first_name: "some updated first name",
-      last_name: "some updated last name",
-      password: "some updated password"
-    }
     @invalid_attrs %{balance: nil, email: nil, name: nil, password: nil}
 
     test "get_user!/1 returns the user with given id" do

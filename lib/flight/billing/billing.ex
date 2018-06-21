@@ -117,7 +117,9 @@ defmodule Flight.Billing do
           |> Transaction.changeset(%{
             user_id: user.id,
             creator_user_id: creator_user.id,
+            completed_at: NaiveDateTime.utc_now(),
             state: "completed",
+            type: "credit",
             paid_by_charge: amount,
             stripe_charge_id: charge.id,
             total: amount
@@ -142,6 +144,35 @@ defmodule Flight.Billing do
       error ->
         error
     end
+  end
+
+  def add_funds_by_credit(user, creator_user, amount) when is_integer(amount) do
+    transaction =
+      %Transaction{}
+      |> Transaction.changeset(%{
+        user_id: user.id,
+        creator_user_id: creator_user.id,
+        completed_at: NaiveDateTime.utc_now(),
+        state: "completed",
+        type: "credit",
+        total: amount
+      })
+      |> Repo.insert!()
+
+    line_item =
+      %TransactionLineItem{}
+      |> TransactionLineItem.changeset(%{
+        transaction_id: transaction.id,
+        description: "Added funds to balance.",
+        amount: amount
+      })
+      |> Repo.insert!()
+
+    {:ok, user} = Billing.update_balance(user, amount)
+
+    transaction = %{transaction | line_items: [line_item]}
+
+    {:ok, {user, transaction}}
   end
 
   def approve_transaction(transaction, source? \\ nil) do
@@ -189,6 +220,7 @@ defmodule Flight.Billing do
           %{
             state: "completed",
             completed_at: NaiveDateTime.utc_now(),
+            type: "debit",
             stripe_charge_id: charge_id
           }
           |> Map.put(paid_by_key, transaction.total)

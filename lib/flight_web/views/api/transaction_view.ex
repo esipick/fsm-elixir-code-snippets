@@ -53,6 +53,7 @@ defmodule FlightWeb.API.TransactionView do
       inserted_at: transaction.inserted_at,
       completed_at: transaction.completed_at,
       total: transaction.total,
+      type: transaction.type,
       user: render(FlightWeb.API.UserView, "skinny_user.json", user: transaction.user),
       creator_user:
         render(FlightWeb.API.UserView, "skinny_user.json", user: transaction.creator_user),

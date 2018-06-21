@@ -89,7 +89,7 @@ defmodule Flight.BillingTest do
     end
   end
 
-  describe "deduct_from_balance/2" do
+  describe "update_balance/2" do
     test "removes amount from balance" do
       user = user_fixture(%{balance: 5000})
 
@@ -110,6 +110,7 @@ defmodule Flight.BillingTest do
                Billing.approve_transaction(transaction)
 
       assert transaction.completed_at
+      assert transaction.type == "debit"
 
       user = Flight.Repo.get(Flight.Accounts.User, transaction.user.id)
 
@@ -128,12 +129,13 @@ defmodule Flight.BillingTest do
 
       assert transaction.completed_at
       assert transaction.state == "completed"
+      assert transaction.type == "debit"
       assert transaction.paid_by_charge == 3000
       refute transaction.paid_by_balance
     end
   end
 
-  describe "add_funds/2" do
+  describe "add_funds_by_charge/2" do
     @tag :integration
     test "adds funds to user and creates transaction" do
       {user, card} = student_fixture() |> real_stripe_customer()
@@ -146,6 +148,7 @@ defmodule Flight.BillingTest do
 
       assert user.balance == 3000
       assert transaction.total == 3000
+      assert transaction.type == "credit"
       assert transaction.paid_by_charge == 3000
       assert transaction.user_id == user.id
       assert transaction.creator_user_id == user.id
