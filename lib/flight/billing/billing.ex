@@ -10,7 +10,7 @@ defmodule Flight.Billing do
   alias Flight.Accounts.{User}
   alias FlightWeb.API.DetailedTransactionForm
 
-  def aircraft_cost(aircraft, hobbs_start, hobbs_end, fee_percentage \\ 0.1) do
+  def aircraft_cost(aircraft, hobbs_start, hobbs_end, fee_percentage \\ 0.01) do
     cond do
       hobbs_end <= hobbs_start ->
         {:error, :invalid_hobbs_interval}
