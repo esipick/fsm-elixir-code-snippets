@@ -35,6 +35,12 @@ config :flight, Flight.Mailer,
   adapter: Bamboo.SendgridAdapter,
   api_key: System.get_env("SENDGRID_API_KEY")
 
+config :stripity_stripe, api_key: Map.fetch!(System.get_env(), "STRIPE_SECREY_KEY")
+
+config :stripity_stripe, :pool_options,
+  timeout: 5_000,
+  max_connections: 10
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
