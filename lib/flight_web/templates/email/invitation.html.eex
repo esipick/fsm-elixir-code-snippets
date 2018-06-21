@@ -145,7 +145,10 @@
             height="100%"
             valign="top"
             bgcolor="">
-            <div style="text-align: center;">Hey <%= @first_name %>!<br />
+            <div style="text-align: center;">
+              
+              
+              Hey <%= @first_name %>!<br />
 <br />
 You&#39;ve been invited to join <%= @company_name %> as a new <%= @role %>. Follow the link below to finish creating your account.</div>
 

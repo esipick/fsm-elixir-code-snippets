@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>Randon Aviation</title>
+    <title>Flight School Manager</title>
     <%= render FlightWeb.Admin.PartialView, "_css.html", assigns %>
     <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>
   </head>
@@ -23,7 +23,7 @@
       <div class="panel-header">
         <div class="header text-center">
           <h2 class="title">Welcome to Randon Aviation</h2>
-          <p class="category">You've been invited to join and download the Randon Aviation Flight School Manager app. Lets create your account below. Once your account is created, download the app using the link and log in to get started!</a>
+          <p class="category">You've been invited to join and download the Randon Aviation, Flight School Manager app. Lets create your account below. Once your account is created, download the app using the link and log in to get started!</a>
           </p>
         </div>
       </div>
