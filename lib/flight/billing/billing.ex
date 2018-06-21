@@ -128,7 +128,7 @@ defmodule Flight.Billing do
           %TransactionLineItem{}
           |> TransactionLineItem.changeset(%{
             transaction_id: transaction.id,
-            description: "Add funds to balance.",
+            description: "Added funds to balance.",
             amount: amount
           })
           |> Repo.insert!()
