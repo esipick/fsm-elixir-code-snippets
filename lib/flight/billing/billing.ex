@@ -102,6 +102,7 @@ defmodule Flight.Billing do
         params["creator_user_id"],
         &where(&1, [t], t.creator_user_id == ^params["creator_user_id"])
       )
+      |> order_by([t], desc: t.inserted_at)
 
     Repo.all(query)
   end
