@@ -33,16 +33,9 @@
         </div>
       </nav>
       <!-- End Navbar -->
-      <div class="panel-header panel-header-sm">
-        <!-- <div class="header text-center">
-          <h2 class="title">Student Management</h2>
-          <p class="category">A list of all Randon Aviation students.</p>
-        </div> -->
-      </div>
 
-      <div class="content">
         <%= render @view_module, @view_template, assigns %>
-      </div>
+
 
         <footer class="footer" >
           <div class="container-fluid">

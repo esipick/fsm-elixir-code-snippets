@@ -1,18 +1,18 @@
-<div class="row">
-  <div class="col-md-4">
-    <div class="card card-user">
-      <div class="card-body text-center">
-        <div class="author">
-            <h5 class="title">Max Fischer</h5>
-          <p class="description"><a href="tel:1-408-555-5555">(801) 867-5309</a></p>
-        </div>
-      </div>
-    </div>
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @user.first_name %> <%= @user.last_name %></h2>
+    <p class="category">Edit Profile</p>
   </div>
+</div>
+
+<div class="content">
+  
+  
+<div class="row">
   <div class="col-md-8">
     <div class="card">
       <div class="card-header">
-        <h3>Edit Profile</h3>
+        <!--<h3>Edit Profile</h3>-->
       </div>
       <%= form_for @changeset, "/admin/users/#{@user.id}", [as: :user, method: "put", class: "form-horizontal"], fn f -> %>
         <div class="card-body">
@@ -204,3 +204,5 @@
   </div>
 
 </div>
+
+</div> <!-- end content -->
