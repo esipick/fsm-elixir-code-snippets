@@ -23,6 +23,8 @@ h7 {
   margin-bottom: 24px;
 }
 
+
+
 .navbar .navbar-brand {
   color: #BBBCCD;
   font-size: 10px;
@@ -160,12 +162,12 @@ input.btn { }
 
 .sidebar[data-color="blue"]:after,
 .off-canvas-sidebar[data-color="blue"]:after {
-  /* background: #00C9FF; */
+   background: #242527; 
 
-  background-image: -webkit-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
-  background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
-  background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
-  background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);
+  /*background-image: -webkit-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);*/
+  /*background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);*/
+  /*background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);*/
+  /*background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);*/
 }
 
 .sidebar .navbar-minimize {
@@ -181,24 +183,45 @@ input.btn { }
 }
 .sidebar .user,
 .off-canvas-sidebar .user {
-  background-color: rgba(0,0,0,.07);
+  /*background-color: rgba(0,0,0,.07);*/
   margin: 0 auto;
   padding: 20px 0 20px 16px;
+  border-bottom: solid 1px rgba(255,255,255,.05);
 }
 .sidebar .logo a.logo-mini,
 .off-canvas-sidebar .logo a.logo-mini {
   width: auto;
   float: none;
+  margin: 0;
+  padding: 0;
 }
 .logo {
   background: #fff;
 }
 .logo img {
-  max-height: 48px;
+  /*max-height: 48px;*/
+  border-radius: 0;
 }
 .sidebar .logo, .off-canvas-sidebar .logo {
-  padding: 1.065rem 0.7rem;
+  /*padding: 1.065rem 0.7rem;*/
+  padding: 0;
+  background: transparent;
 }
+
+.off-canvas-sidebar .nav li.active>a:not([data-toggle=collapse]), 
+.sidebar .nav li.active>a:not([data-toggle=collapse]) {
+  background-image: -webkit-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);
+}
+.off-canvas-sidebar[data-color=blue] .nav li.active>a:not([data-toggle=collapse]), 
+.off-canvas-sidebar[data-color=blue] .nav li.active>a:not([data-toggle=collapse]) i, 
+.sidebar[data-color=blue] .nav li.active>a:not([data-toggle=collapse]), 
+.sidebar[data-color=blue] .nav li.active>a:not([data-toggle=collapse]) i {
+  color: #fff;
+}
+
 
 .btn-success {
   background-color: #46CF7B;
@@ -488,6 +511,12 @@ dl .disc.expired {background-color: #FF5572;}
 .card-chart .card-footer {
   margin-top: 0;
 }
+
+
+.alert.alert-success {
+  background-color: #46CF7B;
+}
+
 
 .border-none {
   border: none !important;

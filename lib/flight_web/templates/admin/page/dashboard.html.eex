@@ -1,3 +1,11 @@
+<div class="panel-header panel-header-sm">
+  <div class="header text-center">
+    
+  </div>
+</div>
+
+<div class="content">
+
           <div class="row">
             <div class="col-md-12">
               <div class="card card-stats card-raised">
@@ -139,3 +147,4 @@
               </div>
             </div>
           </div> <!-- end row -->
+</div> <!-- end content -->

@@ -1,12 +1,21 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @aircraft.make %> <%= @aircraft.model %></h2>
+    <p class="category">Edit Aircraft</p>
+  </div>
+</div>
+
+<div class="content">
+
+
 <div class="row">
           
           <div class="col-md-8">
             <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Edit Aircraft</h3>
-              </div>
               <%= render "_form.html", changeset: @changeset, aircraft: @aircraft, is_edit: true %>
             </div> <!-- end card -->
           </div>
 
         </div>
+
+</div> <!-- end content -->

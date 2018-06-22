@@ -1,41 +1,14 @@
-<div class="row">
-  <div class="col-md-4">
-    <div class="card card-user">
-      <div class="card-body text-center">
-        <div class="author">
-            <h5 class="title"><%= @user.first_name %> <%= @user.last_name %></h5>
-          <p class="description"><a href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a></p>
-        </div>
-
-
-        <%= if has_cirriculum?(@user) do %>
-          <div class="card-section detail-list course-progress">
-            <h7>Course Progress</h7>
-            <dl class="d-flex justify-content-between">
-              <dt>Private Pilot License</dt>
-              <dd>80%</dd>
-            </dl>
-            <div class="course-progress-bar"><span style="width: 80%;"></span></div>
-            <dl class="d-flex justify-content-between">
-              <dt>Commercial Pilot License</dt>
-              <dd>0%</dd>
-            </dl>
-            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
-            <dl class="d-flex justify-content-between">
-              <dt>Instrument Flight Rating</dt>
-              <dd>0%</dd>
-            </dl>
-            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
-          </div>
-        <% end %>
-
-
-        <div class="card-section detail-list course-progress">
-          <a href="/admin/users/<%= @user.id %>/edit" class="btn btn-primary">Edit Profile</a>
-        </div>
-      </div>
-    </div>
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @user.first_name %> <%= @user.last_name %></h2>
+    <p class="category"><a href="/admin/users/<%= @user.id %>/edit" class="btn btn-primary">Edit Profile</a></p>
   </div>
+</div>
+
+<div class="content">
+
+<div class="row">
+  
   <div class="col-md-8">
     <div class="card ">
       <div class="card-header">
@@ -303,5 +276,34 @@
       </div>
     </div> <!-- end card -->
   </div>
+  
+<%= if has_cirriculum?(@user) do %>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body text-center">
+          <div class="card-section detail-list course-progress">
+            <h7>Course Progress</h7>
+            <dl class="d-flex justify-content-between">
+              <dt>Private Pilot License</dt>
+              <dd>80%</dd>
+            </dl>
+            <div class="course-progress-bar"><span style="width: 80%;"></span></div>
+            <dl class="d-flex justify-content-between">
+              <dt>Commercial Pilot License</dt>
+              <dd>0%</dd>
+            </dl>
+            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
+            <dl class="d-flex justify-content-between">
+              <dt>Instrument Flight Rating</dt>
+              <dd>0%</dd>
+            </dl>
+            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
+          </div>
+      </div>
+    </div>
+  </div>  
+  <% end %>
 
 </div>
+
+</div> <!-- end content -->

@@ -1,14 +1,16 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @aircraft.make %> <%= @aircraft.model %></h2>
+    <p class="category"><a href="/admin/aircrafts/<%= @aircraft.id %>/edit" class="btn btn-primary">Edit Aircraft</a></p>
+  </div>
+</div>
+
+<div class="content">
+
 <div class="row">
           <div class="col-md-10 col-lg-8">
             <div class="card ">
-              <div class="card-header">
-                <div class="pull-right">
-                  <a href="/admin/aircrafts/<%= @aircraft.id %>/edit" class="btn btn-primary">Edit Aircraft</a>
-                </div>
-                <h3 class="card-title"><%= @aircraft.make %> <%= @aircraft.model %></h3>
-                <p class="description"><%= @aircraft.tail_number %></p>
               
-              </div>
               <div class="card-body">
                   <div class="detail-list">
                     <dl class="d-flex justify-content-between">
@@ -85,3 +87,4 @@
           </div>
 
         </div>
+</div> <!-- end content -->
