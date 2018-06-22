@@ -87,6 +87,15 @@ defmodule Flight.Scheduling.AvailabilityTest do
       available_aircraft = aircraft_fixture()
       available_aircraft2 = aircraft_fixture()
       unavailable_aircraft = aircraft_fixture()
+      unavailable_aircraft2 = aircraft_fixture()
+
+      {:ok, _} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(date, hours: -1),
+          end_at: Timex.shift(date, hours: 5),
+          user_id: student_fixture().id,
+          aircraft_id: unavailable_aircraft2.id
+        })
 
       {:ok, _} =
         Scheduling.create_appointment(%{
@@ -117,6 +126,9 @@ defmodule Flight.Scheduling.AvailabilityTest do
                :available
 
       assert Enum.find(available, &(&1.aircraft.id == unavailable_aircraft.id)).status ==
+               :unavailable
+
+      assert Enum.find(available, &(&1.aircraft.id == unavailable_aircraft2.id)).status ==
                :unavailable
     end
   end
