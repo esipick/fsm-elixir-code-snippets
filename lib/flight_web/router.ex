@@ -58,7 +58,7 @@ defmodule FlightWeb.Router do
     
     resources("/schools", SchoolController, only: [:index, :show, :edit, :update])
     
-    resources("/settings", SettingsController, only: [:index])
+    resources("/settings", SettingsController, only: [:index, :edit])
 
     resources("/users", UserController, only: [:index, :show, :edit, :update])
 
