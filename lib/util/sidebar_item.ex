@@ -55,6 +55,12 @@ defmodule FlightWeb.SidebarItem do
         label: "Admins",
         icon_class: "business_briefcase-24",
         active: false
+      },
+      %SidebarItem{
+        path: "/admin/settings",
+        label: "Settings",
+        icon_class: "loader_gear",
+        active: false
       }
     ]
     |> Enum.map(fn item ->
