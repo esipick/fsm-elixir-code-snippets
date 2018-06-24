@@ -7,17 +7,29 @@ defmodule Flight.BillingTest do
 
   alias Flight.Billing
   alias Flight.Billing.{Transaction}
+  alias Flight.Scheduling.{Aircraft}
 
   describe "create_transaction_from_detailed_form/1" do
     test "creates transaction and all sub resources" do
       student = student_fixture()
       instructor = instructor_fixture()
-      aircraft = aircraft_fixture()
+      aircraft = aircraft_fixture(%{last_hobbs_time: 0, last_tach_time: 0})
 
       appointment = appointment_fixture(%{}, student, instructor, aircraft)
 
       form =
         detailed_transaction_form_fixture(student, instructor, appointment, aircraft, instructor)
+
+      form = %{
+        form
+        | aircraft_details: %{
+            form.aircraft_details
+            | hobbs_start: 200,
+              hobbs_end: 201,
+              tach_start: 300,
+              tach_end: 301
+          }
+      }
 
       assert {:ok, transaction} = Billing.create_transaction_from_detailed_form(form)
 
@@ -38,30 +50,46 @@ defmodule Flight.BillingTest do
                Flight.Billing.AircraftLineItemDetail,
                transaction_line_item_id: aircraft_line_item.id
              )
+
+      assert aircraft = Flight.Repo.get!(Aircraft, form.aircraft_details.aircraft_id)
+      assert aircraft.last_hobbs_time == 201
+      assert aircraft.last_tach_time == 301
+
+      assert appointment = Flight.Repo.get!(Flight.Scheduling.Appointment, form.appointment_id)
+      assert appointment.transaction_id == transaction.id
     end
   end
 
   describe "aircraft_cost/3" do
-    test "correct rate is calculated" do
-      aircraft = aircraft_fixture(%{rate_per_hour: 75})
+    test "correct rate is calculated for normal_rate" do
+      aircraft = aircraft_fixture(%{rate_per_hour: 75, block_rate_per_hour: 100})
 
       amount = (75 * 1.1 * 1.2 * 100) |> trunc()
 
-      assert {:ok, ^amount} = Billing.aircraft_cost(aircraft, 3333, 3345, 0.1)
+      assert {:ok, ^amount} = Billing.aircraft_cost(aircraft, 3333, 3345, :normal_rate, 0.1)
+    end
+
+    test "correct rate is calculated for block_rate" do
+      aircraft = aircraft_fixture(%{rate_per_hour: 75, block_rate_per_hour: 100})
+
+      amount = (100 * 1.1 * 1.2 * 100) |> trunc()
+
+      assert {:ok, ^amount} = Billing.aircraft_cost(aircraft, 3333, 3345, :block_rate, 0.1)
     end
 
     test "0 duration is an error" do
       aircraft = aircraft_fixture(%{rate_per_hour: 75})
 
-      assert {:error, :invalid_hobbs_interval} = Billing.aircraft_cost(aircraft, 3333, 3333, 0.1)
+      assert {:error, :invalid_hobbs_interval} =
+               Billing.aircraft_cost(aircraft, 3333, 3333, :normal_rate, 0.1)
     end
 
     test "bang version returns only value" do
       aircraft = aircraft_fixture(%{rate_per_hour: 75})
 
-      {:ok, amount} = Billing.aircraft_cost(aircraft, 3333, 3345, 0.1)
+      {:ok, amount} = Billing.aircraft_cost(aircraft, 3333, 3345, :normal_rate, 0.1)
 
-      assert Billing.aircraft_cost!(aircraft, 3333, 3345, 0.1) == amount
+      assert Billing.aircraft_cost!(aircraft, 3333, 3345, :normal_rate, 0.1) == amount
     end
   end
 

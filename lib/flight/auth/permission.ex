@@ -17,6 +17,7 @@ defmodule Flight.Auth.Permission do
 
   @resources [
     :users,
+    :appointment,
     :appointment_user,
     :appointment_instructor,
     :appointment_student,
@@ -26,6 +27,7 @@ defmodule Flight.Auth.Permission do
     :objective_score
   ]
   @verbs [:view, :modify, :be]
+  @scopes [:all, :personal]
 
   @doc """
   complex_scope can be of the following forms:
@@ -53,7 +55,7 @@ defmodule Flight.Auth.Permission do
   end
 
   def permission_slug(resource, verb, simple_scope)
-      when verb in @verbs and resource in @resources and is_atom(simple_scope) do
+      when verb in @verbs and resource in @resources and simple_scope in @scopes do
     "#{resource}:#{verb}:#{simple_scope}"
   end
 
@@ -73,16 +75,7 @@ defmodule Flight.Auth.Permission do
       {:objective_score, %Flight.Curriculum.ObjectiveScore{user_id: user_id}} ->
         user.id == user_id
 
-      {:objective_score, user_id} when is_binary(user_id) ->
-        user_id == "#{user.id}"
-
-      {:transaction_creator, user_id} when is_integer(user_id) or is_binary(user_id) ->
-        "#{user_id}" == "#{user.id}"
-
-      {:transaction_user, user_id} when is_integer(user_id) or is_binary(user_id) ->
-        "#{user_id}" == "#{user.id}"
-
-      {:transaction_approve, user_id} when is_integer(user_id) or is_binary(user_id) ->
+      {_, user_id} when is_integer(user_id) or is_binary(user_id) ->
         "#{user_id}" == "#{user.id}"
 
       _ ->

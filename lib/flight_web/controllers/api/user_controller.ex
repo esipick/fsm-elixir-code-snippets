@@ -74,7 +74,8 @@ defmodule FlightWeb.API.UserController do
 
   def authorize_modify(conn, _) do
     halt_unless_user_can?(conn, [
-      Permission.new(:users, :modify, {:personal, conn.assigns.user})
+      Permission.new(:users, :modify, {:personal, conn.assigns.user}),
+      Permission.new(:users, :modify, :all)
     ])
   end
 

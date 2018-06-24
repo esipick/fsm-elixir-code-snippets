@@ -55,9 +55,9 @@ defmodule FlightWeb.Router do
     get("/dashboard", PageController, :dashboard)
 
     get("/logout", SessionController, :logout)
-    
+
     resources("/schools", SchoolController, only: [:index, :show, :edit, :update])
-    
+
     resources("/settings", SettingsController, only: [:index])
 
     resources("/users", UserController, only: [:index, :show, :edit, :update])
@@ -95,7 +95,7 @@ defmodule FlightWeb.Router do
       get("/form_items", UserController, :form_items)
     end
 
-    resources("/aircrafts", AircraftController, only: [:index])
+    resources("/aircrafts", AircraftController, only: [:index, :show])
 
     resources("/transactions", TransactionController, only: [:create, :index]) do
       post("/approve", TransactionController, :approve)
@@ -116,7 +116,12 @@ defmodule FlightWeb.Router do
     delete("/objective_scores", ObjectiveScoreController, :delete)
 
     get("/appointments/availability", AppointmentController, :availability)
-    resources("/appointments", AppointmentController, only: [:create, :index, :update])
+
+    resources(
+      "/appointments",
+      AppointmentController,
+      only: [:create, :index, :update, :show, :delete]
+    )
 
     resources("/courses", CourseController, only: [:index])
   end

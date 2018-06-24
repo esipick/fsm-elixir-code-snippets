@@ -9,6 +9,12 @@ defmodule FlightWeb.API.AircraftView do
     }
   end
 
+  def render("show.json", %{aircraft: aircraft}) do
+    %{
+      data: render("aircraft.json", aircraft: aircraft)
+    }
+  end
+
   def render("aircraft.json", %{aircraft: aircraft}) do
     %{
       id: aircraft.id,
@@ -20,6 +26,7 @@ defmodule FlightWeb.API.AircraftView do
       simulator: aircraft.simulator,
       tail_number: aircraft.tail_number,
       last_tach_time: aircraft.last_tach_time,
+      last_hobbs_time: aircraft.last_hobbs_time,
       rate_per_hour: aircraft.rate_per_hour
     }
   end

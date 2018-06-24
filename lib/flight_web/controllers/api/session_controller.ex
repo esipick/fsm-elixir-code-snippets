@@ -18,14 +18,14 @@ defmodule FlightWeb.API.SessionController do
         {:error, _} ->
           conn
           |> put_status(401)
-          |> json(%{errors: ["Invalid email or password."]})
+          |> json(%{human_errors: ["Invalid email or password."]})
       end
     else
       Comeonin.Bcrypt.dummy_checkpw()
 
       conn
       |> put_status(401)
-      |> json(%{errors: ["Invalid email or password."]})
+      |> json(%{human_errors: ["Invalid email or password."]})
     end
   end
 end

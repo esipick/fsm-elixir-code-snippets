@@ -47,6 +47,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
       assert instructor_line_item.instructor_user_id == attrs.instructor_details.instructor_id
       assert aircraft_line_item.aircraft_id == attrs.aircraft_details.aircraft_id
 
+      assert aircraft_details.aircraft_id == attrs.aircraft_details.aircraft_id
       assert aircraft_details.hobbs_start == attrs.aircraft_details.hobbs_start
       assert aircraft_details.hobbs_end == attrs.aircraft_details.hobbs_end
       assert aircraft_details.tach_start == attrs.aircraft_details.tach_start
@@ -96,13 +97,14 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
     end
 
     test "error if no instructor or aircraft" do
+      appointment = appointment_fixture()
+
       attrs = %{
         user_id: 3,
         creator_user_id: 9,
-        appointment_id: 4,
+        appointment_id: appointment.id,
         aircraft_details: nil,
-        instructor_details: nil,
-        expected_total: 9900
+        instructor_details: nil
       }
 
       changeset = DetailedTransactionForm.changeset(%DetailedTransactionForm{}, attrs)

@@ -8,4 +8,10 @@ defmodule FlightWeb.API.AircraftController do
 
     render(conn, "index.json", aircrafts: aircrafts)
   end
+
+  def show(conn, %{"id" => id}) do
+    aircraft = Scheduling.get_aircraft(id)
+
+    render(conn, "show.json", aircraft: aircraft)
+  end
 end

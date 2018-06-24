@@ -7,6 +7,7 @@ defmodule Flight.Billing.AircraftLineItemDetail do
     field(:hobbs_start, :integer)
     field(:tach_end, :integer)
     field(:tach_start, :integer)
+    belongs_to(:aircraft, Flight.Scheduling.Aircraft)
     belongs_to(:transaction_line_item, Flight.Billing.TransactionLineItem)
 
     timestamps()
@@ -21,6 +22,7 @@ defmodule Flight.Billing.AircraftLineItemDetail do
       :hobbs_end,
       :tach_start,
       :tach_end,
+      :aircraft_id,
       :transaction_line_item_id
     ])
   end

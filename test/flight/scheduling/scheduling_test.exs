@@ -463,6 +463,24 @@ defmodule Flight.SchedulingTest do
       assert Enum.count(errors_on(changeset).instructor) == 1
     end
 
+    test "create_appointment/1 fails if instructor and user are same user" do
+      now = NaiveDateTime.utc_now()
+
+      user =
+        user_fixture()
+        |> assign_roles(["instructor", "student"])
+
+      {:error, changeset} =
+        Scheduling.create_appointment(%{
+          start_at: Timex.shift(now, hours: 2),
+          end_at: Timex.shift(now, hours: 4),
+          user_id: user.id,
+          instructor_user_id: user.id
+        })
+
+      assert Enum.count(errors_on(changeset).instructor) == 1
+    end
+
     ##
     # get_appointments(options)
     ##
@@ -488,6 +506,23 @@ defmodule Flight.SchedulingTest do
       appointmentIds = Enum.map(appointments, & &1.id)
 
       assert MapSet.new(appointmentIds) == MapSet.new([appointment1.id, appointment3.id])
+    end
+
+    test "get_appointments/2 returns appointments starting after `start_at_after` value" do
+      appointment1 =
+        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+
+      _appointment2 =
+        appointment_fixture(%{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]})
+
+      appointments =
+        Scheduling.get_appointments(%{
+          "start_at_after" => "2018-03-03T00:00:00Z"
+        })
+
+      assert [%Appointment{id: id}] = appointments
+
+      assert id == appointment1.id
     end
 
     test "get_appointments/2 returns appointments for user" do

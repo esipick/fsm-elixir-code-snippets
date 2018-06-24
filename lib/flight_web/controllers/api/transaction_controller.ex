@@ -188,7 +188,7 @@ defmodule FlightWeb.API.TransactionController do
   def authorize_create(conn, _) do
     permissions =
       case conn.params do
-        %{"detailed" => %{"user_id" => user_id}} ->
+        %{"detailed" => %{"creator_user_id" => user_id}} ->
           [Permission.new(:transaction_creator, :modify, {:personal, user_id})]
 
         %{"add_funds" => %{"user_id" => user_id}} ->
@@ -199,6 +199,6 @@ defmodule FlightWeb.API.TransactionController do
       end
 
     conn
-    |> halt_unless_user_can?([Permission.new(:transaction_creator, :modify, :all)] ++ permissions)
+    |> halt_unless_user_can?([Permission.new(:transaction_creator, :modify, :all) | permissions])
   end
 end

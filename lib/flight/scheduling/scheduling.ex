@@ -226,6 +226,8 @@ defmodule Flight.Scheduling do
     end
   end
 
+  def delete_appointment(id), do: Repo.delete!(get_appointment(id))
+
   def get_appointments(options) do
     query = from(a in Appointment)
 
@@ -241,17 +243,24 @@ defmodule Flight.Scheduling do
         _ -> nil
       end
 
+    start_at_after_value =
+      case NaiveDateTime.from_iso8601(options["start_at_after"] || "") do
+        {:ok, date} -> date
+        _ -> nil
+      end
+
     user_id_value = options["user_id"]
     instructor_user_id_value = options["instructor_user_id"]
     aircraft_id_value = options["aircraft_id"]
 
     query
+    |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at >= ^start_at_after_value))
     |> pass_unless(
       from_value && to_value,
       &Availability.appointment_overlap_query(&1, from_value, to_value)
     )
-    |> pass_unless(user_id_value, &from(a in &1, where: a.user_id == ^user_id_value))
-    |> pass_unless(aircraft_id_value, &from(a in &1, where: a.aircraft_id == ^aircraft_id_value))
+    |> pass_unless(user_id_value, &where(&1, [a], a.user_id == ^user_id_value))
+    |> pass_unless(aircraft_id_value, &where(&1, [a], a.aircraft_id == ^aircraft_id_value))
     |> pass_unless(
       instructor_user_id_value,
       &from(a in &1, where: a.instructor_user_id == ^instructor_user_id_value)

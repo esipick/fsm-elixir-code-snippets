@@ -90,14 +90,13 @@ defmodule FlightWeb.API.DetailedTransactionForm do
     field(:source, :string)
     field(:creator_user_id, :integer)
     field(:appointment_id, :integer)
-    field(:expected_total, :integer)
     embeds_one(:aircraft_details, AircraftDetails)
     embeds_one(:instructor_details, InstructorDetails)
   end
 
   def changeset(struct, attrs) do
     struct
-    |> cast(attrs, [:user_id, :creator_user_id, :appointment_id, :expected_total, :source])
+    |> cast(attrs, [:user_id, :creator_user_id, :appointment_id, :source])
     |> cast_embed(:aircraft_details, required: false)
     |> cast_embed(:instructor_details, required: false)
     |> validate_required([:user_id, :creator_user_id])
@@ -118,10 +117,16 @@ defmodule FlightWeb.API.DetailedTransactionForm do
   end
 
   def validate_appointment(changeset) do
-    if changeset.valid? do
-      appointment_id = get_field(changeset, :appointment_id)
-      # TODO: Check that payment hasn't already been made for appointment
-      changeset
+    appointment_id = get_field(changeset, :appointment_id)
+
+    if changeset.valid? && appointment_id do
+      appointment = Flight.Scheduling.get_appointment(appointment_id)
+
+      if appointment.transaction_id do
+        add_error(changeset, :appointment, "already has a transaction associated with it.")
+      else
+        changeset
+      end
     else
       changeset
     end
@@ -134,6 +139,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
         aircraft = Flight.Scheduling.get_aircraft(aircraft_details.aircraft_id)
 
         detail = %AircraftLineItemDetail{
+          aircraft_id: aircraft_details.aircraft_id,
           hobbs_start: aircraft_details.hobbs_start,
           hobbs_end: aircraft_details.hobbs_end,
           tach_start: aircraft_details.tach_start,
@@ -146,6 +152,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
               aircraft,
               aircraft_details.hobbs_start,
               aircraft_details.hobbs_end,
+              :normal_rate,
               0.1
             ),
           aircraft_id: aircraft.id

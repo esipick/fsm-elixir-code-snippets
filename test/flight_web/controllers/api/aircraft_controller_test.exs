@@ -19,4 +19,18 @@ defmodule FlightWeb.API.AircraftControllerTest do
       assert json == render_json(AircraftView, "index.json", aircrafts: aircrafts)
     end
   end
+
+  describe "GET /api/aircrafts/:id" do
+    test "renders aircrafts", %{conn: conn} do
+      aircraft = aircraft_fixture()
+
+      json =
+        conn
+        |> auth(student_fixture())
+        |> get("/api/aircrafts/#{aircraft.id}")
+        |> json_response(200)
+
+      assert json == render_json(AircraftView, "show.json", aircraft: aircraft)
+    end
+  end
 end

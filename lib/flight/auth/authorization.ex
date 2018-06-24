@@ -52,7 +52,11 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:users, :modify, :all),
       permission_slug(:objective_score, :view, :all),
       permission_slug(:objective_score, :modify, :all),
-      permission_slug(:transaction_creator, :modify, :all)
+      permission_slug(:appointment, :modify, :all),
+      permission_slug(:transaction_creator, :modify, :all),
+      permission_slug(:transaction_creator, :view, :all),
+      permission_slug(:transaction_user, :modify, :all),
+      permission_slug(:transaction_user, :view, :all)
     ])
   end
 
@@ -60,12 +64,13 @@ defmodule Flight.Auth.Authorization do
     MapSet.new([
       permission_slug(:users, :modify, :personal),
       permission_slug(:users, :view, :all),
+      permission_slug(:appointment, :modify, :all),
       permission_slug(:appointment_instructor, :modify, :personal),
       permission_slug(:objective_score, :view, :all),
       permission_slug(:objective_score, :modify, :all),
       permission_slug(:transaction_approve, :modify, :personal),
-      permission_slug(:transaction_creator, :modify, :all),
       permission_slug(:transaction_creator, :view, :personal),
+      permission_slug(:transaction_creator, :modify, :personal),
       permission_slug(:transaction_user, :view, :personal)
     ])
   end

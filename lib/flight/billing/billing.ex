@@ -1,6 +1,5 @@
 defmodule Flight.Billing do
   alias Flight.Repo
-  import Ecto.Changeset
   import Ecto.Query, warn: false
   import Pipe
 
@@ -10,20 +9,28 @@ defmodule Flight.Billing do
   alias Flight.Accounts.{User}
   alias FlightWeb.API.DetailedTransactionForm
 
-  def aircraft_cost(aircraft, hobbs_start, hobbs_end, fee_percentage \\ 0.01) do
+  def aircraft_cost(aircraft, hobbs_start, hobbs_end, rate_type, fee_percentage \\ 0.01)
+      when rate_type in [:normal_rate, :block_rate] do
     cond do
       hobbs_end <= hobbs_start ->
         {:error, :invalid_hobbs_interval}
 
       true ->
+        rate =
+          case rate_type do
+            :normal_rate -> aircraft.rate_per_hour
+            :block_rate -> aircraft.block_rate_per_hour
+          end
+
         {:ok,
-         (aircraft.rate_per_hour * (1 + fee_percentage) * ((hobbs_end - hobbs_start) / 10.0 * 100))
+         (rate * (1 + fee_percentage) * ((hobbs_end - hobbs_start) / 10.0 * 100))
          |> trunc()}
     end
   end
 
-  def aircraft_cost!(aircraft, hobbs_start, hobbs_end, fee_percentage \\ 0.1) do
-    case aircraft_cost(aircraft, hobbs_start, hobbs_end, fee_percentage) do
+  def aircraft_cost!(aircraft, hobbs_start, hobbs_end, rate_type, fee_percentage \\ 0.1)
+      when rate_type in [:normal_rate, :block_rate] do
+    case aircraft_cost(aircraft, hobbs_start, hobbs_end, rate_type, fee_percentage) do
       {:ok, amount} -> amount
       {:error, reason} -> raise ArgumentError, "Failed to compute aircraft cost: #{reason}"
     end
@@ -51,6 +58,17 @@ defmodule Flight.Billing do
       Repo.transaction(fn ->
         {:ok, transaction} = Repo.insert(Transaction.changeset(transaction, %{}))
 
+        if form.appointment_id do
+          appointment = Repo.get!(Flight.Scheduling.Appointment, form.appointment_id)
+
+          {:ok, _} =
+            appointment
+            |> Flight.Scheduling.Appointment.update_transaction_changeset(%{
+              transaction_id: transaction.id
+            })
+            |> Repo.update()
+        end
+
         if instructor_line_item do
           {:ok, _} =
             instructor_line_item
@@ -64,10 +82,33 @@ defmodule Flight.Billing do
             |> TransactionLineItem.changeset(%{transaction_id: transaction.id})
             |> Repo.insert()
 
-          {:ok, _} =
+          {:ok, aircraft_details} =
             aircraft_details
             |> AircraftLineItemDetail.changeset(%{transaction_line_item_id: aircraft_line_item.id})
             |> Repo.insert()
+
+          aircraft =
+            from(
+              a in Flight.Scheduling.Aircraft,
+              where: a.id == ^aircraft_details.aircraft_id,
+              lock: "FOR UPDATE"
+            )
+            |> Repo.one()
+
+          if !aircraft do
+            Repo.rollback("Aircraft does not exist")
+          end
+
+          new_hobbs_time = max(aircraft.last_hobbs_time, aircraft_details.hobbs_end)
+          new_tach_time = max(aircraft.last_tach_time, aircraft_details.tach_end)
+
+          {:ok, _} =
+            aircraft
+            |> Flight.Scheduling.Aircraft.changeset(%{
+              last_tach_time: new_tach_time,
+              last_hobbs_time: new_hobbs_time
+            })
+            |> Flight.Repo.update()
         end
 
         transaction

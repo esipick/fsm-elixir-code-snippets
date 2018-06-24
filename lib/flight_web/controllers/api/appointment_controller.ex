@@ -1,12 +1,13 @@
 defmodule FlightWeb.API.AppointmentController do
   use FlightWeb, :controller
 
-  plug(:get_appointment when action in [:update])
+  plug(:get_appointment when action in [:update, :show, :delete])
+  plug(:authorize_modify when action in [:create, :update, :delete])
 
   alias Flight.Scheduling.Availability
   alias Flight.Scheduling
   import Flight.Auth.Authorization
-  import Flight.Auth.Permission
+  alias Flight.Auth.Permission
 
   def availability(conn, %{"start_at" => start_at_str, "end_at" => end_at_str} = params) do
     {:ok, start_at} = NaiveDateTime.from_iso8601(start_at_str)
@@ -40,87 +41,76 @@ defmodule FlightWeb.API.AppointmentController do
     render(conn, "index.json", appointments: appointments)
   end
 
+  def show(conn, _) do
+    appointment =
+      Flight.Repo.preload(conn.assigns.appointment, [:user, :instructor_user, :aircraft])
+
+    render(conn, "show.json", appointment: appointment)
+  end
+
   def create(conn, %{"data" => appointment_data}) do
-    cond do
-      conn.assigns.current_user.id not in [
-        appointment_data["user_id"],
-        appointment_data["instructor_user_id"]
-      ] ->
-        render_bad_request(conn, "Requesting user must be either user_id or instructor_user_id")
+    case Flight.Scheduling.create_appointment(appointment_data) do
+      {:ok, appointment} ->
+        appointment = Flight.Repo.preload(appointment, [:user, :instructor_user, :aircraft])
+        render(conn, "show.json", appointment: appointment)
 
-      appointment_data["user_id"] == conn.assigns.current_user.id &&
-          !has_permission_slug?(
-            conn.assigns.current_user,
-            permission_slug(:appointment_user, :modify, :personal)
-          ) ->
-        render_bad_request(conn)
-
-      appointment_data["instructor_user_id"] == conn.assigns.current_user.id &&
-          !has_permission_slug?(
-            conn.assigns.current_user,
-            permission_slug(:appointment_instructor, :modify, :personal)
-          ) ->
-        render_bad_request(conn)
-
-      true ->
-        case Flight.Scheduling.create_appointment(appointment_data) do
-          {:ok, appointment} ->
-            appointment = Flight.Repo.preload(appointment, [:user, :instructor_user, :aircraft])
-            render(conn, "show.json", appointment: appointment)
-
-          {:error, changeset} ->
-            conn
-            |> put_status(400)
-            |> json(%{errors: json_errors(changeset.errors)})
-        end
+      {:error, changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
     end
   end
 
   def update(conn, %{"data" => appointment_data}) do
-    user_id = appointment_data["user_id"] || conn.assigns.appointment.user_id
+    case Flight.Scheduling.create_appointment(appointment_data, conn.assigns.appointment) do
+      {:ok, appointment} ->
+        appointment = Flight.Repo.preload(appointment, [:user, :instructor_user, :aircraft])
+        render(conn, "show.json", appointment: appointment)
 
-    instructor_user_id =
-      appointment_data["instructor_user_id"] || conn.assigns.appointment.instructor_user_id
-
-    cond do
-      conn.assigns.current_user.id not in [
-        user_id,
-        instructor_user_id
-      ] ->
-        render_bad_request(conn, "Requesting user must be either user_id or instructor_user_id")
-
-      user_id == conn.assigns.current_user.id &&
-          !has_permission_slug?(
-            conn.assigns.current_user,
-            permission_slug(:appointment_user, :modify, :personal)
-          ) ->
-        render_bad_request(conn)
-
-      instructor_user_id == conn.assigns.current_user.id &&
-          !has_permission_slug?(
-            conn.assigns.current_user,
-            permission_slug(:appointment_instructor, :modify, :personal)
-          ) ->
-        render_bad_request(conn)
-
-      true ->
-        case Flight.Scheduling.create_appointment(appointment_data, conn.assigns.appointment) do
-          {:ok, appointment} ->
-            appointment = Flight.Repo.preload(appointment, [:user, :instructor_user, :aircraft])
-            render(conn, "show.json", appointment: appointment)
-
-          {:error, changeset} ->
-            conn
-            |> put_status(400)
-            |> json(%{errors: json_errors(changeset.errors)})
-        end
+      {:error, changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
     end
   end
 
-  def render_bad_request(conn, message \\ "Unauthorized creation") do
+  def delete(conn, _) do
+    Scheduling.delete_appointment(conn.assigns.appointment.id)
+
+    conn
+    |> resp(204, "")
+  end
+
+  def authorize_modify(conn, _) do
+    user_id =
+      conn.params["data"] |> Optional.map(& &1["user_id"]) || conn.assigns.appointment.user_id
+
+    instructor_user_id =
+      conn.params["data"] |> Optional.map(& &1["instructor_user_id"]) ||
+        conn.assigns.appointment.instructor_user_id
+
+    if user_can?(conn.assigns.current_user, [
+         Permission.new(:appointment_user, :modify, {:personal, user_id}),
+         Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id}),
+         Permission.new(:appointment, :modify, :all)
+       ]) do
+      conn
+    else
+      render_bad_request(
+        conn,
+        "You must be either the renter or the instructor of the appointment you're trying to create or modify."
+      )
+    end
+  end
+
+  def render_bad_request(
+        conn,
+        message \\ "You are not authorized to create or change this appointment. Please talk to your school Admin."
+      ) do
     conn
     |> put_status(400)
-    |> json(%{error: message})
+    |> json(%{human_errors: [message]})
+    |> halt()
   end
 
   defp get_appointment(conn, _) do

@@ -42,8 +42,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       appointment1 =
         appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
 
-      _appointment2 =
-        json =
+      json =
         conn
         |> auth(user_fixture())
         |> get("/api/appointments", %{
@@ -53,6 +52,21 @@ defmodule FlightWeb.API.AppointmentControllerTest do
         |> json_response(200)
 
       assert json == render_json(AppointmentView, "index.json", appointments: [appointment1])
+    end
+  end
+
+  describe "GET /api/appointments/:id" do
+    test "renders appointments within time range", %{conn: conn} do
+      appointment =
+        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+
+      json =
+        conn
+        |> auth(user_fixture())
+        |> get("/api/appointments/#{appointment.id}")
+        |> json_response(200)
+
+      assert json == render_json(AppointmentView, "show.json", appointment: appointment)
     end
   end
 
@@ -240,26 +254,18 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       |> post("/api/appointments", params)
       |> json_response(400)
     end
+  end
 
-    test "instructor can't create appointment for other instructor", %{conn: conn} do
-      student = student_fixture()
-      instructor = user_fixture() |> assign_role("instructor")
-      aircraft = aircraft_fixture()
-
-      params = %{
-        data:
-          @default_attrs
-          |> Map.merge(%{
-            user_id: student.id,
-            instructor_user_id: instructor_fixture().id,
-            aircraft_id: aircraft.id
-          })
-      }
+  describe "DELETE /api/appointments/:id" do
+    test "deletes appointment", %{conn: conn} do
+      appointment = appointment_fixture()
 
       conn
-      |> auth(instructor)
-      |> post("/api/appointments", params)
-      |> json_response(400)
+      |> auth(appointment.user)
+      |> delete("/api/appointments/#{appointment.id}")
+      |> response(204)
+
+      refute Flight.Repo.get(Appointment, appointment.id)
     end
   end
 end

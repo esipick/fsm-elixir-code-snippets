@@ -3,11 +3,12 @@ defmodule Flight.Scheduling.Aircraft do
   import Ecto.Changeset
 
   schema "aircrafts" do
-    field(:block_rate_per_hour, :integer)
     field(:ifr_certified, :boolean, default: false)
     field(:last_tach_time, :integer)
+    field(:last_hobbs_time, :integer, default: 0)
     field(:make, :string)
     field(:model, :string)
+    field(:block_rate_per_hour, :integer)
     field(:rate_per_hour, :integer)
     field(:serial_number, :string)
     field(:equipment, :string)
@@ -30,6 +31,7 @@ defmodule Flight.Scheduling.Aircraft do
       :simulator,
       :equipment,
       :last_tach_time,
+      :last_hobbs_time,
       :rate_per_hour,
       :block_rate_per_hour
     ])
@@ -42,6 +44,7 @@ defmodule Flight.Scheduling.Aircraft do
       :equipment,
       :simulator,
       :last_tach_time,
+      :last_hobbs_time,
       :rate_per_hour,
       :block_rate_per_hour
     ])
