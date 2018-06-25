@@ -331,7 +331,7 @@ defmodule Flight.SchedulingTest do
           aircraft_id: other_aircraft.id
         })
 
-      assert Enum.count(errors_on(changeset).user) == 1
+      assert Enum.count(errors_on(changeset).renter) == 1
 
       {:error, changeset} =
         Scheduling.create_appointment(%{
@@ -342,7 +342,7 @@ defmodule Flight.SchedulingTest do
           aircraft_id: other_aircraft.id
         })
 
-      assert Enum.count(errors_on(changeset).user) == 1
+      assert Enum.count(errors_on(changeset).renter) == 1
     end
 
     test "create_appointment/1 fails if aircraft has overlapping appointment" do
@@ -435,7 +435,7 @@ defmodule Flight.SchedulingTest do
           aircraft_id: aircraft_fixture().id
         })
 
-      assert Enum.count(errors_on(changeset).user) == 1
+      assert Enum.count(errors_on(changeset).renter) == 1
 
       for role <- ["renter", "student"] do
         {:ok, _} =
