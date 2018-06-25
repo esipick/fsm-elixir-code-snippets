@@ -177,7 +177,7 @@ defmodule Flight.Scheduling do
       changeset =
         case status do
           :available -> changeset
-          other -> add_error(changeset, :user, "is #{other}", status: :unavailable)
+          other -> add_error(changeset, :renter, "is #{other}", status: :unavailable)
         end
 
       # TODO: How to make this dovetale nicely with the calendar_availability endpoint? e.g. instead of querying for
