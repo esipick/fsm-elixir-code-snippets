@@ -85,9 +85,15 @@ defmodule FlightWeb.API.AppointmentController do
     user_id =
       conn.params["data"] |> Optional.map(& &1["user_id"]) || conn.assigns.appointment.user_id
 
+    instructor_user_id_from_appointment =
+      case conn.assigns do
+        %{appointment: %{instructor_user_id: id}} -> id
+        _ -> nil
+      end
+
     instructor_user_id =
       conn.params["data"] |> Optional.map(& &1["instructor_user_id"]) ||
-        conn.assigns.appointment.instructor_user_id
+        instructor_user_id_from_appointment
 
     if user_can?(conn.assigns.current_user, [
          Permission.new(:appointment_user, :modify, {:personal, user_id}),
