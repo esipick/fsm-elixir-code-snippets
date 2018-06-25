@@ -49,6 +49,7 @@ defmodule FlightWeb.API.UserView do
       last_name: user.last_name,
       phone_number: user.phone_number,
       email: user.email,
+      flight_training_number: user.flight_training_number,
       awards: user.awards,
       roles: Enum.map(user.roles, & &1.slug)
     }
