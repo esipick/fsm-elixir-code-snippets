@@ -152,8 +152,8 @@ defmodule Flight.Scheduling.Availability do
       a in query,
       where:
         (^start_at >= a.start_at and ^start_at < a.end_at) or
-          (^end_at >= a.start_at and ^end_at < a.end_at) or
-          (^start_at <= a.start_at and ^end_at > a.end_at)
+          (^end_at > a.start_at and ^end_at <= a.end_at) or
+          (^start_at <= a.start_at and ^end_at >= a.end_at)
     )
   end
 
