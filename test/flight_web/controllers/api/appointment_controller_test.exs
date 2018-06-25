@@ -192,6 +192,23 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
     end
 
+    test "can't create appointment without instructor or aircraft", %{conn: conn} do
+      student = student_fixture()
+
+      params = %{
+        data:
+          @default_attrs
+          |> Map.merge(%{
+            user_id: student.id
+          })
+      }
+
+      conn
+      |> auth(student)
+      |> post("/api/appointments", params)
+      |> json_response(400)
+    end
+
     test "student can't create appointment as instructor", %{conn: conn} do
       student = student_fixture()
       _instructor = user_fixture() |> assign_role("instructor")
