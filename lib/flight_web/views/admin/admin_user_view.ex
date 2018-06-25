@@ -28,6 +28,10 @@ defmodule FlightWeb.Admin.UserView do
     Accounts.has_any_role?(user, ["instructor", "student", "renter"])
   end
 
+  def should_display_address?(user) do
+    user.address_1 != nil
+  end
+
   def has_medical?(user) do
     Accounts.has_any_role?(user, ["instructor", "student"])
   end

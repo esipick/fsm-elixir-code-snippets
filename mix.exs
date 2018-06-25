@@ -48,7 +48,8 @@ defmodule Flight.Mixfile do
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 4.0"},
       {:timex, "~> 3.1"},
-      {:stripity_stripe, "~> 2.0"}
+      {:stripity_stripe, "~> 2.0"},
+      {:currency_formatter, "~> 0.4"}
     ]
   end
 

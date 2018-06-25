@@ -8,7 +8,7 @@
 <div class="content">
 
 <div class="row">
-  
+
   <div class="col-md-8">
     <div class="card ">
       <div class="card-header">
@@ -46,7 +46,7 @@
               <dt>Email</dt>
               <dd><a href="mailto:<%= @user.email %>"><%= @user.email %></a></dd>
             </dl>
-            <%= if has_address?(@user) do %>
+            <%= if has_address?(@user) && should_display_address?(@user) do %>
               <dl class="d-flex justify-content-between">
                 <dt>Address</dt>
                 <dd><%= @user.address_1 %></br>
@@ -109,7 +109,7 @@
               <div class="d-flex justify-content-center">
                 <div class="text-center mb-2 mt-2">
                   <h7>Account Balance</h7>
-                  <h2 class="mb-2">$8,345.00</h2>
+                  <h2 class="mb-2"><%= CurrencyFormatter.format(@user.balance, "USD") %></h2>
                   <!-- Button trigger modal -->
                   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
                     add funds
@@ -276,8 +276,8 @@
       </div>
     </div> <!-- end card -->
   </div>
-  
-<%= if has_cirriculum?(@user) do %>
+
+<%= if has_cirriculum?(@user) && false do %>
   <div class="col-md-4">
     <div class="card">
       <div class="card-body text-center">
@@ -301,7 +301,7 @@
           </div>
       </div>
     </div>
-  </div>  
+  </div>
   <% end %>
 
 </div>

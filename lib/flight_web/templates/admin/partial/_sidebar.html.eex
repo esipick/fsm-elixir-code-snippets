@@ -48,7 +48,7 @@ Tip 2: you can also add an image using data-image tag
                         </a>
                     </li> -->
                     <li>
-                        <a href="login.php">
+                        <a href="/admin/logout">
                             <!-- <span class="sidebar-mini-icon">L</span> -->
                             <i class="now-ui-icons media-1_button-power"></i>
                             <span class="sidebar-normal">Logout</span>
