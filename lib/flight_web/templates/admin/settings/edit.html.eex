@@ -1,0 +1,151 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title">Randon Aviation</h2>
+    <p class="category">Edit School</p>
+  </div>
+</div>
+
+<div class="content">
+  
+  
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h7>public Information</h7>
+          <h4 class="card-title">School Details</h4>
+        </div>
+         
+        <form accept-charset="UTF-8" action="/admin/aircrafts/1" class="" method="post"><input name="_method" type="hidden" value="put"><input name="_csrf_token" type="hidden" value="B04YOgcLLzZ5XhcgTSkGJ2tGAiofNgAAK/LhmzGBL4Qd5q1p2r3Oyw=="><input name="_utf8" type="hidden" value="✓">
+          <div class="card-body">
+            
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>School Name</label>
+                  <input type="email" class="form-control" value="Randon Aviation">
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>School Address</label>
+                  <input type="email" class="form-control" value="1887 S 1800 W">
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>City</label>
+                  <input type="email" class="form-control" value="Woods Cross">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>State</label>
+                  <input type="email" class="form-control" value="UT">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Zip Code</label>
+                  <input type="email" class="form-control" value="84087">
+                </div>
+              </div>
+            </div> 
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>School Phone #</label>
+                  <input type="email" class="form-control" value="(801) 555-5555">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>School Email</label>
+                  <input type="email" class="form-control" value="flywithus@randonaviation.com">
+                </div>
+              </div>
+            </div>            
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>School Website</label>
+                  <input type="email" class="form-control" value="http://randonaviation.com">
+                </div>
+              </div>
+            </div>
+            
+            
+          </div>
+          <div class="card-footer ">
+            <a href="/admin/users/" class="btn btn-fill btn-default mr-2">Cancel</a>
+            <input type="submit" class="btn btn-fill btn-primary" value="Save">
+          </div>
+          
+        </form> 
+        
+      </div> <!-- end card -->
+    </div>
+    
+<div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h7>Private Information</h7>
+          <h4 class="card-title">Contact Details</h4>
+        </div>
+         
+        <form accept-charset="UTF-8" action="/admin/aircrafts/1" class="" method="post"><input name="_method" type="hidden" value="put"><input name="_csrf_token" type="hidden" value="B04YOgcLLzZ5XhcgTSkGJ2tGAiofNgAAK/LhmzGBL4Qd5q1p2r3Oyw=="><input name="_utf8" type="hidden" value="✓">
+          <div class="card-body">
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>First Name</label>
+                  <input type="email" class="form-control" value="Randon">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Last Name</label>
+                  <input type="email" class="form-control" value="Russell">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Phone #</label>
+                  <input type="email" class="form-control" value="(801) 555-5555">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Email</label>
+                  <input type="email" class="form-control" value="randon@randonaviation.com">
+                </div>
+              </div>
+            </div>
+            
+          </div>
+          <div class="card-footer ">
+            <a href="/admin/users/" class="btn btn-fill btn-default mr-2">Cancel</a>
+            <input type="submit" class="btn btn-fill btn-primary" value="Save">
+          </div>
+          
+        </form> 
+        
+      </div> <!-- end card -->
+    </div>    
+
+    
+  </div>
+
+</div> <!-- end content -->
