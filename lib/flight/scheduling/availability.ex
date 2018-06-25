@@ -27,7 +27,7 @@ defmodule Flight.Scheduling.Availability do
 
   def student_availability(start_at, end_at, excluded_appointment_ids \\ []) do
     users_with_permission_availability(
-      permission_slug(:appointment_student, :modify, :personal),
+      permission_slug(:appointment_user, :modify, :personal),
       start_at,
       end_at,
       excluded_appointment_ids
