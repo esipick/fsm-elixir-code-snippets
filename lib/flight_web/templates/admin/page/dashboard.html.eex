@@ -74,12 +74,14 @@
                         <tr>
                           <td class="text-nowrap"><a href="aircraft-profile.php"><span class="photo"><img src="/images/archer.jpg"></span>Archer N40670</a></td>
                           <td class="text-right">
+                            Annual<br/>
                             <a href="aircraft-profile.php" class="text-expired" data-toggle="modal" data-target="#inspectionModal">3/12/18</a>
                           </td>
                         </tr>
                         <tr>
                           <td class="text-nowrap"><a href="aircraft-profile.php"><span class="photo"><img src="/images/archer.jpg"></span>Corvallis N2234E</a></td>
                           <td class="text-right">
+                            100 Hour<br/>
                             <a href="aircraft-profile.php" class="text-expiring" data-toggle="modal" data-target="#inspectionModal">8100</a>
                           </td>
                         </tr>
