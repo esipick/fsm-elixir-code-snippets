@@ -100,14 +100,9 @@ defmodule Flight.Accounts do
          )}
 
       true ->
-        {:ok, result} =
-          Repo.transaction(fn ->
-            user
-            |> changeset_func.(attrs, roles, certs)
-            |> Repo.update()
-          end)
-
-        result
+        user
+        |> changeset_func.(attrs, roles, certs)
+        |> Repo.update()
     end
   end
 
