@@ -38,6 +38,7 @@ defmodule FlightWeb.InvitationControllerTest do
           first_name: "Justin",
           last_name: "Allison",
           email: "food@bards.com",
+          phone_number: "801-555-5555",
           password: "justin time"
         }
       }
@@ -47,6 +48,8 @@ defmodule FlightWeb.InvitationControllerTest do
       |> response_redirected_to("/invitations/#{invitation.token}/success")
 
       user = Accounts.get_user_by_email("food@bards.com")
+      
+      assert user.phone_number == "801-555-5555"
 
       invitation = Accounts.get_invitation(invitation.id)
 

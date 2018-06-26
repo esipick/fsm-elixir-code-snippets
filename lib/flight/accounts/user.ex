@@ -37,9 +37,10 @@ defmodule Flight.Accounts.User do
   @doc false
   def create_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :first_name, :last_name, :password, :stripe_customer_id, :balance])
-    |> validate_required([:email, :first_name, :last_name, :password])
+    |> cast(attrs, [:email, :first_name, :last_name, :password, :phone_number, :stripe_customer_id])
+    |> validate_required([:email, :first_name, :last_name, :phone_number, :password])
     |> unique_constraint(:email)
+    |> base_validations()
     |> validate_password(:password)
     |> put_pass_hash()
   end

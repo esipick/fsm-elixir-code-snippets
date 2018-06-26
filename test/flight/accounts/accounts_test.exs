@@ -38,6 +38,7 @@ defmodule Flight.Accounts.AccountsTest do
                  email: "foo@bar.com",
                  first_name: "Tammy",
                  last_name: "Jones",
+                 phone_number: "801-555-5555",
                  password: "password"
                })
 
