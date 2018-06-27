@@ -12,7 +12,7 @@ defmodule Flight.AccountsFixtures do
         password: "some password",
         stripe_customer_id: "cus_#{Flight.Random.hex(20)}"
       }
-      |> User.create_changeset(attrs)
+      |> User.__test_changeset(attrs)
       |> Repo.insert!()
 
     %{user | password: nil}
