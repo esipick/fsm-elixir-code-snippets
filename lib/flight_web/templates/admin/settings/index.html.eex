@@ -148,7 +148,15 @@
             
             
             <div class="tab-pane" id="link3">
-              Stripe stuff
+              <h4 class="card-title m-0 p-0 pb-2">Activate Stripe Account</h4>
+              <p>Flight School Manager uses <a href="http://stripe.com" target="_blank">Stripe.com</a> for all payment processing. Every school needs to set up their own Stripe account in order to accept payments in the system. Once you have created a Stripe account for your school, tap the connect to Stripe button below.</p>
+              
+              <input type="submit" class="btn btn-fill btn-primary btn-lg" value="Connect to Stripe&nbsp;&nbsp;&nbsp;➔">
+              <p class="text-muted mt-2 mb-2"><small><i>By connecting to Stripe, you are agreeing to our <a href="#terms">Terms of Service</a>.</i></small></p>
+              <hr/>
+              <div class="mt-4">
+                <a href="http://stripe.com" target="_blank"><img src="/images/powered_by_stripe.svg" alt="Powered by Stripe" width="120"></a>
+              </div>
             </div>
 
 
@@ -161,11 +169,11 @@
     <div class="card">
       <div class="card-body detail-list">
         <dl class="d-flex justify-content-between">
-          <dt>Member Since</dt>
+          <dt>Account Created</dt>
           <dd>Nov 13 2014</dd>
         </dl>
         <dl class="d-flex justify-content-between">
-          <dt>Stripe Status</dt>
+          <dt>Billing Status</dt>
           <dd><span class="badge badge-success">Running</span></dd>
         </dl>
       </div>
