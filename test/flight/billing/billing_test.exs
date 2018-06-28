@@ -170,6 +170,27 @@ defmodule Flight.BillingTest do
     end
   end
 
+  describe "rate_type_for_form/1" do
+    test "normal rate if user can't afford block rate total under their balance" do
+      student = student_fixture(%{balance: 10})
+      aircraft = aircraft_fixture(%{block_rate_per_hour: 30})
+
+      form =
+        detailed_transaction_form_fixture(student, student)
+        |> Map.put(:total, 30100)
+
+      assert Billing.rate_type_for_form(form) == :normal_rate
+    end
+
+    test "block rate if user can afford the block rate" do
+      student = student_fixture(%{balance: 3_000_000})
+
+      form = detailed_transaction_form_fixture(student, student)
+
+      assert Billing.rate_type_for_form(form) == :block_rate
+    end
+  end
+
   describe "approve_transaction/2" do
     test "approve deducts from balance" do
       user = user_fixture(%{balance: 5000})

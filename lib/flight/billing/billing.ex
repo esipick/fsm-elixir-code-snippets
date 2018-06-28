@@ -28,7 +28,7 @@ defmodule Flight.Billing do
     end
   end
 
-  def aircraft_cost!(aircraft, hobbs_start, hobbs_end, rate_type, fee_percentage \\ 0.1)
+  def aircraft_cost!(aircraft, hobbs_start, hobbs_end, rate_type, fee_percentage \\ 0.01)
       when rate_type in [:normal_rate, :block_rate] do
     case aircraft_cost(aircraft, hobbs_start, hobbs_end, rate_type, fee_percentage) do
       {:ok, amount} -> amount
@@ -50,9 +50,23 @@ defmodule Flight.Billing do
     end
   end
 
+  def rate_type_for_form(%DetailedTransactionForm{} = form) do
+    {%{total: blockTotal}, _, _, _} = DetailedTransactionForm.to_transaction(form, :block_rate)
+
+    user = Flight.Accounts.get_user(form.user_id)
+
+    if user.balance >= blockTotal do
+      :block_rate
+    else
+      :normal_rate
+    end
+  end
+
   def create_transaction_from_detailed_form(form) do
+    rate_type = rate_type_for_form(form)
+
     {transaction, instructor_line_item, aircraft_line_item, aircraft_details} =
-      DetailedTransactionForm.to_transaction(form)
+      DetailedTransactionForm.to_transaction(form, rate_type)
 
     result =
       Repo.transaction(fn ->

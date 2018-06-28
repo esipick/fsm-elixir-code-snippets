@@ -132,7 +132,8 @@ defmodule FlightWeb.API.DetailedTransactionForm do
     end
   end
 
-  def to_transaction(form) do
+  def to_transaction(form, rate_type \\ :normal_rate)
+      when rate_type in [:normal_rate, :block_rate] do
     {aircraft_line_item, aircraft_details} =
       if form.aircraft_details do
         aircraft_details = form.aircraft_details
@@ -152,8 +153,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
               aircraft,
               aircraft_details.hobbs_start,
               aircraft_details.hobbs_end,
-              :normal_rate,
-              0.1
+              rate_type
             ),
           aircraft_id: aircraft.id
         }
