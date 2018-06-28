@@ -36,14 +36,13 @@ defmodule FlightWeb.API.AppointmentController do
   def index(conn, params) do
     appointments =
       Scheduling.get_appointments(params)
-      |> Flight.Repo.preload([:user, :instructor_user, :aircraft])
+      |> FlightWeb.API.AppointmentView.preload()
 
     render(conn, "index.json", appointments: appointments)
   end
 
   def show(conn, _) do
-    appointment =
-      Flight.Repo.preload(conn.assigns.appointment, [:user, :instructor_user, :aircraft])
+    appointment = FlightWeb.API.AppointmentView.preload(conn.assigns.appointment)
 
     render(conn, "show.json", appointment: appointment)
   end
@@ -51,7 +50,7 @@ defmodule FlightWeb.API.AppointmentController do
   def create(conn, %{"data" => appointment_data}) do
     case Flight.Scheduling.create_appointment(appointment_data) do
       {:ok, appointment} ->
-        appointment = Flight.Repo.preload(appointment, [:user, :instructor_user, :aircraft])
+        appointment = FlightWeb.API.AppointmentView.preload(appointment)
         render(conn, "show.json", appointment: appointment)
 
       {:error, changeset} ->
@@ -64,7 +63,7 @@ defmodule FlightWeb.API.AppointmentController do
   def update(conn, %{"data" => appointment_data}) do
     case Flight.Scheduling.create_appointment(appointment_data, conn.assigns.appointment) do
       {:ok, appointment} ->
-        appointment = Flight.Repo.preload(appointment, [:user, :instructor_user, :aircraft])
+        appointment = FlightWeb.API.AppointmentView.preload(appointment)
         render(conn, "show.json", appointment: appointment)
 
       {:error, changeset} ->

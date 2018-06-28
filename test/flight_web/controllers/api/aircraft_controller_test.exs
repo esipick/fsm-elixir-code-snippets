@@ -14,7 +14,9 @@ defmodule FlightWeb.API.AircraftControllerTest do
         |> get("/api/aircrafts")
         |> json_response(200)
 
-      aircrafts = [aircraft1, aircraft2]
+      aircrafts =
+        [aircraft1, aircraft2]
+        |> FlightWeb.API.AircraftView.preload()
 
       assert json == render_json(AircraftView, "index.json", aircrafts: aircrafts)
     end
@@ -22,7 +24,9 @@ defmodule FlightWeb.API.AircraftControllerTest do
 
   describe "GET /api/aircrafts/:id" do
     test "renders aircrafts", %{conn: conn} do
-      aircraft = aircraft_fixture()
+      aircraft =
+        aircraft_fixture()
+        |> FlightWeb.API.AircraftView.preload()
 
       json =
         conn

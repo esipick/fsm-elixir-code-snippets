@@ -60,6 +60,49 @@ defmodule Flight.BillingTest do
     end
   end
 
+  describe "create_transaction_from_custom_form/1" do
+    test "creates transaction and all sub resources" do
+      student = student_fixture()
+      instructor = instructor_fixture()
+
+      form =
+        custom_transaction_form_fixture(
+          %{amount: 3721, description: "This is my jam"},
+          student,
+          instructor
+        )
+
+      assert {:ok, transaction} = Billing.create_transaction_from_custom_form(form)
+
+      assert line_item =
+               Flight.Repo.get_by(
+                 Flight.Billing.TransactionLineItem,
+                 transaction_id: transaction.id
+               )
+
+      assert line_item.description == "This is my jam"
+      assert line_item.amount == 3721
+      assert transaction.total == line_item.amount
+      assert transaction.user_id == student.id
+      assert transaction.creator_user_id == instructor.id
+      assert transaction.state == "pending"
+      refute transaction.completed_at
+      assert transaction.type == "debit"
+    end
+
+    @tag :integration
+    test "creates transaction as completed if creator == user" do
+      {student, card} = student_fixture() |> real_stripe_customer()
+
+      form = custom_transaction_form_fixture(%{source: card.id}, student, student)
+
+      assert {:ok, transaction} = Billing.create_transaction_from_custom_form(form)
+
+      assert transaction.state == "completed"
+      assert transaction.completed_at
+    end
+  end
+
   describe "aircraft_cost/3" do
     test "correct rate is calculated for normal_rate" do
       aircraft = aircraft_fixture(%{rate_per_hour: 75, block_rate_per_hour: 100})

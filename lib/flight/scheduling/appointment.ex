@@ -5,6 +5,7 @@ defmodule Flight.Scheduling.Appointment do
   schema "appointments" do
     field(:end_at, :naive_datetime)
     field(:start_at, :naive_datetime)
+    field(:note, :string)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:user, Flight.Accounts.User)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
@@ -16,7 +17,7 @@ defmodule Flight.Scheduling.Appointment do
   @doc false
   def changeset(appointment, attrs) do
     appointment
-    |> cast(attrs, [:start_at, :end_at, :user_id, :instructor_user_id, :aircraft_id])
+    |> cast(attrs, [:start_at, :end_at, :user_id, :instructor_user_id, :aircraft_id, :note])
     |> validate_required([:start_at, :end_at, :user_id])
     |> validate_end_at_after_start_at()
     |> validate_user_instructor_different()

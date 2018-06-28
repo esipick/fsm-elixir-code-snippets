@@ -41,6 +41,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
     test "renders appointments within time range", %{conn: conn} do
       appointment1 =
         appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+        |> FlightWeb.API.AppointmentView.preload()
 
       json =
         conn
@@ -59,6 +60,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
     test "renders appointments within time range", %{conn: conn} do
       appointment =
         appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+        |> FlightWeb.API.AppointmentView.preload()
 
       json =
         conn
@@ -94,7 +96,8 @@ defmodule FlightWeb.API.AppointmentControllerTest do
 
       params = %{
         data: %{
-          start_at: Timex.shift(@default_date, hours: 3)
+          start_at: Timex.shift(@default_date, hours: 3),
+          note: "Heyo Timeo"
         }
       }
 
@@ -108,10 +111,11 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                Flight.Repo.get_by(
                  Appointment,
                  id: appointment.id,
-                 start_at: Timex.shift(@default_date, hours: 3)
+                 start_at: Timex.shift(@default_date, hours: 3),
+                 note: "Heyo Timeo"
                )
 
-      appointment = Flight.Repo.preload(appointment, [:user, :instructor_user, :aircraft])
+      appointment = FlightWeb.API.AppointmentView.preload(appointment)
 
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
     end
@@ -153,7 +157,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                  aircraft_id: aircraft.id
                )
 
-      appointment = Flight.Repo.preload(appointment, [:user, :instructor_user, :aircraft])
+      appointment = FlightWeb.API.AppointmentView.preload(appointment)
 
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
     end
@@ -187,7 +191,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                  aircraft_id: aircraft.id
                )
 
-      appointment = Flight.Repo.preload(appointment, [:user, :instructor_user, :aircraft])
+      appointment = FlightWeb.API.AppointmentView.preload(appointment)
 
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
     end

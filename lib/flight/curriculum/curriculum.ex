@@ -1,6 +1,6 @@
 defmodule Flight.Curriculum do
   alias Flight.Repo
-  alias Flight.Curriculum.{Course, ObjectiveScore}
+  alias Flight.Curriculum.{Course, ObjectiveScore, ObjectiveNote}
 
   import Ecto.Changeset
   import Ecto.Query, warn: false
@@ -24,6 +24,26 @@ defmodule Flight.Curriculum do
 
     score
     |> ObjectiveScore.changeset(data)
+    |> Repo.insert_or_update()
+  end
+
+  def get_objective_notes(user_id) do
+    from(s in ObjectiveNote, where: s.user_id == ^user_id)
+    |> Repo.all()
+  end
+
+  def get_objective_note(user_id, objective_id),
+    do: Repo.get_by(ObjectiveNote, user_id: user_id, objective_id: objective_id)
+
+  def delete_objective_note(note), do: Repo.delete!(note)
+
+  def set_objective_note(data) do
+    note =
+      Repo.get_by(ObjectiveNote, user_id: data["user_id"], objective_id: data["objective_id"]) ||
+        %ObjectiveNote{}
+
+    note
+    |> ObjectiveNote.changeset(data)
     |> Repo.insert_or_update()
   end
 end

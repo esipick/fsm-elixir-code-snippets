@@ -6,6 +6,7 @@ defmodule Flight.CurriculumFixtures do
     LessonCategory,
     Objective,
     ObjectiveScore,
+    ObjectiveNote,
     Syllabus
   }
 
@@ -84,6 +85,23 @@ defmodule Flight.CurriculumFixtures do
       |> Repo.insert!()
 
     %{score | user: user, objective: objective}
+  end
+
+  def objective_note_fixture(
+        attrs \\ %{},
+        user \\ user_fixture(),
+        objective \\ objective_fixture()
+      ) do
+    note =
+      %ObjectiveNote{
+        user_id: user.id,
+        objective_id: objective.id,
+        note: "Hello you"
+      }
+      |> ObjectiveNote.changeset(attrs)
+      |> Repo.insert!()
+
+    %{note | user: user, objective: objective}
   end
 
   def syllabus_fixture(attrs \\ %{}, lesson \\ lesson_fixture()) do

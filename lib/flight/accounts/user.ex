@@ -73,7 +73,8 @@ defmodule Flight.Accounts.User do
   def stripe_customer_changeset(user, attrs) do
     user
     |> cast(attrs, [:stripe_customer_id])
-    |> validate_required([:stripe_customer_id])
+
+    # |> validate_required([:stripe_customer_id])
   end
 
   def api_update_changeset(user, attrs, _roles, flyer_certificates) do

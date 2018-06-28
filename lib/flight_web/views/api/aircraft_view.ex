@@ -27,7 +27,22 @@ defmodule FlightWeb.API.AircraftView do
       tail_number: aircraft.tail_number,
       last_tach_time: aircraft.last_tach_time,
       last_hobbs_time: aircraft.last_hobbs_time,
-      rate_per_hour: aircraft.rate_per_hour
+      rate_per_hour: aircraft.rate_per_hour,
+      inspections:
+        render_many(aircraft.inspections, AircraftView, "inspection.json", as: :inspection)
     }
+  end
+
+  def render("inspection.json", %{inspection: inspection}) do
+    %{
+      name: inspection.name,
+      type: inspection.type,
+      date_value: inspection.date_value,
+      number_value: inspection.number_value
+    }
+  end
+
+  def preload(aircrafts) do
+    Flight.Repo.preload(aircrafts, :inspections)
   end
 end

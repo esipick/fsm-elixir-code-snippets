@@ -56,6 +56,7 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:transaction_creator, :modify, :all),
       permission_slug(:transaction_creator, :view, :all),
       permission_slug(:transaction_user, :modify, :all),
+      permission_slug(:transaction, :request, :all),
       permission_slug(:transaction_user, :view, :all)
     ])
   end
@@ -70,6 +71,8 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:objective_score, :modify, :all),
       permission_slug(:transaction_approve, :modify, :personal),
       permission_slug(:transaction_creator, :view, :personal),
+      permission_slug(:transaction_user, :be, :all),
+      permission_slug(:transaction, :request, :all),
       permission_slug(:transaction_creator, :modify, :personal),
       permission_slug(:transaction_user, :view, :personal)
     ])

@@ -91,6 +91,36 @@ defmodule Flight.BillingFixtures do
     end
   end
 
+  def custom_transaction_form_attrs(
+        attrs \\ %{},
+        user \\ student_fixture(),
+        creator_user \\ instructor_fixture()
+      ) do
+    %{
+      user_id: user.id,
+      creator_user_id: creator_user.id,
+      amount: 20000,
+      description: "Something",
+      source: nil
+    }
+    |> Map.merge(attrs)
+  end
+
+  def custom_transaction_form_fixture(
+        attrs \\ %{},
+        user \\ student_fixture(),
+        creator \\ instructor_fixture()
+      ) do
+    {:ok, form} =
+      %FlightWeb.API.CustomTransactionForm{}
+      |> FlightWeb.API.CustomTransactionForm.changeset(
+        custom_transaction_form_attrs(attrs, user, creator)
+      )
+      |> Ecto.Changeset.apply_action(:insert)
+
+    form
+  end
+
   def real_stripe_customer(user) do
     {:ok, customer} = Flight.Billing.create_stripe_customer(user.email)
 

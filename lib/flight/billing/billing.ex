@@ -7,7 +7,7 @@ defmodule Flight.Billing do
 
   alias Flight.Billing.{Transaction, TransactionLineItem, AircraftLineItemDetail}
   alias Flight.Accounts.{User}
-  alias FlightWeb.API.DetailedTransactionForm
+  alias FlightWeb.API.{DetailedTransactionForm, CustomTransactionForm}
 
   def aircraft_cost(aircraft, hobbs_start, hobbs_end, rate_type, fee_percentage \\ 0.01)
       when rate_type in [:normal_rate, :block_rate] do
@@ -129,6 +129,39 @@ defmodule Flight.Billing do
     end
   end
 
+  def create_transaction_from_custom_form(form) do
+    {transaction, line_item} = CustomTransactionForm.to_transaction(form)
+
+    result =
+      Repo.transaction(fn ->
+        {:ok, transaction} =
+          transaction
+          |> Transaction.changeset(%{})
+          |> Repo.insert()
+
+        {:ok, _} =
+          line_item
+          |> TransactionLineItem.changeset(%{transaction_id: transaction.id})
+          |> Repo.insert()
+
+        transaction
+      end)
+
+    case result do
+      {:ok, transaction} ->
+        if form.creator_user_id == form.user_id do
+          transaction
+          |> Repo.preload([:user, :creator_user])
+          |> approve_transaction(form.source)
+        else
+          {:ok, transaction}
+        end
+
+      error ->
+        error
+    end
+  end
+
   def get_transaction(id) do
     Repo.get(Transaction, id)
   end
@@ -141,7 +174,12 @@ defmodule Flight.Billing do
       |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
       |> pass_unless(
         params["creator_user_id"],
-        &where(&1, [t], t.creator_user_id == ^params["creator_user_id"])
+        &where(
+          &1,
+          [t],
+          t.creator_user_id == ^params["creator_user_id"] and
+            t.user_id != ^params["creator_user_id"]
+        )
       )
       |> order_by([t], desc: t.inserted_at)
 

@@ -1,7 +1,7 @@
 defmodule FlightWeb.API.TransactionController do
   use FlightWeb, :controller
 
-  alias FlightWeb.API.DetailedTransactionForm
+  alias FlightWeb.API.{DetailedTransactionForm, CustomTransactionForm}
   alias Flight.Billing
 
   alias Flight.Auth.Permission
@@ -22,12 +22,46 @@ defmodule FlightWeb.API.TransactionController do
       |> put_status(201)
       |> render("show.json", transaction: transaction)
     else
-      {:error, error} ->
-        IO.inspect(error)
-
+      {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(400)
-        |> json(%{errors: "blah"})
+        |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
+
+      {:error, _error} ->
+        conn
+        |> put_status(400)
+        |> json(%{
+          human_errors: [
+            "An unknown error occurred, we're looking into it! Try again or ask an Admin for help."
+          ]
+        })
+    end
+  end
+
+  def create(conn, %{"custom" => custom_params}) do
+    changeset = CustomTransactionForm.changeset(%CustomTransactionForm{}, custom_params)
+
+    with {:ok, form} <- Ecto.Changeset.apply_action(changeset, :insert),
+         {:ok, transaction} <- Flight.Billing.create_transaction_from_custom_form(form) do
+      transaction = Flight.Repo.preload(transaction, [:line_items, :user, :creator_user])
+
+      conn
+      |> put_status(201)
+      |> render("show.json", transaction: transaction)
+    else
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
+
+      {:error, _error} ->
+        conn
+        |> put_status(400)
+        |> json(%{
+          human_errors: [
+            "An unknown error occurred, we're looking into it! Try again or ask an Admin for help."
+          ]
+        })
     end
   end
 
@@ -188,8 +222,23 @@ defmodule FlightWeb.API.TransactionController do
   def authorize_create(conn, _) do
     permissions =
       case conn.params do
-        %{"detailed" => %{"creator_user_id" => user_id}} ->
-          [Permission.new(:transaction_creator, :modify, {:personal, user_id})]
+        %{"detailed" => %{"creator_user_id" => creator_user_id, "user_id" => user_id}} ->
+          perms = [Permission.new(:transaction_creator, :modify, {:personal, user_id})]
+
+          if creator_user_id != user_id do
+            [Permission.new(:transaction, :request, :all) | perms]
+          else
+            perms
+          end
+
+        %{"custom" => %{"creator_user_id" => creator_user_id, "user_id" => user_id}} ->
+          perms = [Permission.new(:transaction_creator, :modify, {:personal, user_id})]
+
+          if creator_user_id != user_id do
+            [Permission.new(:transaction, :request, :all) | perms]
+          else
+            perms
+          end
 
         %{"add_funds" => %{"user_id" => user_id}} ->
           [Permission.new(:transaction_creator, :modify, {:personal, user_id})]

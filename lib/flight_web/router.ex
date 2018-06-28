@@ -115,6 +115,10 @@ defmodule FlightWeb.Router do
     get("/objective_scores", ObjectiveScoreController, :index)
     delete("/objective_scores", ObjectiveScoreController, :delete)
 
+    post("/objective_notes", ObjectiveNoteController, :create)
+    get("/objective_notes", ObjectiveNoteController, :index)
+    delete("/objective_notes", ObjectiveNoteController, :delete)
+
     get("/appointments/availability", AppointmentController, :availability)
 
     resources(

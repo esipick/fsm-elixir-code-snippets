@@ -21,12 +21,13 @@ defmodule Flight.Auth.Permission do
     :appointment_user,
     :appointment_instructor,
     :appointment_student,
+    :transaction,
     :transaction_approve,
     :transaction_user,
     :transaction_creator,
     :objective_score
   ]
-  @verbs [:view, :modify, :be]
+  @verbs [:view, :modify, :be, :request]
   @scopes [:all, :personal]
 
   @doc """
@@ -66,8 +67,10 @@ defmodule Flight.Auth.Permission do
     end
   end
 
+  def personal_scope_checker(_user, _resource_slug, nil), do: false
+
   # Refactor this to just use user_id universally instead of this dynamic pattern matching
-  def personal_scope_checker(user, resource_slug, resource) when not is_nil(resource) do
+  def personal_scope_checker(user, resource_slug, resource) do
     case {resource_slug, resource} do
       {:users, %Flight.Accounts.User{id: user_id}} ->
         user.id == user_id

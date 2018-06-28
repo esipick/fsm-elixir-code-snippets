@@ -76,6 +76,7 @@ defmodule FlightWeb.API.AppointmentView do
       end_at: Flight.NaiveDateTime.to_json(appointment.end_at),
       user: render(FlightWeb.API.UserView, "skinny_user.json", user: appointment.user),
       transaction_id: appointment.transaction_id,
+      note: appointment.note,
       instructor_user:
         Optional.map(
           appointment.instructor_user,
@@ -87,5 +88,9 @@ defmodule FlightWeb.API.AppointmentView do
           &render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: &1)
         )
     }
+  end
+
+  def preload(appointments) do
+    Flight.Repo.preload(appointments, [:user, :instructor_user, [aircraft: :inspections]])
   end
 end

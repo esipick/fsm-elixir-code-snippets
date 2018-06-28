@@ -121,6 +121,7 @@ defmodule Flight.Scheduling.Availability do
       Aircraft
       |> visible_aircraft_query()
       |> Repo.all()
+      |> FlightWeb.API.AircraftView.preload()
 
     unavailable_aircraft_ids =
       Appointment
