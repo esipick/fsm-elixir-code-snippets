@@ -102,6 +102,31 @@ defmodule FlightWeb.API.ObjectiveNoteControllerTest do
       assert updated_note.id == note.id
     end
 
+    test "deletes existing note if the empty string is submitted", %{conn: conn} do
+      student = student_fixture()
+      objective = objective_fixture()
+      objective_note_fixture(%{note: "Herro"}, student, objective)
+
+      params = %{
+        data: %{
+          objective_id: objective.id,
+          user_id: student.id,
+          note: ""
+        }
+      }
+
+      conn
+      |> auth(instructor_fixture())
+      |> post("/api/objective_notes", params)
+      |> json_response(200)
+
+      refute Flight.Repo.get_by(
+               ObjectiveNote,
+               user_id: student.id,
+               objective_id: objective.id
+             )
+    end
+
     test "students can't update their own objective notes", %{conn: conn} do
       student = student_fixture()
       objective = objective_fixture()

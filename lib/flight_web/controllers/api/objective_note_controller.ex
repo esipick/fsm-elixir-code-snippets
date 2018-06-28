@@ -16,6 +16,11 @@ defmodule FlightWeb.API.ObjectiveNoteController do
   def create(conn, %{"data" => data}) do
     with {:ok, note} <- Curriculum.set_objective_note(data) do
       render(conn, "show.json", objective_note: note)
+    else
+      {:error, changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
     end
   end
 
