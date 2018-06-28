@@ -96,6 +96,7 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:users, :modify, :personal),
       permission_slug(:users, :view, :personal),
       permission_slug(:appointment_user, :modify, :personal),
+      permission_slug(:objective_score, :view, :personal),
       permission_slug(:transaction_approve, :modify, :personal),
       permission_slug(:transaction_creator, :modify, :personal),
       permission_slug(:transaction_user, :view, :personal)
