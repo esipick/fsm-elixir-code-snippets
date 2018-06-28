@@ -38,7 +38,7 @@ defmodule FlightWeb.UserForm do
   end
 
   def item(user, :zipcode) do
-    %Item{key: :state, name: "Zipcode", type: :string, value: user.state, order: 35}
+    %Item{key: :zipcode, name: "Zipcode", type: :string, value: user.zipcode, order: 35}
   end
 
   def item(user, :flight_training_number) do
