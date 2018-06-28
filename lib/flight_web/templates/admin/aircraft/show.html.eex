@@ -10,7 +10,7 @@
 <div class="row">
           <div class="col-md-10 col-lg-8">
             <div class="card ">
-              
+
               <div class="card-body">
                   <div class="detail-list">
                     <dl class="d-flex justify-content-between">
@@ -46,18 +46,22 @@
                       <dd><%= @aircraft.last_tach_time %></dd>
                     </dl>
                     <dl class="d-flex justify-content-between">
+                      <dt>Last Recorded Hobbs Time</dt>
+                      <dd><%= @aircraft.last_hobbs_time %></dd>
+                    </dl>
+                    <dl class="d-flex justify-content-between">
                       <dt>Rate Per Hour</dt>
                       <dd>$<%= @aircraft.rate_per_hour %></dd>
                     </dl>
                     <dl class="d-flex justify-content-between">
                       <dt>Block Rate Per Hour</dt>
                       <dd>$<%= @aircraft.block_rate_per_hour %></dd>
-                    </dl>                    
+                    </dl>
                     <dl class="d-flex justify-content-between border-none">
                       <dt>Inspections</dt>
                       <dd></dd>
                     </dl>
-                      
+
                       <div class="table-responsive">
                           <table class="table text-left">
                             <thead class="text-primary">
@@ -75,12 +79,12 @@
                                   %Flight.Scheduling.TachInspection{} = tach_inspection -> render("_tach_inspection_list_item.html", tach_inspection: tach_inspection)
                                 end %>
                               <% end %>
-                              
+
                             </tbody>
                           </table>
-                        </div> 
-                        
-                                            
+                        </div>
+
+
                   </div>
               </div>
             </div> <!-- end card -->

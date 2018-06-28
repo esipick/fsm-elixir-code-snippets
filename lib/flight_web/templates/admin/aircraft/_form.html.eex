@@ -8,8 +8,8 @@
         <% end %>
       </div>
     <% end %>
-    
-      
+
+
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
@@ -24,7 +24,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
@@ -38,23 +38,7 @@
             <%= text_input f, :serial_number, class: "form-control" %>
           </div>
         </div>
-      </div>      
-
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Equipment</label>
-            <%= text_input f, :equipment, class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Last Recorded Tach Time</label>
-            <%= number_input f, :last_tach_time, class: "form-control" %>
-          </div>
-        </div>
-      </div> 
+      </div>
 
 
       <div class="row">
@@ -70,8 +54,33 @@
             <%= number_input f, :block_rate_per_hour, class: "form-control" %>
           </div>
         </div>
-      </div>       
-    
+      </div>
+
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Equipment</label>
+            <%= text_input f, :equipment, class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Last Recorded Tach Time</label>
+            <%= number_input f, :last_tach_time, class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Last Recorded Hobbs Time</label>
+            <%= number_input f, :last_hobbs_time, class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
       <div class="row">
         <div class="col-md-6">
           <div class="form-check">
@@ -90,12 +99,12 @@
           </div>
         </div>
         <div class="col-md-6">
-          
+
         </div>
-      </div>      
-    
+      </div>
+
   </div> <!-- end card-body -->
-  
+
   <div class="card-footer ">
         <%= if @is_edit do %>
           <a href="/admin/aircrafts/<%= @aircraft.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
@@ -104,5 +113,5 @@
         <% end %>
         <input type="submit" class="btn btn-fill btn-primary" value="Save">
   </div>
-  
+
 <% end %>
