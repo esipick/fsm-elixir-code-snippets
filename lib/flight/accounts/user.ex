@@ -125,6 +125,7 @@ defmodule Flight.Accounts.User do
     changeset
     |> validate_required([:email, :first_name, :last_name])
     |> unique_constraint(:email)
+    |> trim_email()
     |> validate_length(:roles, min: 1)
     |> validate_password(:password)
     |> validate_format(
@@ -144,6 +145,16 @@ defmodule Flight.Accounts.User do
     user
     |> cast(attrs, [:balance])
     |> validate_required([:balance])
+  end
+
+  def trim_email(changeset) do
+    email = get_field(changeset, :email)
+
+    if is_binary(email) do
+      put_change(changeset, :email, String.trim(email))
+    else
+      changeset
+    end
   end
 
   def validate_password(changeset, field, options \\ []) do

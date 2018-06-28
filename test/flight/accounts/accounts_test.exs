@@ -35,7 +35,8 @@ defmodule Flight.Accounts.AccountsTest do
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} =
                Accounts.create_user(%{
-                 email: "foo@bar.com",
+                 # Space here is intentional, should be trimmed
+                 email: "foo@bar.com ",
                  first_name: "Tammy",
                  last_name: "Jones",
                  phone_number: "801-555-5555",
