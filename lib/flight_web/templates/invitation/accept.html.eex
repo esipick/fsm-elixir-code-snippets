@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <title>Flight School Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= render FlightWeb.Admin.PartialView, "_css.html", assigns %>
     <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>
   </head>
