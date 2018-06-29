@@ -243,7 +243,49 @@ defmodule Flight.BillingTest do
       assert transaction.paid_by_charge == 3000
       assert transaction.user_id == user.id
       assert transaction.creator_user_id == user.id
+      assert transaction.stripe_charge_id
       refute transaction.paid_by_balance
+
+      assert line_item.amount == 3000
+      assert line_item.transaction_id == transaction.id
+      assert line_item.description == "Added funds to balance."
+    end
+  end
+
+  describe "parse_amount" do
+    test "passes for valid string" do
+      assert {:ok, 30032} = Billing.parse_amount("300.32")
+    end
+
+    test "passes for valid string with extra digits" do
+      assert {:ok, 30032} = Billing.parse_amount("300.329999")
+    end
+
+    test "errors for invalid string" do
+      assert {:error, :invalid} = Billing.parse_amount("sodifjs")
+    end
+  end
+
+  describe "add_funds_by_credit/2" do
+    test "adds funds to user and creates transaction" do
+      user = student_fixture()
+      admin = admin_fixture()
+
+      assert {:ok, {user, transaction}} = Billing.add_funds_by_credit(user, admin, 3000)
+
+      assert Enum.count(transaction.line_items) == 1
+
+      user = Flight.Repo.get(Flight.Accounts.User, user.id)
+      line_item = List.first(transaction.line_items)
+
+      assert user.balance == 3000
+      assert transaction.total == 3000
+      assert transaction.type == "credit"
+      refute transaction.paid_by_charge
+      refute transaction.paid_by_balance
+      assert transaction.user_id == user.id
+      assert transaction.creator_user_id == admin.id
+      refute transaction.stripe_charge_id
 
       assert line_item.amount == 3000
       assert line_item.transaction_id == transaction.id

@@ -1,19 +1,40 @@
 defmodule FlightWeb.Admin.UserController do
   use FlightWeb, :controller
 
-  alias Flight.Accounts
-  plug(:get_user when action in [:show, :edit, :update])
+  alias Flight.{Accounts, Billing, Scheduling}
+
+  plug(:get_user when action in [:show, :edit, :update, :add_funds])
 
   def index(conn, %{"role" => role_slug}) do
     render(conn, "index.html", data: FlightWeb.Admin.UserListData.build(role_slug))
   end
 
   def show(conn, %{"tab" => "schedule"}) do
-    render(conn, "show.html", user: conn.assigns.requested_user, tab: :schedule, appointments: [])
+    appointments =
+      Scheduling.get_appointments(%{"user_id" => conn.assigns.requested_user.id})
+      |> Flight.Repo.preload([:aircraft, :instructor_user])
+
+    render(
+      conn,
+      "show.html",
+      user: conn.assigns.requested_user,
+      tab: :schedule,
+      appointments: appointments
+    )
   end
 
   def show(conn, %{"tab" => "billing"}) do
-    render(conn, "show.html", user: conn.assigns.requested_user, tab: :billing, transactions: [])
+    transactions =
+      Billing.get_filtered_transactions(%{"user_id" => conn.assigns.requested_user.id})
+      |> Flight.Repo.preload([:line_items, :user, :creator_user])
+
+    render(
+      conn,
+      "show.html",
+      user: conn.assigns.requested_user,
+      tab: :billing,
+      transactions: transactions
+    )
   end
 
   def show(conn, _params) do
@@ -27,6 +48,28 @@ defmodule FlightWeb.Admin.UserController do
       user: conn.assigns.requested_user,
       changeset: Accounts.User.create_changeset(conn.assigns.requested_user, %{})
     )
+  end
+
+  def add_funds(conn, %{"amount" => amount}) do
+    with {:ok, cent_amount} <- Billing.parse_amount(amount),
+         {:ok, {user, _transaction}} <-
+           Billing.add_funds_by_credit(
+             conn.assigns.requested_user,
+             conn.assigns.current_user,
+             cent_amount
+           ) do
+      conn
+      |> put_flash(
+        :success,
+        "Successfully added #{CurrencyFormatter.format(cent_amount, "USD")} to #{user.first_name}'s balance."
+      )
+      |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")
+    else
+      {:error, :invalid} ->
+        conn
+        |> put_flash(:error, "Invalid amount. Please enter an amount in the form: 20.50")
+        |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")
+    end
   end
 
   def update(conn, %{"user" => user_form} = params) do
@@ -51,7 +94,7 @@ defmodule FlightWeb.Admin.UserController do
 
   defp get_user(conn, _) do
     user =
-      conn.params["id"]
+      (conn.params["id"] || conn.params["user_id"])
       |> Accounts.get_user!()
       |> Flight.Repo.preload([:roles, :flyer_certificates])
 

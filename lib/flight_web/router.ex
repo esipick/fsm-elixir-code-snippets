@@ -60,7 +60,9 @@ defmodule FlightWeb.Router do
 
     resources("/settings", SettingsController, only: [:index])
 
-    resources("/users", UserController, only: [:index, :show, :edit, :update])
+    resources("/users", UserController, only: [:index, :show, :edit, :update]) do
+      post("/add_funds", UserController, :add_funds)
+    end
 
     resources("/invitations", InvitationController, only: [:create, :index]) do
       post("/resend", InvitationController, :resend)

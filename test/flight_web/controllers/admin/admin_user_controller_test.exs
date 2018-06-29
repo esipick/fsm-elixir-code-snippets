@@ -142,4 +142,20 @@ defmodule FlightWeb.Admin.UserControllerTest do
       assert user.last_name == "Duprix"
     end
   end
+
+  describe "POST /admin/users/:id/add_funds" do
+    test "adds funds", %{conn: conn} do
+      student = student_fixture(%{balance: 100})
+
+      conn =
+        conn
+        |> web_auth_admin()
+        |> post("/admin/users/#{student.id}/add_funds", %{"amount" => 5})
+
+      student = Accounts.get_user(student.id)
+
+      assert get_flash(conn, :success) =~ "Successfully"
+      assert student.balance == 600
+    end
+  end
 end

@@ -200,6 +200,21 @@ defmodule Flight.Billing do
     Repo.all(query)
   end
 
+  def parse_amount(str) when is_binary(str) do
+    case Float.parse(str) do
+      {float, _} -> {:ok, (float * 100) |> trunc()}
+      :error -> {:error, :invalid}
+    end
+  end
+
+  def parse_amount(num) when is_float(num) or is_integer(num) do
+    {:ok, (num * 100) |> trunc()}
+  end
+
+  def parse_amount(_) do
+    {:error, :invalid}
+  end
+
   def add_funds_by_charge(user, creator_user, amount, source) when is_integer(amount) do
     result = create_stripe_charge(source, user.stripe_customer_id, user.email, amount)
 
@@ -237,6 +252,40 @@ defmodule Flight.Billing do
       error ->
         error
     end
+  end
+
+  def add_funds_by_credit(user, creator_user, amount, source) when is_integer(amount) do
+    {:ok, result} =
+      Repo.transaction(fn ->
+        transaction =
+          %Transaction{}
+          |> Transaction.changeset(%{
+            user_id: user.id,
+            creator_user_id: creator_user.id,
+            completed_at: NaiveDateTime.utc_now(),
+            state: "completed",
+            type: "credit",
+            total: amount
+          })
+          |> Repo.insert!()
+
+        line_item =
+          %TransactionLineItem{}
+          |> TransactionLineItem.changeset(%{
+            transaction_id: transaction.id,
+            description: "Added funds to balance.",
+            amount: amount
+          })
+          |> Repo.insert!()
+
+        {:ok, user} = Billing.update_balance(user, amount)
+
+        transaction = %{transaction | line_items: [line_item]}
+
+        {:ok, {user, transaction}}
+      end)
+
+    result
   end
 
   def add_funds_by_credit(user, creator_user, amount) when is_integer(amount) do
