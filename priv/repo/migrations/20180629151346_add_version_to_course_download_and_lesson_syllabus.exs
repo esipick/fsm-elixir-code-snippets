@@ -9,7 +9,6 @@ defmodule Flight.Repo.Migrations.AddVersionToCourseDownloadAndLessonSyllabus do
 
     alter table(:lessons) do
       add(:syllabus_version, :integer, default: 1)
-      add(:syllabus_url, :string)
     end
   end
 end
