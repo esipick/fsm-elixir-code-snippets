@@ -173,7 +173,6 @@ defmodule Flight.BillingTest do
   describe "rate_type_for_form/1" do
     test "normal rate if user can't afford block rate total under their balance" do
       student = student_fixture(%{balance: 10})
-      aircraft = aircraft_fixture(%{block_rate_per_hour: 30})
 
       form =
         detailed_transaction_form_fixture(student, student)
