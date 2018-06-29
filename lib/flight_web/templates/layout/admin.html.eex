@@ -4,6 +4,7 @@
     <title>Flight School Manager \\ Randon Aviation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= render FlightWeb.Admin.PartialView, "_css.html", assigns %>
+    <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>
   </head>
   <body>
     <div class="wrapper">
@@ -67,7 +68,6 @@
 
       </div>
     </div>
-    <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>
   </body>
 
 </html>
