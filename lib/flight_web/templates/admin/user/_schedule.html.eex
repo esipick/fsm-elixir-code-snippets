@@ -22,21 +22,4 @@
       </dd>
     </dl>
   <% end %>
-  <dl class="d-flex justify-content-between">
-    <dt>Friday, Apr 22 2018</dt>
-    <dd>
-      <dl class="d-flex justify-content-between">
-        <dt>Time</dt>
-        <dd>8-10:00 AM</dd>
-      </dl>
-      <dl class="d-flex justify-content-between">
-        <dt>Equipment</dt>
-        <dd><a href="aircraft-profile.php">Diamond N834DS</a></dd>
-      </dl>
-      <dl class="d-flex justify-content-between">
-        <dt>Instructor</dt>
-        <dd><a href="instructor-profile.php">Randon Russell</a></dd>
-      </dl>
-    </dd>
-  </dl>
 </div>
