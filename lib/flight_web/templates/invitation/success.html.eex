@@ -54,9 +54,9 @@
                 <p>Your account has been created. Please follow the link to download the Flight School Manager app to finish your profile and schedule your first lesson!</p>
               </div> <!-- end card body -->
               <div class="card-footer mb-3">
-                <a href="dashboard.php" class="btn btn-primary btn-round btn-lg">Get the App</a>
+                <a href="https://itunes.apple.com/us/app/flight-school-manager/id1079676025?ls=1&mt=8" class="btn btn-primary btn-round btn-lg">Get the App</a>
                 <div class="col-md-8 ml-auto mr-auto">
-                  <p class="text-muted mt-4"><small>Or search <a href="#linktoapp">Flight School Manger</a> in the app store on your compatible iOS device.</small></p>
+                  <p class="text-muted mt-4"><small>Or search <a href="https://itunes.apple.com/us/app/flight-school-manager/id1079676025?ls=1&mt=8">Flight School Manager</a> in the app store on your compatible iOS device.</small></p>
                 </div>
               </div>
             </div>
