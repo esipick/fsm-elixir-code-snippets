@@ -26,8 +26,10 @@ defmodule FlightWeb.API.CourseView do
 
   def render("course_download.json", %{course_download: download}) do
     %{
+      id: download.id,
+      version: download.version,
       name: download.name,
-      url: "https://google.com"
+      url: download.url
     }
   end
 
@@ -42,13 +44,10 @@ defmodule FlightWeb.API.CourseView do
           "lesson_category.json",
           as: :lesson_category
         ),
-      syllabus: render("syllabus.json", syllabus: lesson.syllabus)
-    }
-  end
-
-  def render("syllabus.json", %{syllabus: _syllabus}) do
-    %{
-      url: "https://google.com"
+      syllabus: %{
+        url: lesson.syllabus_url,
+        version: lesson.syllabus_version
+      }
     }
   end
 

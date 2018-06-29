@@ -21,7 +21,7 @@ defmodule FightWeb.API.CourseControllerTest do
         [course]
         |> Flight.Repo.preload([
           :course_downloads,
-          lessons: [:syllabus, lesson_categories: [:objectives]]
+          lessons: [lesson_categories: [:objectives]]
         ])
 
       assert json == render_json(FlightWeb.API.CourseView, "index.json", courses: courses)

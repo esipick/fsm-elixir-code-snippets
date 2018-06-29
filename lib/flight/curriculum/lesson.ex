@@ -4,8 +4,9 @@ defmodule Flight.Curriculum.Lesson do
 
   schema "lessons" do
     field(:name, :string)
+    field(:syllabus_url, :string)
+    field(:syllabus_version, :integer, default: 1)
     belongs_to(:course, Flight.Curriculum.Course)
-    has_one(:syllabus, Flight.Curriculum.Syllabus)
     has_many(:lesson_categories, Flight.Curriculum.LessonCategory)
 
     timestamps()

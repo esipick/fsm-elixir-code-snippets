@@ -10,7 +10,7 @@ defmodule FlightWeb.API.CourseController do
       courses
       |> Flight.Repo.preload([
         :course_downloads,
-        lessons: [:syllabus, lesson_categories: [:objectives]]
+        lessons: [lesson_categories: [:objectives]]
       ])
 
     render(conn, "index.json", courses: courses)
