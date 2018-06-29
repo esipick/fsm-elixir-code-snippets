@@ -8,8 +8,16 @@ defmodule FlightWeb.Admin.UserController do
     render(conn, "index.html", data: FlightWeb.Admin.UserListData.build(role_slug))
   end
 
+  def show(conn, %{"tab" => "schedule"}) do
+    render(conn, "show.html", user: conn.assigns.requested_user, tab: :schedule, appointments: [])
+  end
+
+  def show(conn, %{"tab" => "billing"}) do
+    render(conn, "show.html", user: conn.assigns.requested_user, tab: :billing, transactions: [])
+  end
+
   def show(conn, _params) do
-    render(conn, "show.html", user: conn.assigns.requested_user)
+    render(conn, "show.html", user: conn.assigns.requested_user, tab: :profile)
   end
 
   def edit(conn, _params) do

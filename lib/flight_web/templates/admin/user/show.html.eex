@@ -14,265 +14,31 @@
       <div class="card-header">
         <ul class="nav nav-pills nav-pills-primary" role="tablist">
           <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab" href="#link1" role="tablist">Profile</a>
+              <a class="nav-link <%= if @tab == :profile, do: "active", else: "" %>" href="/admin/users/<%= @user.id %>">Profile</a>
           </li>
 
           <%= if has_billing?(@user) do %>
             <li class="nav-item">
-              <a class="nav-link" data-toggle="tab" href="#link2" role="tablist">Billing</a>
+              <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href="/admin/users/<%= @user.id %>?tab=billing">Billing</a>
             </li>
           <% end %>
 
           <%= if has_appointments?(@user) do %>
           <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#link3" role="tablist">Appointments</a>
+              <a class="nav-link <%= if @tab == :schedule, do: "active", else: "" %>" href="/admin/users/<%= @user.id %>?tab=schedule">Appointments</a>
           </li>
           <% end %>
 
         </ul>
       </div>
       <div class="card-body">
-        <div class="tab-content">
-          <div class="tab-pane active detail-list" id="link1">
-            <dl class="d-flex justify-content-between">
-              <dt>Name</dt>
-              <dd><%= @user.first_name %> <%= @user.last_name %></dd>
-            </dl>
-            <dl class="d-flex justify-content-between">
-              <dt>Phone #</dt>
-              <dd><a href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a></dd>
-            </dl>
-            <dl class="d-flex justify-content-between">
-              <dt>Email</dt>
-              <dd><a href="mailto:<%= @user.email %>"><%= @user.email %></a></dd>
-            </dl>
-            <%= if has_address?(@user) && should_display_address?(@user) do %>
-              <dl class="d-flex justify-content-between">
-                <dt>Address</dt>
-                <dd><%= @user.address_1 %></br>
-                  <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></dd>
-              </dl>
-            <% end %>
-            <%= if has_cirriculum?(@user) do %>
-              <dl class="d-flex justify-content-between">
-                <dt>Flight Training # (FTN)</dt>
-                <dd><%= @user.flight_training_number %></dd>
-              </dl>
-            <% end %>
-            <%= if has_pay_rates?(@user) do %>
-              <dl class="d-flex justify-content-between">
-                <dt>Billing Rate</dt>
-                <dd>$<%= @user.billing_rate %>/hr</dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Pay Rate</dt>
-                <dd>$<%= @user.pay_rate %>/hr</dd>
-              </dl>
-            <% end %>
-            <%= if has_teaching_info?(@user) do %>
-              <dl class="d-flex justify-content-between">
-                <dt>Awards</dt>
-                <dd><%= @user.awards %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Certificates</dt>
-                <dd>
-                  <%= human_flyer_certificates(@user.flyer_certificates) %>
-                  <small>cert# <%= @user.certificate_number %></small>
-                </dd>
-              </dl>
-            <% end %>
-            <%= if has_medical?(@user) do %>
-              <dl class="d-flex justify-content-between">
-                <dt>Medical</dt>
-                <dd><%= human_readable_medical_rating(@user.medical_rating) %>
-                  <%= if @user.medical_expires_at do %>
-                    <small>expires: <%= format_date(@user.medical_expires_at) %></small>
-                  <% end %>
-                </dd>
-              </dl>
-            <% end %>
-            <dl class="d-flex justify-content-between">
-              <dt>Permission Roles</dt>
-              <dd>
-                <%= for role <- @user.roles do %>
-                  <%= human_role(role.slug) %></br>
-                <% end %>
-              </dd>
-            </dl>
-          </div>
-
-
-
-          <%= if has_billing?(@user) do %>
-            <div class="tab-pane detail-list list-billing" id="link2">
-              <div class="d-flex justify-content-center">
-                <div class="text-center mb-2 mt-2">
-                  <h7>Account Balance</h7>
-                  <h2 class="mb-2"><%= CurrencyFormatter.format(@user.balance, "USD") %></h2>
-                  <!-- Button trigger modal -->
-                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
-                    add funds
-                  </button>
-
-                  <!-- Modal -->
-                  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLongTitle">Add Funds to Max Fischer</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                        <div class="modal-body detail-list">
-                          <dl class="d-flex justify-content-between flex-row-reverse">
-                            <dt>$8,345.00</dt>
-                            <dd><p>Current Balance</p></dd>
-                          </dl>
-                          <dl class="d-flex justify-content-between flex-row-reverse">
-                            <dt><input type="text" class="form-control"/></dt>
-                            <dd><p>Amount to add</p></dd>
-                          </dl>
-                          <dl class="d-flex justify-content-between flex-row-reverse">
-                            <dt>$8,345.00</dt>
-                            <dd><p>New Balance</p></dd>
-                          </dl>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                          <button type="button" class="btn btn-primary">Save changes</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              <h7>Transaction History</h7>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>
-                  <dl class="d-flex justify-content-between">
-                    <dt><small>Instructor</small></dt>
-                    <dd>$150.00</dd>
-                  </dl>
-                  <dl class="d-flex justify-content-between">
-                    <dt><small>Aircraft</small></dt>
-                    <dd>$200.00</dd>
-                  </dl>
-                  <dl class="d-flex justify-content-between">
-                    <dt><small>Total</small></dt>
-                    <dd>$350.00</dd>
-                  </dl>
-                  <a href="#e" class="btn btn-primary btn-sm">cancel</a>
-                </dt>
-                <dd>
-                  <p>Requested by Randon Russell</p>
-                  <small>May 12 2018</small>
-                  <p class="transaction-status">pending student approval</p>
-                </dd>
-              </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt class="text-right">
-                  - $350.00 <br/>
-                  <p class="transaction-status">pending student approval</p>
-                  <a href="#e" class="btn btn-primary btn-sm">cancel request</a>
-                </dt>
-                <dd>
-                  <p>Requested by Randon Russell</p>
-                  <small>May 12 2018</small>
-                  <p><small>Instructor $150.00 \ Aircraft $200.00</small></p>
-                </dd>
-              </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>+ $350.00</dt>
-                <dd>
-                  <p>Added by Max Fischer</p>
-                  <small>May 12 2018</small>
-                </dd>
-              </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>+ $350.00</dt>
-                <dd>
-                  <p>Added by Max Fischer</p>
-                  <small>May 12 2018</small>
-                </dd>
-              </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>-$350.00</dt>
-                <dd>
-                  <p>Requested by Randon Russell</p>
-                  <small>May 12 2018</small>
-                </dd>
-              </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>-$350.00</dt>
-                <dd>
-                  <p>Requested by Randon Russell</p>
-                  <small>May 12 2018</small>
-                </dd>
-              </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>-$350.00</dt>
-                <dd>
-                  <p>Requested by Randon Russell</p>
-                  <small>May 12 2018</small>
-                </dd>
-              </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>-$350.00</dt>
-                <dd>
-                  <p>Requested by Randon Russell</p>
-                  <small>May 12 2018</small>
-                </dd>
-              </dl>
-            </div>
-
-          <% end %>
-
-
-          <%= if has_appointments?(@user) do %>
-            <div class="tab-pane detail-list list-billing" id="link3">
-              <dl class="d-flex justify-content-between">
-                <dt>Monday, Apr 15 2018</dt>
-                <dd>
-                  <dl class="d-flex justify-content-between">
-                    <dt>Time</dt>
-                    <dd>7:30-9:30 AM</dd>
-                  </dl>
-                  <dl class="d-flex justify-content-between">
-                    <dt>Equipment</dt>
-                    <dd><a href="aircraft-profile.php">Archer N40670</a></dd>
-                  </dl>
-                  <dl class="d-flex justify-content-between">
-                    <dt>Instructor</dt>
-                    <dd><a href="instructor-profile.php">Greg Powell</a></dd>
-                  </dl>
-                </dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Friday, Apr 22 2018</dt>
-                <dd>
-                  <dl class="d-flex justify-content-between">
-                    <dt>Time</dt>
-                    <dd>8-10:00 AM</dd>
-                  </dl>
-                  <dl class="d-flex justify-content-between">
-                    <dt>Equipment</dt>
-                    <dd><a href="aircraft-profile.php">Diamond N834DS</a></dd>
-                  </dl>
-                  <dl class="d-flex justify-content-between">
-                    <dt>Instructor</dt>
-                    <dd><a href="instructor-profile.php">Randon Russell</a></dd>
-                  </dl>
-                </dd>
-              </dl>
-            </div>
-          <% end %>
-
-
-        </div>
+        <%=
+          case @tab do
+            :profile -> render "_profile.html", user: @user
+            :billing -> render "_billing.html", user: @user, transactions: @transactions
+            :schedule -> render "_schedule.html", user: @user, appointments: @appointments
+          end
+          %>
       </div>
     </div> <!-- end card -->
   </div>

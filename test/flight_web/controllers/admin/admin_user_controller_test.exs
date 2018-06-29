@@ -33,6 +33,34 @@ defmodule FlightWeb.Admin.UserControllerTest do
         assert content =~ user.first_name
       end
     end
+
+    test "all roles billing" do
+      for slug <- Flight.Accounts.Role.available_role_slugs() do
+        user = user_fixture() |> assign_role(slug)
+
+        content =
+          build_conn()
+          |> web_auth_admin()
+          |> get("/admin/users/#{user.id}?tab=billing")
+          |> html_response(200)
+
+        assert content =~ user.first_name
+      end
+    end
+
+    test "all roles schedule" do
+      for slug <- Flight.Accounts.Role.available_role_slugs() do
+        user = user_fixture() |> assign_role(slug)
+
+        content =
+          build_conn()
+          |> web_auth_admin()
+          |> get("/admin/users/#{user.id}?tab=scheduling")
+          |> html_response(200)
+
+        assert content =~ user.first_name
+      end
+    end
   end
 
   describe "GET /admin/users/:id/edit" do

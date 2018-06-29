@@ -1,0 +1,123 @@
+<div class="tab-pane detail-list list-billing" id="link2">
+  <div class="d-flex justify-content-center">
+    <div class="text-center mb-2 mt-2">
+      <h7>Account Balance</h7>
+      <h2 class="mb-2"><%= CurrencyFormatter.format(@user.balance, "USD") %></h2>
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+        add funds
+      </button>
+
+      <!-- Modal -->
+      <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Add Funds to Max Fischer</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body detail-list">
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>$8,345.00</dt>
+                <dd><p>Current Balance</p></dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt><input type="text" class="form-control"/></dt>
+                <dd><p>Amount to add</p></dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>$8,345.00</dt>
+                <dd><p>New Balance</p></dd>
+              </dl>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <h7>Transaction History</h7>
+  <dl class="d-flex justify-content-between flex-row-reverse">
+    <dt>
+      <dl class="d-flex justify-content-between">
+        <dt><small>Instructor</small></dt>
+        <dd>$150.00</dd>
+      </dl>
+      <dl class="d-flex justify-content-between">
+        <dt><small>Aircraft</small></dt>
+        <dd>$200.00</dd>
+      </dl>
+      <dl class="d-flex justify-content-between">
+        <dt><small>Total</small></dt>
+        <dd>$350.00</dd>
+      </dl>
+      <a href="#e" class="btn btn-primary btn-sm">cancel</a>
+    </dt>
+    <dd>
+      <p>Requested by Randon Russell</p>
+      <small>May 12 2018</small>
+      <p class="transaction-status">pending student approval</p>
+    </dd>
+  </dl>
+  <dl class="d-flex justify-content-between flex-row-reverse">
+    <dt class="text-right">
+      - $350.00 <br/>
+      <p class="transaction-status">pending student approval</p>
+      <a href="#e" class="btn btn-primary btn-sm">cancel request</a>
+    </dt>
+    <dd>
+      <p>Requested by Randon Russell</p>
+      <small>May 12 2018</small>
+      <p><small>Instructor $150.00 \ Aircraft $200.00</small></p>
+    </dd>
+  </dl>
+  <dl class="d-flex justify-content-between flex-row-reverse">
+    <dt>+ $350.00</dt>
+    <dd>
+      <p>Added by Max Fischer</p>
+      <small>May 12 2018</small>
+    </dd>
+  </dl>
+  <dl class="d-flex justify-content-between flex-row-reverse">
+    <dt>+ $350.00</dt>
+    <dd>
+      <p>Added by Max Fischer</p>
+      <small>May 12 2018</small>
+    </dd>
+  </dl>
+  <dl class="d-flex justify-content-between flex-row-reverse">
+    <dt>-$350.00</dt>
+    <dd>
+      <p>Requested by Randon Russell</p>
+      <small>May 12 2018</small>
+    </dd>
+  </dl>
+  <dl class="d-flex justify-content-between flex-row-reverse">
+    <dt>-$350.00</dt>
+    <dd>
+      <p>Requested by Randon Russell</p>
+      <small>May 12 2018</small>
+    </dd>
+  </dl>
+  <dl class="d-flex justify-content-between flex-row-reverse">
+    <dt>-$350.00</dt>
+    <dd>
+      <p>Requested by Randon Russell</p>
+      <small>May 12 2018</small>
+    </dd>
+  </dl>
+  <dl class="d-flex justify-content-between flex-row-reverse">
+    <dt>-$350.00</dt>
+    <dd>
+      <p>Requested by Randon Russell</p>
+      <small>May 12 2018</small>
+    </dd>
+  </dl>
+</div>
