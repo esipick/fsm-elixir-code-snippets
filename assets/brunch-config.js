@@ -74,6 +74,8 @@ exports.config = {
     }
   },
 
+  optimize: false,
+
   modules: {
     autoRequire: {
       "js/app.js": ["js/app"],
