@@ -4,6 +4,7 @@ defmodule Flight.Curriculum.Course do
 
   schema "courses" do
     field(:name, :string)
+    field(:order, :integer, default: 0)
     has_many(:lessons, Flight.Curriculum.Lesson)
     has_many(:course_downloads, Flight.Curriculum.CourseDownload)
 
@@ -13,7 +14,7 @@ defmodule Flight.Curriculum.Course do
   @doc false
   def changeset(course, attrs) do
     course
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> cast(attrs, [:name, :order])
+    |> validate_required([:name, :order])
   end
 end

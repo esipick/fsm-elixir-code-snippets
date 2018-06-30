@@ -26,6 +26,7 @@ defmodule Flight.CurriculumFixtures do
     course_download =
       %CourseDownload{
         name: "Some course download",
+        url: "https://google.com",
         course_id: course.id
       }
       |> CourseDownload.changeset(attrs)

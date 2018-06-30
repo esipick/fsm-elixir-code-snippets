@@ -4,6 +4,7 @@ defmodule Flight.Curriculum.Lesson do
 
   schema "lessons" do
     field(:name, :string)
+    field(:order, :integer, default: 0)
     field(:syllabus_url, :string)
     field(:syllabus_version, :integer, default: 1)
     belongs_to(:course, Flight.Curriculum.Course)
@@ -15,7 +16,7 @@ defmodule Flight.Curriculum.Lesson do
   @doc false
   def changeset(lesson, attrs) do
     lesson
-    |> cast(attrs, [:name, :course_id])
-    |> validate_required([:name, :course_id])
+    |> cast(attrs, [:name, :course_id, :order, :syllabus_url, :syllabus_version])
+    |> validate_required([:name, :course_id, :order, :syllabus_version])
   end
 end
