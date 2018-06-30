@@ -12,9 +12,9 @@ defmodule Flight.CurriculumCreator do
   alias Flight.Repo
 
   def delete_all_courses(
-        true = sure?,
-        true = you_might_regret_this,
-        true = i_take_no_responsibility_for_your_actions
+        true = _sure?,
+        true = _you_might_regret_this,
+        true = _i_take_no_responsibility_for_your_actions
       ) do
     Repo.transaction(fn ->
       Repo.delete_all(ObjectiveNote)
