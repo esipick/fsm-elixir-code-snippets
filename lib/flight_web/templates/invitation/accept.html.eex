@@ -63,7 +63,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label class="sr-only">Phone Number</label>
-                        <%= number_input f, :phone_number, class: "form-control", placeholder: "Phone #" %>
+                        <%= telephone_input f, :phone_number, class: "form-control", placeholder: "Phone #" %>
                       </div>
                     </div>
                     <div class="col-md-6">
