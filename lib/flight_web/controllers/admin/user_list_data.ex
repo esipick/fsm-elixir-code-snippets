@@ -66,7 +66,7 @@ defmodule FlightWeb.Admin.UserListData do
       %FlightWeb.Admin.UserTableSimpleRow{
         user_id: user.id,
         name: "#{user.first_name} #{user.last_name}",
-        phone_number: user.phone_number || "–"
+        phone_number: Flight.Format.display_phone_number(user.phone_number)
       }
     end
   end
