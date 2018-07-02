@@ -40,6 +40,13 @@ defmodule Flight.BillingTest do
                  aircraft_id: aircraft.id
                )
 
+      assert instructor_line_item =
+               Flight.Repo.get_by(
+                 Flight.Billing.TransactionLineItem,
+                 transaction_id: transaction.id,
+                 instructor_user_id: instructor.id
+               )
+
       assert Flight.Repo.get_by(
                Flight.Billing.TransactionLineItem,
                transaction_id: transaction.id,
@@ -49,6 +56,11 @@ defmodule Flight.BillingTest do
       assert Flight.Repo.get_by(
                Flight.Billing.AircraftLineItemDetail,
                transaction_line_item_id: aircraft_line_item.id
+             )
+
+      assert Flight.Repo.get_by(
+               Flight.Billing.InstructorLineItemDetail,
+               transaction_line_item_id: instructor_line_item.id
              )
 
       assert aircraft = Flight.Repo.get!(Aircraft, form.aircraft_details.aircraft_id)
@@ -104,59 +116,56 @@ defmodule Flight.BillingTest do
   end
 
   describe "aircraft_cost/3" do
-    test "correct rate is calculated for normal_rate" do
-      aircraft = aircraft_fixture(%{rate_per_hour: 75, block_rate_per_hour: 100})
+    test "correct rate is calculated for line item detail" do
+      detail = %Flight.Billing.AircraftLineItemDetail{
+        hobbs_start: 3333,
+        hobbs_end: 3345,
+        rate: 75,
+        fee_percentage: 0.1
+      }
 
-      amount = (75 * 1.1 * 1.2 * 100) |> trunc()
-
-      assert {:ok, ^amount} = Billing.aircraft_cost(aircraft, 3333, 3345, :normal_rate, 0.1)
+      assert Billing.aircraft_cost(detail) == Billing.aircraft_cost(3333, 3345, 75, 0.1)
     end
 
-    test "correct rate is calculated for block_rate" do
-      aircraft = aircraft_fixture(%{rate_per_hour: 75, block_rate_per_hour: 100})
-
-      amount = (100 * 1.1 * 1.2 * 100) |> trunc()
-
-      assert {:ok, ^amount} = Billing.aircraft_cost(aircraft, 3333, 3345, :block_rate, 0.1)
+    test "correct rate is calculated for normal_rate" do
+      amount = (75 * 1.1 * 1.2 * 100) |> trunc()
+      assert {:ok, ^amount} = Billing.aircraft_cost(3333, 3345, 75, 0.1)
     end
 
     test "0 duration is an error" do
-      aircraft = aircraft_fixture(%{rate_per_hour: 75})
-
-      assert {:error, :invalid_hobbs_interval} =
-               Billing.aircraft_cost(aircraft, 3333, 3333, :normal_rate, 0.1)
+      assert {:error, :invalid_hobbs_interval} = Billing.aircraft_cost(3333, 3333, 25, 0.1)
     end
 
     test "bang version returns only value" do
-      aircraft = aircraft_fixture(%{rate_per_hour: 75})
-
-      {:ok, amount} = Billing.aircraft_cost(aircraft, 3333, 3345, :normal_rate, 0.1)
-
-      assert Billing.aircraft_cost!(aircraft, 3333, 3345, :normal_rate, 0.1) == amount
+      {:ok, amount} = Billing.aircraft_cost(3333, 3345, 25, 0.1)
+      assert Billing.aircraft_cost!(3333, 3345, 25, 0.1) == amount
     end
   end
 
   describe "instructor_cost/3" do
-    test "correct rate is calculated" do
-      instructor = instructor_fixture(%{billing_rate: 75})
+    test "instructor detail performs correct math" do
+      detail = %Flight.Billing.InstructorLineItemDetail{
+        hour_tenths: 15,
+        billing_rate: 7500
+      }
 
+      assert Billing.instructor_cost(detail) == Billing.instructor_cost(7500, 15)
+    end
+
+    test "correct rate is calculated" do
       amount = (75 * 1.2 * 100) |> trunc()
 
-      assert {:ok, ^amount} = Billing.instructor_cost(instructor, 12)
+      assert {:ok, ^amount} = Billing.instructor_cost(75, 12)
     end
 
     test "0 duration is an error" do
-      instructor = instructor_fixture(%{billing_rate: 75})
-
-      assert {:error, :invalid_hours} = Billing.instructor_cost(instructor, 0)
+      assert {:error, :invalid_hours} = Billing.instructor_cost(75, 0)
     end
 
     test "bang version returns only value" do
-      instructor = instructor_fixture(%{billing_rate: 75})
+      {:ok, amount} = Billing.instructor_cost(75, 12)
 
-      {:ok, amount} = Billing.instructor_cost(instructor, 12)
-
-      assert Billing.instructor_cost!(instructor, 12) == amount
+      assert Billing.instructor_cost!(75, 12) == amount
     end
   end
 
@@ -178,7 +187,7 @@ defmodule Flight.BillingTest do
         detailed_transaction_form_fixture(student, student)
         |> Map.put(:total, 30100)
 
-      assert Billing.rate_type_for_form(form) == :normal_rate
+      assert Billing.rate_type_for_form(form) == :normal
     end
 
     test "block rate if user can afford the block rate" do
@@ -186,7 +195,7 @@ defmodule Flight.BillingTest do
 
       form = detailed_transaction_form_fixture(student, student)
 
-      assert Billing.rate_type_for_form(form) == :block_rate
+      assert Billing.rate_type_for_form(form) == :block
     end
   end
 

@@ -263,7 +263,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
         |> post("/api/transactions/preview", %{detailed: params})
         |> json_response(200)
 
-      {transaction, instructor_line_item, aircraft_line_item, _} =
+      {transaction, instructor_line_item, _, aircraft_line_item, _} =
         detailed_transaction_form_fixture(student, instructor, appointment, aircraft, instructor)
         |> FlightWeb.API.DetailedTransactionForm.to_transaction()
 
@@ -289,7 +289,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
         |> post("/api/transactions/preview", %{detailed: params})
         |> json_response(200)
 
-      {transaction, instructor_line_item, nil, _} =
+      {transaction, instructor_line_item, _, nil, _} =
         detailed_transaction_form_fixture(student, instructor, nil, nil, instructor)
         |> FlightWeb.API.DetailedTransactionForm.to_transaction()
 

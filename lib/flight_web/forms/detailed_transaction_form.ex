@@ -80,7 +80,13 @@ defmodule FlightWeb.API.DetailedTransactionForm do
   import Ecto.Changeset
 
   alias Flight.Billing
-  alias Flight.Billing.{Transaction, TransactionLineItem, AircraftLineItemDetail}
+
+  alias Flight.Billing.{
+    Transaction,
+    TransactionLineItem,
+    AircraftLineItemDetail,
+    InstructorLineItemDetail
+  }
 
   alias FlightWeb.API.DetailedTransactionForm.{AircraftDetails, InstructorDetails}
 
@@ -132,29 +138,32 @@ defmodule FlightWeb.API.DetailedTransactionForm do
     end
   end
 
-  def to_transaction(form, rate_type \\ :normal_rate)
-      when rate_type in [:normal_rate, :block_rate] do
+  def to_transaction(form, rate_type \\ :normal)
+      when rate_type in [:normal, :block] do
     {aircraft_line_item, aircraft_details} =
       if form.aircraft_details do
         aircraft_details = form.aircraft_details
         aircraft = Flight.Scheduling.get_aircraft(aircraft_details.aircraft_id)
+
+        rate =
+          case rate_type do
+            :normal -> aircraft.rate_per_hour
+            :block -> aircraft.block_rate_per_hour
+          end
 
         detail = %AircraftLineItemDetail{
           aircraft_id: aircraft_details.aircraft_id,
           hobbs_start: aircraft_details.hobbs_start,
           hobbs_end: aircraft_details.hobbs_end,
           tach_start: aircraft_details.tach_start,
-          tach_end: aircraft_details.tach_end
+          tach_end: aircraft_details.tach_end,
+          fee_percentage: 0.01,
+          rate_type: Atom.to_string(rate_type),
+          rate: rate
         }
 
         line_item = %TransactionLineItem{
-          amount:
-            Billing.aircraft_cost!(
-              aircraft,
-              aircraft_details.hobbs_start,
-              aircraft_details.hobbs_end,
-              rate_type
-            ),
+          amount: Billing.aircraft_cost!(detail),
           aircraft_id: aircraft.id
         }
 
@@ -163,15 +172,25 @@ defmodule FlightWeb.API.DetailedTransactionForm do
         {nil, nil}
       end
 
-    instructor_line_item =
+    {instructor_line_item, instructor_details} =
       if form.instructor_details do
         instructor = Flight.Accounts.get_user(form.instructor_details.instructor_id)
 
-        %TransactionLineItem{
-          amount:
-            Flight.Billing.instructor_cost!(instructor, form.instructor_details.hour_tenths),
+        detail = %InstructorLineItemDetail{
+          instructor_user_id: form.instructor_details.instructor_id,
+          billing_rate: instructor.billing_rate,
+          pay_rate: instructor.pay_rate,
+          hour_tenths: form.instructor_details.hour_tenths
+        }
+
+        line_item = %TransactionLineItem{
+          amount: Flight.Billing.instructor_cost!(detail),
           instructor_user_id: instructor.id
         }
+
+        {line_item, detail}
+      else
+        {nil, nil}
       end
 
     line_items = Enum.filter([aircraft_line_item, instructor_line_item], & &1)
@@ -189,6 +208,6 @@ defmodule FlightWeb.API.DetailedTransactionForm do
       creator_user_id: form.creator_user_id
     }
 
-    {transaction, instructor_line_item, aircraft_line_item, aircraft_details}
+    {transaction, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details}
   end
 end

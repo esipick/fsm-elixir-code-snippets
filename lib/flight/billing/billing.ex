@@ -5,67 +5,88 @@ defmodule Flight.Billing do
 
   alias Flight.Billing
 
-  alias Flight.Billing.{Transaction, TransactionLineItem, AircraftLineItemDetail}
+  alias Flight.Billing.{
+    Transaction,
+    TransactionLineItem,
+    AircraftLineItemDetail,
+    InstructorLineItemDetail
+  }
+
   alias Flight.Accounts.{User}
   alias FlightWeb.API.{DetailedTransactionForm, CustomTransactionForm}
 
-  def aircraft_cost(aircraft, hobbs_start, hobbs_end, rate_type, fee_percentage \\ 0.01)
-      when rate_type in [:normal_rate, :block_rate] do
+  def aircraft_cost!(%AircraftLineItemDetail{} = detail) do
+    {:ok, amount} = aircraft_cost(detail)
+    amount
+  end
+
+  def aircraft_cost(%AircraftLineItemDetail{} = detail) do
+    aircraft_cost(
+      detail.hobbs_start,
+      detail.hobbs_end,
+      detail.rate,
+      detail.fee_percentage
+    )
+  end
+
+  def aircraft_cost(hobbs_start, hobbs_end, rate, fee_percentage \\ 0.01) do
     cond do
       hobbs_end <= hobbs_start ->
         {:error, :invalid_hobbs_interval}
 
       true ->
-        rate =
-          case rate_type do
-            :normal_rate -> aircraft.rate_per_hour
-            :block_rate -> aircraft.block_rate_per_hour
-          end
-
         {:ok,
          (rate * (1 + fee_percentage) * ((hobbs_end - hobbs_start) / 10.0 * 100))
          |> trunc()}
     end
   end
 
-  def aircraft_cost!(aircraft, hobbs_start, hobbs_end, rate_type, fee_percentage \\ 0.01)
-      when rate_type in [:normal_rate, :block_rate] do
-    case aircraft_cost(aircraft, hobbs_start, hobbs_end, rate_type, fee_percentage) do
+  def aircraft_cost!(hobbs_start, hobbs_end, rate, fee_percentage \\ 0.01) do
+    case aircraft_cost(hobbs_start, hobbs_end, rate, fee_percentage) do
       {:ok, amount} -> amount
       {:error, reason} -> raise ArgumentError, "Failed to compute aircraft cost: #{reason}"
     end
   end
 
-  def instructor_cost(instructor, tenths_of_an_hour) do
+  def instructor_cost!(%InstructorLineItemDetail{} = detail) do
+    {:ok, amount} = instructor_cost(detail)
+    amount
+  end
+
+  def instructor_cost(%InstructorLineItemDetail{} = detail) do
+    instructor_cost(detail.billing_rate, detail.hour_tenths)
+  end
+
+  def instructor_cost(rate, tenths_of_an_hour) do
     cond do
       tenths_of_an_hour <= 0 -> {:error, :invalid_hours}
-      true -> {:ok, (instructor.billing_rate * (tenths_of_an_hour / 10.0) * 100) |> trunc()}
+      true -> {:ok, (rate * (tenths_of_an_hour / 10.0) * 100) |> trunc()}
     end
   end
 
-  def instructor_cost!(instructor, tenths_of_an_hour) do
-    case instructor_cost(instructor, tenths_of_an_hour) do
+  def instructor_cost!(rate, tenths_of_an_hour) do
+    case instructor_cost(rate, tenths_of_an_hour) do
       {:ok, amount} -> amount
       {:error, reason} -> raise ArgumentError, "Failed to compute instructor cost: #{reason}"
     end
   end
 
   def rate_type_for_form(%DetailedTransactionForm{} = form) do
-    {%{total: blockTotal}, _, _, _} = DetailedTransactionForm.to_transaction(form, :block_rate)
+    {%{total: blockTotal}, _, _, _, _} = DetailedTransactionForm.to_transaction(form, :block)
 
     user = Flight.Accounts.get_user(form.user_id)
 
     if user.balance >= blockTotal do
-      :block_rate
+      :block
     else
-      :normal_rate
+      :normal
     end
   end
 
   def create_transaction_from_detailed_form(form) do
     rate_type = rate_type_for_form(form)
 
-    {transaction, instructor_line_item, aircraft_line_item, aircraft_details} =
+    {transaction, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details} =
       DetailedTransactionForm.to_transaction(form, rate_type)
 
     result =
@@ -83,10 +104,17 @@ defmodule Flight.Billing do
             |> Repo.update()
         end
 
-        if instructor_line_item do
-          {:ok, _} =
+        if instructor_line_item && instructor_details do
+          {:ok, instructor_line_item} =
             instructor_line_item
             |> TransactionLineItem.changeset(%{transaction_id: transaction.id})
+            |> Repo.insert()
+
+          {:ok, _} =
+            instructor_details
+            |> InstructorLineItemDetail.changeset(%{
+              transaction_line_item_id: instructor_line_item.id
+            })
             |> Repo.insert()
         end
 
@@ -254,7 +282,7 @@ defmodule Flight.Billing do
     end
   end
 
-  def add_funds_by_credit(user, creator_user, amount, source) when is_integer(amount) do
+  def add_funds_by_credit(user, creator_user, amount) when is_integer(amount) do
     {:ok, result} =
       Repo.transaction(fn ->
         transaction =

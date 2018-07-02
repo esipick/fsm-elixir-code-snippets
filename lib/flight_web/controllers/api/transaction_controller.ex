@@ -90,7 +90,7 @@ defmodule FlightWeb.API.TransactionController do
 
     case Ecto.Changeset.apply_action(changeset, :insert) do
       {:ok, form} ->
-        {transaction, instructor_line_item, aircraft_line_item, _} =
+        {transaction, instructor_line_item, _, aircraft_line_item, _} =
           FlightWeb.API.DetailedTransactionForm.to_transaction(
             form,
             Billing.rate_type_for_form(form)

@@ -5,7 +5,8 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
 
   alias FlightWeb.API.DetailedTransactionForm
   alias FlightWeb.API.DetailedTransactionForm.{AircraftDetails, InstructorDetails}
-  alias Flight.Billing.{TransactionLineItem, AircraftLineItemDetail}
+  alias Flight.Billing.{TransactionLineItem, AircraftLineItemDetail, InstructorLineItemDetail}
+  alias Flight.Billing
 
   describe "form" do
     test "validates filled out data" do
@@ -23,8 +24,8 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
 
     test "to_transaction create insertable transaction" do
       student = student_fixture()
-      instructor = instructor_fixture()
-      aircraft = aircraft_fixture()
+      instructor = instructor_fixture(%{billing_rate: 7500, pay_rate: 3000})
+      aircraft = aircraft_fixture(%{rate_per_hour: 120})
 
       appointment = appointment_fixture(%{}, student, instructor, aircraft)
 
@@ -36,22 +37,33 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
         |> DetailedTransactionForm.changeset(attrs)
         |> Ecto.Changeset.apply_action(:insert)
 
-      {transaction, instructor_line_item, aircraft_line_item, aircraft_details} =
-        DetailedTransactionForm.to_transaction(form)
+      {transaction, instructor_line_item, instructor_details, aircraft_line_item,
+       aircraft_details} = DetailedTransactionForm.to_transaction(form)
 
       assert transaction.state == "pending"
       assert transaction.user_id == attrs.user_id
       assert transaction.creator_user_id == attrs.creator_user_id
       assert transaction.total == aircraft_line_item.amount + instructor_line_item.amount
 
+      assert instructor_details.instructor_user_id == attrs.instructor_details.instructor_id
+      assert instructor_details.hour_tenths == attrs.instructor_details.hour_tenths
+      assert instructor_details.billing_rate == instructor.billing_rate
+      assert instructor_details.pay_rate == instructor.pay_rate
+
       assert instructor_line_item.instructor_user_id == attrs.instructor_details.instructor_id
+      assert instructor_line_item.amount == Billing.instructor_cost!(instructor_details)
+
       assert aircraft_line_item.aircraft_id == attrs.aircraft_details.aircraft_id
+      assert aircraft_line_item.amount == Billing.aircraft_cost!(aircraft_details)
 
       assert aircraft_details.aircraft_id == attrs.aircraft_details.aircraft_id
       assert aircraft_details.hobbs_start == attrs.aircraft_details.hobbs_start
       assert aircraft_details.hobbs_end == attrs.aircraft_details.hobbs_end
       assert aircraft_details.tach_start == attrs.aircraft_details.tach_start
       assert aircraft_details.tach_end == attrs.aircraft_details.tach_end
+      assert aircraft_details.rate == 120
+      assert aircraft_details.fee_percentage == 0.01
+      assert aircraft_details.rate_type == "normal"
 
       assert Flight.Repo.insert!(transaction)
     end
@@ -70,7 +82,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
         |> DetailedTransactionForm.changeset(attrs)
         |> Ecto.Changeset.apply_action(:insert)
 
-      assert {transaction, nil, %TransactionLineItem{}, %AircraftLineItemDetail{}} =
+      assert {transaction, nil, nil, %TransactionLineItem{}, %AircraftLineItemDetail{}} =
                DetailedTransactionForm.to_transaction(form)
 
       assert Flight.Repo.insert!(transaction)
@@ -90,7 +102,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
         |> DetailedTransactionForm.changeset(attrs)
         |> Ecto.Changeset.apply_action(:insert)
 
-      assert {transaction, %TransactionLineItem{}, nil, nil} =
+      assert {transaction, %TransactionLineItem{}, %InstructorLineItemDetail{}, nil, nil} =
                DetailedTransactionForm.to_transaction(form)
 
       assert Flight.Repo.insert!(transaction)

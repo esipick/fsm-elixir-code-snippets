@@ -16,7 +16,13 @@ defmodule Flight.Billing.TransactionLineItem do
   @doc false
   def changeset(transaction_line_item, attrs) do
     transaction_line_item
-    |> cast(attrs, [:amount, :description, :transaction_id, :aircraft_id, :instructor_user_id])
+    |> cast(attrs, [
+      :amount,
+      :description,
+      :transaction_id,
+      :aircraft_id,
+      :instructor_user_id
+    ])
     |> validate_required([:amount, :transaction_id])
   end
 end
