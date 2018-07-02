@@ -7,6 +7,7 @@ defmodule FlightWeb.API.UserController do
   plug(FlightWeb.AuthenticateApiUser)
   plug(:get_user when action in [:show, :update, :form_items])
   plug(:authorize_modify when action in [:update, :form_items])
+  plug(:authorize_view when action in [:show])
 
   def index(conn, %{"form" => form}) do
     result =
@@ -76,6 +77,13 @@ defmodule FlightWeb.API.UserController do
     halt_unless_user_can?(conn, [
       Permission.new(:users, :modify, {:personal, conn.assigns.user}),
       Permission.new(:users, :modify, :all)
+    ])
+  end
+
+  def authorize_view(conn, _) do
+    halt_unless_user_can?(conn, [
+      Permission.new(:users, :view, {:personal, conn.assigns.user}),
+      Permission.new(:users, :view, :all)
     ])
   end
 

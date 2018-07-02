@@ -29,7 +29,7 @@ defmodule FlightWeb.API.UserControllerTest do
   describe "GET /api/users/:id" do
     test "renders json", %{conn: conn} do
       user =
-        user_fixture()
+        student_fixture()
         |> Flight.Repo.preload([:roles, :flyer_certificates])
 
       json =
@@ -44,6 +44,16 @@ defmodule FlightWeb.API.UserControllerTest do
                  "show.json",
                  user: user
                )
+    end
+
+    test "401 if student requesting other student", %{conn: conn} do
+      student = student_fixture()
+      other_student = student_fixture()
+
+      conn
+      |> auth(other_student)
+      |> get("/api/users/#{student.id}")
+      |> response(401)
     end
 
     test "401 if no auth", %{conn: conn} do

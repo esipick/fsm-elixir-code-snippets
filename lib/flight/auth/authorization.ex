@@ -50,6 +50,7 @@ defmodule Flight.Auth.Authorization do
   def admin_permission_slugs() do
     MapSet.new([
       permission_slug(:users, :modify, :all),
+      permission_slug(:users, :view, :all),
       permission_slug(:objective_score, :view, :all),
       permission_slug(:objective_score, :modify, :all),
       permission_slug(:appointment, :modify, :all),
