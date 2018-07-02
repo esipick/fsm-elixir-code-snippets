@@ -66,7 +66,7 @@ defmodule FlightWeb.Admin.UserListData do
       %FlightWeb.Admin.UserTableSimpleRow{
         user_id: user.id,
         name: "#{user.first_name} #{user.last_name}",
-        phone_number: "(801) 555-5555"
+        phone_number: user.phone_number || "–"
       }
     end
   end
