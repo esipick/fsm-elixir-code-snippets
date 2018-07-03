@@ -21,6 +21,14 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:user_id]
 
+config :flight, FlightWeb.Endpoint, instrumenters: [Appsignal.Phoenix.Instrumenter]
+
+config :phoenix, :template_engines,
+  eex: Appsignal.Phoenix.Template.EExEngine,
+  exs: Appsignal.Phoenix.Template.ExsEngine
+
+config :flight, Flight.Repo, loggers: [Appsignal.Ecto, Ecto.LogEntry]
+
 import_config "appsignal.exs"
 
 # Import environment specific config. This must remain at the bottom

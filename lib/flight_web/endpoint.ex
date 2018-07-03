@@ -1,5 +1,6 @@
 defmodule FlightWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :flight
+  use Appsignal.Phoenix
 
   socket("/socket", FlightWeb.UserSocket)
 
