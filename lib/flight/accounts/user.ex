@@ -151,7 +151,12 @@ defmodule Flight.Accounts.User do
     email = get_field(changeset, :email)
 
     if is_binary(email) do
-      put_change(changeset, :email, String.trim(email))
+      email =
+        email
+        |> String.trim()
+        |> String.downcase()
+
+      put_change(changeset, :email, email)
     else
       changeset
     end
