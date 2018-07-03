@@ -21,7 +21,7 @@ defmodule Flight.Mixfile do
   def application do
     [
       mod: {Flight.Application, []},
-      extra_applications: [:logger, :runtime_tools, :comeonin, :timex, :bamboo]
+      extra_applications: [:appsignal, :logger, :runtime_tools, :comeonin, :timex, :bamboo]
     ]
   end
 
@@ -49,7 +49,8 @@ defmodule Flight.Mixfile do
       {:comeonin, "~> 4.0"},
       {:timex, "~> 3.1"},
       {:stripity_stripe, "~> 2.0"},
-      {:currency_formatter, "~> 0.4"}
+      {:currency_formatter, "~> 0.4"},
+      {:appsignal, "~> 1.6"}
     ]
   end
 
