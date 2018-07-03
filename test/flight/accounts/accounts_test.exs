@@ -206,6 +206,18 @@ defmodule Flight.Accounts.AccountsTest do
       assert_delivered_email(Flight.Email.invitation_email(invitation))
     end
 
+    test "create_invitation/1 downcases email" do
+      assert {:ok, %Accounts.Invitation{} = invitation} =
+               Accounts.create_invitation(%{
+                 first_name: "foo",
+                 last_name: "bar",
+                 email: "FOO@bar.com",
+                 role_id: Accounts.Role.admin().id
+               })
+
+      assert invitation.email == "foo@bar.com"
+    end
+
     test "create_invitation/1 fails if user already exists with email" do
       user_fixture(%{email: "foo@bar.com"})
 

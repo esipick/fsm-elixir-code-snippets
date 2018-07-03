@@ -18,6 +18,7 @@ defmodule Flight.Accounts.Invitation do
     invitation
     |> cast(attrs, [:first_name, :last_name, :email, :role_id])
     |> generate_token()
+    |> downcase_email()
     |> validate_required([:first_name, :last_name, :email, :role_id, :token])
     |> unique_constraint(:email, message: "already has an invitation.")
     |> unique_constraint(:token)
@@ -27,6 +28,13 @@ defmodule Flight.Accounts.Invitation do
     invitation
     |> cast(attrs, [:accepted_at])
     |> validate_required([:accepted_at])
+  end
+
+  def downcase_email(changeset) do
+    email = get_field(changeset, :email)
+
+    changeset
+    |> Pipe.pass_unless(email, &put_change(&1, :email, String.downcase(email)))
   end
 
   def generate_token(changeset) do
