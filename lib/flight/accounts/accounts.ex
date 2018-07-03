@@ -24,7 +24,7 @@ defmodule Flight.Accounts do
     |> Repo.one()
   end
 
-  def get_user_by_email(email), do: Repo.get_by(User, email: email)
+  def get_user_by_email(email), do: Repo.get_by(User, email: String.downcase(email))
 
   def create_user(attrs \\ %{}) do
     attrs =
