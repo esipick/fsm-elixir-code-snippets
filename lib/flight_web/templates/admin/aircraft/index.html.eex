@@ -21,8 +21,8 @@
                       <th data-toggle="tooltip" data-placement="top" title="Has Simulator">Sim</th>
                       <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
                       <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
-                      <th data-toggle="tooltip" data-placement="top" title="Last Tach Time">Tach Time</th>
-                      <th data-toggle="tooltip" data-placement="top" title="Last Hobbs Time">Tach Time</th>
+                      <th data-toggle="tooltip" data-placement="top" title="Last Recorded Tach Time">Tach Time</th>
+                      <th data-toggle="tooltip" data-placement="top" title="Last Recorded Hobbs Time">Hobbs Time</th>
                     </thead>
                     <tbody>
                       <%= for aircraft <- @aircrafts do %>
