@@ -60,7 +60,7 @@ defmodule Flight.Billing do
   def instructor_cost(rate, tenths_of_an_hour) do
     cond do
       tenths_of_an_hour <= 0 -> {:error, :invalid_hours}
-      true -> {:ok, (rate * (tenths_of_an_hour / 10.0) * 100) |> trunc()}
+      true -> {:ok, (rate * (tenths_of_an_hour / 10.0)) |> trunc()}
     end
   end
 

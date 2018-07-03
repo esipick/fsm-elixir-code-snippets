@@ -19,4 +19,12 @@ defmodule Flight.Format do
   def hours_from_tenths(tenths) do
     tenths / 10
   end
+
+  def cents_from_dollars(dollars) do
+    (dollars * 100) |> trunc()
+  end
+
+  def dollars_from_cents(cents) do
+    cents / 100
+  end
 end

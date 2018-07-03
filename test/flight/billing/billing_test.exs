@@ -153,9 +153,9 @@ defmodule Flight.BillingTest do
     end
 
     test "correct rate is calculated" do
-      amount = (75 * 1.2 * 100) |> trunc()
+      amount = (7500 * 1.2) |> trunc()
 
-      assert {:ok, ^amount} = Billing.instructor_cost(75, 12)
+      assert {:ok, ^amount} = Billing.instructor_cost(7500, 12)
     end
 
     test "0 duration is an error" do

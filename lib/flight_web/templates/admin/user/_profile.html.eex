@@ -27,11 +27,11 @@
   <%= if has_pay_rates?(@user) do %>
     <dl class="d-flex justify-content-between">
       <dt>Billing Rate</dt>
-      <dd>$<%= @user.billing_rate %>/hr</dd>
+      <dd><%= currency(@user.billing_rate) %>/hr</dd>
     </dl>
     <dl class="d-flex justify-content-between">
       <dt>Pay Rate</dt>
-      <dd>$<%= @user.pay_rate %>/hr</dd>
+      <dd><%= currency(@user.pay_rate) %>/hr</dd>
     </dl>
   <% end %>
   <%= if has_teaching_info?(@user) do %>
