@@ -78,3 +78,5 @@ config :flight, Flight.Repo,
 config :flight, :user_token_salt, "gwfyeA8B5"
 
 config :flight, Flight.Mailer, adapter: Bamboo.LocalAdapter
+
+config :appsignal, :config, active: false

@@ -29,3 +29,5 @@ config :stripity_stripe, api_key: "sk_test_ZHmnpsn2AcEeUNMVWj5ueuZ7"
 config :stripity_stripe, :pool_options,
   timeout: 5_000,
   max_connections: 10
+
+config :appsignal, :config, active: false
