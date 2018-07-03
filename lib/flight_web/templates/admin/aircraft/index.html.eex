@@ -1,5 +1,5 @@
 <div class="panel-header panel-header-sm">
-  
+
 </div>
 
 <div class="content">
@@ -8,7 +8,7 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header text-right">
-                 <h3 class="card-title pull-left">Aircraft</h3> 
+                 <h3 class="card-title pull-left">Aircraft</h3>
                 <a href="/admin/aircrafts/new" class="btn btn-primary">Add New</a>
               </div>
               <div class="card-body">
@@ -19,10 +19,10 @@
                       <th>Equipment</th>
                       <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
                       <th data-toggle="tooltip" data-placement="top" title="Has Simulator">Sim</th>
-                      <th data-toggle="tooltip" data-placement="top" title="Next Inspection Due">Next Inspection</th>
                       <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
                       <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
-                      <th data-toggle="tooltip" data-placement="top" title="Last Recorded Tach Time">Tach Time</th>
+                      <th data-toggle="tooltip" data-placement="top" title="Last Tach Time">Tach Time</th>
+                      <th data-toggle="tooltip" data-placement="top" title="Last Hobbs Time">Tach Time</th>
                     </thead>
                     <tbody>
                       <%= for aircraft <- @aircrafts do %>
@@ -33,11 +33,10 @@
                           <td><%= aircraft.equipment %></td>
                           <td><%= display_boolean(aircraft.ifr_certified) %></td>
                           <td><%= display_boolean(aircraft.simulator) %></td>
-                          <td><a href="#e" data-toggle="modal" data-target="#inspectionModal"><b>–</b></a>
-                          </td>
                           <td>$<%= aircraft.rate_per_hour %></td>
                           <td>$<%= aircraft.block_rate_per_hour %></td>
-                          <td><%= aircraft.last_tach_time %></td>
+                          <td><%= Flight.Format.hours_from_tenths(aircraft.last_tach_time) %></td>
+                          <td><%= Flight.Format.hours_from_tenths(aircraft.last_hobbs_time) %></td>
                           <td class="text-right"><a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm">view</a></td>
                         </tr>
                       <% end %>
