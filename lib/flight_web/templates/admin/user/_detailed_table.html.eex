@@ -4,7 +4,6 @@
       <th>Name</th>
       <th>Phone #</th>
       <th>Account Balance</th>
-      <th>Owed</th>
       <th class="disabled-sorting text-right">&nbsp;</th>
     </tr>
   </thead>
@@ -14,8 +13,7 @@
       <tr>
       <td class="text-nowrap"><b><%= row.name %></b></td>
       <td><a href="tel:<%= row.phone_number %>"><%= row.phone_number %></a></td>
-      <td><%= row.account_balance %></td>
-      <td><%= row.owes %></td>
+      <td><%= currency(row.account_balance) %></td>
       <td class="text-right">
       <a href="/admin/users/<%= row.user_id %>" class="btn btn-primary btn-sm">view</a>
       </td>
