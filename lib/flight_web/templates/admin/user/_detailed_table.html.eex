@@ -3,7 +3,6 @@
     <tr>
       <th>Name</th>
       <th>Phone #</th>
-      <th>Next Appointment</th>
       <th>Account Balance</th>
       <th>Owed</th>
       <th class="disabled-sorting text-right">&nbsp;</th>
@@ -15,7 +14,6 @@
       <tr>
       <td class="text-nowrap"><b><%= row.name %></b></td>
       <td><a href="tel:<%= row.phone_number %>"><%= row.phone_number %></a></td>
-      <td><%= row.next_appointment %></td>
       <td><%= row.account_balance %></td>
       <td><%= row.owes %></td>
       <td class="text-right">
