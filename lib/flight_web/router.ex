@@ -61,6 +61,8 @@ defmodule FlightWeb.Router do
     resources("/settings", SettingsController, only: [:index, :edit])
 
     resources("/users", UserController, only: [:index, :show, :edit, :update])
+    
+    resources("/schedule", ScheduleController, only: [:index, :show, :edit])
 
     resources("/invitations", InvitationController, only: [:create, :index]) do
       post("/resend", InvitationController, :resend)

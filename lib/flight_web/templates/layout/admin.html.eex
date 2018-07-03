@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <title>Flight School Manager \\ Randon Aviation</title>
+    <link rel="icon" type="image/png" href="/images/fsm-icon.png">
     <%= render FlightWeb.Admin.PartialView, "_css.html", assigns %>
+    <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>
   </head>
   <body>
     <div class="wrapper">
@@ -66,7 +68,7 @@
 
       </div>
     </div>
-    <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>
+
   </body>
 
 </html>
