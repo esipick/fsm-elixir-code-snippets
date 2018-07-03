@@ -6,7 +6,7 @@ defmodule FlightWeb.Admin.AircraftController do
   plug(:get_aircraft when action in [:show, :edit, :update])
 
   def create(conn, %{"data" => aircraft_data}) do
-    case Scheduling.create_aircraft(aircraft_data) do
+    case Scheduling.admin_create_aircraft(aircraft_data) do
       {:ok, aircraft} ->
         conn
         |> put_flash(:success, "Successfully created aircraft.")
@@ -20,7 +20,10 @@ defmodule FlightWeb.Admin.AircraftController do
 
   def new(conn, _params) do
     conn
-    |> render("new.html", changeset: Scheduling.Aircraft.changeset(%Scheduling.Aircraft{}, %{}))
+    |> render(
+      "new.html",
+      changeset: Scheduling.Aircraft.admin_changeset(%Scheduling.Aircraft{}, %{})
+    )
   end
 
   def show(conn, _params) do
@@ -37,11 +40,14 @@ defmodule FlightWeb.Admin.AircraftController do
 
   def edit(conn, _params) do
     conn
-    |> render("edit.html", changeset: Scheduling.Aircraft.changeset(conn.assigns.aircraft, %{}))
+    |> render(
+      "edit.html",
+      changeset: Scheduling.Aircraft.admin_changeset(conn.assigns.aircraft, %{})
+    )
   end
 
   def update(conn, %{"data" => aircraft_data}) do
-    case Scheduling.update_aircraft(conn.assigns.aircraft, aircraft_data) do
+    case Scheduling.admin_update_aircraft(conn.assigns.aircraft, aircraft_data) do
       {:ok, aircraft} ->
         conn
         |> put_flash(:success, "Successfully updated aircraft.")

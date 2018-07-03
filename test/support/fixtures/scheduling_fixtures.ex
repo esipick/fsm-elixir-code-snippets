@@ -15,6 +15,7 @@ defmodule Flight.SchedulingFixtures do
         equipment: Flight.Random.hex(15),
         simulator: true,
         last_tach_time: 400,
+        last_hobbs_time: 400,
         rate_per_hour: 130,
         block_rate_per_hour: 120
       }

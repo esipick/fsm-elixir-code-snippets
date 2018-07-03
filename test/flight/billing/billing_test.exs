@@ -24,10 +24,10 @@ defmodule Flight.BillingTest do
         form
         | aircraft_details: %{
             form.aircraft_details
-            | hobbs_start: 200,
-              hobbs_end: 201,
-              tach_start: 300,
-              tach_end: 301
+            | hobbs_start: 2003,
+              hobbs_end: 2011,
+              tach_start: 3003,
+              tach_end: 3019
           }
       }
 
@@ -64,8 +64,8 @@ defmodule Flight.BillingTest do
              )
 
       assert aircraft = Flight.Repo.get!(Aircraft, form.aircraft_details.aircraft_id)
-      assert aircraft.last_hobbs_time == 201
-      assert aircraft.last_tach_time == 301
+      assert aircraft.last_hobbs_time == 2011
+      assert aircraft.last_tach_time == 3019
 
       assert appointment = Flight.Repo.get!(Flight.Scheduling.Appointment, form.appointment_id)
       assert appointment.transaction_id == transaction.id

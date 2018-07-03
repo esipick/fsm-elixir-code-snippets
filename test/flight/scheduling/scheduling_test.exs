@@ -15,13 +15,14 @@ defmodule Flight.SchedulingTest do
       equipment: "equipment",
       ifr_certified: true,
       simulator: true,
-      last_tach_time: 8000,
+      last_tach_time: 8010,
+      last_hobbs_time: 8000,
       rate_per_hour: 130,
       block_rate_per_hour: 120
     }
 
     test "create_aircraft/1 returns aircraft" do
-      assert {:ok, %Aircraft{} = aircraft} = Scheduling.create_aircraft(@valid_attrs)
+      assert {:ok, %Aircraft{} = aircraft} = Scheduling.admin_create_aircraft(@valid_attrs)
 
       assert aircraft.make == "make"
       assert aircraft.model == "model"
@@ -29,14 +30,15 @@ defmodule Flight.SchedulingTest do
       assert aircraft.serial_number == "serial"
       assert aircraft.ifr_certified == true
       assert aircraft.simulator == true
-      assert aircraft.last_tach_time == 8000
+      assert aircraft.last_tach_time == 8010
+      assert aircraft.last_hobbs_time == 8000
       assert aircraft.rate_per_hour == 130
       assert aircraft.block_rate_per_hour == 120
       assert aircraft.equipment == "equipment"
     end
 
     test "create_aircraft/1 creates default inspections" do
-      assert {:ok, %Aircraft{} = aircraft} = Scheduling.create_aircraft(@valid_attrs)
+      assert {:ok, %Aircraft{} = aircraft} = Scheduling.admin_create_aircraft(@valid_attrs)
 
       assert Repo.get_by(
                Inspection,
@@ -75,7 +77,7 @@ defmodule Flight.SchedulingTest do
     end
 
     test "create_aircraft/1 returns error" do
-      assert {:error, _} = Scheduling.create_aircraft(%{})
+      assert {:error, _} = Scheduling.admin_create_aircraft(%{})
     end
 
     test "get_aircraft/1 gets aircraft" do
@@ -94,7 +96,7 @@ defmodule Flight.SchedulingTest do
       aircraft = aircraft_fixture()
 
       assert {:ok, %Aircraft{make: "New Model"}} =
-               Scheduling.update_aircraft(aircraft, %{make: "New Model"})
+               Scheduling.admin_update_aircraft(aircraft, %{make: "New Model"})
     end
   end
 

@@ -11,4 +11,12 @@ defmodule Flight.Format do
       _ -> phone_number
     end
   end
+
+  def tenths_from_hours(hours) do
+    (hours * 10) |> trunc()
+  end
+
+  def hours_from_tenths(tenths) do
+    tenths / 10
+  end
 end

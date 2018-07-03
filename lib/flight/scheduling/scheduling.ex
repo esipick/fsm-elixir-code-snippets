@@ -14,10 +14,10 @@ defmodule Flight.Scheduling do
   import Flight.Auth.Permission, only: [permission_slug: 3]
   import Pipe
 
-  def create_aircraft(attrs) do
+  def admin_create_aircraft(attrs) do
     result =
       %Aircraft{}
-      |> Aircraft.changeset(attrs)
+      |> Aircraft.admin_changeset(attrs)
       |> Repo.insert()
 
     case result do
@@ -58,9 +58,9 @@ defmodule Flight.Scheduling do
 
   def get_aircraft(id), do: Repo.get(Aircraft, id)
 
-  def update_aircraft(aircraft, attrs) do
+  def admin_update_aircraft(aircraft, attrs) do
     aircraft
-    |> Aircraft.changeset(attrs)
+    |> Aircraft.admin_changeset(attrs)
     |> Repo.update()
   end
 

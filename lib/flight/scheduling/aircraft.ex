@@ -4,8 +4,8 @@ defmodule Flight.Scheduling.Aircraft do
 
   schema "aircrafts" do
     field(:ifr_certified, :boolean, default: false)
-    field(:last_tach_time, :integer)
-    field(:last_hobbs_time, :integer, default: 0)
+    field(:last_tach_time, Flight.HourTenth, default: 0)
+    field(:last_hobbs_time, Flight.HourTenth, default: 0)
     field(:make, :string)
     field(:model, :string)
     field(:block_rate_per_hour, :integer)
@@ -48,5 +48,9 @@ defmodule Flight.Scheduling.Aircraft do
       :rate_per_hour,
       :block_rate_per_hour
     ])
+  end
+
+  def admin_changeset(aircraft, attrs) do
+    changeset(aircraft, attrs)
   end
 end

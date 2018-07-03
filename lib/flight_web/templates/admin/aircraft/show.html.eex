@@ -43,11 +43,11 @@
                     </dl>
                     <dl class="d-flex justify-content-between">
                       <dt>Last Recorded Tach Time</dt>
-                      <dd><%= @aircraft.last_tach_time %></dd>
+                      <dd><%= Flight.Format.hours_from_tenths(@aircraft.last_tach_time) %></dd>
                     </dl>
                     <dl class="d-flex justify-content-between">
                       <dt>Last Recorded Hobbs Time</dt>
-                      <dd><%= @aircraft.last_hobbs_time %></dd>
+                      <dd><%= Flight.Format.hours_from_tenths(@aircraft.last_hobbs_time) %></dd>
                     </dl>
                     <dl class="d-flex justify-content-between">
                       <dt>Rate Per Hour</dt>
