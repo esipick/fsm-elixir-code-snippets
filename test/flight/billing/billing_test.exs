@@ -120,16 +120,16 @@ defmodule Flight.BillingTest do
       detail = %Flight.Billing.AircraftLineItemDetail{
         hobbs_start: 3333,
         hobbs_end: 3345,
-        rate: 75,
+        rate: 7500,
         fee_percentage: 0.1
       }
 
-      assert Billing.aircraft_cost(detail) == Billing.aircraft_cost(3333, 3345, 75, 0.1)
+      assert Billing.aircraft_cost(detail) == Billing.aircraft_cost(3333, 3345, 7500, 0.1)
     end
 
     test "correct rate is calculated for normal_rate" do
-      amount = (75 * 1.1 * 1.2 * 100) |> trunc()
-      assert {:ok, ^amount} = Billing.aircraft_cost(3333, 3345, 75, 0.1)
+      amount = (7500 * 1.1 * 1.2) |> trunc()
+      assert {:ok, ^amount} = Billing.aircraft_cost(3333, 3345, 7500, 0.1)
     end
 
     test "0 duration is an error" do

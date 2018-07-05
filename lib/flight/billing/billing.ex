@@ -36,7 +36,7 @@ defmodule Flight.Billing do
 
       true ->
         {:ok,
-         (rate * (1 + fee_percentage) * ((hobbs_end - hobbs_start) / 10.0 * 100))
+         (rate * (1 + fee_percentage) * ((hobbs_end - hobbs_start) / 10.0))
          |> trunc()}
     end
   end
