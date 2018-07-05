@@ -51,11 +51,11 @@
                     </dl>
                     <dl class="d-flex justify-content-between">
                       <dt>Rate Per Hour</dt>
-                      <dd>$<%= @aircraft.rate_per_hour %></dd>
+                      <dd><%= currency @aircraft.rate_per_hour %></dd>
                     </dl>
                     <dl class="d-flex justify-content-between">
                       <dt>Block Rate Per Hour</dt>
-                      <dd>$<%= @aircraft.block_rate_per_hour %></dd>
+                      <dd><%= currency @aircraft.block_rate_per_hour %></dd>
                     </dl>
                     <dl class="d-flex justify-content-between border-none">
                       <dt>Inspections</dt>

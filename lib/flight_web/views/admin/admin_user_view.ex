@@ -43,34 +43,6 @@ defmodule FlightWeb.Admin.UserView do
     end)
   end
 
-  def currency(amount) do
-    CurrencyFormatter.format(amount, "USD")
-  end
-
-  def display_date(date, :short) do
-    Timex.format!(date, "%B %-d, %Y", :strftime)
-  end
-
-  def display_date(date, :long) do
-    Timex.format!(date, "%A %b %-d, %Y", :strftime)
-  end
-
-  def display_time(date) do
-    Timex.format!(date, "%-I:%M%p", :strftime)
-  end
-
-  def display_date(date) do
-    display_date(date, :short)
-  end
-
-  def aircraft_display_name(aircraft) do
-    "#{aircraft.make} #{aircraft.model}"
-  end
-
-  def display_name(user) do
-    "#{user.first_name} #{user.last_name}"
-  end
-
   def role_inputs() do
     Flight.Accounts.Role.available_role_slugs()
     |> Enum.map(fn role_slug ->
