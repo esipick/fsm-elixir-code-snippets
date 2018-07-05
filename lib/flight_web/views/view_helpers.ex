@@ -69,8 +69,16 @@ defmodule FlightWeb.ViewHelpers do
     display_date(date, :short)
   end
 
+  def aircraft_display_name(aircraft, :short) do
+    "#{aircraft.make} #{aircraft.tail_number}"
+  end
+
+  def aircraft_display_name(aircraft, :long) do
+    "#{aircraft.make} #{aircraft.model} #{aircraft.tail_number}"
+  end
+
   def aircraft_display_name(aircraft) do
-    "#{aircraft.make} #{aircraft.model}"
+    aircraft_display_name(aircraft, :short)
   end
 
   def display_name(user) do
