@@ -5,8 +5,8 @@ defmodule FlightWeb.API.AircraftControllerTest do
 
   describe "GET /api/aircrafts" do
     test "renders aircrafts", %{conn: conn} do
-      aircraft1 = aircraft_fixture()
-      aircraft2 = aircraft_fixture()
+      aircraft1 = aircraft_fixture(%{make: "A"})
+      aircraft2 = aircraft_fixture(%{make: "B"})
 
       json =
         conn

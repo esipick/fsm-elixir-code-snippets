@@ -12,7 +12,12 @@ defmodule Flight.Accounts do
 
   def get_user!(id), do: Repo.get!(User, id)
   def get_user(id), do: Repo.get(User, id)
-  def get_users(), do: Repo.all(User)
+
+  def get_users() do
+    User
+    |> default_users_query()
+    |> Repo.all()
+  end
 
   def get_user(id, roles) do
     from(
