@@ -202,7 +202,7 @@ defmodule Flight.Accounts do
   def users_with_role(role) do
     role
     |> Ecto.assoc(:users)
-    |> order_by([u], asc: u.last_name)
+    |> default_users_query()
     |> Repo.all()
   end
 
@@ -211,7 +211,17 @@ defmodule Flight.Accounts do
   end
 
   def users_with_roles(roles) do
-    Repo.all(Ecto.assoc(roles, :users))
+    roles
+    |> Ecto.assoc(:users)
+    |> default_users_query()
+    |> Repo.all()
+  end
+
+  defp default_users_query(query) do
+    from(
+      u in query,
+      order_by: u.last_name
+    )
   end
 
   def has_role?(user, role_slug) do
