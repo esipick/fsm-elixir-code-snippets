@@ -53,7 +53,9 @@ defmodule Flight.Scheduling do
   end
 
   def visible_aircrafts() do
-    Repo.all(Aircraft)
+    Aircraft
+    |> order_by([a], asc: [a.make, a.model, a.tail_number])
+    |> Repo.all()
   end
 
   def get_aircraft(id), do: Repo.get(Aircraft, id)

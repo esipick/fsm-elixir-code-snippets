@@ -200,7 +200,10 @@ defmodule Flight.Accounts do
   end
 
   def users_with_role(role) do
-    Repo.all(Ecto.assoc(role, :users))
+    role
+    |> Ecto.assoc(:users)
+    |> order_by([u], asc: u.last_name)
+    |> Repo.all()
   end
 
   def users_with_roles([]) do
