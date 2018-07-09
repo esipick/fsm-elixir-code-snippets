@@ -31,6 +31,24 @@ config :flight, Flight.Repo, loggers: [Appsignal.Ecto, Ecto.LogEntry]
 
 import_config "appsignal.exs"
 
+aws_access_key = "AKIAIETEFGSBHU6Z7KJQ"
+aws_secret_key = "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"
+
+config :flight,
+       :aws_apns_application_arn,
+       "arn:aws:sns:us-east-1:699782583642:app/APNS_SANDBOX/fsm-apns-dev"
+
+config :flight, :aws_credentials,
+  access_key: aws_access_key,
+  secret_key: aws_secret_key
+
+config :ex_aws,
+  access_key_id: aws_access_key,
+  secret_access_key: aws_secret_key,
+  region: "us-east-1"
+
+config :flight, :push_service_client, Mondo.PushService.Client
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

@@ -95,11 +95,12 @@ defmodule FlightWeb.Router do
 
     resources("/users", UserController, only: [:show, :update, :index]) do
       get("/form_items", UserController, :form_items)
+      resources("/push_tokens", PushTokenController, only: [:create])
     end
 
     resources("/aircrafts", AircraftController, only: [:index, :show])
 
-    resources("/transactions", TransactionController, only: [:create, :index]) do
+    resources("/transactions", TransactionController, only: [:create, :index, :show]) do
       post("/approve", TransactionController, :approve)
     end
 

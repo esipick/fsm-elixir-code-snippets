@@ -26,6 +26,8 @@ config :flight, Flight.Mailer, adapter: Bamboo.TestAdapter
 
 config :stripity_stripe, api_key: "sk_test_ZHmnpsn2AcEeUNMVWj5ueuZ7"
 
+config :flight, :push_service_client, Mondo.PushService.MockClient
+
 config :stripity_stripe, :pool_options,
   timeout: 5_000,
   max_connections: 10

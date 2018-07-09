@@ -50,7 +50,11 @@ defmodule Flight.Mixfile do
       {:timex, "~> 3.1"},
       {:stripity_stripe, "~> 2.0"},
       {:currency_formatter, "~> 0.4"},
-      {:appsignal, "~> 1.6"}
+      {:appsignal, "~> 1.6"},
+      {:sweet_xml, "~> 0.6"},
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:ex_aws_sns, "~> 2.0"}
     ]
   end
 

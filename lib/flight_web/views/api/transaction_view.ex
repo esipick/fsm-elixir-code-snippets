@@ -86,4 +86,8 @@ defmodule FlightWeb.API.TransactionView do
       }
     }
   end
+
+  def preload(transaction) do
+    Flight.Repo.preload(transaction, [:line_items, :user, :creator_user])
+  end
 end

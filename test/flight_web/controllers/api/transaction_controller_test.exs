@@ -310,7 +310,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
 
       transaction1 =
         transaction_fixture(%{}, student)
-        |> Flight.Repo.preload([:line_items, :user, :creator_user])
+        |> TransactionView.preload()
 
       _ = transaction_fixture(%{}, student_fixture())
 
@@ -329,6 +329,50 @@ defmodule FlightWeb.API.TransactionControllerTest do
       conn
       |> auth(student_fixture())
       |> get("/api/transactions?user_id=#{student.id}")
+      |> response(401)
+    end
+  end
+
+  describe "GET /api/transactions/:id" do
+    test "returns transaction for user", %{conn: conn} do
+      student = student_fixture()
+
+      transaction =
+        transaction_fixture(%{}, student)
+        |> TransactionView.preload()
+
+      json =
+        conn
+        |> auth(student)
+        |> get("/api/transactions/#{transaction.id}")
+        |> json_response(200)
+
+      assert json == render_json(TransactionView, "show.json", transaction: transaction)
+    end
+
+    test "returns transaction for creator", %{conn: conn} do
+      instructor = instructor_fixture()
+
+      transaction =
+        transaction_fixture(%{}, student_fixture(), instructor)
+        |> TransactionView.preload()
+
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/transactions/#{transaction.id}")
+        |> json_response(200)
+
+      assert json == render_json(TransactionView, "show.json", transaction: transaction)
+    end
+
+    test "401 if trying to request transaction for other users", %{conn: conn} do
+      student = student_fixture()
+      transaction = transaction_fixture(%{}, student, student)
+
+      conn
+      |> auth(student_fixture())
+      |> get("/api/transactions/#{transaction.id}")
       |> response(401)
     end
   end

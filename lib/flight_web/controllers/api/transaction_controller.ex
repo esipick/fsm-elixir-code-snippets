@@ -1,15 +1,15 @@
 defmodule FlightWeb.API.TransactionController do
   use FlightWeb, :controller
 
-  alias FlightWeb.API.{DetailedTransactionForm, CustomTransactionForm}
+  alias FlightWeb.API.{DetailedTransactionForm, CustomTransactionForm, TransactionView}
   alias Flight.Billing
 
   alias Flight.Auth.Permission
 
-  plug(:get_transaction when action in [:approve])
+  plug(:get_transaction when action in [:approve, :show])
   plug(:authorize_approve when action in [:approve])
   plug(:authorize_create when action in [:create])
-  plug(:authorize_view when action in [:index])
+  plug(:authorize_view when action in [:index, :show])
 
   def create(conn, %{"detailed" => detailed_params}) do
     changeset = DetailedTransactionForm.changeset(%DetailedTransactionForm{}, detailed_params)
@@ -116,9 +116,17 @@ defmodule FlightWeb.API.TransactionController do
     transactions =
       params
       |> Billing.get_filtered_transactions()
-      |> Flight.Repo.preload([:line_items, :user, :creator_user])
+      |> TransactionView.preload()
 
     render(conn, "index.json", transactions: transactions)
+  end
+
+  def show(conn, params) do
+    transaction =
+      conn.assigns.transaction
+      |> TransactionView.preload()
+
+    render(conn, "show.json", transaction: transaction)
   end
 
   def ephemeral_keys(conn, %{"api_version" => api_version}) do
@@ -186,6 +194,16 @@ defmodule FlightWeb.API.TransactionController do
   def authorize_view(conn, _) do
     permissions =
       case conn.params do
+        %{"id" => id} ->
+          [
+            Permission.new(:transaction, :view, {:personal, conn.assigns.transaction.user_id}),
+            Permission.new(
+              :transaction,
+              :view,
+              {:personal, conn.assigns.transaction.creator_user_id}
+            )
+          ]
+
         %{"user_id" => user_id} ->
           [Permission.new(:transaction_user, :view, {:personal, user_id})]
 
