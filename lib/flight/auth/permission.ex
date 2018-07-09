@@ -17,10 +17,12 @@ defmodule Flight.Auth.Permission do
 
   @resources [
     :users,
+    :user_protected_info,
     :appointment,
     :appointment_user,
     :appointment_instructor,
     :appointment_student,
+    :push_token,
     :transaction,
     :transaction_approve,
     :transaction_user,
