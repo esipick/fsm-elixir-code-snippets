@@ -6,8 +6,7 @@ defmodule Flight.CurriculumFixtures do
     LessonCategory,
     Objective,
     ObjectiveScore,
-    ObjectiveNote,
-    Syllabus
+    ObjectiveNote
   }
 
   alias Flight.Repo
@@ -103,16 +102,5 @@ defmodule Flight.CurriculumFixtures do
       |> Repo.insert!()
 
     %{note | user: user, objective: objective}
-  end
-
-  def syllabus_fixture(attrs \\ %{}, lesson \\ lesson_fixture()) do
-    syllabus =
-      %Syllabus{
-        lesson_id: lesson.id
-      }
-      |> Syllabus.changeset(attrs)
-      |> Repo.insert!()
-
-    %{syllabus | lesson: lesson}
   end
 end

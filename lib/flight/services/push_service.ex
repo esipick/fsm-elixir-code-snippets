@@ -68,12 +68,7 @@ defmodule Mondo.PushService do
       title: "Hello World",
       body: "This is a test notification",
       sound: true,
-      user_id: user_id,
-      data: %{
-        foo: "bar",
-        baz: 3,
-        destination: "appointments/1"
-      }
+      user_id: user_id
     }
   end
 

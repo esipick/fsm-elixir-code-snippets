@@ -9,7 +9,6 @@ defmodule FightWeb.API.CourseControllerTest do
       lesson = lesson_fixture(%{}, course)
       lesson_category = lesson_category_fixture(%{}, lesson)
       objective_fixture(%{}, lesson_category)
-      syllabus_fixture(%{}, lesson)
 
       json =
         conn
