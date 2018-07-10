@@ -103,13 +103,13 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <label>Pay Rate ($/hour)</label>
+            <label>Billing Rate ($/hour)</label>
             <%= number_input f, :billing_rate, class: "form-control", value: Flight.Format.dollars_from_cents(@changeset.data.billing_rate), step: "0.01" %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-group">
-            <label>Billing Rate ($/hour)</label>
+            <label>Pay Rate ($/hour)</label>
             <%= number_input f, :pay_rate, class: "form-control", value: Flight.Format.dollars_from_cents(@changeset.data.pay_rate), step: "0.01" %>
           </div>
         </div>
