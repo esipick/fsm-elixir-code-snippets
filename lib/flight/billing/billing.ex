@@ -158,13 +158,7 @@ defmodule Flight.Billing do
 
     case result do
       {:ok, transaction} ->
-        if form.creator_user_id == form.user_id do
-          transaction
-          |> Repo.preload([:user, :creator_user])
-          |> approve_transaction(form.source)
-        else
-          {:ok, transaction}
-        end
+        approve_transaction_if_necessary(transaction, form.source)
 
       error ->
         error
@@ -191,16 +185,23 @@ defmodule Flight.Billing do
 
     case result do
       {:ok, transaction} ->
-        if form.creator_user_id == form.user_id do
-          transaction
-          |> Repo.preload([:user, :creator_user])
-          |> approve_transaction(form.source)
-        else
-          {:ok, transaction}
-        end
+        approve_transaction_if_necessary(transaction, form.source)
 
       error ->
         error
+    end
+  end
+
+  def approve_transaction_if_necessary(transaction, source) do
+    transaction = Repo.preload(transaction, [:user])
+
+    if transaction.creator_user_id == transaction.user_id ||
+         preferred_payment_method(transaction.user, transaction.total) == :balance do
+      transaction
+      |> Repo.preload([:user, :creator_user])
+      |> approve_transaction(source)
+    else
+      {:ok, transaction}
     end
   end
 

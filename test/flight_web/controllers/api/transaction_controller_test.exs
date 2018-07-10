@@ -35,6 +35,39 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    test "creates completed detailed transaction if user has enough in their balance", %{
+      conn: conn
+    } do
+      student = student_fixture(%{balance: 3_000_000})
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+
+      appointment = appointment_fixture(%{}, student, instructor, aircraft)
+
+      params =
+        detailed_transaction_form_attrs(student, instructor, appointment, aircraft, instructor)
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/transactions", %{detailed: params})
+        |> json_response(201)
+
+      assert transaction =
+               Flight.Repo.get_by(Flight.Billing.Transaction, user_id: student.id)
+               |> Flight.Repo.preload([:line_items, :user, :creator_user])
+
+      assert transaction.state == "completed"
+      assert transaction.paid_by_balance
+      refute transaction.paid_by_charge
+
+      student = Flight.Repo.get(Flight.Accounts.User, student.id)
+
+      assert student.balance == 3_000_000 - transaction.total
+
+      assert json == render_json(TransactionView, "show.json", transaction: transaction)
+    end
+
     test "creates completed detailed transaction as student, taken from balance", %{conn: conn} do
       student = student_fixture(%{balance: 3_000_000})
       instructor = instructor_fixture()
