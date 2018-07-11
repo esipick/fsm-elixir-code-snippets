@@ -98,41 +98,23 @@
                 </div>
               </div>
             </div>
-            <!-- <div class="col-md-6">
+            <div class="col-md-6">
               <div class="card card-chart">
                 <div class="card-header">
-                  <h5 class="card-category">Outstanding Payments</h5>
-                  <h1 class="card-title">5</h1>
+                  <h5 class="card-category">Payments Pending Approval</h5>
+                  <h1 class="card-title"><%= Enum.count(@pending_transactions) %></h1>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
                     <table class="table">
                       <tbody>
-                        <tr>
-                          <td class="text-nowrap"><a href="student-profile.php">Max Fischer</a></td>
-                          <td class="text-right">$350.00</td>
-                          <td class="text-right">16 days ago</td>
-                        </tr>
-                        <tr>
-                          <td class="text-nowrap"><a href="student-profile.php">Max Fischer</a></td>
-                          <td class="text-right">$350.00</td>
-                          <td class="text-right">16 days ago</td>
-                        </tr>
-                        <tr>
-                          <td class="text-nowrap"><a href="student-profile.php">Max Fischer</a></td>
-                          <td class="text-right">$350.00</td>
-                          <td class="text-right">16 days ago</td>
-                        </tr>
-                        <tr>
-                          <td class="text-nowrap"><a href="student-profile.php">Max Fischer</a></td>
-                          <td class="text-right">$350.00</td>
-                          <td class="text-right">16 days ago</td>
-                        </tr>
-                        <tr>
-                          <td class="text-nowrap"><a href="student-profile.php">Max Fischer</a></td>
-                          <td class="text-right">$350.00</td>
-                          <td class="text-right">16 days ago</td>
-                        </tr>
+                        <%= for transaction <- @pending_transactions do %>
+                          <tr>
+                            <td class="text-nowrap"><a href="/admin/users/<%= transaction.user.id %>"><%= display_name transaction.user %></a></td>
+                            <td class="text-right"><%= currency transaction.total %></td>
+                            <td class="text-right"><%= display_date transaction.inserted_at %></td>
+                          </tr>
+                        <% end %>
                       </tbody>
                     </table>
                   </div>
@@ -143,6 +125,6 @@
                   </div>
                 </div>
               </div>
-            </div> -->
+            </div>
           </div> <!-- end row -->
 </div> <!-- end content -->

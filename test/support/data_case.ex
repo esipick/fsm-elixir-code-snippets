@@ -24,6 +24,7 @@ defmodule Flight.DataCase do
       import Flight.DataCase
       import Flight.AccountsFixtures
       import Flight.SchedulingFixtures
+      import Flight.DataCaseHelpers
     end
   end
 

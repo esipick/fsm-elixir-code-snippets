@@ -63,6 +63,11 @@
           <dt><small>Total</small></dt>
           <dd><%= currency transaction.total %></dd>
         </dl>
+        <%= if transaction.state == "pending" do %>
+          <%= form_for @conn, "/admin/transactions/#{transaction.id}/cancel", [method: :post], fn _ -> %>
+            <input type="submit" class="btn btn-primary btn-sm" value="cancel" />
+          <% end %>
+        <% end %>
       </dt>
       <dd>
         <%= if transaction.creator_user_id == transaction.user_id do %>

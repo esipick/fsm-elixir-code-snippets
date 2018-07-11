@@ -210,10 +210,12 @@ defmodule Flight.Billing do
   end
 
   def get_filtered_transactions(params) do
-    params = Map.take(params, ["user_id", "creator_user_id"])
+    params = Map.take(params, ["user_id", "creator_user_id", "state"])
 
     query =
       from(t in Transaction)
+      |> where([t], t.state != "canceled")
+      |> pass_unless(params["state"], &where(&1, [t], t.state == ^params["state"]))
       |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
       |> pass_unless(
         params["creator_user_id"],
@@ -374,6 +376,32 @@ defmodule Flight.Billing do
 
       _ ->
         {:error, :cannot_approve_non_pending_transaction}
+    end
+  end
+
+  def cancel_transaction(transaction) do
+    case transaction.state do
+      "pending" ->
+        {:ok, result} =
+          Repo.transaction(fn ->
+            appointment =
+              Flight.Repo.get_by(Flight.Scheduling.Appointment, transaction_id: transaction.id)
+
+            if appointment do
+              appointment
+              |> Flight.Scheduling.Appointment.update_transaction_changeset(%{transaction_id: nil})
+              |> Repo.update()
+            end
+
+            transaction
+            |> Transaction.changeset(%{state: "canceled"})
+            |> Repo.update()
+          end)
+
+        result
+
+      _ ->
+        {:error, :cannot_cancel_non_pending_transaction}
     end
   end
 

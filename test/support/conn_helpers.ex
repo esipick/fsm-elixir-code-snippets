@@ -1,4 +1,4 @@
-defmodule Flight.TestHelpers do
+defmodule Flight.ConnCaseHelpers do
   def render_json(module, template, assigns) do
     assigns = Map.new(assigns)
 

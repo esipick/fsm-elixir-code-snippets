@@ -64,6 +64,10 @@ defmodule FlightWeb.Router do
       post("/add_funds", UserController, :add_funds)
     end
 
+    resources("/transactions", TransactionController, only: []) do
+      post("/cancel", TransactionController, :cancel)
+    end
+
     resources("/invitations", InvitationController, only: [:create, :index]) do
       post("/resend", InvitationController, :resend)
       get("/resend", InvitationController, :resend)

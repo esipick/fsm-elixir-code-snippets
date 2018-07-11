@@ -7,7 +7,7 @@ defmodule Flight.BillingTest do
 
   alias Flight.Billing
   alias Flight.Billing.{Transaction}
-  alias Flight.Scheduling.{Aircraft}
+  alias Flight.Scheduling.{Aircraft, Appointment}
 
   describe "create_transaction_from_detailed_form/1" do
     test "creates transaction and all sub resources" do
@@ -275,6 +275,17 @@ defmodule Flight.BillingTest do
     end
   end
 
+  describe "get_filtered_transactions/1" do
+    test "doesn't return canceled transactions" do
+      transaction1 = transaction_fixture(%{state: "pending"})
+      _ = transaction_fixture(%{state: "canceled"})
+
+      transactions = Billing.get_filtered_transactions(%{})
+      assert Enum.count(transactions) == 1
+      assert List.first(transactions).id == transaction1.id
+    end
+  end
+
   describe "add_funds_by_credit/2" do
     test "adds funds to user and creates transaction" do
       user = student_fixture()
@@ -299,6 +310,34 @@ defmodule Flight.BillingTest do
       assert line_item.amount == 3000
       assert line_item.transaction_id == transaction.id
       assert line_item.description == "Added funds to balance."
+    end
+  end
+
+  describe "cancel_transaction/1" do
+    test "cancels transaction if pending" do
+      transaction = transaction_fixture(%{state: "pending"})
+
+      appointment =
+        appointment_fixture()
+        |> Appointment.update_transaction_changeset(%{
+          transaction_id: transaction.id
+        })
+        |> Flight.Repo.update!()
+
+      assert appointment.transaction_id
+
+      assert {:ok, %Transaction{state: "canceled"}} = Billing.cancel_transaction(transaction)
+
+      appointment = refresh(appointment)
+
+      refute appointment.transaction_id
+    end
+
+    test "fails cancel if transaction already completed" do
+      transaction = transaction_fixture(%{state: "completed"})
+
+      assert {:error, :cannot_cancel_non_pending_transaction} =
+               Billing.cancel_transaction(transaction)
     end
   end
 end

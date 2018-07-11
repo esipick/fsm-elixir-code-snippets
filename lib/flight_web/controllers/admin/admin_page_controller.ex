@@ -14,6 +14,10 @@ defmodule FlightWeb.Admin.PageController do
         Flight.Repo.all(Flight.Scheduling.Aircraft)
       )
 
+    pending_transactions =
+      Flight.Billing.get_filtered_transactions(%{"state" => "pending"})
+      |> Flight.Repo.preload([:user])
+
     render(
       conn,
       "dashboard.html",
@@ -21,10 +25,11 @@ defmodule FlightWeb.Admin.PageController do
       instructor_count: instructor_count,
       renter_count: renter_count,
       aircraft_count: aircraft_count,
-      expired_inspections: expired_inspections
+      expired_inspections: expired_inspections,
+      pending_transactions: pending_transactions
     )
   end
-  
+
   def schools(conn, _params) do
     render(conn, "schools.html")
   end

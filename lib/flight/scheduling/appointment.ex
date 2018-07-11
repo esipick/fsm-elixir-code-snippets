@@ -27,7 +27,6 @@ defmodule Flight.Scheduling.Appointment do
   def update_transaction_changeset(appointment, attrs) do
     appointment
     |> cast(attrs, [:transaction_id])
-    |> validate_required([:transaction_id])
   end
 
   def validate_user_instructor_different(changeset) do

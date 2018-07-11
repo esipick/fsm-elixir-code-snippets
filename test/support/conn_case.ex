@@ -22,7 +22,9 @@ defmodule FlightWeb.ConnCase do
       import FlightWeb.Router.Helpers
       import Flight.AccountsFixtures
       import Flight.SchedulingFixtures
-      import Flight.TestHelpers
+      import Flight.BillingFixtures
+      import Flight.ConnCaseHelpers
+      import Flight.DataCaseHelpers
 
       # The default endpoint for testing
       @endpoint FlightWeb.Endpoint
