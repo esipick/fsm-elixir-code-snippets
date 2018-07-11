@@ -44,7 +44,7 @@ defmodule Flight.Accounts do
       |> User.create_changeset(attrs)
 
     if changeset.valid? do
-      case Flight.Billing.create_stripe_customer(attrs["email"]) do
+      case Flight.Billing.create_stripe_customer(Ecto.Changeset.get_field(changeset, :email)) do
         {:ok, customer} ->
           %User{}
           |> User.create_changeset(attrs |> Map.put("stripe_customer_id", customer.id))
