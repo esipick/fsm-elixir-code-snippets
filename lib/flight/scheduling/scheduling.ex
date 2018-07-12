@@ -9,14 +9,16 @@ defmodule Flight.Scheduling do
   }
 
   alias Flight.Repo
+  alias Flight.SchoolScope
   import Ecto.Changeset
   import Ecto.Query, warn: false
   import Flight.Auth.Permission, only: [permission_slug: 3]
   import Pipe
 
-  def admin_create_aircraft(attrs) do
+  def admin_create_aircraft(attrs, school_context) do
     result =
       %Aircraft{}
+      |> SchoolScope.school_changeset(school_context)
       |> Aircraft.admin_changeset(attrs)
       |> Repo.insert()
 
@@ -52,13 +54,19 @@ defmodule Flight.Scheduling do
     result
   end
 
-  def visible_aircrafts() do
+  def visible_aircrafts(school_context) do
     Aircraft
     |> order_by([a], asc: [a.make, a.model, a.tail_number])
+    |> SchoolScope.scope_query(school_context)
     |> Repo.all()
   end
 
-  def get_aircraft(id), do: Repo.get(Aircraft, id)
+  def get_aircraft(id, school_context) do
+    Aircraft
+    |> where([a], a.id == ^id)
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.one()
+  end
 
   def admin_update_aircraft(aircraft, attrs) do
     aircraft
@@ -147,10 +155,18 @@ defmodule Flight.Scheduling do
   # Appointment
   ##
 
-  def get_appointment(id), do: Repo.get(Appointment, id)
+  def get_appointment(id, school_context) do
+    Appointment
+    |> SchoolScope.scope_query(school_context)
+    |> where([a], a.id == ^id)
+    |> Repo.one()
+  end
 
-  def create_appointment(attrs, appointment \\ %Appointment{}) do
-    changeset = Appointment.changeset(appointment, attrs)
+  def insert_or_update_appointment(appointment \\ %Appointment{}, attrs, school_context) do
+    changeset =
+      appointment
+      |> SchoolScope.school_changeset(school_context)
+      |> Appointment.changeset(attrs)
 
     if changeset.valid? do
       {:ok, _} = apply_action(changeset, :insert)
@@ -173,7 +189,8 @@ defmodule Flight.Scheduling do
           user_id,
           start_at,
           end_at,
-          excluded_appointment_ids
+          excluded_appointment_ids,
+          school_context
         )
 
       changeset =
@@ -193,7 +210,8 @@ defmodule Flight.Scheduling do
               instructor_user_id,
               start_at,
               end_at,
-              excluded_appointment_ids
+              excluded_appointment_ids,
+              school_context
             )
 
           case status do
@@ -211,7 +229,8 @@ defmodule Flight.Scheduling do
               aircraft_id,
               start_at,
               end_at,
-              excluded_appointment_ids
+              excluded_appointment_ids,
+              school_context
             )
 
           case status do
@@ -228,7 +247,8 @@ defmodule Flight.Scheduling do
     end
   end
 
-  def delete_appointment(id), do: Repo.delete!(get_appointment(id))
+  def delete_appointment(id, school_context),
+    do: Repo.delete!(get_appointment(id, school_context))
 
   def get_appointments(options) do
     query = from(a in Appointment)

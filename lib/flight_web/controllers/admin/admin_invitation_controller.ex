@@ -6,7 +6,7 @@ defmodule FlightWeb.Admin.InvitationController do
   plug(:get_invitation when action in [:resend])
 
   def index(conn, %{"role" => role_slug}) do
-    invitations = Accounts.visible_invitations_with_role(role_slug)
+    invitations = Accounts.visible_invitations_with_role(role_slug, conn)
 
     render(
       conn,
@@ -20,7 +20,7 @@ defmodule FlightWeb.Admin.InvitationController do
   def create(conn, %{"data" => %{"role_id" => role_id} = data}) do
     role = Accounts.get_role!(role_id)
 
-    case Accounts.create_invitation(data) do
+    case Accounts.create_invitation(data, conn) do
       {:ok, invitation} ->
         conn
         |> put_flash(
@@ -30,7 +30,7 @@ defmodule FlightWeb.Admin.InvitationController do
         |> redirect(to: "/admin/invitations?role=#{role.slug}")
 
       {:error, changeset} ->
-        invitations = Accounts.visible_invitations_with_role(role.slug)
+        invitations = Accounts.visible_invitations_with_role(role.slug, conn)
         render(conn, "index.html", invitations: invitations, changeset: changeset, role: role)
     end
   end
@@ -49,7 +49,7 @@ defmodule FlightWeb.Admin.InvitationController do
   end
 
   defp get_invitation(conn, _) do
-    invitation = Accounts.get_invitation(conn.params["id"] || conn.params["invitation_id"])
+    invitation = Accounts.get_invitation(conn.params["id"] || conn.params["invitation_id"], conn)
 
     if invitation do
       assign(conn, :invitation, invitation)

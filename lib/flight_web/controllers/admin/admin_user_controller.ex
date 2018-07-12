@@ -6,7 +6,7 @@ defmodule FlightWeb.Admin.UserController do
   plug(:get_user when action in [:show, :edit, :update, :add_funds])
 
   def index(conn, %{"role" => role_slug}) do
-    render(conn, "index.html", data: FlightWeb.Admin.UserListData.build(role_slug))
+    render(conn, "index.html", data: FlightWeb.Admin.UserListData.build(role_slug, conn))
   end
 
   def show(conn, %{"tab" => "schedule"}) do
@@ -25,7 +25,7 @@ defmodule FlightWeb.Admin.UserController do
 
   def show(conn, %{"tab" => "billing"}) do
     transactions =
-      Billing.get_filtered_transactions(%{"user_id" => conn.assigns.requested_user.id})
+      Billing.get_filtered_transactions(%{"user_id" => conn.assigns.requested_user.id}, conn)
       |> Flight.Repo.preload([:line_items, :user, :creator_user])
 
     render(
@@ -95,7 +95,7 @@ defmodule FlightWeb.Admin.UserController do
   defp get_user(conn, _) do
     user =
       (conn.params["id"] || conn.params["user_id"])
-      |> Accounts.get_user!()
+      |> Accounts.get_user(conn)
       |> Flight.Repo.preload([:roles, :flyer_certificates])
 
     conn

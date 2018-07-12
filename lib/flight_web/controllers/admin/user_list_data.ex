@@ -15,13 +15,13 @@ defmodule FlightWeb.Admin.UserListData do
 
   alias FlightWeb.Admin.UserListData
 
-  def build(role_slug) do
+  def build(role_slug, school_context) do
     role = Flight.Accounts.role_for_slug(role_slug)
 
     if role do
       %UserListData{
         role: role,
-        user_table_data: table_data_for_role(role),
+        user_table_data: table_data_for_role(role, school_context),
         invitations: []
       }
     else
@@ -29,18 +29,18 @@ defmodule FlightWeb.Admin.UserListData do
     end
   end
 
-  def table_data_for_role(role) do
+  def table_data_for_role(role, school_context) do
     case role.slug do
       slug when slug in ["renter", "instructor", "student"] ->
         %FlightWeb.Admin.UserTableData{
           style: :detailed,
-          rows: detailed_rows_for_users(Flight.Accounts.users_with_role(role))
+          rows: detailed_rows_for_users(Flight.Accounts.users_with_role(role, school_context))
         }
 
       slug when slug in ["admin"] ->
         %FlightWeb.Admin.UserTableData{
           style: :simple,
-          rows: simple_rows_for_users(Flight.Accounts.users_with_role(role))
+          rows: simple_rows_for_users(Flight.Accounts.users_with_role(role, school_context))
         }
 
       _ ->

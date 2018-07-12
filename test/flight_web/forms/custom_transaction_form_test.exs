@@ -32,7 +32,9 @@ defmodule FlightWeb.API.CustomTransactionFormTest do
 
   test "to_transaction/1 creates insertable transaction and line_item" do
     form = custom_transaction_form_fixture()
-    {transaction, line_item} = CustomTransactionForm.to_transaction(form)
+
+    {transaction, line_item} =
+      CustomTransactionForm.to_transaction(form, default_school_fixture())
 
     {:ok, transaction} =
       transaction

@@ -30,11 +30,11 @@ defmodule FlightWeb.AuthenticateApiUser do
 
   def authenticated_user(token) do
     with {:ok, id} <- user_id_from_token(token),
-         %User{} = user <- Flight.Accounts.get_user(id) do
+         %User{} = user <- Flight.Repo.get(Flight.Accounts.User, id) do
       {:ok, user}
     else
       _ ->
-        {:error, "Invalid user authorization"}
+        {:error, "Invalid user authentication"}
     end
   end
 

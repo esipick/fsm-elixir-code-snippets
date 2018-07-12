@@ -8,6 +8,7 @@ defmodule Flight.Accounts.Invitation do
     field(:last_name, :string)
     field(:token, :string)
     field(:accepted_at, :naive_datetime)
+    belongs_to(:school, Flight.Accounts.School)
     belongs_to(:role, Flight.Accounts.Role)
 
     timestamps()
@@ -19,7 +20,7 @@ defmodule Flight.Accounts.Invitation do
     |> cast(attrs, [:first_name, :last_name, :email, :role_id])
     |> generate_token()
     |> downcase_email()
-    |> validate_required([:first_name, :last_name, :email, :role_id, :token])
+    |> validate_required([:first_name, :last_name, :email, :role_id, :token, :school_id])
     |> unique_constraint(:email, message: "already has an invitation.")
     |> unique_constraint(:token)
   end

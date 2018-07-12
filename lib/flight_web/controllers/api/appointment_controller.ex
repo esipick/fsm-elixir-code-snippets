@@ -16,13 +16,13 @@ defmodule FlightWeb.API.AppointmentController do
     excluded_appointment_ids = [params["excluded_appointment_id"]] |> List.flatten()
 
     students_available =
-      Availability.student_availability(start_at, end_at, excluded_appointment_ids)
+      Availability.student_availability(start_at, end_at, excluded_appointment_ids, conn)
 
     instructors_available =
-      Availability.instructor_availability(start_at, end_at, excluded_appointment_ids)
+      Availability.instructor_availability(start_at, end_at, excluded_appointment_ids, conn)
 
     aircrafts_available =
-      Availability.aircraft_availability(start_at, end_at, excluded_appointment_ids)
+      Availability.aircraft_availability(start_at, end_at, excluded_appointment_ids, conn)
 
     render(
       conn,
@@ -48,7 +48,11 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def create(conn, %{"data" => appointment_data}) do
-    case Flight.Scheduling.create_appointment(appointment_data) do
+    case Flight.Scheduling.insert_or_update_appointment(
+           %Scheduling.Appointment{},
+           appointment_data,
+           conn
+         ) do
       {:ok, appointment} ->
         appointment = FlightWeb.API.AppointmentView.preload(appointment)
         render(conn, "show.json", appointment: appointment)
@@ -61,7 +65,11 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def update(conn, %{"data" => appointment_data}) do
-    case Flight.Scheduling.create_appointment(appointment_data, conn.assigns.appointment) do
+    case Flight.Scheduling.insert_or_update_appointment(
+           conn.assigns.appointment,
+           appointment_data,
+           conn
+         ) do
       {:ok, appointment} ->
         appointment = FlightWeb.API.AppointmentView.preload(appointment)
         render(conn, "show.json", appointment: appointment)
@@ -74,7 +82,7 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def delete(conn, _) do
-    Scheduling.delete_appointment(conn.assigns.appointment.id)
+    Scheduling.delete_appointment(conn.assigns.appointment.id, conn)
 
     conn
     |> resp(204, "")
@@ -119,6 +127,6 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   defp get_appointment(conn, _) do
-    assign(conn, :appointment, Scheduling.get_appointment(conn.params["id"]))
+    assign(conn, :appointment, Scheduling.get_appointment(conn.params["id"], conn))
   end
 end

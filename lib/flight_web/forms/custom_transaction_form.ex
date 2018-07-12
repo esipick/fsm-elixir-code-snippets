@@ -22,18 +22,22 @@ defmodule FlightWeb.API.CustomTransactionForm do
     |> validate_length(:description, min: 1, max: 5000, message: "must be present")
   end
 
-  def to_transaction(form) do
+  def to_transaction(form, school_context) do
     line_item = %TransactionLineItem{
       amount: form.amount,
       description: form.description
     }
 
+    user = Flight.Accounts.get_user(form.user_id, school_context)
+    creator_user = Flight.Accounts.get_user(form.creator_user_id, school_context)
+
     transaction = %Transaction{
       total: line_item.amount,
       state: "pending",
       type: "debit",
-      user_id: form.user_id,
-      creator_user_id: form.creator_user_id
+      user_id: user.id,
+      creator_user_id: creator_user.id,
+      school_id: Flight.SchoolScope.school_id(school_context)
     }
 
     {transaction, line_item}

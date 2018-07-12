@@ -48,12 +48,14 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
         }
       }
 
+      admin = admin_fixture()
+
       conn
-      |> web_auth_admin()
+      |> web_auth(admin)
       |> post("/admin/invitations", payload)
       |> response_redirected_to("/admin/invitations?role=instructor")
 
-      invitation = Accounts.get_invitation_for_email("jonesy@hello.com")
+      invitation = Accounts.get_invitation_for_email("jonesy@hello.com", admin)
 
       assert_delivered_email(Flight.Email.invitation_email(invitation))
       assert invitation

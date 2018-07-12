@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>Flight School Manager \\ Randon Aviation</title>
+    <title>Flight School Manager \\ <%= assigns.conn.assigns.current_user.school.name %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= render FlightWeb.Admin.PartialView, "_css.html", assigns %>
     <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>
@@ -22,7 +22,7 @@
                 <span class="navbar-toggler-bar bar3"></span>
               </button>
             </div>
-            <a class="navbar-brand" href="#pablo">Randon Aviation</a>
+            <span class="navbar-brand"><%= assigns.conn.assigns.current_user.school.name %></span>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-bar navbar-kebab"></span>

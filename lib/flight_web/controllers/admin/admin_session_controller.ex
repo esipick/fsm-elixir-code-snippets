@@ -10,7 +10,7 @@ defmodule FlightWeb.Admin.SessionController do
   end
 
   def login_submit(conn, %{"email" => email, "password" => password}) do
-    user = Accounts.get_user_by_email(email)
+    user = Accounts.dangerous_get_user_by_email(email)
 
     if user do
       case Accounts.check_password(user, password) do

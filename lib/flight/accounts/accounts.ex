@@ -3,37 +3,54 @@ defmodule Flight.Accounts do
   alias Flight.Repo
 
   alias Flight.Accounts.{User, UserRole, Role, FlyerCertificate, Invitation}
+  alias Flight.SchoolScope
 
   require Flight.Accounts.Role
 
-  def list_users do
-    Repo.all(User)
+  def get_user(id, school_context) do
+    User
+    |> SchoolScope.scope_query(school_context)
+    |> where([u], u.id == ^id)
+    |> Repo.one()
   end
 
-  def get_user!(id), do: Repo.get!(User, id)
-  def get_user(id), do: Repo.get(User, id)
+  def dangerous_get_user(id), do: Repo.get(User, id)
 
-  def get_users() do
+  def get_users(school_context) do
     User
-    |> default_users_query()
+    |> default_users_query(school_context)
     |> Repo.all()
   end
 
-  def get_user(id, roles) do
+  def get_user(id, roles, school_context) do
     from(
       u in User,
       inner_join: r in assoc(u, :roles),
       where: r.slug in ^roles,
       where: u.id == ^id
     )
+    |> SchoolScope.scope_query(school_context)
     |> Repo.one()
   end
 
-  def get_user_by_email(nil), do: nil
-  def get_user_by_email(""), do: nil
-  def get_user_by_email(email), do: Repo.get_by(User, email: String.downcase(email))
+  def get_user_by_email(nil, _), do: nil
+  def get_user_by_email("", _), do: nil
 
-  def create_user(attrs \\ %{}) do
+  def get_user_by_email(email, school_context) do
+    User
+    |> where([u], u.email == ^String.downcase(email))
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.one()
+  end
+
+  # Does not scope by school, use wisely!
+  def dangerous_get_user_by_email(email) do
+    User
+    |> where([u], u.email == ^String.downcase(email))
+    |> Repo.one()
+  end
+
+  def create_user(attrs, school_context) do
     attrs =
       attrs
       |> Poison.encode!()
@@ -41,13 +58,14 @@ defmodule Flight.Accounts do
 
     changeset =
       %User{}
+      |> SchoolScope.school_changeset(school_context)
       |> User.create_changeset(attrs)
 
     if changeset.valid? do
       case Flight.Billing.create_stripe_customer(Ecto.Changeset.get_field(changeset, :email)) do
         {:ok, customer} ->
-          %User{}
-          |> User.create_changeset(attrs |> Map.put("stripe_customer_id", customer.id))
+          changeset
+          |> User.stripe_customer_changeset(%{stripe_customer_id: customer.id})
           |> Repo.insert()
 
         error ->
@@ -204,29 +222,30 @@ defmodule Flight.Accounts do
     end
   end
 
-  def users_with_role(role) do
+  def users_with_role(role, school_context) do
     role
     |> Ecto.assoc(:users)
-    |> default_users_query()
+    |> default_users_query(school_context)
     |> Repo.all()
   end
 
-  def users_with_roles([]) do
+  def users_with_roles([], _school_context) do
     []
   end
 
-  def users_with_roles(roles) do
+  def users_with_roles(roles, school_context) do
     roles
     |> Ecto.assoc(:users)
-    |> default_users_query()
+    |> default_users_query(school_context)
     |> Repo.all()
   end
 
-  defp default_users_query(query) do
+  defp default_users_query(query, school_context) do
     from(
       u in query,
       order_by: u.last_name
     )
+    |> SchoolScope.scope_query(school_context)
   end
 
   def has_role?(user, role_slug) do
@@ -273,23 +292,41 @@ defmodule Flight.Accounts do
   # Invitations
   #
 
-  def get_invitation(id), do: Repo.get(Invitation, id)
+  def get_invitation(id, school_context) do
+    Invitation
+    |> where([i], i.id == ^id)
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.one()
+  end
 
-  def get_invitation_for_email(email) do
-    Repo.get_by(Flight.Accounts.Invitation, email: email)
+  def get_invitation_for_email(email, school_context) do
+    Invitation
+    |> where([i], i.email == ^String.downcase(email))
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.one()
   end
 
   def get_invitation_for_token(token) do
-    Repo.get_by(Flight.Accounts.Invitation, token: token)
+    Invitation
+    |> where([i], i.token == ^token)
+    |> Repo.one()
   end
 
-  def visible_invitations_with_role(role_slug) do
+  def get_invitation_for_token(token, school_context) do
+    Invitation
+    |> where([i], i.token == ^token)
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.one()
+  end
+
+  def visible_invitations_with_role(role_slug, school_context) do
     from(
       i in Invitation,
       inner_join: r in assoc(i, :role),
       where: is_nil(i.accepted_at),
       where: r.slug == ^role_slug
     )
+    |> SchoolScope.scope_query(school_context)
     |> Repo.all()
   end
 
@@ -303,14 +340,15 @@ defmodule Flight.Accounts do
     end
   end
 
-  def create_invitation(attrs) do
+  def create_invitation(attrs, school_context) do
     changeset =
       %Invitation{}
+      |> SchoolScope.school_changeset(school_context)
       |> Invitation.create_changeset(attrs)
 
     email = Ecto.Changeset.get_field(changeset, :email)
 
-    user = get_user_by_email(email)
+    user = get_user_by_email(email, school_context)
 
     if !user do
       case Repo.insert(changeset) do
@@ -329,9 +367,11 @@ defmodule Flight.Accounts do
   end
 
   def create_user_from_invitation(user_data, invitation) do
+    invitation = Repo.preload(invitation, :school)
+
     {:ok, result} =
       Repo.transaction(fn ->
-        case create_user(user_data) do
+        case create_user(user_data, invitation.school) do
           {:ok, user} ->
             accept_invitation(invitation)
             role = get_role(invitation.role_id)

@@ -1,5 +1,6 @@
 defmodule Flight.Curriculum do
   alias Flight.Repo
+  alias Flight.SchoolScope
 
   alias Flight.Curriculum.{
     Course,
@@ -32,45 +33,58 @@ defmodule Flight.Curriculum do
     ])
   end
 
-  def get_objective_scores(user_id) do
+  def get_objective_scores(user_id, school_context) do
     from(s in ObjectiveScore, where: s.user_id == ^user_id)
+    |> SchoolScope.scope_query(school_context)
     |> Repo.all()
   end
 
-  def get_objective_score(user_id, objective_id),
-    do: Repo.get_by(ObjectiveScore, user_id: user_id, objective_id: objective_id)
+  def get_objective_score(user_id, objective_id, school_context) do
+    ObjectiveScore
+    |> where([s], s.user_id == ^user_id and s.objective_id == ^objective_id)
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.one()
+  end
 
   def delete_objective_score(score), do: Repo.delete!(score)
 
-  def set_objective_score(data) do
+  def set_objective_score(data, school_context) do
+    user = Flight.Accounts.get_user(data["user_id"], school_context)
+
     score =
-      Repo.get_by(ObjectiveScore, user_id: data["user_id"], objective_id: data["objective_id"]) ||
-        %ObjectiveScore{}
+      get_objective_score(user.id, data["objective_id"], school_context) || %ObjectiveScore{}
 
     score
+    |> SchoolScope.school_changeset(school_context)
     |> ObjectiveScore.changeset(data)
     |> Repo.insert_or_update()
   end
 
-  def get_objective_notes(user_id) do
+  def get_objective_notes(user_id, school_context) do
     from(s in ObjectiveNote, where: s.user_id == ^user_id)
+    |> SchoolScope.scope_query(school_context)
     |> Repo.all()
   end
 
-  def get_objective_note(user_id, objective_id),
-    do: Repo.get_by(ObjectiveNote, user_id: user_id, objective_id: objective_id)
+  def get_objective_note(user_id, objective_id, school_context) do
+    ObjectiveNote
+    |> where([s], s.user_id == ^user_id and s.objective_id == ^objective_id)
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.one()
+  end
 
   def delete_objective_note(note), do: Repo.delete!(note)
 
-  def set_objective_note(data) do
-    note =
-      Repo.get_by(ObjectiveNote, user_id: data["user_id"], objective_id: data["objective_id"]) ||
-        %ObjectiveNote{}
+  def set_objective_note(data, school_context) do
+    user = Flight.Accounts.get_user(data["user_id"], school_context)
+
+    note = get_objective_note(user.id, data["objective_id"], school_context) || %ObjectiveNote{}
 
     if data["note"] |> String.trim() |> String.length() == 0 do
       Repo.delete(note)
     else
       note
+      |> SchoolScope.school_changeset(school_context)
       |> ObjectiveNote.changeset(data)
       |> Repo.insert_or_update()
     end

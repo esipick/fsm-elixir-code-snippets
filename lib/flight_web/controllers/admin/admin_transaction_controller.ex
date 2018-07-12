@@ -4,7 +4,7 @@ defmodule FlightWeb.Admin.TransactionController do
   alias Flight.Billing
 
   def cancel(conn, %{"transaction_id" => transaction_id}) do
-    transaction = Billing.get_transaction(transaction_id)
+    transaction = Billing.get_transaction(transaction_id, conn)
 
     case Billing.cancel_transaction(transaction) do
       {:ok, _} ->

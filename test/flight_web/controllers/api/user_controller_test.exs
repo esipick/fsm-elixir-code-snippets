@@ -6,7 +6,7 @@ defmodule FlightWeb.API.UserControllerTest do
   describe "GET /api/users" do
     test "renders directory", %{conn: conn} do
       user1 = student_fixture()
-      user2 = instructor_fixture()
+      _ = instructor_fixture()
 
       json =
         conn
@@ -14,7 +14,7 @@ defmodule FlightWeb.API.UserControllerTest do
         |> get("/api/users?form=directory")
         |> json_response(200)
 
-      users = Flight.Repo.preload([user1, user2], :roles)
+      users = Flight.Repo.preload(Flight.Accounts.get_users(default_school_fixture()), :roles)
 
       assert json ==
                render_json(

@@ -15,7 +15,7 @@ defmodule FlightWeb.API.TransactionController do
     changeset = DetailedTransactionForm.changeset(%DetailedTransactionForm{}, detailed_params)
 
     with {:ok, form} <- Ecto.Changeset.apply_action(changeset, :insert),
-         {:ok, transaction} <- Flight.Billing.create_transaction_from_detailed_form(form) do
+         {:ok, transaction} <- Flight.Billing.create_transaction_from_detailed_form(form, conn) do
       transaction = Flight.Repo.preload(transaction, [:line_items, :user, :creator_user])
 
       conn
@@ -42,7 +42,7 @@ defmodule FlightWeb.API.TransactionController do
     changeset = CustomTransactionForm.changeset(%CustomTransactionForm{}, custom_params)
 
     with {:ok, form} <- Ecto.Changeset.apply_action(changeset, :insert),
-         {:ok, transaction} <- Flight.Billing.create_transaction_from_custom_form(form) do
+         {:ok, transaction} <- Flight.Billing.create_transaction_from_custom_form(form, conn) do
       transaction = Flight.Repo.preload(transaction, [:line_items, :user, :creator_user])
 
       conn
@@ -68,20 +68,19 @@ defmodule FlightWeb.API.TransactionController do
   def create(conn, %{
         "add_funds" => %{"user_id" => user_id, "amount" => amount, "source" => source}
       }) do
-    user = Flight.Accounts.get_user(user_id)
+    user = Flight.Accounts.get_user(user_id, conn)
 
-    with {:ok, {_user, transaction}} <-
+    with %Flight.Accounts.User{} <- user,
+         {:ok, {_user, transaction}} <-
            Flight.Billing.add_funds_by_charge(user, conn.assigns.current_user, amount, source) do
       conn
       |> put_status(201)
       |> render("show.json", transaction: render_preloads(transaction))
     else
-      {:error, error} ->
-        IO.inspect(error)
-
+      _ ->
         conn
         |> put_status(400)
-        |> json(%{errors: "blah"})
+        |> json(%{human_errors: ["Unable to add funds."]})
     end
   end
 
@@ -93,7 +92,8 @@ defmodule FlightWeb.API.TransactionController do
         {transaction, instructor_line_item, _, aircraft_line_item, _} =
           FlightWeb.API.DetailedTransactionForm.to_transaction(
             form,
-            Billing.rate_type_for_form(form)
+            Billing.rate_type_for_form(form, conn),
+            conn
           )
 
         conn
@@ -115,13 +115,13 @@ defmodule FlightWeb.API.TransactionController do
   def index(conn, params) do
     transactions =
       params
-      |> Billing.get_filtered_transactions()
+      |> Billing.get_filtered_transactions(conn)
       |> TransactionView.preload()
 
     render(conn, "index.json", transactions: transactions)
   end
 
-  def show(conn, params) do
+  def show(conn, _params) do
     transaction =
       conn.assigns.transaction
       |> TransactionView.preload()
@@ -194,7 +194,7 @@ defmodule FlightWeb.API.TransactionController do
   def authorize_view(conn, _) do
     permissions =
       case conn.params do
-        %{"id" => id} ->
+        %{"id" => _id} ->
           [
             Permission.new(:transaction, :view, {:personal, conn.assigns.transaction.user_id}),
             Permission.new(
@@ -224,7 +224,8 @@ defmodule FlightWeb.API.TransactionController do
   end
 
   def get_transaction(conn, _) do
-    transaction = Billing.get_transaction(conn.params["id"] || conn.params["transaction_id"])
+    transaction =
+      Billing.get_transaction(conn.params["id"] || conn.params["transaction_id"], conn)
 
     if transaction do
       assign(conn, :transaction, transaction |> Flight.Repo.preload([:user]))

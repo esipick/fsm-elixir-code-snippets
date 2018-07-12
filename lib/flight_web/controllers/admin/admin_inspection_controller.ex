@@ -113,7 +113,7 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   defp get_aircraft(conn, _) do
-    aircraft = Scheduling.get_aircraft(conn.params["aircraft_id"])
+    aircraft = Scheduling.get_aircraft(conn.params["aircraft_id"], conn)
 
     if aircraft do
       assign(conn, :aircraft, aircraft)

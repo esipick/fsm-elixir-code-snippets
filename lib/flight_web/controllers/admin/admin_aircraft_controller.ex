@@ -6,7 +6,7 @@ defmodule FlightWeb.Admin.AircraftController do
   plug(:get_aircraft when action in [:show, :edit, :update])
 
   def create(conn, %{"data" => aircraft_data}) do
-    case Scheduling.admin_create_aircraft(aircraft_data) do
+    case Scheduling.admin_create_aircraft(aircraft_data, conn) do
       {:ok, aircraft} ->
         conn
         |> put_flash(:success, "Successfully created aircraft.")
@@ -35,7 +35,7 @@ defmodule FlightWeb.Admin.AircraftController do
 
   def index(conn, _params) do
     conn
-    |> render("index.html", aircrafts: Scheduling.visible_aircrafts())
+    |> render("index.html", aircrafts: Scheduling.visible_aircrafts(conn))
   end
 
   def edit(conn, _params) do
@@ -60,7 +60,7 @@ defmodule FlightWeb.Admin.AircraftController do
   end
 
   defp get_aircraft(conn, _) do
-    aircraft = Scheduling.get_aircraft(conn.params["id"] || conn.params["aircraft_id"])
+    aircraft = Scheduling.get_aircraft(conn.params["id"] || conn.params["aircraft_id"], conn)
 
     if aircraft do
       assign(conn, :aircraft, aircraft)

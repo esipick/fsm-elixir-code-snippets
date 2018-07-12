@@ -14,7 +14,7 @@ defmodule FlightWeb.API.ObjectiveNoteController do
   end
 
   def create(conn, %{"data" => data}) do
-    with {:ok, note} <- Curriculum.set_objective_note(data) do
+    with {:ok, note} <- Curriculum.set_objective_note(data, conn) do
       render(conn, "show.json", objective_note: note)
     else
       {:error, changeset} ->
@@ -25,7 +25,7 @@ defmodule FlightWeb.API.ObjectiveNoteController do
   end
 
   def delete(conn, %{"data" => %{"user_id" => user_id, "objective_id" => objective_id}}) do
-    note = Curriculum.get_objective_note(user_id, objective_id)
+    note = Curriculum.get_objective_note(user_id, objective_id, conn)
 
     if note do
       Curriculum.delete_objective_note(note)
@@ -36,7 +36,7 @@ defmodule FlightWeb.API.ObjectiveNoteController do
   end
 
   def get_objective_notes(conn, _) do
-    assign(conn, :objective_notes, Curriculum.get_objective_notes(conn.params["user_id"]))
+    assign(conn, :objective_notes, Curriculum.get_objective_notes(conn.params["user_id"], conn))
   end
 
   def authorize_view(conn, _) do

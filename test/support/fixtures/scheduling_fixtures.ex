@@ -4,7 +4,7 @@ defmodule Flight.SchedulingFixtures do
 
   import Flight.AccountsFixtures
 
-  def aircraft_fixture(attrs \\ %{}) do
+  def aircraft_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
     aircraft =
       %Aircraft{
         make: "Sesna",
@@ -17,7 +17,8 @@ defmodule Flight.SchedulingFixtures do
         last_tach_time: 400,
         last_hobbs_time: 400,
         rate_per_hour: 130,
-        block_rate_per_hour: 120
+        block_rate_per_hour: 120,
+        school_id: school.id
       }
       |> Aircraft.changeset(attrs)
       |> Repo.insert!()
@@ -29,7 +30,8 @@ defmodule Flight.SchedulingFixtures do
         attrs \\ %{},
         user \\ student_fixture(),
         instructor \\ instructor_fixture(),
-        aircraft \\ aircraft_fixture()
+        aircraft \\ aircraft_fixture(),
+        school \\ default_school_fixture()
       ) do
     date = ~N[2018-03-03 10:00:00]
 
@@ -39,7 +41,8 @@ defmodule Flight.SchedulingFixtures do
         end_at: Timex.shift(date, hours: 4),
         user_id: user.id,
         instructor_user_id: instructor.id,
-        aircraft_id: aircraft.id
+        aircraft_id: aircraft.id,
+        school_id: school.id
       }
       |> Appointment.changeset(attrs)
       |> Repo.insert!()

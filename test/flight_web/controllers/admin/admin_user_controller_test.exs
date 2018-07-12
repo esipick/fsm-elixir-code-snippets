@@ -90,12 +90,14 @@ defmodule FlightWeb.Admin.UserControllerTest do
         role_slugs: %{"instructor" => "on", "student" => "on"}
       }
 
+      admin = admin_fixture()
+
       conn
-      |> web_auth_admin()
+      |> web_auth(admin)
       |> put("/admin/users/#{user.id}", payload)
       |> response_redirected_to("/admin/users/#{user.id}")
 
-      user = Accounts.get_user(user.id)
+      user = Accounts.get_user(user.id, admin)
 
       assert Accounts.has_role?(user, "instructor")
       assert Accounts.has_role?(user, "student")
@@ -132,12 +134,14 @@ defmodule FlightWeb.Admin.UserControllerTest do
         role_slugs: %{"admin" => "on"}
       }
 
+      admin = admin_fixture()
+
       conn
-      |> web_auth_admin()
+      |> web_auth(admin)
       |> put("/admin/users/#{user.id}", payload)
       |> response_redirected_to("/admin/users/#{user.id}")
 
-      user = Accounts.get_user!(user.id)
+      user = Accounts.get_user(user.id, admin)
       assert user.first_name == "Allison"
       assert user.last_name == "Duprix"
     end
@@ -147,12 +151,14 @@ defmodule FlightWeb.Admin.UserControllerTest do
     test "adds funds", %{conn: conn} do
       student = student_fixture(%{balance: 100})
 
+      admin = admin_fixture()
+
       conn =
         conn
-        |> web_auth_admin()
+        |> web_auth_admin(admin)
         |> post("/admin/users/#{student.id}/add_funds", %{"amount" => 5})
 
-      student = Accounts.get_user(student.id)
+      student = Accounts.get_user(student.id, admin)
 
       assert get_flash(conn, :success) =~ "Successfully"
       assert student.balance == 600

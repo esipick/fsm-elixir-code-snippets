@@ -2,6 +2,7 @@ defmodule FlightWeb.AuthenticateWebUser do
   import Plug.Conn
 
   require Ecto.Query
+  import Ecto.Query
 
   def init(opts) do
     opts
@@ -10,6 +11,10 @@ defmodule FlightWeb.AuthenticateWebUser do
   def call(conn, opts \\ [roles: []]) do
     case user_from_session(conn, Keyword.get(opts, :roles)) do
       {:ok, user} ->
+        user =
+          user
+          |> Flight.Repo.preload([:school])
+
         assign(conn, :current_user, user)
 
       {:error, code} ->
@@ -31,9 +36,9 @@ defmodule FlightWeb.AuthenticateWebUser do
     if id do
       user =
         if roles do
-          Flight.Accounts.get_user(id, roles)
+          get_user(id, roles)
         else
-          Flight.Accounts.get_user(id)
+          get_user(id)
         end
 
       if user do
@@ -44,6 +49,22 @@ defmodule FlightWeb.AuthenticateWebUser do
     else
       {:error, :no_session_user_id}
     end
+  end
+
+  defp get_user(id) do
+    Flight.Accounts.User
+    |> where([u], u.id == ^id)
+    |> Flight.Repo.one()
+  end
+
+  defp get_user(id, roles) do
+    from(
+      u in Flight.Accounts.User,
+      inner_join: r in assoc(u, :roles),
+      where: r.slug in ^roles,
+      where: u.id == ^id
+    )
+    |> Flight.Repo.one()
   end
 
   def log_in(conn, user_id) do

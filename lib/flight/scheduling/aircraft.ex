@@ -14,6 +14,7 @@ defmodule Flight.Scheduling.Aircraft do
     field(:equipment, :string)
     field(:simulator, :boolean, default: false)
     field(:tail_number, :string)
+    belongs_to(:school, Flight.Accounts.School)
     has_many(:inspections, Flight.Scheduling.Inspection)
 
     timestamps()
@@ -46,7 +47,8 @@ defmodule Flight.Scheduling.Aircraft do
       :last_tach_time,
       :last_hobbs_time,
       :rate_per_hour,
-      :block_rate_per_hour
+      :block_rate_per_hour,
+      :school_id
     ])
   end
 

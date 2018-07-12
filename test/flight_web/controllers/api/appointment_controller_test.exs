@@ -22,9 +22,9 @@ defmodule FlightWeb.API.AppointmentControllerTest do
         |> get("/api/appointments/availability", %{start_at: start_at, end_at: end_at})
         |> json_response(200)
 
-      students_available = Availability.student_availability(start_at, end_at)
-      instructors_available = Availability.instructor_availability(start_at, end_at)
-      aircrafts_available = Availability.aircraft_availability(start_at, end_at)
+      students_available = Availability.student_availability(start_at, end_at, [], student)
+      instructors_available = Availability.instructor_availability(start_at, end_at, [], student)
+      aircrafts_available = Availability.aircraft_availability(start_at, end_at, [], student)
 
       assert json ==
                render_json(

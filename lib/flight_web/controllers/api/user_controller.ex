@@ -14,7 +14,7 @@ defmodule FlightWeb.API.UserController do
       case form do
         "directory" ->
           users =
-            Accounts.get_users()
+            Accounts.get_users(conn)
             |> Flight.Repo.preload(:roles)
 
           {:ok, users, "directory_user.json"}
@@ -88,6 +88,6 @@ defmodule FlightWeb.API.UserController do
   end
 
   defp get_user(conn, _) do
-    assign(conn, :user, Accounts.get_user!(conn.params["id"] || conn.params["user_id"]))
+    assign(conn, :user, Accounts.get_user(conn.params["id"] || conn.params["user_id"], conn))
   end
 end

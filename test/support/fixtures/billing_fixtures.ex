@@ -16,7 +16,8 @@ defmodule Flight.BillingFixtures do
   def transaction_fixture(
         attrs \\ %{},
         user \\ student_fixture(),
-        creator \\ instructor_fixture()
+        creator \\ instructor_fixture(),
+        school \\ default_school_fixture()
       ) do
     transaction =
       %Transaction{
@@ -24,7 +25,8 @@ defmodule Flight.BillingFixtures do
         type: "debit",
         total: 6000,
         user_id: user.id,
-        creator_user_id: creator.id
+        creator_user_id: creator.id,
+        school_id: school.id
       }
       |> Transaction.changeset(attrs)
       |> Repo.insert!()

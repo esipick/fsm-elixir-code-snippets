@@ -47,11 +47,11 @@ defmodule FlightWeb.InvitationControllerTest do
       |> post("/invitations/#{invitation.token}", payload)
       |> response_redirected_to("/invitations/#{invitation.token}/success")
 
-      user = Accounts.get_user_by_email("food@bards.com")
-      
+      user = Accounts.get_user_by_email("food@bards.com", invitation.school)
+
       assert user.phone_number == "801-555-5555"
 
-      invitation = Accounts.get_invitation(invitation.id)
+      invitation = Accounts.get_invitation(invitation.id, invitation)
 
       assert invitation.accepted_at
 

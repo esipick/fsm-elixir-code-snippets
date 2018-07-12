@@ -14,13 +14,13 @@ defmodule FlightWeb.API.ObjectiveScoreController do
   end
 
   def create(conn, %{"data" => data}) do
-    with {:ok, score} <- Curriculum.set_objective_score(data) do
+    with {:ok, score} <- Curriculum.set_objective_score(data, conn) do
       render(conn, "show.json", objective_score: score)
     end
   end
 
   def delete(conn, %{"data" => %{"user_id" => user_id, "objective_id" => objective_id}}) do
-    score = Curriculum.get_objective_score(user_id, objective_id)
+    score = Curriculum.get_objective_score(user_id, objective_id, conn)
 
     if score do
       Curriculum.delete_objective_score(score)
@@ -31,7 +31,7 @@ defmodule FlightWeb.API.ObjectiveScoreController do
   end
 
   def get_objective_scores(conn, _) do
-    assign(conn, :objective_scores, Curriculum.get_objective_scores(conn.params["user_id"]))
+    assign(conn, :objective_scores, Curriculum.get_objective_scores(conn.params["user_id"], conn))
   end
 
   def authorize_view(conn, _) do

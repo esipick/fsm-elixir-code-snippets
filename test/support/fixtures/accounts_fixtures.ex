@@ -1,8 +1,21 @@
 defmodule Flight.AccountsFixtures do
   alias Flight.{Accounts, Repo}
-  alias Flight.Accounts.{User}
+  alias Flight.Accounts.{User, School}
 
-  def user_fixture(attrs \\ %{}) do
+  def school_fixture(attrs \\ %{}) do
+    %School{
+      name: "some_school_name"
+    }
+    |> School.changeset(attrs)
+    |> Repo.insert!()
+  end
+
+  def default_school_fixture() do
+    school = Repo.get_by(School, name: "default")
+    school || school_fixture(%{name: "default"})
+  end
+
+  def user_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
     user =
       %User{
         email: "user-#{Flight.Random.string(20)}@email.com",
@@ -10,7 +23,8 @@ defmodule Flight.AccountsFixtures do
         last_name: "some last name",
         phone_number: "801-555-5555",
         password: "some password",
-        stripe_customer_id: "cus_#{Flight.Random.hex(20)}"
+        stripe_customer_id: "cus_#{Flight.Random.hex(20)}",
+        school_id: school.id
       }
       |> User.__test_changeset(attrs)
       |> Repo.insert!()
@@ -18,16 +32,16 @@ defmodule Flight.AccountsFixtures do
     %{user | password: nil}
   end
 
-  def student_fixture(attrs \\ %{}) do
-    user_fixture(attrs) |> assign_role("student")
+  def student_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
+    user_fixture(attrs, school) |> assign_role("student")
   end
 
-  def instructor_fixture(attrs \\ %{}) do
-    user_fixture(attrs) |> assign_role("instructor")
+  def instructor_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
+    user_fixture(attrs, school) |> assign_role("instructor")
   end
 
-  def admin_fixture(attrs \\ %{}) do
-    user_fixture(attrs) |> assign_role("admin")
+  def admin_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
+    user_fixture(attrs, school) |> assign_role("admin")
   end
 
   def role_fixture(attrs \\ %{}) do
@@ -52,18 +66,19 @@ defmodule Flight.AccountsFixtures do
     cert
   end
 
-  def invitation_fixture(attrs \\ %{}, role \\ role_fixture()) do
+  def invitation_fixture(attrs \\ %{}, role \\ role_fixture(), school \\ default_school_fixture()) do
     invitation =
       %Accounts.Invitation{
         first_name: "Jess",
         last_name: "Hamilton",
         email: "#{Flight.Random.hex(20)}-user@email.com",
-        role_id: role.id
+        role_id: role.id,
+        school_id: school.id
       }
       |> Accounts.Invitation.create_changeset(attrs)
       |> Repo.insert!()
 
-    %{invitation | role: role}
+    %{invitation | role: role, school: school}
   end
 
   # def flyer_details_fixture(attrs \\ %{}, user \\ user_fixture()) do

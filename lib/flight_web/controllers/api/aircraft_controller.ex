@@ -5,7 +5,7 @@ defmodule FlightWeb.API.AircraftController do
 
   def index(conn, _) do
     aircrafts =
-      Scheduling.visible_aircrafts()
+      Scheduling.visible_aircrafts(conn)
       |> Flight.Repo.preload(:inspections)
 
     render(conn, "index.json", aircrafts: aircrafts)
@@ -13,7 +13,7 @@ defmodule FlightWeb.API.AircraftController do
 
   def show(conn, %{"id" => id}) do
     aircraft =
-      Scheduling.get_aircraft(id)
+      Scheduling.get_aircraft(id, conn)
       |> Flight.Repo.preload(:inspections)
 
     render(conn, "show.json", aircraft: aircraft)

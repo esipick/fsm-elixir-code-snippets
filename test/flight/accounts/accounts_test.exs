@@ -3,10 +3,9 @@ defmodule Flight.Accounts.AccountsTest do
   use Bamboo.Test, shared: true
 
   alias Flight.Accounts
+  alias Flight.Accounts.{Invitation, User}
 
   describe "users" do
-    alias Flight.Accounts.User
-
     @valid_attrs %{
       email: "some email",
       first_name: "some first name",
@@ -15,33 +14,31 @@ defmodule Flight.Accounts.AccountsTest do
     }
     @invalid_attrs %{balance: nil, email: nil, name: nil, password: nil}
 
-    test "get_user!/1 returns the user with given id" do
-      user = user_fixture()
-      assert Accounts.get_user!(user.id) == user
-    end
-
     test "get_user/2 returns user with roles" do
       user = user_fixture() |> assign_role("admin")
       user_id = user.id
-      assert %User{id: ^user_id} = Accounts.get_user(user.id, ["admin"])
+      assert %User{id: ^user_id} = Accounts.get_user(user.id, ["admin"], user)
     end
 
     test "get_user/2 does not return user without roles" do
       user = user_fixture() |> assign_role("student")
-      refute Accounts.get_user(user.id, ["admin"])
+      refute Accounts.get_user(user.id, ["admin"], user)
     end
 
     @tag :integration
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} =
-               Accounts.create_user(%{
-                 # Space here is intentional, should be trimmed
-                 email: "foo@bar.com ",
-                 first_name: "Tammy",
-                 last_name: "Jones",
-                 phone_number: "801-555-5555",
-                 password: "password"
-               })
+               Accounts.create_user(
+                 %{
+                   # Space here is intentional, should be trimmed
+                   email: "foo@bar.com ",
+                   first_name: "Tammy",
+                   last_name: "Jones",
+                   phone_number: "801-555-5555",
+                   password: "password"
+                 },
+                 school_fixture()
+               )
 
       assert user.balance == 0
       assert user.email == "foo@bar.com"
@@ -52,7 +49,9 @@ defmodule Flight.Accounts.AccountsTest do
     end
 
     test "create_user/1 fails with no password" do
-      assert {:error, changeset} = Accounts.create_user(Enum.into(%{password: ""}, @valid_attrs))
+      assert {:error, changeset} =
+               Accounts.create_user(Enum.into(%{password: ""}, @valid_attrs), school_fixture())
+
       assert errors_on(changeset).password
     end
 
@@ -62,12 +61,12 @@ defmodule Flight.Accounts.AccountsTest do
     end
 
     test "create_user/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs, school_fixture())
     end
 
     test "get_user_by_email is case insensitive" do
-      user_fixture(%{email: "foo@example.com"})
-      assert Accounts.get_user_by_email("FoO@EXampLE.com")
+      user = user_fixture(%{email: "foo@example.com"})
+      assert Accounts.get_user_by_email("FoO@EXampLE.com", user)
     end
 
     test "admin_update_user_profile/2 update roles" do
@@ -133,7 +132,7 @@ defmodule Flight.Accounts.AccountsTest do
     test "delete_user/1 deletes the user" do
       user = user_fixture()
       assert {:ok, %User{}} = Accounts.delete_user(user)
-      assert_raise Ecto.NoResultsError, fn -> Accounts.get_user!(user.id) end
+      refute Accounts.get_user(user.id, user)
     end
   end
 
@@ -190,12 +189,15 @@ defmodule Flight.Accounts.AccountsTest do
   describe "invitations" do
     test "create_invitation/1 creates invitation" do
       assert {:ok, %Accounts.Invitation{} = invitation} =
-               Accounts.create_invitation(%{
-                 first_name: "foo",
-                 last_name: "bar",
-                 email: "foo@bar.com",
-                 role_id: Accounts.Role.admin().id
-               })
+               Accounts.create_invitation(
+                 %{
+                   first_name: "foo",
+                   last_name: "bar",
+                   email: "foo@bar.com",
+                   role_id: Accounts.Role.admin().id
+                 },
+                 school_fixture()
+               )
 
       assert invitation.first_name == "foo"
       assert invitation.last_name == "bar"
@@ -208,26 +210,32 @@ defmodule Flight.Accounts.AccountsTest do
 
     test "create_invitation/1 downcases email" do
       assert {:ok, %Accounts.Invitation{} = invitation} =
-               Accounts.create_invitation(%{
-                 first_name: "foo",
-                 last_name: "bar",
-                 email: "FOO@bar.com",
-                 role_id: Accounts.Role.admin().id
-               })
+               Accounts.create_invitation(
+                 %{
+                   first_name: "foo",
+                   last_name: "bar",
+                   email: "FOO@bar.com",
+                   role_id: Accounts.Role.admin().id
+                 },
+                 school_fixture()
+               )
 
       assert invitation.email == "foo@bar.com"
     end
 
     test "create_invitation/1 fails if user already exists with email" do
-      user_fixture(%{email: "foo@bar.com"})
+      user = user_fixture(%{email: "foo@bar.com"})
 
       assert {:error, changeset} =
-               Accounts.create_invitation(%{
-                 first_name: "foo",
-                 last_name: "bar",
-                 email: "foo@bar.com",
-                 role_id: Accounts.Role.admin().id
-               })
+               Accounts.create_invitation(
+                 %{
+                   first_name: "foo",
+                   last_name: "bar",
+                   email: "foo@bar.com",
+                   role_id: Accounts.Role.admin().id
+                 },
+                 user
+               )
 
       assert errors_on(changeset).email |> List.first() =~ "already exists"
     end
@@ -251,56 +259,88 @@ defmodule Flight.Accounts.AccountsTest do
       Accounts.send_invitation_email(invitation)
       assert_delivered_email(Flight.Email.invitation_email(invitation))
     end
-  end
 
-  # describe "flyer_details" do
-  #   alias Flight.Accounts.FlyerDetails
-  #
-  #   test "get_flyer_details_for_user_id gets default if none exists" do
-  #     user = user_fixture()
-  #     assert Accounts.get_flyer_details_for_user_id(user.id) == FlyerDetails.default()
-  #   end
-  #
-  #   test "get_flyer_details_for_user_id gets existing details" do
-  #     details = flyer_details_fixture(%{address_1: "the moon"})
-  #
-  #     assert %FlyerDetails{address_1: "the moon"} =
-  #              Accounts.get_flyer_details_for_user_id(details.user.id)
-  #   end
-  #
-  #   test "set_flyer_details_for_user sets flyer details" do
-  #     user = user_fixture()
-  #
-  #     {:ok, %FlyerDetails{} = flyer_details} =
-  #       Accounts.set_flyer_details_for_user(
-  #         %{
-  #           address_1: "1234 Hi",
-  #           city: "Bigfork",
-  #           state: "MT",
-  #           faa_tracking_number: "ABC1234"
-  #         },
-  #         user
-  #       )
-  #
-  #     assert flyer_details.address_1 == "1234 Hi"
-  #     assert flyer_details.city == "Bigfork"
-  #     assert flyer_details.state == "MT"
-  #     assert flyer_details.faa_tracking_number == "ABC1234"
-  #   end
-  #
-  #   test "set_flyer_details_for_user when details already exist" do
-  #     user = user_fixture()
-  #     flyer_details_fixture(%{}, user)
-  #
-  #     {:ok, %FlyerDetails{} = flyer_details} =
-  #       Accounts.set_flyer_details_for_user(
-  #         %{
-  #           address_1: "Herro"
-  #         },
-  #         user
-  #       )
-  #
-  #     assert flyer_details.address_1 == "Herro"
-  #   end
-  # end
+    test "get_invitation/2 returns invitation" do
+      invitation = invitation_fixture()
+      assert invitation.id == Accounts.get_invitation(invitation.id, invitation.school).id
+    end
+
+    test "get_invitation/2 scopes to school" do
+      invitation = invitation_fixture()
+      refute Accounts.get_invitation(invitation.id, school_fixture())
+    end
+
+    test "get_invitation_for_token/2 returns invitation" do
+      invitation = invitation_fixture()
+
+      assert invitation.token
+
+      assert invitation.id ==
+               Accounts.get_invitation_for_token(invitation.token, invitation.school).id
+    end
+
+    test "get_invitation_for_token/2 scopes to school" do
+      invitation = invitation_fixture()
+      refute Accounts.get_invitation_for_token(invitation.token, school_fixture())
+    end
+
+    test "get_invitation_for_email/2 returns invitation" do
+      invitation = invitation_fixture(%{email: "micky@rooney.com"})
+
+      assert invitation.id ==
+               Accounts.get_invitation_for_email("micky@rooney.com", invitation.school).id
+    end
+
+    test "get_invitation_for_email/2 scopes to school" do
+      invitation_fixture(%{email: "micky@rooney.com"})
+      refute Accounts.get_invitation_for_email("micky@rooney.com", school_fixture())
+    end
+
+    test "visible_invitations_with_role/2 returns unaccepted invitations" do
+      school = school_fixture()
+      invitation = invitation_fixture(%{}, Flight.Accounts.Role.admin(), school)
+
+      # Shouldn't return because different role
+      _ = invitation_fixture(%{}, Flight.Accounts.Role.student(), school)
+
+      # Shouldn't return because different school
+      _ = invitation_fixture(%{}, Flight.Accounts.Role.admin(), school_fixture())
+
+      # Shouldn't return because already accepted
+      _ =
+        invitation_fixture(
+          %{},
+          Flight.Accounts.Role.admin(),
+          school
+        )
+        |> Invitation.accept_changeset(%{accepted_at: ~N[2018-03-03 10:00:00]})
+        |> Repo.update!()
+
+      assert Enum.map(Accounts.visible_invitations_with_role("admin", school), & &1.id) == [
+               invitation.id
+             ]
+    end
+
+    @tag :integration
+    test "create_user_from_invitation/3 creates user" do
+      invitation = invitation_fixture()
+
+      {:ok, user} =
+        Accounts.create_user_from_invitation(
+          %{
+            first_name: "Alex",
+            last_name: "Jones",
+            phone_number: "801-555-5555",
+            email: "foo@bar.com",
+            password: "foobargo"
+          },
+          invitation
+        )
+
+      user = Repo.preload(user, :roles)
+
+      assert Enum.find(user.roles, &(&1.id == invitation.role.id))
+      assert user.school_id == invitation.school.id
+    end
+  end
 end

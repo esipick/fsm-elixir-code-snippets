@@ -107,7 +107,6 @@ defmodule FlightWeb.API.DetailedTransactionForm do
     |> cast_embed(:instructor_details, required: false)
     |> validate_required([:user_id, :creator_user_id])
     |> validate_either_aircraft_or_instructor()
-    |> validate_appointment()
   end
 
   def validate_either_aircraft_or_instructor(changeset) do
@@ -122,28 +121,18 @@ defmodule FlightWeb.API.DetailedTransactionForm do
     end
   end
 
-  def validate_appointment(changeset) do
-    appointment_id = get_field(changeset, :appointment_id)
-
-    if changeset.valid? && appointment_id do
-      appointment = Flight.Scheduling.get_appointment(appointment_id)
-
-      if appointment.transaction_id do
-        add_error(changeset, :appointment, "already has a transaction associated with it.")
-      else
-        changeset
-      end
-    else
-      changeset
-    end
-  end
-
-  def to_transaction(form, rate_type \\ :normal)
+  def to_transaction(form, rate_type, school_context)
       when rate_type in [:normal, :block] do
     {aircraft_line_item, aircraft_details} =
       if form.aircraft_details do
         aircraft_details = form.aircraft_details
-        aircraft = Flight.Scheduling.get_aircraft(aircraft_details.aircraft_id)
+        aircraft = Flight.Scheduling.get_aircraft(aircraft_details.aircraft_id, school_context)
+
+        if !aircraft do
+          raise "Unknown aircraft (#{form.aircraft_details.aircraft_id}) for school (#{
+                  Flight.SchoolScope.school_id(school_context)
+                })"
+        end
 
         rate =
           case rate_type do
@@ -174,7 +163,14 @@ defmodule FlightWeb.API.DetailedTransactionForm do
 
     {instructor_line_item, instructor_details} =
       if form.instructor_details do
-        instructor = Flight.Accounts.get_user(form.instructor_details.instructor_id)
+        instructor =
+          Flight.Accounts.get_user(form.instructor_details.instructor_id, school_context)
+
+        if !instructor do
+          raise "Unknown instructor (#{form.instructor_details.instructor_id}) for school (#{
+                  Flight.SchoolScope.school_id(school_context)
+                })"
+        end
 
         detail = %InstructorLineItemDetail{
           instructor_user_id: form.instructor_details.instructor_id,
@@ -200,12 +196,21 @@ defmodule FlightWeb.API.DetailedTransactionForm do
       |> Enum.map(& &1.amount)
       |> Enum.reduce(0, &Kernel.+/2)
 
+    user = Flight.Accounts.get_user(form.user_id, school_context)
+
+    if !user do
+      raise "Unknown user (#{form.user_id}) for school (#{
+              Flight.SchoolScope.school_id(school_context)
+            })"
+    end
+
     transaction = %Transaction{
       total: total,
       state: "pending",
       type: "debit",
       user_id: form.user_id,
-      creator_user_id: form.creator_user_id
+      creator_user_id: form.creator_user_id,
+      school_id: Flight.SchoolScope.school_id(school_context)
     }
 
     {transaction, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details}

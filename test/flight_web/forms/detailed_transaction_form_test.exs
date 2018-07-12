@@ -38,7 +38,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
         |> Ecto.Changeset.apply_action(:insert)
 
       {transaction, instructor_line_item, instructor_details, aircraft_line_item,
-       aircraft_details} = DetailedTransactionForm.to_transaction(form)
+       aircraft_details} = DetailedTransactionForm.to_transaction(form, :normal, instructor)
 
       assert transaction.state == "pending"
       assert transaction.user_id == attrs.user_id
@@ -83,7 +83,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
         |> Ecto.Changeset.apply_action(:insert)
 
       assert {transaction, nil, nil, %TransactionLineItem{}, %AircraftLineItemDetail{}} =
-               DetailedTransactionForm.to_transaction(form)
+               DetailedTransactionForm.to_transaction(form, :normal, instructor)
 
       assert Flight.Repo.insert!(transaction)
     end
@@ -103,7 +103,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
         |> Ecto.Changeset.apply_action(:insert)
 
       assert {transaction, %TransactionLineItem{}, %InstructorLineItemDetail{}, nil, nil} =
-               DetailedTransactionForm.to_transaction(form)
+               DetailedTransactionForm.to_transaction(form, :normal, student)
 
       assert Flight.Repo.insert!(transaction)
     end

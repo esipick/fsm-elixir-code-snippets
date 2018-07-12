@@ -73,13 +73,15 @@ defmodule Flight.CurriculumFixtures do
   def objective_score_fixture(
         attrs \\ %{},
         user \\ user_fixture(),
-        objective \\ objective_fixture()
+        objective \\ objective_fixture(),
+        school \\ default_school_fixture()
       ) do
     score =
       %ObjectiveScore{
         user_id: user.id,
         objective_id: objective.id,
-        score: 3
+        score: 3,
+        school_id: school.id
       }
       |> ObjectiveScore.changeset(attrs)
       |> Repo.insert!()
@@ -90,13 +92,15 @@ defmodule Flight.CurriculumFixtures do
   def objective_note_fixture(
         attrs \\ %{},
         user \\ user_fixture(),
-        objective \\ objective_fixture()
+        objective \\ objective_fixture(),
+        school \\ default_school_fixture()
       ) do
     note =
       %ObjectiveNote{
         user_id: user.id,
         objective_id: objective.id,
-        note: "Hello you"
+        note: "Hello you",
+        school_id: school.id
       }
       |> ObjectiveNote.changeset(attrs)
       |> Repo.insert!()

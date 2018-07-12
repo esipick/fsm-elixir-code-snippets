@@ -22,7 +22,8 @@ defmodule Flight.SchedulingTest do
     }
 
     test "create_aircraft/1 returns aircraft" do
-      assert {:ok, %Aircraft{} = aircraft} = Scheduling.admin_create_aircraft(@valid_attrs)
+      assert {:ok, %Aircraft{} = aircraft} =
+               Scheduling.admin_create_aircraft(@valid_attrs, default_school_fixture())
 
       assert aircraft.make == "make"
       assert aircraft.model == "model"
@@ -38,7 +39,8 @@ defmodule Flight.SchedulingTest do
     end
 
     test "create_aircraft/1 creates default inspections" do
-      assert {:ok, %Aircraft{} = aircraft} = Scheduling.admin_create_aircraft(@valid_attrs)
+      assert {:ok, %Aircraft{} = aircraft} =
+               Scheduling.admin_create_aircraft(@valid_attrs, default_school_fixture())
 
       assert Repo.get_by(
                Inspection,
@@ -77,19 +79,19 @@ defmodule Flight.SchedulingTest do
     end
 
     test "create_aircraft/1 returns error" do
-      assert {:error, _} = Scheduling.admin_create_aircraft(%{})
+      assert {:error, _} = Scheduling.admin_create_aircraft(%{}, default_school_fixture())
     end
 
     test "get_aircraft/1 gets aircraft" do
       aircraft = aircraft_fixture()
 
-      assert %Aircraft{} = Scheduling.get_aircraft(aircraft.id)
+      assert %Aircraft{} = Scheduling.get_aircraft(aircraft.id, aircraft)
     end
 
     test "visible_aircrafts/0 gets aircrafts" do
       aircraft_fixture()
       aircraft_fixture()
-      assert [%Aircraft{}, %Aircraft{}] = Scheduling.visible_aircrafts()
+      assert [%Aircraft{}, %Aircraft{}] = Scheduling.visible_aircrafts(default_school_fixture())
     end
 
     test "update_aircraft/2 updates" do
@@ -171,7 +173,15 @@ defmodule Flight.SchedulingTest do
   #
 
   describe "appointments" do
-    test "create_appointment/1 creates appointment" do
+    def create_appointment(data) do
+      Scheduling.insert_or_update_appointment(
+        %Scheduling.Appointment{},
+        data,
+        default_school_fixture()
+      )
+    end
+
+    test "insert_or_update_appointment/1 creates appointment" do
       instructor = user_fixture() |> assign_role("instructor")
       student = user_fixture() |> assign_role("student")
       aircraft = aircraft_fixture()
@@ -179,7 +189,7 @@ defmodule Flight.SchedulingTest do
       now = NaiveDateTime.utc_now()
 
       {:ok, %Appointment{} = appointment} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 1),
           end_at: Timex.shift(now, hours: 2),
           instructor_user_id: instructor.id,
@@ -194,7 +204,7 @@ defmodule Flight.SchedulingTest do
       assert appointment.aircraft_id == aircraft.id
     end
 
-    test "create_appointment/1 updates existing appointment" do
+    test "insert_or_update_appointment/1 updates existing appointment" do
       instructor = user_fixture() |> assign_role("instructor")
       student = user_fixture() |> assign_role("student")
       aircraft = aircraft_fixture()
@@ -202,7 +212,7 @@ defmodule Flight.SchedulingTest do
       now = NaiveDateTime.utc_now()
 
       {:ok, %Appointment{} = appointment} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 1),
           end_at: Timex.shift(now, hours: 2),
           instructor_user_id: instructor.id,
@@ -211,18 +221,19 @@ defmodule Flight.SchedulingTest do
         })
 
       {:ok, %Appointment{} = updatedAppointment} =
-        Scheduling.create_appointment(
+        Scheduling.insert_or_update_appointment(
+          appointment,
           %{
             start_at: Timex.shift(now, minutes: 30)
           },
-          appointment
+          default_school_fixture()
         )
 
       assert updatedAppointment.id == appointment.id
       assert updatedAppointment.start_at == Timex.shift(now, minutes: 30)
     end
 
-    test "create_appointment/1 succeeds if instructor scheduled outside other appointment" do
+    test "insert_or_update_appointment/1 succeeds if instructor scheduled outside other appointment" do
       instructor = user_fixture() |> assign_role("instructor")
       student = user_fixture() |> assign_role("student")
       aircraft = aircraft_fixture()
@@ -230,7 +241,7 @@ defmodule Flight.SchedulingTest do
       now = NaiveDateTime.utc_now() |> Timex.shift(hours: -4)
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 1),
           end_at: Timex.shift(now, hours: 3),
           instructor_user_id: instructor.id,
@@ -242,7 +253,7 @@ defmodule Flight.SchedulingTest do
       other_aircraft = aircraft_fixture()
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 4),
           end_at: Timex.shift(now, hours: 6),
           instructor_user_id: instructor.id,
@@ -254,7 +265,7 @@ defmodule Flight.SchedulingTest do
       other_aircraft = aircraft_fixture()
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: -1),
           end_at: Timex.shift(now, hours: 0),
           instructor_user_id: instructor.id,
@@ -263,7 +274,7 @@ defmodule Flight.SchedulingTest do
         })
     end
 
-    test "create_appointment/1 fails if instructor has overlapping appointment" do
+    test "insert_or_update_appointment/1 fails if instructor has overlapping appointment" do
       instructor = user_fixture() |> assign_role("instructor")
       student = user_fixture() |> assign_role("student")
       aircraft = aircraft_fixture()
@@ -271,7 +282,7 @@ defmodule Flight.SchedulingTest do
       now = NaiveDateTime.utc_now() |> Timex.shift(hours: -4)
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 1),
           end_at: Timex.shift(now, hours: 3),
           instructor_user_id: instructor.id,
@@ -283,7 +294,7 @@ defmodule Flight.SchedulingTest do
       other_aircraft = aircraft_fixture()
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 2),
           end_at: Timex.shift(now, hours: 4),
           instructor_user_id: instructor.id,
@@ -294,7 +305,7 @@ defmodule Flight.SchedulingTest do
       assert Enum.count(errors_on(changeset).instructor) == 1
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 0),
           end_at: Timex.shift(now, hours: 2),
           instructor_user_id: instructor.id,
@@ -305,7 +316,7 @@ defmodule Flight.SchedulingTest do
       assert Enum.count(errors_on(changeset).instructor) == 1
     end
 
-    test "create_appointment/1 fails if user has overlapping appointment" do
+    test "insert_or_update_appointment/1 fails if user has overlapping appointment" do
       instructor = user_fixture() |> assign_role("instructor")
       student = user_fixture() |> assign_role("student")
       aircraft = aircraft_fixture()
@@ -313,7 +324,7 @@ defmodule Flight.SchedulingTest do
       now = NaiveDateTime.utc_now() |> Timex.shift(hours: -4)
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 1),
           end_at: Timex.shift(now, hours: 3),
           instructor_user_id: instructor.id,
@@ -325,7 +336,7 @@ defmodule Flight.SchedulingTest do
       other_aircraft = aircraft_fixture()
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 2),
           end_at: Timex.shift(now, hours: 4),
           instructor_user_id: other_instructor.id,
@@ -336,7 +347,7 @@ defmodule Flight.SchedulingTest do
       assert Enum.count(errors_on(changeset).renter) == 1
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 0),
           end_at: Timex.shift(now, hours: 2),
           instructor_user_id: other_instructor.id,
@@ -347,7 +358,7 @@ defmodule Flight.SchedulingTest do
       assert Enum.count(errors_on(changeset).renter) == 1
     end
 
-    test "create_appointment/1 fails if aircraft has overlapping appointment" do
+    test "insert_or_update_appointment/1 fails if aircraft has overlapping appointment" do
       instructor = user_fixture() |> assign_role("instructor")
       student = user_fixture() |> assign_role("student")
       aircraft = aircraft_fixture()
@@ -355,7 +366,7 @@ defmodule Flight.SchedulingTest do
       now = NaiveDateTime.utc_now() |> Timex.shift(hours: -4)
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 1),
           end_at: Timex.shift(now, hours: 3),
           instructor_user_id: instructor.id,
@@ -367,7 +378,7 @@ defmodule Flight.SchedulingTest do
       other_student = user_fixture() |> assign_role("student")
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 2),
           end_at: Timex.shift(now, hours: 4),
           instructor_user_id: other_instructor.id,
@@ -378,7 +389,7 @@ defmodule Flight.SchedulingTest do
       assert Enum.count(errors_on(changeset).aircraft) == 1
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 0),
           end_at: Timex.shift(now, hours: 2),
           instructor_user_id: other_instructor.id,
@@ -389,11 +400,11 @@ defmodule Flight.SchedulingTest do
       assert Enum.count(errors_on(changeset).aircraft) == 1
     end
 
-    test "create_appointment/1 fails if end_at is not greater than start_at" do
+    test "insert_or_update_appointment/1 fails if end_at is not greater than start_at" do
       now = NaiveDateTime.utc_now()
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 1),
           end_at: Timex.shift(now, hours: -1),
           user_id: student_fixture().id
@@ -402,7 +413,7 @@ defmodule Flight.SchedulingTest do
       assert Enum.count(errors_on(changeset).end_at) == 1
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: now,
           end_at: now,
           user_id: student_fixture().id
@@ -411,11 +422,11 @@ defmodule Flight.SchedulingTest do
       assert Enum.count(errors_on(changeset).end_at) == 1
     end
 
-    test "create_appointment/1 fails if neither instructor nor aircraft is selected" do
+    test "insert_or_update_appointment/1 fails if neither instructor nor aircraft is selected" do
       now = NaiveDateTime.utc_now()
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 2),
           end_at: Timex.shift(now, hours: 4),
           user_id: student_fixture().id
@@ -424,13 +435,13 @@ defmodule Flight.SchedulingTest do
       assert Enum.count(errors_on(changeset).aircraft) == 1
     end
 
-    test "create_appointment/1 fails if user is not renter/student/instructor" do
+    test "insert_or_update_appointment/1 fails if user is not renter/student/instructor" do
       admin = user_fixture() |> assign_role("admin")
 
       now = NaiveDateTime.utc_now()
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 2),
           end_at: Timex.shift(now, hours: 4),
           user_id: admin.id,
@@ -441,7 +452,7 @@ defmodule Flight.SchedulingTest do
 
       for role <- ["renter", "student"] do
         {:ok, _} =
-          Scheduling.create_appointment(%{
+          create_appointment(%{
             start_at: Timex.shift(now, hours: 2),
             end_at: Timex.shift(now, hours: 4),
             user_id: (user_fixture() |> assign_role(role)).id,
@@ -450,11 +461,11 @@ defmodule Flight.SchedulingTest do
       end
     end
 
-    test "create_appointment/1 fails if instructor user does not have instructor role" do
+    test "insert_or_update_appointment/1 fails if instructor user does not have instructor role" do
       now = NaiveDateTime.utc_now()
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 2),
           end_at: Timex.shift(now, hours: 4),
           user_id: student_fixture().id,
@@ -465,7 +476,7 @@ defmodule Flight.SchedulingTest do
       assert Enum.count(errors_on(changeset).instructor) == 1
     end
 
-    test "create_appointment/1 fails if instructor and user are same user" do
+    test "insert_or_update_appointment/1 fails if instructor and user are same user" do
       now = NaiveDateTime.utc_now()
 
       user =
@@ -473,7 +484,7 @@ defmodule Flight.SchedulingTest do
         |> assign_roles(["instructor", "student"])
 
       {:error, changeset} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(now, hours: 2),
           end_at: Timex.shift(now, hours: 4),
           user_id: user.id,

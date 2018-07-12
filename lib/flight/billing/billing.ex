@@ -4,6 +4,7 @@ defmodule Flight.Billing do
   import Pipe
 
   alias Flight.Billing
+  alias Flight.SchoolScope
 
   alias Flight.Billing.{
     Transaction,
@@ -71,10 +72,11 @@ defmodule Flight.Billing do
     end
   end
 
-  def rate_type_for_form(%DetailedTransactionForm{} = form) do
-    {%{total: blockTotal}, _, _, _, _} = DetailedTransactionForm.to_transaction(form, :block)
+  def rate_type_for_form(%DetailedTransactionForm{} = form, school_context) do
+    {%{total: blockTotal}, _, _, _, _} =
+      DetailedTransactionForm.to_transaction(form, :block, school_context)
 
-    user = Flight.Accounts.get_user(form.user_id)
+    user = Flight.Accounts.get_user(form.user_id, school_context)
 
     if user.balance >= blockTotal do
       :block
@@ -83,18 +85,30 @@ defmodule Flight.Billing do
     end
   end
 
-  def create_transaction_from_detailed_form(form) do
-    rate_type = rate_type_for_form(form)
+  def create_transaction_from_detailed_form(form, school_context) do
+    rate_type = rate_type_for_form(form, school_context)
 
     {transaction, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details} =
-      DetailedTransactionForm.to_transaction(form, rate_type)
+      DetailedTransactionForm.to_transaction(form, rate_type, school_context)
 
     result =
       Repo.transaction(fn ->
-        {:ok, transaction} = Repo.insert(Transaction.changeset(transaction, %{}))
+        {:ok, transaction} =
+          transaction
+          |> SchoolScope.school_changeset(school_context)
+          |> Transaction.changeset(%{})
+          |> Repo.insert()
 
         if form.appointment_id do
-          appointment = Repo.get!(Flight.Scheduling.Appointment, form.appointment_id)
+          appointment = Flight.Scheduling.get_appointment(form.appointment_id, school_context)
+
+          if !appointment do
+            Repo.rollback("Appointment does not exist")
+          end
+
+          if appointment.transaction_id do
+            Repo.rollback("Appointment already has associated transaction")
+          end
 
           {:ok, _} =
             appointment
@@ -133,6 +147,7 @@ defmodule Flight.Billing do
             from(
               a in Flight.Scheduling.Aircraft,
               where: a.id == ^aircraft_details.aircraft_id,
+              where: a.school_id == ^Flight.SchoolScope.school_id(school_context),
               lock: "FOR UPDATE"
             )
             |> Repo.one()
@@ -165,13 +180,14 @@ defmodule Flight.Billing do
     end
   end
 
-  def create_transaction_from_custom_form(form) do
-    {transaction, line_item} = CustomTransactionForm.to_transaction(form)
+  def create_transaction_from_custom_form(form, school_context) do
+    {transaction, line_item} = CustomTransactionForm.to_transaction(form, school_context)
 
     result =
       Repo.transaction(fn ->
         {:ok, transaction} =
           transaction
+          |> SchoolScope.school_changeset(school_context)
           |> Transaction.changeset(%{})
           |> Repo.insert()
 
@@ -205,15 +221,19 @@ defmodule Flight.Billing do
     end
   end
 
-  def get_transaction(id) do
-    Repo.get(Transaction, id)
+  def get_transaction(id, school_context) do
+    Transaction
+    |> SchoolScope.scope_query(school_context)
+    |> where([t], t.id == ^id)
+    |> Repo.one()
   end
 
-  def get_filtered_transactions(params) do
+  def get_filtered_transactions(params, school_context) do
     params = Map.take(params, ["user_id", "creator_user_id", "state"])
 
     query =
       from(t in Transaction)
+      |> SchoolScope.scope_query(school_context)
       |> where([t], t.state != "canceled")
       |> pass_unless(params["state"], &where(&1, [t], t.state == ^params["state"]))
       |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
@@ -246,13 +266,15 @@ defmodule Flight.Billing do
     {:error, :invalid}
   end
 
-  def add_funds_by_charge(user, creator_user, amount, source) when is_integer(amount) do
+  def add_funds_by_charge(user, creator_user, amount, source)
+      when is_integer(amount) do
     result = create_stripe_charge(source, user.stripe_customer_id, user.email, amount)
 
     case result do
       {:ok, charge} ->
         transaction =
           %Transaction{}
+          |> SchoolScope.school_changeset(user)
           |> Transaction.changeset(%{
             user_id: user.id,
             creator_user_id: creator_user.id,
@@ -290,6 +312,7 @@ defmodule Flight.Billing do
       Repo.transaction(fn ->
         transaction =
           %Transaction{}
+          |> SchoolScope.school_changeset(user)
           |> Transaction.changeset(%{
             user_id: user.id,
             creator_user_id: creator_user.id,
@@ -322,6 +345,7 @@ defmodule Flight.Billing do
   def add_funds_by_credit(user, creator_user, amount) when is_integer(amount) do
     transaction =
       %Transaction{}
+      |> SchoolScope.school_changeset(user)
       |> Transaction.changeset(%{
         user_id: user.id,
         creator_user_id: creator_user.id,

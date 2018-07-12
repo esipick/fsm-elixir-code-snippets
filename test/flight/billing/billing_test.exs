@@ -31,7 +31,9 @@ defmodule Flight.BillingTest do
           }
       }
 
-      assert {:ok, transaction} = Billing.create_transaction_from_detailed_form(form)
+      assert {:ok, transaction} = Billing.create_transaction_from_detailed_form(form, instructor)
+
+      assert transaction.school_id == instructor.school_id
 
       assert aircraft_line_item =
                Flight.Repo.get_by(
@@ -84,7 +86,9 @@ defmodule Flight.BillingTest do
           instructor
         )
 
-      assert {:ok, transaction} = Billing.create_transaction_from_custom_form(form)
+      assert {:ok, transaction} = Billing.create_transaction_from_custom_form(form, student)
+
+      assert transaction.school_id == student.school_id
 
       assert line_item =
                Flight.Repo.get_by(
@@ -108,7 +112,7 @@ defmodule Flight.BillingTest do
 
       form = custom_transaction_form_fixture(%{source: card.id}, student, student)
 
-      assert {:ok, transaction} = Billing.create_transaction_from_custom_form(form)
+      assert {:ok, transaction} = Billing.create_transaction_from_custom_form(form, student)
 
       assert transaction.state == "completed"
       assert transaction.completed_at
@@ -187,7 +191,7 @@ defmodule Flight.BillingTest do
         detailed_transaction_form_fixture(student, student)
         |> Map.put(:total, 30100)
 
-      assert Billing.rate_type_for_form(form) == :normal
+      assert Billing.rate_type_for_form(form, student) == :normal
     end
 
     test "block rate if user can afford the block rate" do
@@ -195,7 +199,7 @@ defmodule Flight.BillingTest do
 
       form = detailed_transaction_form_fixture(student, student)
 
-      assert Billing.rate_type_for_form(form) == :block
+      assert Billing.rate_type_for_form(form, student) == :block
     end
   end
 
@@ -242,6 +246,8 @@ defmodule Flight.BillingTest do
 
       assert {:ok, {user, transaction}} = Billing.add_funds_by_charge(user, user, 3000, card.id)
 
+      assert transaction.school_id == user.school_id
+
       assert Enum.count(transaction.line_items) == 1
 
       line_item = List.first(transaction.line_items)
@@ -280,7 +286,7 @@ defmodule Flight.BillingTest do
       transaction1 = transaction_fixture(%{state: "pending"})
       _ = transaction_fixture(%{state: "canceled"})
 
-      transactions = Billing.get_filtered_transactions(%{})
+      transactions = Billing.get_filtered_transactions(%{}, default_school_fixture())
       assert Enum.count(transactions) == 1
       assert List.first(transactions).id == transaction1.id
     end
@@ -292,6 +298,8 @@ defmodule Flight.BillingTest do
       admin = admin_fixture()
 
       assert {:ok, {user, transaction}} = Billing.add_funds_by_credit(user, admin, 3000)
+
+      assert transaction.school_id == user.school_id
 
       assert Enum.count(transaction.line_items) == 1
 

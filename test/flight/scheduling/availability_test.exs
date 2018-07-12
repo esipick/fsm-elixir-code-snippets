@@ -6,6 +6,14 @@ defmodule Flight.Scheduling.AvailabilityTest do
   alias Flight.Scheduling
   alias Flight.Scheduling.{Availability}
 
+  def create_appointment(data) do
+    Scheduling.insert_or_update_appointment(
+      %Scheduling.Appointment{},
+      data,
+      default_school_fixture()
+    )
+  end
+
   describe "instructor_availability" do
     test "returns status of all instructors" do
       date = ~N[2018-03-03 16:00:00]
@@ -17,7 +25,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
       unavailable_instructor = user_fixture() |> assign_role("instructor")
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
@@ -26,7 +34,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
 
       # unset instructor_user_id during same time period, to make sure nil doesn't screw things up
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
@@ -36,7 +44,9 @@ defmodule Flight.Scheduling.AvailabilityTest do
       available =
         Availability.instructor_availability(
           Timex.shift(date, hours: 1),
-          Timex.shift(date, hours: 3)
+          Timex.shift(date, hours: 3),
+          [],
+          available_instructor
         )
 
       assert Enum.find(available, &(&1.user.id == available_instructor.id)).status == :available
@@ -59,7 +69,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
       unavailable_student = user_fixture() |> assign_role("student")
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: unavailable_student.id,
@@ -69,7 +79,9 @@ defmodule Flight.Scheduling.AvailabilityTest do
       available =
         Availability.student_availability(
           Timex.shift(date, hours: 1),
-          Timex.shift(date, hours: 3)
+          Timex.shift(date, hours: 3),
+          [],
+          available_student
         )
 
       assert Enum.find(available, &(&1.user.id == available_student.id)).status == :available
@@ -95,7 +107,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
       unavailable_aircraft6 = aircraft_fixture()
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(date, hours: 5),
           end_at: Timex.shift(date, hours: 6),
           user_id: student_fixture().id,
@@ -103,7 +115,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
         })
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(date, hours: -1),
           end_at: Timex.shift(date, hours: 1),
           user_id: student_fixture().id,
@@ -111,7 +123,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
         })
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
@@ -119,7 +131,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
         })
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(date, hours: -1),
           end_at: Timex.shift(date, hours: 6),
           user_id: student_fixture().id,
@@ -127,7 +139,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
         })
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(date, hours: 2),
           end_at: Timex.shift(date, hours: 3),
           user_id: student_fixture().id,
@@ -135,7 +147,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
         })
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(date, hours: 3),
           end_at: Timex.shift(date, hours: 7),
           user_id: student_fixture().id,
@@ -143,7 +155,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
         })
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(date, hours: 2),
           end_at: Timex.shift(date, hours: 5),
           user_id: student_fixture().id,
@@ -151,7 +163,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
         })
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: Timex.shift(date, hours: 1),
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
@@ -160,7 +172,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
 
       # unset aircraft_id during same time period, to make sure nil doesn't screw things up
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
@@ -170,7 +182,9 @@ defmodule Flight.Scheduling.AvailabilityTest do
       available =
         Availability.aircraft_availability(
           Timex.shift(date, hours: 1),
-          Timex.shift(date, hours: 5)
+          Timex.shift(date, hours: 5),
+          [],
+          available_aircraft
         )
 
       assert Enum.find(available, &(&1.aircraft.id == available_aircraft.id)).status == :available
@@ -208,7 +222,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
       user = user_fixture() |> assign_role("instructor")
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
@@ -219,17 +233,20 @@ defmodule Flight.Scheduling.AvailabilityTest do
                permission_slug(:appointment_instructor, :modify, :personal),
                user.id,
                Timex.shift(date, hours: 4),
-               Timex.shift(date, hours: 6)
+               Timex.shift(date, hours: 6),
+               [],
+               user
              ) == :available
     end
 
+    @tag :wip
     test "returns unavailable" do
       date = ~N[2018-03-03 16:00:00]
 
       user = user_fixture() |> assign_role("instructor")
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
@@ -240,7 +257,9 @@ defmodule Flight.Scheduling.AvailabilityTest do
                permission_slug(:appointment_instructor, :modify, :personal),
                user.id,
                Timex.shift(date, hours: 1),
-               Timex.shift(date, hours: 3)
+               Timex.shift(date, hours: 3),
+               [],
+               user
              ) == :unavailable
     end
 
@@ -253,7 +272,9 @@ defmodule Flight.Scheduling.AvailabilityTest do
                permission_slug(:appointment_instructor, :modify, :personal),
                user.id,
                Timex.shift(date, hours: 4),
-               Timex.shift(date, hours: 6)
+               Timex.shift(date, hours: 6),
+               [],
+               user
              ) == :invalid
     end
   end
@@ -265,7 +286,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
       aircraft = aircraft_fixture()
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
@@ -275,7 +296,9 @@ defmodule Flight.Scheduling.AvailabilityTest do
       assert Availability.aircraft_status(
                aircraft.id,
                Timex.shift(date, hours: 4),
-               Timex.shift(date, hours: 6)
+               Timex.shift(date, hours: 6),
+               [],
+               aircraft
              ) == :available
     end
 
@@ -285,7 +308,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
       aircraft = aircraft_fixture()
 
       {:ok, _} =
-        Scheduling.create_appointment(%{
+        create_appointment(%{
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
@@ -295,7 +318,9 @@ defmodule Flight.Scheduling.AvailabilityTest do
       assert Availability.aircraft_status(
                aircraft.id,
                Timex.shift(date, hours: 1),
-               Timex.shift(date, hours: 3)
+               Timex.shift(date, hours: 3),
+               [],
+               aircraft
              ) == :unavailable
     end
 
@@ -307,7 +332,9 @@ defmodule Flight.Scheduling.AvailabilityTest do
       assert Availability.aircraft_status(
                aircraft.id + 1,
                Timex.shift(date, hours: 4),
-               Timex.shift(date, hours: 6)
+               Timex.shift(date, hours: 6),
+               [],
+               aircraft
              ) == :invalid
     end
   end

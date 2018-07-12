@@ -10,27 +10,30 @@ defmodule Flight.Scheduling.Availability do
   alias Flight.Accounts.{Role}
   alias Flight.Scheduling.{Aircraft, Appointment, AvailabilityUser, AvailabilityAircraft}
   alias Flight.Repo
+  alias Flight.SchoolScope
 
   require Ecto.Query
   import Ecto.Query
   import Flight.Auth.Authorization
   import Flight.Auth.Permission, only: [permission_slug: 3]
 
-  def instructor_availability(start_at, end_at, excluded_appointment_ids \\ []) do
+  def instructor_availability(start_at, end_at, excluded_appointment_ids, school_context) do
     users_with_permission_availability(
       permission_slug(:appointment_instructor, :modify, :personal),
       start_at,
       end_at,
-      excluded_appointment_ids
+      excluded_appointment_ids,
+      school_context
     )
   end
 
-  def student_availability(start_at, end_at, excluded_appointment_ids \\ []) do
+  def student_availability(start_at, end_at, excluded_appointment_ids, school_context) do
     users_with_permission_availability(
       permission_slug(:appointment_user, :modify, :personal),
       start_at,
       end_at,
-      excluded_appointment_ids
+      excluded_appointment_ids,
+      school_context
     )
   end
 
@@ -39,14 +42,16 @@ defmodule Flight.Scheduling.Availability do
         id,
         start_at,
         end_at,
-        excluded_appointment_ids \\ []
+        excluded_appointment_ids,
+        school_context
       ) do
     user_statuses =
       users_with_permission_availability(
         permission_slug,
         start_at,
         end_at,
-        excluded_appointment_ids
+        excluded_appointment_ids,
+        school_context
       )
 
     user_status = Enum.find(user_statuses, &(&1.user.id == id))
@@ -62,15 +67,17 @@ defmodule Flight.Scheduling.Availability do
         permission_slug,
         start_at,
         end_at,
-        excluded_appointment_ids \\ []
+        excluded_appointment_ids,
+        school_context
       ) do
     role_slugs = role_slugs_for_permission_slug(permission_slug)
     roles = from(r in Role, where: r.slug in ^role_slugs) |> Repo.all()
 
-    visible_users = Flight.Accounts.users_with_roles(roles)
+    visible_users = Flight.Accounts.users_with_roles(roles, school_context)
 
     unavailable_user_ids =
       Appointment
+      |> SchoolScope.scope_query(school_context)
       |> select_for_permission_slug(permission_slug)
       |> exclude_appointment_query(excluded_appointment_ids)
       |> appointment_overlap_query(start_at, end_at)
@@ -104,8 +111,9 @@ defmodule Flight.Scheduling.Availability do
     end
   end
 
-  def aircraft_status(id, start_at, end_at, excluded_appointment_ids \\ []) do
-    aircraft_statuses = aircraft_availability(start_at, end_at, excluded_appointment_ids)
+  def aircraft_status(id, start_at, end_at, excluded_appointment_ids, school_context) do
+    aircraft_statuses =
+      aircraft_availability(start_at, end_at, excluded_appointment_ids, school_context)
 
     aircraft_status = Enum.find(aircraft_statuses, &(&1.aircraft.id == id))
 
@@ -116,15 +124,17 @@ defmodule Flight.Scheduling.Availability do
     end
   end
 
-  def aircraft_availability(start_at, end_at, excluded_appointment_ids \\ []) do
+  def aircraft_availability(start_at, end_at, excluded_appointment_ids, school_context) do
     visible_aircrafts =
       Aircraft
+      |> SchoolScope.scope_query(school_context)
       |> visible_aircraft_query()
       |> Repo.all()
       |> FlightWeb.API.AircraftView.preload()
 
     unavailable_aircraft_ids =
       Appointment
+      |> SchoolScope.scope_query(school_context)
       |> select([a], a.aircraft_id)
       |> appointment_overlap_query(start_at, end_at)
       |> exclude_appointment_query(excluded_appointment_ids)

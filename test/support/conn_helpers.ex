@@ -17,8 +17,7 @@ defmodule Flight.ConnCaseHelpers do
     |> Plug.Conn.put_session(:user_id, user.id)
   end
 
-  def web_auth_admin(conn) do
-    user = Flight.AccountsFixtures.user_fixture() |> Flight.AccountsFixtures.assign_role("admin")
+  def web_auth_admin(conn, user \\ Flight.AccountsFixtures.admin_fixture()) do
     web_auth(conn, user)
   end
 

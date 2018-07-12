@@ -18,10 +18,11 @@ defmodule Flight.Accounts.User do
     field(:medical_rating, :integer, default: 0)
     field(:medical_expires_at, Flight.Date)
     field(:certificate_number, :string)
-    field(:billing_rate, Flight.DollarCents, default: 75)
-    field(:pay_rate, Flight.DollarCents, default: 50)
+    field(:billing_rate, Flight.DollarCents, default: 7500)
+    field(:pay_rate, Flight.DollarCents, default: 5000)
     field(:awards, :string)
     field(:stripe_customer_id, :string)
+    belongs_to(:school, Flight.Accounts.School)
     many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
 
     many_to_many(
@@ -42,10 +43,16 @@ defmodule Flight.Accounts.User do
       :first_name,
       :last_name,
       :password,
-      :phone_number,
-      :stripe_customer_id
+      :phone_number
     ])
-    |> validate_required([:email, :first_name, :last_name, :phone_number, :password])
+    |> validate_required([
+      :email,
+      :first_name,
+      :last_name,
+      :phone_number,
+      :password,
+      :school_id
+    ])
     |> unique_constraint(:email)
     |> base_validations()
     |> validate_password(:password)
@@ -63,7 +70,15 @@ defmodule Flight.Accounts.User do
       :balance,
       :stripe_customer_id
     ])
-    |> validate_required([:email, :first_name, :last_name, :phone_number, :password, :balance])
+    |> validate_required([
+      :email,
+      :first_name,
+      :last_name,
+      :phone_number,
+      :password,
+      :balance,
+      :school_id
+    ])
     |> unique_constraint(:email)
     |> base_validations()
     |> validate_password(:password)

@@ -6,6 +6,7 @@ defmodule Flight.Curriculum.ObjectiveNote do
     field(:note, :string)
     belongs_to(:user, Flight.Accounts.User)
     belongs_to(:objective, Flight.Curriculum.Objective)
+    belongs_to(:school, Flight.Accounts.School)
 
     timestamps()
   end
@@ -14,6 +15,6 @@ defmodule Flight.Curriculum.ObjectiveNote do
   def changeset(objective_note, attrs) do
     objective_note
     |> cast(attrs, [:note, :user_id, :objective_id])
-    |> validate_required([:note, :user_id, :objective_id])
+    |> validate_required([:note, :user_id, :objective_id, :school_id])
   end
 end

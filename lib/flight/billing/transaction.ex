@@ -10,6 +10,7 @@ defmodule Flight.Billing.Transaction do
     field(:total, :integer)
     field(:type, :string)
     field(:completed_at, :naive_datetime)
+    belongs_to(:school, Flight.Accounts.School)
     belongs_to(:user, Flight.Accounts.User)
     belongs_to(:creator_user, Flight.Accounts.User)
     has_many(:line_items, Flight.Billing.TransactionLineItem)
@@ -37,6 +38,7 @@ defmodule Flight.Billing.Transaction do
       :state,
       :type,
       :user_id,
+      :school_id,
       :creator_user_id
     ])
     |> validate_inclusion(:state, ["pending", "completed", "canceled"])

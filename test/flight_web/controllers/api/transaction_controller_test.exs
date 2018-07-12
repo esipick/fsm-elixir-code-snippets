@@ -264,7 +264,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
         |> post("/api/transactions", params)
         |> json_response(201)
 
-      transaction = Flight.Billing.get_transaction(json["data"]["id"])
+      transaction = Flight.Billing.get_transaction(json["data"]["id"], user)
 
       assert json ==
                render_json(
@@ -298,7 +298,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
 
       {transaction, instructor_line_item, _, aircraft_line_item, _} =
         detailed_transaction_form_fixture(student, instructor, appointment, aircraft, instructor)
-        |> FlightWeb.API.DetailedTransactionForm.to_transaction()
+        |> FlightWeb.API.DetailedTransactionForm.to_transaction(:normal, student)
 
       assert json ==
                render_json(
@@ -324,7 +324,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
 
       {transaction, instructor_line_item, _, nil, _} =
         detailed_transaction_form_fixture(student, instructor, nil, nil, instructor)
-        |> FlightWeb.API.DetailedTransactionForm.to_transaction()
+        |> FlightWeb.API.DetailedTransactionForm.to_transaction(:normal, student)
 
       assert json ==
                render_json(
