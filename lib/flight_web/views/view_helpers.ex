@@ -50,7 +50,7 @@ defmodule FlightWeb.ViewHelpers do
   end
 
   def currency(amount) do
-    CurrencyFormatter.format(amount, "USD")
+    CurrencyFormatter.format(amount, "USD", keep_decimals: true)
   end
 
   def display_date(date, :short) do

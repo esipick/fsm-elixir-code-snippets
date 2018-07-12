@@ -61,7 +61,7 @@ defmodule FlightWeb.Admin.UserController do
       conn
       |> put_flash(
         :success,
-        "Successfully added #{CurrencyFormatter.format(cent_amount, "USD")} to #{user.first_name}'s balance."
+        "Successfully added #{FlightWeb.ViewHelpers.currency(cent_amount)} to #{user.first_name}'s balance."
       )
       |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")
     else
