@@ -21,6 +21,10 @@ defmodule FlightWeb.Router do
     plug(FlightWeb.AuthenticateWebUser, roles: ["admin"])
   end
 
+  pipeline :admin_metrics_namespace do
+    Appsignal.Transaction.set_namespace("admin")
+  end
+
   pipeline :api_authenticate do
     plug(FlightWeb.AuthenticateApiUser)
   end
@@ -45,18 +49,14 @@ defmodule FlightWeb.Router do
 
   # Unauthenticated admin pages
   scope "/admin", FlightWeb.Admin do
-    pipe_through([:browser, :no_layout])
-
-    Appsignal.Transaction.set_namespace("admin")
+    pipe_through([:browser, :no_layout, :admin_metrics_namespace])
 
     get("/login", SessionController, :login)
     post("/login", SessionController, :login_submit)
   end
 
   scope "/admin", FlightWeb.Admin do
-    pipe_through([:browser, :admin_layout, :admin_authenticate])
-
-    Appsignal.Transaction.set_namespace("admin")
+    pipe_through([:browser, :admin_layout, :admin_authenticate, :admin_metrics_namespace])
 
     get("/dashboard", PageController, :dashboard)
 
