@@ -121,7 +121,7 @@ defmodule FlightWeb.API.TransactionController do
     render(conn, "index.json", transactions: transactions)
   end
 
-  def show(conn, params) do
+  def show(conn, _params) do
     transaction =
       conn.assigns.transaction
       |> TransactionView.preload()
@@ -194,7 +194,7 @@ defmodule FlightWeb.API.TransactionController do
   def authorize_view(conn, _) do
     permissions =
       case conn.params do
-        %{"id" => id} ->
+        %{"id" => _id} ->
           [
             Permission.new(:transaction, :view, {:personal, conn.assigns.transaction.user_id}),
             Permission.new(
