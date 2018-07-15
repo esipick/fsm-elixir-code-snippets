@@ -27,6 +27,8 @@ defmodule Flight.Accounts.AccountsTest do
 
     @tag :integration
     test "create_user/1 with valid data creates a user" do
+      school = school_fixture() |> real_stripe_account()
+
       assert {:ok, %User{} = user} =
                Accounts.create_user(
                  %{
@@ -37,7 +39,7 @@ defmodule Flight.Accounts.AccountsTest do
                    phone_number: "801-555-5555",
                    password: "password"
                  },
-                 school_fixture()
+                 school
                )
 
       assert user.balance == 0
@@ -323,7 +325,9 @@ defmodule Flight.Accounts.AccountsTest do
 
     @tag :integration
     test "create_user_from_invitation/3 creates user" do
-      invitation = invitation_fixture()
+      school = school_fixture() |> real_stripe_account()
+
+      invitation = invitation_fixture(%{}, role_fixture(), school)
 
       {:ok, user} =
         Accounts.create_user_from_invitation(
@@ -341,6 +345,27 @@ defmodule Flight.Accounts.AccountsTest do
 
       assert Enum.find(user.roles, &(&1.id == invitation.role.id))
       assert user.school_id == invitation.school.id
+    end
+  end
+
+  describe "schools" do
+    @tag :integration
+    test "create_school/2 creates school with stripe account" do
+      assert {:ok, school} =
+               Accounts.create_school(%{
+                 name: "Dave's Flight School",
+                 contact_email: "#{Flight.Random.hex(52)}@mailinator.com"
+               })
+
+      assert school.name == "Dave's Flight School"
+
+      assert stripe_account =
+               Flight.Repo.get_by(Flight.Accounts.StripeAccount, school_id: school.id)
+
+      assert stripe_account.stripe_account_id
+      assert stripe_account.charges_enabled
+      refute stripe_account.payouts_enabled
+      refute stripe_account.details_submitted
     end
   end
 end

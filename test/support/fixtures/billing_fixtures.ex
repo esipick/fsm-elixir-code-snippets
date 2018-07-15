@@ -124,13 +124,68 @@ defmodule Flight.BillingFixtures do
   end
 
   def real_stripe_customer(user) do
-    {:ok, customer} = Flight.Billing.create_stripe_customer(user.email)
+    user = Repo.preload(user, school: :stripe_account)
+
+    school =
+      if !user.school.stripe_account do
+        real_stripe_account(user.school)
+      else
+        user.school
+      end
+
+    {:ok, customer} = Flight.Billing.create_stripe_customer(user.email, school)
 
     user =
       user
       |> Flight.Accounts.User.stripe_customer_changeset(%{stripe_customer_id: customer.id})
       |> Flight.Repo.update!()
 
-    {user, Flight.Billing.create_card(user, "tok_visa") |> elem(1)}
+    {%{user | school: school}, Flight.Billing.create_card(user, "tok_visa", school) |> elem(1)}
+  end
+
+  def real_stripe_account(school) do
+    {:ok, account} = Flight.Billing.create_deferred_stripe_account(school.contact_email)
+
+    school_account =
+      Flight.Accounts.StripeAccount.new(account)
+      |> Flight.Accounts.StripeAccount.changeset(%{school_id: school.id})
+      |> Flight.Repo.insert!()
+
+    %Flight.Accounts.School{school | stripe_account: school_account}
+  end
+
+  def stripe_account_fixture() do
+    {:ok,
+     %Stripe.Account{
+       business_logo: nil,
+       business_name: nil,
+       business_url: nil,
+       charges_enabled: true,
+       country: "US",
+       created: nil,
+       debit_negative_balances: nil,
+       decline_charge_on: nil,
+       default_currency: "usd",
+       details_submitted: false,
+       display_name: nil,
+       email: "fsm_local@mailinator.com",
+       external_accounts: nil,
+       id: "acct_blah",
+       legal_entity: nil,
+       metadata: %{},
+       object: "account",
+       payout_schedule: nil,
+       payout_statement_descriptor: nil,
+       payouts_enabled: false,
+       product_description: nil,
+       statement_descriptor: "",
+       support_email: nil,
+       support_phone: nil,
+       timezone: "Etc/UTC",
+       tos_acceptance: nil,
+       transfers_enabled: nil,
+       type: "standard",
+       verification: nil
+     }}
   end
 end

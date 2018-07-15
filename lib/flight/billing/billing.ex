@@ -267,8 +267,8 @@ defmodule Flight.Billing do
   end
 
   def add_funds_by_charge(user, creator_user, amount, source)
-      when is_integer(amount) do
-    result = create_stripe_charge(source, user.stripe_customer_id, user.email, amount)
+      when is_integer(amount) and amount > 0 do
+    result = create_stripe_charge(source, user.stripe_customer_id, user.email, amount, user)
 
     case result do
       {:ok, charge} ->
@@ -307,7 +307,7 @@ defmodule Flight.Billing do
     end
   end
 
-  def add_funds_by_credit(user, creator_user, amount) when is_integer(amount) do
+  def add_funds_by_credit(user, creator_user, amount) when is_integer(amount) and amount > 0 do
     {:ok, result} =
       Repo.transaction(fn ->
         transaction =
@@ -464,7 +464,7 @@ defmodule Flight.Billing do
 
         new_balance = user.balance + amount
 
-        if new_balance > 0 do
+        if new_balance >= 0 do
           user
           |> User.balance_changeset(%{balance: new_balance})
           |> Repo.update()
@@ -488,12 +488,43 @@ defmodule Flight.Billing do
     end
   end
 
-  def create_stripe_customer(email) do
-    Stripe.Customer.create(%{email: email})
+  def create_stripe_customer(email, school_context) do
+    stripe_account =
+      Repo.get_by(
+        Flight.Accounts.StripeAccount,
+        school_id: SchoolScope.school_id(school_context)
+      )
+
+    if stripe_account do
+      Stripe.Customer.create(%{email: email}, connect_account: stripe_account.stripe_account_id)
+    else
+      {:error, :no_stripe_account}
+    end
   end
 
-  def create_card(user, token) do
-    Stripe.Card.create(%{customer: user.stripe_customer_id, source: token})
+  def create_card(user, token, school_context) when is_binary(token) do
+    stripe_account =
+      Repo.get_by(
+        Flight.Accounts.StripeAccount,
+        school_id: SchoolScope.school_id(school_context)
+      )
+
+    if stripe_account do
+      Stripe.Card.create(
+        %{customer: user.stripe_customer_id, source: token},
+        connect_account: stripe_account.stripe_account_id
+      )
+    else
+      {:error, :no_stripe_account}
+    end
+  end
+
+  def create_deferred_stripe_account(email) do
+    Stripe.Account.create(%{
+      country: "US",
+      type: "standard",
+      email: email
+    })
   end
 
   def create_stripe_charge(source_id, transaction) do
@@ -503,7 +534,8 @@ defmodule Flight.Billing do
           source_id,
           transaction.user.stripe_customer_id,
           transaction.user.email,
-          transaction.total
+          transaction.total,
+          transaction
         )
 
       _ ->
@@ -511,19 +543,49 @@ defmodule Flight.Billing do
     end
   end
 
-  def create_stripe_charge(source_id, customer_id, email, total) do
-    Stripe.Charge.create(%{
-      source: source_id,
-      customer: customer_id,
-      currency: "usd",
-      receipt_email: email,
-      amount: total
-    })
+  def create_stripe_charge(source_id, customer_id, email, total, school_context) do
+    stripe_account =
+      Repo.get_by(
+        Flight.Accounts.StripeAccount,
+        school_id: SchoolScope.school_id(school_context)
+      )
+
+    cond do
+      !stripe_account ->
+        {:error, :no_stripe_account}
+
+      !stripe_account.charges_enabled ->
+        {:error, :charges_disabled}
+
+      true ->
+        Stripe.Charge.create(
+          %{
+            source: source_id,
+            customer: customer_id,
+            currency: "usd",
+            receipt_email: email,
+            amount: total
+          },
+          connect_account: stripe_account.stripe_account_id
+        )
+    end
   end
 
-  def create_ephemeral_key(customer_id, api_version) do
-    Stripe.EphemeralKey.create(%{customer: customer_id}, api_version)
-    # Stripy.req(:post, "ephemeral_keys", %{customer: customer_id, stripe_version: api_version})
-    # |> Stripy.parse()
+  def create_ephemeral_key(customer_id, api_version, school_context) do
+    stripe_account =
+      Repo.get_by(
+        Flight.Accounts.StripeAccount,
+        school_id: SchoolScope.school_id(school_context)
+      )
+
+    if stripe_account do
+      Stripe.EphemeralKey.create(
+        %{customer: customer_id},
+        api_version,
+        connect_account: stripe_account.stripe_account_id
+      )
+    else
+      {:error, :no_stripe_account}
+    end
   end
 end

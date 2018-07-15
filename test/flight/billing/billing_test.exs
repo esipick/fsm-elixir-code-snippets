@@ -348,4 +348,16 @@ defmodule Flight.BillingTest do
                Billing.cancel_transaction(transaction)
     end
   end
+
+  describe "create_ephemeral_key/3" do
+    @tag :integration
+    test "creates ephemeral key" do
+      school = school_fixture() |> real_stripe_account()
+
+      {:ok, customer} =
+        Billing.create_stripe_customer("#{Flight.Random.hex(51)}@mailinator.com", school)
+
+      assert {:ok, _} = Billing.create_ephemeral_key(customer.id, "2018-05-21", school)
+    end
+  end
 end

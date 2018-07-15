@@ -2,7 +2,16 @@ defmodule Flight.Accounts do
   import Ecto.Query, warn: false
   alias Flight.Repo
 
-  alias Flight.Accounts.{User, UserRole, Role, FlyerCertificate, Invitation}
+  alias Flight.Accounts.{
+    User,
+    UserRole,
+    Role,
+    FlyerCertificate,
+    Invitation,
+    School,
+    StripeAccount
+  }
+
   alias Flight.SchoolScope
 
   require Flight.Accounts.Role
@@ -62,7 +71,10 @@ defmodule Flight.Accounts do
       |> User.create_changeset(attrs)
 
     if changeset.valid? do
-      case Flight.Billing.create_stripe_customer(Ecto.Changeset.get_field(changeset, :email)) do
+      case Flight.Billing.create_stripe_customer(
+             Ecto.Changeset.get_field(changeset, :email),
+             school_context
+           ) do
         {:ok, customer} ->
           changeset
           |> User.stripe_customer_changeset(%{stripe_customer_id: customer.id})
@@ -390,5 +402,39 @@ defmodule Flight.Accounts do
   def send_invitation_email(invitation) do
     Flight.Email.invitation_email(invitation)
     |> Flight.Mailer.deliver_later()
+  end
+
+  ###
+  # Schools
+  ###
+
+  def create_school(attrs) do
+    changeset =
+      %School{}
+      |> School.changeset(attrs)
+
+    if changeset.valid? do
+      case Flight.Billing.create_deferred_stripe_account(
+             Ecto.Changeset.get_field(changeset, :contact_email)
+           ) do
+        {:ok, account} ->
+          Repo.transaction(fn ->
+            {:ok, school} =
+              changeset
+              |> Repo.insert()
+
+            StripeAccount.new(account)
+            |> StripeAccount.changeset(%{school_id: school.id})
+            |> Repo.insert()
+
+            school
+          end)
+
+        error ->
+          error
+      end
+    else
+      {:error, changeset}
+    end
   end
 end

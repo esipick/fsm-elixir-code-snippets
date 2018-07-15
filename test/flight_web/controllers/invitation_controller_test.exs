@@ -28,8 +28,10 @@ defmodule FlightWeb.InvitationControllerTest do
   end
 
   describe "POST /invitations/:token" do
+    @tag :integration
     test "creates user", %{conn: conn} do
-      invitation = invitation_fixture(%{role_id: Accounts.Role.admin().id})
+      school = school_fixture() |> real_stripe_account()
+      invitation = invitation_fixture(%{}, Accounts.Role.admin(), school)
 
       assert !invitation.accepted_at
 

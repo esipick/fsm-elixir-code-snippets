@@ -4,7 +4,8 @@ defmodule Flight.AccountsFixtures do
 
   def school_fixture(attrs \\ %{}) do
     %School{
-      name: "some_school_name"
+      name: "some_school_name",
+      contact_email: "#{Flight.Random.hex(52)}@mailinator.com"
     }
     |> School.changeset(attrs)
     |> Repo.insert!()
@@ -80,20 +81,6 @@ defmodule Flight.AccountsFixtures do
 
     %{invitation | role: role, school: school}
   end
-
-  # def flyer_details_fixture(attrs \\ %{}, user \\ user_fixture()) do
-  #   {:ok, flyer_details} =
-  #     attrs
-  #     |> Enum.into(%{
-  #       address_1: "1234 Hi",
-  #       city: "Bigfork",
-  #       state: "MT",
-  #       faa_tracking_number: "ABC1234"
-  #     })
-  #     |> Accounts.set_flyer_details_for_user(user)
-  #
-  #   %{flyer_details | user: user}
-  # end
 
   def assign_role(user, role) do
     assign_roles(user, [role])

@@ -2,9 +2,10 @@ defmodule Flight.Accounts.School do
   use Ecto.Schema
   import Ecto.Changeset
 
-
   schema "schools" do
-    field :name, :string
+    field(:name, :string)
+    field(:contact_email, :string)
+    has_one(:stripe_account, Flight.Accounts.StripeAccount)
 
     timestamps()
   end
@@ -12,7 +13,7 @@ defmodule Flight.Accounts.School do
   @doc false
   def changeset(school, attrs) do
     school
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> cast(attrs, [:name, :contact_email])
+    |> validate_required([:name, :contact_email])
   end
 end
