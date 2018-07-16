@@ -660,6 +660,16 @@ fieldset[disabled] .fc button:hover {
 }
 
 
+/* Sweet Alert Modal plugin */
+.swal2-modal .swal2-content {
+  font-size: 16px;
+  font-weight: normal;
+}
+.swal2-modal .col-form-label {
+  color: #9a9a9a;
+  text-align: left;
+}
+
 
 
 
