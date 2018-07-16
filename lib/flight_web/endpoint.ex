@@ -30,6 +30,7 @@ defmodule FlightWeb.Endpoint do
     Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
+    body_reader: {Flight.WebhookPayloads, :read_body, []},
     json_decoder: Poison
   )
 

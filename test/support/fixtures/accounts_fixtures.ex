@@ -1,6 +1,6 @@
 defmodule Flight.AccountsFixtures do
   alias Flight.{Accounts, Repo}
-  alias Flight.Accounts.{User, School}
+  alias Flight.Accounts.{User, School, StripeAccount}
 
   def school_fixture(attrs \\ %{}) do
     %School{
@@ -9,6 +9,21 @@ defmodule Flight.AccountsFixtures do
     }
     |> School.changeset(attrs)
     |> Repo.insert!()
+  end
+
+  def stripe_account_fixture(attrs \\ %{}, school \\ school_fixture()) do
+    account =
+      %StripeAccount{
+        stripe_account_id: "acc_#{Flight.Random.hex(25)}",
+        details_submitted: false,
+        charges_enabled: false,
+        payouts_enabled: false,
+        school_id: school.id
+      }
+      |> StripeAccount.changeset(attrs)
+      |> Repo.insert!()
+
+    %{account | school: school}
   end
 
   def default_school_fixture() do

@@ -36,6 +36,7 @@ config :flight, Flight.Mailer,
   api_key: System.get_env("SENDGRID_API_KEY")
 
 config :stripity_stripe, api_key: Map.fetch!(System.get_env(), "STRIPE_SECRET_KEY")
+config :flight, stripe_webhook_secret: Map.fetch!(System.get_env(), "STRIPE_WEBHOOK_SECRET")
 
 config :stripity_stripe, :pool_options,
   timeout: 5_000,

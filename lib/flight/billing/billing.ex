@@ -13,7 +13,7 @@ defmodule Flight.Billing do
     InstructorLineItemDetail
   }
 
-  alias Flight.Accounts.{User}
+  alias Flight.Accounts.{User, StripeAccount}
   alias FlightWeb.API.{DetailedTransactionForm, CustomTransactionForm}
 
   def aircraft_cost!(%AircraftLineItemDetail{} = detail) do
@@ -474,6 +474,25 @@ defmodule Flight.Billing do
       end)
 
     result
+  end
+
+  def get_stripe_account_by_account_id(account_id) do
+    from(s in StripeAccount)
+    |> where([s], s.stripe_account_id == ^account_id)
+    |> Repo.one()
+  end
+
+  def update_stripe_account(
+        %StripeAccount{} = account,
+        %Stripe.Account{} = api_account
+      ) do
+    account
+    |> StripeAccount.changeset(%{
+      details_submitted: api_account.details_submitted,
+      payouts_enabled: api_account.payouts_enabled,
+      charges_enabled: api_account.charges_enabled
+    })
+    |> Flight.Repo.update()
   end
 
   ###

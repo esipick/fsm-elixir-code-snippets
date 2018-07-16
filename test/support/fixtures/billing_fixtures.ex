@@ -154,7 +154,7 @@ defmodule Flight.BillingFixtures do
     %Flight.Accounts.School{school | stripe_account: school_account}
   end
 
-  def stripe_account_fixture() do
+  def api_stripe_account_fixture() do
     {:ok,
      %Stripe.Account{
        business_logo: nil,

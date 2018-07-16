@@ -87,6 +87,9 @@ defmodule FlightWeb.Router do
   ###
   # API Routes
   ###
+  scope "/api", FlightWeb.API do
+    post("/stripe_events", StripeController, :stripe_events)
+  end
 
   scope "/api", FlightWeb.API do
     pipe_through(:api)

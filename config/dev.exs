@@ -27,6 +27,7 @@ config :flight, FlightWeb.Endpoint,
 #   httpoison: [recv_timeout: 5000, timeout: 8000]
 
 config :stripity_stripe, api_key: "sk_test_ZHmnpsn2AcEeUNMVWj5ueuZ7"
+config :flight, :stripe_webhook_secret, "whsec_GRniVd07D9yl84sImiK3ijoy1JE6gqwf"
 
 config :stripity_stripe, :pool_options,
   timeout: 5_000,
