@@ -10,6 +10,7 @@
       <div class="card card-calendar">
         <div class="card-body ">
           <div id="fullCalendar"></div>
+          <div id="calendar"></div>
         </div>
       </div>
     </div>
@@ -37,7 +38,7 @@
           },
           header: {
 						left: 'title',
-						center: 'month,agendaWeek,agendaDay',
+						center: 'month,agendaWeek,agendaDay,listWeek',
 						right: 'prev,next,today'
 					},
 					defaultDate: today,
@@ -153,6 +154,7 @@
     } 
     fsmCalendar();
     
-    
   });
+  
+  
 </script>
