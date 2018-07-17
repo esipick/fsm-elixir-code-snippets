@@ -7,8 +7,13 @@ defmodule FlightWeb.API.StripeController do
     secret = Application.get_env(:flight, :stripe_webhook_secret)
 
     case Stripe.Webhook.construct_event(payload, header, secret) do
-      {:ok, event} -> Flight.Billing.StripeEvents.process(event)
-      _ -> :nothing
+      {:ok, event} ->
+        if event.livemode == Application.get_env(:flight, :stripe_livemode, false) do
+          Flight.Billing.StripeEvents.process(event)
+        end
+
+      _ ->
+        :nothing
     end
 
     resp(conn, 200, "")

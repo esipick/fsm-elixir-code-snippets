@@ -23,5 +23,6 @@ defmodule Flight.Billing.StripeEvents do
   end
 
   def process(%Stripe.Event{}) do
+    :ok
   end
 end
