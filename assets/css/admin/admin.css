@@ -526,6 +526,152 @@ dl .disc.expired {background-color: #FF5572;}
 }
 
 
+/*Full Calendar custom css*/
+.fc button {
+  height: auto;
+  box-shadow: none;
+  color: #444;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  font-weight: 700;
+  background: #e7e7f0;
+  text-shadow: none;
+}
+.fc button.fc-state-active, .fc button.fc-state-hover {
+  background-color: #2CA8FF;
+  color: #fff;
+  transition: none;
+  background-image: -webkit-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);
+}
+.fc button.btn-primary.disabled, 
+.fc button.btn-primary.disabled.active, 
+.fc button.btn-primary.disabled.focus, 
+.fc button.btn-primary.disabled:active, 
+.fc button.btn-primary.disabled:focus, 
+.fc button.btn-primary.disabled:hover, 
+.fc button.btn-primary:disabled, 
+.fc button.btn-primary:disabled.active, 
+.fc button.btn-primary:disabled.focus, 
+.fc button.btn-primary:disabled:active, 
+.fc button.btn-primary:disabled:focus, 
+.fc button.btn-primary:disabled:hover, 
+.fc button.btn-primary[disabled], 
+.fc button.btn-primary[disabled].active, 
+.fc button.btn-primary[disabled].focus, 
+.fc button.btn-primary[disabled]:active, 
+.fc button.btn-primary[disabled]:focus, 
+.fc button.btn-primary[disabled]:hover, 
+.fc button.disabled, 
+.fc button.disabled.active, 
+.fc button.disabled.focus, 
+.fc button.disabled:active, 
+.fc button.disabled:focus, 
+.fc button.disabled:hover, 
+.fc button:disabled, 
+.fc button:disabled.active, 
+.fc button:disabled.focus, 
+.fc button:disabled:active, 
+.fc button:disabled:focus, 
+.fc button:disabled:hover, 
+.fc button[disabled], 
+.fc button[disabled].active, 
+.fc button[disabled].focus, 
+.fc button[disabled]:active, 
+.fc button[disabled]:focus, 
+.fc button[disabled]:hover, 
+fieldset[disabled] .fc button, 
+fieldset[disabled] .fc button.active, 
+fieldset[disabled] .fc button.btn-primary, 
+fieldset[disabled] .fc button.btn-primary.active, 
+fieldset[disabled] .fc button.btn-primary.focus, 
+fieldset[disabled] .fc button.btn-primary:active, 
+fieldset[disabled] .fc button.btn-primary:focus, 
+fieldset[disabled] .fc button.btn-primary:hover, 
+fieldset[disabled] .fc button.focus, 
+fieldset[disabled] .fc button:active, 
+fieldset[disabled] .fc button:focus, 
+fieldset[disabled] .fc button:hover {
+  background-color: #2CA8FF;
+  color: #fff;
+  background-image: -webkit-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);
+}
+
+.card-calendar table td {
+  text-align: left;
+}
+.card-calendar .fc th {
+  text-transform: uppercase;
+  font-size: 10px;
+  color: rgba(36,40,43,.9);
+  letter-spacing: .3px;
+  font-weight: 700;
+  text-align: center;
+  padding-bottom: 4px;
+}
+.fc-event, .fc-event.event-primary {
+  border: none;
+  background-color: #2CA8FF;
+  background-image: -webkit-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);
+}
+.fc-day-grid-event .fc-content {
+  padding: 4px 4px;
+}
+.fc-event.event-default {
+  background: #e7e7f0;
+}
+.fc-event.event-default .fc-title{
+  color: #444;
+}
+.fc-unthemed .fc-divider, 
+.fc-unthemed .fc-list-heading td, 
+.fc-unthemed .fc-popover .fc-header {
+  background: #e7e7f0;
+}
+.fc-unthemed .fc-content, 
+.fc-unthemed .fc-divider, 
+.fc-unthemed .fc-list-heading td, 
+.fc-unthemed .fc-list-view, 
+.fc-unthemed .fc-popover, 
+.fc-unthemed .fc-row, 
+.fc-unthemed tbody, 
+.fc-unthemed td, 
+.fc-unthemed th, 
+.fc-unthemed thead {
+  border-color: #e7e7f0;
+}
+.fc-unthemed .fc-list-view {
+  border-color: transparent;
+}
+.fc-event-dot {
+  background-color: #00C9FF;
+}
+.fc-unthemed .fc-list-item:hover td {
+  background-color: transparent;
+}
+
+
+/* Sweet Alert Modal plugin */
+.swal2-modal .swal2-content {
+  font-size: 16px;
+  font-weight: normal;
+}
+.swal2-modal .col-form-label {
+  color: #9a9a9a;
+  text-align: left;
+}
+
+
+
 
 
 

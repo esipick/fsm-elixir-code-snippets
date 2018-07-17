@@ -1,0 +1,223 @@
+<div class="panel-header panel-header-sm">
+  <div class="header text-center">
+    
+  </div>
+</div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-calendar">
+        <div class="card-body ">
+          <div id="fullCalendar"></div>
+          <div id="calendar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> <!-- end content -->
+
+
+<script>
+  $(document).ready(function() {
+    
+    function fsmCalendar(){
+        $calendar = $('#fullCalendar');
+
+        today = new Date();
+        y = today.getFullYear();
+        m = today.getMonth();
+        d = today.getDate();
+
+        $calendar.fullCalendar({
+          viewRender: function(view, element) {
+            // We make sure that we activate the perfect scrollbar when the view isn't on Month
+            if (view.name != 'month'){
+              $(element).find('.fc-scroller').perfectScrollbar();
+            }
+          },
+          header: {
+						left: 'title',
+						center: 'month,agendaWeek,agendaDay,listWeek',
+						right: 'prev,next,today'
+					},
+					defaultDate: today,
+					selectable: true,
+					selectHelper: true,
+          views: {
+              month: { // name of view
+                  titleFormat: 'MMMM YYYY'
+                  // other view-specific options here
+              },
+              week: {
+                  titleFormat: " MMMM D YYYY"
+              },
+              day: {
+                  titleFormat: 'D MMM, YYYY'
+              }
+          },
+
+					select: function(start, end) {
+        	// on select we show the Sweet Alert modal with an input and initialize the datetimepicker
+        	
+					swal({
+    				title: 'New Appointment',
+    				html: '<div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="input-start" type="text" class="form-control datetimepicker" placeholder="Start Time" value=""></div></div></div>' +
+    							'<div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="input-end" type="text" class="form-control datetimepicker" placeholder="End Time" value=""></div></div></div>' +
+    							'<div class="row"><label class="col-md-3 col-form-label">Student</label><div class="col-md-9"><div class="form-group"><input id="input-student" type="text" class="form-control" placeholder="Student"></div></div></div>' +
+    							'<div class="row"><label class="col-md-3 col-form-label">Instructor</label><div class="col-md-9"><div class="form-group"><input id="input-instructor" type="text" class="form-control" placeholder="Instructor"></div></div></div>' +
+    							'<div class="row"><label class="col-md-3 col-form-label">Aircraft</label><div class="col-md-9"><div class="form-group"><input id="input-aircraft" type="text" class="form-control" placeholder="Aircraft"></div></div></div>'
+    							,
+    				showCancelButton: true,
+            confirmButtonClass: 'btn btn-primary',
+            cancelButtonClass: 'btn btn-default',
+            confirmButtonText: 'Save',
+            buttonsStyling: false
+          }).then(function(result) {
+            var eventData;
+            event_title = $('#input-student').val() + ", " + $('#input-instructor').val() + ", " + $('#input-aircraft').val();
+						event_start = $('#input-start').val();
+						event_end = $('#input-end').val();
+						
+            if (event_title) {
+    					eventData = {
+    						title: event_title,
+    						start: event_start,
+    						end: event_end
+    						// start: start,
+    						// end: end
+    					};
+    					console.log(start);
+    					$calendar.fullCalendar('renderEvent', eventData, true); // stick? = true
+    				}
+
+    				$calendar.fullCalendar('unselect');
+
+          });
+          initDateTimePicker();
+			},
+			editable: true,
+			eventLimit: true, // allow "more" link when too many events
+
+
+            // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
+            events: [
+				{
+					title: 'Peter Flyn — Unavailable',
+					start: new Date(y, m, d),
+					end: new Date(y, m, d+12, 14, 0),
+					allDay: true,
+                    className: 'event-default'
+				},
+				{
+					title: 'Herman Blume, Randon Russell, Archer N70432',
+					start: new Date(y, m, d-1, 10, 30),
+					allDay: false,
+					className: 'event-blue'
+				},
+				{
+					title: 'Rosemary Cross, Randon Russell, Archer N70432',
+					start: new Date(y, m, d+7, 12, 0),
+					end: new Date(y, m, d+7, 14, 0),
+					allDay: false,
+					className: 'event-blue'
+				},
+				{
+					title: 'Max Fischer, Randon Russell, Archer N70432',
+					start: new Date(y, m, d+7, 12, 0),
+					end: new Date(y, m, d+7, 14, 0),
+					allDay: false,
+					className: 'event-blue'
+				},
+				{
+					title: 'Herman Blume, Randon Russell, Archer N70432',
+					start: new Date(y, m, d+7, 12, 0),
+					end: new Date(y, m, d+7, 14, 0),
+					allDay: false,
+					className: 'event-blue'
+				},
+				{
+					title: 'Nud-pro Launch',
+					start: new Date(y, m, d-2, 12, 0),
+					allDay: true,
+					className: 'event-blue'
+				},
+				{
+					title: 'Something that lasts a few days',
+					start: new Date(y, m, d+1, 19, 0),
+					end: new Date(y, m, d+3, 22, 30),
+					allDay: false,
+                    className: 'event-blue'
+				},
+				{
+					title: 'Click to URL',
+					start: new Date(y, m, 21),
+					end: new Date(y, m, 22),
+					url: '/admin/users/3',
+					className: 'event-blue'
+				}
+			]
+		});
+    } 
+    fsmCalendar();
+    
+    
+    
+    function initDateTimePicker() {
+      if($(".datetimepicker").length != 0){
+        $('.datetimepicker').datetimepicker({
+            icons: {
+                time: "now-ui-icons tech_watch-time",
+                date: "now-ui-icons ui-1_calendar-60",
+                up: "fa fa-chevron-up",
+                down: "fa fa-chevron-down",
+                previous: 'now-ui-icons arrows-1_minimal-left',
+                next: 'now-ui-icons arrows-1_minimal-right',
+                today: 'fa fa-screenshot',
+                clear: 'fa fa-trash',
+                close: 'fa fa-remove'
+            }
+        });
+      }
+
+      if($(".datepicker").length != 0){
+        $('.datepicker').datetimepicker({
+           format: 'MM/DD/YYYY',
+           icons: {
+               time: "now-ui-icons tech_watch-time",
+               date: "now-ui-icons ui-1_calendar-60",
+               up: "fa fa-chevron-up",
+               down: "fa fa-chevron-down",
+               previous: 'now-ui-icons arrows-1_minimal-left',
+               next: 'now-ui-icons arrows-1_minimal-right',
+               today: 'fa fa-screenshot',
+               clear: 'fa fa-trash',
+               close: 'fa fa-remove'
+           }
+        });
+      }
+
+      if($(".timepicker").length != 0){
+        $('.timepicker').datetimepicker({
+//          format: 'H:mm',    // use this format if you want the 24hours timepicker
+           format: 'h:mm A',    //use this format if you want the 12hours timpiecker with AM/PM toggle
+           icons: {
+               time: "now-ui-icons tech_watch-time",
+               date: "now-ui-icons ui-1_calendar-60",
+               up: "fa fa-chevron-up",
+               down: "fa fa-chevron-down",
+               previous: 'now-ui-icons arrows-1_minimal-left',
+               next: 'now-ui-icons arrows-1_minimal-right',
+               today: 'fa fa-screenshot',
+               clear: 'fa fa-trash',
+               close: 'fa fa-remove'
+           }
+        });
+      }
+    }
+    initDateTimePicker();
+    
+  });
+  
+  
+</script>

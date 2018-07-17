@@ -3,6 +3,7 @@
   <head>
     <title>Flight School Manager \\ <%= assigns.conn.assigns.current_user.school.name %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="/images/fsm-icon.png">
     <%= render FlightWeb.Admin.PartialView, "_css.html", assigns %>
     <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>
   </head>

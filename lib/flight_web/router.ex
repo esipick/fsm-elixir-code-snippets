@@ -64,8 +64,6 @@ defmodule FlightWeb.Router do
 
     resources("/schools", SchoolController, only: [:index, :show, :edit, :update])
 
-    resources("/settings", SettingsController, only: [:index])
-
     resources("/users", UserController, only: [:index, :show, :edit, :update]) do
       post("/add_funds", UserController, :add_funds)
     end
@@ -73,6 +71,10 @@ defmodule FlightWeb.Router do
     resources("/transactions", TransactionController, only: []) do
       post("/cancel", TransactionController, :cancel)
     end
+
+    resources("/settings", SettingsController, only: [:index, :edit])
+
+    resources("/schedule", ScheduleController, only: [:index, :show, :edit])
 
     resources("/invitations", InvitationController, only: [:create, :index]) do
       post("/resend", InvitationController, :resend)

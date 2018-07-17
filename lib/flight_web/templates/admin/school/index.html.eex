@@ -1,0 +1,128 @@
+<div class="panel-header panel-header-sm">
+  <div class="header text-center">
+    
+  </div>
+</div>
+
+<div class="content">
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <!-- <h4 class="card-title">Students</h4> -->
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+          <ul class="nav nav-pills nav-pills-primary" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" href="#" role="tablist" aria-expanded="false">Schools</a>
+            </li>
+            <li class="nav-item">
+              <!--<a class="nav-link" href="#" role="tablist" aria-expanded="true">Invitations</a>-->
+              <a class="nav-link" href="/admin/invitations?role=schools" role="tablist" aria-expanded="true">Invitations</a>
+            </li>
+          </ul>
+          <!-- <a href="new-student.php" class="btn btn-primary">Add Student</a> -->
+        </div>
+        <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Students</th>
+              <th>Instructors</th>
+              <th>Aircraft</th>
+              <th>Member Since</th>
+              <th>Payment Status</th>
+              <th class="disabled-sorting text-right">&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <b>Randon Aviation</b><br/>
+                <a href="tel:(801) 555-5555">(801) 555-5555</a>
+              </td>
+              <td>West Jordan, Utah</td>
+              <td>120</td>
+              <td>8</td>
+              <td>5</td>
+              <td>Nov 13, 2018</td>
+              <td><span class="badge badge-success">Running</span></td>
+              <td class="text-right">
+                <a href="/admin/schools/2" class="btn btn-primary btn-sm">view</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <b>Bountiful Flight</b><br/>
+                <a href="tel:(801) 555-5555">(801) 555-5555</a>
+              </td>
+              <td>Woods Cross, Utah</td>
+              <td>120</td>
+              <td>8</td>
+              <td>5</td>
+              <td>Nov 13, 2018</td>
+              <td><span class="badge badge-success">Running</span></td>
+              <td class="text-right">
+                <a href="/admin/schools/2" class="btn btn-primary btn-sm">view</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <b>Sphere One Aviation</b><br/>
+                <a href="tel:(801) 555-5555">(801) 555-5555</a>
+              </td>
+              <td>Cedar City, Utah</td>
+              <td>120</td>
+              <td>8</td>
+              <td>5</td>
+              <td>Nov 13, 2018</td>
+              <td><span class="badge badge-danger">Stopped</span></td>
+              <td class="text-right">
+                <a href="/admin/schools/2" class="btn btn-primary btn-sm">view</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <b>Leading Edge Aviation</b><br/>
+                <a href="tel:(801) 555-5555">(801) 555-5555</a>
+              </td>
+              <td>Logan, Utah</td>
+              <td>120</td>
+              <td>8</td>
+              <td>5</td>
+              <td>Nov 13, 2018</td>
+              <td><span class="badge badge-success">Running</span></td>
+              <td class="text-right">
+                <a href="/admin/schools/2" class="btn btn-primary btn-sm">view</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <b>Cornerstone Aviation Flight School</b><br/>
+                <a href="tel:(801) 555-5555">(801) 555-5555</a>
+              </td>
+              <td>Salt Lake City, Utah</td>
+              <td>120</td>
+              <td>8</td>
+              <td>5</td>
+              <td>Nov 13, 2018</td>
+              <td><span class="badge badge-success">Running</span></td>
+              <td class="text-right">
+                <a href="/admin/schools/2" class="btn btn-primary btn-sm">view</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      <!-- end content-->
+      </div>
+      <!--  end card  -->
+    </div>
+    <!-- end col-md-12 -->
+  </div>
+  <!-- end row -->
+</div>
+
+</div> <!-- end content -->
