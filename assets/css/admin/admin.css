@@ -661,6 +661,10 @@ fieldset[disabled] .fc button:hover {
 
 
 /* Sweet Alert Modal plugin */
+.swal2-modal {
+  font-family: Lato;
+  overflow: visible;
+}
 .swal2-modal .swal2-content {
   font-size: 16px;
   font-weight: normal;
@@ -668,6 +672,35 @@ fieldset[disabled] .fc button:hover {
 .swal2-modal .col-form-label {
   color: #9a9a9a;
   text-align: left;
+}
+.swal2-modal .swal2-title {
+  font-weight: 900;
+  font-family: Lato;
+  color: rgb(44,44,44);
+  font-size: 28px;
+  margin-bottom: 32px;
+}
+
+
+/* datetimepicker plugin */
+.bootstrap-datetimepicker-widget table td.day:hover>div, 
+.bootstrap-datetimepicker-widget table td.hour:hover>div, 
+.bootstrap-datetimepicker-widget table td.minute:hover>div, 
+.bootstrap-datetimepicker-widget table td.second:hover>div {
+  background-color: #e7e7f0;
+}
+.bootstrap-datetimepicker-widget table td.today:hover>div, 
+.bootstrap-datetimepicker-widget table td.today>div {
+  background-color: #e7e7f0;
+}
+.bootstrap-datetimepicker-widget table td.active:hover>div, 
+.bootstrap-datetimepicker-widget table td.active>div {
+  background-color: #2CA8Fe;
+  color: #fff;
+  box-shadow: 0 1px 10px 0 rgba(0,0,0,.2);
+}
+.bootstrap-datetimepicker-widget table td.today>div:before {
+  display: none;
 }
 
 
