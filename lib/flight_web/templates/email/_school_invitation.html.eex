@@ -5,11 +5,9 @@
             valign="top"
             bgcolor="">
             <div style="text-align: center;">
-              
-              
-              Hey <%= @first_name %>!<br />
-<br />
-git You&#39;ve been invited to join Flight School Manager as a new School. Follow the link below to finish creating your account.</div>
+
+
+You&#39;ve been invited to join Flight School Manager as a new School. Follow the link below to finish creating your account.</div>
 
 <div style="text-align: center;">&nbsp;</div>
 

@@ -21,10 +21,16 @@ defmodule Flight.Accounts.School do
   end
 
   @doc false
-  def changeset(school, attrs) do
+  def create_changeset(school, attrs) do
     school
-    |> cast(attrs, [:name, :contact_email])
-    |> validate_required([:name, :contact_email])
+    |> cast(attrs, [
+      :name,
+      :contact_email,
+      :contact_first_name,
+      :contact_last_name,
+      :contact_phone_number
+    ])
+    |> base_validations()
   end
 
   def admin_changeset(school, attrs) do
@@ -43,6 +49,11 @@ defmodule Flight.Accounts.School do
       :contact_phone_number,
       :contact_email
     ])
+    |> base_validations()
+  end
+
+  def base_validations(changeset) do
+    changeset
     |> validate_required([
       :name,
       :contact_email,

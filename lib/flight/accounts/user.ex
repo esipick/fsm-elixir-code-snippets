@@ -53,7 +53,27 @@ defmodule Flight.Accounts.User do
       :password,
       :school_id
     ])
-    |> unique_constraint(:email)
+    |> base_validations()
+    |> validate_password(:password)
+    |> put_pass_hash()
+  end
+
+  def initial_user_changeset(user, attrs) do
+    user
+    |> cast(attrs, [
+      :email,
+      :first_name,
+      :last_name,
+      :password,
+      :phone_number
+    ])
+    |> validate_required([
+      :email,
+      :first_name,
+      :last_name,
+      :phone_number,
+      :password
+    ])
     |> base_validations()
     |> validate_password(:password)
     |> put_pass_hash()
@@ -79,7 +99,6 @@ defmodule Flight.Accounts.User do
       :balance,
       :school_id
     ])
-    |> unique_constraint(:email)
     |> base_validations()
     |> validate_password(:password)
     |> put_pass_hash()

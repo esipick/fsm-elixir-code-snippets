@@ -3,7 +3,7 @@ defmodule Flight.Accounts.AccountsTest do
   use Bamboo.Test, shared: true
 
   alias Flight.Accounts
-  alias Flight.Accounts.{Invitation, User}
+  alias Flight.Accounts.{SchoolInvitation, Invitation, User}
 
   describe "users" do
     @valid_attrs %{
@@ -351,13 +351,22 @@ defmodule Flight.Accounts.AccountsTest do
   describe "schools" do
     @tag :integration
     test "create_school/2 creates school with stripe account" do
+      email = "#{Flight.Random.hex(52)}@mailinator.com"
+
       assert {:ok, school} =
                Accounts.create_school(%{
                  name: "Dave's Flight School",
-                 contact_email: "#{Flight.Random.hex(52)}@mailinator.com"
+                 contact_first_name: "Hal",
+                 contact_last_name: "Leonard",
+                 contact_phone_number: "555-555-5555",
+                 contact_email: email
                })
 
       assert school.name == "Dave's Flight School"
+      assert school.contact_first_name == "Hal"
+      assert school.contact_last_name == "Leonard"
+      assert school.contact_email == email
+      assert school.contact_phone_number == "555-555-5555"
 
       assert stripe_account =
                Flight.Repo.get_by(Flight.Accounts.StripeAccount, school_id: school.id)
@@ -366,6 +375,131 @@ defmodule Flight.Accounts.AccountsTest do
       assert stripe_account.charges_enabled
       refute stripe_account.payouts_enabled
       refute stripe_account.details_submitted
+    end
+
+    test "create_school/2 creates school without stripe account" do
+      assert {:ok, school} =
+               Accounts.create_school(%{
+                 name: "Dave's Flight School",
+                 contact_email: "parkerwightman@gmail.com",
+                 contact_first_name: "Hal",
+                 contact_last_name: "Leonard",
+                 contact_phone_number: "555-555-5555"
+               })
+
+      refute Flight.Repo.get_by(Flight.Accounts.StripeAccount, school_id: school.id)
+    end
+
+    @tag :wip
+    test "create_school_invitation/1 creates invitation and sends email" do
+      assert {:ok, %SchoolInvitation{} = invitation} =
+               Accounts.create_school_invitation(%{
+                 email: "foo@bar.com"
+               })
+
+      assert invitation.email == "foo@bar.com"
+      assert is_binary(invitation.token)
+
+      assert_delivered_email(Flight.Email.school_invitation_email(invitation))
+    end
+
+    @tag :integration
+    test "create_school_from_invitation/2 creates school and admin" do
+      school_invitation = school_invitation_fixture()
+
+      refute school_invitation.accepted_at
+
+      email = "#{Flight.Random.hex(33)}@bar.com"
+
+      data = %{
+        name: "School name",
+        first_name: "Jesse",
+        last_name: "Allen",
+        phone_number: "801-555-5555",
+        email: email,
+        password: "hello world"
+      }
+
+      assert {:ok, school} = Accounts.create_school_from_invitation(data, school_invitation)
+
+      assert school.name == "School name"
+      assert school.contact_first_name == "Jesse"
+      assert school.contact_last_name == "Allen"
+      assert school.contact_phone_number == "801-555-5555"
+      assert school.contact_email == email
+
+      assert refresh(school_invitation).accepted_at
+
+      user =
+        Repo.get_by!(User, school_id: school.id)
+        |> Repo.preload([:roles])
+
+      assert List.first(user.roles).id == Flight.Accounts.Role.admin().id
+
+      assert user.first_name == school.contact_first_name
+      assert user.last_name == school.contact_last_name
+      assert user.email == school.contact_email
+      assert user.phone_number == school.contact_phone_number
+
+      assert {:ok, _} = Accounts.check_password(user, "hello world")
+    end
+
+    @tag :integration
+    test "fetch_and_create_stripe_account_from_account_id/2 creates stripe account and create stripe ids for all users that don't have one" do
+      {:ok, api_account} =
+        Flight.Billing.create_deferred_stripe_account("#{Flight.Random.hex(32)}@mailinator.com")
+
+      school = school_fixture()
+      admin = admin_fixture(%{stripe_customer_id: nil}, school)
+
+      refute admin.stripe_customer_id
+
+      {:ok, _account} =
+        Accounts.fetch_and_create_stripe_account_from_account_id(api_account.id, school)
+
+      assert refresh(admin).stripe_customer_id
+    end
+
+    @tag :integration
+    test "create_school_from_invitation/2 creates school and admin, without stripe account or customer id" do
+      school_invitation = school_invitation_fixture()
+
+      refute school_invitation.accepted_at
+
+      email = "parkerwightman@gmail.com"
+
+      data = %{
+        name: "School name",
+        first_name: "Jesse",
+        last_name: "Allen",
+        phone_number: "801-555-5555",
+        email: email,
+        password: "hello world"
+      }
+
+      assert {:ok, school} = Accounts.create_school_from_invitation(data, school_invitation)
+
+      assert school.name == "School name"
+      assert school.contact_first_name == "Jesse"
+      assert school.contact_last_name == "Allen"
+      assert school.contact_phone_number == "801-555-5555"
+      assert school.contact_email == email
+
+      assert refresh(school_invitation).accepted_at
+
+      user =
+        Repo.get_by!(User, school_id: school.id)
+        |> Repo.preload([:roles])
+
+      assert List.first(user.roles).id == Flight.Accounts.Role.admin().id
+
+      refute user.stripe_customer_id
+      assert user.first_name == school.contact_first_name
+      assert user.last_name == school.contact_last_name
+      assert user.email == school.contact_email
+      assert user.phone_number == school.contact_phone_number
+
+      assert {:ok, _} = Accounts.check_password(user, "hello world")
     end
   end
 end

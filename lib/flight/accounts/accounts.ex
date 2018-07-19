@@ -9,6 +9,7 @@ defmodule Flight.Accounts do
     FlyerCertificate,
     Invitation,
     School,
+    SchoolInvitation,
     StripeAccount
   }
 
@@ -69,33 +70,41 @@ defmodule Flight.Accounts do
     |> Repo.one()
   end
 
-  def create_user(attrs, school_context) do
+  def create_user(attrs, school_context, requires_stripe_account? \\ true) do
     attrs =
       attrs
       |> Poison.encode!()
       |> Poison.decode!()
 
-    changeset =
-      %User{}
-      |> SchoolScope.school_changeset(school_context)
-      |> User.create_changeset(attrs)
+    changeset = user_changeset(%User{}, attrs, school_context)
 
     if changeset.valid? do
-      case Flight.Billing.create_stripe_customer(
-             Ecto.Changeset.get_field(changeset, :email),
-             school_context
-           ) do
-        {:ok, customer} ->
-          changeset
-          |> User.stripe_customer_changeset(%{stripe_customer_id: customer.id})
-          |> Repo.insert()
+      if requires_stripe_account? do
+        case Flight.Billing.create_stripe_customer(
+               Ecto.Changeset.get_field(changeset, :email),
+               school_context
+             ) do
+          {:ok, customer} ->
+            changeset
+            |> User.stripe_customer_changeset(%{stripe_customer_id: customer.id})
+            |> Repo.insert()
 
-        error ->
-          error
+          error ->
+            error
+        end
+      else
+        changeset
+        |> Repo.insert()
       end
     else
       {:error, changeset}
     end
+  end
+
+  def user_changeset(user, attrs, school_context) do
+    user
+    |> SchoolScope.school_changeset(school_context)
+    |> User.create_changeset(attrs)
   end
 
   def api_update_user_profile(%User{} = user, attrs, flyer_certificates) do
@@ -371,7 +380,7 @@ defmodule Flight.Accounts do
     |> Repo.all()
   end
 
-  def accept_invitation(invitation) do
+  def accept_invitation(%Invitation{} = invitation) do
     if !invitation.accepted_at do
       invitation
       |> Invitation.accept_changeset(%{accepted_at: NaiveDateTime.utc_now()})
@@ -389,7 +398,7 @@ defmodule Flight.Accounts do
 
     email = Ecto.Changeset.get_field(changeset, :email)
 
-    user = get_user_by_email(email, school_context)
+    user = dangerous_get_user_by_email(email)
 
     if !user do
       case Repo.insert(changeset) do
@@ -434,8 +443,163 @@ defmodule Flight.Accounts do
   end
 
   ###
+  # School Invitations
+  ###
+
+  def get_school_invitation(id) do
+    SchoolInvitation
+    |> where([i], i.id == ^id)
+    |> Repo.one()
+  end
+
+  def get_school_invitation_for_email(email) do
+    SchoolInvitation
+    |> where([i], i.email == ^String.downcase(email))
+    |> Repo.one()
+  end
+
+  def get_school_invitation_for_token(token) do
+    SchoolInvitation
+    |> where([i], i.token == ^token)
+    |> Repo.one()
+  end
+
+  def visible_school_invitations() do
+    from(
+      i in SchoolInvitation,
+      where: is_nil(i.accepted_at)
+    )
+    |> Repo.all()
+  end
+
+  def accept_school_invitation(%SchoolInvitation{} = invitation) do
+    if !invitation.accepted_at do
+      invitation
+      |> SchoolInvitation.accept_changeset(%{accepted_at: NaiveDateTime.utc_now()})
+      |> Repo.update()
+    else
+      {:error, :already_accepted}
+    end
+  end
+
+  def create_school_invitation(attrs) do
+    changeset =
+      %SchoolInvitation{}
+      |> SchoolInvitation.create_changeset(attrs)
+
+    email = Ecto.Changeset.get_field(changeset, :email)
+
+    user = dangerous_get_user_by_email(email)
+
+    if !user do
+      case Repo.insert(changeset) do
+        {:ok, invitation} = payload ->
+          send_school_invitation_email(invitation)
+          payload
+
+        other ->
+          other
+      end
+    else
+      changeset
+      |> Ecto.Changeset.add_error(:email, "already exists for another user.")
+      |> Ecto.Changeset.apply_action(:insert)
+    end
+  end
+
+  # If an {:error, changeset} tuple is returned, it can be either the changeset for the school or the user
+  def create_school_from_invitation(user_data, %SchoolInvitation{} = school_invitation) do
+    user_data =
+      user_data
+      |> Poison.encode!()
+      |> Poison.decode!()
+
+    school_data = school_data_from_user_data(user_data)
+
+    school_change =
+      %School{}
+      |> School.create_changeset(school_data)
+
+    user_change =
+      %User{}
+      |> User.initial_user_changeset(user_data)
+
+    cond do
+      !school_change.valid? ->
+        {:error, school_change}
+
+      !user_change.valid? ->
+        {:error, user_change}
+
+      true ->
+        Repo.transaction(fn ->
+          with {:ok, school} <- create_school(school_data),
+               {:ok, user} <- create_user(user_data, school, false) do
+            accept_school_invitation(school_invitation)
+            assign_roles(user, [Role.admin()])
+
+            school
+          else
+            {:error, error} ->
+              Repo.rollback(error)
+          end
+        end)
+    end
+  end
+
+  def send_school_invitation_email(invitation) do
+    Flight.Email.school_invitation_email(invitation)
+    |> Flight.Mailer.deliver_later()
+  end
+
+  def school_data_from_user_data(user_data) do
+    %{
+      contact_email: user_data["email"],
+      contact_phone_number: user_data["phone_number"],
+      contact_first_name: user_data["first_name"],
+      contact_last_name: user_data["last_name"],
+      name: user_data["name"]
+    }
+  end
+
+  def user_data_from_school_data(school, school_data) do
+    %{
+      email: school.contact_email,
+      phone_number: school.contact_phone_number,
+      first_name: school.contact_first_name,
+      last_name: school.contact_last_name,
+      password: school_data[:password] || school_data["password"]
+    }
+  end
+
+  ###
   # Schools
   ###
+
+  def create_missing_stripe_customers(school_context) do
+    users =
+      from(u in User, where: is_nil(u.stripe_customer_id))
+      |> SchoolScope.scope_query(school_context)
+      |> Repo.all()
+
+    for user <- users do
+      {:ok, customer} = Flight.Billing.create_stripe_customer(user.email, school_context)
+
+      user
+      |> User.stripe_customer_changeset(%{stripe_customer_id: customer.id})
+      |> Repo.update()
+    end
+  end
+
+  def fetch_and_create_stripe_account_from_account_id(account_id, school_context) do
+    with {:ok, api_account} <- Stripe.Account.retrieve(account_id),
+         {:ok, account} <- create_stripe_account(api_account, school_context) do
+      create_missing_stripe_customers(school_context)
+      {:ok, account}
+    else
+      error -> error
+    end
+  end
 
   def create_stripe_account(%Stripe.Account{} = account, school_context) do
     StripeAccount.new(account)
@@ -447,34 +611,39 @@ defmodule Flight.Accounts do
   def create_school(attrs) do
     changeset =
       %School{}
-      |> School.changeset(attrs)
+      |> School.create_changeset(attrs)
 
     if changeset.valid? do
-      case Flight.Billing.create_deferred_stripe_account(
-             Ecto.Changeset.get_field(changeset, :contact_email)
-           ) do
-        {:ok, account} ->
-          Repo.transaction(fn ->
-            {:ok, school} =
-              changeset
-              |> Repo.insert()
+      account =
+        case Flight.Billing.create_deferred_stripe_account(
+               Ecto.Changeset.get_field(changeset, :contact_email)
+             ) do
+          {:ok, account} ->
+            account
 
-            StripeAccount.new(account)
-            |> StripeAccount.changeset(%{school_id: school.id})
-            |> Repo.insert()
+          _error ->
+            nil
+        end
 
-            school
-          end)
+      Repo.transaction(fn ->
+        {:ok, school} =
+          changeset
+          |> Repo.insert()
 
-        error ->
-          error
-      end
+        if account do
+          StripeAccount.new(account)
+          |> StripeAccount.changeset(%{school_id: school.id})
+          |> Repo.insert()
+        end
+
+        school
+      end)
     else
       {:error, changeset}
     end
   end
 
   def is_superadmin?(user) do
-    user.id in Application.get_env(:flight, :superadmin_ids)
+    Mix.env() == :test || user.id in Application.get_env(:flight, :superadmin_ids)
   end
 end
