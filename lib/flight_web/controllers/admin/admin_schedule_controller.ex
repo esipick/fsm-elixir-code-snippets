@@ -5,7 +5,7 @@ defmodule FlightWeb.Admin.ScheduleController do
     render(conn, "index.html")
   end
 
-def show(conn, _) do
+  def show(conn, _) do
     render(conn, "show.html")
   end
 end
