@@ -35,8 +35,8 @@
                           <td><%= display_boolean(aircraft.simulator) %></td>
                           <td><%= currency aircraft.rate_per_hour %></td>
                           <td><%= currency aircraft.block_rate_per_hour %></td>
-                          <td><%= Flight.Format.hours_from_tenths(aircraft.last_tach_time) %></td>
-                          <td><%= Flight.Format.hours_from_tenths(aircraft.last_hobbs_time) %></td>
+                          <td><%= display_hour_tenths(aircraft.last_tach_time) %></td>
+                          <td><%= display_hour_tenths(aircraft.last_hobbs_time) %></td>
                           <td class="text-right"><a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm">view</a></td>
                         </tr>
                       <% end %>

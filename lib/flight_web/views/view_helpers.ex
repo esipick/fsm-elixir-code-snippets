@@ -99,4 +99,12 @@ defmodule FlightWeb.ViewHelpers do
 
     Phoenix.HTML.raw(html)
   end
+
+  def display_hour_tenths(tenths) do
+    tenths
+    |> Flight.Format.hours_from_tenths()
+    |> Decimal.new()
+    |> Decimal.round(1)
+    |> Decimal.to_string()
+  end
 end

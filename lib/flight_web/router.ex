@@ -22,7 +22,7 @@ defmodule FlightWeb.Router do
   end
 
   pipeline :admin_metrics_namespace do
-    Appsignal.Transaction.set_namespace("admin")
+    plug(AppsignalNamespace)
   end
 
   pipeline :api_authenticate do

@@ -67,7 +67,7 @@
         <div class="col-md-6">
           <div class="form-group">
             <label>Last Recorded Tach Time</label>
-            <%= number_input f, :last_tach_time, class: "form-control", value: Flight.Format.hours_from_tenths(@changeset.data.last_tach_time), step: "0.1" %>
+            <%= number_input f, :last_tach_time, class: "form-control", value: display_hour_tenths(@changeset.data.last_tach_time), step: "0.1" %>
           </div>
         </div>
       </div>
@@ -76,7 +76,7 @@
         <div class="col-md-6">
           <div class="form-group">
             <label>Last Recorded Hobbs Time</label>
-            <%= number_input f, :last_hobbs_time, class: "form-control", value: Flight.Format.hours_from_tenths(@changeset.data.last_hobbs_time), step: "0.1" %>
+            <%= number_input f, :last_hobbs_time, class: "form-control", value: display_hour_tenths(@changeset.data.last_hobbs_time), step: "0.1" %>
           </div>
         </div>
       </div>

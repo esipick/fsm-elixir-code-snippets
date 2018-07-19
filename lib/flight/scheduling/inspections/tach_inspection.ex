@@ -4,7 +4,7 @@ defmodule Flight.Scheduling.TachInspection do
 
   embedded_schema do
     field(:name, :string)
-    field(:tach_time, :integer)
+    field(:tach_time, Flight.HourTenth)
     field(:aircraft_id, :integer)
   end
 
