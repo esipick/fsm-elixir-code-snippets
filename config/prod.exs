@@ -35,9 +35,18 @@ config :flight, Flight.Mailer,
   adapter: Bamboo.SendgridAdapter,
   api_key: System.get_env("SENDGRID_API_KEY")
 
-config :stripity_stripe, api_key: Map.fetch!(System.get_env(), "STRIPE_SECRET_KEY")
+config :stripity_stripe,
+  api_key: Map.fetch!(System.get_env(), "STRIPE_SECRET_KEY"),
+  connect_client_id: Map.fetch!(System.get_env(), "STRIPE_CONNECT_CLIENT_ID")
+
 config :flight, stripe_webhook_secret: Map.fetch!(System.get_env(), "STRIPE_WEBHOOK_SECRET")
 config :flight, stripe_livemode: Map.fetch!(System.get_env(), "STRIPE_LIVEMODE") == "true"
+
+config :flight,
+  superadmin_ids:
+    Map.fetch!(System.get_env(), "SUPERADMIN_IDS")
+    |> String.split(",")
+    |> Enum.map(&String.to_integer/1)
 
 config :stripity_stripe, :pool_options,
   timeout: 5_000,

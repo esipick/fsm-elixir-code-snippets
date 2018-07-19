@@ -10,7 +10,7 @@
 
 
 <div class="row">
-  
+
   <div class="col-md-9">
     <div class="card ">
       <div class="card-header">
@@ -28,38 +28,45 @@
             <div class="tab-pane active detail-list" id="link1">
               <dl class="d-flex justify-content-between">
                 <dt>School Name</dt>
-                <dd>Bountiful Flight</dd>
+                <dd><%= @school.name %></dd>
               </dl>
               <dl class="d-flex justify-content-between">
                 <dt>School Address</dt>
-                <dd>1887 S 1800 W<br/>
-            Woods Cross, UT 84087</dd>
+                <dd>
+                  <%= if @school.address_1 do %>
+                  <%= @school.address_1 %>
+                  <br/>
+                  <%= @school.city %>, <%= @school.state %> <%= @school.zipcode %>
+                  <% else %>
+                    -
+                  <% end %>
+                </dd>
               </dl>
               <dl class="d-flex justify-content-between">
                 <dt>Contact Name</dt>
-                <dd>Ritchie Tenenbaum</dd>
+                <dd><%= @school.contact_first_name %> <%= @school.contact_last_name %></dd>
               </dl>
               <dl class="d-flex justify-content-between">
                 <dt>Contact Phone</dt>
-                <dd><a href="tel:8013334444">(801) 333-4444</a></dd>
+                <dd><a href="tel:<%= @school.contact_phone_number %>"><%= display_phone_number @school.phone_number %></a></dd>
               </dl>
               <dl class="d-flex justify-content-between">
                 <dt>Contact Email</dt>
-                <dd><a href="mailto: rtenenbaum@gmail.com">ritchie@bountifulflight.com</a></dd>
+                <dd><a href="mailto:<%= @school.contact_email %>"><%= @school.contact_email %></a></dd>
               </dl>
               <dl class="d-flex justify-content-between">
                 <dt>Website</dt>
-                <dd><a href="http://bountifulflight.com/">http://bountifulflight.com</a></dd>
+                <dd><a href="<%= @school.website %>"><%= @school.website %></a></dd>
               </dl>
               <dl class="d-flex justify-content-between">
                 <dt>Member Since</dt>
-                <dd>Nov 13 2014</dd>
+                <dd><%= display_date @school.inserted_at %></dd>
               </dl>
               <dl class="d-flex justify-content-between">
                 <dt>Stripe Status</dt>
-                <dd><span class="badge badge-success">Running</span></dd>
+                <dd><%= stripe_status_html(@school.stripe_account) %></dd>
               </dl>
-              
+
             </div>
 
             <div class="tab-pane detail-list list-billing" id="link2">
@@ -121,15 +128,15 @@
               </table>
             </div>
 
-          
-            
+
+
 
         </div>
       </div>
     </div> <!-- end card -->
   </div>
-  
-  
+
+
               <div class="card card-stats card-raised col-md-3">
                 <div class="card-body">
                   <div class="row">
@@ -139,7 +146,7 @@
                           <div class="icon icon-primary">
                             <i class="now-ui-icons education_hat"></i>
                           </div>
-                          <h3 class="info-title">126</h3>
+                          <h3 class="info-title"><%= @student_count %></h3>
                           <h6 class="stats-title">Students</h6>
                         </div>
                       </div>
@@ -152,7 +159,7 @@
                           <div class="icon icon-primary">
                             <i class="now-ui-icons users_single-02"></i>
                           </div>
-                          <h3 class="info-title">8</h3>
+                          <h3 class="info-title"><%= @instructor_count %></h3>
                           <h6 class="stats-title">Instructors</h6>
                         </div>
                       </div>
@@ -165,7 +172,7 @@
                           <div class="icon icon-primary">
                             <i class="now-ui-icons business_badge"></i>
                           </div>
-                          <h3 class="info-title">250</h3>
+                          <h3 class="info-title"><%= @renter_count %></h3>
                           <h6 class="stats-title">Renters</h6>
                         </div>
                       </div>
@@ -178,7 +185,7 @@
                           <div class="icon icon-primary">
                             <i class="now-ui-icons objects_spaceship"></i>
                           </div>
-                          <h3 class="info-title">4</h3>
+                          <h3 class="info-title"><%= @aircraft_count %></h3>
                           <h6 class="stats-title">Aircraft</h6>
                         </div>
                       </div>
@@ -186,8 +193,8 @@
                   </div>
                 </div>
               </div>
-  
-  
+
+
 
 </div>
 

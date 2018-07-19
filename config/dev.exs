@@ -26,9 +26,13 @@ config :flight, FlightWeb.Endpoint,
 #   version: "2018-05-21",
 #   httpoison: [recv_timeout: 5000, timeout: 8000]
 
-config :stripity_stripe, api_key: "sk_test_ZHmnpsn2AcEeUNMVWj5ueuZ7"
+config :stripity_stripe,
+  api_key: "sk_test_ZHmnpsn2AcEeUNMVWj5ueuZ7",
+  connect_client_id: "ca_DDbtUXP12O6p6UPiLSHMuC5r66cSyNS0"
+
 config :flight, :stripe_webhook_secret, "whsec_GRniVd07D9yl84sImiK3ijoy1JE6gqwf"
 config :flight, :stripe_livemode, false
+config :flight, :superadmin_ids, [7]
 
 config :stripity_stripe, :pool_options,
   timeout: 5_000,

@@ -1,0 +1,20 @@
+<%= if !@school.stripe_account do %>
+
+<h4 class="card-title m-0 p-0 pb-2">Activate Stripe Account</h4>
+<p>Flight School Manager uses <a href="http://stripe.com" target="_blank">Stripe.com</a> for all payment processing.
+  Every school needs to set up their own Stripe account in order to accept payments in the system.
+  Click the Connect to Stripe button below to create a new Stripe account, or connect an existing Stripe account.</p>
+
+<a href="<%= stripe_authorize_url() %>" class="btn btn-fill btn-primary btn-lg">Connect to Stripe&nbsp;&nbsp;&nbsp;➔</a>
+<p class="text-muted mt-2 mb-2"><small><i>By connecting to Stripe, you are agreeing to our <a href="/terms">Terms of Service</a>.</i></small></p>
+<hr/>
+<div class="mt-4">
+  <a href="http://stripe.com" target="_blank"><img src="/images/powered_by_stripe.svg" alt="Powered by Stripe" width="120"></a>
+</div>
+
+<% else %>
+  <h4 class="card-title m-0 p-0 pb-2">Stripe Status</h4>
+  <p>Account Activation: <%= display_boolean @school.stripe_account.details_submitted %></p>
+  <p>Charges Enabled: <%= display_boolean @school.stripe_account.charges_enabled %></p>
+  <p>Payouts Enabled: <%= display_boolean @school.stripe_account.payouts_enabled %></p>
+<% end %>

@@ -52,8 +52,4 @@ defmodule Flight.Accounts.Role do
       |> Role.changeset(%{})
       |> Flight.Repo.insert!()
   end
-
-  defmacro is_valid_role(role) do
-    quote do: unquote(role) in unquote(@available_role_slugs)
-  end
 end

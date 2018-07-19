@@ -2,8 +2,7 @@
 <html lang="en">
   <head>
     <title>Flight School Manager</title>
-    <%= render FlightWeb.Admin.PartialView, "_css.html", assigns %>
-    <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>
+    <%= render FlightWeb.Admin.PartialView, "_shared_head.html", assigns %>
   </head>
 <body class=" sidebar-mini">
   <!-- Navbar -->

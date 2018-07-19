@@ -3,7 +3,7 @@ defmodule FlightWeb.SidebarItem do
 
   alias FlightWeb.SidebarItem
 
-  def build(path, query_string) do
+  def build(path, query_string, user) do
     appended =
       if String.length(query_string) > 0 do
         "?#{query_string}"
@@ -20,12 +20,16 @@ defmodule FlightWeb.SidebarItem do
         icon_class: "design_app",
         active: false
       },
-      # %SidebarItem{
-      #   path: "/admin/schools",
-      #   label: "Schools",
-      #   icon_class: "education_hat",
-      #   active: false
-      # },
+      if Flight.Accounts.is_superadmin?(user) do
+        %SidebarItem{
+          path: "/admin/schools",
+          label: "Schools",
+          icon_class: "education_hat",
+          active: false
+        }
+      else
+        nil
+      end,
       %SidebarItem{
         path: "/admin/users?role=instructor",
         label: "Instructors",
@@ -61,14 +65,15 @@ defmodule FlightWeb.SidebarItem do
         label: "Admins",
         icon_class: "business_briefcase-24",
         active: false
+      },
+      %SidebarItem{
+        path: "/admin/settings",
+        label: "Settings",
+        icon_class: "loader_gear",
+        active: false
       }
-      # %SidebarItem{
-      #   path: "/admin/settings",
-      #   label: "Settings",
-      #   icon_class: "loader_gear",
-      #   active: false
-      # }
     ]
+    |> Enum.filter(& &1)
     |> Enum.map(fn item ->
       if item.path == full_path do
         %{item | active: true}

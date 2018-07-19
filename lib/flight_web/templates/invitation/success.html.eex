@@ -2,9 +2,7 @@
 <html lang="en">
   <head>
     <title>Randon Aviation</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <%= render FlightWeb.Admin.PartialView, "_css.html", assigns %>
-    <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>
+    <%= render FlightWeb.Admin.PartialView, "_shared_head.html", assigns %>
   </head>
   <body class="sidebar-none">
     <div class="wrapper">

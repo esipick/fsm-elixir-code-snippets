@@ -84,4 +84,19 @@ defmodule FlightWeb.ViewHelpers do
   def display_name(user) do
     "#{user.first_name} #{user.last_name}"
   end
+
+  def display_phone_number(number) do
+    Flight.Format.display_phone_number(number)
+  end
+
+  def stripe_status_html(stripe_account) do
+    html =
+      case Flight.Accounts.StripeAccount.status(stripe_account) do
+        :disconnected -> "<span class=\"badge badge-danger\">Disconnected</span>"
+        :running -> "<span class=\"badge badge-success\">Running</span>"
+        :error -> "<span class=\"badge badge-danger\">Needs Attention</span>"
+      end
+
+    Phoenix.HTML.raw(html)
+  end
 end

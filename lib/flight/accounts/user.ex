@@ -189,9 +189,9 @@ defmodule Flight.Accounts.User do
     phone_number = get_field(changeset, :phone_number)
 
     if changeset.valid? && is_binary(phone_number) do
-      case Regex.run(Flight.Format.phone_number_regex(), phone_number) do
-        [_, first, second, third] ->
-          put_change(changeset, :phone_number, "#{first}-#{second}-#{third}")
+      case Flight.Format.normalize_phone_number(phone_number) do
+        {:ok, number} ->
+          put_change(changeset, :phone_number, number)
 
         _ ->
           changeset

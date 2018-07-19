@@ -3,6 +3,16 @@ defmodule Flight.Format do
     ~r/^\(?([0-9]{3})\)?[-.● ]?([0-9]{3})[-.● ]?([0-9]{4})$/
   end
 
+  def normalize_phone_number(number) do
+    case Regex.run(phone_number_regex(), number) do
+      [_, first, second, third] ->
+        {:ok, "#{first}-#{second}-#{third}"}
+
+      _ ->
+        {:error, :invalid_format}
+    end
+  end
+
   def display_phone_number(nil), do: "—"
 
   def display_phone_number(phone_number) do

@@ -54,11 +54,20 @@ defmodule Flight.Scheduling do
     result
   end
 
-  def visible_aircrafts(school_context) do
+  defp visible_aircraft_query(school_context) do
     Aircraft
     |> order_by([a], asc: [a.make, a.model, a.tail_number])
     |> SchoolScope.scope_query(school_context)
+  end
+
+  def visible_aircrafts(school_context) do
+    visible_aircraft_query(school_context)
     |> Repo.all()
+  end
+
+  def visible_aircraft_count(school_context) do
+    visible_aircraft_query(school_context)
+    |> Repo.aggregate(:count, :id)
   end
 
   def get_aircraft(id, school_context) do

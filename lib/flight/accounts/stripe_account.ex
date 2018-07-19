@@ -44,4 +44,18 @@ defmodule Flight.Accounts.StripeAccount do
         payouts_enabled: account.payouts_enabled
     }
   end
+
+  def status(stripe_account) do
+    cond do
+      !stripe_account ->
+        :disconnected
+
+      stripe_account.charges_enabled && stripe_account.payouts_enabled &&
+          stripe_account.details_submitted ->
+        :running
+
+      true ->
+        :error
+    end
+  end
 end

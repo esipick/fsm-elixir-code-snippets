@@ -31,6 +31,16 @@ defmodule Flight.Accounts do
     |> Repo.all()
   end
 
+  def get_user_count(role, school_context) do
+    from(
+      u in User,
+      inner_join: r in assoc(u, :roles),
+      where: r.id == ^role.id
+    )
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.aggregate(:count, :id)
+  end
+
   def get_user(id, roles, school_context) do
     from(
       u in User,
@@ -159,6 +169,25 @@ defmodule Flight.Accounts do
 
   def check_password(user, password) do
     Comeonin.Bcrypt.check_pass(user, password)
+  end
+
+  ###
+  # Schools
+  ###
+
+  def admin_update_school(%School{} = school, attrs) do
+    school
+    |> School.admin_changeset(attrs)
+    |> Repo.update()
+  end
+
+  def get_schools() do
+    School
+    |> Repo.all()
+  end
+
+  def get_school(id) do
+    Repo.get(School, id)
   end
 
   ###
@@ -408,6 +437,13 @@ defmodule Flight.Accounts do
   # Schools
   ###
 
+  def create_stripe_account(%Stripe.Account{} = account, school_context) do
+    StripeAccount.new(account)
+    |> SchoolScope.school_changeset(school_context)
+    |> StripeAccount.changeset(%{})
+    |> Repo.insert()
+  end
+
   def create_school(attrs) do
     changeset =
       %School{}
@@ -436,5 +472,9 @@ defmodule Flight.Accounts do
     else
       {:error, changeset}
     end
+  end
+
+  def is_superadmin?(user) do
+    user.id in Application.get_env(:flight, :superadmin_ids)
   end
 end

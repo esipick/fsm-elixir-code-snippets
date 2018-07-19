@@ -1,0 +1,79 @@
+<%= form_for @changeset, "/admin/settings", [as: :data, method: "put"], fn f -> %>
+  <%= if Enum.count(f.errors) > 0 do %>
+    <div class="alert alert-danger">
+      <%= for error <- human_error_messages(@changeset) do %>
+        <span><%= error %></span></br>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>School Name</label>
+        <%= text_input f, :name, class: "form-control" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>School Address</label>
+        <%= text_input f, :address_1, class: "form-control" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="form-group">
+        <label>City</label>
+        <%= text_input f, :city, class: "form-control" %>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="form-group">
+        <label>State</label>
+        <%= text_input f, :state, class: "form-control" %>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="form-group">
+        <label>Zip Code</label>
+        <%= text_input f, :zipcode, class: "form-control" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="form-group">
+        <label>School Phone #</label>
+        <%= telephone_input f, :phone_number, class: "form-control" %>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group">
+        <label>School Email</label>
+        <%= email_input f, :email, class: "form-control" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>School Website</label>
+        <%= url_input f, :website, class: "form-control" %>
+      </div>
+    </div>
+  </div>
+
+  <input type="hidden" name="redirect_tab" value="school" />
+
+  <div class="card-footer mt-3">
+    <a href="/admin/users/" class="btn btn-fill btn-default mr-2">Cancel</a>
+    <input type="submit" class="btn btn-fill btn-primary" value="Save">
+  </div>
+<% end %>

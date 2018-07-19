@@ -4,9 +4,9 @@ defmodule FlightWeb.Admin.PageController do
   alias Flight.{Accounts}
 
   def dashboard(conn, _params) do
-    student_count = Enum.count(Accounts.users_with_role(Accounts.Role.student(), conn))
-    instructor_count = Enum.count(Accounts.users_with_role(Accounts.Role.instructor(), conn))
-    renter_count = Enum.count(Accounts.users_with_role(Accounts.Role.renter(), conn))
+    student_count = Accounts.get_user_count(Accounts.Role.student(), conn)
+    instructor_count = Accounts.get_user_count(Accounts.Role.instructor(), conn)
+    renter_count = Accounts.get_user_count(Accounts.Role.renter(), conn)
     aircrafts = Flight.Scheduling.visible_aircrafts(conn)
 
     expired_inspections = Flight.Scheduling.ExpiredInspection.inspections_for_aircrafts(aircrafts)
@@ -25,6 +25,10 @@ defmodule FlightWeb.Admin.PageController do
       expired_inspections: expired_inspections,
       pending_transactions: pending_transactions
     )
+  end
+
+  def root(conn, _) do
+    redirect(conn, to: "/admin/dashboard")
   end
 
   def schools(conn, _params) do

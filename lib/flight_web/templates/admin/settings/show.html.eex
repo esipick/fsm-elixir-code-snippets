@@ -1,0 +1,64 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @school.name %></h2>
+    <%= if @school.address_1 do %>
+      <p class="category"><%= @school.address_1 %><br/> <%= @school.city %>, <%= @school.state %> <%= @school.zipcode %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="content">
+
+
+<div class="row">
+
+  <div class="col-md-8">
+    <div class="card ">
+      <div class="card-header">
+        <div class="d-flex justify-content-between mb-3">
+          <ul class="nav nav-pills nav-pills-primary" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link <%= if @tab == :school, do: "active", else: "" %>" href="/admin/settings">School Details</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <%= if @tab == :contact, do: "active", else: "" %>" href="/admin/settings?tab=contact">Contact Details</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href="/admin/settings?tab=billing">Billing Setup</a>
+            </li>
+          </ul>
+           <!--<a href="#edit" class="btn btn-primary">Edit</a> -->
+        </div>
+      </div>
+      <div class="card-body">
+        <%=
+          case @tab do
+            :school -> render "_school.html", school: @school, changeset: @changeset
+            :contact -> render "_contact.html", school: @school, changeset: @changeset
+            :billing -> render "_billing.html", school: @school
+          end
+          %>
+      </div>
+    </div> <!-- end card -->
+  </div>
+
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body detail-list">
+        <dl class="d-flex justify-content-between">
+          <dt>Account Created</dt>
+          <dd><%= display_date @school.inserted_at, :short %></dd>
+        </dl>
+        <dl class="d-flex justify-content-between">
+          <dt>Billing Status</dt>
+          <dd><span class="badge badge-success">Running</span></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+
+</div> <!-- end content -->

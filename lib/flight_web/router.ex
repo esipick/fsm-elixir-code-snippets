@@ -58,6 +58,8 @@ defmodule FlightWeb.Router do
   scope "/admin", FlightWeb.Admin do
     pipe_through([:browser, :admin_layout, :admin_authenticate, :admin_metrics_namespace])
 
+    get("/", PageController, :root)
+
     get("/dashboard", PageController, :dashboard)
 
     get("/logout", SessionController, :logout)
@@ -72,7 +74,9 @@ defmodule FlightWeb.Router do
       post("/cancel", TransactionController, :cancel)
     end
 
-    resources("/settings", SettingsController, only: [:index, :edit])
+    resources("/settings", SettingsController, only: [:show, :update], singleton: true)
+
+    get("/stripe_connect", StripeController, :connect)
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
 

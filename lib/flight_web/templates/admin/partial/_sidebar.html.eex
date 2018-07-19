@@ -60,7 +60,7 @@ Tip 2: you can also add an image using data-image tag
     </div>
     <ul class="nav">
 
-      <%= for item <- FlightWeb.SidebarItem.build(@conn.request_path, @conn.query_string) do %>
+      <%= for item <- FlightWeb.SidebarItem.build(@conn.request_path, @conn.query_string, @conn.assigns.current_user) do %>
         <li class="<%= if item.active, do: "active", else: "" %>">
             <a href="<%= item.path %>">
                 <i class="now-ui-icons <%= item.icon_class %>"></i>

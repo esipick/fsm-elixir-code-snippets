@@ -31,7 +31,7 @@ defmodule Flight.AccountsFixtures do
     school || school_fixture(%{name: "default"})
   end
 
-  def user_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
+  def user_fixture(attrs \\ %{}, %School{} = school \\ default_school_fixture()) do
     user =
       %User{
         email: "user-#{Flight.Random.string(20)}@email.com",
@@ -45,7 +45,7 @@ defmodule Flight.AccountsFixtures do
       |> User.__test_changeset(attrs)
       |> Repo.insert!()
 
-    %{user | password: nil}
+    %{user | password: nil, school: school}
   end
 
   def student_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
