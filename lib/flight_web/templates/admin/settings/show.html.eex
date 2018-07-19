@@ -51,7 +51,7 @@
         </dl>
         <dl class="d-flex justify-content-between">
           <dt>Billing Status</dt>
-          <dd><span class="badge badge-success">Running</span></dd>
+          <dd><%= stripe_status_html(@school.stripe_account) %></dd>
         </dl>
       </div>
     </div>

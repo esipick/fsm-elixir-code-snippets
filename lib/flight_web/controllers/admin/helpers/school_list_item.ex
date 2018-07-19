@@ -29,7 +29,11 @@ defmodule FlightWeb.Admin.SchoolListItem do
   end
 
   def location(school) do
-    "#{school.city}, #{school.state}"
+    if school.city do
+      "#{school.city}, #{school.state}"
+    else
+      "-"
+    end
   end
 
   def payment_status(stripe_account) do
