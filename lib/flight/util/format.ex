@@ -12,8 +12,16 @@ defmodule Flight.Format do
     end
   end
 
+  def tenths_from_hours(nil) do
+    0
+  end
+
   def tenths_from_hours(hours) do
     (hours * 10) |> trunc()
+  end
+
+  def hours_from_tenths(nil) do
+    0
   end
 
   def hours_from_tenths(tenths) do

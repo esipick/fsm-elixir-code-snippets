@@ -22,7 +22,7 @@
           <%= hidden_input f, :aircraft_id, value: @inspection.aircraft_id %>
 
           <%= case @form_type do
-            :tach -> render("_tach_inputs.html", f: f)
+            :tach -> render("_tach_inputs.html", f: f, changeset: @changeset)
             :date -> render("_date_inputs.html", f: f)
           end %>
         </div>
@@ -30,12 +30,12 @@
           <div class="pull-left">
             <a href="/admin/aircrafts/<%= @inspection.aircraft_id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
             <input type="submit" class="btn btn-fill btn-primary" value="Save">
-          </div>                
+          </div>
           <a href="" class="btn btn-fill btn-danger">Remove</a>
         </div>
       <% end %>
-      
-      
+
+
     </div> <!-- end card -->
   </div>
 </div>

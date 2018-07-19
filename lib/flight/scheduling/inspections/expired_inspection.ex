@@ -33,8 +33,11 @@ defmodule Flight.Scheduling.ExpiredInspection do
 
   def inspection_description(inspection) do
     case Inspection.to_specific(inspection) do
-      %DateInspection{expiration: expiration} -> Flight.Date.format(expiration)
-      %TachInspection{tach_time: tach_time} -> "#{tach_time}"
+      %DateInspection{expiration: expiration} ->
+        Flight.Date.format(expiration)
+
+      %TachInspection{tach_time: tach_time} ->
+        FlightWeb.ViewHelpers.display_hour_tenths(tach_time)
     end
   end
 

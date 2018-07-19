@@ -5,6 +5,5 @@
 
 <div class="form-group">
   <label>Tach Time</label>
-  <%= number_input @f, :tach_time, class: "form-control" %>
+  <%= number_input @f, :tach_time, class: "form-control", value: display_hour_tenths(@changeset.data.tach_time), step: "0.1" %>
 </div>
-

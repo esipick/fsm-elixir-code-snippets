@@ -1,6 +1,5 @@
 <tr>
   <td><%= @tach_inspection.name %></td>
-  <td><%= @tach_inspection.tach_time %></td>
+  <td><%= display_hour_tenths @tach_inspection.tach_time %></td>
   <td class="text-right"><a href="/admin/inspections/<%= @tach_inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
 </tr>
-

@@ -84,4 +84,12 @@ defmodule FlightWeb.ViewHelpers do
   def display_name(user) do
     "#{user.first_name} #{user.last_name}"
   end
+
+  def display_hour_tenths(tenths) do
+    tenths
+    |> Flight.Format.hours_from_tenths()
+    |> Decimal.new()
+    |> Decimal.round(1)
+    |> Decimal.to_string()
+  end
 end
