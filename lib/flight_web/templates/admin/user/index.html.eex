@@ -11,10 +11,7 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <!-- <h4 class="card-title">Students</h4> -->
-              </div>
-              <div class="card-body">
-                <div class="d-flex justify-content-between mb-3">
+                <div class="d-flex justify-content-between">
                   <ul class="nav nav-pills nav-pills-primary" role="tablist">
                     <li class="nav-item">
                       <a class="nav-link active" href="#" role="tablist" aria-expanded="false"><%= plural_label_for_role(@data.role) %></a>
@@ -25,6 +22,8 @@
                   </ul>
                   <!-- <a href="new-student.php" class="btn btn-primary">Add Student</a> -->
                 </div>
+              </div>
+              <div class="card-body">
                 <%=
                 case @data.user_table_data.style do
                   :detailed -> render(FlightWeb.Admin.UserView, "_detailed_table.html", detailed_rows: @data.user_table_data.rows)

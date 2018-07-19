@@ -1,8 +1,8 @@
-<div class="panel-header">
-  <div class="header text-center">
-    <h2 class="title">Randon Aviation</h2>
-    <p class="category">7220 South 4450 West<br/> West Jordan, UT 84088</p>
-  </div>
+<div class="panel-header panel-header-sm">
+  <!--<div class="header text-center">-->
+  <!--  <h2 class="title">Randon Aviation</h2>-->
+  <!--  <p class="category">7220 South 4450 West<br/> West Jordan, UT 84088</p>-->
+  <!--</div>-->
 </div>
 
 <div class="content">
@@ -13,7 +13,7 @@
   <div class="col-md-8">
     <div class="card ">
       <div class="card-header">
-        <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex justify-content-between">
           <ul class="nav nav-pills nav-pills-primary" role="tablist">
             <li class="nav-item">
               <a class="nav-link active" data-toggle="tab" href="#link1" role="tablist">School Details</a>
@@ -34,6 +34,12 @@
             <div class="tab-pane active" id="link1">
               <form accept-charset="UTF-8" action="/admin/aircrafts/1" class="" method="post"><input name="_method" type="hidden" value="put"><input name="_csrf_token" type="hidden" value="B04YOgcLLzZ5XhcgTSkGJ2tGAiofNgAAK/LhmzGBL4Qd5q1p2r3Oyw=="><input name="_utf8" type="hidden" value="✓">
                   
+                  <div class="row">
+                    <div class="col-md-12">
+                      <p class="card-desc">Enter in all information for your flight school. This contact information will be visible in the app for your users.</p>    
+                    </div>
+                  </div>
+
                   <div class="row">
                     <div class="col-md-12">
                       <div class="form-group">
@@ -107,7 +113,13 @@
 
             <div class="tab-pane" id="link2">
               <form accept-charset="UTF-8" action="/admin/aircrafts/1" class="" method="post"><input name="_method" type="hidden" value="put"><input name="_csrf_token" type="hidden" value="B04YOgcLLzZ5XhcgTSkGJ2tGAiofNgAAK/LhmzGBL4Qd5q1p2r3Oyw=="><input name="_utf8" type="hidden" value="✓">
-                  
+                
+                <div class="row">
+                  <div class="col-md-12">
+                    <p class="card-desc">These are your personal contact details Flight School Manager will use to contact you if needed. This information will not be shared with your users.</p>    
+                  </div>
+                </div>                  
+                
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group">
@@ -180,6 +192,58 @@
     </div>
   </div>
   
+  <%= if is_dev? do %>
+  <!-- Button trigger modal -->
+  <div id="prototyping-only">
+    <small>PAGE STATES</small>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#onboardingModal">onboarding modal</button>
+  </div>
+  <% end %>
+  
+
+  <!-- Onboarding Modal -->
+  <div class="modal fade" id="onboardingModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content text-center">
+        <div class="modal-header">
+          <!--<h5 class="modal-title">Almost done!</h5>-->
+          <i class="now-ui-icons ui-2_like modal-icon"></i>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h5>Almost done!</h5>
+          <p>There are a few more things we need to do before you are up and running. Follow the red dots on the screen to finish getting set up. </p>
+          <p>Contact <a href="mailto:emil-here">[contact email]</a>  if you need any help.</p>
+          <!--<dl>-->
+          <!--  <dt>1. School Details</dt>-->
+          <!--  <dd>Enter in all information for your flight school. This info will be publicly visible to your students.</dd>-->
+          <!--</dl>-->
+          <!--<dl>-->
+          <!--  <dt>2. Contact Details</dt>-->
+          <!--  <dd>Enter personal contact info that Flight School Manager can use when contacting you. This info will not be publicly visible.</dd>-->
+          <!--</dl>-->
+          <!--<dl>-->
+          <!--  <dt>3. Setup Billing</dt>-->
+          <!--  <dd>You'll need to connect your Stripe account to Flight School Manager. If you don't have a Stripe account yet, we'll set one up for you! Just follow the prompts on the billing setup tab.</dd>-->
+          <!--</dl>-->
+          <!--<dl>-->
+          <!--  <dt>4. Setup Aircrafts</dt>-->
+          <!--  <dd>Select the aircraft tab from the menu, and get all your aircrafts setup.</dd>-->
+          <!--</dl>-->
+          <!--<dl>-->
+          <!--  <dt>5. Invite your users!</dt>-->
+          <!--  <dd>Follow the tabs in the menu to invite admins, instructors, students and renters to the app.</dd>-->
+          <!--</dl>-->
+          <p></p>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Sounds Good</button>
+        </div>
+      </div>
+    </div>
+  </div>
   
 
 </div>
