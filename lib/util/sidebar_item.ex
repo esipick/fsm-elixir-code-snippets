@@ -27,6 +27,12 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
+        path: "/admin/schedule",
+        label: "Schedule",
+        icon_class: "ui-1_calendar-60",
+        active: false
+      },
+      %SidebarItem{
         path: "/admin/users?role=instructor",
         label: "Instructors",
         icon_class: "users_single-02",
@@ -51,20 +57,20 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
-        path: "/admin/schedule",
-        label: "Schedule",
-        icon_class: "ui-1_calendar-60",
+        path: "/admin/users?role=admin",
+        label: "Admins",
+        icon_class: "business_badge",
         active: false
       },
       %SidebarItem{
-        path: "/admin/users?role=admin",
-        label: "Admins",
-        icon_class: "business_briefcase-24",
+        path: "/admin/courses",
+        label: "Course Settings",
+        icon_class: "education_agenda-bookmark",
         active: false
       },
       %SidebarItem{
         path: "/admin/settings",
-        label: "Settings",
+        label: "School Settings",
         icon_class: "loader_gear",
         active: false
       }
