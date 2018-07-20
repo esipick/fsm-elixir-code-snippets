@@ -19,7 +19,7 @@
               <a class="nav-link active" href="/admin/schools" aria-expanded="false">Schools</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/admin/school/invitations" aria-expanded="true">Invitations</a>
+              <a class="nav-link" href="/admin/school_invitations" aria-expanded="true">Invitations</a>
             </li>
           </ul>
         </div>

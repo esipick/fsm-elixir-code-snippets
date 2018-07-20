@@ -5,7 +5,7 @@ defmodule Flight.AccountsFixtures do
   def school_fixture(attrs \\ %{}) do
     %School{
       name: "some_school_name",
-      contact_email: "#{Flight.Random.hex(52)}@mailinator.com",
+      contact_email: "fsm+#{Flight.Random.hex(20)}@mailinator.com",
       contact_first_name: "Billy",
       contact_last_name: "Jean",
       contact_phone_number: "555-555-5555"
@@ -101,7 +101,9 @@ defmodule Flight.AccountsFixtures do
 
   def school_invitation_fixture(attrs \\ %{}) do
     %Accounts.SchoolInvitation{
-      email: "#{Flight.Random.hex(20)}-user@email.com"
+      email: "#{Flight.Random.hex(20)}-user@email.com",
+      first_name: "Jon",
+      last_name: "Lebowski"
     }
     |> Accounts.SchoolInvitation.create_changeset(attrs)
     |> Repo.insert!()

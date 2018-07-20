@@ -45,6 +45,9 @@ defmodule FlightWeb.Router do
     get("/invitations/:token", InvitationController, :accept)
     get("/invitations/:token/success", InvitationController, :accept_success)
     post("/invitations/:token", InvitationController, :accept_submit)
+
+    get("/school_invitations/:token", SchoolInvitationController, :accept)
+    post("/school_invitations/:token", SchoolInvitationController, :accept_submit)
   end
 
   # Unauthenticated admin pages
@@ -83,6 +86,11 @@ defmodule FlightWeb.Router do
     resources("/invitations", InvitationController, only: [:create, :index]) do
       post("/resend", InvitationController, :resend)
       get("/resend", InvitationController, :resend)
+    end
+
+    resources("/school_invitations", SchoolInvitationController, only: [:create, :index]) do
+      post("/resend", SchoolInvitationController, :resend)
+      get("/resend", SchoolInvitationController, :resend)
     end
 
     resources(

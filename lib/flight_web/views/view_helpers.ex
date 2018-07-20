@@ -90,14 +90,13 @@ defmodule FlightWeb.ViewHelpers do
   end
 
   def stripe_status_html(stripe_account) do
-    html =
+    {class, text} =
       case Flight.Accounts.StripeAccount.status(stripe_account) do
-        :disconnected -> "<span class=\"badge badge-danger\">Disconnected</span>"
-        :running -> "<span class=\"badge badge-success\">Running</span>"
-        :error -> "<span class=\"badge badge-danger\">Needs Attention</span>"
+        :running -> {"badge-success", "Running"}
+        _ -> {"badge-danger", "Error"}
       end
 
-    Phoenix.HTML.raw(html)
+    Phoenix.HTML.raw("<span class=\"badge #{class}\">#{text}</span>")
   end
 
   def display_hour_tenths(tenths) do

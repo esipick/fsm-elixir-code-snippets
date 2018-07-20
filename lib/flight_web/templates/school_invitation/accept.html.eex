@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Flight School Manager</title>
+    <%= render FlightWeb.Admin.PartialView, "_shared_head.html", assigns %>
+  </head>
+  <body class="sidebar-none">
+    <div class="wrapper">
+
+    <!-- sidebar removed -->
+
+    <div class="main-panel">
+      <!-- Navbar -->
+      <nav class="navbar navbar-absolute">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            <a class="navbar-brand" href="#">Flight School Manager</a>
+          </div>
+        </div>
+      </nav>
+      <!-- End Navbar -->
+      <div class="panel-header">
+        <div class="header text-center">
+          <h2 class="title">Welcome to Flight School Manager</h2>
+          <p class="category">You've been invited to create a new school in Flight School Manager.
+            Lets create your account below.</a>
+          </p>
+        </div>
+      </div>
+      <div class="content">
+        <div class="row">
+          <div class="col-md-7 col-lg-5 ml-auto mr-auto">
+            <div class="card text-center">
+              <div class="card-header ">
+                <h4 class="card-title">Student Registration</h4>
+              </div>
+              <%= form_for @changeset, "/school_invitations/#{@invitation.token}", [as: :user, method: "post"], fn f -> %>
+                <div class="card-body">
+                  <%= if Enum.count(f.errors) > 0 do %>
+                    <div class="alert alert-danger">
+                      <%= for error <- human_error_messages(@changeset) do %>
+                        <span><%= error %></span></br>
+                      <% end %>
+                    </div>
+                  <% end %>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="sr-only">School Name</label>
+                        <%= text_input f, :school_name, class: "form-control", placeholder: "School Name" %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="sr-only">First Name</label>
+                        <%= text_input f, :first_name, class: "form-control", placeholder: "First Name" %>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="sr-only">Last Name</label>
+                        <%= text_input f, :last_name, class: "form-control", placeholder: "Last Name" %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="sr-only">Phone Number</label>
+                        <%= telephone_input f, :phone_number, class: "form-control", placeholder: "Phone #" %>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="sr-only">Email address</label>
+                        <%= email_input f, :email, class: "form-control", placeholder: "Email" %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="sr-only">Create Password</label>
+                        <%= password_input f, :password, class: "form-control", value: "", placeholder: "Password" %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- <div class="form-check text-left ml-3">
+                    <label class="form-check-label">
+                      <input class="form-check-input" type="checkbox">
+                      <span class="form-check-sign"></span>
+                      I agree to the
+                      <a href="#something">terms and conditions</a>.
+                    </label>
+                  </div> -->
+                </div> <!-- end card body -->
+                <div class="card-footer mb-3">
+                  <input type="submit" class="btn btn-primary btn-round btn-lg" value="Sign Up" />
+                  <div class="col-md-8 ml-auto mr-auto">
+                    <p class="text-muted mt-4"><small>By signing up, you are agreeing to the Flight School Manager <a href="#linktoterms">Terms and Conditions</a> .</small></p>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <!-- right column -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

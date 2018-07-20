@@ -402,23 +402,38 @@ defmodule Flight.Accounts do
       |> SchoolScope.school_changeset(school_context)
       |> Invitation.create_changeset(attrs)
 
+    school =
+      School
+      |> Repo.get(SchoolScope.school_id(school_context))
+      |> Repo.preload(:stripe_account)
+
     email = Ecto.Changeset.get_field(changeset, :email)
 
     user = dangerous_get_user_by_email(email)
 
-    if !user do
-      case Repo.insert(changeset) do
-        {:ok, invitation} = payload ->
-          send_invitation_email(invitation)
-          payload
+    cond do
+      !school.stripe_account ->
+        changeset
+        |> Ecto.Changeset.add_error(
+          :user,
+          "can't be invited unless you've attached a Stripe account. Go to Settings → Billing Setup to attach a Stripe account."
+        )
+        |> Ecto.Changeset.apply_action(:insert)
 
-        other ->
-          other
-      end
-    else
-      changeset
-      |> Ecto.Changeset.add_error(:email, "already exists for another user.")
-      |> Ecto.Changeset.apply_action(:insert)
+      user ->
+        changeset
+        |> Ecto.Changeset.add_error(:email, "already exists for another user.")
+        |> Ecto.Changeset.apply_action(:insert)
+
+      true ->
+        case Repo.insert(changeset) do
+          {:ok, invitation} = payload ->
+            send_invitation_email(invitation)
+            payload
+
+          other ->
+            other
+        end
     end
   end
 
@@ -531,11 +546,11 @@ defmodule Flight.Accounts do
       |> User.initial_user_changeset(user_data)
 
     cond do
-      !school_change.valid? ->
-        {:error, school_change}
-
       !user_change.valid? ->
-        {:error, user_change}
+        Ecto.Changeset.apply_action(user_change, :insert)
+
+      !school_change.valid? ->
+        Ecto.Changeset.apply_action(school_change, :insert)
 
       true ->
         Repo.transaction(fn ->
@@ -544,7 +559,7 @@ defmodule Flight.Accounts do
             accept_school_invitation(school_invitation)
             assign_roles(user, [Role.admin()])
 
-            school
+            {school, user}
           else
             {:error, error} ->
               Repo.rollback(error)
@@ -564,7 +579,7 @@ defmodule Flight.Accounts do
       contact_phone_number: user_data["phone_number"],
       contact_first_name: user_data["first_name"],
       contact_last_name: user_data["last_name"],
-      name: user_data["name"]
+      name: user_data["school_name"]
     }
   end
 
@@ -645,7 +660,7 @@ defmodule Flight.Accounts do
         school
       end)
     else
-      {:error, changeset}
+      Ecto.Changeset.apply_action(changeset, :insert)
     end
   end
 

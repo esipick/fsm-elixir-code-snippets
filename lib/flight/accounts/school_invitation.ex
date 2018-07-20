@@ -6,6 +6,8 @@ defmodule Flight.Accounts.SchoolInvitation do
     field(:accepted_at, :naive_datetime)
     field(:email, :string)
     field(:token, :string)
+    field(:first_name, :string)
+    field(:last_name, :string)
 
     timestamps()
   end
@@ -13,10 +15,10 @@ defmodule Flight.Accounts.SchoolInvitation do
   @doc false
   def create_changeset(school_invitation, attrs) do
     school_invitation
-    |> cast(attrs, [:email])
+    |> cast(attrs, [:email, :first_name, :last_name])
     |> generate_token()
     |> downcase_email()
-    |> validate_required([:email, :token])
+    |> validate_required([:email, :first_name, :last_name, :token])
     |> unique_constraint(:token)
   end
 
@@ -35,5 +37,13 @@ defmodule Flight.Accounts.SchoolInvitation do
 
     changeset
     |> Pipe.pass_unless(email, &put_change(&1, :email, String.downcase(email)))
+  end
+
+  def user_create_changeset(invitation) do
+    Flight.Accounts.User.create_changeset(%Flight.Accounts.User{}, %{
+      email: invitation.email,
+      first_name: invitation.first_name,
+      last_name: invitation.last_name
+    })
   end
 end

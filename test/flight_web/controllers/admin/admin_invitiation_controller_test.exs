@@ -48,7 +48,9 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
         }
       }
 
-      admin = admin_fixture()
+      school = school_fixture()
+      stripe_account_fixture(%{}, school)
+      admin = admin_fixture(%{}, school)
 
       conn
       |> web_auth(admin)
@@ -59,6 +61,33 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
 
       assert_delivered_email(Flight.Email.invitation_email(invitation))
       assert invitation
+    end
+
+    @tag :wip
+    test "fails to create invitation due to no Stripe account", %{conn: conn} do
+      payload = %{
+        data: %{
+          first_name: "John",
+          last_name: "Sullivan",
+          email: "jonesy@hello.com",
+          role_id: Accounts.Role.instructor().id
+        }
+      }
+
+      # Admin's school has no stripe account by default
+      admin = admin_fixture()
+
+      refute Flight.Repo.preload(admin.school, :stripe_account).stripe_account
+
+      response =
+        conn
+        |> web_auth(admin)
+        |> post("/admin/invitations", payload)
+        |> html_response(200)
+
+      refute Accounts.get_invitation_for_email("jonesy@hello.com", admin)
+
+      assert response =~ "Stripe"
     end
   end
 

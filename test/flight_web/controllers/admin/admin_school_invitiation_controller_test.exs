@@ -36,18 +36,22 @@ defmodule FlightWeb.Admin.SchoolInvitationControllerTest do
     test "creates invitation", %{conn: conn} do
       payload = %{
         data: %{
-          email: "jonesy@hello.com"
+          email: "jonesy@hello.com",
+          first_name: "Eh",
+          last_name: "TooBrute"
         }
       }
 
       admin = admin_fixture()
 
-      conn
-      |> web_auth(admin)
-      |> post("/admin/school_invitations", payload)
-      |> response_redirected_to("/admin/school_invitations")
+      conn =
+        conn
+        |> web_auth(admin)
+        |> post("/admin/school_invitations", payload)
 
-      assert invitation = Accounts.get_school_invitation_for_email("jonesy@hello.com", admin)
+      assert redirected_to(conn) == "/admin/school_invitations"
+
+      assert invitation = Accounts.get_school_invitation_for_email("jonesy@hello.com")
 
       assert_delivered_email(Flight.Email.school_invitation_email(invitation))
     end
@@ -60,7 +64,7 @@ defmodule FlightWeb.Admin.SchoolInvitationControllerTest do
       conn
       |> web_auth_admin()
       |> post("/admin/school_invitations/#{invitation.id}/resend")
-      |> response_redirected_to("/admin/invitations?role=admin")
+      |> response_redirected_to("/admin/school_invitations")
 
       assert_delivered_email(Flight.Email.school_invitation_email(invitation))
     end

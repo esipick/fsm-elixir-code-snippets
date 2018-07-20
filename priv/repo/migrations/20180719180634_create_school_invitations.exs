@@ -4,6 +4,8 @@ defmodule Flight.Repo.Migrations.CreateSchoolInvitations do
   def change do
     create table(:school_invitations) do
       add(:email, :string)
+      add(:first_name, :string)
+      add(:last_name, :string)
       add(:token, :string)
       add(:accepted_at, :naive_datetime)
 

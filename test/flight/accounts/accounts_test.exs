@@ -201,6 +201,8 @@ defmodule Flight.Accounts.AccountsTest do
 
   describe "invitations" do
     test "create_invitation/1 creates invitation" do
+      stripe_account = stripe_account_fixture()
+
       assert {:ok, %Accounts.Invitation{} = invitation} =
                Accounts.create_invitation(
                  %{
@@ -209,7 +211,7 @@ defmodule Flight.Accounts.AccountsTest do
                    email: "foo@bar.com",
                    role_id: Accounts.Role.admin().id
                  },
-                 school_fixture()
+                 stripe_account.school
                )
 
       assert invitation.first_name == "foo"
@@ -222,6 +224,8 @@ defmodule Flight.Accounts.AccountsTest do
     end
 
     test "create_invitation/1 downcases email" do
+      stripe_account = stripe_account_fixture()
+
       assert {:ok, %Accounts.Invitation{} = invitation} =
                Accounts.create_invitation(
                  %{
@@ -230,14 +234,16 @@ defmodule Flight.Accounts.AccountsTest do
                    email: "FOO@bar.com",
                    role_id: Accounts.Role.admin().id
                  },
-                 school_fixture()
+                 stripe_account.school
                )
 
       assert invitation.email == "foo@bar.com"
     end
 
     test "create_invitation/1 fails if user already exists with email" do
-      user = user_fixture(%{email: "foo@bar.com"})
+      stripe_account = stripe_account_fixture()
+
+      user = user_fixture(%{email: "foo@bar.com"}, stripe_account.school)
 
       assert {:error, changeset} =
                Accounts.create_invitation(
@@ -405,7 +411,9 @@ defmodule Flight.Accounts.AccountsTest do
     test "create_school_invitation/1 creates invitation and sends email" do
       assert {:ok, %SchoolInvitation{} = invitation} =
                Accounts.create_school_invitation(%{
-                 email: "foo@bar.com"
+                 email: "foo@bar.com",
+                 first_name: "Alice",
+                 last_name: "Potter"
                })
 
       assert invitation.email == "foo@bar.com"
@@ -423,7 +431,7 @@ defmodule Flight.Accounts.AccountsTest do
       email = "#{Flight.Random.hex(33)}@bar.com"
 
       data = %{
-        name: "School name",
+        school_name: "School name",
         first_name: "Jesse",
         last_name: "Allen",
         phone_number: "801-555-5555",
@@ -431,7 +439,8 @@ defmodule Flight.Accounts.AccountsTest do
         password: "hello world"
       }
 
-      assert {:ok, school} = Accounts.create_school_from_invitation(data, school_invitation)
+      assert {:ok, {school, _user}} =
+               Accounts.create_school_from_invitation(data, school_invitation)
 
       assert school.name == "School name"
       assert school.contact_first_name == "Jesse"
@@ -480,7 +489,7 @@ defmodule Flight.Accounts.AccountsTest do
       email = "parkerwightman@gmail.com"
 
       data = %{
-        name: "School name",
+        school_name: "School name",
         first_name: "Jesse",
         last_name: "Allen",
         phone_number: "801-555-5555",
@@ -488,7 +497,8 @@ defmodule Flight.Accounts.AccountsTest do
         password: "hello world"
       }
 
-      assert {:ok, school} = Accounts.create_school_from_invitation(data, school_invitation)
+      assert {:ok, {school, _user}} =
+               Accounts.create_school_from_invitation(data, school_invitation)
 
       assert school.name == "School name"
       assert school.contact_first_name == "Jesse"

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Randon Aviation</title>
+    <%= render FlightWeb.Admin.PartialView, "_shared_head.html", assigns %>
+  </head>
+  <body class="sidebar-none">
+    <div class="wrapper">
+
+    <!-- sidebar removed -->
+
+    <div class="main-panel">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-transparent  navbar-absolute bg-primary fixed-top">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            <div class="navbar-toggle">
+              <button type="button" class="navbar-toggler">
+                <span class="navbar-toggler-bar bar1"></span>
+                <span class="navbar-toggler-bar bar2"></span>
+                <span class="navbar-toggler-bar bar3"></span>
+              </button>
+            </div>
+            <a class="navbar-brand" href="#">Flight School Manager</a>
+          </div>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-end" id="navigation">
+            <ul class="navbar-nav">
+
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <!-- End Navbar -->
+      <div class="panel-header">
+        <div class="header text-center">
+          <h2 class="title">Welcome to Randon Aviation</h2>
+        </div>
+      </div>
+      <div class="content">
+        <div class="row">
+          <div class="col-md-5 ml-auto mr-auto">
+            <div class="card text-center">
+              <div class="card-header ">
+                <h4 class="card-title">Success!</h4>
+              </div>
+              <div class="card-body">
+                <p>Your account has been created. Please follow the link to download the Flight School Manager app to finish your profile and schedule your first lesson!</p>
+              </div> <!-- end card body -->
+              <div class="card-footer mb-3">
+                <a href="https://itunes.apple.com/us/app/flight-school-manager/id1079676025?ls=1&mt=8" class="btn btn-primary btn-round btn-lg">Get the App</a>
+                <div class="col-md-8 ml-auto mr-auto">
+                  <p class="text-muted mt-4"><small>Or search <a href="https://itunes.apple.com/us/app/flight-school-manager/id1079676025?ls=1&mt=8">Flight School Manager</a> in the app store on your compatible iOS device.</small></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- right column -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
