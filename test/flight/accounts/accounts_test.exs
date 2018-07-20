@@ -136,6 +136,17 @@ defmodule Flight.Accounts.AccountsTest do
       assert {:ok, %User{}} = Accounts.delete_user(user)
       refute Accounts.get_user(user.id, user)
     end
+
+    @tag :wip
+    test "set_password/2 sets password for user" do
+      user = user_fixture()
+
+      assert {:error, _} = Accounts.check_password(user, "blarghy blargh")
+
+      {:ok, user} = Accounts.set_password(user, "blarghy blargh")
+
+      assert {:ok, _user} = Accounts.check_password(user, "blarghy blargh")
+    end
   end
 
   describe "roles" do

@@ -41,11 +41,10 @@ defmodule Flight.AccountsFixtures do
         first_name: "some first name",
         last_name: "some last name",
         phone_number: "801-555-5555",
-        password: "some password",
         stripe_customer_id: "cus_#{Flight.Random.hex(20)}",
         school_id: school.id
       }
-      |> User.__test_changeset(attrs)
+      |> User.__test_changeset(%{password: "some password"} |> Map.merge(attrs))
       |> Repo.insert!()
 
     %{user | password: nil, school: school}
