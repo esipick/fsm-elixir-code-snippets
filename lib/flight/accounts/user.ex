@@ -120,6 +120,13 @@ defmodule Flight.Accounts.User do
     |> base_validations(roles, flyer_certificates)
   end
 
+  def update_password_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:password])
+    |> validate_password(:password)
+    |> put_pass_hash()
+  end
+
   def base_validations(changeset, roles \\ nil, flyer_certificates \\ nil) do
     changeset
     |> validate_required([:email, :first_name, :last_name])

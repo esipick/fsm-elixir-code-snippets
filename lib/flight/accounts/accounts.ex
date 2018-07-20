@@ -131,6 +131,12 @@ defmodule Flight.Accounts do
     Comeonin.Bcrypt.check_pass(user, password)
   end
 
+  def set_password(user, password) do
+    user
+    |> User.update_password_changeset(%{password: password})
+    |> Repo.update()
+  end
+
   ###
   # Form fields
   ###
