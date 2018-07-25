@@ -10,6 +10,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
     Scheduling.insert_or_update_appointment(
       %Scheduling.Appointment{},
       data,
+      admin_fixture(),
       default_school_fixture()
     )
   end

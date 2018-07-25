@@ -171,11 +171,18 @@ defmodule Flight.Scheduling do
     |> Repo.one()
   end
 
-  def insert_or_update_appointment(appointment \\ %Appointment{}, attrs, school_context) do
+  def insert_or_update_appointment(
+        appointment,
+        attrs,
+        modifying_user,
+        school_context
+      ) do
     changeset =
       appointment
       |> SchoolScope.school_changeset(school_context)
       |> Appointment.changeset(attrs)
+
+    is_create? = is_nil(appointment.id)
 
     if changeset.valid? do
       {:ok, _} = apply_action(changeset, :insert)
@@ -250,14 +257,99 @@ defmodule Flight.Scheduling do
           changeset
         end
 
-      Repo.insert_or_update(changeset)
+      case Repo.insert_or_update(changeset) do
+        {:ok, appointment} = result ->
+          Mondo.Task.start(fn ->
+            if Enum.count(changeset.changes) > 0 do
+              if is_create? do
+                send_created_notifications(appointment, modifying_user)
+              else
+                send_changed_notifications(appointment, modifying_user)
+              end
+            end
+          end)
+
+          result
+
+        other ->
+          other
+      end
     else
       {:error, changeset}
     end
   end
 
-  def delete_appointment(id, school_context),
-    do: Repo.delete!(get_appointment(id, school_context))
+  def send_created_notifications(appointment, modifying_user) do
+    appointment = Repo.preload(appointment, [:user, :instructor_user])
+
+    if modifying_user.id != appointment.user_id do
+      Flight.PushNotifications.appointment_created_notification(
+        appointment.user,
+        modifying_user,
+        appointment
+      )
+      |> Mondo.PushService.publish()
+    end
+
+    if appointment.instructor_user && appointment.instructor_user.id != modifying_user.id do
+      Flight.PushNotifications.appointment_created_notification(
+        appointment.instructor_user,
+        modifying_user,
+        appointment
+      )
+      |> Mondo.PushService.publish()
+    end
+  end
+
+  def send_changed_notifications(appointment, modifying_user) do
+    appointment = Repo.preload(appointment, [:user, :instructor_user])
+
+    if modifying_user.id != appointment.user_id do
+      Flight.PushNotifications.appointment_changed_notification(
+        appointment.user,
+        modifying_user,
+        appointment
+      )
+      |> Mondo.PushService.publish()
+    end
+
+    if appointment.instructor_user && appointment.instructor_user.id != modifying_user.id do
+      Flight.PushNotifications.appointment_changed_notification(
+        appointment.instructor_user,
+        modifying_user,
+        appointment
+      )
+      |> Mondo.PushService.publish()
+    end
+  end
+
+  def delete_appointment(id, deleting_user, school_context) do
+    appointment =
+      get_appointment(id, school_context)
+      |> Repo.preload([:user, :instructor_user])
+
+    Repo.delete!(appointment)
+
+    Mondo.Task.start(fn ->
+      if deleting_user.id != appointment.user_id do
+        Flight.PushNotifications.appointment_deleted_notification(
+          appointment.user,
+          deleting_user,
+          appointment
+        )
+        |> Mondo.PushService.publish()
+      end
+
+      if appointment.instructor_user && appointment.instructor_user.id != deleting_user.id do
+        Flight.PushNotifications.appointment_deleted_notification(
+          appointment.instructor_user,
+          deleting_user,
+          appointment
+        )
+        |> Mondo.PushService.publish()
+      end
+    end)
+  end
 
   def get_appointments(options) do
     query = from(a in Appointment)

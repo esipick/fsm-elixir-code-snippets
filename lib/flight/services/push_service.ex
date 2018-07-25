@@ -47,31 +47,6 @@ defmodule Mondo.PushService do
     end
   end
 
-  # def message_notification(%Flight.MessageNotificationPayload{} = payload) do
-  #   from_user = Flight.Repo.get!(Flight.Accounts.User, payload.from_user_id)
-  #
-  #   %PushNotification{
-  #     title: "New message from #{from_user.first_name}",
-  #     update_badge: true,
-  #     sound: true,
-  #     data: %{
-  #       "thread-id": payload.conversation_id,
-  #       type: "new_message",
-  #       conversation_id: payload.conversation_id
-  #     },
-  #     user_id: payload.target_user_id
-  #   }
-  # end
-
-  def test_notification(user_id) do
-    %Mondo.PushNotification{
-      title: "Hello World",
-      body: "This is a test notification",
-      sound: true,
-      user_id: user_id
-    }
-  end
-
   # TODO: This could be more exhaustively tested by taking an api_client parameter, defaulting to @api_client perhaps.
   # The passed-in client could return different error codes to makes sure the error paths are taken correctly.
   def publish(push_notification) do
@@ -93,8 +68,8 @@ defmodule Mondo.PushService do
           {:error, error} ->
             Logger.error("Failed to send push notification. #{inspect(error)}")
 
-          _ ->
-            Logger.info("Successfully sent push notification")
+          {:ok, _} ->
+            Logger.info("Successfully sent push notification to #{push_notification.user_id}")
             result
         end
       end

@@ -21,6 +21,10 @@ defmodule FlightWeb.Router do
     plug(FlightWeb.AuthenticateWebUser, roles: ["admin"])
   end
 
+  pipeline :webhooks_authenticate do
+    plug(FlightWeb.AuthenticateWebhook)
+  end
+
   pipeline :admin_metrics_namespace do
     plug(AppsignalNamespace)
   end
@@ -48,6 +52,22 @@ defmodule FlightWeb.Router do
 
     get("/school_invitations/:token", SchoolInvitationController, :accept)
     post("/school_invitations/:token", SchoolInvitationController, :accept_submit)
+  end
+
+  scope "/webhooks", FlightWeb do
+    pipe_through([:webhooks_authenticate])
+
+    post(
+      "/upcoming_appointment_notifications",
+      WebhookController,
+      :upcoming_appointment_notifications
+    )
+
+    post(
+      "/outstanding_payments_notifications",
+      WebhookController,
+      :outstanding_payments_notifications
+    )
   end
 
   # Unauthenticated admin pages

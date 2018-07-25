@@ -21,6 +21,7 @@ config :flight, Flight.Repo,
 config :bcrypt_elixir, log_rounds: 4
 
 config :flight, :user_token_salt, "gwfyeA8B5"
+config :flight, :webhook_token, "abc"
 
 config :flight, Flight.Mailer, adapter: Bamboo.TestAdapter
 

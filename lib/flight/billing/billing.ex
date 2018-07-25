@@ -173,7 +173,11 @@ defmodule Flight.Billing do
 
     case result do
       {:ok, transaction} ->
-        approve_transaction_if_necessary(transaction, form.source)
+        {:ok, transaction} = approve_transaction_if_necessary(transaction, form.source)
+
+        send_payment_request_notification(transaction)
+
+        {:ok, transaction}
 
       error ->
         error
@@ -201,11 +205,46 @@ defmodule Flight.Billing do
 
     case result do
       {:ok, transaction} ->
-        approve_transaction_if_necessary(transaction, form.source)
+        {:ok, transaction} = approve_transaction_if_necessary(transaction, form.source)
+
+        send_payment_request_notification(transaction)
+
+        {:ok, transaction}
 
       error ->
         error
     end
+  end
+
+  def send_payment_request_notification(transaction) do
+    Mondo.Task.start(fn ->
+      transaction =
+        transaction
+        |> Repo.preload([:user, :creator_user])
+
+      case transaction.state do
+        "pending" ->
+          Flight.PushNotifications.payment_request_notification(
+            transaction.user,
+            transaction.creator_user,
+            transaction
+          )
+          |> Mondo.PushService.publish()
+
+        "completed" ->
+          if transaction.paid_by_balance do
+            Flight.PushNotifications.balance_deducted_notification(
+              transaction.user,
+              transaction.creator_user,
+              transaction
+            )
+            |> Mondo.PushService.publish()
+          end
+
+        _ ->
+          :nothing
+      end
+    end)
   end
 
   def approve_transaction_if_necessary(transaction, source) do
@@ -339,37 +378,26 @@ defmodule Flight.Billing do
         {:ok, {user, transaction}}
       end)
 
+    case result do
+      {:ok, {_, transaction}} ->
+        Mondo.Task.start(fn ->
+          transaction =
+            transaction
+            |> Repo.preload([:user])
+
+          Flight.PushNotifications.funds_added_notification(
+            transaction.user,
+            creator_user,
+            transaction
+          )
+          |> Mondo.PushService.publish()
+        end)
+
+      _ ->
+        :nothing
+    end
+
     result
-  end
-
-  def add_funds_by_credit(user, creator_user, amount) when is_integer(amount) do
-    transaction =
-      %Transaction{}
-      |> SchoolScope.school_changeset(user)
-      |> Transaction.changeset(%{
-        user_id: user.id,
-        creator_user_id: creator_user.id,
-        completed_at: NaiveDateTime.utc_now(),
-        state: "completed",
-        type: "credit",
-        total: amount
-      })
-      |> Repo.insert!()
-
-    line_item =
-      %TransactionLineItem{}
-      |> TransactionLineItem.changeset(%{
-        transaction_id: transaction.id,
-        description: "Added funds to balance.",
-        amount: amount
-      })
-      |> Repo.insert!()
-
-    {:ok, user} = Billing.update_balance(user, amount)
-
-    transaction = %{transaction | line_items: [line_item]}
-
-    {:ok, {user, transaction}}
   end
 
   def approve_transaction(transaction, source? \\ nil) do

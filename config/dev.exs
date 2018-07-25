@@ -33,6 +33,7 @@ config :stripity_stripe,
 config :flight, :stripe_webhook_secret, "whsec_GRniVd07D9yl84sImiK3ijoy1JE6gqwf"
 config :flight, :stripe_livemode, false
 config :flight, :superadmin_ids, [7]
+config :flight, :webhook_token, "abc"
 
 config :stripity_stripe, :pool_options,
   timeout: 5_000,

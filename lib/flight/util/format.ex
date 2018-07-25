@@ -22,6 +22,10 @@ defmodule Flight.Format do
     end
   end
 
+  def currency(amount) do
+    CurrencyFormatter.format(amount, "USD", keep_decimals: true)
+  end
+
   def tenths_from_hours(nil) do
     0
   end

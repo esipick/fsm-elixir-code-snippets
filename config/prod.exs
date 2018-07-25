@@ -48,6 +48,8 @@ config :flight,
     |> String.split(",")
     |> Enum.map(&String.to_integer/1)
 
+config :flight, :webhook_token, Map.fetch!(System.get_env(), "WEBHOOK_TOKEN")
+
 config :stripity_stripe, :pool_options,
   timeout: 5_000,
   max_connections: 10

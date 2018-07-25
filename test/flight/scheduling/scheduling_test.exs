@@ -177,6 +177,7 @@ defmodule Flight.SchedulingTest do
       Scheduling.insert_or_update_appointment(
         %Scheduling.Appointment{},
         data,
+        admin_fixture(),
         default_school_fixture()
       )
     end
@@ -226,6 +227,7 @@ defmodule Flight.SchedulingTest do
           %{
             start_at: Timex.shift(now, minutes: 30)
           },
+          admin_fixture(),
           default_school_fixture()
         )
 
@@ -600,6 +602,14 @@ defmodule Flight.SchedulingTest do
                  "user_id" => appointment1.user.id,
                  "aircraft_id" => appointment1.aircraft.id
                })
+    end
+
+    test "delete_appointment/3 deletes appointment" do
+      admin = admin_fixture()
+
+      appointment = appointment_fixture()
+
+      Scheduling.delete_appointment(appointment.id, admin, appointment)
     end
   end
 end

@@ -51,6 +51,7 @@ defmodule FlightWeb.API.AppointmentController do
     case Flight.Scheduling.insert_or_update_appointment(
            %Scheduling.Appointment{},
            appointment_data,
+           conn.assigns.current_user,
            conn
          ) do
       {:ok, appointment} ->
@@ -68,6 +69,7 @@ defmodule FlightWeb.API.AppointmentController do
     case Flight.Scheduling.insert_or_update_appointment(
            conn.assigns.appointment,
            appointment_data,
+           conn.assigns.current_user,
            conn
          ) do
       {:ok, appointment} ->
@@ -82,7 +84,7 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def delete(conn, _) do
-    Scheduling.delete_appointment(conn.assigns.appointment.id, conn)
+    Scheduling.delete_appointment(conn.assigns.appointment.id, conn.assigns.current_user, conn)
 
     conn
     |> resp(204, "")
