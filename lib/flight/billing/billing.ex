@@ -30,7 +30,7 @@ defmodule Flight.Billing do
     )
   end
 
-  def aircraft_cost(hobbs_start, hobbs_end, rate, fee_percentage \\ 0.01) do
+  def aircraft_cost(hobbs_start, hobbs_end, rate, fee_percentage) do
     cond do
       hobbs_end <= hobbs_start ->
         {:error, :invalid_hobbs_interval}
@@ -42,7 +42,7 @@ defmodule Flight.Billing do
     end
   end
 
-  def aircraft_cost!(hobbs_start, hobbs_end, rate, fee_percentage \\ 0.01) do
+  def aircraft_cost!(hobbs_start, hobbs_end, rate, fee_percentage) do
     case aircraft_cost(hobbs_start, hobbs_end, rate, fee_percentage) do
       {:ok, amount} -> amount
       {:error, reason} -> raise ArgumentError, "Failed to compute aircraft cost: #{reason}"
@@ -608,6 +608,7 @@ defmodule Flight.Billing do
         Stripe.Charge.create(
           %{
             source: source_id,
+            application_fee: application_fee_for_total(total),
             customer: customer_id,
             currency: "usd",
             receipt_email: email,
@@ -616,6 +617,10 @@ defmodule Flight.Billing do
           connect_account: stripe_account.stripe_account_id
         )
     end
+  end
+
+  def application_fee_for_total(total) do
+    trunc(total * 0.01)
   end
 
   def create_ephemeral_key(customer_id, api_version, school_context) do

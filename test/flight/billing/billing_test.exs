@@ -292,6 +292,12 @@ defmodule Flight.BillingTest do
     end
   end
 
+  describe "application_fee_for_total/1" do
+    test "is the right percentage" do
+      assert Billing.application_fee_for_total(10000) == 100
+    end
+  end
+
   describe "add_funds_by_credit/2" do
     test "adds funds to user and creates transaction" do
       user = student_fixture()

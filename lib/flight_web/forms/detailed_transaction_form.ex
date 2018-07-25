@@ -146,7 +146,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
           hobbs_end: aircraft_details.hobbs_end,
           tach_start: aircraft_details.tach_start,
           tach_end: aircraft_details.tach_end,
-          fee_percentage: 0.01,
+          fee_percentage: 0.00,
           rate_type: Atom.to_string(rate_type),
           rate: rate
         }

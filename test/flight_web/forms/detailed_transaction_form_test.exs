@@ -62,7 +62,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
       assert aircraft_details.tach_start == attrs.aircraft_details.tach_start
       assert aircraft_details.tach_end == attrs.aircraft_details.tach_end
       assert aircraft_details.rate == 120
-      assert aircraft_details.fee_percentage == 0.01
+      assert aircraft_details.fee_percentage == 0.00
       assert aircraft_details.rate_type == "normal"
 
       assert Flight.Repo.insert!(transaction)
