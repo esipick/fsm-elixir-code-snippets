@@ -54,12 +54,12 @@ defmodule FlightWeb.SidebarItem do
         icon_class: "objects_spaceship",
         active: false
       },
-      %SidebarItem{
-        path: "/admin/schedule",
-        label: "Schedule",
-        icon_class: "ui-1_calendar-60",
-        active: false
-      },
+      # %SidebarItem{
+      #   path: "/admin/schedule",
+      #   label: "Schedule",
+      #   icon_class: "ui-1_calendar-60",
+      #   active: false
+      # },
       %SidebarItem{
         path: "/admin/users?role=admin",
         label: "Admins",
