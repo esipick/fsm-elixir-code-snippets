@@ -137,7 +137,6 @@ defmodule Flight.Accounts.AccountsTest do
       refute Accounts.get_user(user.id, user)
     end
 
-    @tag :wip
     test "set_password/2 sets password for user" do
       user = user_fixture()
 
@@ -407,7 +406,6 @@ defmodule Flight.Accounts.AccountsTest do
       refute Flight.Repo.get_by(Flight.Accounts.StripeAccount, school_id: school.id)
     end
 
-    @tag :wip
     test "create_school_invitation/1 creates invitation and sends email" do
       assert {:ok, %SchoolInvitation{} = invitation} =
                Accounts.create_school_invitation(%{
@@ -460,6 +458,7 @@ defmodule Flight.Accounts.AccountsTest do
       assert user.last_name == school.contact_last_name
       assert user.email == school.contact_email
       assert user.phone_number == school.contact_phone_number
+      assert user.stripe_customer_id
 
       assert {:ok, _} = Accounts.check_password(user, "hello world")
     end
