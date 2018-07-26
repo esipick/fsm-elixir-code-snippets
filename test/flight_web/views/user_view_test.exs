@@ -7,7 +7,7 @@ defmodule FlightWeb.API.UserViewTest do
   test "show.json" do
     user =
       user_fixture()
-      |> Flight.Repo.preload([:roles, :flyer_certificates])
+      |> FlightWeb.API.UserView.show_preload()
 
     assert render(UserView, "show.json", user: user) == %{
              data: render(UserView, "user.json", user: user)

@@ -5,7 +5,7 @@ defmodule FlightWeb.API.SessionControllerTest do
     test "logs in successfully", %{conn: conn} do
       user =
         user_fixture(%{email: "food@bard.com", password: "oh hey there"})
-        |> Flight.Repo.preload([:roles, :flyer_certificates])
+        |> FlightWeb.API.UserView.show_preload()
 
       json =
         conn
