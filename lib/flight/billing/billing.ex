@@ -346,28 +346,44 @@ defmodule Flight.Billing do
     end
   end
 
-  def add_funds_by_credit(user, creator_user, amount) when is_integer(amount) and amount > 0 do
+  def add_funds_by_credit(user, creator_user, amount)
+      when is_integer(amount) and (amount > 0 or amount < 0) do
+    transaction_type = if amount > 0, do: "credit", else: "debit"
+
     {:ok, result} =
       Repo.transaction(fn ->
         transaction =
           %Transaction{}
           |> SchoolScope.school_changeset(user)
-          |> Transaction.changeset(%{
-            user_id: user.id,
-            creator_user_id: creator_user.id,
-            completed_at: NaiveDateTime.utc_now(),
-            state: "completed",
-            type: "credit",
-            total: amount
-          })
+          |> Transaction.changeset(
+            %{
+              user_id: user.id,
+              creator_user_id: creator_user.id,
+              completed_at: NaiveDateTime.utc_now(),
+              state: "completed",
+              type: transaction_type,
+              total: abs(amount)
+            }
+            |> pass_unless(
+              transaction_type == "debit",
+              &Map.put(&1, :paid_by_balance, abs(amount))
+            )
+          )
           |> Repo.insert!()
+
+        description =
+          if transaction_type == "debit" do
+            "Deducted funds from balance."
+          else
+            "Added funds to balance."
+          end
 
         line_item =
           %TransactionLineItem{}
           |> TransactionLineItem.changeset(%{
             transaction_id: transaction.id,
-            description: "Added funds to balance.",
-            amount: amount
+            description: description,
+            amount: abs(amount)
           })
           |> Repo.insert!()
 
@@ -398,6 +414,10 @@ defmodule Flight.Billing do
     end
 
     result
+  end
+
+  def add_funds_by_credit(_, _, _) do
+    {:error, :invalid_amount}
   end
 
   def approve_transaction(transaction, source? \\ nil) do

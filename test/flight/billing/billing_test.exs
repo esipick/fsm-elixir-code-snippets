@@ -325,6 +325,33 @@ defmodule Flight.BillingTest do
       assert line_item.transaction_id == transaction.id
       assert line_item.description == "Added funds to balance."
     end
+
+    test "deducts funds from user and creates transaction" do
+      user = student_fixture(%{balance: 3100})
+      admin = admin_fixture()
+
+      assert {:ok, {user, transaction}} = Billing.add_funds_by_credit(user, admin, -3000)
+
+      assert transaction.school_id == user.school_id
+
+      assert Enum.count(transaction.line_items) == 1
+
+      user = Flight.Repo.get(Flight.Accounts.User, user.id)
+      line_item = List.first(transaction.line_items)
+
+      assert user.balance == 100
+      assert transaction.total == 3000
+      assert transaction.type == "debit"
+      refute transaction.paid_by_charge
+      assert transaction.paid_by_balance == 3000
+      assert transaction.user_id == user.id
+      assert transaction.creator_user_id == admin.id
+      refute transaction.stripe_charge_id
+
+      assert line_item.amount == 3000
+      assert line_item.transaction_id == transaction.id
+      assert line_item.description == "Deducted funds from balance."
+    end
   end
 
   describe "cancel_transaction/1" do
