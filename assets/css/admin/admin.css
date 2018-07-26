@@ -138,6 +138,18 @@ table .photo {
   background-color: #F64461;
 }
 
+.btn-default.btn-simple,
+.btn-default.btn-simple:focus,
+.btn-default.btn-simple:hover,
+.btn-default.btn-simple:active{
+  background: none;
+  border-color: #e3e3e3;
+  text-transform: none;
+  font-size: .8571em;
+  font-weight: normal;
+  color: #2c2c2c;
+}
+
 .btn-sm {
   border-radius: 2px;
 }
@@ -733,8 +745,21 @@ fieldset[disabled] .fc button:hover {
 }
 
 
-
-
+/* selectpicker plugin */
+.dropdown-menu.open .form-control {
+  border: 1px solid #e3e3e3;
+  border-radius: 30px;
+}
+.dropdown-menu .hidden {
+  display: none!important;
+}
+.bootstrap-select.show > .btn.dropdown-toggle {
+  background-color: transparent;
+  color: #2c2c2c;
+}
+.bootstrap-select > .btn.dropdown-toggle.bs-placeholder {
+  color: rgba(0,0,0,.15);
+}
 
 
 /* Small devices (landscape phones, 375px and up) */
