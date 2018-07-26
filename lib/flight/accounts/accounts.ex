@@ -555,7 +555,7 @@ defmodule Flight.Accounts do
       true ->
         Repo.transaction(fn ->
           with {:ok, school} <- create_school(school_data),
-               {:ok, user} <- create_user(user_data, school, false) do
+               {:ok, user} <- create_user(user_data, school, school.stripe_account != nil) do
             accept_school_invitation(school_invitation)
             assign_roles(user, [Role.admin()])
 
@@ -651,13 +651,14 @@ defmodule Flight.Accounts do
           changeset
           |> Repo.insert()
 
-        if account do
-          StripeAccount.new(account)
-          |> StripeAccount.changeset(%{school_id: school.id})
-          |> Repo.insert()
-        end
+        stripe_account =
+          if account do
+            StripeAccount.new(account)
+            |> StripeAccount.changeset(%{school_id: school.id})
+            |> Repo.insert()
+          end
 
-        school
+        %{school | stripe_account: stripe_account}
       end)
     else
       Ecto.Changeset.apply_action(changeset, :insert)
