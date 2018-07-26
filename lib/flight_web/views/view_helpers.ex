@@ -5,6 +5,10 @@ defmodule FlightWeb.ViewHelpers do
   def format_date(date) do
     Flight.Date.format(date)
   end
+  
+  def is_dev?() do
+    Mix.env == :dev
+  end
 
   def human_error_messages(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn _, _, {message, _} ->

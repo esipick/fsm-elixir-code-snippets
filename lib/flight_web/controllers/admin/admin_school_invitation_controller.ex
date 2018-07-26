@@ -19,7 +19,7 @@ defmodule FlightWeb.Admin.SchoolInvitationController do
 
   def create(conn, %{"data" => data}) do
     case Accounts.create_school_invitation(data) do
-      {:ok, invitation} ->
+      {:ok, _invitation} ->
         conn
         |> put_flash(
           :success,

@@ -58,46 +58,86 @@
           },
 
 					select: function(start, end) {
-        	// on select we show the Sweet Alert modal with an input and initialize the datetimepicker
-        	
-					swal({
-    				title: 'New Appointment',
-    				html: '<div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="input-start" type="text" class="form-control datetimepicker" placeholder="Start Time" value=""></div></div></div>' +
-    							'<div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="input-end" type="text" class="form-control datetimepicker" placeholder="End Time" value=""></div></div></div>' +
-    							'<div class="row"><label class="col-md-3 col-form-label">Student</label><div class="col-md-9"><div class="form-group"><input id="input-student" type="text" class="form-control" placeholder="Student"></div></div></div>' +
-    							'<div class="row"><label class="col-md-3 col-form-label">Instructor</label><div class="col-md-9"><div class="form-group"><input id="input-instructor" type="text" class="form-control" placeholder="Instructor"></div></div></div>' +
-    							'<div class="row"><label class="col-md-3 col-form-label">Aircraft</label><div class="col-md-9"><div class="form-group"><input id="input-aircraft" type="text" class="form-control" placeholder="Aircraft"></div></div></div>'
-    							,
-    				showCancelButton: true,
-            confirmButtonClass: 'btn btn-primary',
-            cancelButtonClass: 'btn btn-default',
-            confirmButtonText: 'Save',
-            buttonsStyling: false
-          }).then(function(result) {
-            var eventData;
-            event_title = $('#input-student').val() + ", " + $('#input-instructor').val() + ", " + $('#input-aircraft').val();
-						event_start = $('#input-start').val();
-						event_end = $('#input-end').val();
-						
-            if (event_title) {
-    					eventData = {
-    						title: event_title,
-    						start: event_start,
-    						end: event_end
-    						// start: start,
-    						// end: end
-    					};
-    					console.log(start);
-    					$calendar.fullCalendar('renderEvent', eventData, true); // stick? = true
-    				}
-
-    				$calendar.fullCalendar('unselect');
-
-          });
-          initDateTimePicker();
-			},
-			editable: true,
-			eventLimit: true, // allow "more" link when too many events
+          	// on select we show the Sweet Alert modal with an input and initialize the datetimepicker
+          	startTime = start.format('MM DD YY, h:mm a');
+          	
+  					swal({
+      				title: 'New Appointment',
+      				html: '<div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="input-start" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div></div></div>' +
+      							'<div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="input-end" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>' +
+      							'<div class="row"><label class="col-md-3 col-form-label">Student</label><div class="col-md-9"><div class="form-group"><input id="input-student" type="text" class="form-control" placeholder="Student"></div></div></div>' +
+      							'<div class="row"><label class="col-md-3 col-form-label">Instructor</label><div class="col-md-9"><div class="form-group"><input id="input-instructor" type="text" class="form-control" placeholder="Instructor"></div></div></div>' +
+      							'<div class="row"><label class="col-md-3 col-form-label">Aircraft</label><div class="col-md-9"><div class="form-group"><input id="input-aircraft" type="text" class="form-control" placeholder="Aircraft"></div></div></div>'
+      							,
+      				showCancelButton: true,
+              confirmButtonClass: 'btn btn-primary',
+              cancelButtonClass: 'btn btn-default',
+              confirmButtonText: 'Save',
+              buttonsStyling: false
+            }).then(function(result) {
+              var eventData;
+              event_title = $('#input-student').val() + ", " + $('#input-instructor').val() + ", " + $('#input-aircraft').val();
+  						event_start = $('#input-start').val();
+  						event_end = $('#input-end').val();
+  						
+              if (event_title) {
+      					eventData = {
+      						title: event_title,
+      						start: event_start,
+      						end: event_end
+      						// start: start,
+      						// end: end
+      					};
+      					console.log(start);
+      					$calendar.fullCalendar('renderEvent', eventData, true); // stick? = true
+      				}
+  
+      				$calendar.fullCalendar('unselect');
+  
+            });
+            initDateTimePicker();
+  			  },
+    			editable: true,
+    			eventClick: function(calEvent, jsEvent, view){
+    			  // the following runs when an existing event is clicked
+    			  console.log('Title: ' + calEvent.title);
+    			  console.log('Start: ' + calEvent.start);
+    			  console.log('End: ' + calEvent.end);
+          	
+  					swal({
+      				title: 'New Appointment',
+      				html: '<div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="input-start" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div></div></div>' +
+      							'<div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="input-end" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>' +
+      							'<div class="row"><label class="col-md-3 col-form-label">Student</label><div class="col-md-9"><div class="form-group"><input id="input-student" type="text" class="form-control" placeholder="Student"></div></div></div>' +
+      							'<div class="row"><label class="col-md-3 col-form-label">Instructor</label><div class="col-md-9"><div class="form-group"><input id="input-instructor" type="text" class="form-control" placeholder="Instructor"></div></div></div>' +
+      							'<div class="row"><label class="col-md-3 col-form-label">Aircraft</label><div class="col-md-9"><div class="form-group"><input id="input-aircraft" type="text" class="form-control" placeholder="Aircraft"></div></div></div>'
+      							,
+      				showCancelButton: true,
+              confirmButtonClass: 'btn btn-primary',
+              cancelButtonClass: 'btn btn-default',
+              confirmButtonText: 'Save',
+              buttonsStyling: false
+            }).then(function(result) {
+              var eventData;
+              event_title = $('#input-student').val() + ", " + $('#input-instructor').val() + ", " + $('#input-aircraft').val();
+  						event_start = $('#input-start').val();
+  						event_end = $('#input-end').val();
+  						
+              if (event_title) {
+      					eventData = {
+      						title: event_title,
+      						start: event_start,
+      						end: event_end
+      					};
+      					console.log(start);
+      					$calendar.fullCalendar('renderEvent', eventData, true); // stick? = true
+      				}
+      				$calendar.fullCalendar('unselect');
+  
+            });
+            initDateTimePicker();
+    			},
+    			eventLimit: true, // allow "more" link when too many events
 
 
             // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
@@ -163,57 +203,45 @@
     
     
     
+    
     function initDateTimePicker() {
-      if($(".datetimepicker").length != 0){
-        $('.datetimepicker').datetimepicker({
-            icons: {
-                time: "now-ui-icons tech_watch-time",
-                date: "now-ui-icons ui-1_calendar-60",
-                up: "fa fa-chevron-up",
-                down: "fa fa-chevron-down",
-                previous: 'now-ui-icons arrows-1_minimal-left',
-                next: 'now-ui-icons arrows-1_minimal-right',
-                today: 'fa fa-screenshot',
-                clear: 'fa fa-trash',
-                close: 'fa fa-remove'
-            }
-        });
-      }
-
-      if($(".datepicker").length != 0){
-        $('.datepicker').datetimepicker({
-           format: 'MM/DD/YYYY',
-           icons: {
-               time: "now-ui-icons tech_watch-time",
-               date: "now-ui-icons ui-1_calendar-60",
-               up: "fa fa-chevron-up",
-               down: "fa fa-chevron-down",
-               previous: 'now-ui-icons arrows-1_minimal-left',
-               next: 'now-ui-icons arrows-1_minimal-right',
-               today: 'fa fa-screenshot',
-               clear: 'fa fa-trash',
-               close: 'fa fa-remove'
-           }
-        });
-      }
-
-      if($(".timepicker").length != 0){
-        $('.timepicker').datetimepicker({
-//          format: 'H:mm',    // use this format if you want the 24hours timepicker
-           format: 'h:mm A',    //use this format if you want the 12hours timpiecker with AM/PM toggle
-           icons: {
-               time: "now-ui-icons tech_watch-time",
-               date: "now-ui-icons ui-1_calendar-60",
-               up: "fa fa-chevron-up",
-               down: "fa fa-chevron-down",
-               previous: 'now-ui-icons arrows-1_minimal-left',
-               next: 'now-ui-icons arrows-1_minimal-right',
-               today: 'fa fa-screenshot',
-               clear: 'fa fa-trash',
-               close: 'fa fa-remove'
-           }
-        });
-      }
+      $('.datetimepickerstart').datetimepicker({
+      		// debug: true,
+          icons: {
+              time: "now-ui-icons tech_watch-time",
+              date: "now-ui-icons ui-1_calendar-60",
+              up: "fa fa-chevron-up",
+              down: "fa fa-chevron-down",
+              previous: 'now-ui-icons arrows-1_minimal-left',
+              next: 'now-ui-icons arrows-1_minimal-right',
+              today: 'fa fa-screenshot',
+              clear: 'fa fa-trash',
+              close: 'fa fa-remove'
+          }
+      });
+      $('.datetimepickerend').datetimepicker({
+      		// debug: true,
+      		useCurrent: false, //Important! See issue #1075
+          icons: {
+              time: "now-ui-icons tech_watch-time",
+              date: "now-ui-icons ui-1_calendar-60",
+              up: "fa fa-chevron-up",
+              down: "fa fa-chevron-down",
+              previous: 'now-ui-icons arrows-1_minimal-left',
+              next: 'now-ui-icons arrows-1_minimal-right',
+              today: 'fa fa-screenshot',
+              clear: 'fa fa-trash',
+              close: 'fa fa-remove'
+          }
+      });
+      $(".datetimepickerstart").on("dp.change", function (e) {
+        console.log('here');
+          $('.datetimepickerend').data("DateTimePicker").minDate(e.date);
+      });
+      $(".datetimepickerend").on("dp.change", function (e) {
+          $('.datetimepickerstart').data("DateTimePicker").maxDate(e.date);
+      }); 
+      
     }
     initDateTimePicker();
     

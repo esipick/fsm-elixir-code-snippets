@@ -102,6 +102,8 @@ defmodule FlightWeb.Router do
     get("/stripe_connect", StripeController, :connect)
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
+    
+    resources("/courses", CoursesController, only: [:index, :edit])
 
     resources("/invitations", InvitationController, only: [:create, :index]) do
       post("/resend", InvitationController, :resend)
