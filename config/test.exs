@@ -28,8 +28,8 @@ config :flight, Flight.Mailer, adapter: Bamboo.TestAdapter
 config :flight, :superadmin_ids, []
 
 config :stripity_stripe,
-  api_key: "sk_test_ZHmnpsn2AcEeUNMVWj5ueuZ7",
-  connect_client_id: "ca_DDbtUXP12O6p6UPiLSHMuC5r66cSyNS0"
+  api_key: "sk_test_j56pdGNCUxL66RMEP7mFdyNQ",
+  connect_client_id: "ca_DGcV6SWq1ghyws1HwmcAHLgPldcHNisy"
 
 config :flight, :push_service_client, Mondo.PushService.MockClient
 
