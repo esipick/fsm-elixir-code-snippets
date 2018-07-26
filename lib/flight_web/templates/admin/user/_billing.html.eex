@@ -5,7 +5,7 @@
       <h2 class="mb-2"><%= currency @user.balance %></h2>
       <!-- Button trigger modal -->
       <button type="button" class="btn btn-primary" id="addFundsButton">
-        add funds
+        add or remove funds
       </button>
 
       <!-- Modal -->
@@ -14,7 +14,7 @@
           <div class="modal-content">
             <%= form_for @conn, "/admin/users/#{@user.id}/add_funds", [method: "post"], fn _ -> %>
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Add Funds to <%= @user.first_name %> <%= @user.last_name %></h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">Add or Remove Funds for <%= @user.first_name %> <%= @user.last_name %></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -29,13 +29,13 @@
                   <dd><p>Amount to add</p></dd>
                 </dl>
                 <dl class="d-flex justify-content-between flex-row-reverse">
-                  <dt><textarea class="form-control" style="border:none;" placeholder="enter description here"></textarea></dt>
+                  <dt><textarea class="form-control" name="description" style="border:none;" placeholder="enter description here"></textarea></dt>
                   <dd><p>Description</p></dd>
                 </dl>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <input type="submit" class="btn btn-primary" value="Add Funds" />
+                <input type="submit" id="addFundsSubmit" class="btn btn-primary" value="Add Funds" />
               </div>
             <% end %>
           </div>
@@ -96,5 +96,14 @@
 <script>
   $("#addFundsButton").on("click", function() {
     $("#addFundsModal").modal()
+  })
+
+  $("#addFundsAmount").on("input", function() {
+    amount = parseInt(this.value)
+    if (amount > 0) {
+      $("#addFundsSubmit")[0].value = "Add Funds"
+    } else if (amount < 0) {
+      $("#addFundsSubmit")[0].value = "Remove Funds"
+    }
   })
 </script>

@@ -50,24 +50,38 @@ defmodule FlightWeb.Admin.UserController do
     )
   end
 
-  def add_funds(conn, %{"amount" => amount}) do
+  def add_funds(conn, %{"amount" => amount, "description" => description}) do
     with {:ok, cent_amount} <- Billing.parse_amount(amount),
-         {:ok, {user, _transaction}} <-
+         {:ok, {user, transaction}} <-
            Billing.add_funds_by_credit(
              conn.assigns.requested_user,
              conn.assigns.current_user,
-             cent_amount
+             cent_amount,
+             description
            ) do
+      message =
+        if transaction.type == "credit" do
+          "Successfully added #{FlightWeb.ViewHelpers.currency(transaction.total)} to #{
+            user.first_name
+          }'s balance."
+        else
+          "Successfully removed #{FlightWeb.ViewHelpers.currency(transaction.total)} from #{
+            user.first_name
+          }'s balance."
+        end
+
       conn
-      |> put_flash(
-        :success,
-        "Successfully added #{FlightWeb.ViewHelpers.currency(cent_amount)} to #{user.first_name}'s balance."
-      )
+      |> put_flash(:success, message)
       |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")
     else
       {:error, :invalid} ->
         conn
         |> put_flash(:error, "Invalid amount. Please enter an amount in the form: 20.50")
+        |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")
+
+      {:error, :negative_balance} ->
+        conn
+        |> put_flash(:error, "Users cannot have a negative balance.")
         |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")
     end
   end
