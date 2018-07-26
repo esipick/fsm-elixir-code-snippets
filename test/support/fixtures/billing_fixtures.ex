@@ -144,7 +144,8 @@ defmodule Flight.BillingFixtures do
   end
 
   def real_stripe_account(school) do
-    {:ok, account} = Flight.Billing.create_deferred_stripe_account(school.contact_email)
+    {:ok, account} =
+      Flight.Billing.create_deferred_stripe_account(school.contact_email, school.name)
 
     school_account =
       Flight.Accounts.StripeAccount.new(account)

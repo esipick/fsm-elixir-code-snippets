@@ -593,11 +593,12 @@ defmodule Flight.Billing do
     end
   end
 
-  def create_deferred_stripe_account(email) do
+  def create_deferred_stripe_account(email, business_name) do
     Stripe.Account.create(%{
       country: "US",
       type: "standard",
-      email: email
+      email: email,
+      business_name: business_name
     })
   end
 

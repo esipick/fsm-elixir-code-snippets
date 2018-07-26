@@ -637,7 +637,8 @@ defmodule Flight.Accounts do
     if changeset.valid? do
       account =
         case Flight.Billing.create_deferred_stripe_account(
-               Ecto.Changeset.get_field(changeset, :contact_email)
+               Ecto.Changeset.get_field(changeset, :contact_email),
+               Ecto.Changeset.get_field(changeset, :name)
              ) do
           {:ok, account} ->
             account
