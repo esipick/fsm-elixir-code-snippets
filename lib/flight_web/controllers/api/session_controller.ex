@@ -11,7 +11,7 @@ defmodule FlightWeb.API.SessionController do
         {:ok, user} ->
           user =
             user
-            |> Flight.Repo.preload([:roles, :flyer_certificates])
+            |> FlightWeb.API.UserView.show_preload()
 
           render(conn, "login.json", user: user, token: FlightWeb.AuthenticateApiUser.token(user))
 

@@ -30,7 +30,7 @@ defmodule FlightWeb.API.UserControllerTest do
     test "renders json", %{conn: conn} do
       user =
         student_fixture()
-        |> Flight.Repo.preload([:roles, :flyer_certificates])
+        |> FlightWeb.API.UserView.show_preload()
 
       json =
         conn
@@ -86,7 +86,7 @@ defmodule FlightWeb.API.UserControllerTest do
 
       user =
         Flight.Repo.get!(Flight.Accounts.User, user.id)
-        |> Flight.Repo.preload([:roles, :flyer_certificates])
+        |> FlightWeb.API.UserView.show_preload()
 
       assert user.first_name == "Alex"
       assert user.flyer_certificates == [cert]

@@ -30,7 +30,8 @@ defmodule FlightWeb.API.UserView do
       awards: user.awards,
       roles: Enum.map(user.roles, & &1.slug),
       permissions: Flight.Auth.Authorization.permission_slugs_for_user(user),
-      flyer_certificates: Enum.map(user.flyer_certificates, & &1.slug)
+      flyer_certificates: Enum.map(user.flyer_certificates, & &1.slug),
+      stripe_account_id: Optional.map(user.school.stripe_account, & &1.stripe_account_id)
     }
   end
 
@@ -57,5 +58,10 @@ defmodule FlightWeb.API.UserView do
 
   def render("form_items.json", %{form_items: items}) do
     %{data: items}
+  end
+
+  def show_preload(user) do
+    user
+    |> Flight.Repo.preload([:roles, :flyer_certificates, [school: :stripe_account]])
   end
 end

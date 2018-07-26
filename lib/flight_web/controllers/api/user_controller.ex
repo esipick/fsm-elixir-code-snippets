@@ -37,7 +37,7 @@ defmodule FlightWeb.API.UserController do
   def show(conn, _params) do
     user =
       conn.assigns.user
-      |> Flight.Repo.preload([:roles, :flyer_certificates])
+      |> FlightWeb.API.UserView.show_preload()
 
     render(conn, "show.json", user: user)
   end
@@ -51,7 +51,7 @@ defmodule FlightWeb.API.UserController do
            ) do
       user =
         user
-        |> Flight.Repo.preload([:roles, :flyer_certificates])
+        |> FlightWeb.API.UserView.show_preload()
 
       render(conn, "show.json", user: user)
     else

@@ -138,7 +138,9 @@ defmodule FlightWeb.API.TransactionController do
       {:ok, key} ->
         json(conn, key)
 
-      {:error, _error} ->
+      {:error, error} ->
+        IO.inspect(error)
+
         conn
         |> put_status(400)
         |> json(%{error: "Error contacting stripe"})
