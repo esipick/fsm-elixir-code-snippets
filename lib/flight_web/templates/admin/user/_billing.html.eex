@@ -14,7 +14,7 @@
           <div class="modal-content">
             <%= form_for @conn, "/admin/users/#{@user.id}/add_funds", [method: "post"], fn _ -> %>
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Add Funds to Max Fischer</h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Funds to <%= @user.first_name %> <%= @user.last_name %></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -28,9 +28,13 @@
                   <dt><input type="text" name="amount" id="addFundsAmount" style="text-align:right;" class="form-control"/></dt>
                   <dd><p>Amount to add</p></dd>
                 </dl>
+                <dl class="d-flex justify-content-between flex-row-reverse">
+                  <dt><textarea class="form-control" style="border:none;" placeholder="enter description here"></textarea></dt>
+                  <dd><p>Description</p></dd>
+                </dl>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <input type="submit" class="btn btn-primary" value="Add Funds" />
               </div>
             <% end %>
