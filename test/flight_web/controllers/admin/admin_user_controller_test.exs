@@ -156,12 +156,26 @@ defmodule FlightWeb.Admin.UserControllerTest do
       conn =
         conn
         |> web_auth_admin(admin)
-        |> post("/admin/users/#{student.id}/add_funds", %{"amount" => 5})
+        |> post("/admin/users/#{student.id}/add_funds", %{"amount" => 5, "description" => "boo"})
 
       student = Accounts.get_user(student.id, admin)
 
       assert get_flash(conn, :success) =~ "Successfully"
       assert student.balance == 600
+    end
+
+    test "Displays error if result is negative balance", %{conn: conn} do
+      student = student_fixture(%{balance: 100})
+
+      admin = admin_fixture()
+
+      conn =
+        conn
+        |> web_auth_admin(admin)
+        |> post("/admin/users/#{student.id}/add_funds", %{"amount" => -5, "description" => "boo"})
+
+      assert redirected_to(conn) == "/admin/users/#{student.id}?tab=billing"
+      assert get_flash(conn, :error) =~ "Users cannot have a negative balance."
     end
   end
 end

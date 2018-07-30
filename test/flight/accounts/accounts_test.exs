@@ -466,7 +466,10 @@ defmodule Flight.Accounts.AccountsTest do
     @tag :integration
     test "fetch_and_create_stripe_account_from_account_id/2 creates stripe account and create stripe ids for all users that don't have one" do
       {:ok, api_account} =
-        Flight.Billing.create_deferred_stripe_account("#{Flight.Random.hex(32)}@mailinator.com")
+        Flight.Billing.create_deferred_stripe_account(
+          "#{Flight.Random.hex(32)}@mailinator.com",
+          "Sunny Skies"
+        )
 
       school = school_fixture()
       admin = admin_fixture(%{stripe_customer_id: nil}, school)

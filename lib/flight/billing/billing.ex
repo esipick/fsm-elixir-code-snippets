@@ -291,7 +291,7 @@ defmodule Flight.Billing do
   end
 
   def parse_amount(str) when is_binary(str) do
-    case Float.parse(str) do
+    case Float.parse(String.replace(str, ~r/,/, "")) do
       {float, _} -> {:ok, (float * 100) |> trunc()}
       :error -> {:error, :invalid}
     end
@@ -346,7 +346,7 @@ defmodule Flight.Billing do
     end
   end
 
-  def add_funds_by_credit(user, creator_user, amount)
+  def add_funds_by_credit(user, creator_user, amount, description)
       when is_integer(amount) and (amount > 0 or amount < 0) do
     transaction_type = if amount > 0, do: "credit", else: "debit"
 
@@ -371,13 +371,6 @@ defmodule Flight.Billing do
           )
           |> Repo.insert!()
 
-        description =
-          if transaction_type == "debit" do
-            "Deducted funds from balance."
-          else
-            "Added funds to balance."
-          end
-
         line_item =
           %TransactionLineItem{}
           |> TransactionLineItem.changeset(%{
@@ -387,11 +380,15 @@ defmodule Flight.Billing do
           })
           |> Repo.insert!()
 
-        {:ok, user} = Billing.update_balance(user, amount)
+        case Billing.update_balance(user, amount) do
+          {:ok, user} ->
+            transaction = %{transaction | line_items: [line_item]}
 
-        transaction = %{transaction | line_items: [line_item]}
+            {:ok, {user, transaction}}
 
-        {:ok, {user, transaction}}
+          other ->
+            other
+        end
       end)
 
     case result do
@@ -401,12 +398,22 @@ defmodule Flight.Billing do
             transaction
             |> Repo.preload([:user])
 
-          Flight.PushNotifications.funds_added_notification(
-            transaction.user,
-            creator_user,
-            transaction
-          )
-          |> Mondo.PushService.publish()
+          notification =
+            if transaction.type == "credit" do
+              Flight.PushNotifications.funds_added_notification(
+                transaction.user,
+                creator_user,
+                transaction
+              )
+            else
+              Flight.PushNotifications.funds_removed_notification(
+                transaction.user,
+                creator_user,
+                transaction
+              )
+            end
+
+          Mondo.PushService.publish(notification)
         end)
 
       _ ->
@@ -416,7 +423,7 @@ defmodule Flight.Billing do
     result
   end
 
-  def add_funds_by_credit(_, _, _) do
+  def add_funds_by_credit(_, _, _, _) do
     {:error, :invalid_amount}
   end
 
@@ -586,11 +593,12 @@ defmodule Flight.Billing do
     end
   end
 
-  def create_deferred_stripe_account(email) do
+  def create_deferred_stripe_account(email, business_name) do
     Stripe.Account.create(%{
       country: "US",
       type: "standard",
-      email: email
+      email: email,
+      business_name: business_name
     })
   end
 

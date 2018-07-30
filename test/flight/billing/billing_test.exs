@@ -303,7 +303,8 @@ defmodule Flight.BillingTest do
       user = student_fixture()
       admin = admin_fixture()
 
-      assert {:ok, {user, transaction}} = Billing.add_funds_by_credit(user, admin, 3000)
+      assert {:ok, {user, transaction}} =
+               Billing.add_funds_by_credit(user, admin, 3000, "Added some sweet cash")
 
       assert transaction.school_id == user.school_id
 
@@ -323,14 +324,15 @@ defmodule Flight.BillingTest do
 
       assert line_item.amount == 3000
       assert line_item.transaction_id == transaction.id
-      assert line_item.description == "Added funds to balance."
+      assert line_item.description == "Added some sweet cash"
     end
 
     test "deducts funds from user and creates transaction" do
       user = student_fixture(%{balance: 3100})
       admin = admin_fixture()
 
-      assert {:ok, {user, transaction}} = Billing.add_funds_by_credit(user, admin, -3000)
+      assert {:ok, {user, transaction}} =
+               Billing.add_funds_by_credit(user, admin, -3000, "Mother of pearl")
 
       assert transaction.school_id == user.school_id
 
@@ -350,7 +352,7 @@ defmodule Flight.BillingTest do
 
       assert line_item.amount == 3000
       assert line_item.transaction_id == transaction.id
-      assert line_item.description == "Deducted funds from balance."
+      assert line_item.description == "Mother of pearl"
     end
   end
 

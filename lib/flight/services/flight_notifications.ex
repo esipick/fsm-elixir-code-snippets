@@ -117,6 +117,23 @@ defmodule Flight.PushNotifications do
     }
   end
 
+  def funds_removed_notification(
+        destination_user,
+        deducting_user,
+        transaction
+      ) do
+    %PushNotification{
+      title: "Funds Removed",
+      body:
+        "#{deducting_user.first_name} #{deducting_user.last_name} removed funds from your balance. Tap for details.",
+      sound: true,
+      user_id: destination_user.id,
+      data: %{
+        destination: "transactions/#{transaction.id}"
+      }
+    }
+  end
+
   def outstanding_payment_request_notification(destination_user_id) do
     %PushNotification{
       title: "Outstanding Payments",
