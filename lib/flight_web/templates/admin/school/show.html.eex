@@ -64,8 +64,38 @@
               </dl>
               <dl class="d-flex justify-content-between">
                 <dt>Stripe Status</dt>
-                <dd><%= stripe_status_html(@school.stripe_account) %></dd>
+                <!--<dd><%= stripe_status_html(@school.stripe_account) %></dd>-->
               </dl>
+              <div class="table-responsive">
+                <table class="table text-left">
+                  <thead class="text-primary">
+                    <tr>
+                      <th>Item</th>
+                      <th>Description</th>
+                      <th class="text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                      <tr>
+                        <td>Details Submitted</td>
+                        <td>Stripe needs basic account details before your account can recieve payouts.</td>
+                        <td class="text-right"><span class="badge badge-success">Complete</span></td>
+                      </tr>
+                      <tr>
+                        <td>Charges Enabled</td>
+                        <td>Your account needs sufficient details in order to start charging your users.</td>
+                        <td class="text-right"><span class="badge badge-danger ml-3">Error</span></td>
+                      </tr>
+                      <tr>
+                        <td>Payouts Enabled</td>
+                        <td>Whether Stripe can send payouts to this account.</td>
+                        <td class="text-right"><span class="badge badge-danger ml-3">Error</span></td>
+                      </tr>
+
+                  </tbody>
+                </table>
+              </div>
 
             </div>
 
