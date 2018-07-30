@@ -66,12 +66,12 @@ defmodule FlightWeb.SidebarItem do
         icon_class: "business_badge",
         active: false
       },
-      %SidebarItem{
-        path: "/admin/courses",
-        label: "Course Settings",
-        icon_class: "education_agenda-bookmark",
-        active: false
-      },
+      # %SidebarItem{
+      #   path: "/admin/courses",
+      #   label: "Course Settings",
+      #   icon_class: "education_agenda-bookmark",
+      #   active: false
+      # },
       %SidebarItem{
         path: "/admin/settings",
         label: "School Settings",
