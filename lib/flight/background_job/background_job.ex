@@ -25,13 +25,14 @@ defmodule Flight.BackgroundJob do
         |> Mondo.PushService.publish()
       end
     end
+
+    Enum.count(appointments)
   end
 
   def appointments_around(date) do
     date =
       date
       |> normalized_to_interval(30)
-      |> IO.inspect()
 
     lower_bound = Timex.shift(date, minutes: -1)
     upper_bound = Timex.shift(date, minutes: 1)
@@ -69,6 +70,7 @@ defmodule Flight.BackgroundJob do
       |> Flight.PushNotifications.outstanding_payment_request_notification()
       |> Mondo.PushService.publish()
     end)
+    |> Enum.count()
   end
 
   def outstanding_payment_user_ids() do
