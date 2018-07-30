@@ -5,9 +5,9 @@ defmodule FlightWeb.ViewHelpers do
   def format_date(date) do
     Flight.Date.format(date)
   end
-  
+
   def is_dev?() do
-    Mix.env == :dev
+    Mix.env() == :dev
   end
 
   def human_error_messages(changeset) do
@@ -96,7 +96,7 @@ defmodule FlightWeb.ViewHelpers do
   def stripe_status_html(stripe_account) do
     {class, text} =
       case Flight.Accounts.StripeAccount.status(stripe_account) do
-        :running -> {"badge-success", "Running"}
+        :running -> {"badge-success", "Good"}
         _ -> {"badge-danger", "Error"}
       end
 

@@ -66,36 +66,57 @@
                 <dt>Stripe Status</dt>
                 <!--<dd><%= stripe_status_html(@school.stripe_account) %></dd>-->
               </dl>
-              <div class="table-responsive">
-                <table class="table text-left">
-                  <thead class="text-primary">
-                    <tr>
-                      <th>Item</th>
-                      <th>Description</th>
-                      <th class="text-right">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+              <%= if @school.stripe_account do %>
+                <div class="table-responsive">
+                  <table class="table text-left">
+                    <thead class="text-primary">
+                      <tr>
+                        <th>Item</th>
+                        <th>Description</th>
+                        <th class="text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
 
-                      <tr>
-                        <td>Details Submitted</td>
-                        <td>Stripe needs basic account details before your account can recieve payouts.</td>
-                        <td class="text-right"><span class="badge badge-success">Complete</span></td>
-                      </tr>
-                      <tr>
-                        <td>Charges Enabled</td>
-                        <td>Your account needs sufficient details in order to start charging your users.</td>
-                        <td class="text-right"><span class="badge badge-danger ml-3">Error</span></td>
-                      </tr>
-                      <tr>
-                        <td>Payouts Enabled</td>
-                        <td>Whether Stripe can send payouts to this account.</td>
-                        <td class="text-right"><span class="badge badge-danger ml-3">Error</span></td>
-                      </tr>
+                        <tr>
+                          <td>Account Activated</td>
+                          <td>Whether this school has activated their Stripe account.</td>
+                          <td class="text-right">
+                            <%= if @school.stripe_account.details_submitted do %>
+                              <span class="badge badge-success ml-3">Good</span>
+                            <% else %>
+                              <span class="badge badge-danger ml-3">Error</span>
+                            <% end %>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Charges Enabled</td>
+                          <td>Whether Stripe can charge the credit cards of this school's students and renters.</td>
+                          <td class="text-right">
+                            <%= if @school.stripe_account.charges_enabled do %>
+                              <span class="badge badge-success ml-3">Good</span>
+                            <% else %>
+                              <span class="badge badge-danger ml-3">Error</span>
+                            <% end %>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Payouts Enabled</td>
+                          <td>Whether Stripe can send payouts to this school's bank account.</td>
+                          <td class="text-right">
+                            <%= if @school.stripe_account.payouts_enabled do %>
+                              <span class="badge badge-success ml-3">Good</span>
+                            <% else %>
+                              <span class="badge badge-danger ml-3">Error</span>
+                            <% end %>
+                          </td>
+                        </tr>
 
-                  </tbody>
-                </table>
-              </div>
+                    </tbody>
+                  </table>
+                </div>
+              <% else %>
+              <% end %>
 
             </div>
 
