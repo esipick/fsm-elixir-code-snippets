@@ -16,15 +16,41 @@
     </div>
   </div>
 </div> <!-- end content -->
-<!-- <select class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" data-live-search="true" title="Single Select">
-  <option disabled selected>Single Option</option>
-  <option value="2">Joe</option>
-  <option value="3">Gary</option>
-  <option value="3">Walter</option>
-  <option value="3">Sam</option>
-  <option value="3">Samantha</option>
-  <option value="3">Gerald</option>
-</select> -->
+
+<div id="hidden-modal-content" style="display:none;">
+    <ul class="nav nav-pills nav-pills-primary justify-content-center" role="tablist">
+      <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#link1" role="tablist">Appointment</a></li>
+      <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#link2" role="tablist">Unavailability</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="link1">
+	      <div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="input-start" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div></div></div>
+				<div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="input-end" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>
+				<div class="row"><label class="col-md-3 col-form-label">Student</label><div class="col-md-9"><div id="studentDropdown" class="form-group">
+				  <select class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Student" placeholder="Student">
+            <option>None</option>
+            <option value="2">Herman Blume</option>
+            <option value="3">Max Fischer</option>
+            <option value="3">Jerry Jones</option>
+            <option value="3">Rosemary Cross</option>
+          </select>
+				</div></div></div>
+				<div class="row"><label class="col-md-3 col-form-label">Instructor</label><div class="col-md-9"><div class="form-group">
+				  <select class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
+            <option>None</option>
+            <option value="2">Herman Blume</option>
+            <option value="3">Max Fischer</option>
+            <option value="3">Jerry Jones</option>
+            <option value="3">Rosemary Cross</option>
+          </select>
+				</div></div></div>
+				<div class="row"><label class="col-md-3 col-form-label">Aircraft</label><div class="col-md-9"><div class="form-group"><input id="input-aircraft" type="text" class="form-control" placeholder="Aircraft"></div></div></div>
+			</div>
+			<div class="tab-pane" id="link2">
+				tab 2
+			</div>
+		</div>
+</div>
 
 <script>
   $(document).ready(function() {
@@ -72,29 +98,8 @@
             console.log("Called select")
 
   					swal({
-      				title: 'New Appointment',
-      				html: '<div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="input-start" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div></div></div>' +
-      							'<div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="input-end" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>' +
-      							'<div class="row"><label class="col-md-3 col-form-label">Student</label><div class="col-md-9"><div id="studentDropdown" class="form-group">' +
-      							  '<select class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Student" placeholder="Student">' +
-                        '<option>None</option>' +
-                        '<option value="2">Herman Blume</option>' +
-                        '<option value="3">Max Fischer</option>' +
-                        '<option value="3">Jerry Jones</option>' +
-                        '<option value="3">Rosemary Cross</option>' +
-                      '</select>' +
-      							'</div></div></div>' +
-      							'<div class="row"><label class="col-md-3 col-form-label">Instructor</label><div class="col-md-9"><div class="form-group">' +
-      							  '<select class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">' +
-                        '<option>None</option>' +
-                        '<option value="2">Herman Blume</option>' +
-                        '<option value="3">Max Fischer</option>' +
-                        '<option value="3">Jerry Jones</option>' +
-                        '<option value="3">Rosemary Cross</option>' +
-                      '</select>' +
-      							'</div></div></div>' +
-      							'<div class="row"><label class="col-md-3 col-form-label">Aircraft</label><div class="col-md-9"><div class="form-group"><input id="input-aircraft" type="text" class="form-control" placeholder="Aircraft"></div></div></div>'
-      							,
+      				title: 'Create New',
+      				html: $('#hidden-modal-content').html(),
       				showCancelButton: true,
               confirmButtonClass: 'btn btn-primary',
               cancelButtonClass: 'btn btn-default',
