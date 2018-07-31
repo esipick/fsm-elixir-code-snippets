@@ -39,7 +39,7 @@
           <td>Charges Enabled</td>
           <td>Whether Stripe can charge the credit cards of your students and renters.</td>
           <%= if @school.stripe_account.charges_enabled do %>
-            <td class="text-right"><span class="badge badge-success">Complete</span></td>
+            <td class="text-right"><span class="badge badge-success">Good</span></td>
           <% else %>
             <td class="text-right"><a target="_blank" href="https://dashboard.stripe.com" class="btn btn-primary btn-sm">Resolve on Stripe</a><span class="badge badge-danger ml-3">Error</span></td>
           <% end %>
@@ -48,7 +48,7 @@
           <td>Payouts Enabled</td>
           <td>Whether Stripe can send payouts to your bank account.</td>
           <%= if @school.stripe_account.payouts_enabled do %>
-            <td class="text-right"><span class="badge badge-success">Complete</span></td>
+            <td class="text-right"><span class="badge badge-success">Good</span></td>
           <% else %>
             <td class="text-right"><a target="_blank" href="https://dashboard.stripe.com" class="btn btn-primary btn-sm">Resolve on Stripe</a><span class="badge badge-danger ml-3">Error</span></td>
           <% end %>
