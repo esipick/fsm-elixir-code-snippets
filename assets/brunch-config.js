@@ -37,7 +37,8 @@ exports.config = {
           "js/admin/vendor/nouislider.min.js",
           "js/admin/vendor/chartjs.min.js",
           "js/admin/vendor/bootstrap-notify.js",
-          "js/admin/vendor/now-ui-dashboard.js"
+          "js/admin/vendor/now-ui-dashboard.js",
+          "js/admin/schedule.js"
         ]
       }
     },
