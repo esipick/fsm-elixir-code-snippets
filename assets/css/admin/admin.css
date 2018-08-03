@@ -286,6 +286,10 @@ body.sidebar-none .main-panel {
   margin-bottom: 40px;
 }
 
+small.light-text {
+  color: rgba(0,0,0,.6);
+}
+
 .card {
   border-radius: 2px;
 }
@@ -539,6 +543,15 @@ dl .disc.expired {background-color: #FF5572;}
   color: #2CA8Fe;
   margin: 0 auto;
 }
+.modal .nav-pills {
+  margin-bottom: 24px;
+}
+.modal-content .modal-footer {
+  justify-content: flex-end;
+}
+.modal-content .modal-footer button {
+    margin-left: 8px;
+} 
 
 .bootstrap-switch .bootstrap-switch-handle-on {
   background: #2CA8Fe;
@@ -719,7 +732,10 @@ fieldset[disabled] .fc button:hover {
   font-family: Lato;
   color: rgb(44,44,44);
   font-size: 28px;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
+}
+.swal2-content .nav-pills {
+  margin-bottom: 24px;
 }
 
 
