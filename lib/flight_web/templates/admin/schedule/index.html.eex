@@ -151,29 +151,23 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<div id="calendarEditModal" class="modal fade" tabindex="-1" role="dialog">
+<div id="editApptModal" class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Create New</h5>
+        <h5 class="modal-title">Edit Event</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       
       <div class="modal-body">
-        <ul class="nav nav-pills nav-pills-primary" role="tablist">
-          <li class="nav-item"><a id="navAppt" class="nav-link active" data-toggle="tab" href="#link1" role="tablist">Appointment</a></li>
-          <li class="nav-item"><a id="navUnavail" class="nav-link" data-toggle="tab" href="#link2" role="tablist">Unavailability</a></li>
-        </ul>
-        <div class="tab-content mt-2 mb-2">
-          
-          <div class="tab-pane active" id="link1">
-    	      <div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="apptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div></div></div>
-    				<div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="apptEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>
+
+    	      <div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="editApptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div></div></div>
+    				<div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="editApptEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>
     				<div class="row">
     				  <label class="col-md-3 col-form-label">Student</label>
     				  <div class="col-md-9">
     				    <div class="form-group">
-        				  <select id="apptStudent" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Student" placeholder="Student">
+        				  <select id="editApptStudent" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Student" placeholder="Student">
                     <option>None</option>
                     <option value="Herman Blume">Herman Blume</option>
                     <option value="Max Fischer">Max Fischer</option>
@@ -187,7 +181,7 @@
     				  <label class="col-md-3 col-form-label">Instructor</label>
     				  <div class="col-md-9">
     				    <div class="form-group">
-        				  <select id="apptInstructor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
+        				  <select id="editApptInstructor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
                     <option>None</option>
                     <option value="Herman Blume">Herman Blume</option>
                     <option value="Max Fischer">Max Fischer</option>
@@ -201,16 +195,14 @@
     				  <label class="col-md-3 col-form-label">Aircraft</label>
     				  <div class="col-md-9">
     				    <div class="form-group">
-        				  <select id="apptAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
+        				  <select id="editApptAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
                     <option>None</option>
-                    <option value="Sessna">Sessna</option>
-                    <option value="Piper">Piper</option>
-                    <option value="Archer">Archer</option>
+                    <option value="Sessna N54321">Sessna</option>
+                    <option value="Piper N12345">Piper</option>
+                    <option value="Archer N70432">Archer</option>
                   </select>
     				    </div>
     				  </div>
-    				</div>
-    			</div>
     			
     		</div>
   		</div>

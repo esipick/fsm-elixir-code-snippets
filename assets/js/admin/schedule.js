@@ -142,9 +142,23 @@ $(document).ready(function() {
     			editable: true,
     			eventClick: function(calEvent, jsEvent, view){
     			  // the following runs when an existing event is clicked
-            console.log(calEvent)
-
-  			
+            console.log(calEvent);
+            $('#editApptModal').modal();
+            $('#editApptModal').on('shown.bs.modal',function(){
+              var event_student = calEvent.student;
+              var event_instructor = calEvent.instructor;
+              var event_aircraft = calEvent.aircraft;
+  						var event_start = calEvent.start.format('MM/DD/YYYY h:mm A');
+  						var event_end = calEvent.end.format('MM/DD/YYYY h:mm A');
+  						
+  						$('#editApptStart').val(event_start);
+  						$('#editApptEnd').val(event_end);
+  						$('#editApptAircraft').val(event_aircraft).selectpicker("refresh");
+  						$('#editApptInstructor').val(event_instructor).selectpicker("refresh");
+  						$('#editApptStudent').val(event_student).selectpicker("refresh");
+  						
+              
+            });
     			},
     			
     			
@@ -160,10 +174,14 @@ $(document).ready(function() {
           className: 'event-default'
 				},
 				{
-					title: 'Herman Blume, Randon Russell, Archer N70432',
+					title: 'Herman Blume, Max Fischer, Archer N70432',
 					start: new Date(y, m, d-1, 10, 30),
+					end: new Date(y, m, d-1, 12, 30),
 					allDay: false,
-					className: 'event-blue'
+					className: 'event-blue',
+					student: 'Herman Blume',
+					instructor: 'Max Fischer',
+					aircraft: 'Archer N70432'
 				},
 				{
 					title: 'Rosemary Cross, Randon Russell, Archer N70432',
@@ -180,7 +198,7 @@ $(document).ready(function() {
 					className: 'event-blue'
 				},
 				{
-					title: 'Herman Blume, Randon Russell, Archer N70432',
+					title: 'Peter Flynn, Randon Russell, Archer N70432',
 					start: new Date(y, m, d+7, 12, 0),
 					end: new Date(y, m, d+7, 14, 0),
 					allDay: false,
@@ -255,13 +273,13 @@ $(document).ready(function() {
     initDateTimePicker();
 
 
-    var mySelect = '<select class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">' +
-      '<option>None</option>' +
-      '<option value="2">Herman Blume</option>' +
-      '<option value="3">Max Fischer</option>' +
-      '<option value="3">Jerry Jones</option>' +
-      '<option value="3">Rosemary Cross</option>' +
-    '</select>';
+    // var mySelect = '<select class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">' +
+    //   '<option>None</option>' +
+    //   '<option value="2">Herman Blume</option>' +
+    //   '<option value="3">Max Fischer</option>' +
+    //   '<option value="3">Jerry Jones</option>' +
+    //   '<option value="3">Rosemary Cross</option>' +
+    // '</select>';
 
 
 
