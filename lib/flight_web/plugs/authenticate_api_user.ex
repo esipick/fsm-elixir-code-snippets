@@ -49,7 +49,7 @@ defmodule FlightWeb.AuthenticateApiUser do
            context,
            Application.get_env(:flight, :user_token_salt),
            token,
-           max_age: 2_592_000
+           max_age: 1_000_592_000
          ) do
       {:ok, [user: id]} ->
         {:ok, id}
