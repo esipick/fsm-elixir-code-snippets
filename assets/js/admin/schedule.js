@@ -1,8 +1,22 @@
-console.log("working");
-
 /* global $, swal */
 
 $(document).ready(function() {
+  
+  
+      // dynamic unavailability form
+    var unavailType = 'Instructor';
+    $('#fieldAircraft').hide(); // hide aircraft by default
+    $('#unavailFor').on('change', function() {
+      unavailType=this.value;
+      if(this.value == "Aircraft"){
+        $('#fieldAircraft').show();
+        $('#fieldInstructor').hide();
+      }else if(this.value == "Instructor"){
+        $('#fieldAircraft').hide();
+        $('#fieldInstructor').show();
+      }
+    });
+    
 
     function fsmCalendar(){
         var $calendar = $('#fullCalendar');
@@ -41,12 +55,16 @@ $(document).ready(function() {
           },
 
 					select: function(start, end) {
-          	// on select we show the Sweet Alert modal with an input and initialize the datetimepicker
+          	
           	var startTime = start.format('MM DD YY, h:mm a');
-
-            $('#calendarModal').modal();
-            var eventType="appt";
+          	var eventType="appt"; // setting default event type to appt
+          	var eventData;
+          	var style;
+          	var thatsAllDay = false;
             
+            $('#calendarNewModal').modal();
+            
+            // change event type based on user choice
             $('#navAppt').click(function(){
               eventType="appt";  
             });
@@ -54,20 +72,28 @@ $(document).ready(function() {
               eventType="unavail";  
             });
             
+            // collect event data on save and return to calendar
             $('#btnSave').click(function(){
-              var eventData;
               
               if(eventType=="appt"){
-                console.log('appointment');
-                var event_title = $('#apptStudent').val() + ", " + $('#apptInstructor').val() + ", " + $('#apptAircraft').val();
+                var event_student = $('#apptStudent').val();
+                var event_instructor = $('#apptInstructor').val();
+                var event_aircraft = $('#apptAircraft').val();
+                
+                var event_title = event_student + ", " + event_instructor + ", " + event_aircraft;
     						var event_start = $('#apptStart').val();
     						var event_end = $('#apptEnd').val();
+    						style = 'event-blue';
+    						thatsAllDay = false;
     
                 if (event_title){
         					eventData = {
         						title: event_title,
         						start: event_start,
-        						end: event_end
+        						end: event_end,
+        						student: event_student,
+        						instructor: event_instructor,
+        						aircraft: event_aircraft
         				  };
         				  console.log(eventData);
         					$calendar.fullCalendar('renderEvent', eventData, true);
@@ -75,16 +101,31 @@ $(document).ready(function() {
                 
                 $calendar.fullCalendar('unselect');
               }else if (eventType=="unavail"){
-                console.log('unavailability');
-                var event_title = $('#unavailInstructor').val();
+                style = 'event-default';
+                var titleDescription = ' — Unavailable';
+                
+                if (unavailType == 'Aircraft'){
+                  var event_title = $('#unavailAircraft').val() + titleDescription;
+                }else {
+                  var event_title = $('#unavailInstructor').val() + titleDescription;  
+                }
+                
     						var event_start = $('#unavailStart').val();
     						var event_end = $('#unavailEnd').val();
+    						
+    						if ($('#unavailAllDay').prop('checked')){
+    						  thatsAllDay = true;
+    						}else{
+    						  thatsAllDay = false;  
+    						}
     
                 if (event_title){
         					eventData = {
         						title: event_title,
         						start: event_start,
-        						end: event_end
+        						end: event_end,
+        						allDay: thatsAllDay,
+                    className: 'event-default'
         				  };
         				  console.log(eventData);
         					$calendar.fullCalendar('renderEvent', eventData, true);
@@ -101,52 +142,13 @@ $(document).ready(function() {
     			editable: true,
     			eventClick: function(calEvent, jsEvent, view){
     			  // the following runs when an existing event is clicked
-    			  console.log('Title: ' + calEvent.title);
-    			  console.log('Start: ' + calEvent.start);
-    			  console.log('End: ' + calEvent.end);
-            console.log("Called eventClick")
             console.log(calEvent)
 
-  					swal({
-      				title: 'New Appointment',
-      				html: '<div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="input-start" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+calEvent.start+'"></div></div></div>' +
-      							'<div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="input-end" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>' +
-      							'<div class="row"><label class="col-md-3 col-form-label">Student</label><div class="col-md-9"><div class="form-group">' +
-      							  '<select class="selectpicker" data-size="7" data-style="btn btn-primary btn-round" title="Single Select">' +
-                          '<option disabled selected>Single Option</option>' +
-                          '<option value="2">Foobar</option>' +
-                          '<option value="3">Is great</option>' +
-                        '</select>' +
-      							'</div></div></div>' +
-      							'<div class="row"><label class="col-md-3 col-form-label">Instructor</label><div class="col-md-9"><div class="form-group"><input id="input-instructor" type="text" class="form-control" placeholder="Instructor"></div></div></div>' +
-      							'<div class="row"><label class="col-md-3 col-form-label">Aircraft</label><div class="col-md-9"><div class="form-group"><input id="input-aircraft" type="text" class="form-control" placeholder="Aircraft"></div></div></div>'
-      							,
-      				showCancelButton: true,
-              confirmButtonClass: 'btn btn-primary',
-              cancelButtonClass: 'btn btn-default',
-              confirmButtonText: 'Save',
-              buttonsStyling: false
-            }).then(function(result) {
-              var eventData;
-              var event_title = $('#input-student').val() + ", " + $('#input-instructor').val() + ", " + $('#input-aircraft').val();
-  						event_start = $('#input-start').val();
-  						event_end = $('#input-end').val();
-
-              if (event_title) {
-      					eventData = {
-      						title: event_title,
-      						start: event_start,
-      						end: event_end
-      					};
-      					$calendar.fullCalendar('renderEvent', eventData, true); // stick? = true
-      				}
-      				$calendar.fullCalendar('unselect');
-
-            });
-            initDateTimePicker();
+  			
     			},
+    			
+    			
     			eventLimit: true, // allow "more" link when too many events
-
 
             // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
             events: [
@@ -155,7 +157,7 @@ $(document).ready(function() {
 					start: new Date(y, m, d),
 					end: new Date(y, m, d+12, 14, 0),
 					allDay: true,
-                    className: 'event-default'
+          className: 'event-default'
 				},
 				{
 					title: 'Herman Blume, Randon Russell, Archer N70432',
@@ -260,6 +262,8 @@ $(document).ready(function() {
       '<option value="3">Jerry Jones</option>' +
       '<option value="3">Rosemary Cross</option>' +
     '</select>';
+
+
 
 
   });
