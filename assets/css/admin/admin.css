@@ -549,7 +549,7 @@ dl .disc.expired {background-color: #FF5572;}
 .modal-content .modal-footer {
   justify-content: flex-end;
 }
-.modal-content .modal-footer button {
+.modal-content .modal-footer button, .card .card-footer .modal-footer .btn {
     margin-left: 8px;
 } 
 
