@@ -20,9 +20,7 @@ defmodule FlightWeb.Admin.StripeController do
         conn
         |> redirect(to: "/admin/settings?tab=billing")
       else
-        error ->
-          raise inspect(error)
-
+        _ ->
           conn
           |> redirect(to: "/admin/settings?tab=billing")
       end

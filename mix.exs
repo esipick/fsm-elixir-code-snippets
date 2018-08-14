@@ -47,6 +47,7 @@ defmodule Flight.Mixfile do
       {:bcrypt_elixir, "~> 1.0"},
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 4.0"},
+      {:tzdata, "~> 0.1.8"},
       {:timex, "~> 3.1"},
       {:stripity_stripe, "~> 2.1"},
       {:currency_formatter, "~> 0.4"},
