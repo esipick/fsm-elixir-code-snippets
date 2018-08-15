@@ -84,6 +84,7 @@
                                 <td>No</td>
                                 <td class="text-muted">sent 4/11/18</td> -->
                                 <td class="text-right">
+                                  <a href="#replace" class="btn btn-sm btn-danger">remove</a>
                                   <a href="/admin/school_invitations/<%= invitation.id %>/resend" class="btn btn-sm btn-primary">Resend</a>
                                 </td>
                               </tr>

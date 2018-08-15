@@ -161,6 +161,12 @@ table .photo {
 }
 input.btn { }
 
+.form-control {
+  
+}
+.form-control::placeholder {
+  color: #BBBCCD;
+}
 
 .badge-success {
   background-color: #46CF7B;
@@ -552,7 +558,9 @@ dl .disc.expired {background-color: #FF5572;}
 .modal-content .modal-footer button, .card .card-footer .modal-footer .btn {
     margin-left: 8px;
 } 
-
+.modal-content .modal-footer button.mr-auto {
+  margin-left: 0;
+}
 .bootstrap-switch .bootstrap-switch-handle-on {
   background: #2CA8Fe;
 }
