@@ -70,6 +70,15 @@
     </div>
   </div>
 
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Timezone</label>
+        <%= select f, :timezone, Flight.Accounts.School.valid_timezones(), class: "form-control" %>
+      </div>
+    </div>
+  </div>
+
   <input type="hidden" name="redirect_tab" value="school" />
 
   <div class="card-footer mt-3">

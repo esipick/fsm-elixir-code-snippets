@@ -81,11 +81,20 @@
                     </div>
                   </div>
 
+
                   <div class="row">
                     <div class="col-md-12">
                       <div class="form-group">
                         <label class="sr-only">Create Password</label>
                         <%= password_input f, :password, class: "form-control", value: "", placeholder: "Password" %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="pull-left mt-3">School Timezone</label>
+                        <%= select f, :timezone, Flight.Accounts.School.valid_timezones(), class: "form-control", selected: Ecto.Changeset.get_field(@changeset, :timezone) || "America/Denver" %>
                       </div>
                     </div>
                   </div>

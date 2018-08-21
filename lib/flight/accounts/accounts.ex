@@ -579,6 +579,7 @@ defmodule Flight.Accounts do
       contact_phone_number: user_data["phone_number"],
       contact_first_name: user_data["first_name"],
       contact_last_name: user_data["last_name"],
+      timezone: user_data["timezone"],
       name: user_data["school_name"]
     }
   end

@@ -375,6 +375,7 @@ defmodule Flight.Accounts.AccountsTest do
                  contact_first_name: "Hal",
                  contact_last_name: "Leonard",
                  contact_phone_number: "555-555-5555",
+                 timezone: "America/Denver",
                  contact_email: email
                })
 
@@ -400,6 +401,7 @@ defmodule Flight.Accounts.AccountsTest do
                  contact_email: "parkerwightman@gmail.com",
                  contact_first_name: "Hal",
                  contact_last_name: "Leonard",
+                 timezone: "America/Denver",
                  contact_phone_number: "555-555-5555"
                })
 
@@ -433,6 +435,7 @@ defmodule Flight.Accounts.AccountsTest do
         first_name: "Jesse",
         last_name: "Allen",
         phone_number: "801-555-5555",
+        timezone: "America/Denver",
         email: email,
         password: "hello world"
       }
@@ -496,6 +499,7 @@ defmodule Flight.Accounts.AccountsTest do
         last_name: "Allen",
         phone_number: "801-555-5555",
         email: email,
+        timezone: "America/Denver",
         password: "hello world"
       }
 
