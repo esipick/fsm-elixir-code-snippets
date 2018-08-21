@@ -97,7 +97,7 @@ defmodule Flight.Accounts do
         |> Repo.insert()
       end
     else
-      {:error, changeset}
+      Ecto.Changeset.apply_action(changeset, :insert)
     end
   end
 
