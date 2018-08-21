@@ -52,6 +52,10 @@ defmodule FlightWeb.Router do
 
     get("/school_invitations/:token", SchoolInvitationController, :accept)
     post("/school_invitations/:token", SchoolInvitationController, :accept_submit)
+    
+    get("/forgot", PageController, :forgot)
+    get("/reset", PageController, :reset)
+    
   end
 
   scope "/webhooks", FlightWeb do

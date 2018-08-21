@@ -34,6 +34,18 @@ defmodule Flight.Email do
       link: school_invitation_link(invitation)
     )
   end
+  
+  def reset_password_email(%Flight.Accounts.User{} = user) do
+    new_email()
+    |> put_layout({FlightWeb.EmailView, "invitation"})
+    # TODO: What email address to use here?
+    |> from("noreply@randonaviation.com")
+    |> subject("Welcome to Randon Aviation!")
+    |> render(
+      "_reset_password.html",
+      user: user
+    )
+  end
 
   def invitation_link(%Invitation{} = invitation) do
     Application.get_env(:flight, :web_base_url) <> "/invitations/#{invitation.token}"
