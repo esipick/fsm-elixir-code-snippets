@@ -3,7 +3,7 @@
 $(document).ready(function() {
   
   
-      // dynamic unavailability form
+    // dynamic unavailability form
     var unavailType = 'Instructor';
     $('#fieldAircraft').hide(); // hide aircraft by default
     $('#unavailFor').on('change', function() {

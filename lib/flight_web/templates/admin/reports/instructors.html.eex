@@ -1,0 +1,153 @@
+<div class="panel-header panel-header-sm">
+  <div class="header text-center">
+
+  </div>
+</div>
+
+<div class="content">
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Instructors</h4> 
+        <h5 class="card-category">Choose Time Range</h5>
+        <div class="d-flex form-group">
+          <div class="mr-2"><input id="apptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value=""></div>
+          <div class="mr-2"><input id="apptEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div>
+          <div class="mr-auto"><button id="btnSubmit" class="btn btn-primary mt-0">submit</button></div>
+          <div class="">
+            <button id="btnSubmit" class="btn btn-default mt-0">print</button>
+            <button id="btnSubmit" class="btn btn-default mt-0">csv</button>
+          </div>
+        </div>         
+      </div>
+      <div class="card-body">
+        
+
+      
+          
+          
+        <div class="row">
+           <table style='display:none;' id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th># of Appts</th>
+                <th># of Flights</th>
+                <th>Time Flown</th>
+                <th>Hours Worked</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+              <script>
+                var names = ["Max Fischer", "Herman Blume", "Rosemary Cross", "Dirk Calloway"];
+                var hours = ["80", "120", "12", "200"];
+                function getName() {
+                  return names[Math.floor(Math.random() * names.length)];
+                }
+                function getHours() {
+                  return hours[Math.floor(Math.random() * hours.length)];
+                }
+                function getRandomInt(min, max) {
+                  return Math.floor(Math.random() * (10 - 1 + 1)) + 1;
+                }
+                for (i = 0; i < 32; i++) {
+                  document.write('<tr>');
+                  document.write('<td>'+getName()+'</td>');
+                  document.write('<td>'+getRandomInt()+'</td>');
+                  document.write('<td>'+getRandomInt()+'</td>');
+                  document.write('<td>2500</td>');
+                  document.write('<td>'+getHours()+'</td>');
+                  document.write('</tr>');
+                }
+              </script>              
+               
+            </tbody>
+          </table>
+        </div>
+      <!-- end content-->
+      </div>
+      <!--  end card  -->
+    </div>
+    <!-- end col-md-12 -->
+  </div>
+  <!-- end row -->
+
+</div> <!-- end content -->
+
+
+<script>
+  $(document).ready(function() {
+    
+    // sets the reports nav item to active
+    $("a[href='/admin/reports']").parents('li').addClass('active');
+    
+    
+    $('#datatable').hide();
+    $('#btnSubmit').click(function(){
+      $('#datatable').show();
+      initDataTable();
+    });
+    
+    function initDataTable(){
+      $('#datatable').DataTable({
+        "pagingType": "full_numbers",
+        "lengthMenu": [
+          [10, 25, 50, -1],
+          [10, 25, 50, "All"]
+        ],
+        responsive: true,
+        language: {
+          search: "_INPUT_",
+          searchPlaceholder: "Search records",
+        }
+  
+      });
+    }
+
+    
+
+    function initDateTimePicker() {
+      $('.datetimepickerstart').datetimepicker({
+      		// debug: true,
+          icons: {
+              time: "now-ui-icons tech_watch-time",
+              date: "now-ui-icons ui-1_calendar-60",
+              up: "fa fa-chevron-up",
+              down: "fa fa-chevron-down",
+              previous: 'now-ui-icons arrows-1_minimal-left',
+              next: 'now-ui-icons arrows-1_minimal-right',
+              today: 'fa fa-screenshot',
+              clear: 'fa fa-trash',
+              close: 'fa fa-remove'
+          }
+      });
+      $('.datetimepickerend').datetimepicker({
+      		// debug: true,
+      		useCurrent: false, //Important! See issue #1075
+          icons: {
+            time: "now-ui-icons tech_watch-time",
+            date: "now-ui-icons ui-1_calendar-60",
+            up: "fa fa-chevron-up",
+            down: "fa fa-chevron-down",
+            previous: 'now-ui-icons arrows-1_minimal-left',
+            next: 'now-ui-icons arrows-1_minimal-right',
+            today: 'fa fa-screenshot',
+            clear: 'fa fa-trash',
+            close: 'fa fa-remove'
+          }
+      });
+      $(".datetimepickerstart").on("dp.change", function (e) {
+          $('.datetimepickerend').data("DateTimePicker").minDate(e.date);
+      });
+      $(".datetimepickerend").on("dp.change", function (e) {
+          $('.datetimepickerstart').data("DateTimePicker").maxDate(e.date);
+      });
+
+    }
+    initDateTimePicker();   
+    
+  });
+</script>

@@ -92,6 +92,16 @@ defmodule FlightWeb.Router do
     get("/logout", SessionController, :logout)
 
     resources("/schools", SchoolController, only: [:index, :show, :edit, :update])
+    
+    resources("/reports", ReportsController, only: [:index])
+    
+    scope("/reports") do
+      get("/students", ReportsController, :students)
+      get("/renters", ReportsController, :renters)
+      get("/instructors", ReportsController, :instructors)
+      get("/aircraft", ReportsController, :aircraft)
+    end
+    
 
     resources("/users", UserController, only: [:index, :show, :edit, :update]) do
       post("/add_funds", UserController, :add_funds)
