@@ -15,6 +15,7 @@ defmodule Flight.Accounts.School do
     field(:contact_last_name, :string)
     field(:contact_phone_number, :string)
     field(:contact_email, :string)
+    field(:timezone, :string)
     has_one(:stripe_account, Flight.Accounts.StripeAccount)
 
     timestamps()
@@ -28,6 +29,7 @@ defmodule Flight.Accounts.School do
       :contact_email,
       :contact_first_name,
       :contact_last_name,
+      :timezone,
       :contact_phone_number
     ])
     |> base_validations()
@@ -47,6 +49,7 @@ defmodule Flight.Accounts.School do
       :contact_first_name,
       :contact_last_name,
       :contact_phone_number,
+      :timezone,
       :contact_email
     ])
     |> base_validations()
@@ -56,6 +59,7 @@ defmodule Flight.Accounts.School do
     changeset
     |> validate_required([
       :name,
+      :timezone,
       :contact_email,
       :contact_phone_number,
       :contact_first_name,
@@ -73,6 +77,7 @@ defmodule Flight.Accounts.School do
       message: "must be in the format: 555-555-5555"
     )
     |> normalize_phone_number(:contact_phone_number)
+    |> validate_inclusion(:timezone, valid_timezones())
   end
 
   def normalize_phone_number(changeset, field) do
@@ -89,5 +94,10 @@ defmodule Flight.Accounts.School do
     else
       changeset
     end
+  end
+
+  def valid_timezones() do
+    Tzdata.zone_lists_grouped()[:northamerica]
+    |> Enum.filter(&String.starts_with?(&1, "America"))
   end
 end

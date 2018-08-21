@@ -163,6 +163,8 @@ defmodule Flight.Accounts.User do
 
   def base_validations(changeset, roles \\ nil, flyer_certificates \\ nil) do
     changeset
+    |> update_change(:first_name, &String.trim/1)
+    |> update_change(:last_name, &String.trim/1)
     |> validate_required([:email, :first_name, :last_name])
     |> unique_constraint(:email)
     |> trim_email()

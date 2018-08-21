@@ -8,7 +8,8 @@ defmodule Flight.AccountsFixtures do
       contact_email: "fsm+#{Flight.Random.hex(20)}@mailinator.com",
       contact_first_name: "Billy",
       contact_last_name: "Jean",
-      contact_phone_number: "555-555-5555"
+      contact_phone_number: "555-555-5555",
+      timezone: "America/Denver"
     }
     |> School.create_changeset(attrs)
     |> Repo.insert!()

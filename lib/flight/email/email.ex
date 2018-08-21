@@ -47,11 +47,11 @@ defmodule Flight.Email do
     )
   end
 
-  defp invitation_link(%Invitation{} = invitation) do
+  def invitation_link(%Invitation{} = invitation) do
     Application.get_env(:flight, :web_base_url) <> "/invitations/#{invitation.token}"
   end
 
-  defp school_invitation_link(%SchoolInvitation{} = invitation) do
+  def school_invitation_link(%SchoolInvitation{} = invitation) do
     Application.get_env(:flight, :web_base_url) <> "/school_invitations/#{invitation.token}"
   end
 end

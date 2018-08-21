@@ -40,6 +40,7 @@ defmodule FlightWeb.SchoolInvitationControllerTest do
           last_name: "Allison",
           email: "food@bards.com",
           phone_number: "801-555-5555",
+          timezone: "America/Denver",
           password: "justin time",
           school_name: "John Hopkins"
         }
