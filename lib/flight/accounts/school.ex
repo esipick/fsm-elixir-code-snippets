@@ -15,6 +15,7 @@ defmodule Flight.Accounts.School do
     field(:contact_last_name, :string)
     field(:contact_phone_number, :string)
     field(:contact_email, :string)
+    field(:timezone, :string)
     has_one(:stripe_account, Flight.Accounts.StripeAccount)
 
     timestamps()
