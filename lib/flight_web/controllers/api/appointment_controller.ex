@@ -92,7 +92,8 @@ defmodule FlightWeb.API.AppointmentController do
 
   def authorize_modify(conn, _) do
     user_id =
-      conn.params["data"] |> Optional.map(& &1["user_id"]) || conn.assigns.appointment.user_id
+      conn.params["data"] |> Optional.map(& &1["user_id"]) ||
+        if conn.assigns[:appointment], do: conn.assigns[:appointment].user_id
 
     instructor_user_id_from_appointment =
       case conn.assigns do
@@ -104,17 +105,25 @@ defmodule FlightWeb.API.AppointmentController do
       conn.params["data"] |> Optional.map(& &1["instructor_user_id"]) ||
         instructor_user_id_from_appointment
 
-    if user_can?(conn.assigns.current_user, [
-         Permission.new(:appointment_user, :modify, {:personal, user_id}),
-         Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id}),
-         Permission.new(:appointment, :modify, :all)
-       ]) do
-      conn
-    else
-      render_bad_request(
-        conn,
-        "You must be either the renter or the instructor of the appointment you're trying to create or modify."
-      )
+    cond do
+      !user_id ->
+        render_bad_request(
+          conn,
+          "You must choose a Renter."
+        )
+
+      user_can?(conn.assigns.current_user, [
+        Permission.new(:appointment_user, :modify, {:personal, user_id}),
+        Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id}),
+        Permission.new(:appointment, :modify, :all)
+      ]) ->
+        conn
+
+      true ->
+        render_bad_request(
+          conn,
+          "You must be either the renter or the instructor of the appointment you're trying to create or modify."
+        )
     end
   end
 
