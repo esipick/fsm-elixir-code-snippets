@@ -35,7 +35,7 @@ defmodule FlightWeb.API.AppointmentController do
 
   def index(conn, params) do
     appointments =
-      Scheduling.get_appointments(params)
+      Scheduling.get_appointments(params, conn)
       |> FlightWeb.API.AppointmentView.preload()
 
     render(conn, "index.json", appointments: appointments)

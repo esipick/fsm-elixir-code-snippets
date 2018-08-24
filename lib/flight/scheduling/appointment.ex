@@ -37,6 +37,22 @@ defmodule Flight.Scheduling.Appointment do
     |> validate_either_instructor_or_aircraft_set()
   end
 
+  def apply_timezone_changeset(changeset, timezone) do
+    changeset
+    |> apply_timezone(:start_at, timezone)
+    |> apply_timezone(:end_at, timezone)
+  end
+
+  def apply_timezone(changeset, key, timezone) do
+    change = get_field(changeset, key)
+
+    if change do
+      put_change(changeset, key, Flight.Walltime.utc_to_walltime(change, timezone))
+    else
+      changeset
+    end
+  end
+
   def update_transaction_changeset(appointment, attrs) do
     appointment
     |> cast(attrs, [:transaction_id])

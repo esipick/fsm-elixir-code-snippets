@@ -12,14 +12,17 @@ defmodule FlightWeb.API.AppointmentControllerTest do
 
       date = ~N[2018-03-03 10:30:00]
 
-      start_at = date |> NaiveDateTime.to_iso8601()
+      start_at = date
 
-      end_at = Timex.shift(date, hours: 2) |> NaiveDateTime.to_iso8601()
+      end_at = Timex.shift(date, hours: 2)
 
       json =
         conn
         |> auth(student)
-        |> get("/api/appointments/availability", %{start_at: start_at, end_at: end_at})
+        |> get("/api/appointments/availability", %{
+          start_at: NaiveDateTime.to_iso8601(start_at),
+          end_at: NaiveDateTime.to_iso8601(end_at)
+        })
         |> json_response(200)
 
       students_available = Availability.student_availability(start_at, end_at, [], student)
@@ -41,26 +44,35 @@ defmodule FlightWeb.API.AppointmentControllerTest do
     test "renders appointments within time range", %{conn: conn} do
       appointment1 =
         appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
-        |> FlightWeb.API.AppointmentView.preload()
+
+      from = NaiveDateTime.to_iso8601(~N[2018-03-03 09:00:00])
+      to = NaiveDateTime.to_iso8601(~N[2018-03-03 12:00:00])
 
       json =
         conn
         |> auth(user_fixture())
         |> get("/api/appointments", %{
-          from: NaiveDateTime.to_iso8601(~N[2018-03-03 00:00:00]),
-          to: NaiveDateTime.to_iso8601(~N[2018-03-04 00:00:00])
+          from: from,
+          to: to
         })
         |> json_response(200)
 
-      assert json == render_json(AppointmentView, "index.json", appointments: [appointment1])
+      appointment =
+        Flight.Scheduling.get_appointments(%{"from" => from, "to" => to}, appointment1)
+        |> List.first()
+        |> FlightWeb.API.AppointmentView.preload()
+
+      assert json == render_json(AppointmentView, "index.json", appointments: [appointment])
     end
   end
 
   describe "GET /api/appointments/:id" do
-    test "renders appointments within time range", %{conn: conn} do
+    @tag :wip
+    test "renders appointment", %{conn: conn} do
       appointment =
         appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
         |> FlightWeb.API.AppointmentView.preload()
+        |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
       json =
         conn
@@ -83,6 +95,8 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       student = student_fixture()
       instructor = user_fixture() |> assign_role("instructor")
       aircraft = aircraft_fixture()
+
+      school = default_school_fixture()
 
       appointment =
         appointment_fixture(
@@ -111,11 +125,17 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                Flight.Repo.get_by(
                  Appointment,
                  id: appointment.id,
-                 start_at: Timex.shift(@default_date, hours: 3),
+                 start_at:
+                   Timex.shift(@default_date, hours: 3)
+                   |> Flight.Walltime.utc_to_walltime(school.timezone),
                  note: "Heyo Timeo"
                )
+               |> FlightWeb.API.AppointmentView.preload()
 
-      appointment = FlightWeb.API.AppointmentView.preload(appointment)
+      appointment =
+        appointment.id
+        |> Flight.Scheduling.get_appointment(school)
+        |> FlightWeb.API.AppointmentView.preload()
 
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
     end
@@ -156,6 +176,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                  instructor_user_id: instructor.id,
                  aircraft_id: aircraft.id
                )
+               |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
       appointment = FlightWeb.API.AppointmentView.preload(appointment)
 
@@ -190,6 +211,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                  instructor_user_id: instructor.id,
                  aircraft_id: aircraft.id
                )
+               |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
       appointment = FlightWeb.API.AppointmentView.preload(appointment)
 

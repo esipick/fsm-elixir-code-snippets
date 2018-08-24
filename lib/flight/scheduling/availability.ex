@@ -75,12 +75,17 @@ defmodule Flight.Scheduling.Availability do
 
     visible_users = Flight.Accounts.users_with_roles(roles, school_context)
 
+    school = SchoolScope.get_school(school_context)
+
     unavailable_user_ids =
       Appointment
       |> SchoolScope.scope_query(school_context)
       |> select_for_permission_slug(permission_slug)
       |> exclude_appointment_query(excluded_appointment_ids)
-      |> appointment_overlap_query(start_at, end_at)
+      |> appointment_overlap_query(
+        Flight.Walltime.utc_to_walltime(start_at, school.timezone),
+        Flight.Walltime.utc_to_walltime(end_at, school.timezone)
+      )
       |> Repo.all()
       |> MapSet.new()
 
@@ -132,11 +137,16 @@ defmodule Flight.Scheduling.Availability do
       |> Repo.all()
       |> FlightWeb.API.AircraftView.preload()
 
+    school = SchoolScope.get_school(school_context)
+
     unavailable_aircraft_ids =
       Appointment
       |> SchoolScope.scope_query(school_context)
       |> select([a], a.aircraft_id)
-      |> appointment_overlap_query(start_at, end_at)
+      |> appointment_overlap_query(
+        Flight.Walltime.utc_to_walltime(start_at, school.timezone),
+        Flight.Walltime.utc_to_walltime(end_at, school.timezone)
+      )
       |> exclude_appointment_query(excluded_appointment_ids)
       |> Repo.all()
       |> MapSet.new()

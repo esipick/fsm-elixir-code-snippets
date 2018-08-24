@@ -11,7 +11,7 @@ defmodule FlightWeb.Admin.UserController do
 
   def show(conn, %{"tab" => "schedule"}) do
     appointments =
-      Scheduling.get_appointments(%{"user_id" => conn.assigns.requested_user.id})
+      Scheduling.get_appointments(%{"user_id" => conn.assigns.requested_user.id}, conn)
       |> Flight.Repo.preload([:aircraft, :instructor_user])
 
     render(

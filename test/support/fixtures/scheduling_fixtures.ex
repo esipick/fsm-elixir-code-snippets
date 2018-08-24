@@ -45,6 +45,7 @@ defmodule Flight.SchedulingFixtures do
         school_id: school.id
       }
       |> Appointment.changeset(attrs)
+      |> Appointment.apply_timezone_changeset(school.timezone)
       |> Repo.insert!()
 
     %{appointment | aircraft: aircraft, instructor_user: instructor, user: user}

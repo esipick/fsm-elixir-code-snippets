@@ -147,7 +147,6 @@ defmodule Flight.SchedulingTest do
              )
     end
 
-    @tag :wip
     test "update_inspection/2 updates tach inspection" do
       inspection = tach_inspection_fixture()
 
@@ -173,12 +172,12 @@ defmodule Flight.SchedulingTest do
   #
 
   describe "appointments" do
-    def create_appointment(data) do
+    def create_appointment(data, school \\ default_school_fixture()) do
       Scheduling.insert_or_update_appointment(
         %Scheduling.Appointment{},
         data,
         admin_fixture(),
-        default_school_fixture()
+        school
       )
     end
 
@@ -187,24 +186,33 @@ defmodule Flight.SchedulingTest do
       student = user_fixture() |> assign_role("student")
       aircraft = aircraft_fixture()
 
+      school = default_school_fixture()
+
       now = NaiveDateTime.utc_now()
 
-      {:ok, %Appointment{} = appointment} =
-        create_appointment(%{
-          start_at: Timex.shift(now, hours: 1),
-          end_at: Timex.shift(now, hours: 2),
-          instructor_user_id: instructor.id,
-          user_id: student.id,
-          aircraft_id: aircraft.id
-        })
+      start_at = Timex.shift(now, hours: 1)
+      end_at = Timex.shift(now, hours: 2)
 
-      assert appointment.start_at == Timex.shift(now, hours: 1)
-      assert appointment.end_at == Timex.shift(now, hours: 2)
+      {:ok, %Appointment{} = appointment} =
+        create_appointment(
+          %{
+            start_at: start_at,
+            end_at: end_at,
+            instructor_user_id: instructor.id,
+            user_id: student.id,
+            aircraft_id: aircraft.id
+          },
+          school
+        )
+
+      assert appointment.start_at == start_at
+      assert appointment.end_at == end_at
       assert appointment.instructor_user_id == instructor.id
       assert appointment.user_id == student.id
       assert appointment.aircraft_id == aircraft.id
     end
 
+    @tag :wip
     test "insert_or_update_appointment/1 updates existing appointment" do
       instructor = user_fixture() |> assign_role("instructor")
       student = user_fixture() |> assign_role("student")
@@ -212,27 +220,34 @@ defmodule Flight.SchedulingTest do
 
       now = NaiveDateTime.utc_now()
 
+      start_at = Timex.shift(now, hours: 1)
+      end_at = Timex.shift(now, hours: 2)
+
       {:ok, %Appointment{} = appointment} =
         create_appointment(%{
-          start_at: Timex.shift(now, hours: 1),
-          end_at: Timex.shift(now, hours: 2),
+          start_at: start_at,
+          end_at: end_at,
           instructor_user_id: instructor.id,
           user_id: student.id,
           aircraft_id: aircraft.id
         })
 
+      new_start_at = Timex.shift(now, minutes: 30)
+
       {:ok, %Appointment{} = updatedAppointment} =
         Scheduling.insert_or_update_appointment(
           appointment,
           %{
-            start_at: Timex.shift(now, minutes: 30)
+            start_at: new_start_at
           },
           admin_fixture(),
           default_school_fixture()
         )
 
       assert updatedAppointment.id == appointment.id
-      assert updatedAppointment.start_at == Timex.shift(now, minutes: 30)
+
+      assert updatedAppointment.start_at == new_start_at
+      assert updatedAppointment.end_at == end_at
     end
 
     test "insert_or_update_appointment/1 succeeds if instructor scheduled outside other appointment" do
@@ -511,10 +526,13 @@ defmodule Flight.SchedulingTest do
         appointment_fixture(%{start_at: ~N[2018-03-03 22:59:59], end_at: ~N[2018-03-03 23:59:59]})
 
       appointments =
-        Scheduling.get_appointments(%{
-          "from" => "2018-03-03T00:00:00Z",
-          "to" => "2018-03-04T00:00:00Z"
-        })
+        Scheduling.get_appointments(
+          %{
+            "from" => "2018-03-03T00:00:00Z",
+            "to" => "2018-03-04T00:00:00Z"
+          },
+          default_school_fixture()
+        )
 
       assert [%Appointment{}, %Appointment{}] = appointments
 
@@ -531,9 +549,12 @@ defmodule Flight.SchedulingTest do
         appointment_fixture(%{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]})
 
       appointments =
-        Scheduling.get_appointments(%{
-          "start_at_after" => "2018-03-03T00:00:00Z"
-        })
+        Scheduling.get_appointments(
+          %{
+            "start_at_after" => "2018-03-03T00:00:00Z"
+          },
+          default_school_fixture()
+        )
 
       assert [%Appointment{id: id}] = appointments
 
@@ -550,9 +571,12 @@ defmodule Flight.SchedulingTest do
       id = appointment1.id
 
       assert [%Appointment{id: ^id}] =
-               Scheduling.get_appointments(%{
-                 "user_id" => appointment1.user.id
-               })
+               Scheduling.get_appointments(
+                 %{
+                   "user_id" => appointment1.user.id
+                 },
+                 default_school_fixture()
+               )
     end
 
     test "get_appointments/2 returns appointments for instructor" do
@@ -565,9 +589,12 @@ defmodule Flight.SchedulingTest do
       id = appointment1.id
 
       assert [%Appointment{id: ^id}] =
-               Scheduling.get_appointments(%{
-                 "instructor_user_id" => appointment1.instructor_user.id
-               })
+               Scheduling.get_appointments(
+                 %{
+                   "instructor_user_id" => appointment1.instructor_user.id
+                 },
+                 default_school_fixture()
+               )
     end
 
     test "get_appointments/2 returns appointments for aircraft" do
@@ -580,9 +607,12 @@ defmodule Flight.SchedulingTest do
       id = appointment1.id
 
       assert [%Appointment{id: ^id}] =
-               Scheduling.get_appointments(%{
-                 "aircraft_id" => appointment1.aircraft.id
-               })
+               Scheduling.get_appointments(
+                 %{
+                   "aircraft_id" => appointment1.aircraft.id
+                 },
+                 default_school_fixture()
+               )
     end
 
     test "get_appointments/2 returns appointments for aircraft & student" do
@@ -598,10 +628,21 @@ defmodule Flight.SchedulingTest do
       id = appointment1.id
 
       assert [%Appointment{id: ^id}] =
-               Scheduling.get_appointments(%{
-                 "user_id" => appointment1.user.id,
-                 "aircraft_id" => appointment1.aircraft.id
-               })
+               Scheduling.get_appointments(
+                 %{
+                   "user_id" => appointment1.user.id,
+                   "aircraft_id" => appointment1.aircraft.id
+                 },
+                 default_school_fixture()
+               )
+    end
+
+    test "get_appointment/2 returns correct timezone" do
+      appointment =
+        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+
+      assert Scheduling.get_appointment(appointment.id, appointment).start_at ==
+               ~N[2018-03-03 10:00:00]
     end
 
     test "delete_appointment/3 deletes appointment" do
