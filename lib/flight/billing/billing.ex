@@ -250,8 +250,24 @@ defmodule Flight.Billing do
   def approve_transaction_if_necessary(transaction, source) do
     transaction = Repo.preload(transaction, [:user])
 
-    if transaction.creator_user_id == transaction.user_id ||
-         preferred_payment_method(transaction.user, transaction.total) == :balance do
+    payment_method = preferred_payment_method(transaction.user, transaction.total)
+
+    source =
+      cond do
+        source ->
+          source
+
+        payment_method == :charge && !source ->
+          {:ok, customer} =
+            get_stripe_customer(transaction.user.stripe_customer_id, transaction.user)
+
+          customer.default_source
+
+        true ->
+          nil
+      end
+
+    if payment_method == :balance || (source && payment_method == :charge) do
       transaction
       |> Repo.preload([:user, :creator_user])
       |> approve_transaction(source)
@@ -430,7 +446,7 @@ defmodule Flight.Billing do
   def approve_transaction(transaction, source? \\ nil) do
     case transaction.state do
       "pending" ->
-        case Billing.preferred_payment_method(transaction.user, transaction.total) do
+        case preferred_payment_method(transaction.user, transaction.total) do
           :balance ->
             with {:ok, _user} <- Billing.update_balance(transaction.user, -transaction.total),
                  {:ok, transaction} <- Billing.update_transaction_completed(transaction, :balance) do
@@ -586,6 +602,24 @@ defmodule Flight.Billing do
     if stripe_account do
       Stripe.Card.create(
         %{customer: user.stripe_customer_id, source: token},
+        connect_account: stripe_account.stripe_account_id
+      )
+    else
+      {:error, :no_stripe_account}
+    end
+  end
+
+  def get_stripe_customer(stripe_customer_id, school_context)
+      when is_binary(stripe_customer_id) do
+    stripe_account =
+      Repo.get_by(
+        Flight.Accounts.StripeAccount,
+        school_id: SchoolScope.school_id(school_context)
+      )
+
+    if stripe_account do
+      Stripe.Customer.retrieve(
+        stripe_customer_id,
         connect_account: stripe_account.stripe_account_id
       )
     else

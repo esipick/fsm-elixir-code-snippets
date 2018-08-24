@@ -239,6 +239,58 @@ defmodule Flight.BillingTest do
     end
   end
 
+  describe "approve_transaction_if_necessary/2" do
+    @tag :wip
+    test "approves transaction created by instructor even if source not passed" do
+      {user, _card} = user_fixture(%{balance: 0}) |> real_stripe_customer()
+      instructor = instructor_fixture()
+      transaction = transaction_fixture(%{total: 3000}, user, instructor)
+
+      refute transaction.completed_at
+
+      assert {:ok, %Transaction{} = transaction} =
+               Billing.approve_transaction_if_necessary(transaction, nil)
+
+      assert transaction.completed_at
+      assert transaction.state == "completed"
+      assert transaction.type == "debit"
+      assert transaction.paid_by_charge == 3000
+      refute transaction.paid_by_balance
+    end
+
+    @tag :wip
+    test "doesn't approve transaction created by instructor if student has no card" do
+      {user, nil} = user_fixture(%{balance: 0}) |> real_stripe_customer(false)
+      instructor = instructor_fixture()
+      transaction = transaction_fixture(%{total: 3000}, user, instructor)
+
+      refute transaction.completed_at
+
+      assert {:ok, %Transaction{} = transaction} =
+               Billing.approve_transaction_if_necessary(transaction, nil)
+
+      refute transaction.completed_at
+      assert transaction.state == "pending"
+    end
+
+    @tag :wip
+    test "approves transaction created by student when source was passed" do
+      {user, card} = user_fixture(%{balance: 0}) |> real_stripe_customer()
+      transaction = transaction_fixture(%{total: 3000}, user, user)
+
+      refute transaction.completed_at
+
+      assert {:ok, %Transaction{} = transaction} =
+               Billing.approve_transaction_if_necessary(transaction, card.id)
+
+      assert transaction.completed_at
+      assert transaction.state == "completed"
+      assert transaction.type == "debit"
+      assert transaction.paid_by_charge == 3000
+      refute transaction.paid_by_balance
+    end
+  end
+
   describe "add_funds_by_charge/2" do
     @tag :integration
     test "adds funds to user and creates transaction" do
