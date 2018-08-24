@@ -14,7 +14,11 @@ defmodule FlightWeb.API.UserControllerTest do
         |> get("/api/users?form=directory")
         |> json_response(200)
 
-      users = Flight.Repo.preload(Flight.Accounts.get_users(default_school_fixture()), :roles)
+      users =
+        Flight.Repo.preload(
+          Flight.Accounts.get_directory_users_visible_to_user(user1),
+          :roles
+        )
 
       assert json ==
                render_json(

@@ -14,7 +14,7 @@ defmodule FlightWeb.API.UserController do
       case form do
         "directory" ->
           users =
-            Accounts.get_users(conn)
+            Accounts.get_directory_users_visible_to_user(conn.assigns.current_user)
             |> Flight.Repo.preload(:roles)
 
           {:ok, users, "directory_user.json"}

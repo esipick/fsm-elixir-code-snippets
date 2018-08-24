@@ -32,6 +32,41 @@ defmodule Flight.Accounts do
     |> Repo.all()
   end
 
+  def get_directory_users_visible_to_user(user) do
+    user = Repo.preload(user, :roles)
+
+    roles =
+      Enum.reduce(user.roles, MapSet.new(), fn role, acc ->
+        MapSet.union(acc, MapSet.new(roles_visible_to(role.slug)))
+      end)
+      |> MapSet.to_list()
+      |> Enum.map(&Atom.to_string/1)
+
+    from(
+      u in User,
+      inner_join: r in assoc(u, :roles),
+      where: r.slug in ^roles
+    )
+    |> default_users_query(user)
+    |> Repo.all()
+  end
+
+  def roles_visible_to("student") do
+    [:instructor, :admin]
+  end
+
+  def roles_visible_to("instructor") do
+    [:student, :instructor, :admin]
+  end
+
+  def roles_visible_to("renter") do
+    [:admin]
+  end
+
+  def roles_visible_to("admin") do
+    [:admin, :student, :renter, :instructor]
+  end
+
   def get_user_count(role, school_context) do
     from(
       u in User,
