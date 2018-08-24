@@ -51,7 +51,7 @@ defmodule FlightWeb.SidebarItem do
       %SidebarItem{
         path: "/admin/users?role=renter",
         label: "Renters",
-        icon_class: "business_badge",
+        icon_class: "objects_key-25",
         active: false
       },
       %SidebarItem{
@@ -64,6 +64,12 @@ defmodule FlightWeb.SidebarItem do
         path: "/admin/users?role=admin",
         label: "Admins",
         icon_class: "business_badge",
+        active: false
+      },
+      %SidebarItem{
+        path: "/admin/reports",
+        label: "Reports",
+        icon_class: "files_single-copy-04",
         active: false
       },
       # %SidebarItem{
