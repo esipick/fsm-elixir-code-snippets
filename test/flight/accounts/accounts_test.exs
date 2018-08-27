@@ -25,6 +25,16 @@ defmodule Flight.Accounts.AccountsTest do
       refute Accounts.get_user(user.id, ["admin"], user)
     end
 
+    @tag :wip
+    test "get_directory_users_visible_to_user/1 returns correct users" do
+      user = user_fixture() |> assign_role("admin")
+      _user2 = user_fixture() |> assign_roles(["instructor", "student", "admin"])
+
+      users = Accounts.get_directory_users_visible_to_user(user)
+
+      assert Enum.count(users) == 2
+    end
+
     @tag :integration
     test "create_user/1 with valid data creates a user" do
       school = school_fixture() |> real_stripe_account()

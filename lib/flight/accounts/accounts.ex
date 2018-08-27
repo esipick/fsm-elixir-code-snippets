@@ -44,6 +44,7 @@ defmodule Flight.Accounts do
 
     from(
       u in User,
+      distinct: u.id,
       inner_join: r in assoc(u, :roles),
       where: r.slug in ^roles
     )
