@@ -10,8 +10,9 @@ defmodule Flight.BillingTest do
   alias Flight.Scheduling.{Aircraft, Appointment}
 
   describe "create_transaction_from_detailed_form/1" do
+    @tag :integration
     test "creates transaction and all sub resources" do
-      student = student_fixture()
+      {student, _} = student_fixture() |> real_stripe_customer(false)
       instructor = instructor_fixture()
       aircraft = aircraft_fixture(%{last_hobbs_time: 0, last_tach_time: 0})
 
@@ -75,8 +76,9 @@ defmodule Flight.BillingTest do
   end
 
   describe "create_transaction_from_custom_form/1" do
+    @tag :integration
     test "creates transaction and all sub resources" do
-      student = student_fixture()
+      {student, _} = student_fixture() |> real_stripe_customer(false)
       instructor = instructor_fixture()
 
       form =
@@ -240,7 +242,6 @@ defmodule Flight.BillingTest do
   end
 
   describe "approve_transaction_if_necessary/2" do
-    @tag :wip
     test "approves transaction created by instructor even if source not passed" do
       {user, _card} = user_fixture(%{balance: 0}) |> real_stripe_customer()
       instructor = instructor_fixture()
@@ -258,7 +259,6 @@ defmodule Flight.BillingTest do
       refute transaction.paid_by_balance
     end
 
-    @tag :wip
     test "doesn't approve transaction created by instructor if student has no card" do
       {user, nil} = user_fixture(%{balance: 0}) |> real_stripe_customer(false)
       instructor = instructor_fixture()
@@ -273,7 +273,6 @@ defmodule Flight.BillingTest do
       assert transaction.state == "pending"
     end
 
-    @tag :wip
     test "approves transaction created by student when source was passed" do
       {user, card} = user_fixture(%{balance: 0}) |> real_stripe_customer()
       transaction = transaction_fixture(%{total: 3000}, user, user)

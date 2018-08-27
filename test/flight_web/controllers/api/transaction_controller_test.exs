@@ -10,8 +10,9 @@ defmodule FlightWeb.API.TransactionControllerTest do
     # Detailed
     ###
 
+    @tag :integration
     test "creates pending detailed transaction", %{conn: conn} do
-      student = student_fixture()
+      {student, _} = student_fixture() |> real_stripe_customer(false)
       instructor = instructor_fixture()
       aircraft = aircraft_fixture()
 
@@ -126,8 +127,9 @@ defmodule FlightWeb.API.TransactionControllerTest do
     # Custom
     ###
 
+    @tag :integration
     test "creates pending custom transaction", %{conn: conn} do
-      student = student_fixture()
+      {student, _} = student_fixture() |> real_stripe_customer(false)
       instructor = instructor_fixture()
 
       params = custom_transaction_form_attrs(%{}, student, instructor)
