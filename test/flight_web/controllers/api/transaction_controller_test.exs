@@ -123,6 +123,28 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    @tag :integration
+    test "returns stripe errors", %{conn: conn} do
+      {student, nil} = student_fixture(%{balance: 0}) |> real_stripe_customer(false)
+
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+
+      appointment = appointment_fixture(%{instructor_user_id: nil}, student, instructor, aircraft)
+
+      params =
+        detailed_transaction_form_attrs(student, student, appointment, aircraft, nil)
+        |> Map.put(:source, "garbage")
+
+      json =
+        conn
+        |> auth(student)
+        |> post("/api/transactions", %{detailed: params})
+        |> json_response(400)
+
+      assert List.first(json["human_errors"]) =~ "There was an error"
+    end
+
     ###
     # Custom
     ###

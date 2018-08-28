@@ -171,16 +171,12 @@ defmodule Flight.Billing do
         transaction
       end)
 
-    case result do
-      {:ok, transaction} ->
-        {:ok, transaction} = approve_transaction_if_necessary(transaction, form.source)
-
-        send_payment_request_notification(transaction)
-
-        {:ok, transaction}
-
-      error ->
-        error
+    with {:ok, transaction} <- result,
+         {:ok, transaction} <- approve_transaction_if_necessary(transaction, form.source) do
+      send_payment_request_notification(transaction)
+      {:ok, transaction}
+    else
+      error -> error
     end
   end
 

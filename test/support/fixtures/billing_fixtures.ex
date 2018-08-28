@@ -123,7 +123,7 @@ defmodule Flight.BillingFixtures do
     form
   end
 
-  def real_stripe_customer(user, create_card? \\ true) do
+  def real_stripe_customer(user, create_card? \\ true, token \\ "tok_visa") do
     user = Repo.preload(user, school: :stripe_account)
 
     school =
@@ -142,7 +142,7 @@ defmodule Flight.BillingFixtures do
 
     card =
       if create_card? do
-        Flight.Billing.create_card(user, "tok_visa", school) |> elem(1)
+        Flight.Billing.create_card(user, token, school) |> elem(1)
       else
         nil
       end

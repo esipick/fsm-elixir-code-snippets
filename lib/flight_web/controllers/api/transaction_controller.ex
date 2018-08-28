@@ -27,7 +27,31 @@ defmodule FlightWeb.API.TransactionController do
         |> put_status(400)
         |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
 
-      {:error, _error} ->
+      {:error, %Stripe.Error{user_message: message} = error} ->
+        # If this gets annoying, check if user_message is nil before sending to filter out
+        # user error vs. programmer error.
+        Appsignal.Transaction.set_error(
+          "StripeError",
+          "Error charging card: #{inspect(error)}",
+          System.stacktrace()
+        )
+
+        conn
+        |> put_status(400)
+        |> json(%{
+          human_errors: [
+            message ||
+              "There was an error when charging the credit card. App developers have been notified. Try again or try charging a different card."
+          ]
+        })
+
+      {:error, error} ->
+        Appsignal.Transaction.set_error(
+          "ChargeError",
+          "Error charging card: #{inspect(error)}",
+          System.stacktrace()
+        )
+
         conn
         |> put_status(400)
         |> json(%{
