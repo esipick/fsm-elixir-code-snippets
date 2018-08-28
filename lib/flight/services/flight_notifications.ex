@@ -6,7 +6,10 @@ defmodule Flight.PushNotifications do
   def appointment_in_1_hour_notification(%User{} = user, appointment) do
     %PushNotification{
       title: "Appointment Reminder",
-      body: "Hey #{user.first_name}, you have an appointment in 1 hour. Tap for details.",
+      body:
+        "Hey #{user.first_name}, you have an appointment coming up at #{
+          Timex.format!(appointment.start_at, "%l:%M%P", :strftime)
+        }. Tap for details.",
       sound: true,
       user_id: user.id,
       data: %{
