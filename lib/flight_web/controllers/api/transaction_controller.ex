@@ -41,7 +41,8 @@ defmodule FlightWeb.API.TransactionController do
         |> json(%{
           human_errors: [
             message ||
-              "There was an error when charging the credit card. App developers have been notified. Try again or try charging a different card."
+              "There was an error when charging the credit card. App developers have been notified.",
+            "Do not attempt charging again, a pending transaction is waiting for the renter to approve."
           ]
         })
 
@@ -78,7 +79,13 @@ defmodule FlightWeb.API.TransactionController do
         |> put_status(400)
         |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
 
-      {:error, _error} ->
+      {:error, error} ->
+        Appsignal.Transaction.set_error(
+          "ChargeError",
+          "Error charging card: #{inspect(error)}",
+          System.stacktrace()
+        )
+
         conn
         |> put_status(400)
         |> json(%{
@@ -212,7 +219,7 @@ defmodule FlightWeb.API.TransactionController do
     conn
     |> put_status(500)
     |> json(%{
-      error_message: message || "An unknown error occurred, please try again."
+      human_errors: message || "An unknown error occurred, please try again."
     })
   end
 

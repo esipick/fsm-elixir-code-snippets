@@ -228,13 +228,24 @@ defmodule Flight.Billing do
           |> Mondo.PushService.publish()
 
         "completed" ->
-          if transaction.paid_by_balance do
-            Flight.PushNotifications.balance_deducted_notification(
-              transaction.user,
-              transaction.creator_user,
-              transaction
-            )
-            |> Mondo.PushService.publish()
+          if transaction.creator_user_id != transaction.user_id do
+            cond do
+              transaction.paid_by_balance ->
+                Flight.PushNotifications.balance_deducted_notification(
+                  transaction.user,
+                  transaction.creator_user,
+                  transaction
+                )
+                |> Mondo.PushService.publish()
+
+              transaction.paid_by_charge ->
+                Flight.PushNotifications.credit_card_charged_notification(
+                  transaction.user,
+                  transaction.creator_user,
+                  transaction
+                )
+                |> Mondo.PushService.publish()
+            end
           end
 
         _ ->
@@ -269,6 +280,37 @@ defmodule Flight.Billing do
       |> approve_transaction(source)
     else
       {:ok, transaction}
+    end
+  end
+
+  def approve_transaction(transaction, source? \\ nil) do
+    case transaction.state do
+      "pending" ->
+        case preferred_payment_method(transaction.user, transaction.total) do
+          :balance ->
+            with {:ok, _user} <- Billing.update_balance(transaction.user, -transaction.total),
+                 {:ok, transaction} <- Billing.update_transaction_completed(transaction, :balance) do
+              {:ok, transaction}
+            else
+              error -> error
+            end
+
+          :charge ->
+            if source? do
+              case Billing.create_stripe_charge(source?, transaction) do
+                {:ok, charge} ->
+                  Billing.update_transaction_completed(transaction, :charge, charge.id)
+
+                error ->
+                  error
+              end
+            else
+              {:error, :must_provide_source}
+            end
+        end
+
+      _ ->
+        {:error, :cannot_approve_non_pending_transaction}
     end
   end
 
@@ -437,37 +479,6 @@ defmodule Flight.Billing do
 
   def add_funds_by_credit(_, _, _, _) do
     {:error, :invalid_amount}
-  end
-
-  def approve_transaction(transaction, source? \\ nil) do
-    case transaction.state do
-      "pending" ->
-        case preferred_payment_method(transaction.user, transaction.total) do
-          :balance ->
-            with {:ok, _user} <- Billing.update_balance(transaction.user, -transaction.total),
-                 {:ok, transaction} <- Billing.update_transaction_completed(transaction, :balance) do
-              {:ok, transaction}
-            else
-              error -> error
-            end
-
-          :charge ->
-            if source? do
-              case Billing.create_stripe_charge(source?, transaction) do
-                {:ok, charge} ->
-                  Billing.update_transaction_completed(transaction, :charge, charge.id)
-
-                error ->
-                  error
-              end
-            else
-              {:error, :must_provide_source}
-            end
-        end
-
-      _ ->
-        {:error, :cannot_approve_non_pending_transaction}
-    end
   end
 
   def cancel_transaction(transaction) do
