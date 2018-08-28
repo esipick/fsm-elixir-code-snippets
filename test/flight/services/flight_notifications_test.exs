@@ -4,10 +4,18 @@ defmodule Flight.PushNotificationsTest do
   alias Flight.PushNotifications
 
   test "appointment_in_1_hour_notification" do
-    PushNotifications.appointment_in_1_hour_notification(
-      user_fixture(),
-      appointment_fixture()
-    )
+    user = user_fixture()
+
+    appointment =
+      appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+
+    notification =
+      PushNotifications.appointment_in_1_hour_notification(
+        user,
+        appointment
+      )
+
+    assert notification.body =~ " 3:00am"
   end
 
   test "appointment_created_notification" do
