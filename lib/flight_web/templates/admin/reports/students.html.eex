@@ -12,15 +12,17 @@
       <div class="card-header">
         <h4 class="card-title">Students</h4> 
         <h5 class="card-category">Choose Time Range</h5>
+        <%= form_tag("/admin/reports/students", method: :get, class: "form-group", autocomplete: "off") do %>
         <div class="d-flex form-group">
-          <div class="mr-2"><input id="apptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value=""></div>
-          <div class="mr-2"><input id="apptEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div>
-          <div class="mr-auto"><button id="btnSubmit" class="btn btn-primary mt-0">submit</button></div>
+          <div class="mr-2"><input id="apptStart" type="text" name="from" class="form-control datetimepickerstart" placeholder="Start Time" value="<%= @from %>"></div>
+          <div class="mr-2"><input id="apptEnd" type="text" name="to" class="form-control datetimepickerend" placeholder="End Time" value="<%= @to %>"></div>
+          <div class="mr-auto"><input type="submit" id="btnSubmit" class="btn btn-primary mt-0" value="submit"/></div>
           <div class="">
             <button id="btnSubmit" class="btn btn-default mt-0">print</button>
             <button id="btnSubmit" class="btn btn-default mt-0">csv</button>
           </div>
         </div>         
+        <% end %>
       </div>
       <div class="card-body">
         
@@ -29,43 +31,24 @@
           
           
         <div class="row">
-          <table style='display:none;' id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+          <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
             <thead>
               <tr>
-                <th>Name</th>
-                <th># of Appointments</th>
-                <th>Funds Added</th>
-                <th>Total Funds Added</th>
-                <th>Deducted from Balance</th>
-                <th>Time Flown</th>
+              <%= for header <- @report_table.headers do %>
+                <th><%= header %></th>
+              <% end %>
               </tr>
             </thead>
             <tbody>
-              
-              <script>
-                var names = ["Max Fischer", "Herman Blume", "Rosemary Cross", "Dirk Calloway"];
-                var amounts = ["$5,000", "$8,000", "$3,250", "$12,500"];
-                function getName() {
-                  return names[Math.floor(Math.random() * names.length)];
-                }
-                function getAmount() {
-                  return amounts[Math.floor(Math.random() * amounts.length)];
-                }
-                function getRandomInt(min, max) {
-                  return Math.floor(Math.random() * (10 - 1 + 1)) + 1;
-                }
-                for (i = 0; i < 32; i++) {
-                  document.write('<tr>');
-                  document.write('<td>'+getName()+'</td>');
-                  document.write('<td>'+getRandomInt()+'</td>');
-                  document.write('<td>'+getAmount()+'</td>');
-                  document.write('<td>'+getAmount()+'</td>');
-                  document.write('<td>'+getAmount()+'</td>');
-                  document.write('<td>2500</td>');
-                  document.write('</tr>');
-                }
-              </script>              
-               
+              <%= for row <- @report_table.rows do %>
+                <tr>
+                <%= for item <- row do %>
+                  <td>
+                  <%= item %>
+                  </td>
+                <% end %>
+                </tr>
+              <% end %>
             </tbody>
           </table>
         </div>
@@ -84,18 +67,10 @@
   $(document).ready(function() {
     
     // sets the reports nav item to active
-    $("a[href='/admin/reports']").parents('li').addClass('active');
-    
-    
-    $('#datatable').hide();
-    $('#btnSubmit').click(function(){
-      $('#datatable').show();
-      initDataTable();
-    });
     
     function initDataTable(){
       $('#datatable').DataTable({
-        "pagingType": "full_numbers",
+        "paging": false,
         "lengthMenu": [
           [10, 25, 50, -1],
           [10, 25, 50, "All"]
@@ -114,6 +89,7 @@
     function initDateTimePicker() {
       $('.datetimepickerstart').datetimepicker({
       		// debug: true,
+          format: "MM-DD-YYYY",
           icons: {
               time: "now-ui-icons tech_watch-time",
               date: "now-ui-icons ui-1_calendar-60",
@@ -129,6 +105,7 @@
       $('.datetimepickerend').datetimepicker({
       		// debug: true,
       		useCurrent: false, //Important! See issue #1075
+          format: "MM-DD-YYYY",
           icons: {
             time: "now-ui-icons tech_watch-time",
             date: "now-ui-icons ui-1_calendar-60",

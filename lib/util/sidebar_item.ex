@@ -87,7 +87,7 @@ defmodule FlightWeb.SidebarItem do
     ]
     |> Enum.filter(& &1)
     |> Enum.map(fn item ->
-      if item.path == full_path do
+      if String.starts_with?(full_path, item.path) do
         %{item | active: true}
       else
         %{item | active: false}

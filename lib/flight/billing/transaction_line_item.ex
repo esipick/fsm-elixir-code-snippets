@@ -9,6 +9,7 @@ defmodule Flight.Billing.TransactionLineItem do
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
     belongs_to(:instructor_user, Flight.Accounts.User)
     has_one(:aircraft_detail, Flight.Billing.AircraftLineItemDetail)
+    has_one(:instructor_detail, Flight.Billing.InstructorLineItemDetail)
 
     timestamps()
   end
