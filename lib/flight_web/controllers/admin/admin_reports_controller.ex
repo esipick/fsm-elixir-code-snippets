@@ -9,29 +9,28 @@ defmodule FlightWeb.Admin.ReportsController do
     render(
       conn,
       "report_table.html",
-      report_table: report(type, from, to, conn),
+      report_table: Flight.Reports.report(type, from, to, conn),
       from: from,
       to: to,
       report_type: type
     )
   end
 
-  def detail(conn, params) do
-    render(
-      conn,
-      "report_table.html",
-      report_table: Flight.ReportTable.empty(),
-      from: "",
-      to: "",
-      report_type: params["type"]
-    )
-  end
+  def detail(conn, %{"type" => type}) do
+    school = Flight.SchoolScope.get_school(conn)
 
-  defp report(type, from, to, school_context) do
-    case type do
-      "students" -> Flight.Reports.student_report(from, to, school_context)
-      "instructors" -> Flight.Reports.instructor_report(from, to, school_context)
-      _ -> Flight.ReportTable.empty()
-    end
+    now = Timex.now(school.timezone)
+
+    from =
+      now
+      |> Timex.beginning_of_month()
+      |> Flight.Reports.format_date()
+
+    to =
+      now
+      |> Timex.end_of_month()
+      |> Flight.Reports.format_date()
+
+    redirect(conn, to: "/admin/reports/detail?type=#{type}&from=#{from}&to=#{to}")
   end
 end

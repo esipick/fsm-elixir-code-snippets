@@ -22,20 +22,22 @@
               </tr>
               <tr>
                 <td><b>Renters</b></span></td>
-                <td class="text-right"><a href="/admin/reports/detail?type=instructors" class="btn btn-primary btn-sm">view</a></td>
+                <td class="text-right"><a href="/admin/reports/detail?type=renters" class="btn btn-primary btn-sm">view</a></td>
               </tr>
               <tr>
                 <td><b>Instructors</b></span></td>
-                <td class="text-right"><a href="/admin/reports/instructors/" class="btn btn-primary btn-sm">view</a></td>
+                <td class="text-right"><a href="/admin/reports/detail?type=instructors" class="btn btn-primary btn-sm">view</a></td>
               </tr>
               <tr>
                 <td><b>Aircraft</b></span></td>
-                <td class="text-right"><a href="/admin/reports/aircraft/" class="btn btn-primary btn-sm">view</a></td>
+                <td class="text-right"><a href="/admin/reports/detail?type=aircraft" class="btn btn-primary btn-sm">view</a></td>
               </tr>
+              <!--
               <tr>
                 <td><b>Financials</b></span></td>
-                <td class="text-right"><a href="/admin/reports/financials/" class="btn btn-primary btn-sm">view</a></td>
+                <td class="text-right"><a href="/admin/reports/detail?type=financials" class="btn btn-primary btn-sm">view</a></td>
               </tr>
+              -->
             </tbody>
           </table>
         </div>
