@@ -42,11 +42,11 @@
             <tbody>
               <%= for row <- @report_table.rows do %>
                 <tr>
-                <%= for item <- row do %>
-                  <td>
-                  <%= item %>
-                  </td>
-                <% end %>
+                <%= 
+                case @report_type do
+                  "students" -> render("_student_row.html", row: row)
+                end 
+                %>
                 </tr>
               <% end %>
             </tbody>

@@ -151,7 +151,7 @@ defmodule Flight.Reports do
     (transactions[user.id] || [])
     |> Enum.reduce(0, fn transaction, acc ->
       case transaction do
-        %{type: "credit"} ->
+        %{type: "credit", paid_by_charge: nil} ->
           acc + transaction.total
 
         _ ->

@@ -7,11 +7,26 @@ defmodule FlightWeb.Admin.ReportsController do
 
   def students(conn, %{"from" => from, "to" => to}) do
     report = Flight.Reports.student_report(from, to, conn)
-    render(conn, "students.html", report_table: report, from: from, to: to)
+
+    render(
+      conn,
+      "students.html",
+      report_table: report,
+      from: from,
+      to: to,
+      report_type: "students"
+    )
   end
 
   def students(conn, _) do
-    render(conn, "students.html", report_table: Flight.ReportTable.empty(), from: "", to: "")
+    render(
+      conn,
+      "students.html",
+      report_table: Flight.ReportTable.empty(),
+      from: "",
+      to: "",
+      report_type: "students"
+    )
   end
 
   def renters(conn, _) do
