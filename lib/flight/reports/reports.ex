@@ -164,7 +164,7 @@ defmodule Flight.Reports do
         Enum.map(aircrafts, fn aircraft ->
           [
             FlightWeb.ViewHelpers.aircraft_display_name(aircraft, :short),
-            num_appointments(aircraft, appointments),
+            num_transactions(aircraft, transactions),
             time_flown(aircraft, transactions),
             amount_aircraft_billed(aircraft, transactions)
           ]
