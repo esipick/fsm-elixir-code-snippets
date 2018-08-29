@@ -46,7 +46,7 @@
                 <%= 
                 case @report_type do
                   "students" -> render("_student_row.html", row: row)
-                  "instructors" -> render("_instructors_row.html", row: row)
+                  "instructors" -> render("_instructor_row.html", row: row)
                   "renters" -> render("_renter_row.html", row: row)
                   "aircraft" -> render("_aircraft_row.html", row: row)
                   "financials" -> render("_financial_row.html", row: row)
