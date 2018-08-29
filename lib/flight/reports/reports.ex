@@ -158,7 +158,6 @@ defmodule Flight.Reports do
     |> join(:inner, [t], li in assoc(t, :line_items))
     |> join(:inner, [t, li], id in assoc(li, :instructor_detail))
     |> where([t, li, id], id.instructor_user_id in ^user_ids)
-    |> where([t], t.user_id in ^user_ids)
     |> where([t], t.state == "completed")
     |> where([t], t.completed_at >= ^start_at and t.completed_at < ^end_at)
     |> Repo.all()
