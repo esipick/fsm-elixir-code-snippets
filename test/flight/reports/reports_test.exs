@@ -34,7 +34,6 @@ defmodule Flight.ReportsTest do
           aircraft_fixture(),
           instructor_fixture()
         )
-        |> Flight.Billing.create_transaction_from_detailed_form(student)
 
       IO.inspect(transaction)
 
@@ -58,6 +57,32 @@ defmodule Flight.ReportsTest do
       assert Enum.at(report_student, 2) == 32
       assert Enum.at(report_student, 3) == 23
       assert Enum.at(report_student, 6) == 17634
+    end
+  end
+
+  describe "num_appointments/2" do
+    test "returns correct number of appointments" do
+      student = student_fixture()
+
+      appointment1 = appointment_fixture(%{}, student)
+      appointment2 = appointment_fixture(%{}, student)
+
+      assert Flight.Reports.num_appointments(student, %{
+               student.id => [appointment1, appointment2]
+             }) == 2
+    end
+  end
+
+  describe "time_flown/2" do
+    test "returns correct time" do
+      {transaction, instructor_line_item, instructor_details, aircraft_line_item,
+       aircraft_details} =
+        detailed_transaction_form_fixture()
+        |> FlightWeb.API.DetailedTransactionForm.to_transaction(:normal, default_school_fixture())
+        
+      now = NaiveDateTime.utc_now()
+
+      transaction = %{transaction | state: "completed", completed_at: now}
     end
   end
 end

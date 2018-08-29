@@ -1,0 +1,6 @@
+<td><%= Enum.at(@row, 0) %></td>
+<td><%= Enum.at(@row, 1) %></td>
+<td><%= Enum.at(@row, 2) %></td>
+<td><%= display_hour_tenths Enum.at(@row, 3) %></td>
+<td><%= display_hour_tenths Enum.at(@row, 4) %></td>
+<td><%= currency Enum.at(@row, 5) %></td>

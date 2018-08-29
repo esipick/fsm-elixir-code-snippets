@@ -10,10 +10,11 @@
   <div class="col-md-12">
     <div class="card">
       <div class="card-header">
-        <h4 class="card-title">Students</h4> 
+        <h4 class="card-title"><%= String.capitalize(@report_type) %></h4> 
         <h5 class="card-category">Choose Time Range</h5>
-        <%= form_tag("/admin/reports/students", method: :get, class: "form-group", autocomplete: "off") do %>
+        <%= form_tag("/admin/reports/detail", method: :get, class: "form-group", autocomplete: "off") do %>
         <div class="d-flex form-group">
+          <input type="hidden" name="type" value="<%= @report_type %>" />
           <div class="mr-2"><input id="apptStart" type="text" name="from" class="form-control datetimepickerstart" placeholder="Start Time" value="<%= @from %>"></div>
           <div class="mr-2"><input id="apptEnd" type="text" name="to" class="form-control datetimepickerend" placeholder="End Time" value="<%= @to %>"></div>
           <div class="mr-auto"><input type="submit" id="btnSubmit" class="btn btn-primary mt-0" value="submit"/></div>
@@ -45,6 +46,7 @@
                 <%= 
                 case @report_type do
                   "students" -> render("_student_row.html", row: row)
+                  "instructors" -> render("_instructors_row.html", row: row)
                 end 
                 %>
                 </tr>
@@ -84,7 +86,9 @@
       });
     }
 
-    
+    <%= if !Enum.empty?(@report_table.rows) do %>
+      initDataTable()
+    <% end %>
 
     function initDateTimePicker() {
       $('.datetimepickerstart').datetimepicker({

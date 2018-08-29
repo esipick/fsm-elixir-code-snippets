@@ -52,10 +52,9 @@ defmodule FlightWeb.Router do
 
     get("/school_invitations/:token", SchoolInvitationController, :accept)
     post("/school_invitations/:token", SchoolInvitationController, :accept_submit)
-    
+
     get("/forgot", PageController, :forgot)
     get("/reset", PageController, :reset)
-    
   end
 
   scope "/webhooks", FlightWeb do
@@ -92,16 +91,12 @@ defmodule FlightWeb.Router do
     get("/logout", SessionController, :logout)
 
     resources("/schools", SchoolController, only: [:index, :show, :edit, :update])
-    
+
     resources("/reports", ReportsController, only: [:index])
-    
+
     scope("/reports") do
-      get("/students", ReportsController, :students)
-      get("/renters", ReportsController, :renters)
-      get("/instructors", ReportsController, :instructors)
-      get("/aircraft", ReportsController, :aircraft)
+      get("/detail", ReportsController, :detail)
     end
-    
 
     resources("/users", UserController, only: [:index, :show, :edit, :update]) do
       post("/add_funds", UserController, :add_funds)
@@ -116,7 +111,7 @@ defmodule FlightWeb.Router do
     get("/stripe_connect", StripeController, :connect)
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
-    
+
     resources("/courses", CoursesController, only: [:index, :edit])
 
     resources("/invitations", InvitationController, only: [:create, :index]) do

@@ -5,39 +5,33 @@ defmodule FlightWeb.Admin.ReportsController do
     render(conn, "index.html")
   end
 
-  def students(conn, %{"from" => from, "to" => to}) do
-    report = Flight.Reports.student_report(from, to, conn)
-
+  def detail(conn, %{"from" => from, "to" => to, "type" => type}) do
     render(
       conn,
-      "students.html",
-      report_table: report,
+      "report_table.html",
+      report_table: report(type, from, to, conn),
       from: from,
       to: to,
-      report_type: "students"
+      report_type: type
     )
   end
 
-  def students(conn, _) do
+  def detail(conn, params) do
     render(
       conn,
-      "students.html",
+      "report_table.html",
       report_table: Flight.ReportTable.empty(),
       from: "",
       to: "",
-      report_type: "students"
+      report_type: params["type"]
     )
   end
 
-  def renters(conn, _) do
-    render(conn, "renters.html")
-  end
-
-  def instructors(conn, _) do
-    render(conn, "instructors.html")
-  end
-
-  def aircraft(conn, _) do
-    render(conn, "aircraft.html")
+  defp report(type, from, to, school_context) do
+    case type do
+      "students" -> Flight.Reports.student_report(from, to, school_context)
+      "instructors" -> Flight.Reports.instructor_report(from, to, school_context)
+      _ -> Flight.ReportTable.empty()
+    end
   end
 end

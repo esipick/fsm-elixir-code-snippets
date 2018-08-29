@@ -18,11 +18,11 @@
             <tbody>
               <tr>
                 <td><b>Students</b></span></td>
-                <td class="text-right"><a href="/admin/reports/students/" class="btn btn-primary btn-sm">view</a></td>
+                <td class="text-right"><a href="/admin/reports/detail?type=students" class="btn btn-primary btn-sm">view</a></td>
               </tr>
               <tr>
                 <td><b>Renters</b></span></td>
-                <td class="text-right"><a href="/admin/reports/renters/" class="btn btn-primary btn-sm">view</a></td>
+                <td class="text-right"><a href="/admin/reports/detail?type=instructors" class="btn btn-primary btn-sm">view</a></td>
               </tr>
               <tr>
                 <td><b>Instructors</b></span></td>
