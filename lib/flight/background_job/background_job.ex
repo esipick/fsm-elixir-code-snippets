@@ -4,32 +4,38 @@ defmodule Flight.BackgroundJob do
   import Ecto.Query
 
   def send_upcoming_appointment_notifications() do
-    appointments =
-      NaiveDateTime.utc_now()
-      |> Timex.shift(hours: 1)
-      |> appointments_around()
-      |> Repo.preload([:user, :instructor_user])
+    appointments_count =
+      Enum.reduce(Flight.Accounts.get_schools(), 0, fn school, acc ->
+        appointments =
+          NaiveDateTime.utc_now()
+          |> Flight.Walltime.utc_to_walltime(school.timezone)
+          |> Timex.shift(hours: 1)
+          |> appointments_around(school)
+          |> Repo.preload([:user, :instructor_user])
 
-    for appointment <- appointments do
-      Flight.PushNotifications.appointment_in_1_hour_notification(
-        appointment.user,
-        appointment
-      )
-      |> Mondo.PushService.publish()
+        for appointment <- appointments do
+          Flight.PushNotifications.appointment_in_1_hour_notification(
+            appointment.user,
+            appointment
+          )
+          |> Mondo.PushService.publish()
 
-      if appointment.instructor_user do
-        Flight.PushNotifications.appointment_in_1_hour_notification(
-          appointment.instructor_user,
-          appointment
-        )
-        |> Mondo.PushService.publish()
-      end
-    end
+          if appointment.instructor_user do
+            Flight.PushNotifications.appointment_in_1_hour_notification(
+              appointment.instructor_user,
+              appointment
+            )
+            |> Mondo.PushService.publish()
+          end
+        end
 
-    Enum.count(appointments)
+        acc + Enum.count(appointments)
+      end)
+
+    appointments_count
   end
 
-  def appointments_around(date) do
+  def appointments_around(date, school_context) do
     date =
       date
       |> normalized_to_interval(30)
@@ -41,6 +47,7 @@ defmodule Flight.BackgroundJob do
       a in Flight.Scheduling.Appointment,
       where: a.start_at > ^lower_bound and a.start_at < ^upper_bound
     )
+    |> Flight.SchoolScope.scope_query(school_context)
     |> Repo.all()
   end
 
