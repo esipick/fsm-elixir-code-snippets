@@ -22,6 +22,7 @@ defmodule Flight.Accounts.User do
     field(:pay_rate, Flight.DollarCents, default: 5000)
     field(:awards, :string)
     field(:stripe_customer_id, :string)
+    field(:stripe_account_source, :string, default: "connected")
     belongs_to(:school, Flight.Accounts.School)
     many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
 
@@ -88,7 +89,8 @@ defmodule Flight.Accounts.User do
       :password,
       :phone_number,
       :balance,
-      :stripe_customer_id
+      :stripe_customer_id,
+      :stripe_account_source
     ])
     |> validate_required([
       :email,
@@ -106,8 +108,8 @@ defmodule Flight.Accounts.User do
 
   def stripe_customer_changeset(user, attrs) do
     user
-    |> cast(attrs, [:stripe_customer_id])
-    |> validate_required([:stripe_customer_id])
+    |> cast(attrs, [:stripe_customer_id, :stripe_account_source])
+    |> validate_required([:stripe_customer_id, :stripe_account_source])
   end
 
   def api_update_changeset(user, attrs, _roles, flyer_certificates) do
@@ -165,7 +167,7 @@ defmodule Flight.Accounts.User do
     changeset
     |> update_change(:first_name, &String.trim/1)
     |> update_change(:last_name, &String.trim/1)
-    |> validate_required([:email, :first_name, :last_name])
+    |> validate_required([:email, :first_name, :last_name, :stripe_account_source])
     |> unique_constraint(:email)
     |> trim_email()
     |> validate_length(:roles, min: 1)

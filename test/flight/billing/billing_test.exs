@@ -443,7 +443,9 @@ defmodule Flight.BillingTest do
       {:ok, customer} =
         Billing.create_stripe_customer("#{Flight.Random.hex(51)}@mailinator.com", school)
 
-      assert {:ok, _} = Billing.create_ephemeral_key(customer.id, "2018-05-21", school)
+      user = user_fixture(%{stripe_customer_id: customer.id})
+
+      assert {:ok, _} = Billing.create_ephemeral_key(user, "2018-05-21", school)
     end
   end
 end

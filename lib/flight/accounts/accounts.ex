@@ -122,7 +122,10 @@ defmodule Flight.Accounts do
              ) do
           {:ok, customer} ->
             changeset
-            |> User.stripe_customer_changeset(%{stripe_customer_id: customer.id})
+            |> User.stripe_customer_changeset(%{
+              stripe_customer_id: customer.id,
+              stripe_account_source: "platform"
+            })
             |> Repo.insert()
 
           error ->

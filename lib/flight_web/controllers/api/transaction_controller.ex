@@ -108,7 +108,9 @@ defmodule FlightWeb.API.TransactionController do
       |> put_status(201)
       |> render("show.json", transaction: render_preloads(transaction))
     else
-      _ ->
+      error ->
+        IO.inspect(error)
+
         conn
         |> put_status(400)
         |> json(%{human_errors: ["Unable to add funds."]})
@@ -162,7 +164,7 @@ defmodule FlightWeb.API.TransactionController do
 
   def ephemeral_keys(conn, %{"api_version" => api_version}) do
     case Billing.create_ephemeral_key(
-           conn.assigns.current_user.stripe_customer_id,
+           conn.assigns.current_user,
            api_version,
            conn
          ) do
