@@ -122,12 +122,23 @@
   </div>
   <script>
     var stripe = Stripe('<%= stripe_key() %>')
-    var elements = stripe.elements();
+    var elements = stripe.elements({
+      fonts: [
+        {
+          cssSrc: "https://fonts.googleapis.com/css?family=Lato:300,400,700,900",
+        }
+      ]
+    });
     var style = {
       base: {
         fontSize: '12px',
-        fontFamily: "'Lato',Helvetica Neue,Arial,sans-serif",
-        color: "#32325d"
+        fontFamily: "'Lato',Helvetica,Arial,sans-serif",
+        color: "#2c2c2c",
+        fontWeight: 'normal',
+        '::placeholder': {
+          color: '#BBBCCD',
+          fontWeight: '300',
+        }
       }
     };
 
