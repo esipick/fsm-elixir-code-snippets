@@ -833,8 +833,23 @@ fieldset[disabled] .fc button:hover {
   padding: 10px 12px;
   border-radius: 19px;
   border: 1px solid rgb(227, 227, 227);
+  background: #fff;
+}
+.StripeElement--focus {
+  border: 1px solid #2CA8Fe;
+  box-shadow: none;
+  outline: 0!important;
 }
 
+.StripeElement--invalid {
+  border-color: #fa755a;
+}
+#card-errors {
+  color: #eb1c26;
+  text-align: left;
+  padding-top: 8px;
+  font-size: 12px;
+}
 
 
 /* styles that shouldnt be included in production */
