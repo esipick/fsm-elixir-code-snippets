@@ -828,6 +828,13 @@ fieldset[disabled] .fc button:hover {
 
 }
 
+.StripeElement {
+  height: 38px;
+  padding: 10px 12px;
+  border-radius: 19px;
+  border: 1px solid rgb(227, 227, 227);
+}
+
 
 
 /* styles that shouldnt be included in production */

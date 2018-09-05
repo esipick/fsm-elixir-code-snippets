@@ -16,8 +16,8 @@ defmodule FlightWeb.InvitationController do
     )
   end
 
-  def accept_submit(conn, %{"token" => token, "user" => user_data}) do
-    case Accounts.create_user_from_invitation(user_data, conn.assigns.invitation) do
+  def accept_submit(conn, %{"token" => token, "user" => user_data, "stripe_token" => stripe_token}) do
+    case Accounts.create_user_from_invitation(user_data, stripe_token, conn.assigns.invitation) do
       {:ok, _user} ->
         redirect(conn, to: "/invitations/#{token}/success")
 
@@ -34,7 +34,7 @@ defmodule FlightWeb.InvitationController do
     invitation = Accounts.get_invitation_for_token(conn.params["token"])
 
     if invitation do
-      assign(conn, :invitation, invitation)
+      assign(conn, :invitation, invitation |> Flight.Repo.preload(:role))
     else
       # TODO: Not the right place...where to though?
       conn

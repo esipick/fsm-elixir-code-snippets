@@ -43,6 +43,8 @@ config :stripity_stripe,
   api_key: Map.fetch!(System.get_env(), "STRIPE_SECRET_KEY"),
   connect_client_id: Map.fetch!(System.get_env(), "STRIPE_CONNECT_CLIENT_ID")
 
+config :flight, :stripe_publishable_key, Map.fetch!(System.get_env(), "STRIPE_PUBLISHABLE_KEY")
+
 config :flight, stripe_webhook_secret: Map.fetch!(System.get_env(), "STRIPE_WEBHOOK_SECRET")
 config :flight, stripe_livemode: Map.fetch!(System.get_env(), "STRIPE_LIVEMODE") == "true"
 

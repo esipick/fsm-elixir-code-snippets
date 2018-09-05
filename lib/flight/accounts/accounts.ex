@@ -476,7 +476,7 @@ defmodule Flight.Accounts do
     end
   end
 
-  def create_user_from_invitation(user_data, invitation) do
+  def create_user_from_invitation(user_data, stripe_token, invitation) do
     invitation = Repo.preload(invitation, :school)
 
     {:ok, result} =

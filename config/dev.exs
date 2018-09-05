@@ -30,6 +30,8 @@ config :stripity_stripe,
   api_key: "sk_test_j56pdGNCUxL66RMEP7mFdyNQ",
   connect_client_id: "ca_DGcV6SWq1ghyws1HwmcAHLgPldcHNisy"
 
+config :flight, :stripe_publishable_key, "pk_test_PKZCFv4SUII1gBu5wTeYw5OV"
+
 config :flight, :stripe_webhook_secret, "whsec_GRniVd07D9yl84sImiK3ijoy1JE6gqwf"
 config :flight, :stripe_livemode, false
 config :flight, :superadmin_ids, [1, 7]

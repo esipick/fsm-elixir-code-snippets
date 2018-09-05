@@ -584,7 +584,7 @@ defmodule Flight.Billing do
     end
   end
 
-  def create_stripe_customer(email, _school_context) do
+  def create_stripe_customer(email, stripe_token, _school_context) do
     # stripe_account =
     #   Repo.get_by(
     #     Flight.Accounts.StripeAccount,

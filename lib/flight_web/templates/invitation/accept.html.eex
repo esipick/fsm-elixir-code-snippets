@@ -3,6 +3,7 @@
   <head>
     <title>Flight School Manager</title>
     <%= render FlightWeb.Admin.PartialView, "_shared_head.html", assigns %>
+    <script src="https://js.stripe.com/v3/"></script>
   </head>
   <body class="sidebar-none">
     <div class="wrapper">
@@ -33,7 +34,7 @@
               <div class="card-header ">
                 <h4 class="card-title">Student Registration</h4>
               </div>
-              <%= form_for @changeset, "/invitations/#{@invitation.token}", [as: :user, method: "post"], fn f -> %>
+              <%= form_for @changeset, "/invitations/#{@invitation.token}", [as: :user, method: "post", id: "signup-form"], fn f -> %>
                 <div class="card-body">
                   <%= if Enum.count(f.errors) > 0 do %>
                     <div class="alert alert-danger">
@@ -81,14 +82,27 @@
                     </div>
                   </div>
 
-                  <!-- <div class="form-check text-left ml-3">
-                    <label class="form-check-label">
-                      <input class="form-check-input" type="checkbox">
-                      <span class="form-check-sign"></span>
-                      I agree to the
-                      <a href="#something">terms and conditions</a>.
-                    </label>
-                  </div> -->
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="card-element" class="sr-only">Credit or debit card</label>
+                        <div id="card-element">
+                        </div>
+                        <div id="card-errors" role="alert"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                <%= if @invitation.role.slug == "student" do %>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <span>Signing up will charge a one-time $50 Platform Fee to your card</span>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+
                 </div> <!-- end card body -->
                 <div class="card-footer mb-3">
                   <input type="submit" class="btn btn-primary btn-round btn-lg" value="Sign Up" />
@@ -105,5 +119,54 @@
 
     </div>
   </div>
+  <script>
+    var stripe = Stripe('<%= stripe_key() %>')
+    var elements = stripe.elements();
+    var style = {
+      base: {
+        fontSize: '12px',
+        fontFamily: "'Lato',Helvetica Neue,Arial,sans-serif",
+        color: "#32325d"
+      }
+    };
+
+    var card = elements.create('card', {style: style});
+
+    card.mount('#card-element');
+
+    card.addEventListener('change', function(event) {
+      var displayError = document.getElementById('card-errors');
+      if (event.error) {
+        displayError.textContent = event.error.message;
+      } else {
+        displayError.textContent = '';
+      }
+    });
+
+    var stripeTokenHandler = function(token) {
+      var form = document.getElementById('signup-form');
+      var hiddenInput = document.createElement('input');
+      hiddenInput.setAttribute('type', 'hidden');
+      hiddenInput.setAttribute('name', 'stripe_token');
+      hiddenInput.setAttribute('value', token.id);
+      form.appendChild(hiddenInput);
+
+      form.submit();
+    };
+
+    var form = document.getElementById('signup-form');
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      stripe.createToken(card).then(function(result) {
+        if (result.error) {
+          var errorElement = document.getElementById('card-errors');
+          errorElement.textContent = result.error.message;
+        } else {
+          stripeTokenHandler(result.token);
+        }
+      });
+    });
+  </script>
 </body>
 </html>
