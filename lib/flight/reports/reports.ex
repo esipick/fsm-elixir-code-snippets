@@ -149,7 +149,7 @@ defmodule Flight.Reports do
 
     aircraft_ids = Enum.map(aircrafts, & &1.id)
 
-    appointments = get_aircraft_appointments(aircraft_ids, start_at, end_at, school_context)
+    # appointments = get_aircraft_appointments(aircraft_ids, start_at, end_at, school_context)
 
     transactions = get_aircraft_transactions(aircraft_ids, start_at, end_at, school_context)
 

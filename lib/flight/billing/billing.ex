@@ -271,7 +271,7 @@ defmodule Flight.Billing do
           source
 
         payment_method == :charge && !source ->
-          {:ok, customer} = get_stripe_customer(transaction.user, transaction.user)
+          {:ok, customer} = get_stripe_customer(transaction.user)
 
           customer.default_source
 
@@ -597,46 +597,8 @@ defmodule Flight.Billing do
     )
   end
 
-  def create_card(user, token, school_context) when is_binary(token) do
-    if user.stripe_account_source == "connected" do
-      stripe_account =
-        Repo.get_by(
-          Flight.Accounts.StripeAccount,
-          school_id: SchoolScope.school_id(school_context)
-        )
-
-      if stripe_account do
-        Stripe.Card.create(
-          %{customer: user.stripe_customer_id, source: token},
-          connect_account: stripe_account.stripe_account_id
-        )
-      else
-        {:error, :no_stripe_account}
-      end
-    else
-      Stripe.Card.create(%{customer: user.stripe_customer_id, source: token})
-    end
-  end
-
-  def get_stripe_customer(user, school_context) do
-    if user.stripe_account_source == "connected" do
-      stripe_account =
-        Repo.get_by(
-          Flight.Accounts.StripeAccount,
-          school_id: SchoolScope.school_id(school_context)
-        )
-
-      if stripe_account do
-        Stripe.Customer.retrieve(
-          user.stripe_customer_id,
-          connect_account: stripe_account.stripe_account_id
-        )
-      else
-        {:error, :no_stripe_account}
-      end
-    else
-      Stripe.Customer.retrieve(user.stripe_customer_id)
-    end
+  def get_stripe_customer(user) do
+    Stripe.Customer.retrieve(user.stripe_customer_id)
   end
 
   def create_deferred_stripe_account(email, business_name) do
@@ -678,19 +640,6 @@ defmodule Flight.Billing do
       !stripe_account.charges_enabled ->
         {:error, :charges_disabled}
 
-      user.stripe_account_source == "connected" ->
-        Stripe.Charge.create(
-          %{
-            source: source_id,
-            application_fee: application_fee_for_total(total),
-            customer: user.stripe_customer_id,
-            currency: "usd",
-            receipt_email: email,
-            amount: total
-          },
-          connect_account: stripe_account.stripe_account_id
-        )
-
       true ->
         with {:ok, token} <-
                Stripe.Token.create(
@@ -717,28 +666,10 @@ defmodule Flight.Billing do
     trunc(total * 0.01)
   end
 
-  def create_ephemeral_key(user, api_version, school_context) do
-    if user.stripe_account_source == "connected" do
-      stripe_account =
-        Repo.get_by(
-          Flight.Accounts.StripeAccount,
-          school_id: SchoolScope.school_id(school_context)
-        )
-
-      if stripe_account do
-        Stripe.EphemeralKey.create(
-          %{customer: user.stripe_customer_id},
-          api_version,
-          connect_account: stripe_account.stripe_account_id
-        )
-      else
-        {:error, :no_stripe_account}
-      end
-    else
-      Stripe.EphemeralKey.create(
-        %{customer: user.stripe_customer_id},
-        api_version
-      )
-    end
+  def create_ephemeral_key(user, api_version) do
+    Stripe.EphemeralKey.create(
+      %{customer: user.stripe_customer_id},
+      api_version
+    )
   end
 end
