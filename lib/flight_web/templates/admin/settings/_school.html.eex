@@ -82,7 +82,6 @@
   <input type="hidden" name="redirect_tab" value="school" />
 
   <div class="card-footer mt-3">
-    <a href="/admin/users/" class="btn btn-fill btn-default mr-2">Cancel</a>
     <input type="submit" class="btn btn-fill btn-primary" value="Save">
   </div>
 <% end %>
