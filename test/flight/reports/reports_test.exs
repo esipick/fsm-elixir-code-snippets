@@ -75,14 +75,14 @@ defmodule Flight.ReportsTest do
 
   describe "time_flown/2" do
     test "returns correct time" do
-      {transaction, instructor_line_item, instructor_details, aircraft_line_item,
-       aircraft_details} =
-        detailed_transaction_form_fixture()
-        |> FlightWeb.API.DetailedTransactionForm.to_transaction(:normal, default_school_fixture())
+      # {transaction, instructor_line_item, instructor_details, aircraft_line_item,
+      #  aircraft_details} =
+      #   detailed_transaction_form_fixture()
+      #   |> FlightWeb.API.DetailedTransactionForm.to_transaction(:normal, default_school_fixture())
 
-      now = NaiveDateTime.utc_now()
+      # now = NaiveDateTime.utc_now()
 
-      transaction = %{transaction | state: "completed", completed_at: now}
+      # transaction = %{transaction | state: "completed", completed_at: now}
     end
   end
 end

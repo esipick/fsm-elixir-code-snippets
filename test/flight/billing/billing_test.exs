@@ -441,7 +441,7 @@ defmodule Flight.BillingTest do
       school = school_fixture() |> real_stripe_account()
 
       {:ok, customer} =
-        Billing.create_stripe_customer("#{Flight.Random.hex(51)}@mailinator.com", school)
+        Billing.create_stripe_customer("#{Flight.Random.hex(51)}@mailinator.com", nil)
 
       user = user_fixture(%{stripe_customer_id: customer.id})
 

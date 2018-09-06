@@ -49,6 +49,10 @@ config :flight, stripe_webhook_secret: Map.fetch!(System.get_env(), "STRIPE_WEBH
 config :flight, stripe_livemode: Map.fetch!(System.get_env(), "STRIPE_LIVEMODE") == "true"
 
 config :flight,
+       :platform_fee_amount,
+       Map.fetch!(System.get_env(), "PLATFORM_FEE_AMOUNT") |> String.to_integer()
+
+config :flight,
   superadmin_ids:
     Map.fetch!(System.get_env(), "SUPERADMIN_IDS")
     |> String.split(",")

@@ -584,19 +584,11 @@ defmodule Flight.Billing do
     end
   end
 
-  def create_stripe_customer(email, stripe_token, _school_context) do
-    # stripe_account =
-    #   Repo.get_by(
-    #     Flight.Accounts.StripeAccount,
-    #     school_id: SchoolScope.school_id(school_context)
-    #   )
-
-    # if stripe_account do
-    #   Stripe.Customer.create(%{email: email}, connect_account: stripe_account.stripe_account_id)
-    # else
-    #   {:error, :no_stripe_account}
-    # end
-    Stripe.Customer.create(%{email: email})
+  def create_stripe_customer(email, stripe_token) do
+    Stripe.Customer.create(
+      %{email: email}
+      |> Pipe.pass_unless(stripe_token, &Map.put(&1, :card, stripe_token))
+    )
   end
 
   def create_card(user, token, school_context) when is_binary(token) do

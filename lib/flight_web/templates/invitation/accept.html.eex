@@ -43,6 +43,11 @@
                       <% end %>
                     </div>
                   <% end %>
+                  <%= if @stripe_error do %>
+                    <div class="alert alert-danger">
+                      <span><%= @stripe_error %></span></br>
+                    </div>
+                  <% end %>
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
@@ -83,17 +88,14 @@
                   </div>
 
                 
+                <%= if needs_card?(@invitation) do %>
                   <div class="row">
                     <div class="col-md-12">
                       <div class="form-group">
                         <label for="card-element">Credit or debit card</label>
-                        <%= if @invitation.role.slug == "student" do %>
-                          <div class="row">
-                            <div class="col-md-12">
-                              <div class="form-group">
-                                <small>A one-time $50 platform fee will be charged.</small>
-                              </div>
-                            </div>
+                        <%= if will_charge_platform_fee?(@invitation) do %>
+                          <div class="form-group">
+                            <small>A one-time <%= platform_fee_amount %> platform fee will be charged.</small>
                           </div>
                         <% end %>
                         <div id="card-element">
@@ -102,13 +104,14 @@
                       </div>
                     </div>
                   </div>
+                <% end %>
 
 
                 </div> <!-- end card body -->
                 <div class="card-footer mb-3">
                   <input type="submit" class="btn btn-primary btn-round btn-lg" value="Sign Up" />
                   <div class="col-md-8 ml-auto mr-auto">
-                    <p class="text-muted mt-4"><small>By signing up, you are agreeing to the Flight School Manager <a href="#linktoterms">Terms and Conditions</a> .</small></p>
+                    <p class="text-muted mt-4"><small>By signing up, you are agreeing to the Flight School Manager <a target="_blank" href="https://flightschoolmanager.co/terms/">Terms and Conditions</a> .</small></p>
                   </div>
                 </div>
               <% end %>
@@ -155,6 +158,8 @@
       }
     });
 
+    var isSubmitting = false;
+
     var stripeTokenHandler = function(token) {
       var form = document.getElementById('signup-form');
       var hiddenInput = document.createElement('input');
@@ -166,12 +171,20 @@
       form.submit();
     };
 
+    window.stripeTokenHandler = stripeTokenHandler
+
     var form = document.getElementById('signup-form');
     form.addEventListener('submit', function(event) {
       event.preventDefault();
 
+      if (isSubmitting) {
+        return;
+      }
+      isSubmitting = true;
+
       stripe.createToken(card).then(function(result) {
         if (result.error) {
+          isSubmitting = false;
           var errorElement = document.getElementById('card-errors');
           errorElement.textContent = result.error.message;
         } else {

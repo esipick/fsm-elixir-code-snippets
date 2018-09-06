@@ -12,17 +12,40 @@ defmodule FlightWeb.InvitationController do
       conn,
       "accept.html",
       invitation: conn.assigns.invitation,
-      changeset: Accounts.Invitation.user_create_changeset(conn.assigns.invitation)
+      changeset: Accounts.Invitation.user_create_changeset(conn.assigns.invitation),
+      stripe_error: nil
     )
   end
 
-  def accept_submit(conn, %{"token" => token, "user" => user_data, "stripe_token" => stripe_token}) do
-    case Accounts.create_user_from_invitation(user_data, stripe_token, conn.assigns.invitation) do
+  def accept_submit(conn, %{"token" => token, "user" => user_data} = params) do
+    case Accounts.create_user_from_invitation(
+           user_data,
+           params["stripe_token"],
+           conn.assigns.invitation
+         ) do
       {:ok, _user} ->
         redirect(conn, to: "/invitations/#{token}/success")
 
-      {:error, changeset} ->
-        render(conn, "accept.html", invitation: conn.assigns.invitation, changeset: changeset)
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(
+          conn,
+          "accept.html",
+          invitation: conn.assigns.invitation,
+          changeset: changeset,
+          stripe_error: nil
+        )
+
+      {:error, %Stripe.Error{} = error} ->
+        render(
+          conn,
+          "accept.html",
+          invitation: conn.assigns.invitation,
+          changeset:
+            Accounts.user_changeset(%Accounts.User{}, user_data, conn.assigns.invitation),
+          stripe_error:
+            error.user_message || error.message ||
+              "There was a problem charging your card. Please try again."
+        )
     end
   end
 

@@ -22,6 +22,8 @@ config :bcrypt_elixir, log_rounds: 4
 
 config :flight, :user_token_salt, "gwfyeA8B5"
 config :flight, :webhook_token, "abc"
+config :flight, :platform_fee_amount, 5000
+config :flight, :stripe_publishable_key, "pk_test_PKZCFv4SUII1gBu5wTeYw5OV"
 
 config :flight, Flight.Mailer, adapter: Bamboo.TestAdapter
 

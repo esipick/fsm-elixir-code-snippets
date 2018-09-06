@@ -159,11 +159,7 @@ table .photo {
 .btn-lg {
   font-size: 12px;
 }
-input.btn { }
 
-.form-control {
-  
-}
 .form-control::placeholder {
   color: #BBBCCD;
 }
@@ -333,9 +329,6 @@ small.light-text {
 }
 .card-section {
   margin-top: 24px;
-}
-.card-user {
-  /* padding-bottom: 32px; */
 }
 .card-user .title {
   margin-bottom: 4px;

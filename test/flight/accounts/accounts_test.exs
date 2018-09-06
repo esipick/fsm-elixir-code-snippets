@@ -25,7 +25,6 @@ defmodule Flight.Accounts.AccountsTest do
       refute Accounts.get_user(user.id, ["admin"], user)
     end
 
-    @tag :wip
     test "get_directory_users_visible_to_user/1 returns correct users" do
       user = user_fixture() |> assign_role("admin")
       _user2 = user_fixture() |> assign_roles(["instructor", "student", "admin"])
@@ -350,10 +349,10 @@ defmodule Flight.Accounts.AccountsTest do
     end
 
     @tag :integration
-    test "create_user_from_invitation/3 creates user" do
+    test "create_user_from_invitation/3 for student creates Stripe customer with card, and charges it" do
       school = school_fixture() |> real_stripe_account()
 
-      invitation = invitation_fixture(%{}, role_fixture(), school)
+      invitation = invitation_fixture(%{}, Flight.Accounts.Role.student(), school)
 
       {:ok, user} =
         Accounts.create_user_from_invitation(
@@ -364,13 +363,48 @@ defmodule Flight.Accounts.AccountsTest do
             email: "foo@bar.com",
             password: "foobargo"
           },
+          "tok_visa",
           invitation
         )
 
-      user = Repo.preload(user, :roles)
+      {:ok, list} = Stripe.Charge.list(%{customer: user.stripe_customer_id})
 
-      assert Enum.find(user.roles, &(&1.id == invitation.role.id))
-      assert user.school_id == invitation.school.id
+      charge = List.first(list.data)
+
+      assert charge.amount == 5000
+
+      assert platform_charge = Flight.Repo.get_by(Flight.Billing.PlatformCharge, amount: 5000)
+      assert platform_charge.user_id == user.id
+      assert platform_charge.type == "platform_fee"
+      assert platform_charge.stripe_charge_id == charge.id
+    end
+
+    @tag :integration
+    test "create_user_from_invitation/3 for renter creates Stripe customer with card, but does not charge it" do
+      school = school_fixture() |> real_stripe_account()
+
+      invitation = invitation_fixture(%{}, Flight.Accounts.Role.renter(), school)
+
+      {:ok, user} =
+        Accounts.create_user_from_invitation(
+          %{
+            first_name: "Alex",
+            last_name: "Jones",
+            phone_number: "801-555-5555",
+            email: "foo@bar.com",
+            password: "foobargo"
+          },
+          "tok_visa",
+          invitation
+        )
+
+      {:ok, customer} = Stripe.Customer.retrieve(user.stripe_customer_id)
+
+      assert customer.default_source
+
+      {:ok, list} = Stripe.Charge.list(%{customer: user.stripe_customer_id})
+
+      refute List.first(list.data)
     end
   end
 

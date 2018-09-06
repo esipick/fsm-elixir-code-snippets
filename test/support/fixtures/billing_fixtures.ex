@@ -133,19 +133,15 @@ defmodule Flight.BillingFixtures do
         user.school
       end
 
-    {:ok, customer} = Flight.Billing.create_stripe_customer(user.email, school)
+    {:ok, customer} =
+      Flight.Billing.create_stripe_customer(user.email, if(create_card?, do: token, else: nil))
+
+    card = List.first(customer.sources.data)
 
     user =
       user
       |> Flight.Accounts.User.stripe_customer_changeset(%{stripe_customer_id: customer.id})
       |> Flight.Repo.update!()
-
-    card =
-      if create_card? do
-        Flight.Billing.create_card(user, token, school) |> elem(1)
-      else
-        nil
-      end
 
     {%{user | school: school}, card}
   end

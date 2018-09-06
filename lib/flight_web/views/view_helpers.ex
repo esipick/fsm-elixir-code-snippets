@@ -57,6 +57,10 @@ defmodule FlightWeb.ViewHelpers do
     Flight.Format.currency(amount)
   end
 
+  def currency(amount, :short) do
+    Flight.Format.currency(amount, :short)
+  end
+
   def display_date(date, :short) do
     Timex.format!(date, "%B %-d, %Y", :strftime)
   end

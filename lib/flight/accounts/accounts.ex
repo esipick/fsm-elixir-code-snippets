@@ -106,7 +106,7 @@ defmodule Flight.Accounts do
     |> Repo.one()
   end
 
-  def create_user(attrs, school_context, requires_stripe_account? \\ true) do
+  def create_user(attrs, school_context, requires_stripe_account? \\ true, stripe_token \\ nil) do
     attrs =
       attrs
       |> Poison.encode!()
@@ -118,7 +118,7 @@ defmodule Flight.Accounts do
       if requires_stripe_account? do
         case Flight.Billing.create_stripe_customer(
                Ecto.Changeset.get_field(changeset, :email),
-               school_context
+               stripe_token
              ) do
           {:ok, customer} ->
             changeset
@@ -479,18 +479,48 @@ defmodule Flight.Accounts do
   def create_user_from_invitation(user_data, stripe_token, invitation) do
     invitation = Repo.preload(invitation, :school)
 
-    {:ok, result} =
+    result =
       Repo.transaction(fn ->
-        case create_user(user_data, invitation.school) do
+        case create_user(user_data, invitation.school, true, stripe_token) do
           {:ok, user} ->
             accept_invitation(invitation)
             role = get_role(invitation.role_id)
             assign_roles(user, [role])
 
-            {:ok, user}
+            if role.slug == "student" do
+              amount = Application.get_env(:flight, :platform_fee_amount)
 
-          error ->
-            error
+              charge_result =
+                Stripe.Charge.create(%{
+                  amount: amount,
+                  currency: "usd",
+                  customer: user.stripe_customer_id,
+                  description: "Platform fee",
+                  receipt_email: user.email
+                })
+
+              case charge_result do
+                {:ok, charge} ->
+                  %Flight.Billing.PlatformCharge{}
+                  |> Flight.Billing.PlatformCharge.changeset(%{
+                    user_id: user.id,
+                    amount: amount,
+                    type: "platform_fee",
+                    stripe_charge_id: charge.id
+                  })
+                  |> Repo.insert()
+
+                  user
+
+                {:error, error} ->
+                  Repo.rollback(error)
+              end
+            else
+              user
+            end
+
+          {:error, error} ->
+            Repo.rollback(error)
         end
       end)
 
@@ -644,7 +674,7 @@ defmodule Flight.Accounts do
       |> Repo.all()
 
     for user <- users do
-      {:ok, customer} = Flight.Billing.create_stripe_customer(user.email, school_context)
+      {:ok, customer} = Flight.Billing.create_stripe_customer(user.email, nil)
 
       user
       |> User.stripe_customer_changeset(%{stripe_customer_id: customer.id})
