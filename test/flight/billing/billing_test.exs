@@ -242,6 +242,7 @@ defmodule Flight.BillingTest do
   end
 
   describe "approve_transaction_if_necessary/2" do
+    @tag :integration
     test "approves transaction created by instructor even if source not passed" do
       {user, _card} = user_fixture(%{balance: 0}) |> real_stripe_customer()
       instructor = instructor_fixture()
@@ -259,6 +260,7 @@ defmodule Flight.BillingTest do
       refute transaction.paid_by_balance
     end
 
+    @tag :integration
     test "doesn't approve transaction created by instructor if student has no card" do
       {user, nil} = user_fixture(%{balance: 0}) |> real_stripe_customer(false)
       instructor = instructor_fixture()
@@ -273,6 +275,7 @@ defmodule Flight.BillingTest do
       assert transaction.state == "pending"
     end
 
+    @tag :integration
     test "approves transaction created by student when source was passed" do
       {user, card} = user_fixture(%{balance: 0}) |> real_stripe_customer()
       transaction = transaction_fixture(%{total: 3000}, user, user)
