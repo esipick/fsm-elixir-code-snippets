@@ -95,7 +95,7 @@
                         <label for="card-element">Credit or debit card</label>
                         <%= if will_charge_platform_fee?(@invitation) do %>
                           <div class="form-group">
-                            <small>A one-time <%= platform_fee_amount %> platform fee will be charged.</small>
+                            <small>A one-time <%= platform_fee_amount() %> platform fee will be charged.</small>
                           </div>
                         <% end %>
                         <div id="card-element">

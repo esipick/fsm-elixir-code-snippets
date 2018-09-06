@@ -1,13 +1,15 @@
 defmodule FlightWeb.Admin.PageController do
   use FlightWeb, :controller
 
-  alias Flight.{Accounts}
+  alias Flight.{Accounts, Billing, Scheduling}
 
   def dashboard(conn, _params) do
     student_count = Accounts.get_user_count(Accounts.Role.student(), conn)
     instructor_count = Accounts.get_user_count(Accounts.Role.instructor(), conn)
     renter_count = Accounts.get_user_count(Accounts.Role.renter(), conn)
-    aircrafts = Flight.Scheduling.visible_aircrafts(conn)
+    aircrafts = Scheduling.visible_aircrafts(conn)
+
+    fsm_income = Billing.platform_income()
 
     expired_inspections = Flight.Scheduling.ExpiredInspection.inspections_for_aircrafts(aircrafts)
 
@@ -23,7 +25,8 @@ defmodule FlightWeb.Admin.PageController do
       renter_count: renter_count,
       aircraft_count: Enum.count(aircrafts),
       expired_inspections: expired_inspections,
-      pending_transactions: pending_transactions
+      pending_transactions: pending_transactions,
+      fsm_income: fsm_income
     )
   end
 

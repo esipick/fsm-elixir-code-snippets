@@ -127,4 +127,21 @@
               </div>
             </div>
           </div> <!-- end row -->
+          <%= if can_see_fsm_panels?(@conn.assigns.current_user) do %>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card card-chart">
+                  <div class="card-header">
+                    <h5 class="card-category">Total FSM Income</h5>
+                    <h1 class="card-title"><%= currency @fsm_income %></h1>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats">
+                      <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> <!-- end row -->
+          <% end %>
 </div> <!-- end content -->

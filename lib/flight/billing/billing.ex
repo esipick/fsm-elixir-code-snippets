@@ -85,6 +85,12 @@ defmodule Flight.Billing do
     end
   end
 
+  def platform_income() do
+    from(c in Billing.PlatformCharge, select: sum(c.amount))
+    |> Repo.all()
+    |> List.first()
+  end
+
   def create_transaction_from_detailed_form(form, school_context) do
     rate_type = rate_type_for_form(form, school_context)
 
