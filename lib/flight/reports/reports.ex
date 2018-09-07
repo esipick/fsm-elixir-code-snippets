@@ -70,8 +70,7 @@ defmodule Flight.Reports do
       rows:
         users
         |> Enum.filter(
-          &(Enum.count(num_appointments(&1, appointments)) > 0 ||
-              Enum.count(num_transactions(&1, transactions)) > 0)
+          &(num_appointments(&1, appointments) > 0 || num_transactions(&1, transactions) > 0)
         )
         |> Enum.map(fn user ->
           [
