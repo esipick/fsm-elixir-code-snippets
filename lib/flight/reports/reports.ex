@@ -68,7 +68,12 @@ defmodule Flight.Reports do
         "Deducted from Balance"
       ],
       rows:
-        Enum.map(users, fn user ->
+        users
+        |> Enum.filter(
+          &(Enum.count(num_appointments(&1, appointments)) > 0 ||
+              Enum.count(num_transactions(&1, transactions)) > 0)
+        )
+        |> Enum.map(fn user ->
           [
             "#{user.first_name} #{user.last_name}",
             num_appointments(user, appointments),
