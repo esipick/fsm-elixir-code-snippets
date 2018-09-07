@@ -57,7 +57,7 @@ defmodule FlightWeb.InvitationController do
     invitation = Accounts.get_invitation_for_token(conn.params["token"])
 
     if invitation do
-      assign(conn, :invitation, invitation |> Flight.Repo.preload(:role))
+      assign(conn, :invitation, invitation |> Flight.Repo.preload([:role, :school]))
     else
       # TODO: Not the right place...where to though?
       conn

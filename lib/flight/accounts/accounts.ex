@@ -494,7 +494,7 @@ defmodule Flight.Accounts do
                   amount: amount,
                   currency: "usd",
                   customer: user.stripe_customer_id,
-                  description: "Platform fee",
+                  description: "One-Time Subscription",
                   receipt_email: user.email
                 })
 

@@ -22,8 +22,8 @@
       <!-- End Navbar -->
       <div class="panel-header">
         <div class="header text-center">
-          <h2 class="title">Welcome to Randon Aviation</h2>
-          <p class="category">You've been invited to join and download the Randon Aviation, Flight School Manager app. Lets create your account below. Once your account is created, download the app using the link and log in to get started!</a>
+          <h2 class="title">Welcome to <%= @invitation.school.name %></h2>
+          <p class="category">You've been invited to download the Flight School Manager app. Lets create your account below. Once your account is created, download the app using the link and log in to get started!</a>
           </p>
         </div>
       </div>
@@ -95,7 +95,7 @@
                         <label for="card-element">Credit or debit card</label>
                         <%= if will_charge_platform_fee?(@invitation) do %>
                           <div class="form-group">
-                            <small>A one-time <%= platform_fee_amount() %> platform fee will be charged.</small>
+                            <small>A one-time <%= platform_fee_amount() %> subscription will be charged,<br>giving you access to scheduling and billing for <%= @invitation.school.name %>.</small>
                           </div>
                         <% end %>
                         <div id="card-element">
@@ -162,10 +162,12 @@
 
     var stripeTokenHandler = function(token) {
       var form = document.getElementById('signup-form');
+
       var hiddenInput = document.createElement('input');
       hiddenInput.setAttribute('type', 'hidden');
       hiddenInput.setAttribute('name', 'stripe_token');
       hiddenInput.setAttribute('value', token.id);
+
       form.appendChild(hiddenInput);
 
       form.submit();
