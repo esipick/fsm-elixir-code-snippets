@@ -63,6 +63,9 @@ defmodule Flight.DataTransformation do
 
                 item.transaction.paid_by_balance ->
                   "remove_funds"
+
+                true ->
+                  Repo.rollback("Unknown categorization: #{inspect(item)}")
               end
 
             item.transaction.paid_by_charge ->
