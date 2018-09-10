@@ -17,6 +17,11 @@ defmodule FlightWeb.Admin.PageController do
       Flight.Billing.get_filtered_transactions(%{"state" => "pending"}, conn)
       |> Flight.Repo.preload([:user])
 
+    total_pending =
+      pending_transactions
+      |> Enum.map(& &1.total)
+      |> Enum.sum()
+
     render(
       conn,
       "dashboard.html",
@@ -26,7 +31,8 @@ defmodule FlightWeb.Admin.PageController do
       aircraft_count: Enum.count(aircrafts),
       expired_inspections: expired_inspections,
       pending_transactions: pending_transactions,
-      fsm_income: fsm_income
+      fsm_income: fsm_income,
+      total_pending: total_pending
     )
   end
 

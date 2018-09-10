@@ -105,6 +105,9 @@
                   <h1 class="card-title"><%= Enum.count(@pending_transactions) %></h1>
                 </div>
                 <div class="card-body">
+                  <%= if @total_pending > 0 do %>
+                    <p>These individuals did not have a credit card available to charge. They need to add a credit or debit card through the mobile app and approve the transactions.</p>
+                  <% end %>
                   <div class="table-responsive">
                     <table class="table">
                       <tbody>
@@ -113,6 +116,13 @@
                             <td class="text-nowrap"><a href="/admin/users/<%= transaction.user.id %>"><%= display_name transaction.user %></a></td>
                             <td class="text-right"><%= currency transaction.total %></td>
                             <td class="text-right"><%= display_date transaction.inserted_at %></td>
+                          </tr>
+                        <% end %>
+                        <%= if @total_pending > 0 do %>
+                          <tr>
+                            <td class="text-nowrap"><b>Total</b></td>
+                            <td class="text-right"><%= currency @total_pending %></td>
+                            <td class="text-right"></td>
                           </tr>
                         <% end %>
                       </tbody>
