@@ -134,8 +134,33 @@ defmodule FlightWeb.API.TransactionController do
         |> render(
           "preview.json",
           transaction: transaction,
-          instructor_line_item: instructor_line_item,
-          aircraft_line_item: aircraft_line_item
+          line_items: [instructor_line_item, aircraft_line_item] |> Enum.filter(& &1)
+        )
+
+      {:error, _changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{error: "Invalid form"})
+    end
+  end
+
+  def preview(conn, %{"custom" => detailed_params}) do
+    changeset = CustomTransactionForm.changeset(%CustomTransactionForm{}, detailed_params)
+
+    case Ecto.Changeset.apply_action(changeset, :insert) do
+      {:ok, form} ->
+        {transaction, line_item} =
+          FlightWeb.API.CustomTransactionForm.to_transaction(
+            form,
+            conn
+          )
+
+        conn
+        |> put_status(200)
+        |> render(
+          "preview.json",
+          transaction: transaction,
+          line_items: [line_item]
         )
 
       {:error, _changeset} ->

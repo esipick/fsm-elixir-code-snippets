@@ -153,6 +153,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
 
         line_item = %TransactionLineItem{
           amount: Billing.aircraft_cost!(detail),
+          type: "aircraft",
           aircraft_id: aircraft.id
         }
 
@@ -181,6 +182,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
 
         line_item = %TransactionLineItem{
           amount: Flight.Billing.instructor_cost!(detail),
+          type: "instructor",
           instructor_user_id: instructor.id
         }
 

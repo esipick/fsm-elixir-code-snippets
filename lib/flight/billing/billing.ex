@@ -389,7 +389,7 @@ defmodule Flight.Billing do
           %TransactionLineItem{}
           |> TransactionLineItem.changeset(%{
             transaction_id: transaction.id,
-            description: "Added funds to balance.",
+            type: "add_funds",
             amount: amount
           })
           |> Repo.insert!()
@@ -407,7 +407,12 @@ defmodule Flight.Billing do
 
   def add_funds_by_credit(user, creator_user, amount, description)
       when is_integer(amount) and (amount > 0 or amount < 0) do
-    transaction_type = if amount > 0, do: "credit", else: "debit"
+    {transaction_type, line_item_type} =
+      if amount > 0 do
+        {"credit", "add_funds"}
+      else
+        {"debit", "remove_funds"}
+      end
 
     {:ok, result} =
       Repo.transaction(fn ->
@@ -434,6 +439,7 @@ defmodule Flight.Billing do
           %TransactionLineItem{}
           |> TransactionLineItem.changeset(%{
             transaction_id: transaction.id,
+            type: line_item_type,
             description: description,
             amount: abs(amount)
           })

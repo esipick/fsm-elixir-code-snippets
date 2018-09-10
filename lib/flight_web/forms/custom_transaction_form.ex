@@ -25,6 +25,7 @@ defmodule FlightWeb.API.CustomTransactionForm do
   def to_transaction(form, school_context) do
     line_item = %TransactionLineItem{
       amount: form.amount,
+      type: "custom",
       description: form.description
     }
 

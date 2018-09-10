@@ -1,30 +1,18 @@
 defmodule FlightWeb.API.TransactionView do
   use FlightWeb, :view
 
-  def render("preview.json", %{
-        transaction: transaction,
-        instructor_line_item: instructor_line_item,
-        aircraft_line_item: aircraft_line_item
-      }) do
+  def render("preview.json", %{transaction: transaction, line_items: line_items}) do
     %{
       data: %{
         total: transaction.total,
         line_items:
-          [
-            Optional.map(instructor_line_item, fn item ->
-              %{
-                label: "Instructor",
-                amount: item.amount
-              }
-            end),
-            Optional.map(aircraft_line_item, fn item ->
-              %{
-                label: "Aircraft",
-                amount: item.amount
-              }
-            end)
-          ]
-          |> Enum.filter(& &1)
+          Enum.map(line_items, fn item ->
+            %{
+              label: label_for_line_item(item),
+              description: item.description,
+              amount: item.amount
+            }
+          end)
       }
     }
   end
@@ -73,6 +61,7 @@ defmodule FlightWeb.API.TransactionView do
   def render("line_item.json", %{line_item: line_item}) do
     %{
       amount: line_item.amount,
+      label: label_for_line_item(line_item),
       description: line_item.description,
       aircraft_id: line_item.aircraft_id,
       instructor_user_id: line_item.instructor_user_id
@@ -85,6 +74,18 @@ defmodule FlightWeb.API.TransactionView do
         method: method
       }
     }
+  end
+
+  defp label_for_line_item(line_item) do
+    case line_item.type do
+      "aircraft" -> "Aircraft"
+      "instructor" -> "Instructor"
+      "sales_tax" -> "Sales Tax"
+      "add_funds" -> "Added Funds"
+      "remove_funds" -> "Removed Funds"
+      "credit" -> "Credit"
+      "custom" -> "Custom"
+    end
   end
 
   def preload(transaction) do

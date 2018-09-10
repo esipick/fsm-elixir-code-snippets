@@ -304,7 +304,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
   end
 
   describe "POST /api/transactions/preview" do
-    test "renders preview", %{conn: conn} do
+    test "renders detailed preview", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
       aircraft = aircraft_fixture()
@@ -329,8 +329,33 @@ defmodule FlightWeb.API.TransactionControllerTest do
                  TransactionView,
                  "preview.json",
                  transaction: transaction,
-                 instructor_line_item: instructor_line_item,
-                 aircraft_line_item: aircraft_line_item
+                 line_items: [instructor_line_item, aircraft_line_item]
+               )
+    end
+
+    @tag :wip
+    test "renders custom preview", %{conn: conn} do
+      student = student_fixture()
+      instructor = instructor_fixture()
+
+      params = custom_transaction_form_attrs(%{}, student, instructor)
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/transactions/preview", %{custom: params})
+        |> json_response(200)
+
+      {transaction, line_item} =
+        custom_transaction_form_fixture(%{}, student, instructor)
+        |> FlightWeb.API.CustomTransactionForm.to_transaction(student)
+
+      assert json ==
+               render_json(
+                 TransactionView,
+                 "preview.json",
+                 transaction: transaction,
+                 line_items: [line_item]
                )
     end
 
@@ -355,8 +380,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
                  TransactionView,
                  "preview.json",
                  transaction: transaction,
-                 instructor_line_item: instructor_line_item,
-                 aircraft_line_item: nil
+                 line_items: [instructor_line_item]
                )
     end
   end

@@ -317,7 +317,7 @@ defmodule Flight.BillingTest do
 
       assert line_item.amount == 3000
       assert line_item.transaction_id == transaction.id
-      assert line_item.description == "Added funds to balance."
+      assert line_item.description == nil
     end
   end
 
