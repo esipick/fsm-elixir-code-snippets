@@ -58,14 +58,11 @@ defmodule Flight.DataTransformation do
 
             item.transaction.type == "debit" ->
               cond do
-                item.transaction.paid_by_charge ->
-                  "custom"
-
                 item.transaction.paid_by_balance ->
                   "remove_funds"
 
                 true ->
-                  Repo.rollback("Unknown categorization: #{inspect(item)}")
+                  "custom"
               end
 
             item.transaction.paid_by_charge ->
