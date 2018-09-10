@@ -74,7 +74,7 @@ defmodule Flight.Reports do
         )
         |> Enum.map(fn user ->
           [
-            "#{user.first_name} #{user.last_name}",
+            {user.id, "#{user.first_name} #{user.last_name}"},
             num_appointments(user, appointments),
             time_flown(user, transactions),
             time_instructed(user, transactions),
