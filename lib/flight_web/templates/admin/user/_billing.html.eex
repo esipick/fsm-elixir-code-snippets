@@ -50,16 +50,8 @@
     <dl class="d-flex justify-content-between flex-row-reverse">
       <dt>
         <%= for line_item <- transaction.line_items do %>
-          <%
-            desc =
-              cond do
-                line_item.instructor_user_id != nil -> "Instructor"
-                line_item.aircraft_id != nil -> "Aircraft"
-                true -> "Custom"
-              end
-          %>
           <dl class="d-flex justify-content-between">
-            <dt><small><%= desc %></small></dt>
+            <dt><small><%= label_for_line_item(line_item) %></small></dt>
             <dd><%= currency line_item.amount %></dd>
           </dl>
         <% end %>

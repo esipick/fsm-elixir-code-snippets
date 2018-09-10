@@ -1,5 +1,6 @@
 defmodule FlightWeb.API.TransactionView do
   use FlightWeb, :view
+  import FlightWeb.ViewHelpers, only: [label_for_line_item: 1]
 
   def render("preview.json", %{transaction: transaction, line_items: line_items}) do
     %{
@@ -74,18 +75,6 @@ defmodule FlightWeb.API.TransactionView do
         method: method
       }
     }
-  end
-
-  defp label_for_line_item(line_item) do
-    case line_item.type do
-      "aircraft" -> "Aircraft"
-      "instructor" -> "Instructor"
-      "sales_tax" -> "Sales Tax"
-      "add_funds" -> "Added Funds"
-      "remove_funds" -> "Removed Funds"
-      "credit" -> "Credit"
-      "custom" -> "Custom"
-    end
   end
 
   def preload(transaction) do
