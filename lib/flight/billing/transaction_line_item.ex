@@ -5,6 +5,7 @@ defmodule Flight.Billing.TransactionLineItem do
   schema "transaction_line_items" do
     field(:amount, :integer)
     field(:description, :string)
+    field(:type, :string)
     belongs_to(:transaction, Flight.Billing.Transaction)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
     belongs_to(:instructor_user, Flight.Accounts.User)
@@ -19,11 +20,21 @@ defmodule Flight.Billing.TransactionLineItem do
     transaction_line_item
     |> cast(attrs, [
       :amount,
+      :type,
       :description,
       :transaction_id,
       :aircraft_id,
       :instructor_user_id
     ])
-    |> validate_required([:amount, :transaction_id])
+    |> validate_required([:amount, :transaction_id, :type])
+    |> validate_inclusion(:type, [
+      "aircraft",
+      "instructor",
+      "sales_tax",
+      "custom",
+      "add_funds",
+      "remove_funds",
+      "credit"
+    ])
   end
 end
