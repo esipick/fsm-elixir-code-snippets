@@ -162,14 +162,16 @@ defmodule Flight.Billing do
             Repo.rollback("Aircraft does not exist")
           end
 
-          new_hobbs_time = max(aircraft.last_hobbs_time, aircraft_details.hobbs_end)
-          new_tach_time = max(aircraft.last_tach_time, aircraft_details.tach_end)
+          # Randon wants to try doing most recent updated value instead of highest value, so
+          # commenting this out for now.
+          # new_hobbs_time = max(aircraft.last_hobbs_time, aircraft_details.hobbs_end)
+          # new_tach_time = max(aircraft.last_tach_time, aircraft_details.tach_end)
 
           {:ok, _} =
             aircraft
             |> Flight.Scheduling.Aircraft.changeset(%{
-              last_tach_time: new_tach_time,
-              last_hobbs_time: new_hobbs_time
+              last_tach_time: aircraft_details.tach_end,
+              last_hobbs_time: aircraft_details.hobbs_end
             })
             |> Flight.Repo.update()
         end
