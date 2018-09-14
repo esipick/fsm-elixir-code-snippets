@@ -34,7 +34,7 @@ defmodule Flight.Email do
       link: school_invitation_link(invitation)
     )
   end
-  
+
   def reset_password_email(%Flight.Accounts.User{} = user) do
     new_email()
     |> put_layout({FlightWeb.EmailView, "invitation"})
