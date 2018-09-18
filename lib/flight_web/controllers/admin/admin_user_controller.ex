@@ -70,6 +70,8 @@ defmodule FlightWeb.Admin.UserController do
           }'s balance."
         end
 
+      Flight.Billing.approve_transactions_within_balance(conn.assigns.requested_user)
+
       conn
       |> put_flash(:success, message)
       |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")

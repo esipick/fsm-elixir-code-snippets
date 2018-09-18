@@ -451,4 +451,22 @@ defmodule Flight.BillingTest do
       assert {:ok, _} = Billing.create_ephemeral_key(user, "2018-05-21")
     end
   end
+
+  describe "approve_transactions_within_balance/1" do
+    @tag :integration
+    test "approves only pending transactions within balance" do
+      {user, _} = student_fixture(%{balance: 27000}) |> real_stripe_customer(false)
+
+      transaction_fixture(%{total: 10000, state: "pending"}, user)
+      transaction_fixture(%{total: 10000, state: "pending"}, user)
+      transaction_fixture(%{total: 5000, state: "completed"}, user)
+      transaction_fixture(%{total: 10000, state: "pending"}, user)
+
+      assert [
+        %Transaction{state: "completed"},
+        %Transaction{state: "completed"},
+        %Transaction{state: "pending"}
+      ] = Billing.approve_transactions_within_balance(user)
+    end
+  end
 end

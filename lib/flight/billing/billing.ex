@@ -320,6 +320,21 @@ defmodule Flight.Billing do
     end
   end
 
+  def approve_transactions_within_balance(user) do
+    get_filtered_transactions(%{"user_id" => user.id, "state" => "pending"}, user)
+    |> Enum.map(fn transaction ->
+      with :balance <- preferred_payment_method(user, transaction.total),
+           {:ok, %Transaction{state: "completed"} = transaction} <-
+             approve_transaction_if_necessary(transaction, nil) do
+        send_payment_request_notification(transaction)
+        transaction
+      else
+        _ ->
+          transaction
+      end
+    end)
+  end
+
   def get_transaction(id, school_context) do
     Transaction
     |> SchoolScope.scope_query(school_context)
