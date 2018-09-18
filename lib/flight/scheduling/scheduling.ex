@@ -59,6 +59,7 @@ defmodule Flight.Scheduling do
     Aircraft
     |> order_by([a], asc: [a.make, a.model, a.tail_number])
     |> SchoolScope.scope_query(school_context)
+    |> where([a], a.archived == false)
   end
 
   def visible_aircrafts(school_context) do

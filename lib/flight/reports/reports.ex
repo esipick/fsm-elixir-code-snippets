@@ -185,7 +185,9 @@ defmodule Flight.Reports do
   end
 
   def get_aircrafts(school_context) do
-    Flight.Scheduling.visible_aircrafts(school_context)
+    Flight.Scheduling.Aircraft
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.all()
   end
 
   def get_renter_appointments(user_ids, start_at, end_at, school_context) do
