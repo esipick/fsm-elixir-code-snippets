@@ -42,14 +42,21 @@ defmodule Flight.Accounts do
       |> MapSet.to_list()
       |> Enum.map(&Atom.to_string/1)
 
-    from(
-      u in User,
-      distinct: u.id,
-      inner_join: r in assoc(u, :roles),
-      where: r.slug in ^roles
-    )
-    |> default_users_query(user)
-    |> Repo.all()
+    users = 
+      from(
+        u in User,
+        distinct: u.id,
+        inner_join: r in assoc(u, :roles),
+        where: r.slug in ^roles
+      )
+      |> default_users_query(user)
+      |> Repo.all()
+
+    if Enum.find(users, & &1.id == user.id) do
+      users
+    else
+      [user | users]
+    end
   end
 
   def roles_visible_to("student") do
