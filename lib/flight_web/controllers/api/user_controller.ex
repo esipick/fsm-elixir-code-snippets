@@ -16,6 +16,7 @@ defmodule FlightWeb.API.UserController do
           users =
             Accounts.get_directory_users_visible_to_user(conn.assigns.current_user)
             |> Flight.Repo.preload(:roles)
+            |> Enum.sort_by(& &1.last_name)
 
           {:ok, users, "directory_user.json"}
 
