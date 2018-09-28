@@ -34,7 +34,7 @@ defmodule Mondo.PushService do
   def create_android_endpoint(token) do
     result =
       @api_client.aws_create_platform_endpoint(
-        Application.get_env(:flight, :aws_gcm_sns_application_arn),
+        Application.get_env(:flight, :aws_gcm_application_arn),
         token
       )
 

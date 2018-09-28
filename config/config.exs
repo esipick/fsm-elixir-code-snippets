@@ -38,6 +38,10 @@ config :flight,
        :aws_apns_application_arn,
        "arn:aws:sns:us-east-1:699782583642:app/APNS_SANDBOX/fsm-apns-dev"
 
+config :flight,
+       :aws_gcm_application_arn,
+       "arn:aws:sns:us-east-1:699782583642:app/GCM/fsm-fcm"
+
 config :flight, :aws_credentials,
   access_key: aws_access_key,
   secret_key: aws_secret_key
