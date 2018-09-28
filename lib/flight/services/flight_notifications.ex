@@ -9,7 +9,7 @@ defmodule Flight.PushNotifications do
       body:
         "Hey #{user.first_name}, you have an appointment coming up at #{
           Timex.format!(appointment.start_at, "%l:%M%P", :strftime)
-        }. Tap for details.",
+        }.",
       sound: true,
       user_id: user.id,
       data: %{
@@ -24,7 +24,7 @@ defmodule Flight.PushNotifications do
       body:
         "#{creating_user.first_name} #{creating_user.last_name} created an appointment for you on #{
           FlightWeb.ViewHelpers.display_date(appointment.start_at, :short)
-        }. Tap for details.",
+        }.",
       sound: true,
       user_id: destination_user.id,
       data: %{
@@ -39,7 +39,7 @@ defmodule Flight.PushNotifications do
       body:
         "#{updating_user.first_name} #{updating_user.last_name} updated your appointment on #{
           FlightWeb.ViewHelpers.display_date(appointment.start_at, :short)
-        }. Tap for details.",
+        }.",
       sound: true,
       user_id: destination_user.id,
       data: %{
@@ -64,7 +64,7 @@ defmodule Flight.PushNotifications do
     %PushNotification{
       title: "Payment Request",
       body:
-        "#{requesting_user.first_name} #{requesting_user.last_name} sent you a payment request to approve. Tap for details.",
+        "#{requesting_user.first_name} #{requesting_user.last_name} sent you a payment request to approve.",
       sound: true,
       user_id: destination_user.id,
       data: %{
@@ -77,7 +77,7 @@ defmodule Flight.PushNotifications do
     %PushNotification{
       title: "Payment Approved",
       body:
-        "#{approving_user.first_name} #{approving_user.last_name} approved your payment request. Tap for details.",
+        "#{approving_user.first_name} #{approving_user.last_name} approved your payment request.",
       sound: true,
       user_id: destination_user.id,
       data: %{
@@ -90,7 +90,7 @@ defmodule Flight.PushNotifications do
     %PushNotification{
       title: "Payment Approved",
       body:
-        "#{approving_user.first_name} #{approving_user.last_name} charged your credit card. Tap for details.",
+        "#{approving_user.first_name} #{approving_user.last_name} charged your credit card.",
       sound: true,
       user_id: destination_user.id,
       data: %{
@@ -107,7 +107,7 @@ defmodule Flight.PushNotifications do
     %PushNotification{
       title: "Payment",
       body:
-        "#{deducting_user.first_name} #{deducting_user.last_name} deducted funds from your balance. Tap for details.",
+        "#{deducting_user.first_name} #{deducting_user.last_name} deducted funds from your balance.",
       sound: true,
       user_id: destination_user.id,
       data: %{
@@ -124,7 +124,7 @@ defmodule Flight.PushNotifications do
     %PushNotification{
       title: "New Funds",
       body:
-        "#{deducting_user.first_name} #{deducting_user.last_name} added funds to your balance. Tap for details.",
+        "#{deducting_user.first_name} #{deducting_user.last_name} added funds to your balance.",
       sound: true,
       user_id: destination_user.id,
       data: %{
@@ -141,7 +141,7 @@ defmodule Flight.PushNotifications do
     %PushNotification{
       title: "Funds Removed",
       body:
-        "#{deducting_user.first_name} #{deducting_user.last_name} removed funds from your balance. Tap for details.",
+        "#{deducting_user.first_name} #{deducting_user.last_name} removed funds from your balance.",
       sound: true,
       user_id: destination_user.id,
       data: %{
@@ -153,7 +153,7 @@ defmodule Flight.PushNotifications do
   def outstanding_payment_request_notification(destination_user_id) do
     %PushNotification{
       title: "Outstanding Payments",
-      body: "You have one or more outstanding payment requests. Tap to review.",
+      body: "You have one or more outstanding payment requests.",
       sound: true,
       user_id: destination_user_id,
       data: %{
@@ -165,7 +165,7 @@ defmodule Flight.PushNotifications do
   def test_notification(user_id) do
     %Mondo.PushNotification{
       title: "Hello World",
-      body: "This is a test notification",
+      body: "This is a test notification.",
       sound: true,
       user_id: user_id
     }
