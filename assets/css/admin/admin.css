@@ -865,3 +865,18 @@ fieldset[disabled] .fc button:hover {
 #prototyping-only .btn { 
   padding: 4px 8px;
 }
+
+.download-buttons {
+  margin: auto;
+  width: 310px;
+}
+.download-buttons a {
+  display: inline-block;
+}
+
+.download-buttons a:last-child {
+  margin-left: 8px;
+}
+.download-buttons a img {
+  width: 112px;
+}
