@@ -2,7 +2,7 @@ defmodule Flight.SchedulingTest do
   use Flight.DataCase
 
   alias Flight.{Repo, Scheduling}
-  alias Flight.Scheduling.{Aircraft, Appointment, Inspection}
+  alias Flight.Scheduling.{Unavailability, Aircraft, Appointment, Inspection}
 
   import Flight.AccountsFixtures
 
@@ -651,6 +651,172 @@ defmodule Flight.SchedulingTest do
       appointment = appointment_fixture()
 
       Scheduling.delete_appointment(appointment.id, admin, appointment)
+    end
+  end
+
+  describe "insert_or_update_unavailability/3" do
+    @start_at ~N[2018-03-03 10:00:00]
+    @end_at ~N[2018-03-03 12:00:00]
+
+    test "inserts unavailability" do
+      instructor = instructor_fixture()
+
+      {:ok, unavailability} =
+        Scheduling.insert_or_update_unavailability(
+          %Unavailability{},
+          %{
+            instructor_user_id: instructor.id,
+            start_at: @start_at,
+            end_at: @end_at,
+            reason: "time_off",
+            note: "Something crazy"
+          },
+          default_school_fixture()
+        )
+
+      assert unavailability.instructor_user_id == instructor.id
+      assert unavailability.start_at == @start_at
+      assert unavailability.end_at == @end_at
+      assert unavailability.type == "time_off"
+      assert unavailability.note == "Something crazy"
+    end
+
+    @tag :wip
+    test "can't overlap existing unavailability instructor" do
+      instructor = instructor_fixture()
+
+      {:ok, _} =
+        Scheduling.insert_or_update_unavailability(
+          %Unavailability{},
+          %{
+            instructor_user_id: instructor.id,
+            start_at: @start_at,
+            end_at: @end_at
+          },
+          default_school_fixture()
+        )
+
+      assert {:error, _} =
+               Scheduling.insert_or_update_unavailability(
+                 %Unavailability{},
+                 %{
+                   instructor_user_id: instructor.id,
+                   start_at: @start_at,
+                   end_at: @end_at
+                 },
+                 default_school_fixture()
+               )
+    end
+
+    @tag :wip
+    test "can't overlap existing unavailability aircraft" do
+      aircraft = aircraft_fixture()
+
+      {:ok, _} =
+        Scheduling.insert_or_update_unavailability(
+          %Unavailability{},
+          %{
+            aircraft_id: aircraft.id,
+            start_at: @start_at,
+            end_at: @end_at
+          },
+          default_school_fixture()
+        )
+
+      assert {:error, _} =
+               Scheduling.insert_or_update_unavailability(
+                 %Unavailability{},
+                 %{
+                   aircraft_id: aircraft.id,
+                   start_at: @start_at,
+                   end_at: @end_at
+                 },
+                 default_school_fixture()
+               )
+    end
+
+    test "can overlap existing appointment" do
+      instructor = instructor_fixture()
+      admin = admin_fixture()
+
+      {:ok, _} =
+        Scheduling.insert_or_update_appointment(
+          %Appointment{},
+          %{
+            user_id: student_fixture().id,
+            instructor_user_id: instructor.id,
+            start_at: @start_at,
+            end_at: @end_at
+          },
+          admin,
+          default_school_fixture()
+        )
+
+      assert {:ok, _} =
+               Scheduling.insert_or_update_unavailability(
+                 %Unavailability{},
+                 %{
+                   instructor_user_id: instructor.id,
+                   start_at: @start_at,
+                   end_at: @end_at
+                 },
+                 default_school_fixture()
+               )
+    end
+
+    test "updates existing unavailability" do
+      instructor = instructor_fixture()
+
+      {:ok, unavailability} =
+        Scheduling.insert_or_update_unavailability(
+          %Unavailability{},
+          %{
+            instructor_user_id: instructor.id,
+            start_at: @start_at,
+            end_at: @end_at
+          },
+          default_school_fixture()
+        )
+
+      {:ok, unavailability} =
+        Scheduling.insert_or_update_unavailability(
+          unavailability,
+          %{
+            start_at: Timex.shift(@start_at, hours: -1)
+          },
+          default_school_fixture()
+        )
+
+      assert unavailability.start_at == Timex.shift(@start_at, hours: -1)
+    end
+
+    test "error if no instructor/aircraft" do
+      {:error, _unavailability} =
+        Scheduling.insert_or_update_unavailability(
+          %Unavailability{},
+          %{
+            start_at: @start_at,
+            end_at: @end_at
+          },
+          default_school_fixture()
+        )
+    end
+
+    test "error if both aircraft/instructor assigned" do
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+
+      {:error, _unavailability} =
+        Scheduling.insert_or_update_unavailability(
+          %Unavailability{},
+          %{
+            instructor_user_id: instructor.id,
+            aircraft_id: aircraft.id,
+            start_at: @start_at,
+            end_at: @end_at
+          },
+          default_school_fixture()
+        )
     end
   end
 end

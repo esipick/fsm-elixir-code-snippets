@@ -47,6 +47,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
           Timex.shift(date, hours: 1),
           Timex.shift(date, hours: 3),
           [],
+          [],
           available_instructor
         )
 
@@ -81,6 +82,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
         Availability.student_availability(
           Timex.shift(date, hours: 1),
           Timex.shift(date, hours: 3),
+          [],
           [],
           available_student
         )
@@ -185,6 +187,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
           Timex.shift(date, hours: 1),
           Timex.shift(date, hours: 5),
           [],
+          [],
           available_aircraft
         )
 
@@ -236,6 +239,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
                Timex.shift(date, hours: 4),
                Timex.shift(date, hours: 6),
                [],
+               [],
                user
              ) == :available
     end
@@ -260,6 +264,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
                Timex.shift(date, hours: 1),
                Timex.shift(date, hours: 3),
                [],
+               [],
                user
              ) == :unavailable
     end
@@ -274,6 +279,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
                user.id,
                Timex.shift(date, hours: 4),
                Timex.shift(date, hours: 6),
+               [],
                [],
                user
              ) == :invalid
@@ -299,6 +305,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
                Timex.shift(date, hours: 4),
                Timex.shift(date, hours: 6),
                [],
+               [],
                aircraft
              ) == :available
     end
@@ -321,6 +328,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
                Timex.shift(date, hours: 1),
                Timex.shift(date, hours: 3),
                [],
+               [],
                aircraft
              ) == :unavailable
     end
@@ -334,6 +342,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
                aircraft.id + 1,
                Timex.shift(date, hours: 4),
                Timex.shift(date, hours: 6),
+               [],
                [],
                aircraft
              ) == :invalid

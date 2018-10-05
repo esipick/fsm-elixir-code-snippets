@@ -8,7 +8,15 @@ end
 
 defmodule Flight.Scheduling.Availability do
   alias Flight.Accounts.{Role}
-  alias Flight.Scheduling.{Aircraft, Appointment, AvailabilityUser, AvailabilityAircraft}
+
+  alias Flight.Scheduling.{
+    Aircraft,
+    Appointment,
+    Unavailability,
+    AvailabilityUser,
+    AvailabilityAircraft
+  }
+
   alias Flight.Repo
   alias Flight.SchoolScope
 
@@ -17,40 +25,49 @@ defmodule Flight.Scheduling.Availability do
   import Flight.Auth.Authorization
   import Flight.Auth.Permission, only: [permission_slug: 3]
 
-  def instructor_availability(start_at, end_at, excluded_appointment_ids, school_context) do
+  @scopes [:all, :appointment, :unavailability]
+
+  def instructor_availability(start_at, end_at, excluded_appointment_ids, excluded_unavailability_ids, school_context) do
     users_with_permission_availability(
       permission_slug(:appointment_instructor, :modify, :personal),
       start_at,
       end_at,
       excluded_appointment_ids,
+      excluded_unavailability_ids,
       school_context
     )
   end
 
-  def student_availability(start_at, end_at, excluded_appointment_ids, school_context) do
+  def student_availability(start_at, end_at, excluded_appointment_ids, excluded_unavailability_ids, school_context) do
     users_with_permission_availability(
       permission_slug(:appointment_user, :modify, :personal),
       start_at,
       end_at,
       excluded_appointment_ids,
+      excluded_unavailability_ids,
       school_context
     )
   end
 
   def user_with_permission_status(
+        scope \\ :all,
         permission_slug,
         id,
         start_at,
         end_at,
         excluded_appointment_ids,
+        excluded_unavailability_ids,
         school_context
-      ) do
+      )
+      when scope in @scopes do
     user_statuses =
       users_with_permission_availability(
+        scope,
         permission_slug,
         start_at,
         end_at,
         excluded_appointment_ids,
+        excluded_unavailability_ids,
         school_context
       )
 
@@ -64,12 +81,15 @@ defmodule Flight.Scheduling.Availability do
   end
 
   def users_with_permission_availability(
+        scope \\ :all,
         permission_slug,
         start_at,
         end_at,
         excluded_appointment_ids,
+        excluded_unavailability_ids,
         school_context
-      ) do
+      )
+      when scope in @scopes do
     role_slugs = role_slugs_for_permission_slug(permission_slug)
     roles = from(r in Role, where: r.slug in ^role_slugs) |> Repo.all()
 
@@ -77,17 +97,40 @@ defmodule Flight.Scheduling.Availability do
 
     school = SchoolScope.get_school(school_context)
 
+    appointment_unavailable_user_ids =
+      if scope in [:all, :appointment] do
+        Appointment
+        |> SchoolScope.scope_query(school_context)
+        |> select_for_permission_slug(permission_slug)
+        |> exclude_appointment_query(excluded_appointment_ids)
+        |> overlap_query(
+          Flight.Walltime.utc_to_walltime(start_at, school.timezone),
+          Flight.Walltime.utc_to_walltime(end_at, school.timezone)
+        )
+        |> Repo.all()
+        |> MapSet.new()
+      else
+        MapSet.new()
+      end
+
+    unavailability_instructor_ids =
+      if scope in [:all, :unavailability] do
+        Unavailability
+        |> SchoolScope.scope_query(school_context)
+        |> select([a], a.instructor_user_id)
+        |> overlap_query(
+          Flight.Walltime.utc_to_walltime(start_at, school.timezone),
+          Flight.Walltime.utc_to_walltime(end_at, school.timezone)
+        )
+        |> exclude_unavailability_query(excluded_unavailability_ids)
+        |> Repo.all()
+        |> MapSet.new()
+      else
+        MapSet.new()
+      end
+
     unavailable_user_ids =
-      Appointment
-      |> SchoolScope.scope_query(school_context)
-      |> select_for_permission_slug(permission_slug)
-      |> exclude_appointment_query(excluded_appointment_ids)
-      |> appointment_overlap_query(
-        Flight.Walltime.utc_to_walltime(start_at, school.timezone),
-        Flight.Walltime.utc_to_walltime(end_at, school.timezone)
-      )
-      |> Repo.all()
-      |> MapSet.new()
+      MapSet.union(appointment_unavailable_user_ids, unavailability_instructor_ids)
 
     for user <- visible_users do
       if MapSet.member?(unavailable_user_ids, user.id) do
@@ -116,9 +159,18 @@ defmodule Flight.Scheduling.Availability do
     end
   end
 
-  def aircraft_status(id, start_at, end_at, excluded_appointment_ids, school_context) do
+  def aircraft_status(
+        scope \\ :all,
+        id,
+        start_at,
+        end_at,
+        excluded_appointment_ids,
+        excluded_unavailability_ids,
+        school_context
+      )
+      when scope in @scopes do
     aircraft_statuses =
-      aircraft_availability(start_at, end_at, excluded_appointment_ids, school_context)
+      aircraft_availability(scope, start_at, end_at, excluded_appointment_ids, excluded_unavailability_ids, school_context)
 
     aircraft_status = Enum.find(aircraft_statuses, &(&1.aircraft.id == id))
 
@@ -129,7 +181,15 @@ defmodule Flight.Scheduling.Availability do
     end
   end
 
-  def aircraft_availability(start_at, end_at, excluded_appointment_ids, school_context) do
+  def aircraft_availability(
+        scope \\ :all,
+        start_at,
+        end_at,
+        excluded_appointment_ids,
+        excluded_unavailability_ids,
+        school_context
+      )
+      when scope in @scopes do
     visible_aircrafts =
       Aircraft
       |> SchoolScope.scope_query(school_context)
@@ -139,17 +199,40 @@ defmodule Flight.Scheduling.Availability do
 
     school = SchoolScope.get_school(school_context)
 
+    appointment_unavailable_aircraft_ids =
+      if scope in [:all, :appointment] do
+        Appointment
+        |> SchoolScope.scope_query(school_context)
+        |> select([a], a.aircraft_id)
+        |> overlap_query(
+          Flight.Walltime.utc_to_walltime(start_at, school.timezone),
+          Flight.Walltime.utc_to_walltime(end_at, school.timezone)
+        )
+        |> exclude_appointment_query(excluded_appointment_ids)
+        |> Repo.all()
+        |> MapSet.new()
+      else
+        MapSet.new()
+      end
+
+    unavailability_aircraft_ids =
+      if scope in [:all, :unavailability] do
+        Unavailability
+        |> SchoolScope.scope_query(school_context)
+        |> select([a], a.aircraft_id)
+        |> overlap_query(
+          Flight.Walltime.utc_to_walltime(start_at, school.timezone),
+          Flight.Walltime.utc_to_walltime(end_at, school.timezone)
+        )
+        |> exclude_unavailability_query(excluded_unavailability_ids)
+        |> Repo.all()
+        |> MapSet.new()
+      else
+        MapSet.new()
+      end
+
     unavailable_aircraft_ids =
-      Appointment
-      |> SchoolScope.scope_query(school_context)
-      |> select([a], a.aircraft_id)
-      |> appointment_overlap_query(
-        Flight.Walltime.utc_to_walltime(start_at, school.timezone),
-        Flight.Walltime.utc_to_walltime(end_at, school.timezone)
-      )
-      |> exclude_appointment_query(excluded_appointment_ids)
-      |> Repo.all()
-      |> MapSet.new()
+      MapSet.union(appointment_unavailable_aircraft_ids, unavailability_aircraft_ids)
 
     for aircraft <- visible_aircrafts do
       if MapSet.member?(unavailable_aircraft_ids, aircraft.id) do
@@ -168,7 +251,7 @@ defmodule Flight.Scheduling.Availability do
     from(i in query)
   end
 
-  def appointment_overlap_query(query, start_at, end_at) do
+  def overlap_query(query, start_at, end_at) do
     from(
       a in query,
       where:
@@ -179,6 +262,10 @@ defmodule Flight.Scheduling.Availability do
   end
 
   def exclude_appointment_query(query, ids) do
+    from(a in query, where: a.id not in ^Enum.filter(ids, & &1))
+  end
+
+  def exclude_unavailability_query(query, ids) do
     from(a in query, where: a.id not in ^Enum.filter(ids, & &1))
   end
 end

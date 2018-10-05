@@ -27,7 +27,10 @@ defmodule Flight.Auth.Permission do
     :transaction_approve,
     :transaction_user,
     :transaction_creator,
-    :objective_score
+    :objective_score,
+    :unavailability,
+    :unavailability_instructor,
+    :unavailability_aircraft
   ]
   @verbs [:view, :modify, :be, :request]
   @scopes [:all, :personal]

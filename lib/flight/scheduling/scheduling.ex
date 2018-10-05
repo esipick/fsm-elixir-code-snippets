@@ -5,7 +5,8 @@ defmodule Flight.Scheduling do
     Availability,
     Inspection,
     DateInspection,
-    TachInspection
+    TachInspection,
+    Unavailability
   }
 
   alias Flight.Repo
@@ -196,7 +197,7 @@ defmodule Flight.Scheduling do
     |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at >= ^start_at_after_value))
     |> pass_unless(
       from_value && to_value,
-      &Availability.appointment_overlap_query(&1, from_value, to_value)
+      &Availability.overlap_query(&1, from_value, to_value)
     )
     |> pass_unless(user_id_value, &where(&1, [a], a.user_id == ^user_id_value))
     |> pass_unless(aircraft_id_value, &where(&1, [a], a.aircraft_id == ^aircraft_id_value))
@@ -215,11 +216,11 @@ defmodule Flight.Scheduling do
     |> Enum.map(fn appointment -> apply_timezone(appointment, timezone) end)
   end
 
-  def apply_timezone(%Appointment{} = appointment, timezone) do
-    %Appointment{
-      appointment
-      | start_at: walltime_to_utc(appointment.start_at, timezone),
-        end_at: walltime_to_utc(appointment.end_at, timezone)
+  def apply_timezone(appointment_or_unavailability, timezone) do
+    %{
+      appointment_or_unavailability
+      | start_at: walltime_to_utc(appointment_or_unavailability.start_at, timezone),
+        end_at: walltime_to_utc(appointment_or_unavailability.end_at, timezone)
     }
   end
 
@@ -280,6 +281,7 @@ defmodule Flight.Scheduling do
           walltime_to_utc(start_at, school.timezone),
           walltime_to_utc(end_at, school.timezone),
           excluded_appointment_ids,
+          [],
           school_context
         )
 
@@ -298,6 +300,7 @@ defmodule Flight.Scheduling do
               walltime_to_utc(start_at, school.timezone),
               walltime_to_utc(end_at, school.timezone),
               excluded_appointment_ids,
+              [],
               school_context
             )
 
@@ -317,6 +320,7 @@ defmodule Flight.Scheduling do
               walltime_to_utc(start_at, school.timezone),
               walltime_to_utc(end_at, school.timezone),
               excluded_appointment_ids,
+              [],
               school_context
             )
 
@@ -348,6 +352,147 @@ defmodule Flight.Scheduling do
     else
       {:error, changeset}
     end
+  end
+
+  def get_unavailability(id, school_context) do
+    school = SchoolScope.get_school(school_context)
+
+    Unavailability
+    |> SchoolScope.scope_query(school_context)
+    |> where([a], a.id == ^id)
+    |> Repo.one()
+    |> apply_timezone(school.timezone)
+  end
+
+  def get_unavailabilities(options, school_context) do
+    school = SchoolScope.get_school(school_context)
+
+    from_value =
+      case NaiveDateTime.from_iso8601(options["from"] || "") do
+        {:ok, date} -> utc_to_walltime(date, school.timezone)
+        _ -> nil
+      end
+
+    to_value =
+      case NaiveDateTime.from_iso8601(options["to"] || "") do
+        {:ok, date} -> utc_to_walltime(date, school.timezone)
+        _ -> nil
+      end
+
+    start_at_after_value =
+      case NaiveDateTime.from_iso8601(options["start_at_after"] || "") do
+        {:ok, date} -> utc_to_walltime(date, school.timezone)
+        _ -> nil
+      end
+
+    instructor_user_id_value = options["instructor_user_id"]
+    aircraft_id_value = options["aircraft_id"]
+
+    from(a in Unavailability)
+    |> SchoolScope.scope_query(school_context)
+    |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at >= ^start_at_after_value))
+    |> pass_unless(
+      from_value && to_value,
+      &Availability.overlap_query(&1, from_value, to_value)
+    )
+    |> pass_unless(aircraft_id_value, &where(&1, [a], a.aircraft_id == ^aircraft_id_value))
+    |> pass_unless(
+      instructor_user_id_value,
+      &from(a in &1, where: a.instructor_user_id == ^instructor_user_id_value)
+    )
+    |> limit(50)
+    |> order_by([a], desc: a.start_at)
+    |> Repo.all()
+    |> apply_timezone(SchoolScope.get_school(school_context).timezone)
+  end
+
+  def insert_or_update_unavailability(
+        unavailability,
+        attrs,
+        school_context
+      ) do
+    school = SchoolScope.get_school(school_context)
+
+    changeset =
+      unavailability
+      |> SchoolScope.school_changeset(school_context)
+      |> Unavailability.changeset(attrs)
+      |> Unavailability.apply_timezone_changeset(school.timezone)
+
+    if changeset.valid? do
+      {:ok, _} = apply_action(changeset, :insert)
+
+      start_at = get_field(changeset, :start_at)
+      end_at = get_field(changeset, :end_at)
+      instructor_user_id = get_field(changeset, :instructor_user_id)
+      aircraft_id = get_field(changeset, :aircraft_id)
+
+      excluded_unavailability_ids =
+        if unavailability.id do
+          [unavailability.id]
+        else
+          []
+        end
+
+      changeset =
+        if instructor_user_id do
+          status =
+            Availability.user_with_permission_status(
+              :unavailability,
+              permission_slug(:appointment_instructor, :modify, :personal),
+              instructor_user_id,
+              walltime_to_utc(start_at, school.timezone),
+              walltime_to_utc(end_at, school.timezone),
+              [],
+              excluded_unavailability_ids,
+              school_context
+            )
+
+          case status do
+            :available -> changeset
+            other -> add_error(changeset, :instructor, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+      changeset =
+        if aircraft_id do
+          status =
+            Availability.aircraft_status(
+              :unavailability,
+              aircraft_id,
+              walltime_to_utc(start_at, school.timezone),
+              walltime_to_utc(end_at, school.timezone),
+              [],
+              excluded_unavailability_ids,
+              school_context
+            )
+
+          case status do
+            :available -> changeset
+            other -> add_error(changeset, :aircraft, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+      case Repo.insert_or_update(changeset) do
+        {:ok, unavailability} ->
+          {:ok, apply_timezone(unavailability, school.timezone)}
+
+        other ->
+          other
+      end
+    else
+      {:error, changeset}
+    end
+  end
+
+  def delete_unavailability(id, school_context) do
+    unavailability = get_unavailability(id, school_context)
+
+    Repo.delete!(unavailability)
   end
 
   def send_created_notifications(appointment, modifying_user) do

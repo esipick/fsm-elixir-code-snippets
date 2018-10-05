@@ -188,6 +188,12 @@ defmodule FlightWeb.Router do
       only: [:create, :index, :update, :show, :delete]
     )
 
+    resources(
+      "/unavailabilities",
+      UnavailabilityController,
+      only: [:create, :index, :update, :show, :delete]
+    )
+
     resources("/courses", CourseController, only: [:index])
   end
 

@@ -1,5 +1,13 @@
 defmodule Flight.SchedulingFixtures do
-  alias Flight.Scheduling.{Aircraft, Appointment, Inspection, DateInspection, TachInspection}
+  alias Flight.Scheduling.{
+    Aircraft,
+    Appointment,
+    Inspection,
+    DateInspection,
+    TachInspection,
+    Unavailability
+  }
+
   alias Flight.{Repo}
 
   import Flight.AccountsFixtures
@@ -49,6 +57,29 @@ defmodule Flight.SchedulingFixtures do
       |> Repo.insert!()
 
     %{appointment | aircraft: aircraft, instructor_user: instructor, user: user}
+  end
+
+  def unavailability_fixture(
+        attrs \\ %{},
+        instructor \\ instructor_fixture(),
+        aircraft \\ nil,
+        school \\ default_school_fixture()
+      ) do
+    date = ~N[2018-03-03 10:00:00]
+
+    unavailability =
+      %Unavailability{
+        start_at: Timex.shift(date, hours: 2),
+        end_at: Timex.shift(date, hours: 4),
+        instructor_user_id: if(instructor, do: instructor.id, else: nil),
+        aircraft_id: if(aircraft, do: aircraft.id, else: nil),
+        school_id: school.id
+      }
+      |> Unavailability.changeset(attrs)
+      |> Unavailability.apply_timezone_changeset(school.timezone)
+      |> Repo.insert!()
+
+    %{unavailability | aircraft: aircraft, instructor_user: instructor}
   end
 
   def date_inspection_fixture(attrs \\ %{}, aircraft \\ aircraft_fixture()) do

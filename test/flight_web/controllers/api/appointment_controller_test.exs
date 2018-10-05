@@ -25,9 +25,12 @@ defmodule FlightWeb.API.AppointmentControllerTest do
         })
         |> json_response(200)
 
-      students_available = Availability.student_availability(start_at, end_at, [], student)
-      instructors_available = Availability.instructor_availability(start_at, end_at, [], student)
-      aircrafts_available = Availability.aircraft_availability(start_at, end_at, [], student)
+      students_available = Availability.student_availability(start_at, end_at, [], [], student)
+
+      instructors_available =
+        Availability.instructor_availability(start_at, end_at, [], [], student)
+
+      aircrafts_available = Availability.aircraft_availability(start_at, end_at, [], [], student)
 
       assert json ==
                render_json(
@@ -183,7 +186,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
     end
 
-    test "instructor create appointment", %{conn: conn} do
+    test "instructor creates appointment", %{conn: conn} do
       student = student_fixture()
       instructor = user_fixture() |> assign_role("instructor")
       aircraft = aircraft_fixture()
@@ -304,7 +307,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       appointment = appointment_fixture()
 
       conn
-      |> auth(appointment.user)
+      |> auth(appointment.instructor_user)
       |> delete("/api/appointments/#{appointment.id}")
       |> response(204)
 

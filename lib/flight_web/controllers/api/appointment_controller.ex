@@ -16,13 +16,13 @@ defmodule FlightWeb.API.AppointmentController do
     excluded_appointment_ids = [params["excluded_appointment_id"]] |> List.flatten()
 
     students_available =
-      Availability.student_availability(start_at, end_at, excluded_appointment_ids, conn)
+      Availability.student_availability(start_at, end_at, excluded_appointment_ids, [], conn)
 
     instructors_available =
-      Availability.instructor_availability(start_at, end_at, excluded_appointment_ids, conn)
+      Availability.instructor_availability(start_at, end_at, excluded_appointment_ids, [], conn)
 
     aircrafts_available =
-      Availability.aircraft_availability(start_at, end_at, excluded_appointment_ids, conn)
+      Availability.aircraft_availability(start_at, end_at, excluded_appointment_ids, [], conn)
 
     render(
       conn,
@@ -129,7 +129,7 @@ defmodule FlightWeb.API.AppointmentController do
 
   def render_bad_request(
         conn,
-        message \\ "You are not authorized to create or change this appointment. Please talk to your school Admin."
+        message \\ "You are not authorized to create or change this appointment. Please talk to your school's Admin."
       ) do
     conn
     |> put_status(400)
