@@ -8,6 +8,7 @@ defmodule Flight.Accounts do
     Role,
     FlyerCertificate,
     Invitation,
+    PasswordReset,
     School,
     SchoolInvitation,
     StripeAccount
@@ -42,7 +43,7 @@ defmodule Flight.Accounts do
       |> MapSet.to_list()
       |> Enum.map(&Atom.to_string/1)
 
-    users = 
+    users =
       from(
         u in User,
         distinct: u.id,
@@ -52,7 +53,7 @@ defmodule Flight.Accounts do
       |> default_users_query(user)
       |> Repo.all()
 
-    if Enum.find(users, & &1.id == user.id) do
+    if Enum.find(users, &(&1.id == user.id)) do
       users
     else
       [user | users]
@@ -229,6 +230,36 @@ defmodule Flight.Accounts do
     user
     |> User.update_password_changeset(%{password: password})
     |> Repo.update()
+  end
+
+  def create_password_reset(user) do
+    %PasswordReset{}
+    |> PasswordReset.changeset(%{user_id: user.id, token: Flight.Random.hex(60)})
+    |> Flight.Repo.insert()
+  end
+
+  def get_password_reset(%User{} = user) do
+    from(
+      r in PasswordReset,
+      where: r.user_id == ^user.id,
+      where: r.inserted_at > ^Timex.shift(Timex.now(), days: -15),
+      order_by: [desc: r.inserted_at],
+      preload: [:user],
+      limit: 1
+    )
+    |> Flight.Repo.one()
+  end
+
+  def get_password_reset_from_token(token) when is_binary(token) do
+    from(
+      r in PasswordReset,
+      where: r.token == ^token,
+      where: r.inserted_at > ^Timex.shift(Timex.now(), days: -15),
+      order_by: [desc: r.inserted_at],
+      preload: [:user],
+      limit: 1
+    )
+    |> Flight.Repo.one()
   end
 
   ###

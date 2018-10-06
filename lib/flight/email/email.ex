@@ -35,15 +35,16 @@ defmodule Flight.Email do
     )
   end
 
-  def reset_password_email(%Flight.Accounts.User{} = user) do
+  def reset_password_email(%Flight.Accounts.PasswordReset{} = password_reset) do
     new_email()
+    |> to(password_reset.user.email)
     |> put_layout({FlightWeb.EmailView, "invitation"})
     # TODO: What email address to use here?
     |> from("noreply@randonaviation.com")
-    |> subject("Welcome to Randon Aviation!")
+    |> subject("Password Reset - Flight School Manager")
     |> render(
       "_reset_password.html",
-      user: user
+      password_reset: password_reset
     )
   end
 

@@ -27,7 +27,13 @@ defmodule Flight.Scheduling.Availability do
 
   @scopes [:all, :appointment, :unavailability]
 
-  def instructor_availability(start_at, end_at, excluded_appointment_ids, excluded_unavailability_ids, school_context) do
+  def instructor_availability(
+        start_at,
+        end_at,
+        excluded_appointment_ids,
+        excluded_unavailability_ids,
+        school_context
+      ) do
     users_with_permission_availability(
       permission_slug(:appointment_instructor, :modify, :personal),
       start_at,
@@ -38,7 +44,13 @@ defmodule Flight.Scheduling.Availability do
     )
   end
 
-  def student_availability(start_at, end_at, excluded_appointment_ids, excluded_unavailability_ids, school_context) do
+  def student_availability(
+        start_at,
+        end_at,
+        excluded_appointment_ids,
+        excluded_unavailability_ids,
+        school_context
+      ) do
     users_with_permission_availability(
       permission_slug(:appointment_user, :modify, :personal),
       start_at,
@@ -170,7 +182,14 @@ defmodule Flight.Scheduling.Availability do
       )
       when scope in @scopes do
     aircraft_statuses =
-      aircraft_availability(scope, start_at, end_at, excluded_appointment_ids, excluded_unavailability_ids, school_context)
+      aircraft_availability(
+        scope,
+        start_at,
+        end_at,
+        excluded_appointment_ids,
+        excluded_unavailability_ids,
+        school_context
+      )
 
     aircraft_status = Enum.find(aircraft_statuses, &(&1.aircraft.id == id))
 
@@ -231,6 +250,8 @@ defmodule Flight.Scheduling.Availability do
         MapSet.new()
       end
 
+    IO.inspect(unavailability_aircraft_ids)
+
     unavailable_aircraft_ids =
       MapSet.union(appointment_unavailable_aircraft_ids, unavailability_aircraft_ids)
 
@@ -245,10 +266,12 @@ defmodule Flight.Scheduling.Availability do
 
   def visible_user_query(query) do
     from(i in query)
+    |> where([i], i.archived == false)
   end
 
   def visible_aircraft_query(query) do
     from(i in query)
+    |> where([i], i.archived == false)
   end
 
   def overlap_query(query, start_at, end_at) do
