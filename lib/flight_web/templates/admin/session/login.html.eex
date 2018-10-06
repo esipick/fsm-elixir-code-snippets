@@ -53,12 +53,12 @@
                   <input type="submit" class="btn btn-primary btn-round btn-lg btn-block mb-3" value="Login"/>
                   <div class="pull-left">
                     <h6>
-                      <a href="#pablo" class="link footer-link">Forgot password?</a>
+                      <a href="/forgot_password" class="link footer-link">Forgot password?</a>
                     </h6>
                   </div>
                   <div class="pull-right">
                     <h6>
-                      <a href="#pablo" class="link footer-link">Get the app</a>
+                      <a href="https://flightschoolmanager.co" class="link footer-link">Get the app</a>
                     </h6>
                   </div>
                 </div>
