@@ -62,6 +62,7 @@ defmodule FlightWeb.AuthenticateWebUser do
       u in Flight.Accounts.User,
       inner_join: r in assoc(u, :roles),
       where: r.slug in ^roles,
+      where: u.archived == false,
       where: u.id == ^id
     )
     |> Flight.Repo.one()

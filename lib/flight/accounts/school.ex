@@ -16,6 +16,7 @@ defmodule Flight.Accounts.School do
     field(:contact_phone_number, :string)
     field(:contact_email, :string)
     field(:timezone, :string)
+    field(:archived, :boolean, default: false)
     has_one(:stripe_account, Flight.Accounts.StripeAccount)
 
     timestamps()
@@ -33,6 +34,11 @@ defmodule Flight.Accounts.School do
       :contact_phone_number
     ])
     |> base_validations()
+  end
+
+  def archive_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:archived])
   end
 
   def admin_changeset(school, attrs) do

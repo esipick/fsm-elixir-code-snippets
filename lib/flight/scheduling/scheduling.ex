@@ -74,15 +74,20 @@ defmodule Flight.Scheduling do
   end
 
   def get_aircraft(id, school_context) do
-    Aircraft
+    visible_aircraft_query(school_context)
     |> where([a], a.id == ^id)
-    |> SchoolScope.scope_query(school_context)
     |> Repo.one()
   end
 
   def admin_update_aircraft(aircraft, attrs) do
     aircraft
     |> Aircraft.admin_changeset(attrs)
+    |> Repo.update()
+  end
+
+  def archive_aircraft(%Aircraft{} = aircraft) do
+    aircraft
+    |> Aircraft.archive_changeset(%{archived: true})
     |> Repo.update()
   end
 

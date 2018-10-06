@@ -59,6 +59,16 @@ defmodule FlightWeb.Admin.AircraftController do
     end
   end
 
+  def delete(conn, %{"id" => id}) do
+    aircraft = Flight.Scheduling.get_aircraft(id, conn)
+
+    Flight.Scheduling.archive_aircraft(aircraft)
+
+    conn
+    |> put_flash(:success, "Aircraft successfully archived.")
+    |> redirect(to: "/admin/aircrafts")
+  end
+
   defp get_aircraft(conn, _) do
     aircraft = Scheduling.get_aircraft(conn.params["id"] || conn.params["aircraft_id"], conn)
 

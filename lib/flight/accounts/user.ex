@@ -21,6 +21,7 @@ defmodule Flight.Accounts.User do
     field(:billing_rate, Flight.DollarCents, default: 7500)
     field(:pay_rate, Flight.DollarCents, default: 5000)
     field(:awards, :string)
+    field(:archived, :boolean, default: false)
     field(:stripe_customer_id, :string)
     belongs_to(:school, Flight.Accounts.School)
     many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
@@ -108,6 +109,11 @@ defmodule Flight.Accounts.User do
     user
     |> cast(attrs, [:stripe_customer_id])
     |> validate_required([:stripe_customer_id])
+  end
+
+  def archive_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:archived])
   end
 
   def api_update_changeset(user, attrs, _roles, flyer_certificates) do

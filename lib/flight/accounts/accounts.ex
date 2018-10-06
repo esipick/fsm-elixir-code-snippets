@@ -20,7 +20,7 @@ defmodule Flight.Accounts do
 
   def get_user(id, school_context) do
     User
-    |> SchoolScope.scope_query(school_context)
+    |> default_users_query(school_context)
     |> where([u], u.id == ^id)
     |> Repo.one()
   end
@@ -48,6 +48,7 @@ defmodule Flight.Accounts do
         u in User,
         distinct: u.id,
         inner_join: r in assoc(u, :roles),
+        where: u.archived == false,
         where: r.slug in ^roles
       )
       |> default_users_query(user)
@@ -93,6 +94,7 @@ defmodule Flight.Accounts do
       where: r.slug in ^roles,
       where: u.id == ^id
     )
+    |> default_users_query(school_context)
     |> SchoolScope.scope_query(school_context)
     |> Repo.one()
   end
@@ -218,8 +220,16 @@ defmodule Flight.Accounts do
     )
   end
 
-  def delete_user(%User{} = user) do
-    Repo.delete(user)
+  def archive_user(%User{} = user) do
+    user
+    |> User.archive_changeset(%{archived: true})
+    |> Repo.update()
+  end
+
+  def archive_school(%School{} = school) do
+    school
+    |> School.archive_changeset(%{archived: true})
+    |> Repo.update()
   end
 
   def check_password(user, password) do
@@ -274,11 +284,15 @@ defmodule Flight.Accounts do
 
   def get_schools() do
     School
+    |> where([s], s.archived == false)
     |> Repo.all()
   end
 
   def get_school(id) do
-    Repo.get(School, id)
+    School
+    |> where([s], s.archived == false)
+    |> where([s], s.id == ^id)
+    |> Repo.one()
   end
 
   ###
@@ -375,6 +389,7 @@ defmodule Flight.Accounts do
   defp default_users_query(query, school_context) do
     from(
       u in query,
+      where: u.archived == false,
       order_by: u.last_name
     )
     |> SchoolScope.scope_query(school_context)

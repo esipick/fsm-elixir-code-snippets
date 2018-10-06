@@ -92,7 +92,7 @@ defmodule FlightWeb.Router do
 
     get("/logout", SessionController, :logout)
 
-    resources("/schools", SchoolController, only: [:index, :show, :edit, :update])
+    resources("/schools", SchoolController, only: [:index, :show, :delete])
 
     resources("/reports", ReportsController, only: [:index])
 
@@ -100,7 +100,7 @@ defmodule FlightWeb.Router do
       get("/detail", ReportsController, :detail)
     end
 
-    resources("/users", UserController, only: [:index, :show, :edit, :update]) do
+    resources("/users", UserController, only: [:index, :show, :edit, :update, :delete]) do
       post("/add_funds", UserController, :add_funds)
     end
 
@@ -129,7 +129,7 @@ defmodule FlightWeb.Router do
     resources(
       "/aircrafts",
       AircraftController,
-      only: [:create, :update, :edit, :show, :index, :new]
+      only: [:create, :update, :edit, :show, :index, :new, :delete]
     ) do
       resources("/inspections", InspectionController, only: [:create, :new])
     end

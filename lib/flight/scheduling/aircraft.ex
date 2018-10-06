@@ -57,4 +57,9 @@ defmodule Flight.Scheduling.Aircraft do
   def admin_changeset(aircraft, attrs) do
     changeset(aircraft, attrs)
   end
+
+  def archive_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:archived])
+  end
 end

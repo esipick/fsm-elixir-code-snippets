@@ -31,6 +31,14 @@ defmodule FlightWeb.Admin.SchoolController do
     )
   end
 
+  def delete(conn, %{"id" => id}) do
+    school = Flight.Accounts.get_school(id)
+
+    Flight.Accounts.archive_school(school)
+
+    redirect(conn, to: "/admin/schools")
+  end
+
   defp verify_superadmin(conn, _) do
     if Flight.Accounts.is_superadmin?(conn.assigns.current_user) do
       conn
