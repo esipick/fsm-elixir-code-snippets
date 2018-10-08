@@ -35,7 +35,6 @@ defmodule Flight.Scheduling.Aircraft do
       :last_tach_time,
       :last_hobbs_time,
       :rate_per_hour,
-      :archived,
       :block_rate_per_hour
     ])
     |> validate_required([
