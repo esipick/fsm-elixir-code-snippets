@@ -250,8 +250,6 @@ defmodule Flight.Scheduling.Availability do
         MapSet.new()
       end
 
-    IO.inspect(unavailability_aircraft_ids)
-
     unavailable_aircraft_ids =
       MapSet.union(appointment_unavailable_aircraft_ids, unavailability_aircraft_ids)
 
