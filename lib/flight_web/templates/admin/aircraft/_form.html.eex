@@ -113,15 +113,18 @@
         <% end %>
         <input type="submit" class="btn btn-fill btn-primary" value="Save">
         
+        <%= if @is_edit do %>
         <!-- Button trigger modal -->
         <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteModal">
           Delete aircraft
         </button>
+        <% end %>
         
   </div>
 
 <% end %>
 
+<%= if @is_edit do %>
 <!-- Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="Delete Aircraft" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -144,3 +147,4 @@
     </div>
   </div>
 </div>
+<% end %>
