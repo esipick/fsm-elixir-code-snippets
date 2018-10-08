@@ -24,38 +24,9 @@ Tip 2: you can also add an image using data-image tag
         </div> -->
         <div class="info">
             <a data-toggle="collapse" href="#collapseExample" class="collapsed">
-                <span><%= @conn.assigns.current_user.first_name %> <%= @conn.assigns.current_user.last_name %><b class="caret"></b></span>
+                <span><%= @conn.assigns.current_user.first_name %> <%= @conn.assigns.current_user.last_name %></span>
             </a>
             <div class="clearfix"></div>
-            <div class="collapse" id="collapseExample">
-                <ul class="nav">
-                    <!-- <li>
-                        <a href="user.php">
-                            <span class="sidebar-mini-icon">MP</span>
-                            <span class="sidebar-normal">My Profile</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="sidebar-mini-icon">EP</span>
-                            <span class="sidebar-normal">Edit Profile</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="sidebar-mini-icon">S</span>
-                            <span class="sidebar-normal">Settings</span>
-                        </a>
-                    </li> -->
-                    <li>
-                        <a href="/admin/logout">
-                            <!-- <span class="sidebar-mini-icon">L</span> -->
-                            <i class="now-ui-icons media-1_button-power"></i>
-                            <span class="sidebar-normal">Logout</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
         </div>
     </div>
     <ul class="nav">

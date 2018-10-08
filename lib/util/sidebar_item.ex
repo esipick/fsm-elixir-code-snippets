@@ -83,6 +83,12 @@ defmodule FlightWeb.SidebarItem do
         label: "School Settings",
         icon_class: "loader_gear",
         active: false
+      },
+      %SidebarItem{
+        path: "/admin/logout",
+        label: "Log out",
+        icon_class: "media-1_button-power",
+        active: false
       }
     ]
     |> Enum.filter(& &1)
