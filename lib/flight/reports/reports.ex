@@ -87,7 +87,7 @@ defmodule Flight.Reports do
   end
 
   def renter_report(start_at, end_at, school_context) do
-    users = get_users(Role.student(), school_context)
+    users = get_users(Role.renter(), school_context)
 
     user_ids = Enum.map(users, & &1.id)
 
