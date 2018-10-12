@@ -58,6 +58,6 @@ defmodule Flight.Email do
   end
 
   def password_reset_link(%Flight.Accounts.PasswordReset{} = reset) do
-    Application.get_env(:flight, :web_base_url) <> "/password_reset?token=#{reset.token}"
+    Application.get_env(:flight, :web_base_url) <> "/reset_password?token=#{reset.token}"
   end
 end
