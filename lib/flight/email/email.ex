@@ -44,7 +44,8 @@ defmodule Flight.Email do
     |> subject("Password Reset - Flight School Manager")
     |> render(
       "_reset_password.html",
-      password_reset: password_reset
+      password_reset: password_reset,
+      password_reset_link: password_reset_link(password_reset)
     )
   end
 
@@ -54,5 +55,9 @@ defmodule Flight.Email do
 
   def school_invitation_link(%SchoolInvitation{} = invitation) do
     Application.get_env(:flight, :web_base_url) <> "/school_invitations/#{invitation.token}"
+  end
+
+  def password_reset_link(%Flight.Accounts.PasswordReset{} = reset) do
+    Application.get_env(:flight, :web_base_url) <> "/password_reset/#{reset.token}"
   end
 end
