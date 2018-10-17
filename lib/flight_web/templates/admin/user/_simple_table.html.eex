@@ -14,6 +14,9 @@
       <td><a href="tel:<%= row.phone_number %>"><%= row.phone_number %></a></td>
       <td class="text-right">
       <a href="/admin/users/<%= row.user_id %>" class="btn btn-primary btn-sm">view</a>
+      <button type="button" class="btn btn-danger btn-sm _delete_button" data-school-id="<%= row.user_id %>">
+        Delete
+      </button>
       </td>
       </tr>
     <% end %>

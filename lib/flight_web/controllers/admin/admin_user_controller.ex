@@ -108,14 +108,20 @@ defmodule FlightWeb.Admin.UserController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"id" => id} = params) do
     user = Flight.Accounts.get_user(id, conn)
 
     Flight.Accounts.archive_user(user)
 
-    conn
-    |> put_flash(:success, "Successfully archived #{user.first_name} #{user.last_name}")
-    |> redirect(to: "/admin/dashboard")
+    conn =
+      conn
+      |> put_flash(:success, "Successfully archived #{user.first_name} #{user.last_name}")
+
+    if params["role"] do
+      redirect(conn, to: "/admin/users?role=#{params["role"]}")
+    else
+      redirect(conn, to: "/admin/dashboard")
+    end
   end
 
   defp get_user(conn, _) do

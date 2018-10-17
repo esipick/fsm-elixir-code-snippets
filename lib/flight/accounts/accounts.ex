@@ -27,6 +27,13 @@ defmodule Flight.Accounts do
 
   def dangerous_get_user(id), do: Repo.get(User, id)
 
+  def dangerous_get_active_user(id) do
+    User
+    |> where([u], u.id == ^id)
+    |> where([u], u.archived == false)
+    |> Repo.one()
+  end
+
   def get_users(school_context) do
     User
     |> default_users_query(school_context)

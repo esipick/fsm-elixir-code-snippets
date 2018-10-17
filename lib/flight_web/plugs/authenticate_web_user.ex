@@ -52,9 +52,7 @@ defmodule FlightWeb.AuthenticateWebUser do
   end
 
   defp get_user(id) do
-    Flight.Accounts.User
-    |> where([u], u.id == ^id)
-    |> Flight.Repo.one()
+    Flight.Accounts.dangerous_get_active_user(id)
   end
 
   defp get_user(id, roles) do

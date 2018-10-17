@@ -39,3 +39,23 @@
         <!-- end row -->
       </div>
 </div> <!-- end content -->
+
+<div style="display:none">
+<%= form_tag "/admin/users/:pending:", method: "delete", id: "delete_form" do %>
+  <input type="hidden" name="role" value="<%= @data.role.slug %>" />
+<% end %>
+</div>
+
+<script>
+$(document).ready(function() {
+  $('._delete_button').on('click', function() {
+    var id = $(this).attr("data-school-id")
+    var shouldDelete = confirm("This user and all of their information will be archived and removed from the system.")
+    if (shouldDelete) {
+      var form = $('#delete_form')[0]
+      form.action = "/admin/users/" + id
+      form.submit()
+    }
+  });
+});
+</script>

@@ -37,7 +37,11 @@
                           <td><%= currency aircraft.block_rate_per_hour %></td>
                           <td><%= display_hour_tenths(aircraft.last_tach_time) %></td>
                           <td><%= display_hour_tenths(aircraft.last_hobbs_time) %></td>
-                          <td class="text-right"><a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm">view</a></td>
+                          <td class="text-right">
+                            <a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm">view</a>
+                            <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-aircraft-id="<%= aircraft.id %>">delete</button>
+                          </td>
+                          
                         </tr>
                       <% end %>
                     </tbody>
@@ -98,3 +102,22 @@
         <!-- end row -->
       </div>
 </div> <!-- end content -->
+
+<div style="display:none">
+<%= form_tag "/admin/aircrafts/:pending:", method: "delete", id: "delete_form" do %>
+<% end %>
+</div>
+
+<script>
+$(document).ready(function() {
+  $('._delete_button').on('click', function() {
+    var id = $(this).attr("data-aircraft-id")
+    var shouldDelete = confirm("This user and all of their information will be archived and removed from the system.")
+    if (shouldDelete) {
+      var form = $('#delete_form')[0]
+      form.action = "/admin/aircrafts/" + id
+      form.submit()
+    }
+  });
+});
+</script>
