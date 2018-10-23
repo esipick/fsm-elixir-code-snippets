@@ -3,6 +3,11 @@
   <head>
     <title>Flight School Manager \\ <%= assigns.conn.assigns.current_user.school.name %></title>
     <%= render FlightWeb.Admin.PartialView, "_shared_head.html", assigns %>
+    <script>
+      window.fsm_token = "<%= FlightWeb.AuthenticateApiUser.token(@conn.assigns.current_user) %>"
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>
+    <script src="/js/schedule.min.js"></script>
   </head>
   <body>
     <div class="wrapper">

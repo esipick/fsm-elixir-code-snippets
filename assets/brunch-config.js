@@ -22,8 +22,6 @@ exports.config = {
           "js/admin/vendor/bootstrap.min.js",
           "js/admin/vendor/perfect-scrollbar.jquery.min.js",
           "js/admin/vendor/moment.min.js",
-          "js/admin/vendor/fullcalendar.min.js",
-          "js/admin/vendor/scheduler.js",
           "js/admin/vendor/sweetalert2.min.js",
           "js/admin/vendor/jquery.validate.min.js",
           "js/admin/vendor/jquery.bootstrap-wizard.js",

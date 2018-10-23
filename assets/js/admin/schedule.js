@@ -1,4 +1,4 @@
-/* global $, swal */
+/* global $, swal, moment */
 
 $(document).ready(function() {
   
@@ -18,8 +18,26 @@ $(document).ready(function() {
     });
     
 
-    function fsmCalendar(){
+    function fsmCalendar(instructors, aircrafts) {
         var $calendar = $('#fullCalendar');
+
+        console.log(instructors)
+
+        var resources = instructors.map(function(instructor) {
+          return {
+            id: "instructor:" + instructor.id,
+            type: "Instructors",
+            title: instructor.first_name + " " + instructor.last_name
+          }
+        })
+
+        resources = resources.concat(aircrafts.map(function(aircraft) {
+          return {
+            id: "aircraft:" + aircraft.id,
+            type: "Aircrafts",
+            title: aircraft.make + " " + aircraft.tail_number
+          }
+        }))
 
         var today = new Date();
         var y = today.getFullYear();
@@ -35,9 +53,12 @@ $(document).ready(function() {
           },
           header: {
 						left: 'title',
-						center: 'month,agendaWeek,agendaDay,listWeek',
+						center: 'timelineDay,month,agendaWeek,agendaDay,listWeek',
 						right: 'prev,next,today'
-					},
+          },
+          resourceGroupField: "type",
+          resources: resources,
+          defaultView: "timelineDay",
 					defaultDate: today,
 					selectable: true,
 					selectHelper: true,
@@ -165,69 +186,103 @@ $(document).ready(function() {
     			eventLimit: true, // allow "more" link when too many events
 
             // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
-            events: [
-				{
-					title: 'Peter Flyn — Unavailable',
-					start: new Date(y, m, d),
-					end: new Date(y, m, d+12, 14, 0),
-					allDay: true,
-          className: 'event-default'
-				},
-				{
-					title: 'Herman Blume, Max Fischer, Archer N70432',
-					start: new Date(y, m, d-1, 10, 30),
-					end: new Date(y, m, d-1, 12, 30),
-					allDay: false,
-					className: 'event-blue',
-					student: 'Herman Blume',
-					instructor: 'Max Fischer',
-					aircraft: 'Archer N70432'
-				},
-				{
-					title: 'Rosemary Cross, Randon Russell, Archer N70432',
-					start: new Date(y, m, d+7, 12, 0),
-					end: new Date(y, m, d+7, 14, 0),
-					allDay: false,
-					className: 'event-blue'
-				},
-				{
-					title: 'Max Fischer, Randon Russell, Archer N70432',
-					start: new Date(y, m, d+7, 12, 0),
-					end: new Date(y, m, d+7, 14, 0),
-					allDay: false,
-					className: 'event-blue'
-				},
-				{
-					title: 'Peter Flynn, Randon Russell, Archer N70432',
-					start: new Date(y, m, d+7, 12, 0),
-					end: new Date(y, m, d+7, 14, 0),
-					allDay: false,
-					className: 'event-blue'
-				},
-				{
-					title: 'Nud-pro Launch',
-					start: new Date(y, m, d-2, 12, 0),
-					allDay: true,
-					className: 'event-blue'
-				},
-				{
-					title: 'Something that lasts a few days',
-					start: new Date(y, m, d+1, 19, 0),
-					end: new Date(y, m, d+3, 22, 30),
-					allDay: false,
-                    className: 'event-blue'
-				},
-				{
-					title: 'Click to URL',
-					start: new Date(y, m, 21),
-					end: new Date(y, m, 22),
-					url: '/admin/users/3',
-					className: 'event-blue'
-				}
-			]
+            events: function(start, end, timezone, callback) {
+              var startStr = moment(start).format("YYYY-MM-DD[T]HH:mm:ss")
+              var endStr = moment(end).format("YYYY-MM-DD[T]HH:mm:ss")
+              $.get({url: "/api/appointments?from=" + startStr + "&to=" + endStr, headers: {"Authorization": window.fsm_token}}).then(function(resp) {
+
+                var appointments = resp.data.map(function(appointment) {
+                  var resourceIds = []
+
+                  if (appointment.instructor_user) {
+                    resourceIds.push("instructor:" + appointment.instructor_user.id)
+                  }
+
+                  if (appointment.aircraft) {
+                    resourceIds.push("aircraft:" + appointment.aircraft.id)
+                  }
+
+                  return {
+                    title: appointment.user.first_name + " " + appointment.user.last_name,
+                    start: appointment.start_at,
+                    end: appointment.end_at,
+                    id: appointment.id,
+                    resourceIds: resourceIds
+                  }
+                })
+                callback(appointments)
+                console.log(resp)
+              })
+            }
+      //       [
+			// 	{
+			// 		title: 'Peter Flyn — Unavailable',
+			// 		start: new Date(y, m, d),
+			// 		end: new Date(y, m, d+12, 14, 0),
+			// 		allDay: true,
+      //     className: 'event-default'
+			// 	},
+			// 	{
+			// 		title: 'Herman Blume, Max Fischer, Archer N70432',
+			// 		start: new Date(y, m, d-1, 10, 30),
+			// 		end: new Date(y, m, d-1, 12, 30),
+			// 		allDay: false,
+			// 		className: 'event-blue',
+			// 		student: 'Herman Blume',
+			// 		instructor: 'Max Fischer',
+			// 		aircraft: 'Archer N70432'
+			// 	},
+			// 	{
+			// 		title: 'Rosemary Cross, Randon Russell, Archer N70432',
+			// 		start: new Date(y, m, d+7, 12, 0),
+			// 		end: new Date(y, m, d+7, 14, 0),
+			// 		allDay: false,
+			// 		className: 'event-blue'
+			// 	},
+			// 	{
+			// 		title: 'Max Fischer, Randon Russell, Archer N70432',
+			// 		start: new Date(y, m, d+7, 12, 0),
+			// 		end: new Date(y, m, d+7, 14, 0),
+			// 		allDay: false,
+			// 		className: 'event-blue'
+			// 	},
+			// 	{
+			// 		title: 'Peter Flynn, Randon Russell, Archer N70432',
+			// 		start: new Date(y, m, d+7, 12, 0),
+			// 		end: new Date(y, m, d+7, 14, 0),
+			// 		allDay: false,
+			// 		className: 'event-blue'
+			// 	},
+			// 	{
+			// 		title: 'Nud-pro Launch',
+			// 		start: new Date(y, m, d-2, 12, 0),
+			// 		allDay: true,
+			// 		className: 'event-blue'
+			// 	},
+			// 	{
+			// 		title: 'Something that lasts a few days',
+			// 		start: new Date(y, m, d+1, 19, 0),
+			// 		end: new Date(y, m, d+3, 22, 30),
+			// 		allDay: false,
+      //               className: 'event-blue'
+			// 	},
+			// 	{
+			// 		title: 'Click to URL',
+			// 		start: new Date(y, m, 21),
+			// 		end: new Date(y, m, 22),
+			// 		url: '/admin/users/3',
+			// 		className: 'event-blue'
+			// 	}
+			// ]
 		});
     }
-    fsmCalendar();
+
+    var instructors = $.get({url: "/api/users?form=directory", headers: {"Authorization": window.fsm_token}})
+    var aircrafts = $.get({url: "/api/aircrafts", headers: {"Authorization": window.fsm_token}})
+
+    Promise.all([instructors, aircrafts]).then(function(values) {
+      fsmCalendar(values[0].data, values[1].data);
+    });
 
 
 
