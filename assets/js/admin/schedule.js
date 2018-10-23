@@ -277,11 +277,14 @@ $(document).ready(function() {
 		});
     }
 
-    var instructors = $.get({url: "/api/users?form=directory", headers: {"Authorization": window.fsm_token}})
+    var users = $.get({url: "/api/users?form=directory", headers: {"Authorization": window.fsm_token}})
     var aircrafts = $.get({url: "/api/aircrafts", headers: {"Authorization": window.fsm_token}})
 
-    Promise.all([instructors, aircrafts]).then(function(values) {
-      fsmCalendar(values[0].data, values[1].data);
+    Promise.all([users, aircrafts]).then(function(values) {
+      var instructors = values[0].data.filter(function(user) {
+        return user.roles.indexOf("instructor") != -1
+      });
+      fsmCalendar(instructors, values[1].data);
     });
 
 
