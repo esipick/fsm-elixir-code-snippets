@@ -104,6 +104,8 @@ defmodule FlightWeb.API.TransactionController do
     with %Flight.Accounts.User{} <- user,
          {:ok, {_user, transaction}} <-
            Flight.Billing.add_funds_by_charge(user, conn.assigns.current_user, amount, source) do
+      Flight.Billing.approve_transactions_within_balance(user)
+
       conn
       |> put_status(201)
       |> render("show.json", transaction: render_preloads(transaction))
