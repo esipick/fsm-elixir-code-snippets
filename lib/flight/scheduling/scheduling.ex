@@ -233,7 +233,7 @@ defmodule Flight.Scheduling do
       instructor_user_id_value,
       &from(a in &1, where: a.instructor_user_id == ^instructor_user_id_value)
     )
-    |> limit(200)
+    # |> limit(200)
     |> order_by([a], desc: a.start_at)
     |> Repo.all()
     |> pass_unless(
@@ -454,7 +454,7 @@ defmodule Flight.Scheduling do
       instructor_user_id_value,
       &from(a in &1, where: a.instructor_user_id == ^instructor_user_id_value)
     )
-    |> limit(200)
+    # |> limit(200)
     |> order_by([a], desc: a.start_at)
     |> Repo.all()
     |> pass_unless(
