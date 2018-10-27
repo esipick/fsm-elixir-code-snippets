@@ -1,314 +1,370 @@
 /* global $, swal, moment */
 
 $(document).ready(function() {
+
+  var fullName = function(user) {
+    return user.first_name + " " + user.last_name
+  }
+
+  var safeParseInt = function (num) {
+    if (num) {
+      return parseInt(num)
+    } else {
+      return null
+    }
+  }
+
+  var $calendar = $('#fullCalendar');
   
+  var displayFormat = 'MM/DD/YYYY h:mm A';
   
-    // dynamic unavailability form
-    var unavailType = 'Instructor';
-    $('#fieldAircraft').hide(); // hide aircraft by default
-    $('#unavailFor').on('change', function() {
-      unavailType=this.value;
-      if(this.value == "Aircraft"){
-        $('#fieldAircraft').show();
-        $('#fieldInstructor').hide();
-      }else if(this.value == "Instructor"){
-        $('#fieldAircraft').hide();
-        $('#fieldInstructor').show();
-      }
-    });
+  // dynamic unavailability form
+  var unavailType = 'Instructor';
+  $('#fieldAircraft').hide(); // hide aircraft by default
+  $('#unavailFor').on('change', function() {
+    unavailType=this.value;
+    if(this.value == "Aircraft"){
+      $('#fieldAircraft').show();
+      $('#fieldInstructor').hide();
+    }else if(this.value == "Instructor"){
+      $('#fieldAircraft').hide();
+      $('#fieldInstructor').show();
+    }
+  });
+
+  var eventType = "appt";
+  var appointmentId = null;
+
+  // change event type based on user choice
+  $('#navAppt').click(function(){
+    eventType="appt";  
+  });
+  $('#navUnavail').click(function(){
+    eventType="unavail";  
+  });
+
+  // collect event data on save and send to server
+  $('#btnSave').click(function(){
     
+    if(eventType=="appt") {
+      var eventRenter = safeParseInt($('#apptStudent').val());
+      var eventInstructor = safeParseInt($('#apptInstructor').val());
+      var eventAircraft = safeParseInt($('#apptAircraft').val());
+      
+      var eventStart = moment($('#apptStart').val(), displayFormat).toISOString();
+      var eventEnd = moment($('#apptEnd').val(), displayFormat).toISOString();
 
-    function fsmCalendar(instructors, aircrafts) {
-        var $calendar = $('#fullCalendar');
+      var eventData = {
+        start_at: eventStart,
+        end_at: eventEnd,
+        user_id: eventRenter,
+        instructor_user_id: eventInstructor,
+        aircraft_id: eventAircraft
+      };
 
-        console.log(instructors)
+      var promise;
 
-        var resources = instructors.map(function(instructor) {
-          return {
-            id: "instructor:" + instructor.id,
-            type: "Instructors",
-            title: instructor.first_name + " " + instructor.last_name
-          }
+      if (appointmentId) {
+        promise = $.ajax({
+          method: "put",
+          url: "/api/appointments/" + appointmentId, 
+          data: {data: eventData}, 
+          headers: {"Authorization": window.fsm_token}
         })
+      } else {
+        promise = $.post({
+          url: "/api/appointments", 
+          data: {data: eventData}, 
+          headers: {"Authorization": window.fsm_token}
+        })
+      }
 
-        resources = resources.concat(aircrafts.map(function(aircraft) {
-          return {
-            id: "aircraft:" + aircraft.id,
-            type: "Aircrafts",
-            title: aircraft.make + " " + aircraft.tail_number
+      promise.then(function() {
+        $('#calendarNewModal').modal('hide')
+        $calendar.fullCalendar('refetchEvents')
+      }).catch(function(e) {
+        if (e.responseJSON.human_errors) {
+          for(var error of e.responseJSON.human_errors) {
+            $.notify({
+              message: error
+            }, {
+              type: "danger", 
+              placement: {align: "center"}
+            })
           }
-        }))
-
-        var today = new Date();
-        var y = today.getFullYear();
-        var m = today.getMonth();
-        var d = today.getDate();
-
-        $calendar.fullCalendar({
-          viewRender: function(view, element) {
-            // We make sure that we activate the perfect scrollbar when the view isn't on Month
-            if (view.name != 'month'){
-              $(element).find('.fc-scroller').perfectScrollbar();
-            }
-          },
-          header: {
-						left: 'title',
-						center: 'timelineDay,month,agendaWeek,agendaDay,listWeek',
-						right: 'prev,next,today'
-          },
-          resourceGroupField: "type",
-          resources: resources,
-          defaultView: "timelineDay",
-					defaultDate: today,
-					selectable: true,
-					selectHelper: true,
-          views: {
-              month: { // name of view
-                  titleFormat: 'MMMM YYYY'
-                  // other view-specific options here
-              },
-              week: {
-                  titleFormat: " MMMM D YYYY"
-              },
-              day: {
-                  titleFormat: 'D MMM, YYYY'
-              }
-          },
-
-					select: function(start, end) {
-          	
-          	var startTime = start.format('MM DD YY, h:mm a');
-          	var eventType="appt"; // setting default event type to appt
-          	var eventData;
-          	var style;
-          	var thatsAllDay = false;
-            
-            $('#calendarNewModal').modal();
-            
-            // change event type based on user choice
-            $('#navAppt').click(function(){
-              eventType="appt";  
-            });
-            $('#navUnavail').click(function(){
-              eventType="unavail";  
-            });
-            
-            // collect event data on save and return to calendar
-            $('#btnSave').click(function(){
-              
-              if(eventType=="appt"){
-                var event_student = $('#apptStudent').val();
-                var event_instructor = $('#apptInstructor').val();
-                var event_aircraft = $('#apptAircraft').val();
-                
-                var event_title = event_student + ", " + event_instructor + ", " + event_aircraft;
-    						var event_start = $('#apptStart').val();
-    						var event_end = $('#apptEnd').val();
-    						style = 'event-blue';
-    						thatsAllDay = false;
+        } else {
+            $.notify({
+              message: "There was an error creating the event"
+            }, {
+              type: "danger", 
+              placement: {align: "center"}
+            })
+        }
+      })
+      console.log(eventData);
+      
+      // $calendar.fullCalendar('unselect');
+    } else if (eventType == "unavail") {
+      var titleDescription = ' — Unavailable';
+      
+      if (unavailType == 'Aircraft'){
+        var event_title = $('#unavailAircraft').val() + titleDescription;
+      } else {
+        var event_title = $('#unavailInstructor').val() + titleDescription;  
+      }
+      
+      var event_start = $('#unavailStart').val();
+      var event_end = $('#unavailEnd').val();
+      
+      if (event_title) {
+        eventData = {
+          title: event_title,
+          start: event_start,
+          end: event_end,
+          className: 'event-default'
+        };
+        console.log(eventData);
+        $calendar.fullCalendar('renderEvent', eventData, true);
+      }
+      
+      $calendar.fullCalendar('unselect');
+    } else {
+      alert('nothing selected');
+    }
     
-                if (event_title){
-        					eventData = {
-        						title: event_title,
-        						start: event_start,
-        						end: event_end,
-        						student: event_student,
-        						instructor: event_instructor,
-        						aircraft: event_aircraft
-        				  };
-        				  console.log(eventData);
-        					$calendar.fullCalendar('renderEvent', eventData, true);
-                }
-                
-                $calendar.fullCalendar('unselect');
-              }else if (eventType=="unavail"){
-                style = 'event-default';
-                var titleDescription = ' — Unavailable';
-                
-                if (unavailType == 'Aircraft'){
-                  var event_title = $('#unavailAircraft').val() + titleDescription;
-                }else {
-                  var event_title = $('#unavailInstructor').val() + titleDescription;  
-                }
-                
-    						var event_start = $('#unavailStart').val();
-    						var event_end = $('#unavailEnd').val();
-    						
-    						if ($('#unavailAllDay').prop('checked')){
-    						  thatsAllDay = true;
-    						}else{
-    						  thatsAllDay = false;  
-    						}
-    
-                if (event_title){
-        					eventData = {
-        						title: event_title,
-        						start: event_start,
-        						end: event_end,
-        						allDay: thatsAllDay,
-                    className: 'event-default'
-        				  };
-        				  console.log(eventData);
-        					$calendar.fullCalendar('renderEvent', eventData, true);
-                }
-                
-                $calendar.fullCalendar('unselect');
-              }else{
-                alert('nothing selected');
-              }
-              
-            });
-            
-  			  },
-    			editable: true,
-    			eventClick: function(calEvent, jsEvent, view){
-    			  // the following runs when an existing event is clicked
-            console.log(calEvent);
-            $('#editApptModal').modal();
-            $('#editApptModal').on('shown.bs.modal',function(){
-              var event_student = calEvent.student;
-              var event_instructor = calEvent.instructor;
-              var event_aircraft = calEvent.aircraft;
-  						var event_start = calEvent.start.format('MM/DD/YYYY h:mm A');
-  						var event_end = calEvent.end.format('MM/DD/YYYY h:mm A');
-  						
-  						$('#editApptStart').val(event_start);
-  						$('#editApptEnd').val(event_end);
-  						$('#editApptAircraft').val(event_aircraft).selectpicker("refresh");
-  						$('#editApptInstructor').val(event_instructor).selectpicker("refresh");
-  						$('#editApptStudent').val(event_student).selectpicker("refresh");
-  						
-              
-            });
-    			},
-    			
-    			
-    			eventLimit: true, // allow "more" link when too many events
+  });
 
-            // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
-            events: function(start, end, timezone, callback) {
-              var startStr = moment(start).format("YYYY-MM-DD[T]HH:mm:ss")
-              var endStr = moment(end).format("YYYY-MM-DD[T]HH:mm:ss")
-              $.get({url: "/api/appointments?from=" + startStr + "&to=" + endStr, headers: {"Authorization": window.fsm_token}}).then(function(resp) {
 
-                var appointments = resp.data.map(function(appointment) {
-                  var resourceIds = []
 
-                  if (appointment.instructor_user) {
-                    resourceIds.push("instructor:" + appointment.instructor_user.id)
-                  }
 
-                  if (appointment.aircraft) {
-                    resourceIds.push("aircraft:" + appointment.aircraft.id)
-                  }
 
-                  return {
-                    title: appointment.user.first_name + " " + appointment.user.last_name,
-                    start: appointment.start_at,
-                    end: appointment.end_at,
-                    id: appointment.id,
-                    resourceIds: resourceIds
-                  }
-                })
-                callback(appointments)
-                console.log(resp)
-              })
-            }
-      //       [
-			// 	{
-			// 		title: 'Peter Flyn — Unavailable',
-			// 		start: new Date(y, m, d),
-			// 		end: new Date(y, m, d+12, 14, 0),
-			// 		allDay: true,
-      //     className: 'event-default'
-			// 	},
-			// 	{
-			// 		title: 'Herman Blume, Max Fischer, Archer N70432',
-			// 		start: new Date(y, m, d-1, 10, 30),
-			// 		end: new Date(y, m, d-1, 12, 30),
-			// 		allDay: false,
-			// 		className: 'event-blue',
-			// 		student: 'Herman Blume',
-			// 		instructor: 'Max Fischer',
-			// 		aircraft: 'Archer N70432'
-			// 	},
-			// 	{
-			// 		title: 'Rosemary Cross, Randon Russell, Archer N70432',
-			// 		start: new Date(y, m, d+7, 12, 0),
-			// 		end: new Date(y, m, d+7, 14, 0),
-			// 		allDay: false,
-			// 		className: 'event-blue'
-			// 	},
-			// 	{
-			// 		title: 'Max Fischer, Randon Russell, Archer N70432',
-			// 		start: new Date(y, m, d+7, 12, 0),
-			// 		end: new Date(y, m, d+7, 14, 0),
-			// 		allDay: false,
-			// 		className: 'event-blue'
-			// 	},
-			// 	{
-			// 		title: 'Peter Flynn, Randon Russell, Archer N70432',
-			// 		start: new Date(y, m, d+7, 12, 0),
-			// 		end: new Date(y, m, d+7, 14, 0),
-			// 		allDay: false,
-			// 		className: 'event-blue'
-			// 	},
-			// 	{
-			// 		title: 'Nud-pro Launch',
-			// 		start: new Date(y, m, d-2, 12, 0),
-			// 		allDay: true,
-			// 		className: 'event-blue'
-			// 	},
-			// 	{
-			// 		title: 'Something that lasts a few days',
-			// 		start: new Date(y, m, d+1, 19, 0),
-			// 		end: new Date(y, m, d+3, 22, 30),
-			// 		allDay: false,
-      //               className: 'event-blue'
-			// 	},
-			// 	{
-			// 		title: 'Click to URL',
-			// 		start: new Date(y, m, 21),
-			// 		end: new Date(y, m, 22),
-			// 		url: '/admin/users/3',
-			// 		className: 'event-blue'
-			// 	}
-			// ]
-		});
+
+
+  var openAppointmentModal = function (initialData) {
+    console.log("Initial data: ", initialData)
+    $('#calendarNewModal').modal();
+
+    appointmentId = initialData.id;
+
+    if (appointmentId) {
+      $('#apptTitle').text("Edit Appointment")
+      $('#apptTabs').hide()
+    } else {
+      $('#apptTitle').text("Create New")
+      // Temporary while getting unavailability to work
+      $('#apptTabs').hide()
     }
 
-    var users = $.get({url: "/api/users?form=directory", headers: {"Authorization": window.fsm_token}})
-    var aircrafts = $.get({url: "/api/aircrafts", headers: {"Authorization": window.fsm_token}})
+    $('#apptStart').val(initialData.start_at.format(displayFormat))
+    $('#apptEnd').val(initialData.end_at.format(displayFormat))
+    $('#apptStudent').val(initialData.user_id).selectpicker("refresh");
+    $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
+    $('#apptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+  };
 
-    Promise.all([users, aircrafts]).then(function(values) {
-      var instructors = values[0].data.filter(function(user) {
-        return user.roles.indexOf("instructor") != -1
+
+
+
+
+
+
+  
+
+  function fsmCalendar(instructors, aircrafts) {
+
+      var resources = instructors.map(function(instructor) {
+        return {
+          id: "instructor:" + instructor.id,
+          type: "Instructors",
+          title: fullName(instructor)
+        }
+      })
+
+      resources = resources.concat(aircrafts.map(function(aircraft) {
+        return {
+          id: "aircraft:" + aircraft.id,
+          type: "Aircrafts",
+          title: aircraft.make + " " + aircraft.tail_number
+        }
+      }))
+
+      var today = new Date();
+      var y = today.getFullYear();
+      var m = today.getMonth();
+      var d = today.getDate();
+
+      $calendar.fullCalendar({
+        viewRender: function(view, element) {
+          // We make sure that we activate the perfect scrollbar when the view isn't on Month
+          if (view.name != 'month'){
+            $(element).find('.fc-scroller').perfectScrollbar();
+          }
+        },
+        header: {
+          left: 'title',
+          center: 'timelineDay,month,listWeek',
+          right: 'prev,next,today'
+        },
+        resourceGroupField: "type",
+        resources: resources,
+        defaultView: "timelineDay",
+        defaultDate: today,
+        selectable: true,
+        selectHelper: true,
+        views: {
+            month: { // name of view
+                titleFormat: 'MMMM YYYY'
+                // other view-specific options here
+            },
+            week: {
+                titleFormat: " MMMM D YYYY"
+            },
+            day: {
+                titleFormat: 'D MMM, YYYY'
+            }
+        },
+
+        select: function(start, end, notSure, notSure2, resource) {
+          var instructorId = null;
+          var aircraftId = null;
+
+          if (resource) {
+            var split = resource.id.split(":")
+            var type = split[0]
+            var id = parseInt(split[1])
+            if (type == "instructor") {
+              instructorId = id
+            } else if (type == "aircraft") {
+              aircraftId = id
+            }
+          }
+          
+          var eventType="appt"; // setting default event type to appt
+          var eventData;
+          var thatsAllDay = false;
+
+          openAppointmentModal({
+            start_at: start,
+            end_at: end,
+            instructor_user_id: instructorId,
+            aircraft_id: aircraftId
+          })
+          
+        },
+        editable: true,
+        eventClick: function(calEvent, jsEvent, view){
+          var instructor_user_id = null;
+
+          if (calEvent.unavailability) {
+            return;
+          }
+
+          if (calEvent.appointment.instructor_user) {
+            instructor_user_id = calEvent.appointment.instructor_user.id
+          }
+
+          var aircraft_id = null;
+
+          if (calEvent.appointment.aircraft) {
+            aircraft_id = calEvent.appointment.aircraft.id
+          }
+
+          openAppointmentModal({
+            start_at: moment(calEvent.appointment.start_at),
+            end_at: moment(calEvent.appointment.end_at),
+            instructor_user_id: instructor_user_id,
+            aircraft_id: aircraft_id,
+            user_id: calEvent.appointment.user.id,
+            id: calEvent.appointment.id
+          })
+        },
+        
+        
+        eventLimit: true, // allow "more" link when too many events
+
+        // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
+        events: function(start, end, timezone, callback) {
+          var startStr = moment(start).toISOString()
+          var endStr = moment(end).toISOString()
+          var appointmentsPromise = $.get({
+            url: "/api/appointments?from=" + startStr + "&to=" + endStr + "&walltime=true", 
+            headers: {"Authorization": window.fsm_token}
+          })
+
+          var unavailabilityPromise = $.get({
+            url: "/api/unavailabilities?from=" + startStr + "&to=" + endStr, 
+            headers: {"Authorization": window.fsm_token}
+          })
+          
+          
+          Promise.all([appointmentsPromise, unavailabilityPromise]).then(function(resp) {
+
+            var appointments = resp[0].data.map(function(appointment) {
+              var resourceIds = []
+
+              if (appointment.instructor_user) {
+                resourceIds.push("instructor:" + appointment.instructor_user.id)
+              }
+
+              if (appointment.aircraft) {
+                resourceIds.push("aircraft:" + appointment.aircraft.id)
+              }
+
+              return {
+                title: appointment.user.first_name + " " + appointment.user.last_name,
+                start: moment(appointment.start_at),
+                end: moment(appointment.end_at),
+                id: "appointment:" + appointment.id,
+                appointment: appointment,
+                resourceIds: resourceIds,
+                className: 'event-blue'
+              }
+            })
+
+            var unavailabilities = resp[1].data.map(function(unavailability) {
+              var resourceIds = []
+
+              if (unavailability.instructor_user) {
+                resourceIds.push("instructor:" + unavailability.instructor_user.id)
+              }
+
+              if (unavailability.aircraft) {
+                resourceIds.push("aircraft:" + unavailability.aircraft.id)
+              }
+
+              return {
+                title: "Unavailable",
+                start: moment(unavailability.start_at),
+                end: moment(unavailability.end_at),
+                id: "unavailability:" + unavailability.id,
+                unavailability: unavailability,
+                resourceIds: resourceIds,
+                className: 'event-default'
+              }
+            })
+            callback(appointments.concat(unavailabilities))
+          })
+        }
       });
-      fsmCalendar(instructors, values[1].data);
+  }
+
+  var users = $.get({url: "/api/users?form=directory", headers: {"Authorization": window.fsm_token}})
+  var aircrafts = $.get({url: "/api/aircrafts", headers: {"Authorization": window.fsm_token}})
+
+  Promise.all([users, aircrafts]).then(function(values) {
+    var instructors = values[0].data.filter(function(user) {
+      return user.roles.indexOf("instructor") != -1
     });
 
+    fsmCalendar(instructors, values[1].data);
+  });
 
 
-
-    function initDateTimePicker() {
-      $('.datetimepickerstart').datetimepicker({
-      		// debug: true,
-          icons: {
-              time: "now-ui-icons tech_watch-time",
-              date: "now-ui-icons ui-1_calendar-60",
-              up: "fa fa-chevron-up",
-              down: "fa fa-chevron-down",
-              previous: 'now-ui-icons arrows-1_minimal-left',
-              next: 'now-ui-icons arrows-1_minimal-right',
-              today: 'fa fa-screenshot',
-              clear: 'fa fa-trash',
-              close: 'fa fa-remove'
-          }
-      });
-      $('.datetimepickerend').datetimepicker({
-      		// debug: true,
-      		useCurrent: false, //Important! See issue #1075
-          icons: {
+  function initDateTimePicker() {
+    $('.datetimepickerstart').datetimepicker({
+        // debug: true,
+        stepping: 30,
+        icons: {
             time: "now-ui-icons tech_watch-time",
             date: "now-ui-icons ui-1_calendar-60",
             up: "fa fa-chevron-up",
@@ -318,29 +374,39 @@ $(document).ready(function() {
             today: 'fa fa-screenshot',
             clear: 'fa fa-trash',
             close: 'fa fa-remove'
-          }
-      });
-      $(".datetimepickerstart").on("dp.change", function (e) {
-          $('.datetimepickerend').data("DateTimePicker").minDate(e.date);
-      });
-      $(".datetimepickerend").on("dp.change", function (e) {
-          $('.datetimepickerstart').data("DateTimePicker").maxDate(e.date);
-      });
+        }
+    });
+    $('.datetimepickerend').datetimepicker({
+        // debug: true,
+        useCurrent: false, //Important! See issue #1075
+        stepping: 30,
+        icons: {
+          time: "now-ui-icons tech_watch-time",
+          date: "now-ui-icons ui-1_calendar-60",
+          up: "fa fa-chevron-up",
+          down: "fa fa-chevron-down",
+          previous: 'now-ui-icons arrows-1_minimal-left',
+          next: 'now-ui-icons arrows-1_minimal-right',
+          today: 'fa fa-screenshot',
+          clear: 'fa fa-trash',
+          close: 'fa fa-remove'
+        }
+    });
+    $(".datetimepickerstart").on("dp.change", function (e) {
+        $('.datetimepickerend').data("DateTimePicker").minDate(e.date);
+    });
+    $(".datetimepickerend").on("dp.change", function (e) {
+        $('.datetimepickerstart').data("DateTimePicker").maxDate(e.date);
+    });
 
-    }
-    initDateTimePicker();
-
-
-    // var mySelect = '<select class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">' +
-    //   '<option>None</option>' +
-    //   '<option value="2">Herman Blume</option>' +
-    //   '<option value="3">Max Fischer</option>' +
-    //   '<option value="3">Jerry Jones</option>' +
-    //   '<option value="3">Rosemary Cross</option>' +
-    // '</select>';
+  }
+  initDateTimePicker();
 
 
 
 
-  });
+
+
+
+});
 

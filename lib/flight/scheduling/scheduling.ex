@@ -175,22 +175,45 @@ defmodule Flight.Scheduling do
   def get_appointments(options, school_context) do
     school = SchoolScope.get_school(school_context)
 
+    is_walltime = options["walltime"] == "true"
+
     from_value =
       case NaiveDateTime.from_iso8601(options["from"] || "") do
-        {:ok, date} -> utc_to_walltime(date, school.timezone)
-        _ -> nil
+        {:ok, date} ->
+          if is_walltime do
+            date
+          else
+            utc_to_walltime(date, school.timezone)
+          end
+
+        _ ->
+          nil
       end
 
     to_value =
       case NaiveDateTime.from_iso8601(options["to"] || "") do
-        {:ok, date} -> utc_to_walltime(date, school.timezone)
-        _ -> nil
+        {:ok, date} ->
+          if is_walltime do
+            date
+          else
+            utc_to_walltime(date, school.timezone)
+          end
+
+        _ ->
+          nil
       end
 
     start_at_after_value =
       case NaiveDateTime.from_iso8601(options["start_at_after"] || "") do
-        {:ok, date} -> utc_to_walltime(date, school.timezone)
-        _ -> nil
+        {:ok, date} ->
+          if is_walltime do
+            date
+          else
+            utc_to_walltime(date, school.timezone)
+          end
+
+        _ ->
+          nil
       end
 
     user_id_value = options["user_id"]
@@ -213,7 +236,10 @@ defmodule Flight.Scheduling do
     |> limit(50)
     |> order_by([a], desc: a.start_at)
     |> Repo.all()
-    |> apply_timezone(SchoolScope.get_school(school_context).timezone)
+    |> pass_unless(
+      !is_walltime,
+      &apply_timezone(&1, SchoolScope.get_school(school_context).timezone)
+    )
   end
 
   def apply_timezone(appointments, timezone) when is_list(appointments) do
@@ -372,22 +398,45 @@ defmodule Flight.Scheduling do
   def get_unavailabilities(options, school_context) do
     school = SchoolScope.get_school(school_context)
 
+    is_walltime = options["walltime"] == "true"
+
     from_value =
       case NaiveDateTime.from_iso8601(options["from"] || "") do
-        {:ok, date} -> utc_to_walltime(date, school.timezone)
-        _ -> nil
+        {:ok, date} ->
+          if is_walltime do
+            date
+          else
+            utc_to_walltime(date, school.timezone)
+          end
+
+        _ ->
+          nil
       end
 
     to_value =
       case NaiveDateTime.from_iso8601(options["to"] || "") do
-        {:ok, date} -> utc_to_walltime(date, school.timezone)
-        _ -> nil
+        {:ok, date} ->
+          if is_walltime do
+            date
+          else
+            utc_to_walltime(date, school.timezone)
+          end
+
+        _ ->
+          nil
       end
 
     start_at_after_value =
       case NaiveDateTime.from_iso8601(options["start_at_after"] || "") do
-        {:ok, date} -> utc_to_walltime(date, school.timezone)
-        _ -> nil
+        {:ok, date} ->
+          if is_walltime do
+            date
+          else
+            utc_to_walltime(date, school.timezone)
+          end
+
+        _ ->
+          nil
       end
 
     instructor_user_id_value = options["instructor_user_id"]
@@ -408,7 +457,10 @@ defmodule Flight.Scheduling do
     |> limit(50)
     |> order_by([a], desc: a.start_at)
     |> Repo.all()
-    |> apply_timezone(SchoolScope.get_school(school_context).timezone)
+    |> pass_unless(
+      !is_walltime,
+      &apply_timezone(&1, SchoolScope.get_school(school_context).timezone)
+    )
   end
 
   def insert_or_update_unavailability(
