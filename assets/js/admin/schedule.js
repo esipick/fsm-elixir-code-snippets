@@ -292,7 +292,7 @@ $(document).ready(function() {
           })
 
           var unavailabilityPromise = $.get({
-            url: "/api/unavailabilities?from=" + startStr + "&to=" + endStr, 
+            url: "/api/unavailabilities?from=" + startStr + "&to=" + endStr + "&walltime=true", 
             headers: {"Authorization": window.fsm_token}
           })
           
