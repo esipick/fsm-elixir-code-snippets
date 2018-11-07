@@ -33,18 +33,30 @@ $(document).ready(function() {
   });
 
   var eventType = "appt";
-  var appointmentId = null;
+  var appointmentOrUnavailabilityId = null;
 
   // change event type based on user choice
-  $('#navAppt').click(function(){
-    eventType="appt";  
-  });
-  $('#navUnavail').click(function(){
-    eventType="unavail";  
-  });
+  $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+    var id = $(e.target).get(0).id
+    if (id == "navAppt") {
+      eventType = "appt";
+    } else {
+      eventType = "unavail"
+    }
+  })
+
+  $('#unavailInstructor').on('change', function(e) {
+    $('#unavailAircraft').val(null).selectpicker("refresh")
+  })
+
+  $('#unavailAircraft').on('change', function(e) {
+    $('#unavailInstructor').val(null).selectpicker("refresh")
+  })
 
   // collect event data on save and send to server
   $('#btnSave').click(function(){
+
+    var promise = null;
     
     if(eventType=="appt") {
       var eventRenter = safeParseInt($('#apptStudent').val());
@@ -62,12 +74,10 @@ $(document).ready(function() {
         aircraft_id: eventAircraft
       };
 
-      var promise;
-
-      if (appointmentId) {
+      if (appointmentOrUnavailabilityId) {
         promise = $.ajax({
           method: "put",
-          url: "/api/appointments/" + appointmentId, 
+          url: "/api/appointments/" + appointmentOrUnavailabilityId, 
           data: {data: eventData}, 
           headers: {"Authorization": window.fsm_token}
         })
@@ -78,7 +88,43 @@ $(document).ready(function() {
           headers: {"Authorization": window.fsm_token}
         })
       }
+    } else if (eventType == "unavail") {
+      var eventInstructor = safeParseInt($('#unavailInstructor').val());
+      var eventAircraft = safeParseInt($('#unavailAircraft').val());
+      
+      var eventStart = moment($('#unavailStart').val(), displayFormat).toISOString();
+      var eventEnd = moment($('#unavailEnd').val(), displayFormat).toISOString();
 
+      var eventData = {
+        start_at: eventStart,
+        end_at: eventEnd,
+        instructor_user_id: eventInstructor,
+        aircraft_id: eventAircraft
+      };
+
+      var promise;
+
+      if (appointmentOrUnavailabilityId) {
+        promise = $.ajax({
+          method: "put",
+          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId, 
+          data: {data: eventData}, 
+          headers: {"Authorization": window.fsm_token}
+        })
+      } else {
+        promise = $.post({
+          url: "/api/unavailabilities", 
+          data: {data: eventData}, 
+          headers: {"Authorization": window.fsm_token}
+        })
+      }
+
+      console.log(eventData);
+    } else {
+      alert('nothing selected');
+    }
+
+    if (promise) {
       promise.then(function() {
         $('#calendarNewModal').modal('hide')
         $calendar.fullCalendar('refetchEvents')
@@ -101,35 +147,6 @@ $(document).ready(function() {
             })
         }
       })
-      console.log(eventData);
-      
-      // $calendar.fullCalendar('unselect');
-    } else if (eventType == "unavail") {
-      var titleDescription = ' — Unavailable';
-      
-      if (unavailType == 'Aircraft'){
-        var event_title = $('#unavailAircraft').val() + titleDescription;
-      } else {
-        var event_title = $('#unavailInstructor').val() + titleDescription;  
-      }
-      
-      var event_start = $('#unavailStart').val();
-      var event_end = $('#unavailEnd').val();
-      
-      if (event_title) {
-        eventData = {
-          title: event_title,
-          start: event_start,
-          end: event_end,
-          className: 'event-default'
-        };
-        console.log(eventData);
-        $calendar.fullCalendar('renderEvent', eventData, true);
-      }
-      
-      $calendar.fullCalendar('unselect');
-    } else {
-      alert('nothing selected');
     }
     
   });
@@ -144,15 +161,28 @@ $(document).ready(function() {
     console.log("Initial data: ", initialData)
     $('#calendarNewModal').modal();
 
-    appointmentId = initialData.id;
+    appointmentOrUnavailabilityId = initialData.id;
 
-    if (appointmentId) {
-      $('#apptTitle').text("Edit Appointment")
+    if (appointmentOrUnavailabilityId) {
       $('#apptTabs').hide()
     } else {
-      $('#apptTitle').text("Create New")
-      // Temporary while getting unavailability to work
-      $('#apptTabs').hide()
+      $('#apptTabs').show()
+    }
+
+    if (initialData.type == "unavailability") {
+      $('#navUnavail').tab("show")
+      if (appointmentOrUnavailabilityId) {
+        $('#apptTitle').text("Edit Unavailability")
+      } else {
+        $('#apptTitle').text("Create New")
+      }
+    } else {
+      $('#navAppt').tab("show")
+      if (appointmentOrUnavailabilityId) {
+        $('#apptTitle').text("Edit Appointment")
+      } else {
+        $('#apptTitle').text("Create New")
+      }
     }
 
     $('#apptStart').val(initialData.start_at.format(displayFormat))
@@ -160,6 +190,11 @@ $(document).ready(function() {
     $('#apptStudent').val(initialData.user_id).selectpicker("refresh");
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#apptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+
+    $('#unavailStart').val(initialData.start_at.format(displayFormat))
+    $('#unavailEnd').val(initialData.end_at.format(displayFormat))
+    $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
+    $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
   };
 
 
@@ -202,7 +237,6 @@ $(document).ready(function() {
         },
         header: {
           left: 'title',
-          center: 'timelineDay,month,listWeek',
           right: 'prev,next,today'
         },
         resourceGroupField: "type",
@@ -211,6 +245,15 @@ $(document).ready(function() {
         defaultDate: today,
         selectable: true,
         selectHelper: true,
+        // customButtons: {
+        //   chooseDateButton: {
+        //     text: "Choose Date",
+        //     click: function(e) {
+        //       console.log("Clicked!")
+        //       console.log(arguments)
+        //     }
+        //   }
+        // },
         views: {
             month: { // name of view
                 titleFormat: 'MMMM YYYY'
@@ -253,30 +296,48 @@ $(document).ready(function() {
         },
         editable: true,
         eventClick: function(calEvent, jsEvent, view){
-          var instructor_user_id = null;
 
           if (calEvent.unavailability) {
+            var instructor_user_id = null;
+            if (calEvent.unavailability.instructor_user) {
+              instructor_user_id = calEvent.unavailability.instructor_user.id
+            }
+
+            var aircraft_id = null;
+            if (calEvent.unavailability.aircraft) {
+              aircraft_id = calEvent.unavailability.aircraft.id
+            }
+
+            openAppointmentModal({
+              type: "unavailability",
+              start_at: moment(calEvent.unavailability.start_at),
+              end_at: moment(calEvent.unavailability.end_at),
+              instructor_user_id: instructor_user_id,
+              aircraft_id: aircraft_id,
+              id: calEvent.unavailability.id
+            })
             return;
+          } else if (calEvent.appointment) {
+            var instructor_user_id = null;
+            if (calEvent.appointment.instructor_user) {
+              instructor_user_id = calEvent.appointment.instructor_user.id
+            }
+
+            var aircraft_id = null;
+            if (calEvent.appointment.aircraft) {
+              aircraft_id = calEvent.appointment.aircraft.id
+            }
+
+            openAppointmentModal({
+              start_at: moment(calEvent.appointment.start_at),
+              end_at: moment(calEvent.appointment.end_at),
+              instructor_user_id: instructor_user_id,
+              aircraft_id: aircraft_id,
+              user_id: calEvent.appointment.user.id,
+              id: calEvent.appointment.id
+            })
           }
 
-          if (calEvent.appointment.instructor_user) {
-            instructor_user_id = calEvent.appointment.instructor_user.id
-          }
-
-          var aircraft_id = null;
-
-          if (calEvent.appointment.aircraft) {
-            aircraft_id = calEvent.appointment.aircraft.id
-          }
-
-          openAppointmentModal({
-            start_at: moment(calEvent.appointment.start_at),
-            end_at: moment(calEvent.appointment.end_at),
-            instructor_user_id: instructor_user_id,
-            aircraft_id: aircraft_id,
-            user_id: calEvent.appointment.user.id,
-            id: calEvent.appointment.id
-          })
         },
         
         
@@ -398,15 +459,7 @@ $(document).ready(function() {
     $(".datetimepickerend").on("dp.change", function (e) {
         $('.datetimepickerstart').data("DateTimePicker").maxDate(e.date);
     });
-
   }
   initDateTimePicker();
-
-
-
-
-
-
-
 });
 
