@@ -128,6 +128,20 @@ $(document).ready(function() {
       promise.then(function() {
         $('#calendarNewModal').modal('hide')
         $calendar.fullCalendar('refetchEvents')
+
+        var event;
+        if (eventType == "appt") {
+          event = "appointment"
+        } else {
+          event = "unavailability"
+        }
+
+        $.notify({
+          message: "Successfully created " + event
+        }, {
+          type: "success", 
+          placement: {align: "center"}
+        })
       }).catch(function(e) {
         if (e.responseJSON.human_errors) {
           for(var error of e.responseJSON.human_errors) {
@@ -152,6 +166,62 @@ $(document).ready(function() {
   });
 
 
+  $('#btnDelete').click(function() {
+    if (appointmentOrUnavailabilityId) {
+      var promise = null;
+
+      if (eventType == "appt") {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/appointments/" + appointmentOrUnavailabilityId,
+          headers: {"Authorization": window.fsm_token}
+        })
+      } else {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId,
+          headers: {"Authorization": window.fsm_token}
+        })
+      }
+
+      promise.then(function() {
+        $('#calendarNewModal').modal('hide')
+        $calendar.fullCalendar('refetchEvents')
+
+        var event;
+        if (eventType == "appt") {
+          event = "appointment"
+        } else {
+          event = "unavailability"
+        }
+
+        $.notify({
+          message: "Successfully deleted " + event
+        }, {
+          type: "success", 
+          placement: {align: "center"}
+        })
+      }).catch(function(e) {
+        if (e.responseJSON.human_errors) {
+          for(var error of e.responseJSON.human_errors) {
+            $.notify({
+              message: error
+            }, {
+              type: "danger", 
+              placement: {align: "center"}
+            })
+          }
+        } else {
+            $.notify({
+              message: "There was an error deleting the event"
+            }, {
+              type: "danger", 
+              placement: {align: "center"}
+            })
+        }
+      })
+    }
+  });
 
 
 
@@ -165,8 +235,10 @@ $(document).ready(function() {
 
     if (appointmentOrUnavailabilityId) {
       $('#apptTabs').hide()
+      $('#btnDelete').show()
     } else {
       $('#apptTabs').show()
+      $('#btnDelete').hide()
     }
 
     if (initialData.type == "unavailability") {
