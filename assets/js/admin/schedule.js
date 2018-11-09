@@ -360,7 +360,7 @@ $(document).ready(function() {
 
           openAppointmentModal({
             start_at: start,
-            end_at: end,
+            end_at: moment(start).add(1, 'hours'),
             instructor_user_id: instructorId,
             aircraft_id: aircraftId
           })
