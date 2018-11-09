@@ -453,12 +453,6 @@ $(document).ready(function() {
           close: 'fa fa-remove'
         }
     });
-    $(".datetimepickerstart").on("dp.change", function (e) {
-        $('.datetimepickerend').data("DateTimePicker").minDate(e.date);
-    });
-    $(".datetimepickerend").on("dp.change", function (e) {
-        $('.datetimepickerstart').data("DateTimePicker").maxDate(e.date);
-    });
   }
   initDateTimePicker();
 });
