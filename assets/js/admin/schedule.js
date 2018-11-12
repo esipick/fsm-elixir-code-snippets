@@ -234,14 +234,11 @@ $(document).ready(function() {
       $('#apptTabs').hide()
       $('#btnDelete').show()
     } else {
-      // TODO: Change to show
-      $('#apptTabs').hide()
+      $('#apptTabs').show()
       $('#btnDelete').hide()
     }
 
     if (initialData.type == "unavailability") {
-      // TODO: remove
-      return;
       $('#navUnavail').tab("show")
       if (appointmentOrUnavailabilityId) {
         $('#apptTitle').text("Edit Unavailability")
