@@ -59,7 +59,9 @@ defmodule Flight.Scheduling.Appointment do
   end
 
   def validate_user_instructor_different(changeset) do
-    if get_field(changeset, :user_id) == get_field(changeset, :instructor_user_id) do
+    user_id = get_field(changeset, :user_id)
+
+    if user_id && user_id == get_field(changeset, :instructor_user_id) do
       add_error(changeset, :instructor, "cannot be the same person as the renter.")
     else
       changeset
@@ -74,7 +76,7 @@ defmodule Flight.Scheduling.Appointment do
       if NaiveDateTime.compare(end_at, start_at) == :gt do
         changeset
       else
-        add_error(changeset, :end_at, "must come after start_at.")
+        add_error(changeset, :end_at, "must come after start time.")
       end
     else
       changeset
