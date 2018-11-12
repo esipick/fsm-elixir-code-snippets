@@ -228,9 +228,6 @@ $(document).ready(function() {
 
 
   var openAppointmentModal = function (initialData) {
-    console.log("Initial data: ", initialData)
-    $('#calendarNewModal').modal();
-
     appointmentOrUnavailabilityId = initialData.id;
 
     if (appointmentOrUnavailabilityId) {
@@ -267,6 +264,8 @@ $(document).ready(function() {
     $('#unavailEnd').val(initialData.end_at.format(displayFormat))
     $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+
+    $('#calendarNewModal').modal();
   };
 
 
