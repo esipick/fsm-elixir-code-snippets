@@ -39,8 +39,12 @@ $(document).ready(function() {
   $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
     var id = $(e.target).get(0).id
     if (id == "navAppt") {
+      $('#appointmentForm').addClass("active")
+      $('#unavailabilityForm').removeClass("active")
       eventType = "appt";
     } else {
+      $('#appointmentForm').removeClass("active")
+      $('#unavailabilityForm').addClass("active")
       eventType = "unavail"
     }
   })
