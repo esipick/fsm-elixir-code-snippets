@@ -69,13 +69,15 @@ $(document).ready(function() {
       
       var eventStart = moment($('#apptStart').val(), displayFormat).toISOString();
       var eventEnd = moment($('#apptEnd').val(), displayFormat).toISOString();
+      var eventNote = $('#apptNote').val()
 
       var eventData = {
         start_at: eventStart,
         end_at: eventEnd,
         user_id: eventRenter,
         instructor_user_id: eventInstructor,
-        aircraft_id: eventAircraft
+        aircraft_id: eventAircraft,
+        note: eventNote
       };
 
       if (appointmentOrUnavailabilityId) {
@@ -98,12 +100,14 @@ $(document).ready(function() {
       
       var eventStart = moment($('#unavailStart').val(), displayFormat).toISOString();
       var eventEnd = moment($('#unavailEnd').val(), displayFormat).toISOString();
+      var eventNote = $('#unavailNote').val()
 
       var eventData = {
         start_at: eventStart,
         end_at: eventEnd,
         instructor_user_id: eventInstructor,
-        aircraft_id: eventAircraft
+        aircraft_id: eventAircraft,
+        note: eventNote
       };
 
       var promise;
@@ -141,7 +145,7 @@ $(document).ready(function() {
         }
 
         $.notify({
-          message: "Successfully created " + event
+          message: "Successfully saved " + event
         }, {
           type: "success", 
           placement: {align: "center"}
@@ -263,11 +267,13 @@ $(document).ready(function() {
     $('#apptStudent').val(initialData.user_id).selectpicker("refresh");
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#apptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+    $('#apptNote').val(initialData.note);
 
     $('#unavailStart').val(initialData.start_at.format(displayFormat))
     $('#unavailEnd').val(initialData.end_at.format(displayFormat))
     $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+    $('#unavailNote').val(initialData.note);
 
     $('#calendarNewModal').modal();
   };
@@ -389,6 +395,7 @@ $(document).ready(function() {
               end_at: moment(calEvent.unavailability.end_at),
               instructor_user_id: instructor_user_id,
               aircraft_id: aircraft_id,
+              note: calEvent.unavailability.note,
               id: calEvent.unavailability.id
             })
             return;
@@ -408,6 +415,7 @@ $(document).ready(function() {
               end_at: moment(calEvent.appointment.end_at),
               instructor_user_id: instructor_user_id,
               aircraft_id: aircraft_id,
+              note: calEvent.appointment.note,
               user_id: calEvent.appointment.user.id,
               id: calEvent.appointment.id
             })

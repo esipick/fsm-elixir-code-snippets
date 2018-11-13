@@ -160,6 +160,10 @@ table .photo {
   font-size: 12px;
 }
 
+textarea.form-control, textarea.form-control:focus, textarea.form-control:active, textarea.form-control:visited {
+  border: 1px solid #e3e3e3;
+  border-radius:8px;
+}
 .form-control::placeholder {
   color: #BBBCCD;
 }
@@ -656,6 +660,10 @@ fieldset[disabled] .fc button:hover {
   background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
   background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
   background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);
+}
+
+.fc button:focus {
+  background-color: #e7e7f0;
 }
 
 .card-calendar table td {

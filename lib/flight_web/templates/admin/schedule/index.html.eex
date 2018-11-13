@@ -74,6 +74,14 @@
                 </div>
               </div>
             </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Note</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <textarea id="apptNote" class="form-control"></textarea>
+                </div>
+              </div>
+            </div>
           </div>
           
           <div class="tab-pane" id="unavailabilityForm">
@@ -114,6 +122,14 @@
             </div>
             <div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="unavailStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div></div></div>
             <div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="unavailEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Note</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <textarea id="unavailNote" class="form-control"></textarea>
+                </div>
+              </div>
+            </div>
             <!--
             <div class="row">
               <label class="col-md-3 col-form-label">Repeat</label>
