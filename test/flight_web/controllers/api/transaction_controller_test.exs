@@ -124,6 +124,47 @@ defmodule FlightWeb.API.TransactionControllerTest do
     end
 
     @tag :integration
+    test "creates completed detailed transaction as instructor, charged to custom user", %{
+      conn: conn
+    } do
+      real_stripe_account(default_school_fixture())
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+
+      params =
+        detailed_transaction_form_attrs(nil, instructor, nil, aircraft, nil)
+        |> Map.delete(:user_id)
+        |> Map.merge(%{
+          custom_user: %{
+            first_name: "Jackson",
+            last_name: "Jill",
+            email: "jackson@jill.com"
+          },
+          source: "tok_visa"
+        })
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/transactions", %{detailed: params})
+        |> json_response(201)
+
+      assert transaction =
+               Flight.Repo.get_by(
+                 Flight.Billing.Transaction,
+                 email: "jackson@jill.com"
+               )
+               |> Flight.Repo.preload([:line_items, :user, :creator_user])
+
+      assert transaction.state == "completed"
+      assert transaction.paid_by_charge == transaction.total
+      assert transaction.stripe_charge_id
+      refute transaction.user_id
+
+      assert json == render_json(TransactionView, "show.json", transaction: transaction)
+    end
+
+    @tag :integration
     test "returns stripe errors", %{conn: conn} do
       {student, nil} = student_fixture(%{balance: 0}) |> real_stripe_customer(false)
 
@@ -167,6 +208,39 @@ defmodule FlightWeb.API.TransactionControllerTest do
                |> Flight.Repo.preload([:line_items, :user, :creator_user])
 
       assert transaction.state == "pending"
+
+      assert json == render_json(TransactionView, "show.json", transaction: transaction)
+    end
+
+    @tag :integration
+    test "creates transaction for custom user", %{conn: conn} do
+      real_stripe_account(default_school_fixture())
+      instructor = instructor_fixture()
+
+      params =
+        custom_transaction_form_attrs(%{}, nil, instructor)
+        |> Map.delete(:user_id)
+        |> Map.merge(%{
+          custom_user: %{
+            first_name: "j",
+            last_name: "t",
+            email: "justin@timberlake.com"
+          },
+          source: "tok_visa"
+        })
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/transactions", %{custom: params})
+        |> json_response(201)
+
+      assert transaction =
+               Flight.Repo.get_by(Flight.Billing.Transaction, email: "justin@timberlake.com")
+               |> Flight.Repo.preload([:line_items, :user, :creator_user])
+
+      assert transaction.state == "completed"
+      refute transaction.user_id
 
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
@@ -333,7 +407,6 @@ defmodule FlightWeb.API.TransactionControllerTest do
                )
     end
 
-    @tag :wip
     test "renders custom preview", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()

@@ -59,7 +59,7 @@ defmodule Flight.BillingFixtures do
         instructor \\ nil
       ) do
     attrs = %{
-      user_id: user.id,
+      user_id: Optional.map(user, & &1.id),
       creator_user_id: creator.id,
       appointment_id: Optional.map(appointment, & &1.id)
     }
@@ -99,7 +99,7 @@ defmodule Flight.BillingFixtures do
         creator_user \\ instructor_fixture()
       ) do
     %{
-      user_id: user.id,
+      user_id: Optional.map(user, & &1.id),
       creator_user_id: creator_user.id,
       amount: 20000,
       description: "Something",

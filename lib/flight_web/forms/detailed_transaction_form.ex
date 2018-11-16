@@ -74,10 +74,59 @@ defmodule FlightWeb.API.DetailedTransactionForm.InstructorDetails do
   end
 end
 
+defmodule FlightWeb.API.TransactionForm.CustomUser do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  @primary_key false
+  embedded_schema do
+    field(:first_name, :string)
+    field(:last_name, :string)
+    field(:email, :string)
+  end
+
+  def changeset(struct, attrs) do
+    struct
+    |> cast(attrs, [:first_name, :last_name, :email])
+    |> validate_required([:first_name, :last_name, :email])
+  end
+end
+
+defmodule FlightWeb.API.TransactionFormHelpers do
+  import Ecto.Changeset
+
+  def validate_either_user_id_or_custom_user(changeset) do
+    if (changeset.valid? &&
+          (!get_field(changeset, :user_id) && !get_field(changeset, :custom_user))) ||
+         (get_field(changeset, :user_id) && get_field(changeset, :custom_user)) do
+      add_error(
+        changeset,
+        :user,
+        "or custom card should be sent, but not both."
+      )
+    else
+      changeset
+    end
+  end
+
+  def validate_custom_user_and_source(changeset) do
+    if get_field(changeset, :custom_user) && !get_field(changeset, :source) do
+      add_error(
+        changeset,
+        :source,
+        "must be provided when using a custom user"
+      )
+    else
+      changeset
+    end
+  end
+end
+
 defmodule FlightWeb.API.DetailedTransactionForm do
   use Ecto.Schema
 
   import Ecto.Changeset
+  import FlightWeb.API.TransactionFormHelpers
 
   alias Flight.Billing
 
@@ -88,6 +137,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
     InstructorLineItemDetail
   }
 
+  alias FlightWeb.API.TransactionForm.{CustomUser}
   alias FlightWeb.API.DetailedTransactionForm.{AircraftDetails, InstructorDetails}
 
   @primary_key false
@@ -98,6 +148,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
     field(:appointment_id, :integer)
     embeds_one(:aircraft_details, AircraftDetails)
     embeds_one(:instructor_details, InstructorDetails)
+    embeds_one(:custom_user, CustomUser)
   end
 
   def changeset(struct, attrs) do
@@ -105,8 +156,11 @@ defmodule FlightWeb.API.DetailedTransactionForm do
     |> cast(attrs, [:user_id, :creator_user_id, :appointment_id, :source])
     |> cast_embed(:aircraft_details, required: false)
     |> cast_embed(:instructor_details, required: false)
-    |> validate_required([:user_id, :creator_user_id])
+    |> cast_embed(:custom_user, required: false)
+    |> validate_required([:creator_user_id])
     |> validate_either_aircraft_or_instructor()
+    |> validate_either_user_id_or_custom_user()
+    |> validate_custom_user_and_source()
   end
 
   def validate_either_aircraft_or_instructor(changeset) do
@@ -198,22 +252,33 @@ defmodule FlightWeb.API.DetailedTransactionForm do
       |> Enum.map(& &1.amount)
       |> Enum.reduce(0, &Kernel.+/2)
 
-    user = Flight.Accounts.get_user(form.user_id, school_context)
+    if form.user_id do
+      user = Flight.Accounts.get_user(form.user_id, school_context)
 
-    if !user do
-      raise "Unknown user (#{form.user_id}) for school (#{
-              Flight.SchoolScope.school_id(school_context)
-            })"
+      if !user do
+        raise "Unknown user (#{form.user_id}) for school (#{
+                Flight.SchoolScope.school_id(school_context)
+              })"
+      end
     end
 
-    transaction = %Transaction{
-      total: total,
-      state: "pending",
-      type: "debit",
-      user_id: form.user_id,
-      creator_user_id: form.creator_user_id,
-      school_id: Flight.SchoolScope.school_id(school_context)
-    }
+    transaction =
+      %Transaction{
+        total: total,
+        state: "pending",
+        type: "debit",
+        user_id: form.user_id,
+        creator_user_id: form.creator_user_id,
+        school_id: Flight.SchoolScope.school_id(school_context)
+      }
+      |> Pipe.pass_unless(form.custom_user, fn transaction ->
+        %{
+          transaction
+          | first_name: form.custom_user.first_name,
+            last_name: form.custom_user.last_name,
+            email: form.custom_user.email
+        }
+      end)
 
     {transaction, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details}
   end

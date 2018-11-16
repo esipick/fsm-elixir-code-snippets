@@ -9,6 +9,9 @@ defmodule Flight.Billing.Transaction do
     field(:stripe_charge_id, :string)
     field(:total, :integer)
     field(:type, :string)
+    field(:first_name, :string)
+    field(:last_name, :string)
+    field(:email, :string)
     field(:completed_at, :naive_datetime)
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:user, Flight.Accounts.User)
@@ -30,14 +33,16 @@ defmodule Flight.Billing.Transaction do
       :state,
       :completed_at,
       :user_id,
-      :creator_user_id
+      :creator_user_id,
+      :first_name,
+      :last_name,
+      :email
     ])
     |> cast_assoc(:line_items)
     |> validate_required([
       :total,
       :state,
       :type,
-      :user_id,
       :school_id,
       :creator_user_id
     ])

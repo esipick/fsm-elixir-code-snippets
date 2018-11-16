@@ -1,6 +1,7 @@
 defmodule FlightWeb.API.TransactionView do
   use FlightWeb, :view
   import FlightWeb.ViewHelpers, only: [label_for_line_item: 1]
+  import Pipe
 
   def render("preview.json", %{transaction: transaction, line_items: line_items}) do
     %{
@@ -43,7 +44,6 @@ defmodule FlightWeb.API.TransactionView do
       completed_at: transaction.completed_at,
       total: transaction.total,
       type: transaction.type,
-      user: render(FlightWeb.API.UserView, "skinny_user.json", user: transaction.user),
       creator_user:
         render(FlightWeb.API.UserView, "skinny_user.json", user: transaction.creator_user),
       state: transaction.state,
@@ -57,6 +57,11 @@ defmodule FlightWeb.API.TransactionView do
           as: :line_item
         )
     }
+    |> pass_unless(transaction.user, fn map ->
+      Map.merge(map, %{
+        user: render(FlightWeb.API.UserView, "skinny_user.json", user: transaction.user)
+      })
+    end)
   end
 
   def render("line_item.json", %{line_item: line_item}) do

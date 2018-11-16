@@ -22,7 +22,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
       assert DetailedTransactionForm.changeset(%DetailedTransactionForm{}, attrs).valid?
     end
 
-    test "to_transaction create insertable transaction" do
+    test "to_transaction creates insertable transaction" do
       student = student_fixture()
       instructor = instructor_fixture(%{billing_rate: 7500, pay_rate: 3000})
       aircraft = aircraft_fixture(%{rate_per_hour: 120})
@@ -122,6 +122,54 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
       changeset = DetailedTransactionForm.changeset(%DetailedTransactionForm{}, attrs)
 
       assert errors_on(changeset).aircraft_details
+
+      refute changeset.valid?
+    end
+
+    test "error if no user_id or custom_user" do
+      appointment = appointment_fixture()
+
+      attrs = %{
+        creator_user_id: 9,
+        instructor_user_id: 4,
+        appointment_id: appointment.id,
+        aircraft_details: nil,
+        instructor_details: %{
+          instructor_id: 3,
+          hour_tenths: 10
+        }
+      }
+
+      changeset = DetailedTransactionForm.changeset(%DetailedTransactionForm{}, attrs)
+
+      assert errors_on(changeset).user
+
+      refute changeset.valid?
+    end
+
+    test "error if both user_id and custom_user" do
+      appointment = appointment_fixture()
+
+      attrs = %{
+        user_id: 3,
+        custom_user: %{
+          first_name: "Foo",
+          last_name: "Bar",
+          email: "foo@bar.com"
+        },
+        creator_user_id: 9,
+        appointment_id: appointment.id,
+        aircraft_details: nil,
+        source: "tok_visa",
+        instructor_details: %{
+          instructor_id: 3,
+          hour_tenths: 10
+        }
+      }
+
+      changeset = DetailedTransactionForm.changeset(%DetailedTransactionForm{}, attrs)
+
+      assert errors_on(changeset).user
 
       refute changeset.valid?
     end

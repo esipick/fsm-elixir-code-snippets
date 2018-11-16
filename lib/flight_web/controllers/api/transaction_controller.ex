@@ -318,6 +318,9 @@ defmodule FlightWeb.API.TransactionController do
             perms
           end
 
+        %{"detailed" => %{"custom_user" => _}} ->
+          [Permission.new(:transaction, :request, :all)]
+
         %{"custom" => %{"creator_user_id" => creator_user_id, "user_id" => user_id}} ->
           perms = [Permission.new(:transaction_creator, :modify, {:personal, user_id})]
 
@@ -326,6 +329,9 @@ defmodule FlightWeb.API.TransactionController do
           else
             perms
           end
+
+        %{"custom" => %{"custom_user" => _}} ->
+          [Permission.new(:transaction, :request, :all)]
 
         %{"add_funds" => %{"user_id" => user_id}} ->
           [Permission.new(:transaction_creator, :modify, {:personal, user_id})]

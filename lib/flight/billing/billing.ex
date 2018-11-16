@@ -76,9 +76,12 @@ defmodule Flight.Billing do
     {%{total: blockTotal}, _, _, _, _} =
       DetailedTransactionForm.to_transaction(form, :block, school_context)
 
-    user = Flight.Accounts.get_user(form.user_id, school_context)
+    user =
+      if form.user_id do
+        Flight.Accounts.get_user(form.user_id, school_context)
+      end
 
-    if user.balance >= blockTotal do
+    if user && user.balance >= blockTotal do
       :block
     else
       :normal
@@ -235,7 +238,7 @@ defmodule Flight.Billing do
           |> Mondo.PushService.publish()
 
         "completed" ->
-          if transaction.creator_user_id != transaction.user_id do
+          if transaction.user_id && transaction.creator_user_id != transaction.user_id do
             cond do
               transaction.paid_by_balance ->
                 Flight.PushNotifications.balance_deducted_notification(
@@ -349,6 +352,7 @@ defmodule Flight.Billing do
       from(t in Transaction)
       |> SchoolScope.scope_query(school_context)
       |> where([t], t.state != "canceled")
+      |> where([t], not is_nil(t.user_id))
       |> pass_unless(params["state"], &where(&1, [t], t.state == ^params["state"]))
       |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
       |> pass_unless(
@@ -605,7 +609,7 @@ defmodule Flight.Billing do
   ###
 
   def preferred_payment_method(user, amount) do
-    if user.balance >= amount do
+    if user && user.balance >= amount do
       :balance
     else
       :charge
@@ -632,13 +636,21 @@ defmodule Flight.Billing do
     })
   end
 
+  def get_transaction_email(%Transaction{} = transaction) do
+    if transaction.user do
+      transaction.user.email
+    else
+      transaction.email
+    end
+  end
+
   def create_stripe_charge(source_id, transaction) do
     case transaction.state do
       "pending" ->
         create_stripe_charge(
           source_id,
           transaction.user,
-          transaction.user.email,
+          get_transaction_email(transaction),
           transaction.total,
           transaction
         )
@@ -648,7 +660,7 @@ defmodule Flight.Billing do
     end
   end
 
-  def create_stripe_charge(source_id, user, email, total, school_context) do
+  def create_stripe_charge(source_id, user?, email, total, school_context) do
     stripe_account =
       Repo.get_by(
         Flight.Accounts.StripeAccount,
@@ -663,23 +675,37 @@ defmodule Flight.Billing do
         {:error, :charges_disabled}
 
       true ->
-        with {:ok, token} <-
-               Stripe.Token.create(
-                 %{customer: user.stripe_customer_id, card: source_id},
-                 connect_account: stripe_account.stripe_account_id
-               ) do
-          Stripe.Charge.create(
-            %{
-              source: token.id,
-              application_fee: application_fee_for_total(total),
-              currency: "usd",
-              receipt_email: email,
-              amount: total
-            },
-            connect_account: stripe_account.stripe_account_id
-          )
-        else
-          error -> error
+        token_result =
+          if user? do
+            token =
+              Stripe.Token.create(
+                %{customer: user?.stripe_customer_id, card: source_id},
+                connect_account: stripe_account.stripe_account_id
+              )
+
+            case token do
+              {:ok, token} -> {:ok, token.id}
+              error -> error
+            end
+          else
+            {:ok, source_id}
+          end
+
+        case token_result do
+          {:ok, token_id} ->
+            Stripe.Charge.create(
+              %{
+                source: token_id,
+                application_fee: application_fee_for_total(total),
+                currency: "usd",
+                receipt_email: email,
+                amount: total
+              },
+              connect_account: stripe_account.stripe_account_id
+            )
+
+          error ->
+            error
         end
     end
   end

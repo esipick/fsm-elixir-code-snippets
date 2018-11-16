@@ -46,4 +46,38 @@ defmodule FlightWeb.API.CustomTransactionFormTest do
       |> TransactionLineItem.changeset(%{transaction_id: transaction.id})
       |> Flight.Repo.insert()
   end
+
+  test "error if no user_id or custom_user" do
+    attrs = %{
+      creator_user_id: 9,
+      description: "hi",
+      amount: 5000
+    }
+
+    changeset = CustomTransactionForm.changeset(%CustomTransactionForm{}, attrs)
+
+    assert errors_on(changeset).user
+
+    refute changeset.valid?
+  end
+
+  test "error if both user_id and custom_user" do
+    attrs = %{
+      user_id: 3,
+      creator_user_id: 9,
+      description: "hi",
+      amount: 5000,
+      custom_user: %{
+        first_name: "Foo",
+        last_name: "Bar",
+        email: "foo@bar.com"
+      }
+    }
+
+    changeset = CustomTransactionForm.changeset(%CustomTransactionForm{}, attrs)
+
+    assert errors_on(changeset).user
+
+    refute changeset.valid?
+  end
 end

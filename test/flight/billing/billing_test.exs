@@ -73,6 +73,36 @@ defmodule Flight.BillingTest do
       assert appointment = Flight.Repo.get!(Flight.Scheduling.Appointment, form.appointment_id)
       assert appointment.transaction_id == transaction.id
     end
+
+    @tag :integration
+    test "uses custom card instead of user's card" do
+      {student, _} = student_fixture() |> real_stripe_customer(false)
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture(%{last_hobbs_time: 0, last_tach_time: 0})
+
+      appointment = appointment_fixture(%{}, student, instructor, aircraft)
+
+      form =
+        detailed_transaction_form_fixture(student, instructor, appointment, aircraft, instructor)
+
+      form = %FlightWeb.API.DetailedTransactionForm{
+        form
+        | user_id: nil,
+          source: "tok_visa",
+          custom_user: %{
+            first_name: "Jillian",
+            last_name: "Smith",
+            email: "jillian@smith.com"
+          }
+      }
+
+      assert {:ok, transaction} = Billing.create_transaction_from_detailed_form(form, instructor)
+
+      assert transaction.first_name == "Jillian"
+      assert transaction.last_name == "Smith"
+      assert transaction.email == "jillian@smith.com"
+      assert transaction.stripe_charge_id
+    end
   end
 
   describe "create_transaction_from_custom_form/1" do
@@ -118,6 +148,37 @@ defmodule Flight.BillingTest do
 
       assert transaction.state == "completed"
       assert transaction.completed_at
+    end
+
+    @tag :integration
+    test "uses custom card instead of user's card" do
+      {student, _} = student_fixture() |> real_stripe_customer(false)
+      instructor = instructor_fixture()
+
+      form =
+        custom_transaction_form_fixture(
+          %{amount: 3721, description: "This is my jam"},
+          student,
+          instructor
+        )
+
+      form = %FlightWeb.API.CustomTransactionForm{
+        form
+        | user_id: nil,
+          source: "tok_visa",
+          custom_user: %{
+            first_name: "Jillian",
+            last_name: "Smith",
+            email: "jillian@smith.com"
+          }
+      }
+
+      assert {:ok, transaction} = Billing.create_transaction_from_custom_form(form, student)
+
+      assert transaction.first_name == "Jillian"
+      assert transaction.last_name == "Smith"
+      assert transaction.email == "jillian@smith.com"
+      assert transaction.stripe_charge_id
     end
   end
 
@@ -463,10 +524,10 @@ defmodule Flight.BillingTest do
       transaction_fixture(%{total: 10000, state: "pending"}, user)
 
       assert [
-        %Transaction{state: "completed"},
-        %Transaction{state: "completed"},
-        %Transaction{state: "pending"}
-      ] = Billing.approve_transactions_within_balance(user)
+               %Transaction{state: "completed"},
+               %Transaction{state: "completed"},
+               %Transaction{state: "pending"}
+             ] = Billing.approve_transactions_within_balance(user)
     end
   end
 end
