@@ -73,7 +73,7 @@ defmodule FlightWeb.Admin.UserController do
           }'s balance."
         end
 
-      Flight.Billing.approve_transactions_within_balance(conn.assigns.requested_user)
+      Flight.Billing.approve_transactions_within_balance(user)
 
       conn
       |> put_flash(:success, message)
