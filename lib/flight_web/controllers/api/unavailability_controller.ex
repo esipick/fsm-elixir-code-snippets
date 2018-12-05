@@ -85,7 +85,7 @@ defmodule FlightWeb.API.UnavailabilityController do
         else
           render_bad_request(
             conn,
-            "Instructors cannot creator unavailability for other instructors."
+            "Instructors cannot create unavailability for other instructors."
           )
         end
 
@@ -99,7 +99,7 @@ defmodule FlightWeb.API.UnavailabilityController do
       true ->
         render_bad_request(
           conn,
-          "You must be either the renter or the instructor of the unavailability you're trying to create or modify."
+          "You don't have permission to create or modify unavailability."
         )
     end
   end
