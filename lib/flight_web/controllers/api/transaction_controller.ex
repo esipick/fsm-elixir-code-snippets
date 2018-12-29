@@ -32,7 +32,7 @@ defmodule FlightWeb.API.TransactionController do
         # user error vs. programmer error.
         Appsignal.Transaction.set_error(
           "StripeError",
-          "Error charging card: #{inspect(error)}",
+          "Error charging card, sent user message: #{inspect(error)}",
           System.stacktrace()
         )
 
@@ -42,7 +42,7 @@ defmodule FlightWeb.API.TransactionController do
           human_errors: [
             message ||
               "There was an error when charging the credit card. App developers have been notified.",
-            "Do not attempt charging again, a pending transaction is waiting for the renter to approve."
+            "Do not attempt charging again if this was a student or renter, a pending transaction is waiting for the renter to approve."
           ]
         })
 
@@ -52,6 +52,8 @@ defmodule FlightWeb.API.TransactionController do
           "Error charging card: #{inspect(error)}",
           System.stacktrace()
         )
+
+        IO.inspect(error)
 
         conn
         |> put_status(400)
