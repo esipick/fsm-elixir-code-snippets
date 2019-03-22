@@ -5,8 +5,7 @@
     "deploy": "brunch build --production",
     "watch": "brunch watch --stdin"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel-brunch": "6.1.1",
     "brunch": "2.10.9",
