@@ -1,6 +1,10 @@
 # Flight
 
-Cloud 9 Instructions:
+## Run Tests
+`mix test` for fast tests
+`mix test --include=integration` for all tests
+
+##Cloud 9 Instructions:
 
 #### Start FSM Server
 
