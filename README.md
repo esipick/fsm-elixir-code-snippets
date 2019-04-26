@@ -22,7 +22,7 @@ Example:
 http://0.0.0.0:4000/school_invitations/34cfb36c210b9249cc4384500b1ee37a14f1374917f0170bac
 ```
 
-## Cloud 9 Instructions:
+## Cloud 9 Instructions
 
 #### Start FSM Server
 
