@@ -5,6 +5,7 @@ defmodule Flight.Billing.Transaction do
   schema "transactions" do
     field(:paid_by_balance, :integer)
     field(:paid_by_charge, :integer)
+    field(:paid_by_cash, :integer)
     field(:state, :string)
     field(:stripe_charge_id, :string)
     field(:total, :integer)
@@ -28,6 +29,7 @@ defmodule Flight.Billing.Transaction do
       :total,
       :paid_by_balance,
       :paid_by_charge,
+      :paid_by_cash,
       :stripe_charge_id,
       :type,
       :state,
@@ -47,6 +49,6 @@ defmodule Flight.Billing.Transaction do
       :creator_user_id
     ])
     |> validate_inclusion(:state, ["pending", "completed", "canceled"])
-    |> validate_inclusion(:type, ["debit", "credit"])
+    |> validate_inclusion(:type, ["debit", "credit", "cash"])
   end
 end
