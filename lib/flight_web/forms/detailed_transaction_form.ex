@@ -110,12 +110,14 @@ defmodule FlightWeb.API.TransactionFormHelpers do
   end
 
   def validate_custom_user_and_source_or_cash(changeset) do
-    if get_field(changeset, :custom_user) && (!get_field(changeset, :source) || !get_field(changeset, :paid_by_cash)) do
+    if get_field(changeset, :custom_user) &&
+         (!get_field(changeset, :source) || !get_field(changeset, :paid_by_cash)) do
       add_error(
         changeset,
         :source,
         "must be provided when using a custom user if paid_by_cash not used"
       )
+
       add_error(
         changeset,
         :source,
@@ -286,7 +288,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
         }
       end)
       |> Pipe.pass_unless(form.paid_by_cash, fn transaction ->
-            %{transaction | paid_by_cash: form.paid_by_cash}
+        %{transaction | paid_by_cash: form.paid_by_cash}
       end)
 
     {transaction, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details}

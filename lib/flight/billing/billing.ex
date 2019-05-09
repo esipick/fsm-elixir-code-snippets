@@ -190,8 +190,9 @@ defmodule Flight.Billing do
       ## TODO: Check that not Student
       ## TODO: Check that user_id and creator_user_id are different
       with {:ok, transaction} <- process_cash_payment(transaction) do
-        send_payment_request_notification(transaction)
-      else 
+        # TODO: Re-ad when fixed
+        # send_payment_request_notification(transaction)
+      else
         error -> error
       end
     else
@@ -342,8 +343,9 @@ defmodule Flight.Billing do
           :charge ->
             if source? do
               case Billing.create_stripe_charge(source?, transaction) do
-                {:ok, charge} -> 
-                  Billing.update_transaction_completed(transaction, :charge, charge.id)                  
+                {:ok, charge} ->
+                  Billing.update_transaction_completed(transaction, :charge, charge.id)
+
                 error ->
                   error
               end

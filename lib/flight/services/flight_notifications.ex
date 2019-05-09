@@ -89,8 +89,7 @@ defmodule Flight.PushNotifications do
   def credit_card_charged_notification(destination_user, approving_user, transaction) do
     %PushNotification{
       title: "Payment Approved",
-      body:
-        "#{approving_user.first_name} #{approving_user.last_name} charged your credit card.",
+      body: "#{approving_user.first_name} #{approving_user.last_name} charged your credit card.",
       sound: true,
       user_id: destination_user.id,
       data: %{
