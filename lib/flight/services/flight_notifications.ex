@@ -116,6 +116,23 @@ defmodule Flight.PushNotifications do
     }
   end
 
+  def cash_payment_received_notification(
+        destination_user,
+        deducting_user,
+        transaction
+      ) do
+    %PushNotification{
+      title: "Payment",
+      body:
+        "#{deducting_user.first_name} #{deducting_user.last_name} accepted a cash or gift card payment.",
+      sound: true,
+      user_id: destination_user.id,
+      data: %{
+        destination: "transactions/#{transaction.id}"
+      }
+    }
+  end
+
   def funds_added_notification(
         destination_user,
         deducting_user,

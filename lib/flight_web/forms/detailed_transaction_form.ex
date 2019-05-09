@@ -109,12 +109,17 @@ defmodule FlightWeb.API.TransactionFormHelpers do
     end
   end
 
-  def validate_custom_user_and_source(changeset) do
-    if get_field(changeset, :custom_user) && !get_field(changeset, :source) do
+  def validate_custom_user_and_source_or_cash(changeset) do
+    if get_field(changeset, :custom_user) && (!get_field(changeset, :source) || !get_field(changeset, :paid_by_cash)) do
       add_error(
         changeset,
         :source,
-        "must be provided when using a custom user"
+        "must be provided when using a custom user if paid_by_cash not used"
+      )
+      add_error(
+        changeset,
+        :source,
+        "must be provided when using a custom user if source not used"
       )
     else
       changeset
@@ -146,6 +151,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
     field(:source, :string)
     field(:creator_user_id, :integer)
     field(:appointment_id, :integer)
+    field(:paid_by_cash, :integer)
     embeds_one(:aircraft_details, AircraftDetails)
     embeds_one(:instructor_details, InstructorDetails)
     embeds_one(:custom_user, CustomUser)
@@ -153,14 +159,14 @@ defmodule FlightWeb.API.DetailedTransactionForm do
 
   def changeset(struct, attrs) do
     struct
-    |> cast(attrs, [:user_id, :creator_user_id, :appointment_id, :source])
+    |> cast(attrs, [:user_id, :creator_user_id, :appointment_id, :source, :paid_by_cash])
     |> cast_embed(:aircraft_details, required: false)
     |> cast_embed(:instructor_details, required: false)
     |> cast_embed(:custom_user, required: false)
     |> validate_required([:creator_user_id])
     |> validate_either_aircraft_or_instructor()
     |> validate_either_user_id_or_custom_user()
-    |> validate_custom_user_and_source()
+    |> validate_custom_user_and_source_or_cash()
   end
 
   def validate_either_aircraft_or_instructor(changeset) do
@@ -278,6 +284,9 @@ defmodule FlightWeb.API.DetailedTransactionForm do
             last_name: form.custom_user.last_name,
             email: form.custom_user.email
         }
+      end)
+      |> Pipe.pass_unless(form.paid_by_cash, fn transaction ->
+            %{transaction | paid_by_cash: form.paid_by_cash}
       end)
 
     {transaction, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details}

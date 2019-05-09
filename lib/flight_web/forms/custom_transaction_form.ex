@@ -25,7 +25,7 @@ defmodule FlightWeb.API.CustomTransactionForm do
     |> validate_number(:amount, greater_than_or_equal_to: 100, message: "must be more than $1.00")
     |> validate_length(:description, min: 1, max: 5000, message: "must be present")
     |> validate_either_user_id_or_custom_user()
-    |> validate_custom_user_and_source()
+    |> validate_custom_user_and_source_or_cash()
   end
 
   def to_transaction(form, school_context) do

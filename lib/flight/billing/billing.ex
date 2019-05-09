@@ -182,14 +182,31 @@ defmodule Flight.Billing do
         transaction
       end)
 
-    with {:ok, transaction} <- result,
-         {:ok, transaction} <- approve_transaction_if_necessary(transaction, form.source) do
-      send_payment_request_notification(transaction)
+    process_payment(result, form)
+  end
 
-      {:ok, transaction}
+  def process_payment({:ok, transaction}, form) do
+    if(transaction.paid_by_cash != nil) do
+      ## TODO: Check that not Student
+      ## TODO: Check that user_id and creator_user_id are different
+      with {:ok, transaction} <- process_cash_payment(transaction) do
+        send_payment_request_notification(transaction)
+      else 
+        error -> error
+      end
     else
-      error -> error
+      with {:ok, transaction} <- approve_transaction_if_necessary(transaction, form.source) do
+        send_payment_request_notification(transaction)
+
+        {:ok, transaction}
+      else
+        error -> error
+      end
     end
+  end
+
+  def process_payment(error) do
+    error
   end
 
   def create_transaction_from_custom_form(form, school_context) do
@@ -255,6 +272,14 @@ defmodule Flight.Billing do
                   transaction
                 )
                 |> Mondo.PushService.publish()
+
+              transaction.paid_by_cash ->
+                Flight.PushNotifications.cash_payment_received_notification(
+                  transaction.user,
+                  transaction.creator_user,
+                  transaction
+                )
+                |> Mondo.PushService.publish()
             end
           end
 
@@ -262,6 +287,16 @@ defmodule Flight.Billing do
           :nothing
       end
     end)
+  end
+
+  def process_cash_payment(transaction) do
+    transaction =
+      transaction
+      |> Repo.preload([:user, :creator_user])
+
+    add_funds_by_cash(transaction.user, transaction.creator_user, transaction.paid_by_cash)
+
+    approve_transaction(transaction)
   end
 
   def approve_transaction_if_necessary(transaction, source) do
@@ -307,9 +342,8 @@ defmodule Flight.Billing do
           :charge ->
             if source? do
               case Billing.create_stripe_charge(source?, transaction) do
-                {:ok, charge} ->
-                  Billing.update_transaction_completed(transaction, :charge, charge.id)
-
+                {:ok, charge} -> 
+                  Billing.update_transaction_completed(transaction, :charge, charge.id)                  
                 error ->
                   error
               end
@@ -382,6 +416,37 @@ defmodule Flight.Billing do
 
   def parse_amount(_) do
     {:error, :invalid}
+  end
+
+  def add_funds_by_cash(user, creator_user, amount) when is_integer(amount) and amount > 0 do
+    transaction =
+      %Transaction{}
+      |> SchoolScope.school_changeset(user)
+      |> Transaction.changeset(%{
+        user_id: user.id,
+        creator_user_id: creator_user.id,
+        completed_at: NaiveDateTime.utc_now(),
+        state: "completed",
+        type: "credit",
+        paid_by_cash: amount,
+        total: amount
+      })
+      |> Repo.insert!()
+
+    line_item =
+      %TransactionLineItem{}
+      |> TransactionLineItem.changeset(%{
+        transaction_id: transaction.id,
+        type: "add_funds",
+        amount: amount
+      })
+      |> Repo.insert!()
+
+    {:ok, user} = update_balance(user, amount)
+
+    transaction = %{transaction | line_items: [line_item]}
+
+    {:ok, {user, transaction}}
   end
 
   def add_funds_by_charge(user, creator_user, amount, source)
