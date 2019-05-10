@@ -192,6 +192,7 @@ defmodule Flight.Billing do
       with {:ok, transaction} <- process_cash_payment(transaction) do
         # TODO: Re-ad when fixed
         # send_payment_request_notification(transaction)
+        {:ok, transaction}
       else
         error -> error
       end
@@ -291,12 +292,13 @@ defmodule Flight.Billing do
   end
 
   def process_cash_payment(transaction) do
+    IO.puts("CA$H!!!") #TODO: REMOVE
     transaction =
       transaction
       |> Repo.preload([:user, :creator_user])
 
-    add_funds_by_cash(transaction.user, transaction.creator_user, transaction.paid_by_cash)
-
+    {:ok, {user, _}} = add_funds_by_cash(transaction.user, transaction.creator_user, transaction.paid_by_cash)
+    transaction = %{transaction | user: user}
     approve_transaction(transaction)
   end
 
