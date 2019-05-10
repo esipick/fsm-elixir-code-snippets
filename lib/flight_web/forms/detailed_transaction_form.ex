@@ -120,7 +120,7 @@ defmodule FlightWeb.API.TransactionFormHelpers do
 
       add_error(
         changeset,
-        :source,
+        :paid_by_cash,
         "must be provided when using a custom user if source not used"
       )
     else

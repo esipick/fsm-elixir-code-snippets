@@ -191,14 +191,14 @@ defmodule Flight.Billing do
       ## TODO: Check that user_id and creator_user_id are different
       with {:ok, transaction} <- process_cash_payment(transaction) do
         # TODO: Re-ad when fixed
-        # send_payment_request_notification(transaction)
+        # send_payment_notification(transaction)
         {:ok, transaction}
       else
         error -> error
       end
     else
       with {:ok, transaction} <- approve_transaction_if_necessary(transaction, form.source) do
-        send_payment_request_notification(transaction)
+        send_payment_notification(transaction)
 
         {:ok, transaction}
       else
@@ -232,7 +232,7 @@ defmodule Flight.Billing do
 
     with {:ok, transaction} <- result,
          {:ok, transaction} <- approve_transaction_if_necessary(transaction, form.source) do
-      send_payment_request_notification(transaction)
+      send_payment_notification(transaction)
 
       {:ok, transaction}
     else
@@ -241,7 +241,7 @@ defmodule Flight.Billing do
     end
   end
 
-  def send_payment_request_notification(transaction) do
+  def send_payment_notification(transaction) do
     Mondo.Task.start(fn ->
       transaction =
         transaction
@@ -367,7 +367,7 @@ defmodule Flight.Billing do
       with :balance <- preferred_payment_method(user, transaction.total),
            {:ok, %Transaction{state: "completed"} = transaction} <-
              approve_transaction_if_necessary(transaction, nil) do
-        send_payment_request_notification(transaction)
+        send_payment_notification(transaction)
         transaction
       else
         _ ->
