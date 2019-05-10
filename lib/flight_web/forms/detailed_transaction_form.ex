@@ -110,8 +110,8 @@ defmodule FlightWeb.API.TransactionFormHelpers do
   end
 
   def validate_custom_user_and_source_or_cash(changeset) do
-    if get_field(changeset, :custom_user) &&
-         (!get_field(changeset, :source) || !get_field(changeset, :paid_by_cash)) do
+    if get_field(changeset, :custom_user) && !get_field(changeset, :source) &&
+         !get_field(changeset, :paid_by_cash) do
       add_error(
         changeset,
         :source,

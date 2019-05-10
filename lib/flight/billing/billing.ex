@@ -292,12 +292,16 @@ defmodule Flight.Billing do
   end
 
   def process_cash_payment(transaction) do
-    IO.puts("CA$H!!!") #TODO: REMOVE
+    # TODO: REMOVE
+    IO.puts("CA$H!!!")
+
     transaction =
       transaction
       |> Repo.preload([:user, :creator_user])
 
-    {:ok, {user, _}} = add_funds_by_cash(transaction.user, transaction.creator_user, transaction.paid_by_cash)
+    {:ok, {user, _}} =
+      add_funds_by_cash(transaction.user, transaction.creator_user, transaction.paid_by_cash)
+
     transaction = %{transaction | user: user}
     approve_transaction(transaction)
   end
