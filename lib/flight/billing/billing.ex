@@ -195,7 +195,8 @@ defmodule Flight.Billing do
       end)
 
     if(transaction.paid_by_cash == nil) do
-      with {:ok, transaction} <- approve_transaction_if_necessary(transaction, form.source) do
+      with {:ok, transaction} <- result,
+           {:ok, transaction} <- approve_transaction_if_necessary(transaction, form.source) do
         send_payment_notification(transaction)
 
         {:ok, transaction}
@@ -203,7 +204,7 @@ defmodule Flight.Billing do
         error -> error
       end
     else
-      {:ok, transaction}
+      result
     end
   end
 
