@@ -276,16 +276,19 @@ defmodule Flight.Billing do
     transaction =
       transaction
       |> Repo.preload([:user, :creator_user], force: true)
-      |> Pipe.pass_unless(transaction.paid_by_cash != nil, fn transaction ->
-        add_funds_by_cash(transaction.user, transaction.creator_user, transaction.paid_by_cash)
+      |> Pipe.pass_unless(
+        transaction.paid_by_cash != nil && transaction.user_id,
+        fn transaction ->
+          add_funds_by_cash(transaction.user, transaction.creator_user, transaction.paid_by_cash)
 
-        transaction =
-          Transaction.changeset(transaction, %{paid_by_cash: nil})
-          |> Repo.update!()
-          |> Repo.preload([:user, :creator_user], force: true)
+          transaction =
+            Transaction.changeset(transaction, %{paid_by_cash: nil})
+            |> Repo.update!()
+            |> Repo.preload([:user, :creator_user], force: true)
 
-        transaction
-      end)
+          transaction
+        end
+      )
 
     payment_method = preferred_payment_method(transaction.user, transaction.total)
 
@@ -405,7 +408,7 @@ defmodule Flight.Billing do
   end
 
   defp add_funds_by_cash(user, creator_user, amount) when is_integer(amount) and amount > 0 do
-    ## TODO: Check that not Student
+    ## TODO: Check that Instructor or Admin
     ## TODO: Check that user_id and creator_user_id are different
 
     transaction =

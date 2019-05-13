@@ -217,6 +217,48 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    test "creates completed detailed cash transaction as instructor, charged to custom user", %{
+      conn: conn
+    } do
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+      paid_by_cash = 20000
+
+      params =
+        detailed_transaction_form_attrs(nil, instructor, nil, aircraft, nil, paid_by_cash)
+        |> Map.delete(:user_id)
+        |> Map.merge(%{
+          custom_user: %{
+            first_name: "Jackson",
+            last_name: "Jill",
+            email: "jackson@jill.com"
+          }
+        })
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/transactions", %{detailed: params})
+        |> json_response(201)
+
+      assert transaction =
+               Flight.Repo.get_by(
+                 Flight.Billing.Transaction,
+                 email: "jackson@jill.com"
+               )
+               |> Flight.Repo.preload([:line_items, :user, :creator_user])
+
+      assert transaction.state == "completed"
+      assert transaction.paid_by_balance == transaction.total
+      assert transaction.paid_by_balance == paid_by_cash
+      refute transaction.paid_by_cash
+      refute transaction.paid_by_charge
+      refute transaction.stripe_charge_id
+      refute transaction.user_id
+
+      assert json == render_json(TransactionView, "show.json", transaction: transaction)
+    end
+
     @tag :integration
     test "returns stripe errors", %{conn: conn} do
       {student, nil} = student_fixture(%{balance: 0}) |> real_stripe_customer(false)
@@ -266,7 +308,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
     end
 
     @tag :integration
-    test "creates transaction for custom user", %{conn: conn} do
+    test "creates custom transaction for custom user", %{conn: conn} do
       real_stripe_account(default_school_fixture())
       instructor = instructor_fixture()
 
@@ -356,7 +398,6 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert debit_transaction.paid_by_balance
       refute debit_transaction.paid_by_cash
       refute debit_transaction.paid_by_charge
-
       assert debit_transaction.total == paid_by_cash
 
       student = Flight.Repo.get(Flight.Accounts.User, student.id)
