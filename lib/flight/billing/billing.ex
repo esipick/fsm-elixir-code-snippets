@@ -276,21 +276,8 @@ defmodule Flight.Billing do
     transaction =
       transaction
       |> Repo.preload([:user, :creator_user], force: true)
-      |> Pipe.pass_unless(
-        transaction.paid_by_cash != nil && transaction.user_id,
-        fn transaction ->
-          add_funds_by_cash(transaction.user, transaction.creator_user, transaction.paid_by_cash)
 
-          transaction =
-            Transaction.changeset(transaction, %{paid_by_cash: nil})
-            |> Repo.update!()
-            |> Repo.preload([:user, :creator_user], force: true)
-
-          transaction
-        end
-      )
-
-    payment_method = preferred_payment_method(transaction.user, transaction.total)
+    payment_method = get_payment_method(transaction.user, transaction.total)
 
     source =
       cond do
@@ -306,19 +293,29 @@ defmodule Flight.Billing do
           nil
       end
 
-    if payment_method == :balance || (source && payment_method == :charge) do
-      transaction
-      |> Repo.preload([:user, :creator_user])
-      |> approve_transaction(source)
-    else
-      {:ok, transaction}
+    cond do
+      payment_method == :cash || payment_method == :balance ||
+          (source && payment_method == :charge) ->
+        transaction
+        |> Repo.preload([:user, :creator_user])
+        |> approve_transaction(source)
+
+      true ->
+        {:ok, transaction}
     end
   end
 
   def approve_transaction(transaction, source? \\ nil) do
     case transaction.state do
       "pending" ->
-        case preferred_payment_method(transaction.user, transaction.total) do
+        case get_payment_method(transaction.user, transaction.total) do
+          :cash ->
+            with {:ok, transaction} <- update_transaction_completed(transaction, :cash) do
+              {:ok, transaction}
+            else
+              error -> error
+            end
+
           :balance ->
             with {:ok, _user} <- update_balance(transaction.user, -transaction.total),
                  {:ok, transaction} <- update_transaction_completed(transaction, :balance) do
@@ -349,7 +346,7 @@ defmodule Flight.Billing do
   def approve_transactions_within_balance(user) do
     get_filtered_transactions(%{"user_id" => user.id, "state" => "pending"}, user)
     |> Enum.map(fn transaction ->
-      with :balance <- preferred_payment_method(user, transaction.total),
+      with :balance <- get_payment_method(user, transaction.total),
            {:ok, %Transaction{state: "completed"} = transaction} <-
              approve_transaction_if_necessary(transaction, nil) do
         send_payment_notification(transaction)
@@ -600,6 +597,7 @@ defmodule Flight.Billing do
       "pending" ->
         paid_by_key =
           case paid_by do
+            :cash -> :paid_by_cash
             :balance -> :paid_by_balance
             :charge -> :paid_by_charge
           end
@@ -665,11 +663,16 @@ defmodule Flight.Billing do
   # Stripe
   ###
 
-  def preferred_payment_method(user, amount) do
-    if user && user.balance >= amount do
-      :balance
-    else
-      :charge
+  def get_payment_method(user, amount, source \\ nil) do
+    cond do
+      source == :cash ->
+        :cash
+
+      user && user.balance >= amount ->
+        :balance
+
+      true ->
+        :charge
     end
   end
 

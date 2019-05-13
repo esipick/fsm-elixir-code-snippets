@@ -237,7 +237,7 @@ defmodule FlightWeb.API.TransactionController do
   end
 
   def preferred_payment_method(conn, %{"amount" => amount}) do
-    method = Billing.preferred_payment_method(conn.assigns.current_user, amount)
+    method = Billing.get_payment_method(conn.assigns.current_user, amount)
     render(conn, "preferred_payment_method.json", method: method)
   end
 
