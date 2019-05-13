@@ -69,6 +69,59 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    test "creates completed detailed cash transaction starting with zero balance", %{
+      conn: conn
+    } do
+      student = student_fixture(%{balance: 0})
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+      paid_by_cash = 17666
+
+      appointment = appointment_fixture(%{}, student, instructor, aircraft)
+
+      params =
+        detailed_transaction_form_attrs(
+          student,
+          instructor,
+          appointment,
+          aircraft,
+          instructor,
+          paid_by_cash
+        )
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/transactions", %{detailed: params})
+        |> json_response(201)
+
+      # Credit cash
+      assert cash_credit_transaction =
+               Flight.Repo.get_by(Flight.Billing.Transaction, user_id: student.id, type: "credit")
+               |> Flight.Repo.preload([:line_items, :user, :creator_user])
+
+      assert cash_credit_transaction.paid_by_cash
+      refute cash_credit_transaction.paid_by_balance
+      refute cash_credit_transaction.paid_by_charge
+
+      # Debit balance
+      assert debit_transaction =
+               Flight.Repo.get_by(Flight.Billing.Transaction, user_id: student.id, type: "debit")
+               |> Flight.Repo.preload([:line_items, :user, :creator_user])
+
+      assert debit_transaction.state == "completed"
+      assert debit_transaction.paid_by_balance
+      refute debit_transaction.paid_by_cash
+      refute debit_transaction.paid_by_charge
+
+      student = Flight.Repo.get(Flight.Accounts.User, student.id)
+
+      assert debit_transaction.total == paid_by_cash
+      assert student.balance == 0
+
+      assert json == render_json(TransactionView, "show.json", transaction: debit_transaction)
+    end
+
     test "creates completed detailed transaction as student, taken from balance", %{conn: conn} do
       student = student_fixture(%{balance: 3_000_000})
       instructor = instructor_fixture()

@@ -179,32 +179,16 @@ defmodule Flight.Billing do
             |> Flight.Repo.update()
         end
 
-        if(transaction.paid_by_cash != nil) do
-          ## TODO: Check that not Student
-          ## TODO: Check that user_id and creator_user_id are different
-          with {:ok, transaction} <- process_cash_payment(transaction) do
-            # TODO: Re-ad when fixed
-            # send_payment_notification(transaction)
-            {:ok, transaction}
-          else
-            error -> Repo.rollback("Error processing cash payment: #{error}")
-          end
-        end
-
         transaction
       end)
 
-    if(transaction.paid_by_cash == nil) do
-      with {:ok, transaction} <- result,
-           {:ok, transaction} <- approve_transaction_if_necessary(transaction, form.source) do
-        send_payment_notification(transaction)
+    with {:ok, transaction} <- result,
+         {:ok, transaction} <- approve_transaction_if_necessary(transaction, form.source) do
+      send_payment_notification(transaction)
 
-        {:ok, transaction}
-      else
-        error -> error
-      end
+      {:ok, transaction}
     else
-      result
+      error -> error
     end
   end
 
@@ -288,20 +272,20 @@ defmodule Flight.Billing do
     end)
   end
 
-  def process_cash_payment(transaction) do
+  def approve_transaction_if_necessary(transaction, source) do
     transaction =
       transaction
-      |> Repo.preload([:user, :creator_user])
+      |> Repo.preload([:user, :creator_user], force: true)
+      |> Pipe.pass_unless(transaction.paid_by_cash != nil, fn transaction ->
+        add_funds_by_cash(transaction.user, transaction.creator_user, transaction.paid_by_cash)
 
-    {:ok, {user, _}} =
-      add_funds_by_cash(transaction.user, transaction.creator_user, transaction.paid_by_cash)
+        transaction =
+          Transaction.changeset(transaction, %{paid_by_cash: nil})
+          |> Repo.update!()
+          |> Repo.preload([:user, :creator_user], force: true)
 
-    transaction = %{transaction | user: user}
-    approve_transaction(transaction)
-  end
-
-  def approve_transaction_if_necessary(transaction, source) do
-    transaction = Repo.preload(transaction, [:user])
+        transaction
+      end)
 
     payment_method = preferred_payment_method(transaction.user, transaction.total)
 
@@ -333,8 +317,8 @@ defmodule Flight.Billing do
       "pending" ->
         case preferred_payment_method(transaction.user, transaction.total) do
           :balance ->
-            with {:ok, _user} <- Billing.update_balance(transaction.user, -transaction.total),
-                 {:ok, transaction} <- Billing.update_transaction_completed(transaction, :balance) do
+            with {:ok, _user} <- update_balance(transaction.user, -transaction.total),
+                 {:ok, transaction} <- update_transaction_completed(transaction, :balance) do
               {:ok, transaction}
             else
               error -> error
@@ -342,9 +326,9 @@ defmodule Flight.Billing do
 
           :charge ->
             if source? do
-              case Billing.create_stripe_charge(source?, transaction) do
+              case create_stripe_charge(source?, transaction) do
                 {:ok, charge} ->
-                  Billing.update_transaction_completed(transaction, :charge, charge.id)
+                  update_transaction_completed(transaction, :charge, charge.id)
 
                 error ->
                   error
@@ -420,7 +404,10 @@ defmodule Flight.Billing do
     {:error, :invalid}
   end
 
-  def add_funds_by_cash(user, creator_user, amount) when is_integer(amount) and amount > 0 do
+  defp add_funds_by_cash(user, creator_user, amount) when is_integer(amount) and amount > 0 do
+    ## TODO: Check that not Student
+    ## TODO: Check that user_id and creator_user_id are different
+
     transaction =
       %Transaction{}
       |> SchoolScope.school_changeset(user)
@@ -481,7 +468,7 @@ defmodule Flight.Billing do
           })
           |> Repo.insert!()
 
-        {:ok, user} = Billing.update_balance(user, amount)
+        {:ok, user} = update_balance(user, amount)
 
         transaction = %{transaction | line_items: [line_item]}
 
@@ -532,7 +519,7 @@ defmodule Flight.Billing do
           })
           |> Repo.insert!()
 
-        case Billing.update_balance(user, amount) do
+        case update_balance(user, amount) do
           {:ok, user} ->
             transaction = %{transaction | line_items: [line_item]}
 
