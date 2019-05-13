@@ -179,24 +179,22 @@ defmodule Flight.Billing do
             |> Flight.Repo.update()
         end
 
+        if(transaction.paid_by_cash != nil) do
+          ## TODO: Check that not Student
+          ## TODO: Check that user_id and creator_user_id are different
+          with {:ok, transaction} <- process_cash_payment(transaction) do
+            # TODO: Re-ad when fixed
+            # send_payment_notification(transaction)
+            {:ok, transaction}
+          else
+            error -> Repo.rollback("Error processing cash payment: #{error}")
+          end
+        end
+
         transaction
       end)
 
-    process_payment(result, form)
-  end
-
-  def process_payment({:ok, transaction}, form) do
-    if(transaction.paid_by_cash != nil) do
-      ## TODO: Check that not Student
-      ## TODO: Check that user_id and creator_user_id are different
-      with {:ok, transaction} <- process_cash_payment(transaction) do
-        # TODO: Re-ad when fixed
-        # send_payment_notification(transaction)
-        {:ok, transaction}
-      else
-        error -> error
-      end
-    else
+    if(transaction.paid_by_cash == nil) do
       with {:ok, transaction} <- approve_transaction_if_necessary(transaction, form.source) do
         send_payment_notification(transaction)
 
@@ -204,11 +202,9 @@ defmodule Flight.Billing do
       else
         error -> error
       end
+    else
+      {:ok, transaction}
     end
-  end
-
-  def process_payment(error) do
-    error
   end
 
   def create_transaction_from_custom_form(form, school_context) do
@@ -292,9 +288,6 @@ defmodule Flight.Billing do
   end
 
   def process_cash_payment(transaction) do
-    # TODO: REMOVE
-    IO.puts("CA$H!!!")
-
     transaction =
       transaction
       |> Repo.preload([:user, :creator_user])
