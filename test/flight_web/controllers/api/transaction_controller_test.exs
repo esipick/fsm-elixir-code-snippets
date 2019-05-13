@@ -338,15 +338,32 @@ defmodule FlightWeb.API.TransactionControllerTest do
         |> post("/api/transactions", %{custom: params})
         |> json_response(201)
 
-      assert transaction =
-               Flight.Repo.get_by(Flight.Billing.Transaction, user_id: student.id)
+      # Credit cash
+      assert cash_credit_transaction =
+               Flight.Repo.get_by(Flight.Billing.Transaction, user_id: student.id, type: "credit")
                |> Flight.Repo.preload([:line_items, :user, :creator_user])
 
-      assert transaction.state == "completed"
-      assert transaction.paid_by_balance == paid_by_cash
-      assert transaction.total == paid_by_cash
+      assert cash_credit_transaction.paid_by_cash
+      refute cash_credit_transaction.paid_by_balance
+      refute cash_credit_transaction.paid_by_charge
 
-      assert json == render_json(TransactionView, "show.json", transaction: transaction)
+      # Debit balance
+      assert debit_transaction =
+               Flight.Repo.get_by(Flight.Billing.Transaction, user_id: student.id, type: "debit")
+               |> Flight.Repo.preload([:line_items, :user, :creator_user])
+
+      assert debit_transaction.state == "completed"
+      assert debit_transaction.paid_by_balance
+      refute debit_transaction.paid_by_cash
+      refute debit_transaction.paid_by_charge
+
+      assert debit_transaction.total == paid_by_cash
+
+      student = Flight.Repo.get(Flight.Accounts.User, student.id)
+
+      assert student.balance == 0
+
+      assert json == render_json(TransactionView, "show.json", transaction: debit_transaction)
     end
 
     @tag :integration

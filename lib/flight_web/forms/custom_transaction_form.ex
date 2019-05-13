@@ -14,12 +14,13 @@ defmodule FlightWeb.API.CustomTransactionForm do
     field(:description, :string)
     field(:amount, :integer)
     field(:source, :string)
+    field(:paid_by_cash, :integer)
     embeds_one(:custom_user, CustomUser)
   end
 
   def changeset(form, attrs) do
     form
-    |> cast(attrs, [:user_id, :creator_user_id, :description, :amount, :source])
+    |> cast(attrs, [:user_id, :creator_user_id, :description, :amount, :source, :paid_by_cash])
     |> cast_embed(:custom_user, required: false)
     |> validate_required([:creator_user_id, :description, :amount])
     |> validate_number(:amount, greater_than_or_equal_to: 100, message: "must be more than $1.00")
@@ -49,7 +50,8 @@ defmodule FlightWeb.API.CustomTransactionForm do
         type: "debit",
         user_id: user_id,
         creator_user_id: creator_user.id,
-        school_id: Flight.SchoolScope.school_id(school_context)
+        school_id: Flight.SchoolScope.school_id(school_context),
+        paid_by_cash: form.paid_by_cash
       }
       |> Pipe.pass_unless(form.custom_user, fn transaction ->
         %{
@@ -58,6 +60,9 @@ defmodule FlightWeb.API.CustomTransactionForm do
             last_name: form.custom_user.last_name,
             email: form.custom_user.email
         }
+      end)
+      |> Pipe.pass_unless(form.paid_by_cash, fn transaction ->
+        %{transaction | paid_by_cash: form.paid_by_cash}
       end)
 
     {transaction, line_item}
