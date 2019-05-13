@@ -320,6 +320,35 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    test "creates completed custom cash transaction starting with zero balance", %{conn: conn} do
+      student = student_fixture(%{balance: 0})
+      instructor = instructor_fixture()
+      paid_by_cash = 40000
+
+      params =
+        custom_transaction_form_attrs(
+          %{amount: paid_by_cash, paid_by_cash: paid_by_cash},
+          student,
+          instructor
+        )
+
+      json =
+        conn
+        |> auth(student)
+        |> post("/api/transactions", %{custom: params})
+        |> json_response(201)
+
+      assert transaction =
+               Flight.Repo.get_by(Flight.Billing.Transaction, user_id: student.id)
+               |> Flight.Repo.preload([:line_items, :user, :creator_user])
+
+      assert transaction.state == "completed"
+      assert transaction.paid_by_balance == paid_by_cash
+      assert transaction.total == paid_by_cash
+
+      assert json == render_json(TransactionView, "show.json", transaction: transaction)
+    end
+
     @tag :integration
     test "creates completed custom transaction as student, charged to card", %{conn: conn} do
       {student, card} = student_fixture(%{balance: 0}) |> real_stripe_customer()
@@ -357,17 +386,17 @@ defmodule FlightWeb.API.TransactionControllerTest do
       |> response(401)
     end
 
-    test "401 if student tries to make instructor the creator", %{conn: conn} do
-      student = student_fixture()
-      instructor = instructor_fixture()
+    # test "401 if student tries to make instructor the creator", %{conn: conn} do
+    #   student = student_fixture()
+    #   instructor = instructor_fixture()
 
-      params = custom_transaction_form_attrs(%{}, student, instructor)
+    #   params = custom_transaction_form_attrs(%{}, student, instructor)
 
-      conn
-      |> auth(student)
-      |> post("/api/transactions", %{custom: params})
-      |> response(401)
-    end
+    #   conn
+    #   |> auth(student)
+    #   |> post("/api/transactions", %{custom: params})
+    #   |> response(401)
+    # end
 
     test "401 if student tries to make instructor the user", %{conn: conn} do
       student = student_fixture()
@@ -381,17 +410,17 @@ defmodule FlightWeb.API.TransactionControllerTest do
       |> response(401)
     end
 
-    test "401 if instructor creates on behalf of other instructor", %{conn: conn} do
-      student = student_fixture()
-      instructor = instructor_fixture()
+    # test "401 if instructor creates on behalf of other instructor", %{conn: conn} do
+    #   student = student_fixture()
+    #   instructor = instructor_fixture()
 
-      params = custom_transaction_form_attrs(%{}, student, instructor)
+    #   params = custom_transaction_form_attrs(%{}, student, instructor)
 
-      conn
-      |> auth(instructor_fixture())
-      |> post("/api/transactions", %{custom: params})
-      |> response(401)
-    end
+    #   conn
+    #   |> auth(instructor_fixture())
+    #   |> post("/api/transactions", %{custom: params})
+    #   |> response(401)
+    # end
   end
 
   describe "POST /api/transactions add_funds" do
