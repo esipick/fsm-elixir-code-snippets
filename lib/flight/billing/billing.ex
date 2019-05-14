@@ -277,7 +277,7 @@ defmodule Flight.Billing do
       transaction
       |> Repo.preload([:user, :creator_user], force: true)
 
-    payment_method = get_payment_method(transaction.user, transaction.total)
+    payment_method = get_payment_method(transaction.user, transaction.total, source)
 
     source =
       cond do
@@ -308,7 +308,7 @@ defmodule Flight.Billing do
   def approve_transaction(transaction, source? \\ nil) do
     case transaction.state do
       "pending" ->
-        case get_payment_method(transaction.user, transaction.total) do
+        case get_payment_method(transaction.user, transaction.total, source?) do
           :cash ->
             with {:ok, transaction} <- update_transaction_completed(transaction, :cash) do
               {:ok, transaction}
@@ -663,9 +663,9 @@ defmodule Flight.Billing do
   # Stripe
   ###
 
-  def get_payment_method(user, amount, source \\ nil) do
+  def get_payment_method(user, amount, source? \\ nil) do
     cond do
-      source == :cash ->
+      source? == "cash" ->
         :cash
 
       user && user.balance >= amount ->
