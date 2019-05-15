@@ -62,6 +62,7 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:transaction, :modify, :all),
       permission_slug(:transaction, :view, :all),
       permission_slug(:transaction_user, :view, :all),
+      permission_slug(:transaction_cash, :modify, :all),
       permission_slug(:user_protected_info, :view, :all),
       permission_slug(:push_token, :modify, :all),
       permission_slug(:unavailability, :modify, :all)
@@ -82,6 +83,7 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:transaction, :request, :all),
       permission_slug(:transaction_creator, :modify, :personal),
       permission_slug(:transaction, :view, :personal),
+      permission_slug(:transaction_cash, :modify, :all),
       permission_slug(:push_token, :modify, :personal),
       permission_slug(:user_protected_info, :view, :all),
       permission_slug(:transaction_user, :view, :personal),

@@ -311,6 +311,29 @@ defmodule FlightWeb.API.TransactionController do
   def authorize_create(conn, _) do
     permissions =
       case conn.params do
+        %{
+          "detailed" => %{
+            "user_id" => user_id,
+            "source" => "cash"
+          }
+        } ->
+          if conn.assigns.current_user == user_id do
+            perms = [Permission.new(:transaction_cash_self, :modify, :all)]
+          else
+            perms = [Permission.new(:transaction_cash, :modify, :all)]
+          end
+        %{
+          "custom" => %{            
+            "user_id" => user_id,
+            "source" => "cash"
+          }
+        } ->
+          if conn.assigns.current_user == user_id do
+            perms = [Permission.new(:transaction_cash_self, :modify, :all)]
+          else
+            perms = [Permission.new(:transaction_cash, :modify, :all)]
+          end
+
         %{"detailed" => %{"creator_user_id" => creator_user_id, "user_id" => user_id}} ->
           perms = [Permission.new(:transaction_creator, :modify, {:personal, user_id})]
 

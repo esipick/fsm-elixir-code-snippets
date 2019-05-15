@@ -371,7 +371,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
 
       json =
         conn
-        |> auth(student)
+        |> auth(instructor)
         |> post("/api/transactions", %{custom: params})
         |> json_response(201)
 
@@ -393,6 +393,31 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert student.balance == 0
 
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
+    end
+
+    test "rejects non instructor or admin attempt to create a custom cash transaction", %{
+      conn: conn
+    } do
+      student = student_fixture()
+      instructor = instructor_fixture()
+      source = "cash"
+      amount = 20000
+
+      params =
+        custom_transaction_form_attrs(
+          %{amount: amount, source: source},
+          student,
+          instructor
+        )
+
+      conn
+      |> auth(student)
+      |> post("/api/transactions", %{custom: params})
+      |> json_response(401)
+
+      refute transaction =
+               Flight.Repo.get_by(Flight.Billing.Transaction, user_id: student.id)
+               |> Flight.Repo.preload([:line_items, :user, :creator_user])
     end
 
     @tag :integration

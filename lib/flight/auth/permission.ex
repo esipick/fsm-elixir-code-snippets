@@ -27,6 +27,8 @@ defmodule Flight.Auth.Permission do
     :transaction_approve,
     :transaction_user,
     :transaction_creator,
+    :transaction_cash,
+    :transaction_cash_self,
     :objective_score,
     :unavailability,
     :unavailability_instructor,
