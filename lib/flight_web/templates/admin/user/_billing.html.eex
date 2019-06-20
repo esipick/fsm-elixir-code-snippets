@@ -76,7 +76,16 @@
           status =
             case transaction.state do
               "pending" -> "pending student approval"
-              "completed" -> "completed"
+              "completed" -> cond do
+                transaction.paid_by_cash ->
+                  "completed - cash"
+                transaction.paid_by_charge ->
+                  "completed - charge"
+                transaction.paid_by_balance ->
+                  "completed - balance"
+                _ -> 
+                  "completed"
+              end
             end
         %>
         <p class="transaction-status"><%= status %></p>
