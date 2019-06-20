@@ -83,7 +83,7 @@
                   "completed - charge"
                 transaction.paid_by_balance ->
                   "completed - balance"
-                _ -> 
+                true -> 
                   "completed"
               end
             end

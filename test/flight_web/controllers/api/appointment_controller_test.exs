@@ -155,6 +155,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       student = student_fixture()
       instructor = user_fixture() |> assign_role("instructor")
       aircraft = aircraft_fixture()
+      type = "lesson"
 
       params = %{
         data:
@@ -162,7 +163,8 @@ defmodule FlightWeb.API.AppointmentControllerTest do
           |> Map.merge(%{
             user_id: student.id,
             instructor_user_id: instructor.id,
-            aircraft_id: aircraft.id
+            aircraft_id: aircraft.id,
+            type: type
           })
       }
 
@@ -177,7 +179,8 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                  Appointment,
                  user_id: student.id,
                  instructor_user_id: instructor.id,
-                 aircraft_id: aircraft.id
+                 aircraft_id: aircraft.id,
+                 type: type
                )
                |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
@@ -190,6 +193,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       student = student_fixture()
       instructor = user_fixture() |> assign_role("instructor")
       aircraft = aircraft_fixture()
+      type = "lesson"
 
       params = %{
         data:
@@ -197,7 +201,8 @@ defmodule FlightWeb.API.AppointmentControllerTest do
           |> Map.merge(%{
             user_id: student.id,
             instructor_user_id: instructor.id,
-            aircraft_id: aircraft.id
+            aircraft_id: aircraft.id,
+            type: type
           })
       }
 
@@ -212,7 +217,8 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                  Appointment,
                  user_id: student.id,
                  instructor_user_id: instructor.id,
-                 aircraft_id: aircraft.id
+                 aircraft_id: aircraft.id,
+                 type: type
                )
                |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 

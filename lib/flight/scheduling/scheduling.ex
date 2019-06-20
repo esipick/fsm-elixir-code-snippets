@@ -297,6 +297,7 @@ defmodule Flight.Scheduling do
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
       aircraft_id = get_field(changeset, :aircraft_id)
+      type = get_field(changeset, :type)
 
       excluded_appointment_ids =
         if appointment.id do

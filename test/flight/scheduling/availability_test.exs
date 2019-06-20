@@ -30,7 +30,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
-          instructor_user_id: unavailable_instructor.id
+          instructor_user_id: unavailable_instructor.id,
+          type: "lesson"
         })
 
       # unset instructor_user_id during same time period, to make sure nil doesn't screw things up
@@ -39,7 +40,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
-          aircraft_id: aircraft_fixture().id
+          aircraft_id: aircraft_fixture().id,
+          type: "rental"
         })
 
       available =
@@ -63,6 +65,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
   describe "student_availability" do
     test "returns status of all students" do
       date = ~N[2018-03-03 16:00:00]
+      type = "rental"
 
       _admin = user_fixture() |> assign_role("admin")
       _instructor = user_fixture() |> assign_role("instructor")
@@ -75,7 +78,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: unavailable_student.id,
-          aircraft_id: aircraft_fixture().id
+          aircraft_id: aircraft_fixture().id,
+          type: type
         })
 
       available =
@@ -114,7 +118,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: Timex.shift(date, hours: 5),
           end_at: Timex.shift(date, hours: 6),
           user_id: student_fixture().id,
-          aircraft_id: available_aircraft2.id
+          aircraft_id: available_aircraft2.id,
+          type: "rental"
         })
 
       {:ok, _} =
@@ -122,7 +127,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: Timex.shift(date, hours: -1),
           end_at: Timex.shift(date, hours: 1),
           user_id: student_fixture().id,
-          aircraft_id: available_aircraft3.id
+          aircraft_id: available_aircraft3.id,
+          type: "rental"
         })
 
       {:ok, _} =
@@ -130,7 +136,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
-          aircraft_id: unavailable_aircraft.id
+          aircraft_id: unavailable_aircraft.id,
+          type: "rental"
         })
 
       {:ok, _} =
@@ -138,7 +145,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: Timex.shift(date, hours: -1),
           end_at: Timex.shift(date, hours: 6),
           user_id: student_fixture().id,
-          aircraft_id: unavailable_aircraft2.id
+          aircraft_id: unavailable_aircraft2.id,
+          type: "rental"
         })
 
       {:ok, _} =
@@ -146,7 +154,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: Timex.shift(date, hours: 2),
           end_at: Timex.shift(date, hours: 3),
           user_id: student_fixture().id,
-          aircraft_id: unavailable_aircraft3.id
+          aircraft_id: unavailable_aircraft3.id,
+          type: "rental"
         })
 
       {:ok, _} =
@@ -154,7 +163,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: Timex.shift(date, hours: 3),
           end_at: Timex.shift(date, hours: 7),
           user_id: student_fixture().id,
-          aircraft_id: unavailable_aircraft4.id
+          aircraft_id: unavailable_aircraft4.id,
+          type: "rental"
         })
 
       {:ok, _} =
@@ -162,7 +172,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: Timex.shift(date, hours: 2),
           end_at: Timex.shift(date, hours: 5),
           user_id: student_fixture().id,
-          aircraft_id: unavailable_aircraft5.id
+          aircraft_id: unavailable_aircraft5.id,
+          type: "rental"
         })
 
       {:ok, _} =
@@ -170,7 +181,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: Timex.shift(date, hours: 1),
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
-          aircraft_id: unavailable_aircraft6.id
+          aircraft_id: unavailable_aircraft6.id,
+          type: "rental"
         })
 
       # unset aircraft_id during same time period, to make sure nil doesn't screw things up
@@ -179,7 +191,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
-          instructor_user_id: (user_fixture() |> assign_role("instructor")).id
+          instructor_user_id: (user_fixture() |> assign_role("instructor")).id,
+          type: "lesson"
         })
 
       available =
@@ -222,15 +235,16 @@ defmodule Flight.Scheduling.AvailabilityTest do
   describe "user_with_permission_status" do
     test "returns available" do
       date = ~N[2018-03-03 16:00:00]
-
       user = user_fixture() |> assign_role("instructor")
+      type = "lesson"
 
       {:ok, _} =
         create_appointment(%{
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
-          instructor_user_id: user.id
+          instructor_user_id: user.id,
+          type: type
         })
 
       assert Availability.user_with_permission_status(
@@ -247,6 +261,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
     @tag :wip
     test "returns unavailable" do
       date = ~N[2018-03-03 16:00:00]
+      type = "lesson"
 
       user = user_fixture() |> assign_role("instructor")
 
@@ -255,7 +270,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
-          instructor_user_id: user.id
+          instructor_user_id: user.id,
+          type: type
         })
 
       assert Availability.user_with_permission_status(
@@ -289,6 +305,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
   describe "aircraft_status" do
     test "returns available" do
       date = ~N[2018-03-03 16:00:00]
+      type = "rental"
 
       aircraft = aircraft_fixture()
 
@@ -297,7 +314,8 @@ defmodule Flight.Scheduling.AvailabilityTest do
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
-          aircraft_id: aircraft.id
+          aircraft_id: aircraft.id,
+          type: type
         })
 
       assert Availability.aircraft_status(
@@ -312,15 +330,16 @@ defmodule Flight.Scheduling.AvailabilityTest do
 
     test "returns unavailable" do
       date = ~N[2018-03-03 16:00:00]
-
       aircraft = aircraft_fixture()
+      type = "rental"
 
       {:ok, _} =
         create_appointment(%{
           start_at: date,
           end_at: Timex.shift(date, hours: 2),
           user_id: student_fixture().id,
-          aircraft_id: aircraft.id
+          aircraft_id: aircraft.id,
+          type: type
         })
 
       assert Availability.aircraft_status(

@@ -39,7 +39,8 @@ defmodule Flight.SchedulingFixtures do
         user \\ student_fixture(),
         instructor \\ instructor_fixture(),
         aircraft \\ aircraft_fixture(),
-        school \\ default_school_fixture()
+        school \\ default_school_fixture(),
+        type \\ "legacy"
       ) do
     date = ~N[2018-03-03 10:00:00]
 
@@ -50,7 +51,8 @@ defmodule Flight.SchedulingFixtures do
         user_id: user.id,
         instructor_user_id: instructor.id,
         aircraft_id: aircraft.id,
-        school_id: school.id
+        school_id: school.id,
+        type: type
       }
       |> Appointment.changeset(attrs)
       |> Appointment.apply_timezone_changeset(school.timezone)

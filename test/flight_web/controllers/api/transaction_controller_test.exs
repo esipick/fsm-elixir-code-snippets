@@ -415,9 +415,11 @@ defmodule FlightWeb.API.TransactionControllerTest do
       |> post("/api/transactions", %{custom: params})
       |> json_response(401)
 
-      refute transaction =
-               Flight.Repo.get_by(Flight.Billing.Transaction, user_id: student.id)
-               |> Flight.Repo.preload([:line_items, :user, :creator_user])
+      transaction =
+        Flight.Repo.get_by(Flight.Billing.Transaction, user_id: student.id)
+        |> Flight.Repo.preload([:line_items, :user, :creator_user])
+
+      refute transaction
     end
 
     @tag :integration
