@@ -5,22 +5,37 @@
 
 `mix test --include=integration` for all tests
 
-## Bootstrap first school on a new server
+## Dev env setup
 
-Start an iex session.
+1. Install elixir 1.9.1
 
-Create a school invitation:
+2. Install dependencies and run setup
+```bash
+# Install elixir dependencies
+mix deps.get
+mix deps.compile
 
+# Install frontend dependencies
+cd assets && npm i
+
+# Setup database
+mix ecto.setup
+
+# Run server
+mix phx.server
 ```
-Flight.Accounts.create_school_invitation(%{email: "bryan@brycelabs.com", first_name: "Bryan", last_name: "Bryce"})
+
+3. Login with example user:
+- Email: `bryan@brycelabs.com`
+- Password: `password`
+
+## Bootstrap first school and user on a new server
+
+```bash
+mix run priv/repo/seeds.exs # is also running automatically with mix ecto.setup
 ```
 
-Accept the invitation by getting the invitation token from the database and navigating to `school_invitations/:token` in the browser:
-
-Example: 
-```
-http://0.0.0.0:4000/school_invitations/34cfb36c210b9249cc4384500b1ee37a14f1374917f0170bac
-```
+This will create school with name `Example School` and user with email `bryan@brycelabs.com` and password `password`.
 
 ## Cloud 9 Instructions
 
