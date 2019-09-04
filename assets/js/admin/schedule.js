@@ -15,9 +15,9 @@ $(document).ready(function() {
   }
 
   var $calendar = $('#fullCalendar');
-  
+
   var displayFormat = 'MM/DD/YYYY h:mm A';
-  
+
   // dynamic unavailability form
   var unavailType = 'Instructor';
   $('#fieldAircraft').hide(); // hide aircraft by default
@@ -61,12 +61,12 @@ $(document).ready(function() {
   $('#btnSave').click(function(){
 
     var promise = null;
-    
+
     if(eventType=="appt") {
       var eventRenter = safeParseInt($('#apptStudent').val());
       var eventInstructor = safeParseInt($('#apptInstructor').val());
       var eventAircraft = safeParseInt($('#apptAircraft').val());
-      
+
       var eventStart = moment($('#apptStart').val(), displayFormat).toISOString();
       var eventEnd = moment($('#apptEnd').val(), displayFormat).toISOString();
       var eventNote = $('#apptNote').val()
@@ -83,21 +83,21 @@ $(document).ready(function() {
       if (appointmentOrUnavailabilityId) {
         promise = $.ajax({
           method: "put",
-          url: "/api/appointments/" + appointmentOrUnavailabilityId, 
-          data: {data: eventData}, 
+          url: "/api/appointments/" + appointmentOrUnavailabilityId,
+          data: {data: eventData},
           headers: {"Authorization": window.fsm_token}
         })
       } else {
         promise = $.post({
-          url: "/api/appointments", 
-          data: {data: eventData}, 
+          url: "/api/appointments",
+          data: {data: eventData},
           headers: {"Authorization": window.fsm_token}
         })
       }
     } else if (eventType == "unavail") {
       var eventInstructor = safeParseInt($('#unavailInstructor').val());
       var eventAircraft = safeParseInt($('#unavailAircraft').val());
-      
+
       var eventStart = moment($('#unavailStart').val(), displayFormat).toISOString();
       var eventEnd = moment($('#unavailEnd').val(), displayFormat).toISOString();
       var eventNote = $('#unavailNote').val()
@@ -115,14 +115,14 @@ $(document).ready(function() {
       if (appointmentOrUnavailabilityId) {
         promise = $.ajax({
           method: "put",
-          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId, 
-          data: {data: eventData}, 
+          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId,
+          data: {data: eventData},
           headers: {"Authorization": window.fsm_token}
         })
       } else {
         promise = $.post({
-          url: "/api/unavailabilities", 
-          data: {data: eventData}, 
+          url: "/api/unavailabilities",
+          data: {data: eventData},
           headers: {"Authorization": window.fsm_token}
         })
       }
@@ -147,7 +147,7 @@ $(document).ready(function() {
         $.notify({
           message: "Successfully saved " + event
         }, {
-          type: "success", 
+          type: "success",
           placement: {align: "center"}
         })
       }).catch(function(e) {
@@ -156,7 +156,7 @@ $(document).ready(function() {
             $.notify({
               message: error
             }, {
-              type: "danger", 
+              type: "danger",
               placement: {align: "center"}
             })
           }
@@ -164,13 +164,13 @@ $(document).ready(function() {
             $.notify({
               message: "There was an error creating the event"
             }, {
-              type: "danger", 
+              type: "danger",
               placement: {align: "center"}
             })
         }
       })
     }
-    
+
   });
 
 
@@ -206,7 +206,7 @@ $(document).ready(function() {
         $.notify({
           message: "Successfully deleted " + event
         }, {
-          type: "success", 
+          type: "success",
           placement: {align: "center"}
         })
       }).catch(function(e) {
@@ -215,7 +215,7 @@ $(document).ready(function() {
             $.notify({
               message: error
             }, {
-              type: "danger", 
+              type: "danger",
               placement: {align: "center"}
             })
           }
@@ -223,7 +223,7 @@ $(document).ready(function() {
             $.notify({
               message: "There was an error deleting the event"
             }, {
-              type: "danger", 
+              type: "danger",
               placement: {align: "center"}
             })
         }
@@ -284,7 +284,7 @@ $(document).ready(function() {
 
 
 
-  
+
 
   function fsmCalendar(instructors, aircrafts) {
 
@@ -326,15 +326,7 @@ $(document).ready(function() {
         defaultDate: today,
         selectable: true,
         selectHelper: true,
-        // customButtons: {
-        //   chooseDateButton: {
-        //     text: "Choose Date",
-        //     click: function(e) {
-        //       console.log("Clicked!")
-        //       console.log(arguments)
-        //     }
-        //   }
-        // },
+        height: "auto",
         views: {
             month: { // name of view
                 titleFormat: 'MMMM YYYY'
@@ -362,7 +354,7 @@ $(document).ready(function() {
               aircraftId = id
             }
           }
-          
+
           var eventType="appt"; // setting default event type to appt
           var eventData;
           var thatsAllDay = false;
@@ -373,7 +365,7 @@ $(document).ready(function() {
             instructor_user_id: instructorId,
             aircraft_id: aircraftId
           })
-          
+
         },
         editable: true,
         eventClick: function(calEvent, jsEvent, view){
@@ -422,8 +414,8 @@ $(document).ready(function() {
           }
 
         },
-        
-        
+
+
         eventLimit: true, // allow "more" link when too many events
 
         // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
@@ -431,16 +423,16 @@ $(document).ready(function() {
           var startStr = moment(start).toISOString()
           var endStr = moment(end).toISOString()
           var appointmentsPromise = $.get({
-            url: "/api/appointments?from=" + startStr + "&to=" + endStr + "&walltime=true", 
+            url: "/api/appointments?from=" + startStr + "&to=" + endStr + "&walltime=true",
             headers: {"Authorization": window.fsm_token}
           })
 
           var unavailabilityPromise = $.get({
-            url: "/api/unavailabilities?from=" + startStr + "&to=" + endStr + "&walltime=true", 
+            url: "/api/unavailabilities?from=" + startStr + "&to=" + endStr + "&walltime=true",
             headers: {"Authorization": window.fsm_token}
           })
-          
-          
+
+
           Promise.all([appointmentsPromise, unavailabilityPromise]).then(function(resp) {
 
             var appointments = resp[0].data.map(function(appointment) {
@@ -539,4 +531,3 @@ $(document).ready(function() {
   }
   initDateTimePicker();
 });
-

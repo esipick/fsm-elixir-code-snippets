@@ -10,6 +10,7 @@
       <div class="card card-calendar">
         <div class="card-body ">
           <div id="fullCalendar"></div>
+          <div class="fc-bottom-border"></div>
           <div id="calendar"></div>
         </div>
       </div>
@@ -24,14 +25,14 @@
         <h5 class="modal-title" id="apptTitle">Create New</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
-      
+
       <div class="modal-body">
         <ul id="apptTabs" class="nav nav-pills nav-pills-primary" role="tablist">
           <li class="nav-item"><a id="navAppt" class="nav-link active" data-toggle="tab" href="#appointmentForm" role="tablist">Appointment</a></li>
           <li class="nav-item"><a id="navUnavail" class="nav-link" data-toggle="tab" href="#unavailabilityForm" role="tablist">Unavailability</a></li>
         </ul>
         <div class="tab-content mt-2 mb-2">
-          
+
           <div class="tab-pane active" id="appointmentForm">
             <div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="apptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value=""></div></div></div>
             <div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="apptEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>
@@ -83,7 +84,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="tab-pane" id="unavailabilityForm">
             <div class="row">
               <label class="col-md-3 col-form-label">For</label>
@@ -153,7 +154,7 @@
         <button id="btnSave" type="button" class="btn btn-primary">Save</button>
         </div>
       </div>
-      
+
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
