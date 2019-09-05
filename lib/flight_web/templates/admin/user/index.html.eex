@@ -1,6 +1,6 @@
 <div class="panel-header panel-header-sm">
   <div class="header text-center">
-    
+
   </div>
 </div>
 
@@ -22,6 +22,24 @@
                   </ul>
                   <!-- <a href="new-student.php" class="btn btn-primary">Add Student</a> -->
                 </div>
+
+                <%= if @data.role.slug != "admin" do %>
+                  <div>
+                    <%= form_for @conn, "/admin/users", [method: "get"], fn f -> %>
+                      <%= hidden_input f, :role, value: @data.role.slug %>
+                      <div class="row mb-4">
+                        <div class="col-md-10 col-xs-12">
+                          <div class="form-group">
+                            <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Search" %>
+                          </div>
+                        </div>
+                        <div class="col-md-2 pl-1">
+                          <input type="submit" class="btn btn-primary m-0" value="Search" />
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
               </div>
               <div class="card-body">
                 <%=
@@ -30,6 +48,10 @@
                   :simple -> render(FlightWeb.Admin.UserView, "_simple_table.html", simple_rows: @data.user_table_data.rows)
                 end
                 %>
+
+                <%= if @data.user_table_data.page.total_pages > 1 do %>
+                  <%= pagination_links @conn, @data.user_table_data.page, role: @data.role.slug, search: @data.search_term %>
+                <% end %>
               <!-- end content-->
             </div>
             <!--  end card  -->

@@ -5,8 +5,12 @@ defmodule FlightWeb.Admin.UserController do
 
   plug(:get_user when action in [:show, :edit, :update, :add_funds])
 
-  def index(conn, %{"role" => role_slug}) do
-    render(conn, "index.html", data: FlightWeb.Admin.UserListData.build(role_slug, conn))
+  def index(conn, %{"role" => role_slug} = params) do
+    search_term = Map.get(params, "search", "")
+    page_params = FlightWeb.Pagination.params(params)
+    data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term)
+
+    render(conn, "index.html", data: data)
   end
 
   def show(conn, %{"tab" => "schedule"}) do

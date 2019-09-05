@@ -170,17 +170,17 @@ textarea.form-control, textarea.form-control:focus, textarea.form-control:active
 
 .badge-success {
   background-color: #46CF7B;
-  border-color: #46CF7B;  
+  border-color: #46CF7B;
 }
 .badge-danger {
   background-color: #F64461;
-  border-color: #F64461;  
+  border-color: #F64461;
 }
 
 
 .sidebar[data-color="blue"]:after,
 .off-canvas-sidebar[data-color="blue"]:after {
-   background: #242527; 
+   background: #242527;
 
   /*background-image: -webkit-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);*/
   /*background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);*/
@@ -226,16 +226,16 @@ textarea.form-control, textarea.form-control:focus, textarea.form-control:active
   background: transparent;
 }
 
-.off-canvas-sidebar .nav li.active>a:not([data-toggle=collapse]), 
+.off-canvas-sidebar .nav li.active>a:not([data-toggle=collapse]),
 .sidebar .nav li.active>a:not([data-toggle=collapse]) {
   background-image: -webkit-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
   background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
   background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
   background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);
 }
-.off-canvas-sidebar[data-color=blue] .nav li.active>a:not([data-toggle=collapse]), 
-.off-canvas-sidebar[data-color=blue] .nav li.active>a:not([data-toggle=collapse]) i, 
-.sidebar[data-color=blue] .nav li.active>a:not([data-toggle=collapse]), 
+.off-canvas-sidebar[data-color=blue] .nav li.active>a:not([data-toggle=collapse]),
+.off-canvas-sidebar[data-color=blue] .nav li.active>a:not([data-toggle=collapse]) i,
+.sidebar[data-color=blue] .nav li.active>a:not([data-toggle=collapse]),
 .sidebar[data-color=blue] .nav li.active>a:not([data-toggle=collapse]) i {
   color: #fff;
 }
@@ -554,7 +554,7 @@ dl .disc.expired {background-color: #FF5572;}
 }
 .modal-content .modal-footer button, .card .card-footer .modal-footer .btn {
     margin-left: 8px;
-} 
+}
 .modal-content .modal-footer button.mr-auto {
   margin-left: 0;
 }
@@ -606,53 +606,53 @@ dl .disc.expired {background-color: #FF5572;}
   background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
   background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);
 }
-.fc button.btn-primary.disabled, 
-.fc button.btn-primary.disabled.active, 
-.fc button.btn-primary.disabled.focus, 
-.fc button.btn-primary.disabled:active, 
-.fc button.btn-primary.disabled:focus, 
-.fc button.btn-primary.disabled:hover, 
-.fc button.btn-primary:disabled, 
-.fc button.btn-primary:disabled.active, 
-.fc button.btn-primary:disabled.focus, 
-.fc button.btn-primary:disabled:active, 
-.fc button.btn-primary:disabled:focus, 
-.fc button.btn-primary:disabled:hover, 
-.fc button.btn-primary[disabled], 
-.fc button.btn-primary[disabled].active, 
-.fc button.btn-primary[disabled].focus, 
-.fc button.btn-primary[disabled]:active, 
-.fc button.btn-primary[disabled]:focus, 
-.fc button.btn-primary[disabled]:hover, 
-.fc button.disabled, 
-.fc button.disabled.active, 
-.fc button.disabled.focus, 
-.fc button.disabled:active, 
-.fc button.disabled:focus, 
-.fc button.disabled:hover, 
-.fc button:disabled, 
-.fc button:disabled.active, 
-.fc button:disabled.focus, 
-.fc button:disabled:active, 
-.fc button:disabled:focus, 
-.fc button:disabled:hover, 
-.fc button[disabled], 
-.fc button[disabled].active, 
-.fc button[disabled].focus, 
-.fc button[disabled]:active, 
-.fc button[disabled]:focus, 
-.fc button[disabled]:hover, 
-fieldset[disabled] .fc button, 
-fieldset[disabled] .fc button.active, 
-fieldset[disabled] .fc button.btn-primary, 
-fieldset[disabled] .fc button.btn-primary.active, 
-fieldset[disabled] .fc button.btn-primary.focus, 
-fieldset[disabled] .fc button.btn-primary:active, 
-fieldset[disabled] .fc button.btn-primary:focus, 
-fieldset[disabled] .fc button.btn-primary:hover, 
-fieldset[disabled] .fc button.focus, 
-fieldset[disabled] .fc button:active, 
-fieldset[disabled] .fc button:focus, 
+.fc button.btn-primary.disabled,
+.fc button.btn-primary.disabled.active,
+.fc button.btn-primary.disabled.focus,
+.fc button.btn-primary.disabled:active,
+.fc button.btn-primary.disabled:focus,
+.fc button.btn-primary.disabled:hover,
+.fc button.btn-primary:disabled,
+.fc button.btn-primary:disabled.active,
+.fc button.btn-primary:disabled.focus,
+.fc button.btn-primary:disabled:active,
+.fc button.btn-primary:disabled:focus,
+.fc button.btn-primary:disabled:hover,
+.fc button.btn-primary[disabled],
+.fc button.btn-primary[disabled].active,
+.fc button.btn-primary[disabled].focus,
+.fc button.btn-primary[disabled]:active,
+.fc button.btn-primary[disabled]:focus,
+.fc button.btn-primary[disabled]:hover,
+.fc button.disabled,
+.fc button.disabled.active,
+.fc button.disabled.focus,
+.fc button.disabled:active,
+.fc button.disabled:focus,
+.fc button.disabled:hover,
+.fc button:disabled,
+.fc button:disabled.active,
+.fc button:disabled.focus,
+.fc button:disabled:active,
+.fc button:disabled:focus,
+.fc button:disabled:hover,
+.fc button[disabled],
+.fc button[disabled].active,
+.fc button[disabled].focus,
+.fc button[disabled]:active,
+.fc button[disabled]:focus,
+.fc button[disabled]:hover,
+fieldset[disabled] .fc button,
+fieldset[disabled] .fc button.active,
+fieldset[disabled] .fc button.btn-primary,
+fieldset[disabled] .fc button.btn-primary.active,
+fieldset[disabled] .fc button.btn-primary.focus,
+fieldset[disabled] .fc button.btn-primary:active,
+fieldset[disabled] .fc button.btn-primary:focus,
+fieldset[disabled] .fc button.btn-primary:hover,
+fieldset[disabled] .fc button.focus,
+fieldset[disabled] .fc button:active,
+fieldset[disabled] .fc button:focus,
 fieldset[disabled] .fc button:hover {
   background-color: #2CA8FF;
   color: #fff;
@@ -695,20 +695,20 @@ fieldset[disabled] .fc button:hover {
 .fc-event.event-default .fc-title, .fc-event.event-default .fc-time{
   color: #444;
 }
-.fc-unthemed .fc-divider, 
-.fc-unthemed .fc-list-heading td, 
+.fc-unthemed .fc-divider,
+.fc-unthemed .fc-list-heading td,
 .fc-unthemed .fc-popover .fc-header {
   background: #e7e7f0;
 }
-.fc-unthemed .fc-content, 
-.fc-unthemed .fc-divider, 
-.fc-unthemed .fc-list-heading td, 
-.fc-unthemed .fc-list-view, 
-.fc-unthemed .fc-popover, 
-.fc-unthemed .fc-row, 
-.fc-unthemed tbody, 
-.fc-unthemed td, 
-.fc-unthemed th, 
+.fc-unthemed .fc-content,
+.fc-unthemed .fc-divider,
+.fc-unthemed .fc-list-heading td,
+.fc-unthemed .fc-list-view,
+.fc-unthemed .fc-popover,
+.fc-unthemed .fc-row,
+.fc-unthemed tbody,
+.fc-unthemed td,
+.fc-unthemed th,
 .fc-unthemed thead {
   border-color: #e7e7f0;
 }
@@ -763,17 +763,17 @@ fieldset[disabled] .fc button:hover {
 
 
 /* datetimepicker plugin */
-.bootstrap-datetimepicker-widget table td.day:hover>div, 
-.bootstrap-datetimepicker-widget table td.hour:hover>div, 
-.bootstrap-datetimepicker-widget table td.minute:hover>div, 
+.bootstrap-datetimepicker-widget table td.day:hover>div,
+.bootstrap-datetimepicker-widget table td.hour:hover>div,
+.bootstrap-datetimepicker-widget table td.minute:hover>div,
 .bootstrap-datetimepicker-widget table td.second:hover>div {
   background-color: #e7e7f0;
 }
-.bootstrap-datetimepicker-widget table td.today:hover>div, 
+.bootstrap-datetimepicker-widget table td.today:hover>div,
 .bootstrap-datetimepicker-widget table td.today>div {
   background-color: #e7e7f0;
 }
-.bootstrap-datetimepicker-widget table td.active:hover>div, 
+.bootstrap-datetimepicker-widget table td.active:hover>div,
 .bootstrap-datetimepicker-widget table td.active>div {
   background-color: #2CA8Fe;
   color: #fff;
@@ -826,7 +826,7 @@ fieldset[disabled] .fc button:hover {
 }
 
 /* Large devices (desktops, 992px and up) */
-@media (min-width: 992px) { 
+@media (min-width: 992px) {
 	.panel-header {
     background-position: 0 988px;
   }
@@ -884,7 +884,7 @@ fieldset[disabled] .fc button:hover {
   font-size: 8px;
   margin-right: 8px;
 }
-#prototyping-only .btn { 
+#prototyping-only .btn {
   padding: 4px 8px;
 }
 
@@ -901,4 +901,8 @@ fieldset[disabled] .fc button:hover {
 }
 .download-buttons a img {
   width: 112px;
+}
+
+.pagination {
+  justify-content: center;
 }

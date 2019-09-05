@@ -51,6 +51,10 @@ config :ex_aws,
 
 config :flight, :push_service_client, Mondo.PushService.Client
 
+config :scrivener_html,
+  routes_helper: FlightWeb.Router.Helpers,
+  view_style: :bootstrap_v4
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

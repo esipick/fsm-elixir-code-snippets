@@ -33,9 +33,13 @@ defmodule FlightWeb.Admin.AircraftController do
     |> render("show.html", aircraft: aircraft)
   end
 
-  def index(conn, _params) do
+  def index(conn, params) do
+    search_term = Map.get(params, "search", "")
+    page_params = FlightWeb.Pagination.params(params)
+    data = FlightWeb.Admin.AircraftListData.build(conn, page_params, search_term)
+
     conn
-    |> render("index.html", aircrafts: Scheduling.visible_aircrafts(conn))
+    |> render("index.html", data: data)
   end
 
   def edit(conn, _params) do

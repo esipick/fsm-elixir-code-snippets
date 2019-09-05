@@ -375,11 +375,11 @@ defmodule Flight.Accounts do
     end
   end
 
-  def users_with_role(role, school_context) do
+  def users_with_role_query(role, search_term, school_context) do
     role
     |> Ecto.assoc(:users)
+    |> Flight.Accounts.Search.User.run(search_term)
     |> default_users_query(school_context)
-    |> Repo.all()
   end
 
   def users_with_roles([], _school_context) do
@@ -393,7 +393,7 @@ defmodule Flight.Accounts do
     |> Repo.all()
   end
 
-  defp default_users_query(query, school_context) do
+  def default_users_query(query, school_context) do
     from(
       u in query,
       where: u.archived == false,
