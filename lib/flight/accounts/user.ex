@@ -48,7 +48,8 @@ defmodule Flight.Accounts.User do
       :address_1,
       :city,
       :state,
-      :zipcode
+      :zipcode,
+      :school_id
     ])
     |> validate_required([
       :email,

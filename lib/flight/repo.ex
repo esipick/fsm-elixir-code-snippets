@@ -1,5 +1,6 @@
 defmodule Flight.Repo do
   use Ecto.Repo, otp_app: :flight
+  use Scrivener, page_size: 50
 
   @doc """
   Dynamically loads the repository url from the

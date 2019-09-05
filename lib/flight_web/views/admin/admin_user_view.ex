@@ -1,6 +1,7 @@
 defmodule FlightWeb.Admin.UserView do
   use FlightWeb, :view
   import FlightWeb.ViewHelpers
+  import Scrivener.HTML
 
   alias Flight.Accounts
 

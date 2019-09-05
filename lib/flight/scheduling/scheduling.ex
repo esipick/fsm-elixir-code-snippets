@@ -56,8 +56,9 @@ defmodule Flight.Scheduling do
     result
   end
 
-  defp visible_aircraft_query(school_context) do
+  def visible_aircraft_query(school_context, search_term \\ "") do
     Aircraft
+    |> Flight.Scheduling.Search.Aircraft.run(search_term)
     |> order_by([a], asc: [a.make, a.model, a.tail_number])
     |> SchoolScope.scope_query(school_context)
     |> where([a], a.archived == false)
@@ -297,7 +298,7 @@ defmodule Flight.Scheduling do
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
       aircraft_id = get_field(changeset, :aircraft_id)
-      type = get_field(changeset, :type)
+      _type = get_field(changeset, :type)
 
       excluded_appointment_ids =
         if appointment.id do

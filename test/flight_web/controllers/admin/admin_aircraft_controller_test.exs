@@ -5,10 +5,29 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
 
   describe "GET /admin/aircrafts" do
     test "renders", %{conn: conn} do
-      conn
-      |> web_auth_admin()
-      |> get("/admin/aircrafts")
-      |> html_response(200)
+      aircraft = aircraft_fixture()
+
+      content =
+        conn
+        |> web_auth_admin()
+        |> get("/admin/aircrafts")
+        |> html_response(200)
+
+      assert content =~ aircraft.make
+    end
+
+    test "renders search results", %{conn: conn} do
+      aircraft = aircraft_fixture(%{ tail_number: "123456" })
+      another_aircraft = aircraft_fixture(%{ tail_number: "789123" })
+
+      content =
+        conn
+        |> web_auth_admin()
+        |> get("/admin/aircrafts?search=789")
+        |> html_response(200)
+
+      assert content =~ another_aircraft.tail_number
+      refute content =~ aircraft.tail_number
     end
   end
 

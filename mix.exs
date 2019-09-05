@@ -21,7 +21,10 @@ defmodule Flight.Mixfile do
   def application do
     [
       mod: {Flight.Application, []},
-      extra_applications: [:appsignal, :logger, :runtime_tools, :comeonin, :timex, :bamboo]
+      extra_applications: [
+        :appsignal, :logger, :runtime_tools, :comeonin, :timex, :bamboo,
+        :scrivener_ecto, :scrivener_html
+      ]
     ]
   end
 
@@ -55,7 +58,12 @@ defmodule Flight.Mixfile do
       {:sweet_xml, "~> 0.6"},
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
-      {:ex_aws_sns, "~> 2.0"}
+      {:ex_aws_sns, "~> 2.0"},
+      {:scrivener_ecto, "~> 1.0"},
+      {:scrivener_html, "~> 1.8"},
+
+      # Dev tools
+      {:faker, "~> 0.12", only: [:dev, :test]}
     ]
   end
 

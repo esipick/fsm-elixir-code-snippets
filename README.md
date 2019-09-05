@@ -37,6 +37,15 @@ mix run priv/repo/seeds.exs # is also running automatically with mix ecto.setup
 
 This will create school with name `Example School` and user with email `bryan@brycelabs.com` and password `password`.
 
+Populate database with sample data:
+```bash
+mix run priv/repo/user_seeds.exs # create 100 students
+mix run priv/repo/user_seeds.exs instructor # create 100 instructors
+mix run priv/repo/user_seeds.exs renter # create 100 renters
+
+mix run priv/repo/aircraft_seeds.exs # create 100 aircrafts
+```
+
 ## Cloud 9 Instructions
 
 #### Start FSM Server

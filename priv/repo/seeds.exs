@@ -16,13 +16,13 @@
   last_name: "Bryce"
 })
 
- user_data = %{
-   email: "bryan@brycelabs.com",
-   first_name: "Bryan", last_name: "Bryce",
-   phone_number: "555-555-5555",
-   school_name: "Example School",
-   timezone: "America/Denver",
-   password: "password"
- }
+user_data = %{
+ email: "bryan@brycelabs.com",
+ first_name: "Bryan", last_name: "Bryce",
+ phone_number: "555-555-5555",
+ school_name: "Example School",
+ timezone: "America/Denver",
+ password: "password"
+}
 
 {:ok, _records} = Flight.Accounts.create_school_from_invitation(user_data, invitation)
