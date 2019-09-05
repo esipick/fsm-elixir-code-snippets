@@ -1,7 +1,6 @@
-Faker.start()
-
-makes = ["Boeing", "Airbus", "Eurocopter", "Embraer", "Fournier", "Hurel-Dubois", "Junkers", "Martin-Baker"]
-models = Enum.map(0..10, fn(_i) -> Faker.Company.buzzword end)
+makes = ["Cessna", "Airbus", "Eurocopter", "Embraer", "Fournier", "Hurel-Dubois", "Junkers", "Martin-Baker"]
+models = ["Baron 55", "172SP", "PA28-181", "R2-D2", "C-3PO", "R5D4", "R4P17", "Saesee Tiin", "Tarfful", "San Hill", "Jocasta"]
+equipments = ["Garmin 530", "Garmin 430", "Bendix King GPS"]
 
 Enum.each(0..99, fn(_i) ->
   school = Flight.Repo.one(Flight.Accounts.School)
@@ -13,7 +12,7 @@ Enum.each(0..99, fn(_i) ->
     tail_number: Flight.Random.hex(15),
     serial_number: Flight.Random.hex(15),
     ifr_certified: Enum.random(1..10) > 5,
-    equipment: Faker.Lorem.word,
+    equipment: Enum.random(equipments),
     simulator: Enum.random(1..10) > 5,
     rate_per_hour: Enum.random(100..200),
     block_rate_per_hour: Enum.random(200..300),
