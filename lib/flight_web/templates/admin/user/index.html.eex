@@ -50,7 +50,22 @@
                 %>
 
                 <%= if @data.user_table_data.page.total_pages > 1 do %>
-                  <%= pagination_links @conn, @data.user_table_data.page, role: @data.role.slug, search: @data.search_term %>
+                  <div class="row">
+                    <div class="col-md-10">
+                      <%= pagination_links @conn,
+                        @data.user_table_data.page,
+                        role: @data.role.slug,
+                        search: @data.search_term,
+                        page_size: @data.user_table_data.page.page_size
+                      %>
+                    </div>
+
+                    <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+                  </div>
+                <% else %>
+                  <div class="row justify-content-end">
+                    <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+                  </div>
                 <% end %>
               <!-- end content-->
             </div>

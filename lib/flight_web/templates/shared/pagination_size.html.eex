@@ -1,0 +1,13 @@
+<div class="col-md-2 pagination-page-size-wrapper">
+  <%= form_for @conn, "", [method: "get"], fn f -> %>
+    <%= for {key, value} <- Map.drop(@conn.params, ["_utf8", "page_size"]) do %>
+      <%= hidden_input f, key, value: value %>
+    <% end %>
+    <div class="pagination-page-size-fields">
+      <label for="page_size">Page size:</label>
+      <div class="pagination-page-size-select">
+        <%= select f, :page_size, page_sizes, class: "selectpicker" , onchange: "this.form.submit()" %>
+      </div>
+    </div>
+  <% end %>
+</div>

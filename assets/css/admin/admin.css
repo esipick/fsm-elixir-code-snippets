@@ -906,3 +906,15 @@ fieldset[disabled] .fc button:hover {
 .pagination {
   justify-content: center;
 }
+.pagination-page-size-wrapper {
+  padding: 0;
+}
+.pagination-page-size-fields {
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.pagination-page-size-select {
+  width: 75px;
+}

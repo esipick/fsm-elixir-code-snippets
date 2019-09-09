@@ -39,11 +39,11 @@ This will create school with name `Example School` and user with email `bryan@br
 
 Populate database with sample data:
 ```bash
-mix run priv/repo/user_seeds.exs # create 100 students
-mix run priv/repo/user_seeds.exs instructor # create 100 instructors
-mix run priv/repo/user_seeds.exs renter # create 100 renters
+mix run priv/repo/user_seeds.ex # create 100 students
+mix run priv/repo/user_seeds.ex instructor # create 100 instructors
+mix run priv/repo/user_seeds.ex renter # create 100 renters
 
-mix run priv/repo/aircraft_seeds.exs # create 100 aircrafts
+mix run priv/repo/aircraft_seeds.ex # create 100 aircrafts
 ```
 
 ## Cloud 9 Instructions

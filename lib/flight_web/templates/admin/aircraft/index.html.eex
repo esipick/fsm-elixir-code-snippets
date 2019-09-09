@@ -65,7 +65,21 @@
                 </div>
 
                 <%= if @data.table_data.page.total_pages > 1 do %>
-                  <%= pagination_links @conn, @data.table_data.page, search: @data.search_term %>
+                  <div class="row">
+                    <div class="col-md-10">
+                      <%= pagination_links @conn,
+                        @data.table_data.page,
+                        search: @data.search_term,
+                        page_size: @data.table_data.page.page_size
+                      %>
+                    </div>
+
+                    <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+                  </div>
+                <% else %>
+                  <div class="row justify-content-end">
+                    <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+                  </div>
                 <% end %>
 
                 <!-- Modal -->
