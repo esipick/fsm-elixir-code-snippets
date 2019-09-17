@@ -311,16 +311,7 @@ $(document).ready(function() {
       var d = today.getDate();
 
       $calendar.fullCalendar({
-        viewRender: function(view, element) { },        
-        customButtons: {
-          chooseDateButton: {
-            text: "Choose Date",
-            click: function(e) {
-              // alert("JONAS!");
-
-            }
-          }
-        },
+        viewRender: function(view, element) { },
         header: {
           left: 'title,chooseDateButton',
           center: 'timelineDay,timelineWeek,timelineMonth',
