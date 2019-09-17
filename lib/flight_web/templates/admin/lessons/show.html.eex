@@ -1,0 +1,53 @@
+<div class="panel-header panel-header-sm">
+
+</div>
+
+<div class="content">
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header text-right">
+                 <h3 class="card-title pull-left"><%= @lesson.name %></h3>
+                <a href="/admin/courses/lessons/categories/new" class="btn btn-primary">Add New Category</a>                
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <%# <th>Course Name</th> %>
+                    </thead>
+                    <tbody>
+                      <%= for lesson_category <- @lesson.lesson_categories do %>
+                        <tr>                
+                          <td><h6><%= lesson_category.name %></h6></td>
+                          <td class="text-right">
+                            <a href="/admin/courses/lessons/objectives/new" class="btn btn-primary btn-sm">Add New Objective</a>
+                            <a href="/admin/courses/lessons/categories<%= lesson_category.id %>" class="btn btn-primary btn-sm">view</a>
+                            <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-lesson-category-id="<%= lesson_category.id %>">delete</button>
+                          </td>                          
+                        </tr>
+
+                        <%= for objective <- lesson_category.objectives do %>
+                          <tr>                
+                            <td><%= objective.name %></td>
+                            <td class="text-right">
+                              <a href="/admin/courses/lessons/objectives<%= objective.id %>" class="btn btn-primary btn-sm">view</a>
+                              <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-objective-id="<%= objective.id %>">delete</button>
+                            </td>                          
+                          </tr>
+                        <% end %>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+
+
+              </div>
+            <!--  end card  -->
+          </div>
+          <!-- end col-md-12 -->
+        </div>
+        <!-- end row -->
+      </div>
+</div> <!-- end content -->

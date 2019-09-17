@@ -15,6 +15,31 @@ defmodule Flight.Curriculum do
   require Ecto.Query
   import Ecto.Query, warn: false
 
+  def get_course(id) do
+    course_download_query = from(t in CourseDownload, order_by: t.order)
+    lesson_query = from(t in Lesson, order_by: t.order)
+    lesson_category_query = from(t in LessonCategory, order_by: t.order)
+
+    Flight.Repo.get(Course, id)
+    |> Flight.Repo.preload([
+      [course_downloads: course_download_query],
+      lessons: lesson_query,
+      lessons: [
+        lesson_categories: lesson_category_query
+      ]
+    ])
+  end
+
+  def get_lesson(id) do
+    lesson_category_query = from(t in LessonCategory, order_by: t.order)
+    objective_query = from(t in Objective, order_by: t.order)
+
+    Flight.Repo.get(Lesson, id)
+    |> Flight.Repo.preload([
+      [lesson_categories: lesson_category_query, lesson_categories: [objectives: objective_query]]
+    ])
+  end
+
   def get_courses() do
     course_query = from(t in Course, order_by: t.order)
     course_download_query = from(t in CourseDownload, order_by: t.order)

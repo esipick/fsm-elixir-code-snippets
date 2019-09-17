@@ -1,0 +1,68 @@
+<div class="panel-header panel-header-sm">
+  
+</div>
+<div class="content">
+  <div class="row">
+    <div class="sol-sm 12 col-md-10 col-lg-9">
+      <div class="card">
+        
+        <div class="card-header">
+          <h3 class="card-title">Communication</h3>
+        </div>
+        
+        <%= form_for @changeset, communication_path(@conn, :create), [as: :data], fn f ->  %>
+
+        <div class="card-body">
+          <%= if Enum.count(f.errors) > 0 do %>
+          <div class="alert alert-danger">
+            <%= for error <- human_error_messages(@changeset) do %>
+            <span><%= error %></span></br>
+            <% end %>
+          </div>
+          <% end %>
+
+          <div class="row">
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>From</label>
+                <%= text_input f, :from, class: "form-control", placeholder: "Email", value: Map.get(@changeset.changes, :from) %>
+              </div>
+            </div>
+
+          </div> 
+
+          <div class="row">
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Subject</label>
+                <%= text_input f, :subject, class: "form-control", value: Map.get(@changeset.changes, :subject) %>
+              </div>
+            </div>
+
+          </div> 
+
+          <div class="row">
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Body</label>
+                <%= textarea f, :body, class: "form-control", value: Map.get(@changeset.changes, :body) %>
+              </div>
+            </div>
+
+          </div> 
+
+        <!-- end card-body -->
+            
+        <div class="card-footer ">
+          <input id="send_button" type="submit" class="btn btn-fill btn-primary float-right" value="Send" style="margin-bottom: 20px">
+        </div>
+        <% end %>
+            
+      </div> <!-- end card -->
+    </div>
+  </div>
+</div> <!-- end content -->
+

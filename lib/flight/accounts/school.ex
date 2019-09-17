@@ -16,6 +16,7 @@ defmodule Flight.Accounts.School do
     field(:contact_phone_number, :string)
     field(:contact_email, :string)
     field(:timezone, :string)
+    field(:sales_tax, :float)
     field(:archived, :boolean, default: false)
     has_one(:stripe_account, Flight.Accounts.StripeAccount)
 
@@ -56,7 +57,8 @@ defmodule Flight.Accounts.School do
       :contact_last_name,
       :contact_phone_number,
       :timezone,
-      :contact_email
+      :contact_email,
+      :sales_tax
     ])
     |> base_validations()
   end
@@ -84,6 +86,7 @@ defmodule Flight.Accounts.School do
     )
     |> normalize_phone_number(:contact_phone_number)
     |> validate_inclusion(:timezone, valid_timezones())
+    |> validate_number(:sales_tax, greater_than_or_equal_to: 0, less_than: 1)
   end
 
   def normalize_phone_number(changeset, field) do

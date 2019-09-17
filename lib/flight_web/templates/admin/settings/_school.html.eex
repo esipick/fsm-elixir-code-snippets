@@ -71,13 +71,20 @@
   </div>
 
   <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-6">
       <div class="form-group">
         <label>Timezone</label>
         <%= select f, :timezone, Flight.Accounts.School.valid_timezones(), class: "form-control" %>
       </div>
     </div>
+    <div class="col-md-6">
+      <div class="form-group">
+        <label>Sales Tax Rate</label>
+        <%= number_input f, :sales_tax, class: "form-control", step: "0.01", min: "0.0", max: 0.99 %>
+      </div>
+    </div>
   </div>
+
 
   <input type="hidden" name="redirect_tab" value="school" />
 

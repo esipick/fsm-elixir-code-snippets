@@ -77,7 +77,8 @@ $(document).ready(function() {
         user_id: eventRenter,
         instructor_user_id: eventInstructor,
         aircraft_id: eventAircraft,
-        note: eventNote
+        note: eventNote,
+        type: "lesson"
       };
 
       if (appointmentOrUnavailabilityId) {
@@ -310,14 +311,19 @@ $(document).ready(function() {
       var d = today.getDate();
 
       $calendar.fullCalendar({
-        viewRender: function(view, element) {
-          // We make sure that we activate the perfect scrollbar when the view isn't on Month
-          if (view.name != 'month'){
-            $(element).find('.fc-scroller').perfectScrollbar();
+        viewRender: function(view, element) { },        
+        customButtons: {
+          chooseDateButton: {
+            text: "Choose Date",
+            click: function(e) {
+              // alert("JONAS!");
+
+            }
           }
         },
         header: {
-          left: 'title',
+          left: 'title,chooseDateButton',
+          center: 'timelineDay,timelineWeek,timelineMonth',
           right: 'prev,next,today'
         },
         resourceGroupField: "type",
@@ -333,10 +339,10 @@ $(document).ready(function() {
                 // other view-specific options here
             },
             week: {
-                titleFormat: " MMMM D YYYY"
+                titleFormat: " MMMM D, YYYY"
             },
             day: {
-                titleFormat: 'D MMM, YYYY'
+                titleFormat: 'ddd D MMM, YYYY'
             }
         },
 

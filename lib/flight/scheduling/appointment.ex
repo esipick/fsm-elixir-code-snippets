@@ -6,7 +6,7 @@ defmodule Flight.Scheduling.Appointment do
     field(:end_at, :naive_datetime)
     field(:start_at, :naive_datetime)
     field(:note, :string)
-    field(:type, :string, default: "legacy")
+    field(:type, :string, default: "lesson")
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:user, Flight.Accounts.User)

@@ -146,7 +146,7 @@
 $(document).ready(function() {
   $('._delete_button').on('click', function() {
     var id = $(this).attr("data-aircraft-id")
-    var shouldDelete = confirm("This user and all of their information will be archived and removed from the system.")
+    var shouldDelete = confirm("This aircraft and all of its information will be archived and removed from the system.")
     if (shouldDelete) {
       var form = $('#delete_form')[0]
       form.action = "/admin/aircrafts/" + id

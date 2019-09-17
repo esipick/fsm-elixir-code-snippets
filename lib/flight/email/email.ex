@@ -4,6 +4,8 @@ defmodule Flight.Email do
 
   alias Flight.Accounts.{Invitation, SchoolInvitation}
 
+  # System Emails
+
   def invitation_email(%Invitation{} = invitation) do
     role = Flight.Accounts.get_role(invitation.role_id)
 
@@ -59,5 +61,47 @@ defmodule Flight.Email do
 
   def password_reset_link(%Flight.Accounts.PasswordReset{} = reset) do
     Application.get_env(:flight, :web_base_url) <> "/reset_password?token=#{reset.token}"
+  end
+
+  # Communication Emails
+
+  @mail_regex ~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/
+  # ensure that the email looks valid
+  def validate_email(changeset, field) do
+    changeset
+    |> Ecto.Changeset.validate_format(field, @mail_regex)
+  end
+
+  def message_changeset(params) do
+    types = %{
+      from: :string,
+      subject: :string,
+      body: :string
+    }
+
+    {%{}, types}
+    |> Ecto.Changeset.cast(params, Map.keys(types))
+    |> Ecto.Changeset.validate_required(Map.keys(types))
+    |> validate_email(:from)
+  end
+
+  def admin_create_communication_email(recipients, params) do
+    changeset = message_changeset(params)
+
+    case Ecto.Changeset.apply_action(changeset, :insert) do
+      {:ok, data} ->
+        email =
+          new_email()
+          |> bcc(recipients)
+          |> from(data.from)
+          |> subject(data.subject)
+          |> text_body(data.body)
+          |> html_body("<p>#{data.body}</p>")
+
+        {:ok, email}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 end

@@ -96,6 +96,8 @@ defmodule FlightWeb.Router do
 
     resources("/reports", ReportsController, only: [:index])
 
+    resources("/communication", CommunicationController, only: [:index, :new, :create])
+
     scope("/reports") do
       get("/detail", ReportsController, :detail)
     end
@@ -114,7 +116,14 @@ defmodule FlightWeb.Router do
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
 
-    resources("/courses", CoursesController, only: [:index, :edit])
+    resources("/courses", CoursesController, only: [:index, :show, :edit, :new, :create])
+    resources("/courses/lessons", LessonsController, only: [:show, :new, :create])
+
+    resources(
+      "/courses/lessons/objectives",
+      ObjectivesController,
+      only: [:index, :edit, :new, :create]
+    )
 
     resources("/invitations", InvitationController, only: [:create, :index]) do
       post("/resend", InvitationController, :resend)

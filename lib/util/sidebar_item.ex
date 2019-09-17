@@ -37,6 +37,12 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
+        path: "/admin/communication/new",
+        label: "Communication",
+        icon_class: "design_app",
+        active: false
+      },
+      %SidebarItem{
         path: "/admin/users?role=instructor",
         label: "Instructors",
         icon_class: "users_single-02",
@@ -72,12 +78,12 @@ defmodule FlightWeb.SidebarItem do
         icon_class: "files_single-copy-04",
         active: false
       },
-      # %SidebarItem{
-      #   path: "/admin/courses",
-      #   label: "Course Settings",
-      #   icon_class: "education_agenda-bookmark",
-      #   active: false
-      # },
+      %SidebarItem{
+        path: "/admin/courses",
+        label: "Courses",
+        icon_class: "education_agenda-bookmark",
+        active: false
+      },
       %SidebarItem{
         path: "/admin/settings",
         label: "School Settings",

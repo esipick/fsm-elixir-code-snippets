@@ -8,26 +8,25 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header text-right">
-                 <h3 class="card-title pull-left">Courses</h3>
-                <a href="/admin/courses/@course.id/new" class="btn btn-primary">Add New Lesson</a>
+                 <h3 class="card-title pull-left"><%= @course.name %></h3>
+                <a href="/admin/aircrafts/new" class="btn btn-primary">Add New</a>
               </div>
               <div class="card-body">
                 <div class="table-responsive">
                   <table class="table">
                     <thead>
-                      <%# <th>Course Name</th> %>
+                      <th>Lesson</th>
+                  
                     </thead>
                     <tbody>
-                      <%= for course <- @courses do %>
+                      <%= for lesson <- @course.lessons do %>
                         <tr>                
-                          <td><%= course.name %></td>
-                          <td class="text-right">
-                            <a href="/admin/courses/<%= course.id %>" class="btn btn-primary btn-sm">view</a>
-                            <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-course-id="<%= course.id %>">delete</button>
-                          </td>
-                          
+                          <td><%= lesson.name %></td>
+                          <td class="text-right">                            
+                            <a href="/admin/courses/lessons/<%= lesson.id %>" class="btn btn-primary btn-sm">view</a>
+                            <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-course-id="<%= lesson.id %>">delete</button>
+                          </td>                          
                         </tr>
-
                       <% end %>
                     </tbody>
                   </table>

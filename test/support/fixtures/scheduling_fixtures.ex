@@ -40,7 +40,7 @@ defmodule Flight.SchedulingFixtures do
         instructor \\ instructor_fixture(),
         aircraft \\ aircraft_fixture(),
         school \\ default_school_fixture(),
-        type \\ "legacy"
+        type \\ "lesson"
       ) do
     date = ~N[2018-03-03 10:00:00]
 
