@@ -50,7 +50,7 @@ defmodule FlightWeb.Admin.UserListData do
     end
 
     %FlightWeb.Admin.UserTableData{
-      style: :simple,
+      style: mode,
       rows: rows,
       page: page
     }
