@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+set -e
+
+stage="${SERVER:=staging}"
+
+git push "$stage" master
+heroku run mix ecto.migrate -r "$stage"
