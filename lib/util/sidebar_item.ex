@@ -78,12 +78,12 @@ defmodule FlightWeb.SidebarItem do
         icon_class: "files_single-copy-04",
         active: false
       },
-      %SidebarItem{
-        path: "/admin/courses",
-        label: "Courses",
-        icon_class: "education_agenda-bookmark",
-        active: false
-      },
+      # %SidebarItem{
+      #   path: "/admin/courses",
+      #   label: "Courses",
+      #   icon_class: "education_agenda-bookmark",
+      #   active: false
+      # },
       %SidebarItem{
         path: "/admin/settings",
         label: "School Settings",
