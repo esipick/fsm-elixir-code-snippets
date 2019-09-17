@@ -4,5 +4,5 @@ set -e
 
 stage="${SERVER:=staging}"
 
-git push "$stage" master
+git push "$stage" master -f
 heroku run mix ecto.migrate -r "$stage"
