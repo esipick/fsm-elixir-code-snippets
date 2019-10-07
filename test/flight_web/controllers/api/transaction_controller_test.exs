@@ -634,6 +634,40 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "index.json", transactions: [transaction1])
     end
 
+    test "returns filtered transactions by user name", %{conn: conn} do
+      student = student_fixture(%{first_name: "Adrian", last_name: "Nairda"})
+      instructor = instructor_fixture()
+
+      transaction1 =
+        transaction_fixture(%{}, student)
+        |> TransactionView.preload()
+
+      _ = transaction_fixture(%{}, student_fixture(%{email: "adrian@nairda.com"}))
+
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/transactions?search_term=adr")
+        |> json_response(200)
+
+      assert json == render_json(TransactionView, "index.json", transactions: [transaction1])
+    end
+
+    test "returns filtered transactions by total", %{conn: conn} do
+      instructor = instructor_fixture()
+
+      transaction1 = transaction_fixture(%{total: 4932}) |> TransactionView.preload()
+      _ = transaction_fixture(%{})
+
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/transactions?search_term=932")
+        |> json_response(200)
+
+      assert json == render_json(TransactionView, "index.json", transactions: [transaction1])
+    end
+
     test "401 if trying to request transactions for other users", %{conn: conn} do
       student = student_fixture()
 

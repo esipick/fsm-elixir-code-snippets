@@ -32,4 +32,20 @@ defmodule Flight.Accounts.Search.User do
         )
     end
   end
+
+  @spec run(Ecto.Query.t(), any()) :: Ecto.Query.t()
+  def name_only(query, search_term) do
+    case normalized_term = Utils.normalize(search_term) do
+      "" ->
+        query
+      _ ->
+        where(
+          query,
+          fragment(
+            "to_tsvector('english', first_name || ' ' || last_name) @@ to_tsquery(?)",
+            ^Utils.prefix_search(normalized_term)
+          )
+        )
+    end
+  end
 end

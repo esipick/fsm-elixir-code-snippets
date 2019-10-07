@@ -21,7 +21,7 @@ defmodule UserSeeds do
         Integer.to_string(Enum.random(1000..9999))
 
       user_data = %{
-        email: "example+#{Flight.Random.hex(15)}@gmail.com",
+        email: "#{role_name}+#{Flight.Random.hex(15)}@gmail.com",
         first_name: Enum.random(first_names),
         last_name: Enum.random(last_names),
         phone_number: phone_number,

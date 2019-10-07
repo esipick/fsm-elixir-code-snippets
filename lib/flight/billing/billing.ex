@@ -366,8 +366,15 @@ defmodule Flight.Billing do
   end
 
   def get_filtered_transactions(params, school_context) do
-    params = Map.take(params, ["user_id", "creator_user_id", "state"])
+    params = Map.take(params, ["user_id", "creator_user_id", "state", "search_term"])
+    { _, parsed_search_term } = parse_amount(params["search_term"])
+    total = is_number(parsed_search_term) && params["search_term"]
 
+    user_ids = params["search_term"] &&
+      !is_number(parsed_search_term) &&
+      Flight.Queries.User.search_users_ids_by_name(params["search_term"], school_context)
+
+    # TODO: use obtained user_ids to filter transactions
     query =
       from(t in Transaction)
       |> SchoolScope.scope_query(school_context)
@@ -375,6 +382,8 @@ defmodule Flight.Billing do
       |> where([t], not is_nil(t.user_id))
       |> pass_unless(params["state"], &where(&1, [t], t.state == ^params["state"]))
       |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
+      |> pass_unless(user_ids, &where(&1, [t], t.user_id in ^user_ids))
+      |> pass_unless(total, &where(&1, [t], fragment("?::text ILIKE ?", t.total, ^"%#{total}%")))
       |> pass_unless(
         params["creator_user_id"],
         &where(
