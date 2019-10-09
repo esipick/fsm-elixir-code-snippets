@@ -16,6 +16,7 @@ defmodule Flight.Queries.User do
       order_by: u.last_name,
       select: %{id: u.id}
     )
+    |> SchoolScope.scope_query(school_context)
     |> Search.User.name_only(search_term)
     |> Repo.all
     |> Enum.map(fn user -> user.id end)
