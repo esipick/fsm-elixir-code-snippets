@@ -7,11 +7,15 @@
     "watch_webpack": "webpack --mode development --watch-stdin"
   },
   "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
     "react": "^16.10.2",
+    "react-datepicker": "^2.9.6",
     "react-dom": "^16.2.0",
-    "react-phoenix": "file:../deps/react_phoenix"
+    "react-phoenix": "file:../deps/react_phoenix",
+    "react-select": "^3.0.8",
+    "shortid": "^2.2.15"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
