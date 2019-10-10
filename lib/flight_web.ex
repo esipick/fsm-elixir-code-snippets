@@ -43,6 +43,8 @@ defmodule FlightWeb do
       import FlightWeb.Router.Helpers
       import FlightWeb.ErrorHelpers
       import FlightWeb.Gettext
+
+      import ReactPhoenix.ClientSide
     end
   end
 
