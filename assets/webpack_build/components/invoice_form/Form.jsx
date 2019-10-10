@@ -70,7 +70,9 @@ class Form extends Component {
       <div className="invoice-form__wrapper">
         <div className="form">
           <div className="form-group">
+            <label>Student name</label>
             <AsyncSelect placeholder="Student name"
+              classNamePrefix="react-select"
               loadOptions={this.loadStudents}
               onChange={this.setStudent}
               isLoading={this.state.studentsLoading}
@@ -79,11 +81,15 @@ class Form extends Component {
           </div>
 
           <div className="form-group">
-            Acct Balance: ${this.accountBalance()}
+            <label>Acct Balance</label>
+            <div>${this.accountBalance()}</div>
           </div>
 
           <div className="form-group">
-            <DatePicker className="form-control" selected={this.state.date} onChange={this.setDate} />
+            <label>Date</label>
+            <div>
+              <DatePicker className="form-control" selected={this.state.date} onChange={this.setDate} />
+            </div>
           </div>
 
           <div className="form-group">
