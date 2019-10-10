@@ -1,4 +1,14 @@
 import React, { Component } from 'react';
+import shortid from 'shortid';
+
+export class LineItemRecord {
+  constructor() {
+    this.id = shortid.generate();
+    this.description = '';
+    this.rate = 0;
+    this.qty = 1;
+  }
+};
 
 class InvoiceLineItem extends Component {
   constructor(props) {
@@ -16,13 +26,13 @@ class InvoiceLineItem extends Component {
   }
 
   setRate = (e) => {
-    const item = Object.assign({}, this.state.item, { rate: parseInt(e.target.value) });
+    const item = Object.assign({}, this.state.item, { rate: parseInt(e.target.value) || 0 });
 
     this.setState({ item });
   }
 
   setQty = (e) => {
-    const item = Object.assign({}, this.state.item, { qty: parseInt(e.target.value) });
+    const item = Object.assign({}, this.state.item, { qty: parseInt(e.target.value) || 0 });
 
     this.setState({ item });
   }
@@ -31,6 +41,12 @@ class InvoiceLineItem extends Component {
     const { item } = this.state;
 
     return (item.rate * item.qty).toFixed(2);
+  }
+
+  remove = (e) => {
+    e.preventDefault();
+
+    this.props.onRemove(this.state.item.id);
   }
 
   render() {
@@ -55,6 +71,9 @@ class InvoiceLineItem extends Component {
             onChange={this.setQty} />
         </td>
         <td>${this.amount()}</td>
+        <td style={{minWidth: "32px"}}>
+          { this.props.canRemove && <a style={{color: "red", fontSize: "1.5em"}} href="" onClick={this.remove}>&times;</a> }
+        </td>
       </tr>
     )
   }
