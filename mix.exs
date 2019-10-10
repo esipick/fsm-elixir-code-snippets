@@ -61,6 +61,7 @@ defmodule Flight.Mixfile do
       {:ex_aws_sns, "~> 2.0"},
       {:scrivener_ecto, "~> 1.0"},
       {:scrivener_html, "~> 1.8"},
+      {:ecto_enum, "~> 1.3"},
 
       # Dev tools
       {:faker, "~> 0.12", only: [:dev, :test]}
