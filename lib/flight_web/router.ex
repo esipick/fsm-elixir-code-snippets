@@ -162,6 +162,8 @@ defmodule FlightWeb.Router do
   scope "/api", FlightWeb.API do
     pipe_through([:api, :api_authenticate])
 
+    get("/users/autocomplete", UserController, :autocomplete, as: :autocomplete)
+
     resources("/users", UserController, only: [:show, :update, :index]) do
       get("/form_items", UserController, :form_items)
       resources("/push_tokens", PushTokenController, only: [:create])
