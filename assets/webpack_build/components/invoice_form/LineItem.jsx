@@ -23,18 +23,21 @@ class InvoiceLineItem extends Component {
     const item = Object.assign({}, this.state.item, { description: e.target.value });
 
     this.setState({ item });
+    this.props.onChange(item);
   }
 
   setRate = (e) => {
     const item = Object.assign({}, this.state.item, { rate: parseInt(e.target.value) || 0 });
 
     this.setState({ item });
+    this.props.onChange(item);
   }
 
   setQty = (e) => {
     const item = Object.assign({}, this.state.item, { qty: parseInt(e.target.value) || 0 });
 
     this.setState({ item });
+    this.props.onChange(item);
   }
 
   amount = () => {
@@ -71,8 +74,8 @@ class InvoiceLineItem extends Component {
             onChange={this.setQty} />
         </td>
         <td>${this.amount()}</td>
-        <td style={{minWidth: "32px"}}>
-          { this.props.canRemove && <a style={{color: "red", fontSize: "1.5em"}} href="" onClick={this.remove}>&times;</a> }
+        <td className="remove-line-item-wrapper">
+          { this.props.canRemove && <a className="remove-line-item" href="" onClick={this.remove}>&times;</a> }
         </td>
       </tr>
     )

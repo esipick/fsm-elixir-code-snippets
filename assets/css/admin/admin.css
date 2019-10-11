@@ -784,15 +784,6 @@ fieldset[disabled] .fc button:hover {
   display: none;
 }
 
-.react-select__control {
-  border: 1px solid #e3e3e3;
-  border-radius: 30px !important;
-  box-shadow: none !important;
-}
-.react-select__control--is-focused {
-  border: 1px solid #2CA8Fe !important;
-}
-
 /* selectpicker plugin */
 .dropdown-menu.open .form-control {
   border: 1px solid #e3e3e3;

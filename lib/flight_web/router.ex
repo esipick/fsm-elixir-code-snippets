@@ -119,7 +119,7 @@ defmodule FlightWeb.Router do
     resources("/courses", CoursesController, only: [:index, :show, :edit, :new, :create])
     resources("/courses/lessons", LessonsController, only: [:show, :new, :create])
 
-    resources("/invoices", InvoicesController, only: [:index])
+    resources("/invoices", InvoicesController, only: [:new, :edit])
 
     resources(
       "/courses/lessons/objectives",
