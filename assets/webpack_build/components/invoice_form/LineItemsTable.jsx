@@ -37,11 +37,9 @@ class LineItemsTable extends Component {
     return this.state.items.reduce((sum, i) => (sum + i.rate * i.qty), 0);
   }
 
-  totalWithTax = () => {
-    const total = this.total();
+  totalTax = () => (this.total() * this.state.sales_tax)
 
-    return (total + total * this.state.sales_tax);
-  }
+  totalWithTax = () => (this.total() + this.totalTax())
 
   setSalesTax = (e) => {
     const sales_tax = (parseInt(e.target.value) || 0) / 100;
@@ -82,7 +80,7 @@ class LineItemsTable extends Component {
           </tr>
           <tr>
             <td colSpan="4" className="text-right">
-              Total:
+              Total excl. taxes:
             </td>
             <td colSpan="2">${this.total().toFixed(2)}</td>
           </tr>
@@ -93,6 +91,12 @@ class LineItemsTable extends Component {
             <td colSpan="2">
               <input value={this.state.sales_tax * 100} onChange={this.setSalesTax} className="form-control" type="number" />
             </td>
+          </tr>
+          <tr>
+            <td colSpan="4" className="text-right">
+              Total tax:
+            </td>
+            <td colSpan="2">${this.totalTax().toFixed(2)}</td>
           </tr>
           <tr>
             <td colSpan="4" className="text-right">
