@@ -5,12 +5,12 @@ defmodule Flight.Repo.Migrations.CreateInvoices do
     create table(:invoices) do
       add(:user_id, references(:users, on_delete: :nothing))
       add(:payment_option, :integer)
-      add(:user_balance, :integer, default: 0)
+      add(:status, :integer, default: 0)
       add(:date, :date)
-      add(:total, :float)
+      add(:total, :integer)
       add(:tax_rate, :float)
-      add(:total_tax, :float)
-      add(:total_amount_due, :float)
+      add(:total_tax, :integer)
+      add(:total_amount_due, :integer)
 
       timestamps()
     end

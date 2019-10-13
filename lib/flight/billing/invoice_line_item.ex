@@ -7,10 +7,10 @@ defmodule Flight.Billing.InvoiceLineItem do
   @required_fields ~w(description rate amount quantity)a
 
   schema "invoice_line_items" do
-    field(:description, :string)
-    field(:rate, :float)
-    field(:amount, :float)
+    field(:rate, :integer)
+    field(:amount, :integer)
     field(:quantity, :integer)
+    field(:description, :string)
     belongs_to(:invoice, Flight.Billing.Invoice)
 
     timestamps()

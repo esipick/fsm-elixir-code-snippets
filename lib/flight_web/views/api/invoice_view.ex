@@ -13,7 +13,6 @@ defmodule FlightWeb.API.InvoiceView do
       user: render(UserView, "skinny_user.json", user: invoice.user),
       user_id: invoice.user_id,
       payment_option: invoice.payment_option,
-      user_balance: invoice.user_balance,
       date: invoice.date,
       total: invoice.total,
       tax_rate: invoice.tax_rate,

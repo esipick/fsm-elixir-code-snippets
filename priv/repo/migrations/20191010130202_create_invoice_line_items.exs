@@ -5,9 +5,9 @@ defmodule Flight.Repo.Migrations.CreateInvoiceLineItems do
     create table(:invoice_line_items) do
       add(:invoice_id, references(:invoices, on_delete: :nothing))
       add(:description, :string)
-      add(:rate, :float)
+      add(:rate, :integer)
       add(:quantity, :integer)
-      add(:amount, :float)
+      add(:amount, :integer)
 
       timestamps()
     end

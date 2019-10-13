@@ -1,5 +1,7 @@
 import EctoEnum
 
+defenum(InvoiceStatusEnum, pending: 0, paid: 1)
+
 defenum(
   InvoicePaymentOptionEnum,
   balance: 0,
