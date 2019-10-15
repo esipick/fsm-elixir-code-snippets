@@ -33,21 +33,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     test "renders stripe error", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
-
-      invoice_params = %{
-        user_id: student.id,
-        date: ~D[2019-10-10],
-        payment_option: "cc",
-        total: 20000,
-        tax_rate: 0.2,
-        total_tax: 4000,
-        total_amount_due: 24000,
-        line_items: [
-          %{ description: "flight hours", rate: 1500, quantity: 10, amount: 15000 },
-          %{ description: "discount", rate: -2500, quantity: 1, amount: -2500 },
-          %{ description: "fuel reimbursement", rate: 7500, quantity: 1, amount: 7500 }
-        ]
-      }
+      invoice_params = invoice_attrs(student, %{payment_option: "cc"})
 
       json =
         conn
@@ -61,21 +47,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     test "creates invoice when payment option is not balance or cc", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
-
-      invoice_params = %{
-        user_id: student.id,
-        date: ~D[2019-10-10],
-        payment_option: "cash",
-        total: 20000,
-        tax_rate: 0.2,
-        total_tax: 4000,
-        total_amount_due: 24000,
-        line_items: [
-          %{ description: "flight hours", rate: 1500, quantity: 10, amount: 15000 },
-          %{ description: "discount", rate: -2500, quantity: 1, amount: -2500 },
-          %{ description: "fuel reimbursement", rate: 7500, quantity: 1, amount: 7500 }
-        ]
-      }
+      invoice_params = invoice_attrs(student, %{payment_option: "cash"})
 
       json =
         conn
@@ -91,23 +63,9 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
 
     test "creates invoice when payment option is balance (enough)", %{conn: conn} do
-      {student, _} = student_fixture(%{balance: 30000}) |> real_stripe_customer()
+      student = student_fixture(%{balance: 30000})
       instructor = instructor_fixture()
-
-      invoice_params = %{
-        user_id: student.id,
-        date: ~D[2019-10-10],
-        payment_option: "balance",
-        total: 20000,
-        tax_rate: 0.2,
-        total_tax: 4000,
-        total_amount_due: 24000,
-        line_items: [
-          %{ description: "flight hours", rate: 1500, quantity: 10, amount: 15000 },
-          %{ description: "discount", rate: -2500, quantity: 1, amount: -2500 },
-          %{ description: "fuel reimbursement", rate: 7500, quantity: 1, amount: 7500 }
-        ]
-      }
+      invoice_params = invoice_attrs(student)
 
       json =
         conn
@@ -117,30 +75,33 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload([:user, line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)])
+        |> Repo.preload(
+          [
+            :user,
+            :transactions,
+            line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)
+          ]
+        )
+
+      transaction = List.first(invoice.transactions)
 
       assert invoice.user.balance == 6000
+
+      assert is_nil(transaction.stripe_charge_id)
+      assert not is_nil(transaction.completed_at)
+
+      assert transaction.state == "completed"
+      assert transaction.total == 24000
+      assert transaction.type == "debit"
+      assert transaction.paid_by_balance == 24000
+
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
     test "creates invoice when payment option is balance (not enough)", %{conn: conn} do
       {student, _} = student_fixture(%{balance: 20000}) |> real_stripe_customer()
       instructor = instructor_fixture()
-
-      invoice_params = %{
-        user_id: student.id,
-        date: ~D[2019-10-10],
-        payment_option: "balance",
-        total: 20000,
-        tax_rate: 0.2,
-        total_tax: 4000,
-        total_amount_due: 24000,
-        line_items: [
-          %{ description: "flight hours", rate: 1500, quantity: 10, amount: 15000 },
-          %{ description: "discount", rate: -2500, quantity: 1, amount: -2500 },
-          %{ description: "fuel reimbursement", rate: 7500, quantity: 1, amount: 7500 }
-        ]
-      }
+      invoice_params = invoice_attrs(student)
 
       json =
         conn
@@ -150,7 +111,32 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload([:user, line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)])
+        |> Repo.preload(
+          [
+            :user,
+            :transactions,
+            line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)
+          ]
+        )
+
+      balance_transaction = List.first(invoice.transactions)
+      stripe_transaction = List.last(invoice.transactions)
+
+      assert is_nil(balance_transaction.stripe_charge_id)
+      assert not is_nil(balance_transaction.completed_at)
+
+      assert balance_transaction.state == "completed"
+      assert balance_transaction.total == 20000
+      assert balance_transaction.type == "debit"
+      assert balance_transaction.paid_by_balance == 20000
+
+      assert not is_nil(stripe_transaction.completed_at)
+      assert not is_nil(stripe_transaction.stripe_charge_id)
+
+      assert stripe_transaction.state == "completed"
+      assert stripe_transaction.total == 4000
+      assert stripe_transaction.type == "credit"
+      assert stripe_transaction.paid_by_charge == 4000
 
       assert invoice.user.balance == 0
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
@@ -159,21 +145,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     test "creates invoice when payment option is cc", %{conn: conn} do
       {student, _} = student_fixture() |> real_stripe_customer()
       instructor = instructor_fixture()
-
-      invoice_params = %{
-        user_id: student.id,
-        date: ~D[2019-10-10],
-        payment_option: "cc",
-        total: 20000,
-        tax_rate: 0.2,
-        total_tax: 4000,
-        total_amount_due: 24000,
-        line_items: [
-          %{ description: "flight hours", rate: 1500, quantity: 10, amount: 15000 },
-          %{ description: "discount", rate: -2500, quantity: 1, amount: -2500 },
-          %{ description: "fuel reimbursement", rate: 7500, quantity: 1, amount: 7500 }
-        ]
-      }
+      invoice_params = invoice_attrs(student, %{payment_option: "cc"})
 
       json =
         conn
@@ -183,7 +155,23 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload([:user, line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)])
+        |> Repo.preload(
+          [
+            :user,
+            :transactions,
+            line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)
+          ]
+        )
+
+      transaction = List.first(invoice.transactions)
+
+      assert not is_nil(transaction.completed_at)
+      assert not is_nil(transaction.stripe_charge_id)
+
+      assert transaction.state == "completed"
+      assert transaction.total == 24000
+      assert transaction.type == "credit"
+      assert transaction.paid_by_charge == 24000
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end

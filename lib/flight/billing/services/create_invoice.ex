@@ -47,30 +47,30 @@ defmodule Flight.Billing.CreateInvoice do
     user = invoice.user
     amount = amount || invoice.total_amount_due
 
-    charge_result =
-      Stripe.Charge.create(%{
-        amount: amount,
-        currency: "usd",
-        customer: user.stripe_customer_id,
-        description: "One-Time Subscription",
-        receipt_email: user.email
-      })
+    case create_transaction(invoice, school_context, %{type: "credit", total: amount}) do
+      {:ok, transaction} ->
+        charge_result =
+          Stripe.Charge.create(%{
+            amount: amount,
+            currency: "usd",
+            customer: user.stripe_customer_id,
+            description: "One-Time Subscription",
+            receipt_email: user.email
+          })
 
-    case charge_result do
-      {:ok, charge} ->
-        attrs = %{
-          user_id: user.id,
-          total: amount,
-          state: "completed",
-          type: "credit"
-        }
+        case charge_result do
+          {:ok, charge} ->
+            complete_transaction(
+              transaction,
+              %{stripe_charge_id: charge.id, paid_by_charge: amount}
+            )
 
-        case create_transaction(school_context, attrs) do
-          {:ok, transaction} -> {:ok, invoice}
-          {:error, changeset} -> {:error, changeset}
+            {:ok, invoice}
+
+          {:error, error} -> {:error, error}
         end
 
-      {:error, error} -> {:error, error}
+      {:error, changeset} -> {:error, changeset}
     end
   end
 
@@ -79,16 +79,13 @@ defmodule Flight.Billing.CreateInvoice do
     total = user.balance - new_balance
     changeset = change(user, balance: new_balance)
 
-    case Repo.update(changeset) do
-      {:ok, user} ->
-        attrs = %{
-          user_id: user.id,
-          total: total,
-          state: "completed"
-        }
+    case create_transaction(invoice, school_context, %{total: total}) do
+      {:ok, transaction} ->
+        case Repo.update(changeset) do
+          {:ok, user} ->
+            complete_transaction(transaction, %{paid_by_balance: total})
+            {:ok, invoice}
 
-        case create_transaction(school_context, attrs) do
-          {:ok, transaction} -> {:ok, invoice}
           {:error, changeset} -> {:error, changeset}
         end
 
@@ -96,15 +93,30 @@ defmodule Flight.Billing.CreateInvoice do
     end
   end
 
-  defp create_transaction(school_context, attrs \\ %{}) do
+  defp create_transaction(invoice, school_context, attrs \\ %{}) do
+    user = invoice.user
+
     changeset =
       %Transaction{
         state: "pending",
         type: "debit",
+        user_id: user.id,
+        invoice_id: invoice.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
         creator_user_id: school_context.assigns.current_user.id,
         school_id: Flight.SchoolScope.school_id(school_context)
       }
       |> Transaction.changeset(attrs)
       |> Repo.insert
+  end
+
+  defp complete_transaction(transaction, attrs \\ %{}) do
+    change(
+      transaction,
+      %{state: "completed", completed_at: NaiveDateTime.utc_now()} |> Map.merge(attrs)
+    )
+    |> Repo.update
   end
 end

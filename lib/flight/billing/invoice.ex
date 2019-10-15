@@ -25,6 +25,7 @@ defmodule Flight.Billing.Invoice do
 
     belongs_to(:user, Flight.Accounts.User)
     has_many(:line_items, Flight.Billing.InvoiceLineItem)
+    has_many(:transactions, Flight.Billing.Transaction)
 
     timestamps()
   end

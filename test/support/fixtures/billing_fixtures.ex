@@ -194,4 +194,22 @@ defmodule Flight.BillingFixtures do
        verification: nil
      }}
   end
+
+  def invoice_attrs(user \\ student_fixture(), attrs \\ %{}) do
+    %{
+      user_id: user.id,
+      date: ~D[2019-10-10],
+      payment_option: "balance",
+      total: 20000,
+      tax_rate: 0.2,
+      total_tax: 4000,
+      total_amount_due: 24000,
+      line_items: [
+        %{ description: "flight hours", rate: 1500, quantity: 10, amount: 15000 },
+        %{ description: "discount", rate: -2500, quantity: 1, amount: -2500 },
+        %{ description: "fuel reimbursement", rate: 7500, quantity: 1, amount: 7500 }
+      ]
+    }
+    |> Map.merge(attrs)
+  end
 end
