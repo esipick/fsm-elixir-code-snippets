@@ -4,7 +4,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   import Ecto.Query
 
   alias FlightWeb.API.InvoiceView
-  alias Flight.{Repo, Billing.Invoice, Billing.InvoiceLineItem}
+  alias Flight.Repo
+  alias Flight.Billing.{Invoice, InvoiceLineItem, Transaction}
 
   describe "POST /api/invoices" do
     test "renders invoice json errors", %{conn: conn} do
@@ -114,7 +115,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> Repo.preload(
           [
             :user,
-            :transactions,
+            transactions: (from i in Transaction, order_by: [asc: i.inserted_at]),
             line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)
           ]
         )
