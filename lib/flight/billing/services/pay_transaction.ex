@@ -2,7 +2,6 @@ defmodule Flight.Billing.PayTransaction do
   import Ecto.Changeset
 
   alias Flight.Repo
-  alias Flight.Billing.{Invoice, Transaction}
 
   def run(transaction) do
     transaction = Repo.preload(transaction, [:user, :invoice])
@@ -19,7 +18,7 @@ defmodule Flight.Billing.PayTransaction do
     changeset = change(user, balance: user.balance - transaction.total)
 
     case Repo.update(changeset) do
-      {:ok, user} -> complete_transaction(transaction)
+      {:ok, _} -> complete_transaction(transaction)
       {:error, changeset} -> {:error, changeset}
     end
   end

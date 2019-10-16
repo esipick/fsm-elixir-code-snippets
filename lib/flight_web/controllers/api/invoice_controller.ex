@@ -7,6 +7,7 @@ defmodule FlightWeb.API.InvoiceController do
   alias Flight.Billing.{Invoice, CreateInvoice, UpdateInvoice}
 
   plug(:get_invoice when action in [:update])
+  plug(:authorize_modify when action in [:create, :update])
 
   def create(conn, %{"invoice" => invoice_params}) do
     case CreateInvoice.run(invoice_params, conn) do
@@ -56,5 +57,9 @@ defmodule FlightWeb.API.InvoiceController do
       |> send_resp(404, "")
       |> halt()
     end
+  end
+
+  defp authorize_modify(conn, _) do
+    halt_unless_user_can?(conn, [Permission.new(:invoice, :modify, :all)])
   end
 end
