@@ -42,4 +42,8 @@ defmodule Flight.Billing.Invoice do
     |> assoc_constraint(:user)
     |> validate_required(@required_fields)
   end
+
+  def paid(%Invoice{} = invoice) do
+    change(invoice, status: :paid) |> Repo.update
+  end
 end

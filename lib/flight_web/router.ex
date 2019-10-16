@@ -208,7 +208,7 @@ defmodule FlightWeb.Router do
     )
 
     resources("/courses", CourseController, only: [:index])
-    resources("/invoices", InvoiceController, only: [:create])
+    resources("/invoices", InvoiceController, only: [:create, :update])
   end
 
   if Mix.env() == :dev do

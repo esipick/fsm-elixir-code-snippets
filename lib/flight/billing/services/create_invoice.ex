@@ -1,18 +1,25 @@
 defmodule Flight.Billing.CreateInvoice do
-  import Ecto.Changeset
+  import Ecto.Query
 
   alias Flight.Repo
-  alias Flight.Billing.{Invoice, Transaction}
+  alias Flight.Accounts.User
+  alias Flight.Billing.{Invoice, Transaction, PayTransaction}
 
   def run(invoice_params, school_context) do
+    pay_off = Map.get(school_context.params, "pay_off", false)
+
     result = Repo.transaction(fn ->
       case Invoice.create(invoice_params) do
         {:ok, invoice} ->
-          case pay(invoice, school_context) do
-            {:ok, %Invoice{} = invoice} -> invoice
-            {:error, %Ecto.Changeset{} = changeset} -> Repo.rollback(changeset)
-            {:error, %Stripe.Error{} = error} -> Repo.rollback(error)
+          if pay_off == true do
+            case pay(invoice, school_context) do
+              {:ok, invoice} -> invoice
+              {:error, error} -> Repo.rollback(error)
+            end
+          else
+            invoice
           end
+
         {:error, error} -> Repo.rollback(error)
       end
     end)
@@ -21,102 +28,87 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   def pay(invoice, school_context) do
-    invoice = Repo.preload(invoice, :user)
+    invoice = Repo.preload(invoice, user: (from i in User, lock: "FOR UPDATE NOWAIT"))
 
     case invoice.payment_option do
       :balance -> pay_off_balance(invoice, school_context)
-      :cc -> create_charge(invoice, school_context)
-      _ -> {:ok, invoice}
+      :cc -> pay_off_cc(invoice, school_context)
+      _ -> pay_off_manually(invoice, school_context)
     end
   end
 
   defp pay_off_balance(invoice, school_context) do
-    remainder = invoice.user.balance - invoice.total_amount_due
+    user_balance = invoice.user.balance
+    total_amount_due = invoice.total_amount_due
 
-    if remainder >= 0 do
-      update_user_balance(invoice, remainder, school_context)
-    else
-      case update_user_balance(invoice, 0, school_context) do
-        {:ok, invoice} -> create_charge(invoice, school_context, abs(remainder))
-        {:error, changeset} -> {:error, changeset}
-      end
-    end
-  end
+    if user_balance > 0 do
+      remainder = user_balance - total_amount_due
+      balance_enough = remainder >= 0
+      total = if balance_enough, do: total_amount_due, else: user_balance
 
-  defp create_charge(invoice, school_context, amount \\ nil) do
-    user = invoice.user
-    amount = amount || invoice.total_amount_due
-
-    case create_transaction(invoice, school_context, %{type: "credit", total: amount}) do
-      {:ok, transaction} ->
-        charge_result =
-          Stripe.Charge.create(%{
-            amount: amount,
-            currency: "usd",
-            customer: user.stripe_customer_id,
-            description: "One-Time Subscription",
-            receipt_email: user.email
-          })
-
-        case charge_result do
-          {:ok, charge} ->
-            complete_transaction(
-              transaction,
-              %{stripe_charge_id: charge.id, paid_by_charge: amount}
-            )
-
-            {:ok, invoice}
-
-          {:error, error} -> {:error, error}
-        end
-
-      {:error, changeset} -> {:error, changeset}
-    end
-  end
-
-  defp update_user_balance(invoice, new_balance, school_context) do
-    user = invoice.user
-    total = user.balance - new_balance
-    changeset = change(user, balance: new_balance)
-
-    case create_transaction(invoice, school_context, %{total: total}) do
-      {:ok, transaction} ->
-        case Repo.update(changeset) do
-          {:ok, user} ->
-            complete_transaction(transaction, %{paid_by_balance: total})
-            {:ok, invoice}
+      case create_transaction(invoice, school_context, %{total: total, paid_by_balance: total}) do
+        {:ok, transaction} -> case PayTransaction.run(transaction) do
+          {:ok, _} ->
+            if balance_enough do
+              Invoice.paid(invoice)
+            else
+              pay_off_cc(invoice, school_context, abs(remainder))
+            end
 
           {:error, changeset} -> {:error, changeset}
         end
 
+        {:error, changeset} -> {:error, changeset}
+      end
+    else
+      pay_off_cc(invoice, school_context, total_amount_due)
+    end
+  end
+
+  defp pay_off_cc(invoice, school_context, amount \\ nil) do
+    amount = amount || invoice.total_amount_due
+    transaction_attrs = %{type: "credit", total: amount, paid_by_charge: amount}
+
+    case create_transaction(invoice, school_context, transaction_attrs) do
+      {:ok, transaction} -> case PayTransaction.run(transaction) do
+        {:ok, _} -> Invoice.paid(invoice)
+        {:error, changeset} -> {:error, changeset}
+      end
+
       {:error, changeset} -> {:error, changeset}
     end
   end
 
-  defp create_transaction(invoice, school_context, attrs \\ %{}) do
-    user = invoice.user
+  defp pay_off_manually(invoice, school_context) do
+    total_amount_due = invoice.total_amount_due
+    payment_method = String.to_atom("paid_by_#{invoice.payment_option}")
+    transaction_attrs = Map.merge(%{total: total_amount_due}, %{payment_method => total_amount_due})
 
-    changeset =
-      %Transaction{
-        state: "pending",
-        type: "debit",
-        user_id: user.id,
-        invoice_id: invoice.id,
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        creator_user_id: school_context.assigns.current_user.id,
-        school_id: Flight.SchoolScope.school_id(school_context)
-      }
-      |> Transaction.changeset(attrs)
-      |> Repo.insert
+    case create_transaction(invoice, school_context, transaction_attrs) do
+      {:ok, transaction} -> case PayTransaction.run(transaction) do
+        {:ok, _} -> {:ok, invoice}
+        {:error, changeset} -> {:error, changeset}
+      end
+
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
-  defp complete_transaction(transaction, attrs \\ %{}) do
-    change(
-      transaction,
-      %{state: "completed", completed_at: NaiveDateTime.utc_now()} |> Map.merge(attrs)
-    )
-    |> Repo.update
+  defp create_transaction(invoice, school_context, attrs) do
+    user = invoice.user
+
+    %Transaction{
+      state: "pending",
+      type: "debit",
+      user_id: user.id,
+      invoice_id: invoice.id,
+      email: user.email,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      creator_user_id: school_context.assigns.current_user.id,
+      school_id: Flight.SchoolScope.school_id(school_context)
+    }
+    |> Transaction.changeset(attrs)
+    |> Repo.insert
   end
 end

@@ -11,7 +11,7 @@ defmodule Flight.BillingFixtures do
 
   @instructor_hours 23
 
-  alias Flight.Billing.{Transaction}
+  alias Flight.Billing.{Invoice, Transaction}
 
   def transaction_fixture(
         attrs \\ %{},
@@ -193,6 +193,15 @@ defmodule Flight.BillingFixtures do
        type: "standard",
        verification: nil
      }}
+  end
+
+  def invoice_fixture(attrs \\ %{}, user \\ student_fixture()) do
+    invoice =
+      %Invoice{}
+      |> Invoice.changeset(invoice_attrs(user, attrs))
+      |> Repo.insert!
+
+    %{invoice | user: user}
   end
 
   def invoice_attrs(user \\ student_fixture(), attrs \\ %{}) do
