@@ -102,6 +102,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.state == "completed"
       assert transaction.total == 24000
       assert transaction.type == "debit"
+      assert transaction.payment_option == :cash
       assert transaction.paid_by_cash == 24000
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
@@ -138,6 +139,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.state == "completed"
       assert transaction.total == 24000
       assert transaction.type == "debit"
+      assert transaction.payment_option == :balance
       assert transaction.paid_by_balance == 24000
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
@@ -173,6 +175,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert balance_transaction.state == "completed"
       assert balance_transaction.total == 20000
       assert balance_transaction.type == "debit"
+      assert balance_transaction.payment_option == :balance
       assert balance_transaction.paid_by_balance == 20000
 
       assert not is_nil(stripe_transaction.completed_at)
@@ -181,6 +184,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert stripe_transaction.state == "completed"
       assert stripe_transaction.total == 4000
       assert stripe_transaction.type == "credit"
+      assert stripe_transaction.payment_option == :cc
       assert stripe_transaction.paid_by_charge == 4000
 
       assert invoice.user.balance == 0
@@ -218,6 +222,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.state == "completed"
       assert transaction.total == 24000
       assert transaction.type == "credit"
+      assert transaction.payment_option == :cc
       assert transaction.paid_by_charge == 24000
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
@@ -252,6 +257,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.state == "completed"
       assert transaction.total == 24000
       assert transaction.type == "credit"
+      assert transaction.payment_option == :cc
       assert transaction.paid_by_charge == 24000
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
@@ -352,6 +358,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.state == "completed"
       assert transaction.total == 25000
       assert transaction.type == "debit"
+      assert transaction.payment_option == :cash
       assert transaction.paid_by_cash == 25000
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
@@ -389,6 +396,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.state == "completed"
       assert transaction.total == 25000
       assert transaction.type == "debit"
+      assert transaction.payment_option == :balance
       assert transaction.paid_by_balance == 25000
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
@@ -425,6 +433,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert balance_transaction.state == "completed"
       assert balance_transaction.total == 20000
       assert balance_transaction.type == "debit"
+      assert balance_transaction.payment_option == :balance
       assert balance_transaction.paid_by_balance == 20000
 
       assert not is_nil(stripe_transaction.completed_at)
@@ -433,6 +442,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert stripe_transaction.state == "completed"
       assert stripe_transaction.total == 5000
       assert stripe_transaction.type == "credit"
+      assert stripe_transaction.payment_option == :cc
       assert stripe_transaction.paid_by_charge == 5000
 
       assert invoice.user.balance == 0
@@ -471,6 +481,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.state == "completed"
       assert transaction.total == 25000
       assert transaction.type == "credit"
+      assert transaction.payment_option == :cc
       assert transaction.paid_by_charge == 25000
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
@@ -506,6 +517,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.state == "completed"
       assert transaction.total == 25000
       assert transaction.type == "credit"
+      assert transaction.payment_option == :cc
       assert transaction.paid_by_charge == 25000
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)

@@ -46,7 +46,7 @@ defmodule Flight.Billing.CreateInvoice do
       balance_enough = remainder >= 0
       total = if balance_enough, do: total_amount_due, else: user_balance
 
-      case create_transaction(invoice, school_context, %{total: total, paid_by_balance: total}) do
+      case create_transaction(invoice, school_context, %{total: total, payment_option: :balance}) do
         {:ok, transaction} -> case PayTransaction.run(transaction) do
           {:ok, _} ->
             if balance_enough do
@@ -67,7 +67,7 @@ defmodule Flight.Billing.CreateInvoice do
 
   defp pay_off_cc(invoice, school_context, amount \\ nil) do
     amount = amount || invoice.total_amount_due
-    transaction_attrs = %{type: "credit", total: amount, paid_by_charge: amount}
+    transaction_attrs = %{type: "credit", total: amount, payment_option: :cc}
 
     case create_transaction(invoice, school_context, transaction_attrs) do
       {:ok, transaction} -> case PayTransaction.run(transaction) do
@@ -80,9 +80,7 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   defp pay_off_manually(invoice, school_context) do
-    total_amount_due = invoice.total_amount_due
-    payment_method = String.to_atom("paid_by_#{invoice.payment_option}")
-    transaction_attrs = Map.merge(%{total: total_amount_due}, %{payment_method => total_amount_due})
+    transaction_attrs = %{total: invoice.total_amount_due, payment_option: invoice.payment_option}
 
     case create_transaction(invoice, school_context, transaction_attrs) do
       {:ok, transaction} -> case PayTransaction.run(transaction) do

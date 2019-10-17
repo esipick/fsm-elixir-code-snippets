@@ -1,15 +1,15 @@
 defmodule Flight.Billing.PayTransaction do
   import Ecto.Changeset
 
-  alias Flight.Repo
+  alias Flight.{Repo, Billing.Transaction}
 
   def run(transaction) do
     transaction = Repo.preload(transaction, [:user, :invoice])
 
-    if transaction.type == "credit" do
-      create_charge(transaction)
-    else
-      update_user_balance(transaction)
+    case transaction.payment_option do
+      :balance -> update_user_balance(transaction)
+      :cc -> create_charge(transaction)
+      _ -> complete_transaction(transaction)
     end
   end
 
@@ -42,10 +42,13 @@ defmodule Flight.Billing.PayTransaction do
   end
 
   defp complete_transaction(transaction, attrs \\ %{}) do
-    change(
-      transaction,
-      %{state: "completed", completed_at: NaiveDateTime.utc_now()} |> Map.merge(attrs)
-    )
-    |> Repo.update
+    paid_by_column = Transaction.get_paid_by_column(transaction)
+
+    transaction_attrs =
+      %{state: "completed", completed_at: NaiveDateTime.utc_now()}
+      |> Map.merge(attrs)
+      |> Map.merge(%{paid_by_column => transaction.total})
+
+    change(transaction, transaction_attrs) |> Repo.update
   end
 end

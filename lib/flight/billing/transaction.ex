@@ -6,6 +6,8 @@ defmodule Flight.Billing.Transaction do
     field(:paid_by_balance, :integer)
     field(:paid_by_charge, :integer)
     field(:paid_by_cash, :integer)
+    field(:paid_by_check, :integer)
+    field(:paid_by_venmo, :integer)
     field(:state, :string)
     field(:stripe_charge_id, :string)
     field(:total, :integer)
@@ -14,6 +16,7 @@ defmodule Flight.Billing.Transaction do
     field(:last_name, :string)
     field(:email, :string)
     field(:completed_at, :naive_datetime)
+    field(:payment_option, InvoicePaymentOptionEnum)
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:user, Flight.Accounts.User)
     belongs_to(:creator_user, Flight.Accounts.User)
@@ -31,6 +34,8 @@ defmodule Flight.Billing.Transaction do
       :paid_by_balance,
       :paid_by_charge,
       :paid_by_cash,
+      :paid_by_check,
+      :paid_by_venmo,
       :stripe_charge_id,
       :type,
       :state,
@@ -39,7 +44,8 @@ defmodule Flight.Billing.Transaction do
       :creator_user_id,
       :first_name,
       :last_name,
-      :email
+      :email,
+      :payment_option
     ])
     |> cast_assoc(:line_items)
     |> validate_required([
@@ -51,5 +57,11 @@ defmodule Flight.Billing.Transaction do
     ])
     |> validate_inclusion(:state, ["pending", "completed", "canceled"])
     |> validate_inclusion(:type, ["debit", "credit"])
+  end
+
+  def get_paid_by_column(transaction) do
+    payment_option = transaction.payment_option
+    column_suffix = Map.get(%{cc: :charge}, payment_option, payment_option)
+    String.to_atom("paid_by_#{column_suffix}")
   end
 end
