@@ -64,4 +64,8 @@ defmodule Flight.Billing.Transaction do
     column_suffix = Map.get(%{cc: :charge}, payment_option, payment_option)
     String.to_atom("paid_by_#{column_suffix}")
   end
+
+  def full_name(transaction) do
+    "#{transaction.first_name} #{transaction.last_name}"
+  end
 end
