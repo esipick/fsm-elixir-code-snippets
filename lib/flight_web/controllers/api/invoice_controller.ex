@@ -12,7 +12,7 @@ defmodule FlightWeb.API.InvoiceController do
   def create(conn, %{"invoice" => invoice_params}) do
     case CreateInvoice.run(invoice_params, conn) do
       {:ok, invoice} ->
-        invoice = Repo.preload(invoice, [:line_items, :user])
+        invoice = Repo.preload(invoice, [:line_items, :user], force: true)
 
         conn
         |> put_status(201)
@@ -31,7 +31,7 @@ defmodule FlightWeb.API.InvoiceController do
   def update(conn, %{"invoice" => invoice_params}) do
     case UpdateInvoice.run(conn.assigns.invoice, invoice_params, conn) do
       {:ok, invoice} ->
-        invoice = Repo.preload(invoice, [:line_items, :user])
+        invoice = Repo.preload(invoice, [:line_items, :user], force: true)
 
         conn
         |> put_status(200)

@@ -54,7 +54,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload([:user, line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)])
+        |> Repo.preload([:user, :line_items])
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
@@ -86,13 +86,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload(
-          [
-            :user,
-            :transactions,
-            line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)
-          ]
-        )
+        |> Repo.preload([:user, :transactions, :line_items])
 
       transaction = List.first(invoice.transactions)
 
@@ -121,13 +115,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload(
-          [
-            :user,
-            :transactions,
-            line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)
-          ]
-        )
+        |> Repo.preload([:user, :transactions, :line_items])
 
       transaction = List.first(invoice.transactions)
 
@@ -158,16 +146,10 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload(
-          [
-            :user,
-            transactions: (from i in Transaction, order_by: [asc: i.inserted_at]),
-            line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)
-          ]
-        )
+        |> Repo.preload([:user, :transactions, :line_items])
 
-      balance_transaction = List.first(invoice.transactions)
-      stripe_transaction = List.last(invoice.transactions)
+      balance_transaction = List.last(invoice.transactions)
+      stripe_transaction = List.first(invoice.transactions)
 
       assert is_nil(balance_transaction.stripe_charge_id)
       assert not is_nil(balance_transaction.completed_at)
@@ -204,13 +186,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload(
-          [
-            :user,
-            transactions: (from i in Transaction, order_by: [asc: i.inserted_at]),
-            line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)
-          ]
-        )
+        |> Repo.preload([:user, :transactions, :line_items])
 
       transaction = List.first(invoice.transactions)
 
@@ -241,13 +217,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload(
-          [
-            :user,
-            :transactions,
-            line_items: (from i in InvoiceLineItem, order_by: i.inserted_at)
-          ]
-        )
+        |> Repo.preload([:user, :transactions, :line_items])
 
       transaction = List.first(invoice.transactions)
 
@@ -305,12 +275,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get(Invoice, invoice.id)
-        |> Repo.preload(
-          [
-            :user,
-            line_items: (from i in InvoiceLineItem, order_by: [desc: i.inserted_at])
-          ]
-        )
+        |> Repo.preload([:user, :line_items])
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
@@ -342,13 +307,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get(Invoice, invoice.id)
-        |> Repo.preload(
-          [
-            :user,
-            :transactions,
-            line_items: (from i in InvoiceLineItem, order_by: [desc: i.inserted_at])
-          ]
-        )
+        |> Repo.preload([:user, :transactions, :line_items])
 
       transaction = List.first(invoice.transactions)
 
@@ -378,13 +337,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get(Invoice, invoice.id)
-        |> Repo.preload(
-          [
-            :user,
-            :transactions,
-            line_items: (from i in InvoiceLineItem, order_by: [desc: i.inserted_at])
-          ]
-        )
+        |> Repo.preload([:user, :transactions, :line_items])
 
       transaction = List.first(invoice.transactions)
 
@@ -416,16 +369,10 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get(Invoice, invoice.id)
-        |> Repo.preload(
-          [
-            :user,
-            transactions: (from i in Transaction, order_by: [asc: i.inserted_at]),
-            line_items: (from i in InvoiceLineItem, order_by: [desc: i.inserted_at])
-          ]
-        )
+        |> Repo.preload([:user, :transactions, :line_items])
 
-      balance_transaction = List.first(invoice.transactions)
-      stripe_transaction = List.last(invoice.transactions)
+      balance_transaction = List.last(invoice.transactions)
+      stripe_transaction = List.first(invoice.transactions)
 
       assert is_nil(balance_transaction.stripe_charge_id)
       assert not is_nil(balance_transaction.completed_at)
@@ -463,13 +410,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get(Invoice, invoice.id)
-        |> Repo.preload(
-          [
-            :user,
-            transactions: (from i in Transaction, order_by: [asc: i.inserted_at]),
-            line_items: (from i in InvoiceLineItem, order_by: [desc: i.inserted_at])
-          ]
-        )
+        |> Repo.preload([:user, :transactions, :line_items])
 
       transaction = List.first(invoice.transactions)
 
@@ -501,13 +442,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get(Invoice, invoice.id)
-        |> Repo.preload(
-          [
-            :user,
-            :transactions,
-            line_items: (from i in InvoiceLineItem, order_by: [desc: i.inserted_at])
-          ]
-        )
+        |> Repo.preload([:user, :transactions, :line_items])
 
       transaction = List.first(invoice.transactions)
 
