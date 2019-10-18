@@ -22,6 +22,10 @@
               </a>
             </li>
           </ul>
+
+          <div class="text-right">
+            <a href="/admin/billing/invoices/new" class="btn btn-primary">Add New</a>
+          </div>
         </div>
       </div>
 
