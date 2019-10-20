@@ -24,7 +24,7 @@
           </ul>
 
           <div class="text-right">
-            <a href="/admin/billing/invoices/new" class="btn btn-primary">Add New</a>
+            <a href="/admin/billing/invoices/new" class="btn btn-primary">New Invoice</a>
           </div>
         </div>
       </div>

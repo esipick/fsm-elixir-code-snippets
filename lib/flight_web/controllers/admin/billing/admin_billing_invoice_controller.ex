@@ -18,7 +18,7 @@ defmodule FlightWeb.Admin.Billing.InvoiceController do
 
   def new(conn, _) do
     props = %{
-      tax_rate: conn.assigns.current_user.school.sales_tax || 25,
+      tax_rate: (conn.assigns.current_user.school.sales_tax || 0),
       action: "create"
     }
 
@@ -27,8 +27,9 @@ defmodule FlightWeb.Admin.Billing.InvoiceController do
 
   def edit(conn, _) do
     props = Invoice.get_edit_props(conn.assigns.invoice)
+    invoice = conn.assigns.invoice
 
-    render(conn, "edit.html", props: props)
+    render(conn, "edit.html", props: props, invoice: invoice)
   end
 
   defp get_invoice(conn, _) do

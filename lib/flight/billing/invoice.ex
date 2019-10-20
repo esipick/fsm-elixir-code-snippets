@@ -20,7 +20,7 @@ defmodule Flight.Billing.Invoice do
   schema "invoices" do
     field(:date, :date)
     field(:total, :integer)
-    field(:tax_rate, :integer)
+    field(:tax_rate, :float)
     field(:total_tax, :integer)
     field(:total_amount_due, :integer)
     field(:status, InvoiceStatusEnum, default: :pending)

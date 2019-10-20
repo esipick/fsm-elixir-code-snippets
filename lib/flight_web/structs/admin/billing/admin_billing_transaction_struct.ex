@@ -2,10 +2,11 @@ defmodule FlightWeb.Admin.Billing.TransactionStruct do
   alias __MODULE__
   alias Flight.Billing.Transaction
 
-  defstruct ~w(invoice_id student_name amount_due amount_paid state completed_at payment_method)a
+  defstruct ~w(id invoice_id student_name amount_due amount_paid state completed_at payment_method)a
 
   def build(transaction) do
     %TransactionStruct{
+      id: transaction.id,
       invoice_id: transaction.invoice_id,
       student_name: student_name(transaction),
       amount_due: transaction.total,

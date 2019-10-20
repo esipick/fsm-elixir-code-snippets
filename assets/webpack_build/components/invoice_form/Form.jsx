@@ -1,3 +1,4 @@
+import classnames from 'classnames';
 import React, { Component } from 'react';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
@@ -36,7 +37,7 @@ class Form extends Component {
       date: props.date && new Date(props.date) || new Date,
       student: props.student,
       line_items: props.line_items || [],
-      sales_tax: props.tax_rate || 25,
+      sales_tax: props.tax_rate || 0,
       payment_method: this.getPaymentMethod(props.payment_option),
       action: props.action || 'create',
       total: props.total || 0,
@@ -117,7 +118,11 @@ class Form extends Component {
   }
 
   saveInvoice = ({ pay_off }) => {
+    if (this.state.saving) return;
+
     if (this.formRef.checkValidity()) {
+      this.setState({ saving: true });
+
       const { action } = this.state;
       const payload = this.payload();
       const http_method = action == 'edit' ? 'put' : 'post';
@@ -127,28 +132,31 @@ class Form extends Component {
         body: { pay_off: pay_off, invoice: payload },
         headers: { 'Authorization': window.fsm_token }
       }).then(response => {
-        response.json().then(_ => {
-          window.location = "/admin/billing/invoices"
+        response.json().then(({ data }) => {
+          window.location = `/admin/billing/invoices/${data.id}/edit`;
         })
       }).catch(response => {
-        response.json().then(response => {
-          if (response.stripe_error) {
-            this.setState({ stripe_error: response.stripe_error });
-          } else {
-            this.setState({ errors: response.errors });
-          }
-        })
+        response.json().then(({ stripe_error, errors }) => {
+          this.setState({ saving: false, stripe_error, errors })
+        });
       });
     }
   }
 
+  globalError = () => {
+    if (Object.keys(this.state.errors).length > 0) {
+      return "Could not save invoice. Please correct errors in the form.";
+    }
+  }
+
   saveAndPayButton = () => {
-    const { payment_method: { value } } = this.state;
+    const { payment_method: { value }, saving } = this.state;
     const inputValue = [CASH, CHECK, VENMO].includes(value) ? MARK_AS_PAID : PAY
 
     return(
-      <input className="btn btn-primary"
+      <input className="btn btn-danger invoice-form__pay-btn"
         type="submit"
+        disabled={saving}
         value={inputValue}
         onClick={()=>{this.saveInvoice({ pay_off: true })}} />
     );
@@ -157,8 +165,9 @@ class Form extends Component {
   render() {
     const {
       students_loading, student, date, line_items, sales_tax, total, total_tax,
-      total_amount_due, payment_method, errors, stripe_error
+      total_amount_due, payment_method, errors, stripe_error, saving
     } = this.state;
+    const studentWrapperClass = classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '');
 
     return (
       <div className="invoice-form">
@@ -169,7 +178,7 @@ class Form extends Component {
                 Student name
                 <Error text={errors.user_id} />
               </label>
-              <div className="invoice-select-wrapper">
+              <div className={studentWrapperClass}>
                 <AsyncSelect placeholder="Student name"
                   classNamePrefix="react-select"
                   loadOptions={this.loadStudents}
@@ -185,6 +194,11 @@ class Form extends Component {
               <label>Acct Balance</label>
               <div>${this.accountBalance()}</div>
             </div>
+
+            { this.props.id && <div className="form-group">
+              <label>Invoice #</label>
+              <div>{this.props.id}</div>
+            </div> }
 
             <div className="form-group">
               <label>
@@ -227,9 +241,14 @@ class Form extends Component {
               <input className="btn btn-primary"
                 type="submit"
                 value="Save"
+                disabled={saving}
                 onClick={()=>{this.saveInvoice({ pay_off: false })}} />
 
               { this.saveAndPayButton() }
+            </div>
+
+            <div className="form-group">
+              <Error text={this.globalError()} />
             </div>
           </form>
         </div>

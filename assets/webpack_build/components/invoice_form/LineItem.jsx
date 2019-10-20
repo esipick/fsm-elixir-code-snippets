@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
+import NumericInput from 'react-numeric-input';
 import shortid from 'shortid';
 
 export class LineItemRecord {
   constructor() {
     this.id = shortid.generate();
     this.description = '';
-    this.rate = 0;
+    this.rate = 100;
     this.quantity = 1;
-    this.amount = 0;
+    this.amount = this.rate * this.quantity;
   }
 };
 
@@ -28,14 +29,13 @@ class InvoiceLineItem extends Component {
   }
 
   setRate = (e) => {
-    const rate = (parseInt(e.target.value) || 0) * 100;
-    const item = Object.assign({}, this.state.item, { rate });
+    const item = Object.assign({}, this.state.item, { rate: e * 100 });
 
     this.calculateAmount(item);
   }
 
-  setQty = (e) => {
-    const item = Object.assign({}, this.state.item, { quantity: parseInt(e.target.value) || 0 });
+  setQty = (quantity) => {
+    const item = Object.assign({}, this.state.item, { quantity });
 
     this.calculateAmount(item);
   }
@@ -67,14 +67,18 @@ class InvoiceLineItem extends Component {
             required={true} />
         </td>
         <td>
-          <input type="number" className="form-control"
+          <NumericInput precision={2}
             value={rate / 100}
+            className="form-control"
+            step={0.1}
             onChange={this.setRate}
             required={true} />
         </td>
         <td>
-          <input type="number" className="form-control"
+          <NumericInput precision={2}
             value={quantity}
+            className="form-control"
+            step={0.1}
             onChange={this.setQty}
             required={true} />
         </td>

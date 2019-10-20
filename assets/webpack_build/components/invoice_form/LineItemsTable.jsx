@@ -1,53 +1,56 @@
 import React, { Component } from 'react';
 import LineItem, { LineItemRecord } from './LineItem';
+import NumericInput from 'react-numeric-input';
 
 class LineItemsTable extends Component {
   constructor(props) {
     super(props);
 
     const line_items = props.line_items.length > 0 ? props.line_items : [new LineItemRecord()];
+    const values = this.calculateTotal(props.sales_tax, line_items);
 
     this.state = {
       line_items,
       sales_tax: props.sales_tax,
-      total: props.total,
-      total_tax: props.total_tax,
-      total_amount_due: props.total_amount_due
+      ...values
     }
   }
 
   addItem = () => {
     const line_items = [...this.state.line_items, new LineItemRecord()];
-    this.calculateTotal(this.state.sales_tax, line_items)
+    this.updateTotal(this.state.sales_tax, line_items)
   }
 
   removeItem = (id) => {
     const line_items = this.state.line_items.filter(i => i.id != id);
-    this.calculateTotal(this.state.sales_tax, line_items)
+    this.updateTotal(this.state.sales_tax, line_items)
   }
 
   setItem = (item) => {
     const line_items = this.state.line_items.map(i => i.id == item.id ? item : i);
-    this.calculateTotal(this.state.sales_tax, line_items)
+    this.updateTotal(this.state.sales_tax, line_items)
   };
 
-  setSalesTax = (e) => {
-    const sales_tax = parseInt(e.target.value) || 0;
-    this.calculateTotal(sales_tax, this.state.line_items)
+  setSalesTax = (sales_tax) => {
+    this.updateTotal(sales_tax, this.state.line_items)
   }
 
   calculateTotal = (sales_tax, line_items) => {
     const total = line_items.reduce((sum, i) => (sum + i.rate * i.quantity), 0);
-    const total_tax = parseInt(total * sales_tax / 100);
+    const total_tax = parseInt(total * sales_tax);
     const total_amount_due = total + total_tax;
 
-    const values = {
+    return {
       line_items,
       total,
       sales_tax,
       total_tax,
       total_amount_due
     }
+  }
+
+  updateTotal = (sales_tax, line_items) => {
+    const values = this.calculateTotal(sales_tax, line_items);
 
     this.setState(values);
     this.props.onChange(values);
@@ -57,7 +60,7 @@ class LineItemsTable extends Component {
     const { line_items, total, sales_tax, total_tax, total_amount_due } = this.state;
 
     return (
-      <table className="table">
+      <table className="table table-striped">
         <thead>
           <tr>
             <th>#</th>
@@ -92,13 +95,14 @@ class LineItemsTable extends Component {
           </tr>
           <tr>
             <td colSpan="4" className="text-right">
-              Sales Tax, %:
+              Sales Tax:
             </td>
             <td colSpan="2">
-              <input value={sales_tax}
-                onChange={this.setSalesTax}
+              <NumericInput precision={2}
+                value={sales_tax}
                 className="form-control"
-                type="number"
+                step={1}
+                onChange={this.setSalesTax}
                 required={true} />
             </td>
           </tr>
