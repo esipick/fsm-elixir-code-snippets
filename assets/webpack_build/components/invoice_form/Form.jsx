@@ -5,7 +5,7 @@ import AsyncSelect from 'react-select/async';
 import http from 'j-fetch';
 import DatePicker from 'react-datepicker';
 
-import Error from '../common/error';
+import Error from '../common/Error';
 
 import LineItemsTable from './LineItemsTable';
 
