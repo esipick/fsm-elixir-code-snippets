@@ -210,7 +210,7 @@ defmodule Flight.BillingFixtures do
       date: ~D[2019-10-10],
       payment_option: "balance",
       total: 20000,
-      tax_rate: 0.2,
+      tax_rate: 20,
       total_tax: 4000,
       total_amount_due: 24000,
       line_items: [

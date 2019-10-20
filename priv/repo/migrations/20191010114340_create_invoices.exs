@@ -8,7 +8,7 @@ defmodule Flight.Repo.Migrations.CreateInvoices do
       add(:status, :integer, default: 0)
       add(:date, :date)
       add(:total, :integer)
-      add(:tax_rate, :float)
+      add(:tax_rate, :integer)
       add(:total_tax, :integer)
       add(:total_amount_due, :integer)
 

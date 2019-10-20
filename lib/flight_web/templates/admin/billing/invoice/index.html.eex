@@ -40,6 +40,7 @@
               <th>Status</th>
               <th>Payment date</th>
               <th>Payment method</th>
+              <th class="disabled-sorting text-right">&nbsp;</th>
             </tr>
           </thead>
 
@@ -53,6 +54,13 @@
                 <td><%= invoice.status %></td>
                 <td><%= invoice.payment_date %></td>
                 <td><%= invoice.payment_method %></td>
+                <td class="text-right">
+                  <%= if invoice.editable do %>
+                    <a href="/admin/billing/invoices/<%= invoice.id %>/edit" class="btn btn-primary btn-sm">
+                      Edit
+                    </a>
+                  <% end %>
+                </td>
               </tr>
             <% end %>
           </tbody>

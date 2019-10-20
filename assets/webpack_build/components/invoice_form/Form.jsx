@@ -9,13 +9,17 @@ import Error from '../common/error';
 import LineItemsTable from './LineItemsTable';
 
 const BALANCE = 'balance';
-const CREDIT_CARD = 'credit_card';
+const CREDIT_CARD = 'cc';
 const CASH = 'cash';
 const CHECK = 'check';
 const VENMO = 'venmo';
 
+const MARK_AS_PAID = 'Save and Mark as paid';
+const PAY = 'Save and Pay';
+
+const DEFAULT_PAYMENT_OPTION = { value: BALANCE, label: 'Balance' };
 const PAYMENT_OPTIONS = [
-  { value: BALANCE, label: 'Balance' },
+  DEFAULT_PAYMENT_OPTION,
   { value: CREDIT_CARD, label: 'Credit Card' },
   { value: CASH, label: 'Cash' },
   { value: CHECK, label: 'Check' },
@@ -26,18 +30,38 @@ class Form extends Component {
   constructor(props) {
     super(props);
 
+    this.formRef = null;
+
     this.state = {
-      date: props.date || new Date(),
+      date: props.date && new Date(props.date) || new Date,
       student: props.student,
       line_items: props.line_items || [],
-      sales_tax: props.sales_tax || 0,
-      payment_method: props.payment_method || BALANCE,
-      action: props.action || 'create'
+      sales_tax: props.tax_rate || 25,
+      payment_method: this.getPaymentMethod(props.payment_option),
+      action: props.action || 'create',
+      total: props.total || 0,
+      total_tax: props.total_tax || 0,
+      total_amount_due: props.total_amount_due || 0,
+      errors: props.errors || {},
+      stripe_error: props.stripe_error || ''
     }
   }
 
+  getPaymentMethod = (payment_option) => {
+    const finded_option = PAYMENT_OPTIONS.find((option) => {
+      return option.value == payment_option
+    });
+
+    return finded_option || DEFAULT_PAYMENT_OPTION;
+  }
+
+  setFormRef = (form) => {
+    this.formRef = form;
+
+    form.addEventListener("submit", (event) => { event.preventDefault() });
+  };
+
   loadStudents = (input, callback) => {
-    const complete = false;
     this.setState({ students_loading: true });
 
     http.get({
@@ -66,89 +90,148 @@ class Form extends Component {
 
   setDate = (date) => { this.setState({ date }); }
 
-  setPaymentMethod = ({ value }) => { this.setState({ payment_method: value }); }
+  setPaymentMethod = (option) => { this.setState({ payment_method: option }); }
 
-  setLineItems = (line_items) => { this.setState({ line_items }); }
-
-  setSalesTax = (sales_tax) => { this.setState({ sales_tax }); }
+  onLineItemsTableChange = (values) => { this.setState(values); }
 
   payload = () => {
-    const { student, sales_tax, date, payment_method, action } = this.state;
+    const {
+      student, sales_tax, total, total_tax, total_amount_due, date, payment_method, action
+    } = this.state;
+
     const line_items = action == 'edit' ? this.state.line_items : this.state.line_items.map(i => {
-      delete i.id;
+      delete Object.assign({}, i).id;
       return i;
     });
 
     return {
-      student_id: student && student.id,
-      account_balance: student && student.balance,
-      date: date.toUTCString(),
-      sales_tax,
-      payment_method,
-      line_items
+      line_items,
+      user_id: student && student.id,
+      date: date.toISOString(),
+      tax_rate: sales_tax,
+      total: total,
+      total_tax: total_tax,
+      total_amount_due: total_amount_due,
+      payment_option: payment_method.value
     }
   }
 
-  saveInvoice = () => {
-    const payload = this.payload();
+  saveInvoice = ({ pay_off }) => {
+    if (this.formRef.checkValidity()) {
+      const { action } = this.state;
+      const payload = this.payload();
+      const http_method = action == 'edit' ? 'put' : 'post';
 
-    console.log(payload);
+      http[http_method]({
+        url: `/api/invoices/${this.props.id || ''}`,
+        body: { pay_off: pay_off, invoice: payload },
+        headers: { 'Authorization': window.fsm_token }
+      }).then(response => {
+        response.json().then(_ => {
+          window.location = "/admin/billing/invoices"
+        })
+      }).catch(response => {
+        response.json().then(response => {
+          if (response.stripe_error) {
+            this.setState({ stripe_error: response.stripe_error });
+          } else {
+            this.setState({ errors: response.errors });
+          }
+        })
+      });
+    }
+  }
+
+  saveAndPayButton = () => {
+    const { payment_method: { value } } = this.state;
+    const inputValue = [CASH, CHECK, VENMO].includes(value) ? MARK_AS_PAID : PAY
+
+    return(
+      <input className="btn btn-primary"
+        type="submit"
+        value={inputValue}
+        onClick={()=>{this.saveInvoice({ pay_off: true })}} />
+    );
   }
 
   render() {
+    const {
+      students_loading, student, date, line_items, sales_tax, total, total_tax,
+      total_amount_due, payment_method, errors, stripe_error
+    } = this.state;
+
     return (
       <div className="invoice-form">
         <div className="form">
-          <div className="form-group">
-            <label>
-              Student name
-              <Error text="" />
-            </label>
-            <div className="invoice-select-wrapper">
-              <AsyncSelect placeholder="Student name"
-                classNamePrefix="react-select"
-                loadOptions={this.loadStudents}
-                onChange={this.setStudent}
-                isLoading={this.state.students_loading}
-                getOptionLabel={(o) => o.first_name + ' ' + o.last_name}
-                getOptionValue ={(o) => o.id} />
+          <form ref={this.setFormRef}>
+            <div className="form-group">
+              <label>
+                Student name
+                <Error text={errors.user_id} />
+              </label>
+              <div className="invoice-select-wrapper">
+                <AsyncSelect placeholder="Student name"
+                  classNamePrefix="react-select"
+                  loadOptions={this.loadStudents}
+                  onChange={this.setStudent}
+                  isLoading={students_loading}
+                  getOptionLabel={(o) => o.first_name + ' ' + o.last_name}
+                  getOptionValue ={(o) => o.id}
+                  value={student} />
+              </div>
             </div>
-          </div>
 
-          <div className="form-group">
-            <label>Acct Balance</label>
-            <div>${this.accountBalance()}</div>
-          </div>
-
-          <div className="form-group">
-            <label>Date</label>
-            <div>
-              <DatePicker className="form-control invoice-input"
-                selected={this.state.date} onChange={this.setDate} />
+            <div className="form-group">
+              <label>Acct Balance</label>
+              <div>${this.accountBalance()}</div>
             </div>
-          </div>
 
-          <div className="form-group">
-            <LineItemsTable items={this.state.line_items}
-              onChange={this.setLineItems}
-              sales_tax={this.state.sales_tax}
-              onSalesTaxChange={this.setSalesTax} />
-          </div>
-
-          <div className="form-group">
-            <label>Payment method</label>
-            <div className="invoice-select-wrapper">
-              <Select placeholder="Payment method"
-                defaultValue={this.state.payment_method}
-                classNamePrefix="react-select"
-                options={PAYMENT_OPTIONS}
-                onChange={this.setPaymentMethod} />
+            <div className="form-group">
+              <label>
+                Date
+                <Error text={errors.date} />
+              </label>
+              <div>
+                <DatePicker className="form-control invoice-input"
+                  selected={date}
+                  onChange={this.setDate} />
+              </div>
             </div>
-          </div>
 
-          <div className="form-group">
-            <button className="btn btn-primary" onClick={this.saveInvoice}>Save</button>
-          </div>
+            <div className="form-group">
+              <LineItemsTable line_items={line_items}
+                onChange={this.onLineItemsTableChange}
+                sales_tax={sales_tax}
+                total={total}
+                total_tax={total_tax}
+                total_amount_due={total_amount_due} />
+            </div>
+
+            <div className="form-group">
+              <label>
+                Payment method
+                <Error text={errors.payment_option} />
+              </label>
+              <div className="invoice-select-wrapper">
+                <Select placeholder="Payment method"
+                  value={payment_method}
+                  classNamePrefix="react-select"
+                  options={PAYMENT_OPTIONS}
+                  onChange={this.setPaymentMethod}
+                  required={true} />
+              </div>
+              <div><Error text={stripe_error} /></div>
+            </div>
+
+            <div className="form-group">
+              <input className="btn btn-primary"
+                type="submit"
+                value="Save"
+                onClick={()=>{this.saveInvoice({ pay_off: false })}} />
+
+              { this.saveAndPayButton() }
+            </div>
+          </form>
         </div>
       </div>
     );

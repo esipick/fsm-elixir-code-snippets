@@ -119,8 +119,6 @@ defmodule FlightWeb.Router do
     resources("/courses", CoursesController, only: [:index, :show, :edit, :new, :create])
     resources("/courses/lessons", LessonsController, only: [:show, :new, :create])
 
-    resources("/invoices", InvoicesController, only: [:new, :edit])
-
     resources(
       "/courses/lessons/objectives",
       ObjectivesController,
@@ -150,7 +148,7 @@ defmodule FlightWeb.Router do
     get("/billing", BillingController, :index)
 
     scope("/billing", Billing, as: :admin_billing) do
-      resources("/invoices", InvoiceController, only: [:index, :new])
+      resources("/invoices", InvoiceController, only: [:index, :new, :edit])
       resources("/transactions", TransactionController, only: [:index])
     end
   end

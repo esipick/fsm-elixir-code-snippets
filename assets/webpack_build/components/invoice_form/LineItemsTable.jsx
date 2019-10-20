@@ -5,50 +5,56 @@ class LineItemsTable extends Component {
   constructor(props) {
     super(props);
 
-    const items = props.items.length > 0 ? props.items : [new LineItemRecord()];
+    const line_items = props.line_items.length > 0 ? props.line_items : [new LineItemRecord()];
 
     this.state = {
-      items,
-      sales_tax: props.sales_tax
+      line_items,
+      sales_tax: props.sales_tax,
+      total: props.total,
+      total_tax: props.total_tax,
+      total_amount_due: props.total_amount_due
     }
   }
 
   addItem = () => {
-    const items = [...this.state.items, new LineItemRecord()];
-    this.setState({ items });
-    this.props.onChange(items);
+    const line_items = [...this.state.line_items, new LineItemRecord()];
+    this.calculateTotal(this.state.sales_tax, line_items)
   }
 
   removeItem = (id) => {
-    const items = this.state.items.filter(i => i.id != id);
-
-    this.setState({ items });
-    this.props.onChange(items);
+    const line_items = this.state.line_items.filter(i => i.id != id);
+    this.calculateTotal(this.state.sales_tax, line_items)
   }
 
   setItem = (item) => {
-    const items = this.state.items.map(i => i.id == item.id ? item : i);
-
-    this.setState({ items });
-    this.props.onChange(items);
+    const line_items = this.state.line_items.map(i => i.id == item.id ? item : i);
+    this.calculateTotal(this.state.sales_tax, line_items)
   };
 
-  total = () => {
-    return this.state.items.reduce((sum, i) => (sum + i.rate * i.qty), 0);
+  setSalesTax = (e) => {
+    const sales_tax = parseInt(e.target.value) || 0;
+    this.calculateTotal(sales_tax, this.state.line_items)
   }
 
-  totalTax = () => (this.total() * this.state.sales_tax)
+  calculateTotal = (sales_tax, line_items) => {
+    const total = line_items.reduce((sum, i) => (sum + i.rate * i.quantity), 0);
+    const total_tax = parseInt(total * sales_tax / 100);
+    const total_amount_due = total + total_tax;
 
-  totalWithTax = () => (this.total() + this.totalTax())
+    const values = {
+      line_items,
+      total,
+      sales_tax,
+      total_tax,
+      total_amount_due
+    }
 
-  setSalesTax = (e) => {
-    const sales_tax = (parseInt(e.target.value) || 0) / 100;
-    this.setState({ sales_tax });
-    this.props.onSalesTaxChange(sales_tax);
+    this.setState(values);
+    this.props.onChange(values);
   }
 
   render() {
-    const { items } = this.state;
+    const { line_items, total, sales_tax, total_tax, total_amount_due } = this.state;
 
     return (
       <table className="table">
@@ -64,12 +70,12 @@ class LineItemsTable extends Component {
         </thead>
         <tbody>
           {
-            items.map((item, i) => (
+            line_items.map((item, i) => (
               <LineItem item={item}
                 number={i + 1}
                 key={item.id}
                 onChange={this.setItem}
-                canRemove={items.length > 1}
+                canRemove={line_items.length > 1}
                 onRemove={this.removeItem} />
             ))
           }
@@ -82,27 +88,31 @@ class LineItemsTable extends Component {
             <td colSpan="4" className="text-right">
               Total excl. taxes:
             </td>
-            <td colSpan="2">${this.total().toFixed(2)}</td>
+            <td colSpan="2">${(total / 100).toFixed(2)}</td>
           </tr>
           <tr>
             <td colSpan="4" className="text-right">
               Sales Tax, %:
             </td>
             <td colSpan="2">
-              <input value={this.state.sales_tax * 100} onChange={this.setSalesTax} className="form-control" type="number" />
+              <input value={sales_tax}
+                onChange={this.setSalesTax}
+                className="form-control"
+                type="number"
+                required={true} />
             </td>
           </tr>
           <tr>
             <td colSpan="4" className="text-right">
               Total tax:
             </td>
-            <td colSpan="2">${this.totalTax().toFixed(2)}</td>
+            <td colSpan="2">${(total_tax / 100).toFixed(2)}</td>
           </tr>
           <tr>
             <td colSpan="4" className="text-right">
               Total with Tax:
             </td>
-            <td colSpan="2">${this.totalWithTax().toFixed(2)}</td>
+            <td colSpan="2">${(total_amount_due / 100).toFixed(2)}</td>
           </tr>
         </tbody>
       </table>

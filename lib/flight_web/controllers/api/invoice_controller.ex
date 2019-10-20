@@ -49,6 +49,7 @@ defmodule FlightWeb.API.InvoiceController do
 
   defp get_invoice(conn, _) do
     invoice = Repo.get(Invoice, conn.params["id"])
+    invoice = Repo.preload(invoice, :line_items)
 
     if invoice do
       assign(conn, :invoice, invoice)

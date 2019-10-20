@@ -6,7 +6,8 @@ export class LineItemRecord {
     this.id = shortid.generate();
     this.description = '';
     this.rate = 0;
-    this.qty = 1;
+    this.quantity = 1;
+    this.amount = 0;
   }
 };
 
@@ -27,23 +28,23 @@ class InvoiceLineItem extends Component {
   }
 
   setRate = (e) => {
-    const item = Object.assign({}, this.state.item, { rate: parseInt(e.target.value) || 0 });
+    const rate = (parseInt(e.target.value) || 0) * 100;
+    const item = Object.assign({}, this.state.item, { rate });
 
-    this.setState({ item });
-    this.props.onChange(item);
+    this.calculateAmount(item);
   }
 
   setQty = (e) => {
-    const item = Object.assign({}, this.state.item, { qty: parseInt(e.target.value) || 0 });
+    const item = Object.assign({}, this.state.item, { quantity: parseInt(e.target.value) || 0 });
+
+    this.calculateAmount(item);
+  }
+
+  calculateAmount = (item) => {
+    item.amount = (item.rate * item.quantity);
 
     this.setState({ item });
     this.props.onChange(item);
-  }
-
-  amount = () => {
-    const { item } = this.state;
-
-    return (item.rate * item.qty).toFixed(2);
   }
 
   remove = (e) => {
@@ -53,29 +54,33 @@ class InvoiceLineItem extends Component {
   }
 
   render() {
-    const { item } = this.state;
+    const { item: { id, description, rate, quantity, amount } } = this.state;
+    const { number, canRemove } = this.props;
 
     return (
-      <tr key={item.id}>
-        <td>{this.props.number}.</td>
+      <tr key={id}>
+        <td>{number}.</td>
         <td>
           <input type="text" className="form-control"
-            value={item.description || ''}
-            onChange={this.setDesc} />
+            value={description || ''}
+            onChange={this.setDesc}
+            required={true} />
         </td>
         <td>
           <input type="number" className="form-control"
-            value={item.rate}
-            onChange={this.setRate} />
+            value={rate / 100}
+            onChange={this.setRate}
+            required={true} />
         </td>
         <td>
           <input type="number" className="form-control"
-            value={item.qty}
-            onChange={this.setQty} />
+            value={quantity}
+            onChange={this.setQty}
+            required={true} />
         </td>
-        <td>${this.amount()}</td>
+        <td>${(amount / 100).toFixed(2)}</td>
         <td className="remove-line-item-wrapper">
-          { this.props.canRemove && <a className="remove-line-item" href="" onClick={this.remove}>&times;</a> }
+          { canRemove && <a className="remove-line-item" href="" onClick={this.remove}>&times;</a> }
         </td>
       </tr>
     )

@@ -2,7 +2,10 @@ defmodule FlightWeb.Admin.Billing.InvoiceStruct do
   alias __MODULE__
   alias Flight.{Repo, Accounts.User}
 
-  defstruct ~w(id student_name amount_due amount_paid status payment_date payment_method)a
+  defstruct ~w(
+    id student_name amount_due amount_paid status payment_date payment_method
+    editable
+  )a
 
   def build(invoice) do
     invoice = invoice |> Repo.preload([:user, :transactions])
@@ -14,7 +17,8 @@ defmodule FlightWeb.Admin.Billing.InvoiceStruct do
       amount_paid: amount_paid(invoice),
       status: invoice.status,
       payment_date: invoice.date,
-      payment_method: payment_method(invoice)
+      payment_method: payment_method(invoice),
+      editable: editable(invoice)
     }
   end
 
@@ -34,5 +38,9 @@ defmodule FlightWeb.Admin.Billing.InvoiceStruct do
     else
       invoice.payment_option
     end
+  end
+
+  defp editable(invoice) do
+    invoice.status == :pending && length(invoice.transactions) == 0
   end
 end
