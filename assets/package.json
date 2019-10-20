@@ -6,6 +6,10 @@
     "watch": "brunch watch --stdin",
     "watch_webpack": "webpack --mode development --watch-stdin"
   },
+  "engines": {
+    "node": "8.15.1",
+    "yarn": "1.16.0"
+  },
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "classnames": "^2.2.6",
