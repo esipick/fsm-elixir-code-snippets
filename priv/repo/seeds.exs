@@ -25,4 +25,11 @@ user_data = %{
  password: "password"
 }
 
-{:ok, _records} = Flight.Accounts.create_school_from_invitation(user_data, invitation)
+{:ok, {school, user}} = Flight.Accounts.create_school_from_invitation(user_data, invitation)
+
+{:ok, account} = Stripe.Account.retrieve("acct_1Cq50RA9eFdB5LRw")
+
+school_account =
+  Flight.Accounts.StripeAccount.new(account)
+  |> Flight.Accounts.StripeAccount.changeset(%{school_id: school.id})
+  |> Flight.Repo.insert!()
