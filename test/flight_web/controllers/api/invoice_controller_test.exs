@@ -234,6 +234,36 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
   end
 
+  describe "GET /api/invoices/:id" do
+    test "renders unauthorized", %{conn: conn} do
+      invoice = invoice_fixture()
+      student = student_fixture()
+      invoice_params = %{total_amount_due: nil}
+
+      conn
+      |> auth(student)
+      |> get("/api/invoices/#{invoice.id}")
+      |> json_response(401)
+    end
+
+    test "renders invoice", %{conn: conn} do
+      invoice = invoice_fixture()
+      instructor = instructor_fixture()
+
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/invoices/#{invoice.id}")
+        |> json_response(200)
+
+      invoice =
+        Repo.get(Invoice, invoice.id)
+        |> Repo.preload([:user, :line_items])
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+  end
+
   describe "PUT /api/invoices/:id" do
     test "renders unauthorized", %{conn: conn} do
       invoice = invoice_fixture()
@@ -262,7 +292,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json["errors"] == errors
     end
 
-    test "creates invoice", %{conn: conn} do
+    test "updates invoice", %{conn: conn} do
       invoice = invoice_fixture()
       instructor = instructor_fixture()
       invoice_params = %{total_amount_due: 25000}

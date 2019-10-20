@@ -30,4 +30,18 @@ defmodule FlightWeb.API.InvoiceView do
       quantity: line_item.quantity
     }
   end
+
+  def render("index.json", %{page: page}) do
+    # TODO: render page
+    %{
+      page: nil,
+      data:
+        render_many(
+          page,
+          FlightWeb.API.InvoiceView,
+          "invoice.json",
+          as: :invoice
+        )
+    }
+  end
 end

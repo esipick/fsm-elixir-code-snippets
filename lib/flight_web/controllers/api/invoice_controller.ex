@@ -1,13 +1,24 @@
 defmodule FlightWeb.API.InvoiceController do
   use FlightWeb, :controller
 
+  import Ecto.Query
+
   alias Flight.Repo
   alias FlightWeb.ViewHelpers
   alias Flight.Auth.Permission
   alias Flight.Billing.{Invoice, CreateInvoice, UpdateInvoice}
 
-  plug(:get_invoice when action in [:update])
-  plug(:authorize_modify when action in [:create, :update])
+  plug(:get_invoice when action in [:update, :show])
+  plug(:authorize_modify when action in [:create, :show, :index, :update])
+
+  def index(conn, params) do
+    page_params = Pagination.params(params)
+    page = from(i in Invoice) |> Repo.paginate(page_params)
+
+    conn
+    |> put_status(200)
+    |> render("index.json", page: page)
+  end
 
   def create(conn, %{"invoice" => invoice_params}) do
     case CreateInvoice.run(invoice_params, conn) do
@@ -45,6 +56,14 @@ defmodule FlightWeb.API.InvoiceController do
         |> put_status(error.extra.http_status)
         |> json(%{stripe_error: error.message})
     end
+  end
+
+  def show(conn, _params) do
+    invoice = Repo.preload(conn.assigns.invoice, [:line_items, :user], force: true)
+
+    conn
+    |> put_status(200)
+    |> render("show.json", invoice: invoice)
   end
 
   defp get_invoice(conn, _) do
