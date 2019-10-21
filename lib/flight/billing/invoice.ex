@@ -27,8 +27,8 @@ defmodule Flight.Billing.Invoice do
     field(:payment_option, InvoicePaymentOptionEnum)
 
     belongs_to(:user, User)
-    has_many(:line_items, InvoiceLineItem, on_replace: :delete)
-    has_many(:transactions, Transaction)
+    has_many(:line_items, InvoiceLineItem, on_replace: :delete, on_delete: :delete_all)
+    has_many(:transactions, Transaction, on_delete: :nilify_all)
 
     timestamps()
   end

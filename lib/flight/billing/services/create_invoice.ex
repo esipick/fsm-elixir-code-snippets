@@ -4,25 +4,24 @@ defmodule Flight.Billing.CreateInvoice do
   alias Flight.Repo
   alias Flight.Accounts.User
   alias Flight.Billing.{Invoice, Transaction, PayTransaction}
+  alias FlightWeb.Admin.Billing.InvoiceStruct
 
   def run(invoice_params, school_context) do
     pay_off = Map.get(school_context.params, "pay_off", false)
 
-    result = Repo.transaction(fn ->
-      case Invoice.create(invoice_params) do
-        {:ok, invoice} ->
-          if pay_off == true do
-            case pay(invoice, school_context) do
-              {:ok, invoice} -> invoice
-              {:error, error} -> Repo.rollback(error)
-            end
-          else
-            invoice
+    result = case Invoice.create(invoice_params) do
+      {:ok, invoice} ->
+        if pay_off == true do
+          case pay(invoice, school_context) do
+            {:ok, invoice} -> {:ok, invoice}
+            {:error, error} -> {:error, invoice.id, error}
           end
+        else
+          {:ok, invoice}
+        end
 
-        {:error, error} -> Repo.rollback(error)
-      end
-    end)
+      {:error, error} -> {:error, error}
+    end
 
     result
   end
@@ -39,7 +38,7 @@ defmodule Flight.Billing.CreateInvoice do
 
   defp pay_off_balance(invoice, school_context) do
     user_balance = invoice.user.balance
-    total_amount_due = invoice.total_amount_due
+    total_amount_due = InvoiceStruct.build(invoice).amount_remainder
 
     if user_balance > 0 do
       remainder = user_balance - total_amount_due
@@ -84,7 +83,7 @@ defmodule Flight.Billing.CreateInvoice do
 
     case create_transaction(invoice, school_context, transaction_attrs) do
       {:ok, transaction} -> case PayTransaction.run(transaction) do
-        {:ok, _} -> {:ok, invoice}
+        {:ok, _} -> Invoice.paid(invoice)
         {:error, changeset} -> {:error, changeset}
       end
 

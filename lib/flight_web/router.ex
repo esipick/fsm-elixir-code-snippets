@@ -148,7 +148,7 @@ defmodule FlightWeb.Router do
     get("/billing", BillingController, :index)
 
     scope("/billing", Billing, as: :admin_billing) do
-      resources("/invoices", InvoiceController, only: [:index, :new, :edit])
+      resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show])
       resources("/transactions", TransactionController, only: [:index])
     end
   end

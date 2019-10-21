@@ -55,6 +55,9 @@
                 <td><%= invoice.payment_date %></td>
                 <td><%= invoice.payment_method %></td>
                 <td class="text-right">
+                  <a href="/admin/billing/invoices/<%= invoice.id %>" class="btn btn-primary btn-sm">
+                    Show
+                  </a>
                   <%= if invoice.editable do %>
                     <a href="/admin/billing/invoices/<%= invoice.id %>/edit" class="btn btn-primary btn-sm">
                       Edit

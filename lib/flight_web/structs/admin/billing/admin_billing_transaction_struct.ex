@@ -2,7 +2,10 @@ defmodule FlightWeb.Admin.Billing.TransactionStruct do
   alias __MODULE__
   alias Flight.Billing.Transaction
 
-  defstruct ~w(id invoice_id student_name amount_due amount_paid state completed_at payment_method)a
+  defstruct ~w(
+    id invoice_id student_name amount_due amount_paid state completed_at
+    payment_method error_message
+  )a
 
   def build(transaction) do
     %TransactionStruct{
@@ -13,7 +16,8 @@ defmodule FlightWeb.Admin.Billing.TransactionStruct do
       amount_paid: amount_paid(transaction),
       state: transaction.state,
       completed_at: completed_at(transaction),
-      payment_method: transaction.payment_option
+      payment_method: transaction.payment_option,
+      error_message: transaction.error_message
     }
   end
 
@@ -22,7 +26,7 @@ defmodule FlightWeb.Admin.Billing.TransactionStruct do
   end
 
   defp amount_paid(transaction) do
-    Map.get(transaction, Transaction.get_paid_by_column(transaction))
+    Map.get(transaction, Transaction.get_paid_by_column(transaction)) || 0
   end
 
   defp completed_at(transaction) do

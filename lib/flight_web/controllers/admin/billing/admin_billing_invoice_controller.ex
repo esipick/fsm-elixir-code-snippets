@@ -6,7 +6,8 @@ defmodule FlightWeb.Admin.Billing.InvoiceController do
   alias Flight.{Repo, Billing.Invoice}
   alias FlightWeb.{Pagination, Admin.Billing.InvoiceStruct}
 
-  plug(:get_invoice when action in [:edit])
+  plug(:get_invoice when action in [:edit, :show])
+  plug(:check_paid_invoice when action in [:edit])
 
   def index(conn, params) do
     page_params = Pagination.params(params)
@@ -32,6 +33,12 @@ defmodule FlightWeb.Admin.Billing.InvoiceController do
     render(conn, "edit.html", props: props, invoice: invoice)
   end
 
+  def show(conn, _) do
+    invoice = InvoiceStruct.build(conn.assigns.invoice)
+
+    render(conn, "show.html", invoice: invoice)
+  end
+
   defp get_invoice(conn, _) do
     invoice = Repo.get(Invoice, conn.params["id"])
 
@@ -41,6 +48,15 @@ defmodule FlightWeb.Admin.Billing.InvoiceController do
       conn
       |> send_resp(404, "")
       |> halt()
+    end
+  end
+
+  defp check_paid_invoice(conn, _) do
+    if conn.assigns.invoice.status == :paid do
+      conn
+      |> redirect(to: "/admin/billing/invoices")
+    else
+      conn
     end
   end
 end

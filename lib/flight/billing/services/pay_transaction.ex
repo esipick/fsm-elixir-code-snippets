@@ -37,7 +37,9 @@ defmodule Flight.Billing.PayTransaction do
 
     case charge_result do
       {:ok, charge} -> complete_transaction(transaction, %{stripe_charge_id: charge.id})
-      {:error, error} -> {:error, error}
+      {:error, error} ->
+        update_error_message(transaction, error)
+        {:error, error}
     end
   end
 
@@ -50,5 +52,9 @@ defmodule Flight.Billing.PayTransaction do
       |> Map.merge(%{paid_by_column => transaction.total})
 
     change(transaction, transaction_attrs) |> Repo.update
+  end
+
+  defp update_error_message(transaction, stripe_error) do
+    change(transaction, %{error_message: stripe_error.message}) |> Repo.update
   end
 end

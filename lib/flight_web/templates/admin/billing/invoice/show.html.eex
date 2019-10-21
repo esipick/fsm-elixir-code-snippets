@@ -1,0 +1,128 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @invoice.title %></h2>
+  </div>
+</div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <%= if @invoice.editable do %>
+          <div class="card-header">
+            <div class="text-right">
+              <a href="/admin/billing/invoices/<%= @invoice.id %>/edit" class="btn btn-primary">
+                Edit
+              </a>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="card-body">
+          <div class="tab-content">
+            <div class="tab-pane active detail-list" id="link1">
+              <dl class="d-flex justify-content-between">
+                <dt>Student name</dt>
+                <dd><%= @invoice.student_name %></dd>
+              </dl>
+
+              <dl class="d-flex justify-content-between">
+                <dt>Payment date</dt>
+                <dd><%= @invoice.payment_date %></dd>
+              </dl>
+
+              <dl class="d-flex justify-content-between">
+                <dt>Payment method</dt>
+                <dd><%= @invoice.payment_method %></dd>
+              </dl>
+
+              <dl class="d-flex justify-content-between">
+                <dt>Amount excl. taxes</dt>
+                <dd><%= currency(@invoice.total) %></dd>
+              </dl>
+
+              <dl class="d-flex justify-content-between">
+                <dt>Sales Tax</dt>
+                <dd><%= @invoice.tax_rate %></dd>
+              </dl>
+
+              <dl class="d-flex justify-content-between">
+                <dt>Taxes amount</dt>
+                <dd><%= currency(@invoice.total_tax) %></dd>
+              </dl>
+
+              <dl class="d-flex justify-content-between">
+                <dt>Amount due</dt>
+                <dd><%= currency(@invoice.amount_due) %></dd>
+              </dl>
+
+              <div class="table-responsive">
+                <table class="table text-left">
+                  <thead class="text-primary">
+                    <tr>
+                      <th>#</th>
+                      <th>Description</th>
+                      <th>Rate</th>
+                      <th>Quantity</th>
+                      <th>Amount, $</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <%= for {line_item, i} <- Enum.with_index(@invoice.line_items, 1) do %>
+                      <tr>
+                        <td><%= i %></td>
+                        <td><%= line_item.description %></td>
+                        <td><%= currency(line_item.rate) %></td>
+                        <td><%= line_item.quantity %></td>
+                        <td><%= currency(line_item.amount) %></td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3>Transactions</h3>
+
+          <div class="table-responsive">
+            <table class="table text-left">
+              <thead class="text-primary">
+                <tr>
+                  <th>ID</th>
+                  <th>Amount due</th>
+                  <th>Amount paid</th>
+                  <th>State</th>
+                  <th>Completed at</th>
+                  <th>Payment method</th>
+                  <th>Error message</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <%= for transaction <- @invoice.transactions do %>
+                  <tr>
+                    <td><%= transaction.id %></td>
+                    <td><%= currency(transaction.amount_due) %></td>
+                    <td><%= currency(transaction.amount_paid) %></td>
+                    <td><%= transaction.state %></td>
+                    <td><%= transaction.completed_at %></td>
+                    <td><%= transaction.payment_method %></td>
+                    <td><%= transaction.error_message %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

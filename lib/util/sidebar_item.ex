@@ -20,12 +20,12 @@ defmodule FlightWeb.SidebarItem do
         icon_class: "design_app",
         active: false
       },
-      # %SidebarItem{
-      #   path: "/admin/billing",
-      #   label: "Billing",
-      #   icon_class: "business_money-coins",
-      #   active: false
-      # },
+      %SidebarItem{
+        path: "/admin/billing",
+        label: "Billing",
+        icon_class: "business_money-coins",
+        active: false
+      },
       if Flight.Accounts.is_superadmin?(user) do
         %SidebarItem{
           path: "/admin/schools",

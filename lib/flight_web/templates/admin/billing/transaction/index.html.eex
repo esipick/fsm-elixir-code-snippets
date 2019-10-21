@@ -48,7 +48,11 @@
             <%= for transaction <- @transactions do %>
               <tr>
                 <td><%= transaction.id %></td>
-                <td><%= transaction.invoice_id %></td>
+                <td>
+                  <a href="/admin/billing/invoices/<%= transaction.invoice_id %>">
+                    <%= transaction.invoice_id %>
+                  </a>
+                </td>
                 <td><%= transaction.student_name %></td>
                 <td><%= currency(transaction.amount_due) %></td>
                 <td><%= currency(transaction.amount_paid) %></td>

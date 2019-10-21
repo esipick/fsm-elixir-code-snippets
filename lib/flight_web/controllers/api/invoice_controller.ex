@@ -4,12 +4,13 @@ defmodule FlightWeb.API.InvoiceController do
   import Ecto.Query
 
   alias Flight.Repo
-  alias FlightWeb.ViewHelpers
   alias Flight.Auth.Permission
+  alias FlightWeb.{ViewHelpers, Pagination}
   alias Flight.Billing.{Invoice, CreateInvoice, UpdateInvoice}
 
   plug(:get_invoice when action in [:update, :show])
   plug(:authorize_modify when action in [:create, :show, :index, :update])
+  plug(:check_paid_invoice when action in [:update])
 
   def index(conn, params) do
     page_params = Pagination.params(params)
@@ -32,10 +33,14 @@ defmodule FlightWeb.API.InvoiceController do
         conn
         |> put_status(422)
         |> json(%{errors: ViewHelpers.translate_errors(changeset)})
-      {:error, %Stripe.Error{} = error} ->
+      {:error, id, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(422)
+        |> json(%{id: id, errors: ViewHelpers.translate_errors(changeset)})
+      {:error, id, %Stripe.Error{} = error} ->
         conn
         |> put_status(error.extra.http_status)
-        |> json(%{stripe_error: error.message})
+        |> json(%{id: id, stripe_error: error.message})
     end
   end
 
@@ -81,5 +86,15 @@ defmodule FlightWeb.API.InvoiceController do
 
   defp authorize_modify(conn, _) do
     halt_unless_user_can?(conn, [Permission.new(:invoice, :modify, :all)])
+  end
+
+  defp check_paid_invoice(conn, _) do
+    if conn.assigns.invoice.status == :paid do
+      conn
+      |> send_resp(401, "")
+      |> halt()
+    else
+      conn
+    end
   end
 end

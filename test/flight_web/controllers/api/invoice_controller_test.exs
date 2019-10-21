@@ -1,11 +1,9 @@
 defmodule FlightWeb.API.InvoiceControllerTest do
   use FlightWeb.ConnCase
 
-  import Ecto.Query
-
   alias Flight.Repo
   alias FlightWeb.API.InvoiceView
-  alias Flight.Billing.{Invoice, InvoiceLineItem, Transaction}
+  alias Flight.Billing.Invoice
 
   describe "POST /api/invoices" do
     test "renders unauthorized", %{conn: conn} do
@@ -238,7 +236,6 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     test "renders unauthorized", %{conn: conn} do
       invoice = invoice_fixture()
       student = student_fixture()
-      invoice_params = %{total_amount_due: nil}
 
       conn
       |> auth(student)
@@ -265,10 +262,21 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   end
 
   describe "PUT /api/invoices/:id" do
-    test "renders unauthorized", %{conn: conn} do
+    test "renders unauthorized for student", %{conn: conn} do
       invoice = invoice_fixture()
       student = student_fixture()
-      invoice_params = %{total_amount_due: nil}
+      invoice_params = %{}
+
+      conn
+      |> auth(student)
+      |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
+      |> json_response(401)
+    end
+
+    test "renders unauthorized when invoice has already paid", %{conn: conn} do
+      invoice = invoice_fixture(%{status: "paid"})
+      student = student_fixture()
+      invoice_params = %{}
 
       conn
       |> auth(student)

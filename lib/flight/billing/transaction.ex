@@ -16,6 +16,7 @@ defmodule Flight.Billing.Transaction do
     field(:last_name, :string)
     field(:email, :string)
     field(:completed_at, :naive_datetime)
+    field(:error_message, :string)
     field(:payment_option, InvoicePaymentOptionEnum)
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:user, Flight.Accounts.User)
