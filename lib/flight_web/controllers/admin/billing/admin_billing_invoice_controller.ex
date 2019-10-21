@@ -54,7 +54,7 @@ defmodule FlightWeb.Admin.Billing.InvoiceController do
   defp check_paid_invoice(conn, _) do
     if conn.assigns.invoice.status == :paid do
       conn
-      |> redirect(to: "/admin/billing/invoices")
+      |> redirect(to: "/admin/billing/invoices/#{conn.assigns.invoice.id}")
     else
       conn
     end

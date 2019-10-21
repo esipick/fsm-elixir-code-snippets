@@ -31,7 +31,8 @@ class LineItemsTable extends Component {
     this.updateTotal(this.state.sales_tax, line_items)
   };
 
-  setSalesTax = (sales_tax) => {
+  setSalesTax = (value) => {
+    const sales_tax = value / 100;
     this.updateTotal(sales_tax, this.state.line_items)
   }
 
@@ -95,11 +96,11 @@ class LineItemsTable extends Component {
           </tr>
           <tr>
             <td colSpan="4" className="text-right">
-              Sales Tax:
+              Sales Tax, %:
             </td>
             <td colSpan="2">
               <NumericInput precision={2}
-                value={sales_tax}
+                value={sales_tax * 100}
                 className="form-control"
                 step={1}
                 onChange={this.setSalesTax}

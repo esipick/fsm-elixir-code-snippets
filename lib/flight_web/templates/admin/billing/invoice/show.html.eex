@@ -6,7 +6,7 @@
 
 <div class="content">
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-6 col-xs-12">
       <div class="card">
         <%= if @invoice.editable do %>
           <div class="card-header">
@@ -21,6 +21,11 @@
         <div class="card-body">
           <div class="tab-content">
             <div class="tab-pane active detail-list" id="link1">
+              <dl class="d-flex justify-content-between">
+                <dt>Status</dt>
+                <dd><%= @invoice.status %></dd>
+              </dl>
+
               <dl class="d-flex justify-content-between">
                 <dt>Student name</dt>
                 <dd><%= @invoice.student_name %></dd>
@@ -43,11 +48,11 @@
 
               <dl class="d-flex justify-content-between">
                 <dt>Sales Tax</dt>
-                <dd><%= @invoice.tax_rate %></dd>
+                <dd><%= @invoice.tax_rate * 100 %>%</dd>
               </dl>
 
               <dl class="d-flex justify-content-between">
-                <dt>Taxes amount</dt>
+                <dt>Total tax</dt>
                 <dd><%= currency(@invoice.total_tax) %></dd>
               </dl>
 
@@ -87,14 +92,14 @@
       </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-6 col-xs-12">
       <div class="card">
         <div class="card-header">
           <h3>Transactions</h3>
 
           <div class="table-responsive">
             <table class="table text-left">
-              <thead class="text-primary">
+              <thead class="text-primary" style="font-size: 0.75em;">
                 <tr>
                   <th>ID</th>
                   <th>Amount due</th>
@@ -102,7 +107,6 @@
                   <th>State</th>
                   <th>Completed at</th>
                   <th>Payment method</th>
-                  <th>Error message</th>
                 </tr>
               </thead>
 
@@ -115,7 +119,6 @@
                     <td><%= transaction.state %></td>
                     <td><%= transaction.completed_at %></td>
                     <td><%= transaction.payment_method %></td>
-                    <td><%= transaction.error_message %></td>
                   </tr>
                 <% end %>
               </tbody>
