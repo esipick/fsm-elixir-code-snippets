@@ -68,6 +68,19 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
         |> json_response(400)
 
+      invoice = Repo.get_by(Invoice, user_id: student.id) |> Repo.preload(:transactions)
+
+      transaction = List.first(invoice.transactions)
+
+      assert is_nil(transaction.stripe_charge_id)
+      assert not is_nil(transaction.completed_at)
+
+      assert transaction.state == "failed"
+      assert transaction.total == 24000
+      assert transaction.type == "credit"
+      assert transaction.payment_option == :cc
+      assert transaction.paid_by_charge == nil
+
       assert String.starts_with?(json["stripe_error"], "No such customer: cus_")
     end
 
@@ -360,6 +373,19 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> auth(instructor)
         |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: invoice_params})
         |> json_response(400)
+
+      invoice = Repo.get(Invoice, invoice.id) |> Repo.preload(:transactions)
+
+      transaction = List.first(invoice.transactions)
+
+      assert is_nil(transaction.stripe_charge_id)
+      assert not is_nil(transaction.completed_at)
+
+      assert transaction.state == "failed"
+      assert transaction.total == 25000
+      assert transaction.type == "credit"
+      assert transaction.payment_option == :cc
+      assert transaction.paid_by_charge == nil
 
       assert String.starts_with?(json["stripe_error"], "No such customer: cus_")
     end

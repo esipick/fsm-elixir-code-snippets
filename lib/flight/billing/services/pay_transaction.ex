@@ -59,7 +59,12 @@ defmodule Flight.Billing.PayTransaction do
   end
 
   defp fail_transaction(transaction, error_message) do
-    change(transaction, %{error_message: error_message, completed_at: NaiveDateTime.utc_now()})
-    |> Repo.update
+    changes = %{
+      state: "failed",
+      error_message: error_message,
+      completed_at: NaiveDateTime.utc_now()
+    }
+
+    change(transaction, changes) |> Repo.update
   end
 end

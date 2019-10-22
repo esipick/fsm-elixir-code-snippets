@@ -56,7 +56,7 @@ defmodule Flight.Billing.Transaction do
       :school_id,
       :creator_user_id
     ])
-    |> validate_inclusion(:state, ["pending", "completed", "canceled"])
+    |> validate_inclusion(:state, ["pending", "completed", "canceled", "failed"])
     |> validate_inclusion(:type, ["debit", "credit"])
   end
 
