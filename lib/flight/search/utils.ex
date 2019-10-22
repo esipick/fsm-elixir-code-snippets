@@ -12,7 +12,9 @@ defmodule Flight.Search.Utils do
   def normalize(term) do
     term
     |> String.downcase
-    |> String.replace(~r/\W/u, "")
     |> String.trim
+    |> String.split
+    |> Enum.map(fn x -> x |> String.replace(~r/\W/u, "") end)
+    |> Enum.join(" & ")
   end
 end
