@@ -11,7 +11,7 @@ defmodule FlightWeb.Admin.Billing.InvoiceController do
 
   def index(conn, params) do
     page_params = Pagination.params(params)
-    page = from(i in Invoice) |> Repo.paginate(page_params)
+    page = from(i in Invoice, order_by: [desc: i.inserted_at]) |> Repo.paginate(page_params)
     invoices = page |> Enum.map(fn invoice -> InvoiceStruct.build(invoice) end)
 
     render(conn, "index.html", page: page, invoices: invoices)
