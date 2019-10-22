@@ -2,6 +2,7 @@ defmodule Flight.Billing.PayTransaction do
   import Ecto.Changeset
 
   alias Flight.{Repo, Billing.Transaction}
+  alias FlightWeb.ViewHelpers
 
   def run(transaction) do
     transaction = Repo.preload(transaction, [:user, :invoice])
@@ -19,7 +20,10 @@ defmodule Flight.Billing.PayTransaction do
 
     case Repo.update(changeset) do
       {:ok, _} -> complete_transaction(transaction)
-      {:error, changeset} -> {:error, changeset}
+      {:error, changeset} ->
+        error_message = ViewHelpers.human_error_messages(changeset) |> Enum.join(", ")
+        fail_transaction(transaction, error_message)
+        {:error, changeset}
     end
   end
 
@@ -38,7 +42,7 @@ defmodule Flight.Billing.PayTransaction do
     case charge_result do
       {:ok, charge} -> complete_transaction(transaction, %{stripe_charge_id: charge.id})
       {:error, error} ->
-        update_error_message(transaction, error)
+        fail_transaction(transaction, error.message)
         {:error, error}
     end
   end
@@ -54,7 +58,8 @@ defmodule Flight.Billing.PayTransaction do
     change(transaction, transaction_attrs) |> Repo.update
   end
 
-  defp update_error_message(transaction, stripe_error) do
-    change(transaction, %{error_message: stripe_error.message}) |> Repo.update
+  defp fail_transaction(transaction, error_message) do
+    change(transaction, %{error_message: error_message, completed_at: NaiveDateTime.utc_now()})
+    |> Repo.update
   end
 end

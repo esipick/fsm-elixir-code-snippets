@@ -232,6 +232,38 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
   end
 
+  describe "GET /api/invoices" do
+    test "renders unauthorized", %{conn: conn} do
+      student = student_fixture()
+
+      conn
+      |> auth(student)
+      |> get("/api/invoices")
+      |> json_response(401)
+    end
+
+    test "renders invoices", %{conn: conn} do
+      invoice1 = invoice_fixture()
+      invoice2 = invoice_fixture()
+      instructor = instructor_fixture()
+
+      response =
+        conn
+        |> auth(instructor)
+        |> get("/api/invoices/")
+
+      json = json_response(response, 200)
+      headers = response.resp_headers
+
+      assert json == render_json(InvoiceView, "index.json", invoices: [invoice1, invoice2])
+
+      assert Enum.member?(headers, {"total", "2"})
+      assert Enum.member?(headers, {"per-page", "50"})
+      assert Enum.member?(headers, {"total-pages", "1"})
+      assert Enum.member?(headers, {"page-number", "1"})
+    end
+  end
+
   describe "GET /api/invoices/:id" do
     test "renders unauthorized", %{conn: conn} do
       invoice = invoice_fixture()

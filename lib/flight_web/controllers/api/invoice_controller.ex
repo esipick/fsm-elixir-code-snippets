@@ -15,10 +15,12 @@ defmodule FlightWeb.API.InvoiceController do
   def index(conn, params) do
     page_params = Pagination.params(params)
     page = from(i in Invoice) |> Repo.paginate(page_params)
+    invoices = Repo.preload(page.entries, [:user, :line_items])
 
     conn
     |> put_status(200)
-    |> render("index.json", page: page)
+    |> Scrivener.Headers.paginate(page)
+    |> render("index.json", invoices: invoices)
   end
 
   def create(conn, %{"invoice" => invoice_params}) do
