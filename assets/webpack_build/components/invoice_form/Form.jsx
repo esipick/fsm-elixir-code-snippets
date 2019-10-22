@@ -27,6 +27,8 @@ const PAYMENT_OPTIONS = [
   { value: VENMO, label: 'Venmo' }
 ];
 
+const authHeaders = () => ({ 'Authorization': window.fsm_token });
+
 class Form extends Component {
   constructor(props) {
     super(props);
@@ -68,7 +70,7 @@ class Form extends Component {
 
     http.get({
         url: '/api/users/autocomplete?name=' + input,
-        headers: { 'Authorization': window.fsm_token }
+        headers: authHeaders()
       }).then(r => r.json())
       .then(r => {
         callback(r.data);
@@ -130,7 +132,7 @@ class Form extends Component {
       http[http_method]({
         url: `/api/invoices/${this.state.id}`,
         body: { pay_off: pay_off, invoice: payload },
-        headers: { 'Authorization': window.fsm_token }
+        headers: authHeaders()
       }).then(response => {
         response.json().then(({ data }) => {
           console.log(JSON.stringify(data));

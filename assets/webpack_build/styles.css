@@ -37,3 +37,11 @@
 .react-numeric-input b {
   display: none;
 }
+
+
+.react-datepicker__day--selected {
+  background-image: -webkit-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);
+}
