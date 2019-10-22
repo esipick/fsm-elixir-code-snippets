@@ -10,7 +10,7 @@ defmodule FlightWeb.Admin.Billing.TransactionController do
     page_params = Pagination.params(params)
 
     page =
-      from(t in Transaction, where: not is_nil(t.invoice_id))
+      from(t in Transaction)
       |> Repo.paginate(page_params)
 
     transactions =

@@ -49,9 +49,11 @@
               <tr>
                 <td><%= transaction.id %></td>
                 <td>
-                  <a href="/admin/billing/invoices/<%= transaction.invoice_id %>">
-                    <%= transaction.invoice_id %>
-                  </a>
+                  <%= if transaction.invoice_id do %>
+                    <a href="/admin/billing/invoices/<%= transaction.invoice_id %>">
+                      <%= transaction.invoice_id %>
+                    </a>
+                  <% end %>
                 </td>
                 <td><%= transaction.student_name %></td>
                 <td><%= currency(transaction.amount_due) %></td>
