@@ -17,6 +17,10 @@ config :flight, FlightWeb.Endpoint,
       "watch",
       "--stdin",
       cd: Path.expand("../assets", __DIR__)
+    ],
+    yarn: [
+      "watch_webpack",
+      cd: Path.expand("../assets", __DIR__)
     ]
   ]
 

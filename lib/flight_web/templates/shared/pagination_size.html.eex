@@ -6,7 +6,7 @@
     <div class="pagination-page-size-fields">
       <label for="page_size">Page size:</label>
       <div class="pagination-page-size-select">
-        <%= select f, :page_size, page_sizes, class: "selectpicker" , onchange: "this.form.submit()" %>
+        <%= select f, :page_size, page_sizes(), class: "selectpicker" , onchange: "this.form.submit()" %>
       </div>
     </div>
   <% end %>

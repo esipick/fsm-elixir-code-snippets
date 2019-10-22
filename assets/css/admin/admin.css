@@ -168,6 +168,7 @@ textarea.form-control, textarea.form-control:focus, textarea.form-control:active
   color: #BBBCCD;
 }
 
+
 .badge-success {
   background-color: #46CF7B;
   border-color: #46CF7B;
@@ -782,7 +783,6 @@ fieldset[disabled] .fc button:hover {
 .bootstrap-datetimepicker-widget table td.today>div:before {
   display: none;
 }
-
 
 /* selectpicker plugin */
 .dropdown-menu.open .form-control {

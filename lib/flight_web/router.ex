@@ -144,6 +144,13 @@ defmodule FlightWeb.Router do
     end
 
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
+
+    get("/billing", BillingController, :index)
+
+    scope("/billing", Billing, as: :admin_billing) do
+      resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show])
+      resources("/transactions", TransactionController, only: [:index])
+    end
   end
 
   ###
@@ -161,6 +168,8 @@ defmodule FlightWeb.Router do
 
   scope "/api", FlightWeb.API do
     pipe_through([:api, :api_authenticate])
+
+    get("/users/autocomplete", UserController, :autocomplete, as: :autocomplete)
 
     resources("/users", UserController, only: [:show, :update, :index]) do
       get("/form_items", UserController, :form_items)
@@ -206,6 +215,7 @@ defmodule FlightWeb.Router do
     )
 
     resources("/courses", CourseController, only: [:index])
+    resources("/invoices", InvoiceController, only: [:index, :show, :create, :update])
   end
 
   if Mix.env() == :dev do

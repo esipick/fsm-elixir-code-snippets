@@ -374,7 +374,6 @@ defmodule Flight.Billing do
       !is_number(parsed_search_term) &&
       Flight.Queries.User.search_users_ids_by_name(params["search_term"], school_context)
 
-    # TODO: use obtained user_ids to filter transactions
     query =
       from(t in Transaction)
       |> SchoolScope.scope_query(school_context)

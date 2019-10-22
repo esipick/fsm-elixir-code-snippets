@@ -74,6 +74,12 @@ defmodule FlightWeb.API.UserController do
     render(conn, "form_items.json", form_items: items)
   end
 
+  def autocomplete(conn, %{"name" => name}) do
+    users = Flight.Queries.User.search_users_by_name(name, conn)
+
+    render(conn, "autocomplete.json", users: users)
+  end
+
   def authorize_modify(conn, _) do
     halt_unless_user_can?(conn, [
       Permission.new(:users, :modify, {:personal, conn.assigns.user}),

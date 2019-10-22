@@ -27,7 +27,8 @@ defmodule UserSeeds do
         phone_number: phone_number,
         school_id: school.id,
         timezone: "America/Denver",
-        password: "password"
+        password: "password",
+        balance: Enum.random(0..99999)
       }
 
       case Flight.Accounts.create_user(user_data, school_context, false) do

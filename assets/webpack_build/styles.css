@@ -1,0 +1,47 @@
+.react-select__control {
+  border: 1px solid #e3e3e3;
+  border-radius: 30px !important;
+  box-shadow: none !important;
+}
+.react-select__control--is-focused {
+  border: 1px solid #2CA8Fe !important;
+}
+
+.invoice-form .invoice-select-wrapper, .form-control.invoice-input {
+  width: 350px;
+}
+.invoice-form .invoice-select-wrapper.with-error .react-select__control {
+  border: 1px solid #f27474;
+}
+
+.invoice-form .remove-line-item-wrapper {
+  width: 32px;
+}
+.invoice-form .remove-line-item {
+  color: red;
+  font-size: 1.5em;
+  text-decoration: none;
+}
+.invoice-form__pay-btn {
+  margin: 0 20px;
+}
+
+
+
+.react-form-error {
+  color: red;
+  margin-left: 5px;
+}
+
+
+.react-numeric-input b {
+  display: none;
+}
+
+
+.react-datepicker__day--selected {
+  background-image: -webkit-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -moz-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: -o-linear-gradient(top left, #00C9FF 0%, #2597E1 100%);
+  background-image: linear-gradient(to bottom right, #00C9FF 0%, #2597E1 100%);
+}

@@ -32,7 +32,8 @@ defmodule Flight.Auth.Permission do
     :objective_score,
     :unavailability,
     :unavailability_instructor,
-    :unavailability_aircraft
+    :unavailability_aircraft,
+    :invoice,
   ]
   @verbs [:view, :modify, :be, :request]
   @scopes [:all, :personal]

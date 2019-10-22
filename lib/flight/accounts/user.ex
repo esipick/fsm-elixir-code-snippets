@@ -240,6 +240,10 @@ defmodule Flight.Accounts.User do
     end
   end
 
+  def full_name(user) do
+    "#{user.first_name} #{user.last_name}"
+  end
+
   defp valid_password?(password) when byte_size(password) > 5 do
     {:ok, password}
   end

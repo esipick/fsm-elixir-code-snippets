@@ -16,7 +16,7 @@ mix deps.get
 mix deps.compile
 
 # Install frontend dependencies
-cd assets && npm i
+cd assets && yarn
 
 # Setup database
 mix ecto.setup

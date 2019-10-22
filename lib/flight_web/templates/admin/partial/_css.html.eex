@@ -3,3 +3,4 @@
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" /> -->
     <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/admin/admin.css") %>">
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/webpack_app.css") %>">

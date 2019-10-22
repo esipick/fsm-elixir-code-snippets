@@ -143,4 +143,20 @@ defmodule FlightWeb.API.UserControllerTest do
                )
     end
   end
+
+  describe "GET /api/users/autocomplete" do
+    test "renders json", %{conn: conn} do
+      student1 = student_fixture(%{first_name: "Adrian", last_name: "Nairda"})
+      student_fixture()
+      instructor = instructor_fixture()
+
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/users/autocomplete?name=nair")
+        |> json_response(200)
+
+      assert json == render_json(UserView, "autocomplete.json", users: [student1])
+    end
+  end
 end

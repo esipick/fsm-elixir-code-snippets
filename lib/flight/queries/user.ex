@@ -21,4 +21,15 @@ defmodule Flight.Queries.User do
     |> Repo.all
     |> Enum.map(fn user -> user.id end)
   end
+
+  def search_users_by_name(search_term, school_context) do
+    from(
+      u in User,
+      where: u.archived == false,
+      order_by: u.last_name
+    )
+    |> SchoolScope.scope_query(school_context)
+    |> Search.User.name_only(search_term)
+    |> Repo.all
+  end
 end

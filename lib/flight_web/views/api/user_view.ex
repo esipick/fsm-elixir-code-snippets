@@ -11,6 +11,10 @@ defmodule FlightWeb.API.UserView do
     %{data: render_many(users, UserView, form, as: :user)}
   end
 
+  def render("autocomplete.json", %{users: users}) do
+    %{data: render_many(users, UserView, "skinny_user.json", as: :user)}
+  end
+
   def render("user.json", %{user: user}) do
     %{
       id: user.id,
@@ -39,7 +43,8 @@ defmodule FlightWeb.API.UserView do
     %{
       id: user.id,
       first_name: user.first_name,
-      last_name: user.last_name
+      last_name: user.last_name,
+      balance: user.balance
     }
   end
 

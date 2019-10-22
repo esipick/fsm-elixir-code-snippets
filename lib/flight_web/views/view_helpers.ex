@@ -1,4 +1,6 @@
 defmodule FlightWeb.ViewHelpers do
+  alias FlightWeb.ErrorHelpers
+
   def format_date(date) when is_binary(date), do: date
   def format_date(nil), do: ""
 
@@ -8,6 +10,10 @@ defmodule FlightWeb.ViewHelpers do
 
   def is_dev?() do
     Mix.env() == :dev
+  end
+
+  def translate_errors(changeset) do
+    Ecto.Changeset.traverse_errors(changeset, &ErrorHelpers.translate_error/1)
   end
 
   def human_error_messages(changeset) do
