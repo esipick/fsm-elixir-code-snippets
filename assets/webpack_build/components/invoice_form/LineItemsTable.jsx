@@ -11,24 +11,23 @@ class LineItemsTable extends Component {
 
     this.state = {
       line_items,
-      sales_tax: props.sales_tax,
       ...values
     }
   }
 
   addItem = () => {
     const line_items = [...this.state.line_items, new LineItemRecord()];
-    this.updateTotal(this.state.sales_tax, line_items)
+    this.updateTotal(this.props.sales_tax, line_items)
   }
 
   removeItem = (id) => {
     const line_items = this.state.line_items.filter(i => i.id != id);
-    this.updateTotal(this.state.sales_tax, line_items)
+    this.updateTotal(this.props.sales_tax, line_items)
   }
 
   setItem = (item) => {
     const line_items = this.state.line_items.map(i => i.id == item.id ? item : i);
-    this.updateTotal(this.state.sales_tax, line_items)
+    this.updateTotal(this.props.sales_tax, line_items)
   };
 
   setSalesTax = (value) => {
@@ -44,7 +43,6 @@ class LineItemsTable extends Component {
     return {
       line_items,
       total,
-      sales_tax,
       total_tax,
       total_amount_due
     }
@@ -58,7 +56,8 @@ class LineItemsTable extends Component {
   }
 
   render() {
-    const { line_items, total, sales_tax, total_tax, total_amount_due } = this.state;
+    const { line_items, total, total_tax, total_amount_due } = this.state;
+    const { sales_tax } = this.props;
 
     return (
       <table className="table table-striped">
@@ -67,7 +66,7 @@ class LineItemsTable extends Component {
             <th>#</th>
             <th>Description</th>
             <th>Rate</th>
-            <th>Qty</th>
+            <th>Qty/Hours</th>
             <th>Amount, $</th>
             <th></th>
           </tr>
@@ -98,14 +97,7 @@ class LineItemsTable extends Component {
             <td colSpan="4" className="text-right">
               Sales Tax, %:
             </td>
-            <td colSpan="2">
-              <NumericInput precision={2}
-                value={sales_tax * 100}
-                className="form-control"
-                step={1}
-                onChange={this.setSalesTax}
-                required={true} />
-            </td>
+            <td colSpan="2">{sales_tax * 100}</td>
           </tr>
           <tr>
             <td colSpan="4" className="text-right">
