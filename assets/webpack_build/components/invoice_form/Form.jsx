@@ -181,12 +181,12 @@ class Form extends Component {
     const studentWrapperClass = classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '');
 
     return (
-      <div class="card">
-        <div class="card-header text-left">
-          <h3 class="card-title">{this.header()}</h3>
+      <div className="card">
+        <div className="card-header text-left">
+          <h3 className="card-title">{this.header()}</h3>
         </div>
 
-        <div class="card-body">
+        <div className="card-body">
           <div className="invoice-form">
             <div className="form">
               <form ref={this.setFormRef}>
