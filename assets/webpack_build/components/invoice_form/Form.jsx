@@ -311,7 +311,7 @@ class Form extends Component {
         <LowBalanceAlert open={this.state.balance_warning_open}
           onClose={this.closeBalanceWarning}
           onAccept={this.acceptBalanceWarning}
-          balance={student.balance}
+          balance={student ? student.balance : 0}
           total={total_amount_due}
         />
       </div>
