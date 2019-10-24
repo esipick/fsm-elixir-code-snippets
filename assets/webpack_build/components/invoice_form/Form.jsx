@@ -1,13 +1,14 @@
 import classnames from 'classnames';
+import http from 'j-fetch';
 import React, { Component } from 'react';
+import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
-import http from 'j-fetch';
-import DatePicker from 'react-datepicker';
 
 import Error from '../common/Error';
 
 import LineItemsTable from './LineItemsTable';
+import LowBalanceAlert from './LowBalanceAlert';
 
 const BALANCE = 'balance';
 const CREDIT_CARD = 'cc';
@@ -47,7 +48,9 @@ class Form extends Component {
       total_tax: props.total_tax || 0,
       total_amount_due: props.total_amount_due || 0,
       errors: props.errors || {},
-      stripe_error: props.stripe_error || ''
+      stripe_error: props.stripe_error || '',
+      balance_warning_open: false,
+      balance_warning_accepted: false
     }
   }
 
@@ -120,30 +123,49 @@ class Form extends Component {
     }
   }
 
+  showBalanceWarning = () => {
+    const { total_amount_due, student, payment_method, balance_warning_accepted } = this.state;
+
+    const open = !balance_warning_accepted &&
+      payment_method.value == BALANCE &&
+      student &&
+      total_amount_due > student.balance;
+
+    if (open) this.setState({ balance_warning_open: true });
+
+    return open;
+  }
+
   saveInvoice = ({ pay_off }) => {
+    this.setState({ saving: true });
+
+    const payload = this.payload();
+    const http_method = this.state.action == 'edit' ? 'put' : 'post';
+
+    http[http_method]({
+      url: `/api/invoices/${this.state.id}`,
+      body: { pay_off: pay_off, invoice: payload },
+      headers: authHeaders()
+    }).then(response => {
+      response.json().then(({ data }) => {
+        console.log(JSON.stringify(data));
+        window.location = `/admin/billing/invoices/${data.id}`;
+      })
+    }).catch(response => {
+      response.json().then(({ id = this.state.id, stripe_error = '', errors = {} }) => {
+        const action = id ? 'edit' : 'create';
+        this.setState({ saving: false, id, action, stripe_error, errors });
+      });
+    });
+  }
+
+  submitForm = ({ pay_off }) => {
     if (this.state.saving) return;
 
+    if (pay_off && this.showBalanceWarning()) return;
+
     if (this.formRef.checkValidity()) {
-      this.setState({ saving: true });
-
-      const payload = this.payload();
-      const http_method = this.state.action == 'edit' ? 'put' : 'post';
-
-      http[http_method]({
-        url: `/api/invoices/${this.state.id}`,
-        body: { pay_off: pay_off, invoice: payload },
-        headers: authHeaders()
-      }).then(response => {
-        response.json().then(({ data }) => {
-          console.log(JSON.stringify(data));
-          window.location = `/admin/billing/invoices/${data.id}`;
-        })
-      }).catch(response => {
-        response.json().then(({ id = this.state.id, stripe_error = '', errors = {} }) => {
-          const action = id ? 'edit' : 'create';
-          this.setState({ saving: false, id, action, stripe_error, errors });
-        });
-      });
+      this.saveInvoice({ pay_off });
     }
   }
 
@@ -162,7 +184,7 @@ class Form extends Component {
         type="submit"
         disabled={saving}
         value={inputValue}
-        onClick={()=>{this.saveInvoice({ pay_off: true })}} />
+        onClick={()=>{this.submitForm({ pay_off: true })}} />
     );
   }
 
@@ -171,6 +193,20 @@ class Form extends Component {
     const header = id ? `Edit Invoice #${id}` : 'New Invoice';
 
     return header;
+  }
+
+  openBalanceWarning = () => {
+    this.setState({ balance_warning_open: true });
+  }
+
+  closeBalanceWarning = () => {
+    this.setState({ balance_warning_open: false });
+  }
+
+  acceptBalanceWarning = () => {
+    this.setState({ balance_warning_open: false, balance_warning_accepted: true });
+
+    this.saveInvoice({ pay_off: true });
   }
 
   render() {
@@ -259,7 +295,7 @@ class Form extends Component {
                     type="submit"
                     value="Save"
                     disabled={saving}
-                    onClick={()=>{this.saveInvoice({ pay_off: false })}} />
+                    onClick={()=>{this.submitForm({ pay_off: false })}} />
 
                   { this.saveAndPayButton() }
                 </div>
@@ -271,6 +307,13 @@ class Form extends Component {
             </div>
           </div>
         </div>
+
+        <LowBalanceAlert open={this.state.balance_warning_open}
+          onClose={this.closeBalanceWarning}
+          onAccept={this.acceptBalanceWarning}
+          balance={student.balance}
+          total={total_amount_due}
+        />
       </div>
     );
   }

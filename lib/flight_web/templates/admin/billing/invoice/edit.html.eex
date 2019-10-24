@@ -3,7 +3,9 @@
 <div class="content">
   <div class="row">
     <div class="col-md-12">
-      <%= ReactPhoenix.ClientSide.react_component("Components.InvoiceForm", @props) %>
+      <div id="invoice-form">
+        <%= ReactPhoenix.ClientSide.react_component("Components.InvoiceForm", @props) %>
+      </div>
     </div>
   </div>
 </div>

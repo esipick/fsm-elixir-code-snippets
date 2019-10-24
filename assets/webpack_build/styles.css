@@ -33,6 +33,24 @@
 }
 
 
+
+.balance-warning-dialog {
+  text-align: center;
+}
+.balance-warning-dialog__content {
+  padding: 15px;
+}
+.balance-warning-dialog__content-disclaimer {
+  margin-bottom: 10px;
+}
+.balance-warning-dialog__controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin-top: 10px;
+}
+
+
 .react-form-error {
   color: red;
   margin-left: 5px;
