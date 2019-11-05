@@ -1,6 +1,7 @@
 defmodule FlightWeb.Admin.SettingsView do
   use FlightWeb, :view
   import FlightWeb.ViewHelpers
+  alias Flight.Auth.Permission
 
   def stripe_authorize_url() do
     Stripe.Connect.OAuth.authorize_url(%{
@@ -12,5 +13,12 @@ defmodule FlightWeb.Admin.SettingsView do
     "https://dashboard.stripe.com/account/activate?client_id=#{
       Application.get_env(:stripity_stripe, :connect_client_id)
     }&user_id=#{stripe_account.stripe_account_id}"
+  end
+
+  def can_access_billing?(conn) do
+    Flight.Auth.Authorization.user_can?(
+      conn.assigns.current_user,
+      [Permission.new(:billing_settings, :modify, :all)]
+    )
   end
 end

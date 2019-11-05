@@ -23,9 +23,11 @@
             <li class="nav-item">
               <a class="nav-link <%= if @tab == :contact, do: "active", else: "" %>" href="/admin/settings?tab=contact">Contact Details</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href="/admin/settings?tab=billing">Billing Setup</a>
-            </li>
+            <%= if can_access_billing?(@conn) do %>
+              <li class="nav-item">
+                <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href="/admin/settings?tab=billing">Billing Setup</a>
+              </li>
+            <% end %>
           </ul>
            <!--<a href="#edit" class="btn btn-primary">Edit</a> -->
         </div>

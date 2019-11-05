@@ -2,6 +2,8 @@ defmodule FlightWeb.Admin.SessionController do
   use FlightWeb, :controller
 
   alias Flight.Accounts
+  import Flight.Auth.Authorization
+  alias Flight.Auth.Permission
 
   plug(:redirect_if_logged_in when action in [:login, :login_submit])
 
@@ -15,13 +17,13 @@ defmodule FlightWeb.Admin.SessionController do
     if user do
       case Accounts.check_password(user, password) do
         {:ok, user} ->
-          if Accounts.has_role?(user, "admin") do
+          if user_can?(user, [Permission.new(:dashboard, :view, :all)]) do
             conn
             |> FlightWeb.AuthenticateWebUser.log_in(user.id)
             |> redirect(to: "/admin/dashboard")
           else
             conn
-            |> put_flash(:error, "You must be an admin to log in.")
+            |> put_flash(:error, "You are not allowed to log in.")
             |> redirect(to: "/admin/login")
           end
 

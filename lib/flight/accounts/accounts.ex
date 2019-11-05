@@ -359,6 +359,10 @@ defmodule Flight.Accounts do
     [:email, :first_name, :last_name, :phone_number]
   end
 
+  def editable_fields_for_role_slug("dispatcher") do
+    [:email, :first_name, :last_name, :phone_number]
+  end
+
   #
   # Role
   #

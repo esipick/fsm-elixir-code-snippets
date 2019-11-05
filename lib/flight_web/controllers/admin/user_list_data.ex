@@ -35,7 +35,7 @@ defmodule FlightWeb.Admin.UserListData do
       slug when slug in ["renter", "instructor", "student"] ->
         user_table_data(:detailed, role, search_term, school_context, page_params)
 
-      slug when slug in ["admin"] ->
+      slug when slug in ["admin", "dispatcher"] ->
         user_table_data(:simple, role, search_term, school_context, page_params)
       _ ->
         raise "Unknown role slug: #{role.slug}"

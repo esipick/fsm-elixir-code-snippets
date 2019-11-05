@@ -44,10 +44,11 @@ defmodule Flight.Auth.Authorization do
       "instructor" -> instructor_permission_slugs()
       "student" -> student_permission_slugs()
       "renter" -> renter_permission_slugs()
+      "dispatcher" -> dispatcher_permission_slugs()
     end
   end
 
-  def admin_permission_slugs() do
+  def dispatcher_permission_slugs() do
     MapSet.new([
       permission_slug(:users, :modify, :all),
       permission_slug(:users, :view, :all),
@@ -66,8 +67,18 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:user_protected_info, :view, :all),
       permission_slug(:push_token, :modify, :all),
       permission_slug(:unavailability, :modify, :all),
-      permission_slug(:invoice, :modify, :all)
+      permission_slug(:invoice, :modify, :all),
+      permission_slug(:dashboard, :view, :all)
     ])
+  end
+
+  def admin_permission_slugs() do
+    MapSet.union(
+      dispatcher_permission_slugs(),
+      MapSet.new([
+        permission_slug(:billing_settings, :modify, :all)
+      ])
+    )
   end
 
   def instructor_permission_slugs() do

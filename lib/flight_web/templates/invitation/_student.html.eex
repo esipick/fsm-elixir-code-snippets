@@ -1,0 +1,12 @@
+<div class="card-body">
+  <p>Your account has been created. Please follow the link to download the Flight School Manager app to finish your profile and schedule your first lesson!</p>
+  <h4>Get The App</h4>
+  <a hre>
+  <div class="download-buttons">
+    <a href="https://itunes.apple.com/nz/app/flight-school-manager/id1079676025?mt=8" target="_blank"><img src="<%= static_path(@conn, "/images/app-store.png") %>"/></a>
+    <a href="https://play.google.com/store/apps/details?id=com.russellaviation.fsm" target="_blank"><img src="<%= static_path(@conn, "/images/google-play@2x.png") %>"/></a>
+  </div>
+  <div class="col-md-8 ml-auto mr-auto">
+    <p class="text-muted mt-4"><small>Or search “Flight School Manager” in the app store on your Android or iOS device.</small></p>
+  </div>
+</div>

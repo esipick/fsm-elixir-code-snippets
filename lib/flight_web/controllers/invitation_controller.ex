@@ -50,7 +50,7 @@ defmodule FlightWeb.InvitationController do
   end
 
   def accept_success(conn, _) do
-    render(conn, "success.html")
+    render(conn, "success.html", invitation: conn.assigns.invitation)
   end
 
   defp get_invitation(conn, _) do

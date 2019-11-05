@@ -79,6 +79,12 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
+        path: "/admin/users?role=dispatcher",
+        label: "Dispatchers",
+        icon_class: "tech_headphones",
+        active: false
+      },
+      %SidebarItem{
         path: "/admin/reports",
         label: "Reports",
         icon_class: "files_single-copy-04",

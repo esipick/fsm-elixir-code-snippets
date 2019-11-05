@@ -18,7 +18,7 @@ defmodule FlightWeb.Router do
   end
 
   pipeline :admin_authenticate do
-    plug(FlightWeb.AuthenticateWebUser, roles: ["admin"])
+    plug(FlightWeb.AuthenticateWebUser, roles: ["admin", "dispatcher"])
   end
 
   pipeline :webhooks_authenticate do
