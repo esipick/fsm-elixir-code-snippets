@@ -68,7 +68,7 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:push_token, :modify, :all),
       permission_slug(:unavailability, :modify, :all),
       permission_slug(:invoice, :modify, :all),
-      permission_slug(:dashboard, :view, :all)
+      permission_slug(:admin_dashboard, :be, :all)
     ])
   end
 
@@ -76,7 +76,8 @@ defmodule Flight.Auth.Authorization do
     MapSet.union(
       dispatcher_permission_slugs(),
       MapSet.new([
-        permission_slug(:billing_settings, :modify, :all)
+        permission_slug(:billing_settings, :modify, :all),
+        permission_slug(:admins, :modify, :all)
       ])
     )
   end
@@ -149,6 +150,31 @@ defmodule Flight.Auth.Authorization.Extensions do
       |> Plug.Conn.put_resp_content_type("application/json")
       |> Plug.Conn.resp(401, Poison.encode!(%{error: %{message: "Invalid permissions"}}))
       |> Plug.Conn.halt()
+    end
+  end
+
+  def redirect_unless_user_can?(conn, permissions) do
+    user = conn.assigns.current_user
+
+    if Flight.Auth.Authorization.user_can?(user, permissions) do
+      conn
+    else
+      conn
+      |> Phoenix.Controller.put_flash(:error, "You are not authorized to perform this action.")
+      |> Plug.Conn.put_status(302)
+      |> Phoenix.Controller.redirect(to: default_user_redirect_path(user))
+      |> Plug.Conn.halt()
+    end
+  end
+
+  defp default_user_redirect_path(user) do
+    user = Flight.Repo.preload(user, :roles)
+    roles = Enum.map(user.roles, fn r -> r.slug end)
+
+    if Enum.member?(roles, "admin") || Enum.member?(roles, "dispatcher") do
+      "/admin/dashboard"
+    else
+      "/admin/dashboard"
     end
   end
 end

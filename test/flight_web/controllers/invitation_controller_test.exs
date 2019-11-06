@@ -5,7 +5,7 @@ defmodule FlightWeb.InvitationControllerTest do
 
   describe "GET /invitations/:token" do
     test "renders", %{conn: conn} do
-      invitation = invitation_fixture()
+      invitation = invitation_fixture(%{}, Accounts.Role.student())
 
       result =
         conn
@@ -15,10 +15,25 @@ defmodule FlightWeb.InvitationControllerTest do
       assert result =~ invitation.first_name
       assert result =~ invitation.last_name
       assert result =~ invitation.email
+      assert result =~ "Student Registration"
+    end
+
+    test "renders correct title", %{conn: conn} do
+      invitation = invitation_fixture(%{}, Accounts.Role.dispatcher())
+
+      result =
+        conn
+        |> get("/invitations/#{invitation.token}")
+        |> html_response(200)
+
+      assert result =~ invitation.first_name
+      assert result =~ invitation.last_name
+      assert result =~ invitation.email
+      assert result =~ "Dispatcher Registration"
     end
 
     test "redirects to success page if already accepted", %{conn: conn} do
-      invitation = invitation_fixture()
+      invitation = invitation_fixture(%{}, Accounts.Role.student())
       {:ok, _} = Accounts.accept_invitation(invitation)
 
       conn
@@ -102,7 +117,7 @@ defmodule FlightWeb.InvitationControllerTest do
 
   describe "GET /invitations/:token/success" do
     test "renders", %{conn: conn} do
-      invitation = invitation_fixture()
+      invitation = invitation_fixture(%{}, Accounts.Role.student())
       {:ok, _} = Accounts.accept_invitation(invitation)
 
       conn
@@ -111,7 +126,7 @@ defmodule FlightWeb.InvitationControllerTest do
     end
 
     test "redirects to accept page if not accepted", %{conn: conn} do
-      invitation = invitation_fixture()
+      invitation = invitation_fixture(%{}, Accounts.Role.student())
 
       conn
       |> get("/invitations/#{invitation.token}/success")

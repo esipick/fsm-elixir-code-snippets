@@ -35,6 +35,19 @@ defmodule FlightWeb.Admin.UserControllerTest do
         refute content =~ another_user.first_name
       end
     end
+
+    test "does not render admins for dispatchers", %{conn: conn} do
+      admin = user_fixture() |> assign_role("admin")
+
+      conn =
+        conn
+        |> web_auth_dispatcher()
+        |> get("/admin/users?role=admin")
+      content = conn |> html_response(302)
+
+      assert redirected_to(conn) == "/admin/dashboard"
+      refute content =~ admin.first_name
+    end
   end
 
   describe "GET /admin/users/:id" do
@@ -79,6 +92,19 @@ defmodule FlightWeb.Admin.UserControllerTest do
         assert content =~ user.first_name
       end
     end
+
+    test "does not render admins for dispatchers", %{conn: conn} do
+      admin = user_fixture() |> assign_role("admin")
+
+      conn =
+        conn
+        |> web_auth_dispatcher()
+        |> get("/admin/users/#{admin.id}")
+      content = conn |> html_response(302)
+
+      assert redirected_to(conn) == "/admin/dashboard"
+      refute content =~ admin.first_name
+    end
   end
 
   describe "GET /admin/users/:id/edit" do
@@ -94,6 +120,19 @@ defmodule FlightWeb.Admin.UserControllerTest do
 
         assert content =~ user.first_name
       end
+    end
+
+    test "does not render admins for dispatchers", %{conn: conn} do
+      admin = user_fixture() |> assign_role("admin")
+
+      conn =
+        conn
+        |> web_auth_dispatcher()
+        |> get("/admin/users/#{admin.id}/edit")
+      content = conn |> html_response(302)
+
+      assert redirected_to(conn) == "/admin/dashboard"
+      refute content =~ admin.first_name
     end
   end
 
@@ -162,6 +201,46 @@ defmodule FlightWeb.Admin.UserControllerTest do
       user = Accounts.get_user(user.id, admin)
       assert user.first_name == "Allison"
       assert user.last_name == "Duprix"
+    end
+
+    test "does not allow dispatchers to update admins", %{conn: conn} do
+      admin = user_fixture() |> assign_role("admin")
+
+      payload = %{
+        user: %{first_name: "Allison", last_name: "Duprix"},
+        role_slugs: %{"instructor" => "on"}
+      }
+
+      conn
+      |> web_auth_dispatcher()
+      |> put("/admin/users/#{admin.id}", payload)
+      |> response_redirected_to("/admin/dashboard")
+
+      user = Accounts.get_user(admin.id, admin)
+      refute user.first_name == "Allison"
+      refute user.last_name == "Duprix"
+    end
+
+    test "does not allow dispatchers to promote to admins", %{conn: conn} do
+      user = user_fixture() |> assign_role("dispatcher")
+
+      payload = %{
+        user: %{first_name: "Allison", last_name: "Duprix"},
+        role_slugs: %{"admin" => "on", "dispatcher" => "on"}
+      }
+
+      conn
+      |> web_auth_dispatcher()
+      |> put("/admin/users/#{user.id}", payload)
+      |> response_redirected_to("/admin/users/#{user.id}")
+
+      user = Accounts.get_user(user.id, user)
+      assert user.first_name == "Allison"
+      assert user.last_name == "Duprix"
+
+      roles = Flight.Repo.preload(user, :roles).roles
+
+      assert ["dispatcher"] == Enum.map(roles, fn r -> r.slug end)
     end
   end
 

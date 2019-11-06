@@ -17,7 +17,7 @@ defmodule FlightWeb.Admin.SessionController do
     if user do
       case Accounts.check_password(user, password) do
         {:ok, user} ->
-          if user_can?(user, [Permission.new(:dashboard, :view, :all)]) do
+          if user_can?(user, [Permission.new(:admin_dashboard, :be, :all)]) do
             conn
             |> FlightWeb.AuthenticateWebUser.log_in(user.id)
             |> redirect(to: "/admin/dashboard")

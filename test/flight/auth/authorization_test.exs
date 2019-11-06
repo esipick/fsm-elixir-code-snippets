@@ -21,6 +21,10 @@ defmodule Flight.Auth.AuthorizationTest do
     test "renter" do
       assert permissions_for_role_slug("renter") == renter_permission_slugs()
     end
+
+    test "dispatcher" do
+      assert permissions_for_role_slug("dispatcher") == dispatcher_permission_slugs()
+    end
   end
 
   describe "permission_slugs_for_user" do

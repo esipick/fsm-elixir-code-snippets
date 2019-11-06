@@ -2,8 +2,12 @@ defmodule FlightWeb.Admin.UserController do
   use FlightWeb, :controller
 
   alias Flight.{Accounts, Billing, Scheduling}
+  alias Flight.Auth.Permission
+  import Flight.Auth.Authorization
 
   plug(:get_user when action in [:show, :edit, :update, :add_funds])
+  plug(:authorize_admin when action in [:index])
+  plug(:protect_admin_users when action in [:show, :edit, :update])
 
   def index(conn, %{"role" => role_slug} = params) do
     search_term = Map.get(params, "search", "")
@@ -96,10 +100,17 @@ defmodule FlightWeb.Admin.UserController do
   end
 
   def update(conn, %{"user" => user_form} = params) do
+    role_params = Map.keys(params["role_slugs"] || %{})
+    role_slugs = if user_can?(conn.assigns.current_user, modify_admin_permission()) do
+      role_params
+    else
+      Enum.filter(role_params, fn p -> p != "admin" end)
+    end
+
     case Accounts.admin_update_user_profile(
            conn.assigns.requested_user,
            user_form,
-           Map.keys(params["role_slugs"] || %{}),
+           role_slugs,
            Map.keys(params["flyer_certificate_slugs"] || %{})
          ) do
       {:ok, user} ->
@@ -139,5 +150,30 @@ defmodule FlightWeb.Admin.UserController do
 
     conn
     |> assign(:requested_user, user)
+  end
+
+  defp authorize_admin(conn, _) do
+    if conn.query_params["role"] == "admin" do
+      redirect_unless_user_can?(conn, modify_admin_permission())
+    else
+      conn
+    end
+  end
+
+  defp protect_admin_users(conn, _) do
+    requested_user_roles = Enum.map(
+      conn.assigns.requested_user.roles,
+      fn r -> r.slug end
+    )
+
+    if Enum.member?(requested_user_roles, "admin") do
+      redirect_unless_user_can?(conn, modify_admin_permission())
+    else
+      conn
+    end
+  end
+
+  defp modify_admin_permission() do
+    [Permission.new(:admins, :modify, :all)]
   end
 end

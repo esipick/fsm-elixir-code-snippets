@@ -22,6 +22,14 @@ defmodule FlightWeb.Admin.SettingsControllerTest do
       |> get("/admin/settings?tab=billing")
       |> html_response(200)
     end
+
+    test "redirects dispatcher", %{conn: conn} do
+      conn = conn
+        |> web_auth_dispatcher()
+        |> get("/admin/settings?tab=billing")
+
+      assert redirected_to(conn) == "/admin/dashboard"
+    end
   end
 
   describe "PUT /admin/settings" do

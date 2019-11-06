@@ -5,6 +5,7 @@ defmodule FlightWeb.Admin.SettingsController do
   alias Flight.Auth.Permission
 
   plug(:get_school)
+  plug(:authorize_admin when action in [:show])
 
   def show(conn, %{"tab" => "contact"}) do
     changeset = Accounts.School.admin_changeset(conn.assigns.school, %{})
@@ -19,8 +20,6 @@ defmodule FlightWeb.Admin.SettingsController do
   end
 
   def show(conn, %{"tab" => "billing"}) do
-    redirect_unless_user_can?(conn, [Permission.new(:billing_settings, :modify, :all)])
-
     render(conn, "show.html", tab: :billing, school: conn.assigns.school)
   end
 
@@ -70,13 +69,11 @@ defmodule FlightWeb.Admin.SettingsController do
     assign(conn, :school, Flight.Repo.preload(conn.assigns.current_user.school, :stripe_account))
   end
 
-  defp redirect_unless_user_can?(conn, permissions) do
-    if Flight.Auth.Authorization.user_can?(conn.assigns.current_user, permissions) do
-      conn
+  defp authorize_admin(conn, _) do
+    if conn.query_params["tab"] == "billing" do
+      redirect_unless_user_can?(conn, [Permission.new(:billing_settings, :modify, :all)])
     else
       conn
-      |> put_flash(:error, "You are not authorized to perform this action.")
-      |> redirect(to: "/admin")
     end
   end
 end

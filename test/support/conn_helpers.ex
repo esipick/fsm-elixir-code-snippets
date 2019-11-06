@@ -21,6 +21,10 @@ defmodule Flight.ConnCaseHelpers do
     web_auth(conn, user)
   end
 
+  def web_auth_dispatcher(conn, user \\ Flight.AccountsFixtures.dispatcher_fixture()) do
+    web_auth(conn, user)
+  end
+
   defmacro redirected_to_login(conn) do
     quote do
       assert redirected_to(unquote(conn)) == "/admin/login"

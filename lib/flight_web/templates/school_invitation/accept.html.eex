@@ -32,7 +32,7 @@
           <div class="col-md-7 col-lg-5 ml-auto mr-auto">
             <div class="card text-center">
               <div class="card-header ">
-                <h4 class="card-title"><%= singular_label_for_role(@invitation.role) %> Registration</h4>
+                <h4 class="card-title">School Registration</h4>
               </div>
               <%= form_for @changeset, "/school_invitations/#{@invitation.token}", [as: :user, method: "post"], fn f -> %>
                 <div class="card-body">

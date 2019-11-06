@@ -185,7 +185,7 @@
           <div class="form-group">
             <label>User Role/Permissions</label>
             <div class="checkbox-radios">
-              <%= for {label, value} <- role_inputs() do %>
+              <%= for {label, value} <- role_inputs(@conn.assigns.current_user) do %>
                 <div class="form-check">
                   <label class="form-check-label">
                     <input type="checkbox" name="role_slugs[<%= value %>]" <%= if user_has_role?(@user, value), do: "checked", else: "" %> />
@@ -207,13 +207,13 @@
           <div class="col-md-12">
             <a href="/admin/users/<%= @user.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
             <input type="submit" class="btn btn-fill btn-primary" value="Save">
-            
+
             <!-- Button trigger modal -->
             <button id="delete_user_button" type="button" class="btn btn-danger float-right">
               Delete User
             </button>
-            
-            
+
+
           </div>
         </div>
       </div>
