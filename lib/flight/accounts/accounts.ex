@@ -81,7 +81,11 @@ defmodule Flight.Accounts do
   end
 
   def roles_visible_to("admin") do
-    [:admin, :student, :renter, :instructor]
+    [:admin, :student, :renter, :instructor, :dispatcher]
+  end
+
+  def roles_visible_to("dispatcher") do
+    [:student, :renter, :instructor, :dispatcher]
   end
 
   def get_user_count(role, school_context) do
