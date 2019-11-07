@@ -28,10 +28,6 @@ defmodule FlightWeb.SchoolInvitationController do
     end
   end
 
-  def accept_success(conn, _) do
-    render(conn, "success.html", invitation: conn.assigns.invitation)
-  end
-
   defp get_invitation(conn, _) do
     invitation = Accounts.get_school_invitation_for_token(conn.params["token"])
 

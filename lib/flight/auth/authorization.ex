@@ -68,7 +68,7 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:push_token, :modify, :all),
       permission_slug(:unavailability, :modify, :all),
       permission_slug(:invoice, :modify, :all),
-      permission_slug(:admin_dashboard, :be, :all)
+      permission_slug(:admin_dashboard, :view, :all)
     ])
   end
 
