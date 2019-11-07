@@ -3,9 +3,8 @@ exports.config = {
   files: {
     javascripts: {
       joinTo: {
-        "js/app.js": "js/app.js",
+        "js/app.js": /^(?!admin)/,
         "js/admin/admin.js": /^js\/admin/,
-        "js/components.js": /^js\/components/,
       },
 
       // To use a separate vendor.js bundle, specify two files path
@@ -71,7 +70,7 @@ exports.config = {
   plugins: {
     babel: {
       // Do not use ES6 compiler in vendor code
-      ignore: [/(vendor|node_modules)/]
+      ignore: [/vendor/]
     }
   },
 
@@ -80,8 +79,7 @@ exports.config = {
   modules: {
     autoRequire: {
       "js/app.js": ["js/app"],
-      "js/admin/admin.js": ["js/admin/admin"],
-      "js/components.js": ["js/components"]
+      "js/admin/admin.js": ["js/admin/admin"]
     }
   },
 

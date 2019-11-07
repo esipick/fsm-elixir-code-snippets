@@ -1,7 +1,7 @@
 /* global $, swal, moment */
 
 $(document).ready(function() {
-
+  debugger;
   var fullName = function(user) {
     return user.first_name + " " + user.last_name
   }
