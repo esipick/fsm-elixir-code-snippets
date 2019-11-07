@@ -29,3 +29,5 @@ npm-debug.log
 /config/*.secret.exs
 /.elixir_ls
 /.vscode
+
+tmp
