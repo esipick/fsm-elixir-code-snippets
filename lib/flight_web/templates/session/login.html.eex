@@ -20,7 +20,7 @@
       <div class="content">
         <div class="container">
           <div class="col-sm-10 col-md-8 col-lg-5 ml-auto mr-auto">
-            <%= form_for @conn, "/admin/login", [as: :session, class: "form"], fn _ -> %>
+            <%= form_for @conn, "/login", [as: :session, class: "form"], fn _ -> %>
               <div class="card card-login card-plain">
                 <div class="card-header ">
                   <div class="logo-container">

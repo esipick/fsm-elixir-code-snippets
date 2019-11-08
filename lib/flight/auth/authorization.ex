@@ -68,7 +68,7 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:push_token, :modify, :all),
       permission_slug(:unavailability, :modify, :all),
       permission_slug(:invoice, :modify, :all),
-      permission_slug(:admin_dashboard, :view, :all)
+      permission_slug(:web_dashboard, :access, :all)
     ])
   end
 
@@ -103,7 +103,8 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:transaction_user, :view, :personal),
       permission_slug(:unavailability_instructor, :modify, :personal),
       permission_slug(:unavailability_aircraft, :modify, :all),
-      permission_slug(:invoice, :modify, :all)
+      permission_slug(:invoice, :modify, :all),
+      permission_slug(:web_dashboard, :access, :all)
     ])
   end
 
@@ -118,7 +119,8 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:transaction_creator, :modify, :personal),
       permission_slug(:transaction, :view, :personal),
       permission_slug(:push_token, :modify, :personal),
-      permission_slug(:transaction_user, :view, :personal)
+      permission_slug(:transaction_user, :view, :personal),
+      permission_slug(:web_dashboard, :access, :all)
     ])
   end
 
@@ -162,19 +164,8 @@ defmodule Flight.Auth.Authorization.Extensions do
       conn
       |> Phoenix.Controller.put_flash(:error, "You are not authorized to perform this action.")
       |> Plug.Conn.put_status(302)
-      |> Phoenix.Controller.redirect(to: default_user_redirect_path(user))
+      |> Phoenix.Controller.redirect(to: FlightWeb.RoleUtil.default_redirect_path(user))
       |> Plug.Conn.halt()
-    end
-  end
-
-  defp default_user_redirect_path(user) do
-    user = Flight.Repo.preload(user, :roles)
-    roles = Enum.map(user.roles, fn r -> r.slug end)
-
-    if Enum.member?(roles, "admin") || Enum.member?(roles, "dispatcher") do
-      "/admin/dashboard"
-    else
-      "/admin/dashboard"
     end
   end
 end

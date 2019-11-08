@@ -1,37 +1,37 @@
-defmodule FlightWeb.Admin.SessionControllerTest do
+defmodule FlightWeb.SessionControllerTest do
   use FlightWeb.ConnCase, async: true
 
-  describe "GET /admin/login" do
+  describe "GET /login" do
     test "renders", %{conn: conn} do
       conn
-      |> get("/admin/login")
+      |> get("/login")
       |> html_response(200)
     end
 
     test "redirects to dashboard if logged in", %{conn: conn} do
       conn
       |> web_auth_admin()
-      |> get("/admin/login")
+      |> get("/login")
       |> response_redirected_to("/admin/dashboard")
     end
   end
 
-  describe "GET /admin/logout" do
+  describe "GET /logout" do
     test "redirects to dashboard if logged in", %{conn: conn} do
       conn
       |> web_auth_admin()
-      |> get("/admin/logout")
-      |> response_redirected_to("/admin/login")
+      |> get("/logout")
+      |> response_redirected_to("/login")
     end
   end
 
-  describe "POST /admin/login" do
+  describe "POST /login" do
     test "redirects to dashboard on success", %{conn: conn} do
       user_fixture(%{email: "hello@bar.com", password: "hey hey you"})
       |> assign_role("admin")
 
       conn
-      |> post("/admin/login", %{email: "hello@bar.com", password: "hey hey you"})
+      |> post("/login", %{email: "hello@bar.com", password: "hey hey you"})
       |> response_redirected_to("/admin/dashboard")
     end
 
@@ -40,7 +40,7 @@ defmodule FlightWeb.Admin.SessionControllerTest do
       |> assign_role("dispatcher")
 
       conn
-      |> post("/admin/login", %{email: "hello@bar.com", password: "hey hey you"})
+      |> post("/login", %{email: "hello@bar.com", password: "hey hey you"})
       |> response_redirected_to("/admin/dashboard")
     end
 
@@ -49,7 +49,7 @@ defmodule FlightWeb.Admin.SessionControllerTest do
 
       conn =
         conn
-        |> post("/admin/login", %{email: "hello@bar.com", password: "hey hey yous"})
+        |> post("/login", %{email: "hello@bar.com", password: "hey hey yous"})
         |> redirected_to_login()
 
       assert get_flash(conn, :error) =~ "Invalid"
@@ -61,7 +61,7 @@ defmodule FlightWeb.Admin.SessionControllerTest do
 
       conn =
         conn
-        |> post("/admin/login", %{email: "hello@bar.com", password: "hey hey you"})
+        |> post("/login", %{email: "hello@bar.com", password: "hey hey you"})
         |> redirected_to_login()
 
       assert get_flash(conn, :error) =~ "You are not allowed to log in"

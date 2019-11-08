@@ -61,7 +61,7 @@ defmodule FlightWeb.InvitationController do
     else
       # TODO: Not the right place...where to though?
       conn
-      |> redirect(to: "/admin/login")
+      |> redirect(to: "/login")
       |> halt()
     end
   end

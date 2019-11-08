@@ -5,16 +5,7 @@ defmodule FlightWeb.SidebarItem do
   alias Flight.Auth.Permission
   import Flight.Auth.Authorization
 
-  def build(path, query_string, user) do
-    appended =
-      if String.length(query_string) > 0 do
-        "?#{query_string}"
-      else
-        ""
-      end
-
-    full_path = "#{path}#{appended}"
-
+  def admin_sidebar(user) do
     [
       %SidebarItem{
         path: "/admin/dashboard",
@@ -109,12 +100,66 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
-        path: "/admin/logout",
+        path: "/logout",
         label: "Log out",
         icon_class: "media-1_button-power",
         active: false
       }
     ]
+  end
+
+  def instructor_sidebar do
+    [
+      %SidebarItem{
+        path: "/instructor/schedule",
+        label: "Schedule",
+        icon_class: "ui-1_calendar-60",
+        active: false
+      },
+      %SidebarItem{
+        path: "/logout",
+        label: "Log out",
+        icon_class: "media-1_button-power",
+        active: false
+      }
+    ]
+  end
+
+  def student_sidebar do
+    [
+      %SidebarItem{
+        path: "/student/schedule",
+        label: "Schedule",
+        icon_class: "ui-1_calendar-60",
+        active: false
+      },
+      %SidebarItem{
+        path: "/logout",
+        label: "Log out",
+        icon_class: "media-1_button-power",
+        active: false
+      }
+    ]
+  end
+
+  def build(path, query_string, user) do
+    appended =
+      if String.length(query_string) > 0 do
+        "?#{query_string}"
+      else
+        ""
+      end
+
+    full_path = "#{path}#{appended}"
+
+    items =
+      case FlightWeb.RoleUtil.access_level(user) do
+        "admin" -> admin_sidebar(user)
+        "instructor" -> instructor_sidebar()
+        "student" -> student_sidebar()
+      end
+
+    items
     |> Enum.filter(& &1)
     |> Enum.map(fn item ->
       if String.starts_with?(full_path, item.path) do

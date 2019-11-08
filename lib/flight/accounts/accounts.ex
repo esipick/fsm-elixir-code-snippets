@@ -69,15 +69,15 @@ defmodule Flight.Accounts do
   end
 
   def roles_visible_to("student") do
-    [:instructor, :admin]
+    [:instructor, :admin, :dispatcher]
   end
 
   def roles_visible_to("instructor") do
-    [:student, :instructor, :admin]
+    [:student, :instructor, :admin, :dispatcher]
   end
 
   def roles_visible_to("renter") do
-    [:admin]
+    [:admin, :dispatcher]
   end
 
   def roles_visible_to("admin") do

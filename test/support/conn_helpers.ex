@@ -27,7 +27,7 @@ defmodule Flight.ConnCaseHelpers do
 
   defmacro redirected_to_login(conn) do
     quote do
-      assert redirected_to(unquote(conn)) == "/admin/login"
+      assert redirected_to(unquote(conn)) == "/login"
       unquote(conn)
     end
   end

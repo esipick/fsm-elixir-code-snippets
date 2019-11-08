@@ -17,8 +17,20 @@ defmodule FlightWeb.Router do
     plug(:put_layout, {FlightWeb.LayoutView, :admin})
   end
 
+  pipeline :student_layout do
+    plug(:put_layout, {FlightWeb.LayoutView, :student})
+  end
+
   pipeline :admin_authenticate do
     plug(FlightWeb.AuthenticateWebUser, roles: ["admin", "dispatcher"])
+  end
+
+  pipeline :student_authenticate do
+    plug(FlightWeb.AuthenticateWebUser, roles: ["student"])
+  end
+
+  pipeline :instructor_authenticate do
+    plug(FlightWeb.AuthenticateWebUser, roles: ["instructor"])
   end
 
   pipeline :webhooks_authenticate do
@@ -57,6 +69,10 @@ defmodule FlightWeb.Router do
     post("/forgot_password", PasswordController, :forgot_submit)
     get("/reset_password", PasswordController, :reset)
     post("/reset_password", PasswordController, :reset_submit)
+
+    get("/login", SessionController, :login)
+    post("/login", SessionController, :login_submit)
+    get("/logout", SessionController, :logout)
   end
 
   scope "/webhooks", FlightWeb do
@@ -76,11 +92,23 @@ defmodule FlightWeb.Router do
   end
 
   # Unauthenticated admin pages
-  scope "/admin", FlightWeb.Admin do
+  scope "/admin", FlightWeb do
     pipe_through([:browser, :no_layout, :admin_metrics_namespace])
 
     get("/login", SessionController, :login)
     post("/login", SessionController, :login_submit)
+  end
+
+  scope "/student", FlightWeb.Student do
+    pipe_through([:browser, :admin_layout, :student_authenticate, :admin_metrics_namespace])
+
+    resources("/schedule", ScheduleController, only: [:index, :show, :edit])
+  end
+
+  scope "/instructor", FlightWeb.Instructor do
+    pipe_through([:browser, :admin_layout, :instructor_authenticate, :admin_metrics_namespace])
+
+    resources("/schedule", ScheduleController, only: [:index, :show, :edit])
   end
 
   scope "/admin", FlightWeb.Admin do
@@ -89,8 +117,6 @@ defmodule FlightWeb.Router do
     get("/", PageController, :root)
 
     get("/dashboard", PageController, :dashboard)
-
-    get("/logout", SessionController, :logout)
 
     resources("/schools", SchoolController, only: [:index, :show, :delete])
 

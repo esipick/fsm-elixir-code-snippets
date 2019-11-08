@@ -21,7 +21,7 @@ defmodule FlightWeb.AuthenticateWebUser do
         conn = if code == :user_not_found, do: log_out(conn), else: conn
 
         conn
-        |> Phoenix.Controller.redirect(to: "/admin/login")
+        |> Phoenix.Controller.redirect(to: "/login")
         |> halt()
     end
   end
