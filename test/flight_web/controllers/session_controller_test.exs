@@ -57,7 +57,7 @@ defmodule FlightWeb.SessionControllerTest do
 
     test "redirects to login if user is not an admin", %{conn: conn} do
       user_fixture(%{email: "hello@bar.com", password: "hey hey you"})
-      |> assign_role("student")
+      |> assign_role("renter")
 
       conn =
         conn
@@ -65,6 +65,24 @@ defmodule FlightWeb.SessionControllerTest do
         |> redirected_to_login()
 
       assert get_flash(conn, :error) =~ "You are not allowed to log in"
+    end
+
+    test "redirects to dashboard if user is student", %{conn: conn} do
+      user_fixture(%{email: "hello@bar.com", password: "hey hey you"})
+      |> assign_role("student")
+
+      conn
+      |> post("/login", %{email: "hello@bar.com", password: "hey hey you"})
+      |> response_redirected_to("/student/schedule")
+    end
+
+    test "redirects to dashboard if user is instructor", %{conn: conn} do
+      user_fixture(%{email: "hello@bar.com", password: "hey hey you"})
+      |> assign_role("instructor")
+
+      conn
+      |> post("/login", %{email: "hello@bar.com", password: "hey hey you"})
+      |> response_redirected_to("/instructor/schedule")
     end
   end
 end
