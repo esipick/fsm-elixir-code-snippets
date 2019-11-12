@@ -13,10 +13,16 @@ defmodule FlightWeb.API.AppointmentController do
     {:ok, start_at} = NaiveDateTime.from_iso8601(start_at_str)
     {:ok, end_at} = NaiveDateTime.from_iso8601(end_at_str)
 
+    user_id = if user_can?(conn.assigns.current_user, [Permission.new(:appointment, :modify, :all)]) do
+      nil
+    else
+      conn.assigns.current_user.id
+    end
+
     excluded_appointment_ids = [params["excluded_appointment_id"]] |> List.flatten()
 
     students_available =
-      Availability.student_availability(start_at, end_at, excluded_appointment_ids, [], conn)
+      Availability.student_availability(start_at, end_at, excluded_appointment_ids, [], conn, %{"user_id" => user_id})
 
     instructors_available =
       Availability.instructor_availability(start_at, end_at, excluded_appointment_ids, [], conn)
@@ -34,9 +40,16 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def index(conn, params) do
+    user_id = if user_can?(conn.assigns.current_user, [Permission.new(:appointment, :modify, :all)]) do
+      Map.get(params, "user_id", nil)
+    else
+      conn.assigns.current_user.id
+    end
+
+    options = Map.merge(params, %{ "user_id" => user_id })
+
     appointments =
-      Scheduling.get_appointments(params, conn)
-      |> FlightWeb.API.AppointmentView.preload()
+      Scheduling.get_appointments(options, conn) |> FlightWeb.API.AppointmentView.preload()
 
     render(conn, "index.json", appointments: appointments)
   end

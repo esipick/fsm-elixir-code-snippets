@@ -4,12 +4,12 @@ defmodule FlightWeb.Instructor.ScheduleController do
   alias Flight.Accounts.Role
 
   def index(conn, _) do
+    current_user = conn.assigns.current_user
     renters = Flight.Accounts.users_with_roles([Role.student(), Role.renter()], conn)
-    instructors = [conn.assigns.current_user]
+    instructors = [current_user]
     aircrafts = Flight.Scheduling.visible_aircrafts(conn)
 
-    # TODO: shared view with schedule
-    render(conn, "index.html", renters: renters, instructors: instructors, aircrafts: aircrafts)
+    render(conn, "index.html", renters: renters, instructors: instructors, aircrafts: aircrafts, user_id: current_user.id)
   end
 
   def show(conn, _) do
