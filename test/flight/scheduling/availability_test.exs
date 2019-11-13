@@ -331,6 +331,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
       date = ~N[2018-03-03 16:00:00]
 
       user = user_fixture() |> assign_role("student")
+      # instructor_fixture()
 
       assert Availability.user_with_permission_status(
                permission_slug(:appointment_instructor, :modify, :personal),

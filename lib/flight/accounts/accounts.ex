@@ -397,11 +397,15 @@ defmodule Flight.Accounts do
   end
 
   def users_with_roles(roles, school_context, params \\ %{}) do
-    roles
-    |> Ecto.assoc(:users)
-    |> default_users_query(school_context)
-    |> pass_unless(params["user_id"], &where(&1, [t], t.id == ^params["user_id"]))
-    |> Repo.all()
+    case roles do
+      [] -> []
+      _ ->
+        roles
+        |> Ecto.assoc(:users)
+        |> default_users_query(school_context)
+        |> pass_unless(params["user_id"], &where(&1, [t], t.id == ^params["user_id"]))
+        |> Repo.all()
+    end
   end
 
   def default_users_query(query, school_context) do
