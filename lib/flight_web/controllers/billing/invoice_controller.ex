@@ -60,7 +60,7 @@ defmodule FlightWeb.Billing.InvoiceController do
   end
 
   def authorize_modify(conn, _) do
-    invoice = conn.assigns.invoice
+    invoice = if conn.params["id"], do: conn.assigns.invoice, else: nil
     user = conn.assigns.current_user
 
     cond do

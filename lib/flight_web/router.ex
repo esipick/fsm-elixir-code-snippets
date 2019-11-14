@@ -181,8 +181,6 @@ defmodule FlightWeb.Router do
     end
 
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
-
-    get("/billing", BillingController, :index)
   end
 
   ###

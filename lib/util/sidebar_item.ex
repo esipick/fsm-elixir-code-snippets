@@ -14,10 +14,11 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
-        path: "/billing",
+        path: "/billing/invoices",
         label: "Billing",
         icon_class: "business_money-coins",
-        active: false
+        active: false,
+        prefix: "/billing"
       },
       if Flight.Accounts.is_superadmin?(user) do
         %SidebarItem{
