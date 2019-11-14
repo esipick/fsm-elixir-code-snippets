@@ -14,7 +14,7 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
-        path: "/admin/billing",
+        path: "/billing",
         label: "Billing",
         icon_class: "business_money-coins",
         active: false

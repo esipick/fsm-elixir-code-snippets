@@ -1,4 +1,4 @@
-defmodule FlightWeb.Admin.Billing.InvoiceController do
+defmodule FlightWeb.Billing.InvoiceController do
   use FlightWeb, :controller
 
   import Ecto.Query

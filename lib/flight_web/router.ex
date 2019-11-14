@@ -1,5 +1,6 @@
 defmodule FlightWeb.Router do
   use FlightWeb, :router
+  alias Flight.Auth.Permission
 
   pipeline :browser do
     plug(:accepts, ["html"])
@@ -31,6 +32,10 @@ defmodule FlightWeb.Router do
 
   pipeline :instructor_authenticate do
     plug(FlightWeb.AuthenticateWebUser, roles: ["instructor"])
+  end
+
+  pipeline :billing_authorize do
+    plug(FlightWeb.AuthorizeWebUser, permission: )
   end
 
   pipeline :webhooks_authenticate do
@@ -111,6 +116,13 @@ defmodule FlightWeb.Router do
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
   end
 
+  scope("/billing", Billing, as: :billing) do
+    pipe_through([:browser, :admin_layout, :billing_authorize, :admin_metrics_namespace])
+
+    resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show])
+    resources("/transactions", TransactionController, only: [:index])
+  end
+
   scope "/admin", FlightWeb.Admin do
     pipe_through([:browser, :admin_layout, :admin_authenticate, :admin_metrics_namespace])
 
@@ -172,11 +184,6 @@ defmodule FlightWeb.Router do
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
 
     get("/billing", BillingController, :index)
-
-    scope("/billing", Billing, as: :admin_billing) do
-      resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show])
-      resources("/transactions", TransactionController, only: [:index])
-    end
   end
 
   ###

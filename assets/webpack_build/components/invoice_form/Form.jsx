@@ -149,7 +149,7 @@ class Form extends Component {
     }).then(response => {
       response.json().then(({ data }) => {
         console.log(JSON.stringify(data));
-        window.location = `/admin/billing/invoices/${data.id}`;
+        window.location = `/billing/invoices/${data.id}`;
       })
     }).catch(response => {
       response.json().then(({ id = this.state.id, stripe_error = '', errors = {} }) => {

@@ -11,7 +11,7 @@
         <%= if @invoice.editable do %>
           <div class="card-header">
             <div class="text-right">
-              <a href="/admin/billing/invoices/<%= @invoice.id %>/edit" class="btn btn-primary">
+              <a href="/billing/invoices/<%= @invoice.id %>/edit" class="btn btn-primary">
                 Edit
               </a>
             </div>

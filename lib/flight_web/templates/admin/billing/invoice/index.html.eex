@@ -17,14 +17,14 @@
             </li>
 
             <li class="nav-item">
-              <a class="nav-link" href="/admin/billing/transactions" role="tablist" aria-expanded="true">
+              <a class="nav-link" href="/billing/transactions" role="tablist" aria-expanded="true">
                 Transactions
               </a>
             </li>
           </ul>
 
           <div class="text-right">
-            <a href="/admin/billing/invoices/new" class="btn btn-primary">New Invoice</a>
+            <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
           </div>
         </div>
       </div>
@@ -55,11 +55,11 @@
                 <td><%= invoice.payment_date %></td>
                 <td><%= invoice.payment_method %></td>
                 <td class="text-right">
-                  <a href="/admin/billing/invoices/<%= invoice.id %>" class="btn btn-primary btn-sm">
+                  <a href="/billing/invoices/<%= invoice.id %>" class="btn btn-primary btn-sm">
                     Show
                   </a>
                   <%= if invoice.editable do %>
-                    <a href="/admin/billing/invoices/<%= invoice.id %>/edit" class="btn btn-primary btn-sm">
+                    <a href="/billing/invoices/<%= invoice.id %>/edit" class="btn btn-primary btn-sm">
                       Edit
                     </a>
                   <% end %>
