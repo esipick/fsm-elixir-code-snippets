@@ -207,6 +207,7 @@ defmodule Flight.BillingFixtures do
   def invoice_attrs(user \\ student_fixture(), attrs \\ %{}) do
     %{
       user_id: user.id,
+      school_id: user.school_id,
       date: ~D[2019-10-10],
       payment_option: "balance",
       total: 20000,

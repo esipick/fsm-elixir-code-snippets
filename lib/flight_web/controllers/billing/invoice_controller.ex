@@ -1,17 +1,25 @@
 defmodule FlightWeb.Billing.InvoiceController do
   use FlightWeb, :controller
 
-  import Ecto.Query
-
   alias Flight.{Repo, Billing.Invoice}
-  alias FlightWeb.{Pagination, Admin.Billing.InvoiceStruct}
+  alias FlightWeb.{Pagination, Billing.InvoiceStruct}
+  alias Flight.Auth.InvoicePolicy
 
   plug(:get_invoice when action in [:edit, :show])
-  plug(:check_paid_invoice when action in [:edit])
+  plug(:authorize_modify when action in [:new, :edit])
+  plug(:authorize_view when action in [:show])
 
   def index(conn, params) do
     page_params = Pagination.params(params)
-    page = from(i in Invoice, order_by: [desc: i.inserted_at]) |> Repo.paginate(page_params)
+    user = conn.assigns.current_user
+
+    options = if InvoicePolicy.create?(user) do
+      %{}
+    else
+      %{"user_id" => user.id}
+    end
+
+    page = Flight.Queries.Invoice.page(conn, page_params, options)
     invoices = page |> Enum.map(fn invoice -> InvoiceStruct.build(invoice) end)
 
     render(conn, "index.html", page: page, invoices: invoices)
@@ -51,12 +59,29 @@ defmodule FlightWeb.Billing.InvoiceController do
     end
   end
 
-  defp check_paid_invoice(conn, _) do
-    if conn.assigns.invoice.status == :paid do
+  def authorize_modify(conn, _) do
+    invoice = conn.assigns.invoice
+    user = conn.assigns.current_user
+
+    cond do
+      InvoicePolicy.modify?(user, invoice) ->
+        conn
+      InvoicePolicy.create?(conn.assigns.current_user) ->
+        conn
+        |> redirect(to: "/billing/invoices/#{conn.assigns.invoice.id}")
+      true ->
+        redirect_unathorized_user(conn)
+    end
+  end
+
+  defp authorize_view(conn, _) do
+    invoice = conn.assigns.invoice
+    user = conn.assigns.current_user
+
+    if InvoicePolicy.view?(user, invoice) do
       conn
-      |> redirect(to: "/admin/billing/invoices/#{conn.assigns.invoice.id}")
     else
-      conn
+      authorize_modify(conn, nil)
     end
   end
 end

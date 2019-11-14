@@ -1,7 +1,7 @@
-defmodule FlightWeb.Admin.Billing.InvoiceStruct do
+defmodule FlightWeb.Billing.InvoiceStruct do
   alias __MODULE__
   alias Flight.{Repo, Accounts.User}
-  alias FlightWeb.Admin.Billing.TransactionStruct
+  alias FlightWeb.Billing.TransactionStruct
 
   defstruct ~w(
     id student_name amount_due amount_paid status payment_date payment_method

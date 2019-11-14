@@ -5,6 +5,6 @@ defmodule FlightWeb.Admin.BillingController do
   alias FlightWeb.Router.Helpers, as: Routes
 
   def index(conn, _) do
-    redirect(conn, to: Routes.admin_billing_invoice_path(Endpoint, :index))
+    redirect(conn, to: Routes.billing_invoice_path(Endpoint, :index))
   end
 end

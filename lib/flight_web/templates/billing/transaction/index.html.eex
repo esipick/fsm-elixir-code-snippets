@@ -23,9 +23,11 @@
             </li>
           </ul>
 
-          <div class="text-right">
-            <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
-          </div>
+          <%= if can_create_invoice?(@conn) do %>
+            <div class="text-right">
+              <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
+            </div>
+          <% end %>
         </div>
       </div>
 
@@ -71,7 +73,7 @@
             <div class="col-md-10">
               <%= pagination_links @conn,
                 @page,
-                path: &admin_billing_transaction_path/3,
+                path: &billing_transaction_path/3,
                 page_size: @page.page_size
               %>
             </div>

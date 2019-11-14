@@ -58,6 +58,7 @@ defmodule FlightWeb.AuthenticateWebUser do
   defp get_user(id, roles) do
     from(
       u in Flight.Accounts.User,
+      distinct: u.id,
       inner_join: r in assoc(u, :roles),
       where: r.slug in ^roles,
       where: u.archived == false,

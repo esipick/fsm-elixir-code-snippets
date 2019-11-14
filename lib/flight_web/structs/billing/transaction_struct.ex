@@ -1,4 +1,4 @@
-defmodule FlightWeb.Admin.Billing.TransactionStruct do
+defmodule FlightWeb.Billing.TransactionStruct do
   alias __MODULE__
   alias Flight.Billing.Transaction
 

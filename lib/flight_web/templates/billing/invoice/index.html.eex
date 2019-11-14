@@ -23,9 +23,11 @@
             </li>
           </ul>
 
-          <div class="text-right">
-            <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
-          </div>
+          <%= if can_create_invoice?(@conn) do %>
+            <div class="text-right">
+              <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
+            </div>
+          <% end %>
         </div>
       </div>
 
@@ -58,7 +60,7 @@
                   <a href="/billing/invoices/<%= invoice.id %>" class="btn btn-primary btn-sm">
                     Show
                   </a>
-                  <%= if invoice.editable do %>
+                  <%= if can_modify_invoice?(@conn, invoice) do %>
                     <a href="/billing/invoices/<%= invoice.id %>/edit" class="btn btn-primary btn-sm">
                       Edit
                     </a>
@@ -74,7 +76,7 @@
             <div class="col-md-10">
               <%= pagination_links @conn,
                 @page,
-                path: &admin_billing_invoice_path/3,
+                path: &billing_invoice_path/3,
                 page_size: @page.page_size
               %>
             </div>

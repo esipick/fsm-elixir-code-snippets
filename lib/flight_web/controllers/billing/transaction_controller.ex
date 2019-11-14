@@ -1,17 +1,20 @@
-defmodule FlightWeb.Admin.Billing.TransactionController do
+defmodule FlightWeb.Billing.TransactionController do
   use FlightWeb, :controller
 
-  import Ecto.Query
-
-  alias Flight.{Repo, Billing.Transaction}
-  alias FlightWeb.{Pagination, Admin.Billing.TransactionStruct}
+  alias FlightWeb.{Pagination, Billing.TransactionStruct}
+  alias Flight.Auth.InvoicePolicy
 
   def index(conn, params) do
     page_params = Pagination.params(params)
+    user = conn.assigns.current_user
 
-    page =
-      from(t in Transaction, order_by: [desc: t.inserted_at])
-      |> Repo.paginate(page_params)
+    options = if InvoicePolicy.create?(user) do
+      %{}
+    else
+      %{"user_id" => user.id}
+    end
+
+    page = Flight.Queries.Transaction.page(conn, page_params, options)
 
     transactions =
       page

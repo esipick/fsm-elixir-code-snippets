@@ -3,7 +3,8 @@ defmodule Flight.Billing.Invoice do
   import Ecto.Changeset
 
   alias __MODULE__
-  alias Flight.{Repo, Accounts.User}
+  alias Flight.Repo
+  alias Flight.Accounts.{User, School}
   alias Flight.Billing.{Transaction, InvoiceLineItem}
   alias FlightWeb.API.{UserView, InvoiceLineItemView}
 
@@ -15,6 +16,7 @@ defmodule Flight.Billing.Invoice do
     tax_rate
     total_tax
     total_amount_due
+    school_id
   )a
 
   schema "invoices" do
@@ -27,6 +29,7 @@ defmodule Flight.Billing.Invoice do
     field(:payment_option, InvoicePaymentOptionEnum)
 
     belongs_to(:user, User)
+    belongs_to(:school, School)
     has_many(:line_items, InvoiceLineItem, on_replace: :delete, on_delete: :delete_all)
     has_many(:transactions, Transaction, on_delete: :nilify_all)
 

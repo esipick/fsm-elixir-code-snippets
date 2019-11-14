@@ -163,11 +163,17 @@ defmodule Flight.Auth.Authorization.Extensions do
     if Flight.Auth.Authorization.user_can?(user, permissions) do
       conn
     else
-      conn
-      |> Phoenix.Controller.put_flash(:error, "You are not authorized to perform this action.")
-      |> Plug.Conn.put_status(302)
-      |> Phoenix.Controller.redirect(to: FlightWeb.RoleUtil.default_redirect_path(user))
-      |> Plug.Conn.halt()
+      redirect_unathorized_user(conn)
     end
+  end
+
+  def redirect_unathorized_user(conn) do
+    user = conn.assigns.current_user
+
+    conn
+    |> Phoenix.Controller.put_flash(:error, "You are not authorized to perform this action.")
+    |> Plug.Conn.put_status(302)
+    |> Phoenix.Controller.redirect(to: FlightWeb.RoleUtil.default_redirect_path(user))
+    |> Plug.Conn.halt()
   end
 end

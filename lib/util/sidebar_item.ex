@@ -1,5 +1,5 @@
 defmodule FlightWeb.SidebarItem do
-  defstruct [:path, :icon_class, :label, :active]
+  defstruct [:path, :icon_class, :label, :active, :prefix]
 
   alias FlightWeb.SidebarItem
   alias Flight.Auth.Permission
@@ -111,6 +111,13 @@ defmodule FlightWeb.SidebarItem do
   def instructor_sidebar do
     [
       %SidebarItem{
+        path: "/billing/invoices",
+        label: "Billing",
+        icon_class: "business_money-coins",
+        active: false,
+        prefix: "/billing"
+      },
+      %SidebarItem{
         path: "/instructor/schedule",
         label: "Schedule",
         icon_class: "ui-1_calendar-60",
@@ -127,6 +134,13 @@ defmodule FlightWeb.SidebarItem do
 
   def student_sidebar do
     [
+      %SidebarItem{
+        path: "/billing/invoices",
+        label: "Billing",
+        icon_class: "business_money-coins",
+        active: false,
+        prefix: "/billing"
+      },
       %SidebarItem{
         path: "/student/schedule",
         label: "Schedule",
@@ -162,10 +176,13 @@ defmodule FlightWeb.SidebarItem do
     items
     |> Enum.filter(& &1)
     |> Enum.map(fn item ->
-      if String.starts_with?(full_path, item.path) do
-        %{item | active: true}
-      else
-        %{item | active: false}
+      cond do
+        String.starts_with?(full_path, item.path) ->
+          %{item | active: true}
+        String.starts_with?(full_path, item.prefix || "unset") ->
+          %{item | active: true}
+        true ->
+          %{item | active: false}
       end
     end)
   end

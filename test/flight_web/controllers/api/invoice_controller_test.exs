@@ -29,7 +29,6 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       errors = %{
         "date" => ["can't be blank"],
         "payment_option" => ["can't be blank"],
-        "tax_rate" => ["can't be blank"],
         "total" => ["can't be blank"],
         "total_amount_due" => ["can't be blank"],
         "total_tax" => ["can't be blank"],
