@@ -37,7 +37,7 @@ defmodule Flight.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.3.3"},
+      {:phoenix, "1.3.3"},
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_ecto, "~> 3.2"},
       {:postgrex, ">= 0.0.0"},
@@ -54,7 +54,7 @@ defmodule Flight.Mixfile do
       {:timex, "~> 3.1"},
       {:stripity_stripe, "~> 2.1"},
       {:currency_formatter, "~> 0.4"},
-      {:appsignal, "~> 1.7"},
+      {:appsignal, "~> 1.8.0"},
       {:sweet_xml, "~> 0.6"},
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},

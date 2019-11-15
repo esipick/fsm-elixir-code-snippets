@@ -1,0 +1,109 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @user.first_name %> <%= @user.last_name %></h2>
+    <p class="category">Edit Profile</p>
+  </div>
+</div>
+
+<div class="content">
+
+
+<div class="row">
+  <div class="col-md-8 col-xs-12">
+    <div class="card">
+      <%= form_for @changeset, "/instructor/profile", [as: :user, method: "put", class: "form-horizontal"], fn f -> %>
+        <div class="card-body">
+          <%= if Enum.count(f.errors) > 0 do %>
+            <div class="alert alert-danger">
+              <%= for error <- human_error_messages(@changeset) do %>
+                <span><%= error %></span></br>
+              <% end %>
+            </div>
+          <% end %>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>First Name</label>
+                <%= text_input f, :first_name, class: "form-control" %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Last Name</label>
+                <%= text_input f, :last_name, class: "form-control" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Password</label>
+                <%= password_input f, :password, class: "form-control", value: "", placeholder: "Password" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Phone #</label>
+                <%= telephone_input f, :phone_number, class: "form-control", placeholder: "555-555-5555" %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Email Address</label>
+                <%= text_input f, :email, class: "form-control" %>
+              </div>
+            </div>
+          </div>
+
+
+          <%= if has_address?(@user) do %>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Address</label>
+                <%= text_input f, :address_1, class: "form-control" %>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>City</label>
+                <%= text_input f, :city, class: "form-control" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>State</label>
+                <%= text_input f, :state, class: "form-control" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Zip</label>
+                <%= text_input f, :zipcode, class: "form-control" %>
+              </div>
+            </div>
+          </div>
+          <% end %>
+      </div>
+      <div class="card-footer ">
+        <div class="row">
+          <div class="col-md-12">
+            <a href="/instructor/profile" class="btn btn-fill btn-default mr-2">Cancel</a>
+            <input type="submit" class="btn btn-fill btn-primary" value="Save">
+          </div>
+        </div>
+      </div>
+      <% end %>
+    </div> <!-- end card -->
+  </div>
+
+</div>
+
+</div> <!-- end content -->

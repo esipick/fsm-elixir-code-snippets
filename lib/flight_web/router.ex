@@ -115,6 +115,7 @@ defmodule FlightWeb.Router do
     pipe_through([:browser, :admin_layout, :instructor_authenticate, :admin_metrics_namespace])
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
+    resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true)
   end
 
   scope("/billing", FlightWeb.Billing, as: :billing) do

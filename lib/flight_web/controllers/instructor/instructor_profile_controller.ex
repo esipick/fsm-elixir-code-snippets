@@ -1,4 +1,4 @@
-defmodule FlightWeb.Student.ProfileController do
+defmodule FlightWeb.Instructor.ProfileController do
   use FlightWeb, :controller
 
   alias Flight.Accounts
@@ -30,7 +30,7 @@ defmodule FlightWeb.Student.ProfileController do
 
     case Accounts.student_update_own_profile(user, user_form) do
       {:ok, _} ->
-        redirect(conn, to: "/student/profile")
+        redirect(conn, to: "/instructor/profile")
 
       {:error, changeset} ->
         render(

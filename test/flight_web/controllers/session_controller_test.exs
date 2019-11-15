@@ -73,7 +73,7 @@ defmodule FlightWeb.SessionControllerTest do
 
       conn
       |> post("/login", %{email: "hello@bar.com", password: "hey hey you"})
-      |> response_redirected_to("/student/schedule")
+      |> response_redirected_to("/student/profile")
     end
 
     test "redirects to dashboard if user is instructor", %{conn: conn} do
@@ -82,7 +82,7 @@ defmodule FlightWeb.SessionControllerTest do
 
       conn
       |> post("/login", %{email: "hello@bar.com", password: "hey hey you"})
-      |> response_redirected_to("/instructor/schedule")
+      |> response_redirected_to("/instructor/profile")
     end
   end
 end

@@ -79,7 +79,7 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
         |> web_auth(user)
         |> get("/billing/invoices/#{invoice.id}")
 
-      assert redirected_to(conn) == "/student/schedule"
+      assert redirected_to(conn) == "/student/profile"
     end
   end
 
@@ -110,7 +110,7 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
         |> web_auth(user)
         |> get("/billing/invoices/#{invoice.id}/edit")
 
-      assert redirected_to(conn) == "/student/schedule"
+      assert redirected_to(conn) == "/student/profile"
     end
   end
 end
