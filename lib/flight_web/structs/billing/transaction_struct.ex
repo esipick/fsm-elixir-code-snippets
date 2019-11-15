@@ -4,12 +4,13 @@ defmodule FlightWeb.Billing.TransactionStruct do
 
   defstruct ~w(
     id invoice_id student_name amount_due amount_paid state completed_at
-    payment_method error_message
+    payment_method error_message created
   )a
 
   def build(transaction) do
     %TransactionStruct{
       id: transaction.id,
+      created: NaiveDateTime.to_date(transaction.inserted_at),
       invoice_id: transaction.invoice_id,
       student_name: student_name(transaction),
       amount_due: transaction.total,

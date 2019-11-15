@@ -6,7 +6,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
   defstruct ~w(
     id student_name amount_due amount_paid status payment_date payment_method
     editable title total tax_rate total_tax line_items transactions
-    amount_remainder
+    amount_remainder created
   )a
 
   def build(invoice) do
@@ -14,6 +14,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
 
     %InvoiceStruct{
       id: invoice.id,
+      created: NaiveDateTime.to_date(invoice.inserted_at),
       student_name: student_name(invoice),
       amount_due: invoice.total_amount_due,
       amount_paid: amount_paid(invoice),

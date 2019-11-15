@@ -36,6 +36,7 @@
           <thead>
             <tr>
               <th>ID</th>
+              <th>Date</th>
               <th>Student name</th>
               <th>Amount due</th>
               <th>Amount paid</th>
@@ -50,6 +51,7 @@
             <%= for invoice <- @invoices do %>
               <tr>
                 <td><%= invoice.id %></td>
+                <td><%= invoice.created %></td>
                 <td><%= invoice.student_name %></td>
                 <td><%= currency(invoice.amount_due) %></td>
                 <td><%= currency(invoice.amount_paid) %></td>
