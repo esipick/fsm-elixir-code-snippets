@@ -112,6 +112,12 @@ defmodule FlightWeb.SidebarItem do
   def instructor_sidebar do
     [
       %SidebarItem{
+        path: "/instructor/profile",
+        label: "Profile",
+        icon_class: "users_single-02",
+        active: false
+      },
+      %SidebarItem{
         path: "/billing/invoices",
         label: "Billing",
         icon_class: "business_money-coins",
@@ -135,6 +141,12 @@ defmodule FlightWeb.SidebarItem do
 
   def student_sidebar do
     [
+      %SidebarItem{
+        path: "/student/profile",
+        label: "Profile",
+        icon_class: "users_single-02",
+        active: false
+      },
       %SidebarItem{
         path: "/billing/invoices",
         label: "Billing",

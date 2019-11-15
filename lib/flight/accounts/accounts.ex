@@ -233,6 +233,12 @@ defmodule Flight.Accounts do
     )
   end
 
+  def student_update_own_profile(%User{} = user, attrs) do
+    user
+    |> User.student_update_changeset(attrs)
+    |> Repo.update()
+  end
+
   def archive_user(%User{} = user) do
     user
     |> User.archive_changeset(%{archived: true})

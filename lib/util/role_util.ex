@@ -2,8 +2,8 @@ defmodule FlightWeb.RoleUtil do
   def default_redirect_path(user) do
     case access_level(user) do
       "admin" -> "/admin/dashboard"
-      "instructor" -> "/instructor/schedule"
-      "student" -> "/student/schedule"
+      "instructor" -> "/instructor/profile"
+      "student" -> "/student/profile"
       _ -> nil
     end
   end
