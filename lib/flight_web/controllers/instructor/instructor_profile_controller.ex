@@ -28,7 +28,7 @@ defmodule FlightWeb.Instructor.ProfileController do
     require IEx; IEx.pry()
     user = Flight.Repo.preload(conn.assigns.current_user, [:roles, :flyer_certificates])
 
-    case Accounts.student_update_own_profile(user, user_form) do
+    case Accounts.regular_user_update_profile(user, user_form) do
       {:ok, _} ->
         redirect(conn, to: "/instructor/profile")
 

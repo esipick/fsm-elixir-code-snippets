@@ -165,7 +165,7 @@ defmodule Flight.Accounts.User do
     |> base_validations(roles, flyer_certificates)
   end
 
-  def student_accessible_fields() do
+  def regular_user_accessible_fields() do
     [
       :email,
       :first_name,
@@ -179,9 +179,9 @@ defmodule Flight.Accounts.User do
     ]
   end
 
-  def student_update_changeset(user, attrs) do
+  def regular_user_update_changeset(user, attrs) do
     user
-    |> cast(attrs, student_accessible_fields())
+    |> cast(attrs, regular_user_accessible_fields())
     |> base_validations()
     |> put_pass_hash()
   end

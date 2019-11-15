@@ -233,9 +233,9 @@ defmodule Flight.Accounts do
     )
   end
 
-  def student_update_own_profile(%User{} = user, attrs) do
+  def regular_user_update_profile(%User{} = user, attrs) do
     user
-    |> User.student_update_changeset(attrs)
+    |> User.regular_user_update_changeset(attrs)
     |> Repo.update()
   end
 
