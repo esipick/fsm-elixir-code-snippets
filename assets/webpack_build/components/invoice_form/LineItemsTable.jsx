@@ -33,7 +33,7 @@ class LineItemsTable extends Component {
   calculateTotal = (line_items) => {
     const { sales_tax } = this.props;
     const total = line_items.reduce((sum, i) => (sum + i.rate * i.quantity), 0);
-    const total_tax = parseInt(total * sales_tax);
+    const total_tax = parseFloat((total * sales_tax / 100).toFixed(2));
     const total_amount_due = total + total_tax;
 
     return {
@@ -93,7 +93,7 @@ class LineItemsTable extends Component {
             <td colSpan="4" className="text-right">
               Sales Tax, %:
             </td>
-            <td colSpan="2">{sales_tax * 100}</td>
+            <td colSpan="2">{sales_tax}</td>
           </tr>
           <tr>
             <td colSpan="4" className="text-right">

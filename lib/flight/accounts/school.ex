@@ -86,7 +86,7 @@ defmodule Flight.Accounts.School do
     )
     |> normalize_phone_number(:contact_phone_number)
     |> validate_inclusion(:timezone, valid_timezones())
-    |> validate_number(:sales_tax, greater_than_or_equal_to: 0, less_than: 1)
+    |> validate_number(:sales_tax, greater_than_or_equal_to: 0, less_than: 100)
   end
 
   def normalize_phone_number(changeset, field) do
