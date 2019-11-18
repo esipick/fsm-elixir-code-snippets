@@ -4,13 +4,16 @@ defmodule FlightWeb.Billing.InvoiceStruct do
   alias FlightWeb.Billing.TransactionStruct
 
   defstruct ~w(
-    id student_name amount_due amount_paid status payment_date payment_method
+    appointment id student_name amount_due amount_paid status payment_date
     editable title total tax_rate total_tax line_items transactions
-    amount_remainder created
+    amount_remainder created payment_method
   )a
 
   def build(invoice) do
-    invoice = invoice |> Repo.preload([:user, :transactions, :line_items])
+    invoice = invoice |> Repo.preload([
+      :user, :transactions, :line_items,
+      [appointment: [:user, :instructor_user, [aircraft: :inspections]]]
+    ])
 
     %InvoiceStruct{
       id: invoice.id,
@@ -28,7 +31,8 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       tax_rate: invoice.tax_rate,
       total_tax: invoice.total_tax,
       line_items: invoice.line_items,
-      transactions: transactions(invoice)
+      transactions: transactions(invoice),
+      appointment: invoice.appointment
     }
   end
 
