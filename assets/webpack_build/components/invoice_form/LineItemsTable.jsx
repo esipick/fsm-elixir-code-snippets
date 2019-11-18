@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import LineItem, { LineItemRecord } from './LineItem';
+import LineItem from './LineItem';
 import NumericInput from 'react-numeric-input';
 
-import { itemsFromAppointment } from './line_item_utils';
+import { itemsFromAppointment, LineItemRecord } from './line_item_utils';
 
 const lineItemsKey = (appointment) => appointment && appointment.id || 'none';
 
@@ -22,6 +22,14 @@ class LineItemsTable extends Component {
 
   componentDidMount = () => {
     this.updateTotal(this.lineItems());
+  }
+
+  componentDidUpdate = () => {
+    const total_amount_due = this.calculateTotal(this.lineItems()).total_amount_due;
+
+    if (total_amount_due !== this.state.total_amount_due) {
+      this.updateTotal(this.lineItems());
+    }
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -65,7 +73,7 @@ class LineItemsTable extends Component {
   calculateTotal = (line_items) => {
     const { sales_tax } = this.props;
     const total = line_items.reduce((sum, i) => (sum + i.rate * i.quantity), 0);
-    const total_tax = Math.round((8551 * 33 / 100));
+    const total_tax = Math.round((total * sales_tax / 100));
     const total_amount_due = total + total_tax;
 
     return {
@@ -109,7 +117,7 @@ class LineItemsTable extends Component {
             line_items.map((item, i) => (
               <LineItem item={item}
                 number={i + 1}
-                key={item.id}
+                key={item.id || i}
                 onChange={this.setItem}
                 canRemove={line_items.length > 1}
                 onRemove={this.removeItem} />

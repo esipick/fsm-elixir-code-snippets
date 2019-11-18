@@ -18,8 +18,17 @@ defmodule FlightWeb.API.InvoiceView do
       tax_rate: invoice.tax_rate,
       total_tax: invoice.total_tax,
       total_amount_due: invoice.total_amount_due,
+      appointment: Optional.map(
+        invoice.appointment,
+        &render_appointment(&1)
+      ),
       line_items: render_many(invoice.line_items, InvoiceView, "line_item.json", as: :line_item)
     }
+  end
+
+  def render_appointment(appointment) do
+    appointment = Flight.Repo.preload(appointment, [:user, :instructor_user, [aircraft: :inspections]])
+    render(AppointmentView, "appointment.json", appointment: appointment)
   end
 
   def render("line_item.json", %{line_item: line_item}) do

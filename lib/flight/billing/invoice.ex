@@ -6,7 +6,7 @@ defmodule Flight.Billing.Invoice do
   alias Flight.Repo
   alias Flight.Accounts.{User, School}
   alias Flight.Billing.{Transaction, InvoiceLineItem}
-  alias FlightWeb.API.{UserView, InvoiceLineItemView}
+  alias Flight.Scheduling.Appointment
 
   @required_fields ~w(
     user_id
@@ -30,6 +30,7 @@ defmodule Flight.Billing.Invoice do
 
     belongs_to(:user, User)
     belongs_to(:school, School)
+    belongs_to(:appointment, Appointment)
     has_many(:line_items, InvoiceLineItem, on_replace: :delete, on_delete: :delete_all)
     has_many(:transactions, Transaction, on_delete: :nilify_all)
 
@@ -44,6 +45,7 @@ defmodule Flight.Billing.Invoice do
   def changeset(%Invoice{} = invoice, attrs) do
     invoice
     |> cast(attrs, @required_fields)
+    |> cast(attrs, [:appointment_id])
     |> cast_assoc(:line_items)
     |> assoc_constraint(:user)
     |> assoc_constraint(:school)
@@ -52,19 +54,5 @@ defmodule Flight.Billing.Invoice do
 
   def paid(%Invoice{} = invoice) do
     change(invoice, status: :paid) |> Repo.update
-  end
-
-  def get_edit_props(%Invoice{} = invoice) do
-    invoice = Repo.preload(invoice, [:user, :line_items])
-    user = UserView.render("skinny_user.json", user: invoice.user)
-
-    line_items =
-      invoice.line_items
-      |> Enum.map(fn line_item ->
-        InvoiceLineItemView.render("line_item.json", line_item: line_item)
-      end)
-
-    Map.take(invoice, @required_fields)
-    |> Map.merge(%{id: invoice.id, action: "edit", student: user, line_items: line_items})
   end
 end

@@ -37,25 +37,54 @@ class Form extends Component {
 
     this.state = {
       id: this.props.id || '',
-      date: props.date && new Date(props.date) || new Date,
-      student: props.student,
-      line_items: props.line_items || [],
       sales_tax: props.tax_rate || 0,
-      payment_method: this.getPaymentMethod(props.payment_option),
       action: props.action || 'create',
-      total: props.total || 0,
-      total_tax: props.total_tax || 0,
-      total_amount_due: props.total_amount_due || 0,
       errors: props.errors || {},
       stripe_error: props.stripe_error || '',
       balance_warning_open: false,
       balance_warning_accepted: false,
-      appointment: props.appointment
+      payment_method: {},
+      line_items: []
     }
   }
 
   componentDidMount() {
-    if (this.state.student) { this.loadAppointments() }
+    if (this.state.id) {
+      this.loadInvoice().then(() => this.loadAppointments());
+    } else {
+      this.loadAppointments();
+    }
+  }
+
+  loadInvoice = () => {
+    this.setState({ invoice_loading: true });
+
+    return http.get({
+        url: '/api/invoices/' + this.state.id,
+        headers: authHeaders()
+      }).then(r => r.json())
+      .then(r => {
+        const invoice = r.data;
+
+        this.setState({
+          date: invoice.date && new Date(invoice.date) || new Date(),
+          student: invoice.user,
+          line_items: invoice.line_items || [],
+          payment_method: this.getPaymentMethod(invoice.payment_option),
+          sales_tax: invoice.tax_rate,
+          total: invoice.total || 0,
+          total_tax: invoice.total_tax || 0,
+          total_amount_due: invoice.total_amount_due || 0,
+          appointment: invoice.appointment,
+          invoice_loading: false
+        });
+      })
+      .catch(err => {
+        err.json().then(e => {
+          console.warn(e);
+          this.setState({ invoice_loading: false });
+        });
+      });
   }
 
   getPaymentMethod = (payment_option) => {
@@ -94,6 +123,7 @@ class Form extends Component {
   }
 
   loadAppointments = () => {
+    if (!this.state.student) { return };
     if (this.state.appointment_loading) return;
 
     this.setState({ appointment_loading: true });
@@ -157,7 +187,8 @@ class Form extends Component {
 
   payload = () => {
     const {
-      student, sales_tax, total, total_tax, total_amount_due, date, payment_method, action
+      appointment, student, sales_tax, total, total_tax, total_amount_due, date,
+      payment_method, action
     } = this.state;
 
     const line_items = action == 'edit' ? this.state.line_items : this.state.line_items.map(i => {
@@ -173,7 +204,8 @@ class Form extends Component {
       total: total,
       total_tax: total_tax,
       total_amount_due: total_amount_due,
-      payment_option: payment_method.value
+      payment_option: payment_method.value,
+      appointment_id: appointment && appointment.id
     }
   }
 
@@ -204,9 +236,8 @@ class Form extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
-        console.log(JSON.stringify(data));
         window.location = `/billing/invoices/${data.id}`;
-      })
+      });
     }).catch(response => {
       response.json().then(({ id = this.state.id, stripe_error = '', errors = {} }) => {
         const action = id ? 'edit' : 'create';
@@ -341,13 +372,14 @@ class Form extends Component {
                 </div>
 
                 <div className="form-group">
-                  <LineItemsTable appointment={appointment}
-                    line_items={line_items}
-                    onChange={this.onLineItemsTableChange}
-                    sales_tax={sales_tax}
-                    total={total}
-                    total_tax={total_tax}
-                    total_amount_due={total_amount_due} />
+                  { !this.state.invoice_loading &&
+                    <LineItemsTable appointment={appointment}
+                      line_items={line_items}
+                      onChange={this.onLineItemsTableChange}
+                      sales_tax={sales_tax}
+                      total={total}
+                      total_tax={total_tax}
+                      total_amount_due={total_amount_due} /> }
                 </div>
 
                 <div className="form-group">
