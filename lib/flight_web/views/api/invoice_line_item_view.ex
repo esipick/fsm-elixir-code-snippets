@@ -15,8 +15,14 @@ defmodule FlightWeb.API.InvoiceLineItemView do
       description: line_item.description,
       instructor_user_id: line_item.instructor_user_id,
       aircraft_id: line_item.aircraft_id,
-      aircraft: render(AircraftView, "skinny_aircraft.json", aircraft: line_item.aircraft),
-      instructor_user: render(UserView, "skinny_user.json", user: line_item.instructor_user)
+      aircraft: Optional.map(
+        line_item.aircraft,
+        &render(AircraftView, "skinny_aircraft.json", aircraft: &1)
+      ),
+      instructor_user: Optional.map(
+        line_item.instructor_user,
+        &render(UserView, "skinny_user.json", user: &1)
+      )
     }
   end
 end

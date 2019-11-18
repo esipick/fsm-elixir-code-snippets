@@ -1,7 +1,7 @@
 defmodule FlightWeb.API.InvoiceView do
   use FlightWeb, :view
 
-  alias FlightWeb.API.{UserView, InvoiceView, AircraftView}
+  alias FlightWeb.API.{UserView, InvoiceView, AircraftView, AppointmentView}
 
   def render("show.json", %{invoice: invoice}) do
     %{data: render("invoice.json", invoice: invoice)}
@@ -32,12 +32,22 @@ defmodule FlightWeb.API.InvoiceView do
       quantity: line_item.quantity,
       type: line_item.type,
       aircraft_id: line_item.aircraft_id,
-      aircraft: render(AircraftView, "skinny_aircraft.json", aircraft: line_item.aircraft),
-      instructor_user: render(UserView, "skinny_user.json", user: line_item.instructor_user)
+      aircraft: Optional.map(
+        line_item.aircraft,
+        &render(AircraftView, "skinny_aircraft.json", aircraft: &1)
+      ),
+      instructor_user: Optional.map(
+        line_item.instructor_user,
+        &render(UserView, "skinny_user.json", user: &1)
+      )
     }
   end
 
   def render("index.json", %{invoices: invoices}) do
     %{data: render_many(invoices, InvoiceView, "invoice.json", as: :invoice)}
+  end
+
+  def render("appointments.json", %{appointments: appointments}) do
+    %{data: render_many(appointments, AppointmentView, "appointment.json", as: :appointment)}
   end
 end

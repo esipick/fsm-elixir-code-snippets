@@ -2,32 +2,64 @@ import React, { Component } from 'react';
 import LineItem, { LineItemRecord } from './LineItem';
 import NumericInput from 'react-numeric-input';
 
+import { itemsFromAppointment } from './line_item_utils';
+
+const lineItemsKey = (appointment) => appointment && appointment.id || 'none';
+
 class LineItemsTable extends Component {
   constructor(props) {
     super(props);
 
-    const line_items = props.line_items.length > 0 ? props.line_items : [new LineItemRecord()];
+    const { appointment } = props;
+    const line_items =
+      props.line_items.length > 0 ? props.line_items : itemsFromAppointment(appointment);
+    const memo = {
+      [lineItemsKey(appointment)]: line_items
+    }
 
-    this.state = { line_items };
+    this.state = { memo, appointment };
   }
 
   componentDidMount = () => {
-    this.updateTotal(this.state.line_items);
+    this.updateTotal(this.lineItems());
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const prevAppointmentId = state.appointment && state.appointment.id;
+    const appointmentId = props.appointment && props.appointment.id;
+
+    if (prevAppointmentId !== appointmentId) {
+      const { memo } = state;
+      const { appointment } = props;
+      const key = lineItemsKey(appointment);
+
+      if (!memo[key]) { memo[key] = itemsFromAppointment(appointment); };
+
+      return { ...state, memo, appointment };
+    }
+
+    return null;
+  }
+
+  lineItems = () => {
+    const key = lineItemsKey(this.state.appointment);
+
+    return this.state.memo[key];
   }
 
   addItem = () => {
-    const line_items = [...this.state.line_items, new LineItemRecord()];
-    this.updateTotal(line_items)
+    const line_items = [...this.lineItems(), new LineItemRecord()];
+    this.updateTotal(line_items);
   }
 
   removeItem = (id) => {
-    const line_items = this.state.line_items.filter(i => i.id != id);
-    this.updateTotal(line_items)
+    const line_items = this.lineItems().filter(i => i.id != id);
+    this.updateTotal(line_items);
   }
 
   setItem = (item) => {
-    const line_items = this.state.line_items.map(i => i.id == item.id ? item : i);
-    this.updateTotal(line_items)
+    const line_items = this.lineItems().map(i => i.id == item.id ? item : i);
+    this.updateTotal(line_items);
   };
 
   calculateTotal = (line_items) => {
@@ -46,14 +78,18 @@ class LineItemsTable extends Component {
 
   updateTotal = (line_items) => {
     const values = this.calculateTotal(line_items);
+    const { memo } = this.state;
 
-    this.setState(values);
+    memo[lineItemsKey(this.state.appointment)] = values.line_items;
+
+    this.setState({ ...values, memo });
     this.props.onChange(values);
   }
 
   render() {
-    const { line_items, total, total_tax, total_amount_due } = this.state;
+    const { total, total_tax, total_amount_due } = this.state;
     const { sales_tax } = this.props;
+    const line_items = this.lineItems();
 
     return (
       <table className="table table-striped">

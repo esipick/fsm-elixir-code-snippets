@@ -49,8 +49,13 @@ class Form extends Component {
       errors: props.errors || {},
       stripe_error: props.stripe_error || '',
       balance_warning_open: false,
-      balance_warning_accepted: false
+      balance_warning_accepted: false,
+      appointment: props.appointment
     }
+  }
+
+  componentDidMount() {
+    if (this.state.student) { this.loadAppointments() }
   }
 
   getPaymentMethod = (payment_option) => {
@@ -68,6 +73,8 @@ class Form extends Component {
   };
 
   loadStudents = (input, callback) => {
+    if (this.state.students_loading) return;
+
     this.setState({ students_loading: true });
 
     http.get({
@@ -86,13 +93,61 @@ class Form extends Component {
       });
   }
 
+  loadAppointments = () => {
+    if (this.state.appointment_loading) return;
+
+    this.setState({ appointment_loading: true });
+    const { student } = this.state;
+
+    http.get({
+        url: '/api/invoices/appointments?user_id=' + student.id,
+        headers: authHeaders()
+      }).then(r => r.json())
+      .then(r => {
+        this.setState({ appointments: r.data, appointment_loading: false });
+      })
+      .catch(err => {
+        err.json().then(e => {
+          console.warn(e);
+          this.setState({ appointment_loading: false });
+        })
+      });
+  }
+
+  appointmentLabel = (appointment) => {
+    if (appointment) {
+      const { start_at, end_at, aircraft, instructor_user } = appointment;
+
+      const date = start_at.split("T")[0];
+      const start_time = start_at.split("T")[1];
+      const end_time = end_at.split("T")[1];
+      const instructor =
+        instructor_user ? `, Instructor: ${instructor_user.first_name} ${instructor_user.last_name}` : '';
+
+      return `${date}, ${start_time} - ${end_time}${instructor}`;
+    } else {
+      return '';
+    }
+  }
+
+  setAppointment = (appointment) => {
+    this.setState({ appointment });
+  }
+
   accountBalance = () => {
     if (!this.state.student) return 0;
 
     return (this.state.student.balance * 1.0 / 100).toFixed(2);
   }
 
-  setStudent = (student) => { this.setState({ student }); }
+  setStudent = (student) => {
+    if (student) {
+      this.loadAppointments();
+      this.setState({ student });
+    } else {
+      this.setState({ student, appointments: [] });
+    }
+  }
 
   setDate = (date) => { this.setState({ date }); }
 
@@ -136,6 +191,8 @@ class Form extends Component {
   }
 
   saveInvoice = ({ pay_off }) => {
+    if (this.state.saving) return;
+
     this.setState({ saving: true });
 
     const payload = this.payload();
@@ -210,8 +267,9 @@ class Form extends Component {
 
   render() {
     const {
-      students_loading, student, date, line_items, sales_tax, total, total_tax,
-      total_amount_due, payment_method, errors, stripe_error, saving, id
+      appointment, appointment_loading, students_loading, student, date,
+      line_items, sales_tax, total, total_tax, total_amount_due, payment_method,
+      errors, stripe_error, saving, id
     } = this.state;
     const studentWrapperClass = classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '');
 
@@ -243,6 +301,24 @@ class Form extends Component {
                 </div>
 
                 <div className="form-group">
+                  <label>
+                    Appointment
+                    <Error text={errors.appointment_id} />
+                  </label>
+                  <div className={studentWrapperClass}>
+                    <Select placeholder="Appointment"
+                      classNamePrefix="react-select"
+                      options={this.state.appointments}
+                      onChange={this.setAppointment}
+                      isLoading={appointment_loading}
+                      getOptionLabel={this.appointmentLabel}
+                      getOptionValue ={(o) => o.id}
+                      isDisabled={!student}
+                      value={appointment} />
+                  </div>
+                </div>
+
+                <div className="form-group">
                   <label>Acct Balance</label>
                   <div>${this.accountBalance()}</div>
                 </div>
@@ -265,7 +341,8 @@ class Form extends Component {
                 </div>
 
                 <div className="form-group">
-                  <LineItemsTable line_items={line_items}
+                  <LineItemsTable appointment={appointment}
+                    line_items={line_items}
                     onChange={this.onLineItemsTableChange}
                     sales_tax={sales_tax}
                     total={total}

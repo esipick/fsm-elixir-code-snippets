@@ -1,40 +1,14 @@
 import http from 'j-fetch';
 import NumericInput from 'react-numeric-input';
 import React, { Component } from 'react';
-import shortid from 'shortid';
 
 import AsyncSelect from 'react-select/async';
 import Select from 'react-select';
 
+import {
+  LineItemRecord, FLIGHT_HOURS, INSTRUCTOR_HOURS, DEFAULT_TYPE, TYPES, DESCRIPTION_OPTS
+} from './line_item_utils';
 import { authHeaders } from '../utils';
-
-export class LineItemRecord {
-  constructor() {
-    this.id = shortid.generate();
-    this.description = DESCRIPTION_OPTS[0].value;
-    this.rate = 100;
-    this.quantity = 1;
-    this.amount = this.rate * this.quantity;
-    this.type = DEFAULT_TYPE;
-  }
-};
-
-const FLIGHT_HOURS = "Flight Hours";
-const INSTRUCTOR_HOURS = "Instructor Hours";
-
-const DEFAULT_TYPE = "other";
-const TYPES = {
-  [FLIGHT_HOURS]: "aircraft",
-  [INSTRUCTOR_HOURS]: "instructor"
-}
-
-const DESCRIPTION_OPTS = [
-  FLIGHT_HOURS,
-  INSTRUCTOR_HOURS,
-  "Fuel Charge",
-  "Fuel Reimbursement",
-  "Equipment Rental"
-].map(o => ({ label: o, value: o }));
 
 class InvoiceLineItem extends Component {
   constructor(props) {
