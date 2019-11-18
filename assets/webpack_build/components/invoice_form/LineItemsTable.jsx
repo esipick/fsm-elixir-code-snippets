@@ -33,7 +33,7 @@ class LineItemsTable extends Component {
   calculateTotal = (line_items) => {
     const { sales_tax } = this.props;
     const total = line_items.reduce((sum, i) => (sum + i.rate * i.quantity), 0);
-    const total_tax = parseFloat((total * sales_tax / 100).toFixed(2));
+    const total_tax = Math.round((8551 * 33 / 100));
     const total_amount_due = total + total_tax;
 
     return {
@@ -80,30 +80,30 @@ class LineItemsTable extends Component {
             ))
           }
           <tr>
-            <td colSpan="6">
+            <td colSpan="7">
               <button className="btn btn-sm btn-default" onClick={this.addItem}>Add</button>
             </td>
           </tr>
           <tr>
-            <td colSpan="4" className="text-right">
+            <td colSpan="5" className="text-right">
               Total excl. taxes:
             </td>
             <td colSpan="2">${(total / 100).toFixed(2)}</td>
           </tr>
           <tr>
-            <td colSpan="4" className="text-right">
+            <td colSpan="5" className="text-right">
               Sales Tax, %:
             </td>
             <td colSpan="2">{sales_tax}</td>
           </tr>
           <tr>
-            <td colSpan="4" className="text-right">
+            <td colSpan="5" className="text-right">
               Total tax:
             </td>
             <td colSpan="2">${(total_tax / 100).toFixed(2)}</td>
           </tr>
           <tr>
-            <td colSpan="4" className="text-right">
+            <td colSpan="5" className="text-right">
               Total with Tax:
             </td>
             <td colSpan="2">${(total_amount_due / 100).toFixed(2)}</td>

@@ -15,11 +15,18 @@ export class LineItemRecord {
     this.rate = 100;
     this.quantity = 1;
     this.amount = this.rate * this.quantity;
+    this.type = DEFAULT_TYPE;
   }
 };
 
 const FLIGHT_HOURS = "Flight Hours";
 const INSTRUCTOR_HOURS = "Instructor Hours";
+
+const DEFAULT_TYPE = "other";
+const TYPES = {
+  [FLIGHT_HOURS]: "aircraft",
+  [INSTRUCTOR_HOURS]: "instructor"
+}
 
 const DESCRIPTION_OPTS = [
   FLIGHT_HOURS,
@@ -33,13 +40,21 @@ class InvoiceLineItem extends Component {
   constructor(props) {
     super(props);
 
+    const { item } = props;
+    const { aircraft, instructor_user } = item;
+
     this.state = {
-      item: props.item
+      item: props.item,
+      instructor_user,
+      aircraft
     }
   }
 
   setDesc = (option) => {
-    const item = Object.assign({}, this.state.item, { description: option.value });
+    const item = Object.assign({}, this.state.item, {
+      description: option.value,
+      type: TYPES[option.value] || DEFAULT_TYPE
+    });
 
     this.setState({ item });
     this.props.onChange(item);
@@ -78,6 +93,46 @@ class InvoiceLineItem extends Component {
     return this.state.item.description == INSTRUCTOR_HOURS;
   }
 
+  loadAircrafts = (input, callback) => {
+    this.setState({ aircrafts_loading: true });
+
+    http.get({
+        url: '/api/aircrafts/autocomplete?search=' + input,
+        headers: authHeaders()
+      }).then(r => r.json())
+      .then(r => {
+        callback(r.data);
+        this.setState({ aircrafts_loading: false });
+      })
+      .catch(err => {
+        err.json().then(e => {
+          callback([]);
+          this.setState({ aircrafts_loading: false });
+        })
+      });
+  }
+
+  setAircraft = (aircraft) => {
+    const item = Object.assign({}, this.state.item, { rate: aircraft.rate_per_hour, aircraft_id: aircraft.id });
+    this.setState({ aircraft, item });
+    this.props.onChange(item);
+  }
+
+  aircraftSelect = () => {
+    const { aircrafts_loading, aircraft } = this.state;
+
+    return (
+      <AsyncSelect placeholder="Tail #"
+        classNamePrefix="react-select"
+        loadOptions={this.loadAircrafts}
+        onChange={this.setAircraft}
+        isLoading={aircrafts_loading}
+        getOptionLabel={(o) => o.tail_number}
+        getOptionValue ={(o) => o.id}
+        value={aircraft} />
+    );
+  }
+
   loadInstructors = (input, callback) => {
     this.setState({ instructors_loading: true });
 
@@ -97,13 +152,17 @@ class InvoiceLineItem extends Component {
       });
   }
 
-  setInstructor = (instructor) => {
-    const item = Object.assign({}, this.state.item, { rate: instructor.billing_rate });
-    this.setState({ instructor, item });
+  setInstructor = (instructor_user) => {
+    const item = Object.assign({}, this.state.item, {
+      rate: instructor_user.billing_rate,
+      instructor_user_id: instructor_user.id
+    });
+    this.setState({ instructor_user, item });
+    this.props.onChange(item);
   }
 
   instructorSelect = () => {
-    const { instructors_loading, instructor } = this.state;
+    const { instructors_loading, instructor_user } = this.state;
 
     return (
       <AsyncSelect placeholder="Instructor name"
@@ -113,7 +172,7 @@ class InvoiceLineItem extends Component {
         isLoading={instructors_loading}
         getOptionLabel={(o) => o.first_name + ' ' + o.last_name}
         getOptionValue ={(o) => o.id}
-        value={instructor} />
+        value={instructor_user} />
     );
   }
 
@@ -139,6 +198,7 @@ class InvoiceLineItem extends Component {
         </td>
         <td className="lc-desc-column">
           { this.isInstructorHours() && this.instructorSelect()}
+          { this.isFlightHours() && this.aircraftSelect()}
         </td>
         <td className="lc-column">
           <NumericInput precision={2}

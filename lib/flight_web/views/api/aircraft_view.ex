@@ -33,6 +33,22 @@ defmodule FlightWeb.API.AircraftView do
     }
   end
 
+  def render("skinny_aircraft.json", %{aircraft: aircraft}) do
+    case aircraft do
+      nil -> nil
+      _ -> %{
+        id: aircraft.id,
+        make: aircraft.make,
+        model: aircraft.model,
+        serial_number: aircraft.serial_number,
+        tail_number: aircraft.tail_number,
+        last_tach_time: aircraft.last_tach_time,
+        last_hobbs_time: aircraft.last_hobbs_time,
+        rate_per_hour: aircraft.rate_per_hour
+      }
+    end
+  end
+
   def render("inspection.json", %{inspection: inspection}) do
     %{
       name: inspection.name,
@@ -40,6 +56,10 @@ defmodule FlightWeb.API.AircraftView do
       date_value: inspection.date_value,
       number_value: inspection.number_value
     }
+  end
+
+  def render("autocomplete.json", %{aircrafts: aircrafts}) do
+    %{data: render_many(aircrafts, AircraftView, "skinny_aircraft.json", as: :aircraft)}
   end
 
   def preload(aircrafts) do

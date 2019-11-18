@@ -1,7 +1,7 @@
 defmodule FlightWeb.API.InvoiceView do
   use FlightWeb, :view
 
-  alias FlightWeb.API.{UserView, InvoiceView}
+  alias FlightWeb.API.{UserView, InvoiceView, AircraftView}
 
   def render("show.json", %{invoice: invoice}) do
     %{data: render("invoice.json", invoice: invoice)}
@@ -23,11 +23,17 @@ defmodule FlightWeb.API.InvoiceView do
   end
 
   def render("line_item.json", %{line_item: line_item}) do
+    line_item = Flight.Repo.preload(line_item, [:instructor_user, :aircraft])
+
     %{
       description: line_item.description,
       rate: line_item.rate,
       amount: line_item.amount,
-      quantity: line_item.quantity
+      quantity: line_item.quantity,
+      type: line_item.type,
+      aircraft_id: line_item.aircraft_id,
+      aircraft: render(AircraftView, "skinny_aircraft.json", aircraft: line_item.aircraft),
+      instructor_user: render(UserView, "skinny_user.json", user: line_item.instructor_user)
     }
   end
 

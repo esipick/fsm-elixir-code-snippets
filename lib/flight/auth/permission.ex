@@ -16,6 +16,7 @@ defmodule Flight.Auth.Permission do
   defstruct [:resource, :verb, :scope]
 
   @resources [
+    :aircraft,
     :users,
     :user_protected_info,
     :appointment,

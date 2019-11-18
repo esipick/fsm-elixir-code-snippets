@@ -37,4 +37,30 @@ defmodule FlightWeb.API.AircraftControllerTest do
       assert json == render_json(AircraftView, "show.json", aircraft: aircraft)
     end
   end
+
+  describe "GET /api/aircrafts/autocomplete" do
+    test "renders json", %{conn: conn} do
+      aircraft1 = aircraft_fixture(%{tail_number: "hello0000"})
+      _aircraft2 = aircraft_fixture()
+      instructor = instructor_fixture()
+
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/aircrafts/autocomplete?search=hel")
+        |> json_response(200)
+
+      assert json == render_json(AircraftView, "autocomplete.json", aircrafts: [aircraft1])
+    end
+
+    test "renders error to unauthorized", %{conn: conn} do
+      _aircraft1 = aircraft_fixture(%{tail_number: "hello0000"})
+      student = student_fixture()
+
+      conn
+      |> auth(student)
+      |> get("/api/aircrafts/autocomplete?search=hel")
+      |> json_response(401)
+    end
+  end
 end

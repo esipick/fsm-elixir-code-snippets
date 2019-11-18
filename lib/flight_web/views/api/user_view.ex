@@ -40,13 +40,16 @@ defmodule FlightWeb.API.UserView do
   end
 
   def render("skinny_user.json", %{user: user}) do
-    %{
-      id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      balance: user.balance,
-      billing_rate: user.billing_rate
-    }
+    case user do
+      nil -> nil
+      _ -> %{
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        balance: user.balance,
+        billing_rate: user.billing_rate
+      }
+    end
   end
 
   def render("directory_user.json", %{user: user}) do

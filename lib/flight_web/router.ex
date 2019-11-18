@@ -209,6 +209,7 @@ defmodule FlightWeb.Router do
       resources("/push_tokens", PushTokenController, only: [:create])
     end
 
+    get("/aircrafts/autocomplete", AircraftController, :autocomplete, as: :autocomplete)
     resources("/aircrafts", AircraftController, only: [:index, :show])
 
     resources("/transactions", TransactionController, only: [:create, :index, :show]) do

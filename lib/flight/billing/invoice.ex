@@ -46,6 +46,7 @@ defmodule Flight.Billing.Invoice do
     |> cast(attrs, @required_fields)
     |> cast_assoc(:line_items)
     |> assoc_constraint(:user)
+    |> assoc_constraint(:school)
     |> validate_required(@required_fields)
   end
 

@@ -10,3 +10,11 @@ defenum(
   check: 3,
   venmo: 4
 )
+
+defenum(
+  InvoiceLineItemTypeEnum,
+  other: 0,
+  aircraft: 1,
+  instructor: 2,
+  discount: 3
+)
