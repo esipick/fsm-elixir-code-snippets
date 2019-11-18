@@ -32,4 +32,12 @@ defmodule Flight.Queries.User do
     |> Search.User.name_only(search_term)
     |> Repo.all
   end
+
+  def search_users_by_name(search_term, role, school_context) do
+    role
+    |> Ecto.assoc(:users)
+    |> Search.User.name_only(search_term)
+    |> Flight.Accounts.default_users_query(school_context)
+    |> Repo.all
+  end
 end

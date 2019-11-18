@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 
+import { authHeaders } from '../utils';
 import Error from '../common/Error';
 
 import LineItemsTable from './LineItemsTable';
@@ -27,8 +28,6 @@ const PAYMENT_OPTIONS = [
   { value: CHECK, label: 'Check' },
   { value: VENMO, label: 'Venmo' }
 ];
-
-const authHeaders = () => ({ 'Authorization': window.fsm_token });
 
 class Form extends Component {
   constructor(props) {
@@ -72,7 +71,7 @@ class Form extends Component {
     this.setState({ students_loading: true });
 
     http.get({
-        url: '/api/users/autocomplete?name=' + input,
+        url: '/api/users/autocomplete?role=student&name=' + input,
         headers: authHeaders()
       }).then(r => r.json())
       .then(r => {

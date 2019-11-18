@@ -1,7 +1,12 @@
-import React, { Component } from 'react';
+import http from 'j-fetch';
 import NumericInput from 'react-numeric-input';
-import Select from 'react-select';
+import React, { Component } from 'react';
 import shortid from 'shortid';
+
+import AsyncSelect from 'react-select/async';
+import Select from 'react-select';
+
+import { authHeaders } from '../utils';
 
 export class LineItemRecord {
   constructor() {
@@ -13,9 +18,12 @@ export class LineItemRecord {
   }
 };
 
+const FLIGHT_HOURS = "Flight Hours";
+const INSTRUCTOR_HOURS = "Instructor Hours";
+
 const DESCRIPTION_OPTS = [
-  "Flight Hours",
-  "Instructor Hours",
+  FLIGHT_HOURS,
+  INSTRUCTOR_HOURS,
   "Fuel Charge",
   "Fuel Reimbursement",
   "Equipment Rental"
@@ -62,6 +70,53 @@ class InvoiceLineItem extends Component {
     this.props.onRemove(this.state.item.id);
   }
 
+  isFlightHours = () => {
+    return this.state.item.description == FLIGHT_HOURS;
+  }
+
+  isInstructorHours = () => {
+    return this.state.item.description == INSTRUCTOR_HOURS;
+  }
+
+  loadInstructors = (input, callback) => {
+    this.setState({ instructors_loading: true });
+
+    http.get({
+        url: '/api/users/autocomplete?role=instructor&name=' + input,
+        headers: authHeaders()
+      }).then(r => r.json())
+      .then(r => {
+        callback(r.data);
+        this.setState({ instructors_loading: false });
+      })
+      .catch(err => {
+        err.json().then(e => {
+          callback([]);
+          this.setState({ instructors_loading: false });
+        })
+      });
+  }
+
+  setInstructor = (instructor) => {
+    const item = Object.assign({}, this.state.item, { rate: instructor.billing_rate });
+    this.setState({ instructor, item });
+  }
+
+  instructorSelect = () => {
+    const { instructors_loading, instructor } = this.state;
+
+    return (
+      <AsyncSelect placeholder="Instructor name"
+        classNamePrefix="react-select"
+        loadOptions={this.loadInstructors}
+        onChange={this.setInstructor}
+        isLoading={instructors_loading}
+        getOptionLabel={(o) => o.first_name + ' ' + o.last_name}
+        getOptionValue ={(o) => o.id}
+        value={instructor} />
+    );
+  }
+
   render() {
     const { item: { id, description, rate, quantity, amount } } = this.state;
     const { number, canRemove } = this.props;
@@ -81,6 +136,9 @@ class InvoiceLineItem extends Component {
             isClearable={false}
             isRtl={false}
             required={true} />
+        </td>
+        <td className="lc-desc-column">
+          { this.isInstructorHours() && this.instructorSelect()}
         </td>
         <td className="lc-column">
           <NumericInput precision={2}

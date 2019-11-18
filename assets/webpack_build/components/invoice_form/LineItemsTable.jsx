@@ -61,6 +61,7 @@ class LineItemsTable extends Component {
           <tr>
             <th>#</th>
             <th>Description</th>
+            <th></th>
             <th>Rate</th>
             <th>Qty/Hours</th>
             <th>Amount, $</th>

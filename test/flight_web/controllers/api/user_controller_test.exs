@@ -147,6 +147,7 @@ defmodule FlightWeb.API.UserControllerTest do
   describe "GET /api/users/autocomplete" do
     test "renders json", %{conn: conn} do
       student1 = student_fixture(%{first_name: "Adrian", last_name: "Nairda"})
+      _instructor1 = instructor_fixture(%{first_name: "Adrian", last_name: "Nairda"})
       student_fixture()
       instructor = instructor_fixture()
 
@@ -157,6 +158,21 @@ defmodule FlightWeb.API.UserControllerTest do
         |> json_response(200)
 
       assert json == render_json(UserView, "autocomplete.json", users: [student1])
+    end
+
+    test "renders specific role json", %{conn: conn} do
+      _student1 = student_fixture(%{first_name: "Adrian", last_name: "Nairda"})
+      instructor1 = instructor_fixture(%{first_name: "Adrian", last_name: "Nairda"})
+      student_fixture()
+      instructor = instructor_fixture()
+
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/users/autocomplete?name=nair&role=instructor")
+        |> json_response(200)
+
+      assert json == render_json(UserView, "autocomplete.json", users: [instructor1])
     end
   end
 end
