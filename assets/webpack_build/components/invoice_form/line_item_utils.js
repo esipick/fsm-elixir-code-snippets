@@ -26,7 +26,9 @@ export class LineItemRecord {
     this.amount = this.rate * this.quantity;
     this.type = TYPES[this.description] || DEFAULT_TYPE;
     this.instructor_user = params.instructor_user;
+    this.instructor_user_id = params.instructor_user && params.instructor_user.id;
     this.aircraft = params.aircraft;
+    this.aircraft_id = params.aircraft && params.aircraft.id;
   }
 };
 

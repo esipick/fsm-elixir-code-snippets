@@ -8,11 +8,11 @@ defmodule FlightWeb.API.InvoiceLineItemView do
 
     %{
       id: line_item.id,
+      description: line_item.description,
       rate: line_item.rate,
       amount: line_item.amount,
       quantity: line_item.quantity,
       type: line_item.type,
-      description: line_item.description,
       instructor_user_id: line_item.instructor_user_id,
       aircraft_id: line_item.aircraft_id,
       aircraft: Optional.map(

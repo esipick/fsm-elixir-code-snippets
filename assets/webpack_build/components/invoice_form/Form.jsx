@@ -172,8 +172,7 @@ class Form extends Component {
 
   setStudent = (student) => {
     if (student) {
-      this.loadAppointments();
-      this.setState({ student });
+      this.setState({ student }, () => { this.loadAppointments(); });
     } else {
       this.setState({ student, appointments: [] });
     }
