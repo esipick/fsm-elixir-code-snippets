@@ -15,21 +15,12 @@ defmodule FlightWeb.Billing.InvoiceView do
   def line_item_notes(line_item) do
     line_item = Flight.Repo.preload(line_item, [:instructor_user, :aircraft])
 
-    case line_item.type do
-      :instructor ->
-        if line_item.instructor_user do
-          name = Flight.Accounts.User.full_name(line_item.instructor_user)
-          "Instructor: #{name}"
-        else
-          ""
-        end
-      :aircraft ->
-        if line_item.aircraft do
-          "Tail #: #{line_item.aircraft.tail_number}"
-        else
-          ""
-        end
-      _ -> ""
+    cond do
+      line_item.type == :instructor && line_item.instructor_user ->
+        "Instructor: #{Flight.Accounts.User.full_name(line_item.instructor_user)}"
+      line_item.type == :aircraft && line_item.aircraft ->
+        "Tail #: #{line_item.aircraft.tail_number}"
+      true -> ""
     end
   end
 end
