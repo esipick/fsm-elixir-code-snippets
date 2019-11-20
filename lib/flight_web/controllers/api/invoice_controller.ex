@@ -6,7 +6,8 @@ defmodule FlightWeb.API.InvoiceController do
   alias Flight.Repo
   alias Flight.Auth.Permission
   alias FlightWeb.{ViewHelpers, Pagination}
-  alias Flight.Billing.{Invoice, CreateInvoice, UpdateInvoice}
+  alias Flight.Scheduling.Appointment
+  alias Flight.Billing.{Invoice, CreateInvoice, UpdateInvoice, CreateInvoiceFromAppointment}
 
   plug(:get_invoice when action in [:update, :show])
   plug(:authorize_modify when action in [:create, :show, :index, :update])
@@ -15,7 +16,7 @@ defmodule FlightWeb.API.InvoiceController do
   def index(conn, params) do
     page_params = Pagination.params(params)
     page = from(i in Invoice) |> Repo.paginate(page_params)
-    invoices = Repo.preload(page.entries, [:user, :line_items])
+    invoices = Repo.preload(page.entries, [:user, :line_items, :appointment])
 
     conn
     |> put_status(200)
@@ -58,7 +59,9 @@ defmodule FlightWeb.API.InvoiceController do
   def update(conn, %{"invoice" => invoice_params}) do
     case UpdateInvoice.run(conn.assigns.invoice, invoice_params, conn) do
       {:ok, invoice} ->
-        invoice = Repo.preload(invoice, [:line_items, :user, :school, :appointment], force: true)
+        invoice =
+          Repo.get(Invoice, invoice.id)
+          |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
 
         conn
         |> put_status(200)
@@ -80,6 +83,23 @@ defmodule FlightWeb.API.InvoiceController do
     conn
     |> put_status(200)
     |> render("show.json", invoice: invoice)
+  end
+
+  def from_appointment(conn, %{"appointment_id" => appointment_id} = _params) do
+    case CreateInvoiceFromAppointment.run(appointment_id, conn) do
+      {:ok, invoice} ->
+        invoice =
+          Repo.get(Invoice, invoice.id)
+          |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
+
+        conn
+        |> put_status(201)
+        |> render("show.json", invoice: invoice)
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(422)
+        |> json(%{errors: ViewHelpers.translate_errors(changeset)})
+    end
   end
 
   defp get_invoice(conn, _) do

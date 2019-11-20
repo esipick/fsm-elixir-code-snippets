@@ -49,9 +49,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{invoice: invoice_params})
         |> json_response(201)
 
-      invoice =
-        Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload([:user, :line_items])
+      invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
@@ -67,7 +65,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
         |> json_response(400)
 
-      invoice = Repo.get_by(Invoice, user_id: student.id) |> Repo.preload(:transactions)
+      invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
 
       transaction = List.first(invoice.transactions)
 
@@ -94,9 +92,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
         |> json_response(201)
 
-      invoice =
-        Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload([:user, :transactions, :line_items])
+      invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
 
       transaction = List.first(invoice.transactions)
 
@@ -123,9 +119,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
         |> json_response(201)
 
-      invoice =
-        Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload([:user, :transactions, :line_items])
+      invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
 
       transaction = List.first(invoice.transactions)
 
@@ -154,9 +148,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
         |> json_response(201)
 
-      invoice =
-        Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload([:user, :transactions, :line_items])
+      invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
 
       balance_transaction = List.last(invoice.transactions)
       stripe_transaction = List.first(invoice.transactions)
@@ -194,9 +186,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
         |> json_response(201)
 
-      invoice =
-        Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload([:user, :transactions, :line_items])
+      invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
 
       transaction = List.first(invoice.transactions)
 
@@ -225,9 +215,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
         |> json_response(201)
 
-      invoice =
-        Repo.get_by(Invoice, user_id: student.id)
-        |> Repo.preload([:user, :transactions, :line_items])
+      invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
 
       transaction = List.first(invoice.transactions)
 
@@ -267,7 +255,10 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       json = json_response(response, 200)
       headers = response.resp_headers
 
-      assert json == render_json(InvoiceView, "index.json", invoices: [invoice1, invoice2])
+      assert json == render_json(InvoiceView, "index.json", invoices: [
+        preload_invoice(invoice1),
+        preload_invoice(invoice2)
+      ])
 
       assert Enum.member?(headers, {"total", "2"})
       assert Enum.member?(headers, {"per-page", "50"})
@@ -299,7 +290,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice =
         Repo.get(Invoice, invoice.id)
-        |> Repo.preload([:user, :line_items])
+        |> preload_invoice
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
@@ -355,9 +346,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
         |> json_response(200)
 
-      invoice =
-        Repo.get(Invoice, invoice.id)
-        |> Repo.preload([:user, :line_items])
+      invoice = preload_invoice(invoice)
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
@@ -373,7 +362,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: invoice_params})
         |> json_response(400)
 
-      invoice = Repo.get(Invoice, invoice.id) |> Repo.preload(:transactions)
+      invoice = preload_invoice(invoice)
 
       transaction = List.first(invoice.transactions)
 
@@ -400,9 +389,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: invoice_params})
         |> json_response(200)
 
-      invoice =
-        Repo.get(Invoice, invoice.id)
-        |> Repo.preload([:user, :transactions, :line_items])
+      invoice = preload_invoice(invoice)
 
       transaction = List.first(invoice.transactions)
 
@@ -430,9 +417,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: invoice_params})
         |> json_response(200)
 
-      invoice =
-        Repo.get(Invoice, invoice.id)
-        |> Repo.preload([:user, :transactions, :line_items])
+      invoice = preload_invoice(invoice)
 
       transaction = List.first(invoice.transactions)
 
@@ -461,10 +446,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> auth(instructor)
         |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: invoice_params})
         |> json_response(200)
-
-      invoice =
-        Repo.get(Invoice, invoice.id)
-        |> Repo.preload([:user, :transactions, :line_items])
+      invoice = preload_invoice(invoice)
 
       balance_transaction = List.last(invoice.transactions)
       stripe_transaction = List.first(invoice.transactions)
@@ -487,7 +469,6 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert stripe_transaction.payment_option == :cc
       assert stripe_transaction.paid_by_charge == 5000
 
-      assert invoice.user.balance == 0
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
@@ -503,9 +484,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: invoice_params})
         |> json_response(200)
 
-      invoice =
-        Repo.get(Invoice, invoice.id)
-        |> Repo.preload([:user, :transactions, :line_items])
+      invoice = preload_invoice(invoice)
 
       transaction = List.first(invoice.transactions)
 
@@ -535,9 +514,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: invoice_params})
         |> json_response(200)
 
-      invoice =
-        Repo.get(Invoice, invoice.id)
-        |> Repo.preload([:user, :transactions, :line_items])
+      invoice = preload_invoice(invoice)
 
       transaction = List.first(invoice.transactions)
 
@@ -552,5 +529,31 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
+  end
+
+  test "creates invoice from appointment", %{conn: conn} do
+    appointment = appointment_fixture()
+    instructor = instructor_fixture()
+
+    json =
+      conn
+      |> auth(instructor)
+      |> post("/api/invoices/from_appointment/#{appointment.id}")
+      |> json_response(201)
+
+    invoice = Repo.get_by(Invoice, user_id: appointment.user_id) |> preload_invoice
+
+    assert invoice.total == 460
+    assert invoice.tax_rate == 10
+    assert invoice.total_tax == 46
+    assert invoice.total_amount_due == 506
+    assert Enum.count(invoice.line_items) == 2
+
+    assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+  end
+
+  def preload_invoice(invoice) do
+    Repo.get(Invoice, invoice.id)
+    |> Repo.preload([:user, :transactions, :line_items, :appointment], force: true)
   end
 end
