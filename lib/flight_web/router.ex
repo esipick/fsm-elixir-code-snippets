@@ -203,12 +203,14 @@ defmodule FlightWeb.Router do
     pipe_through([:api, :api_authenticate])
 
     get("/users/autocomplete", UserController, :autocomplete, as: :autocomplete)
+    get("/users/by_role", UserController, :by_role, as: :by_role)
 
     resources("/users", UserController, only: [:show, :update, :index]) do
       get("/form_items", UserController, :form_items)
       resources("/push_tokens", PushTokenController, only: [:create])
     end
 
+    get("/aircrafts/autocomplete", AircraftController, :autocomplete, as: :autocomplete)
     resources("/aircrafts", AircraftController, only: [:index, :show])
 
     resources("/transactions", TransactionController, only: [:create, :index, :show]) do
@@ -247,8 +249,11 @@ defmodule FlightWeb.Router do
       only: [:create, :index, :update, :show, :delete]
     )
 
-    resources("/courses", CourseController, only: [:index])
+    get("/invoices/appointments", InvoiceController, :appointments, as: :appointments)
+    post("/invoices/from_appointment/:appointment_id", InvoiceController, :from_appointment, as: :from_appointment)
     resources("/invoices", InvoiceController, only: [:index, :show, :create, :update])
+
+    resources("/courses", CourseController, only: [:index])
   end
 
   if Mix.env() == :dev do

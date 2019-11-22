@@ -69,7 +69,8 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:unavailability, :modify, :all),
       permission_slug(:invoice, :modify, :all),
       permission_slug(:invoice, :view, :all),
-      permission_slug(:web_dashboard, :access, :all)
+      permission_slug(:web_dashboard, :access, :all),
+      permission_slug(:aircraft, :view, :all)
     ])
   end
 
@@ -105,7 +106,8 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:unavailability_instructor, :modify, :personal),
       permission_slug(:unavailability_aircraft, :modify, :all),
       permission_slug(:invoice, :modify, :all),
-      permission_slug(:web_dashboard, :access, :all)
+      permission_slug(:web_dashboard, :access, :all),
+      permission_slug(:aircraft, :view, :all)
     ])
   end
 

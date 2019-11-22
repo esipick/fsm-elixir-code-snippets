@@ -31,6 +31,45 @@
                 <dd><%= @invoice.student_name %></dd>
               </dl>
 
+              <%= if @invoice.appointment do %>
+                <dl>
+                  <dt>Appointment</dt>
+                  <div class="table-responsive">
+                    <table class="table text-left">
+                      <thead class="text-primary">
+                        <tr>
+                          <th>Date</th>
+                          <th>Description</th>
+                          <%= if @invoice.appointment.aircraft_id do %>
+                            <th>Aircraft</th>
+                          <% end %>
+                          <%= if @invoice.appointment.instructor_user_id do %>
+                            <th>Instructor</th>
+                          <% end %>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <tr>
+                          <td><%= display_date(@invoice.appointment.start_at, :long) %></td>
+                          <td><%= display_time(@invoice.appointment.start_at) %> - <%= display_time(@invoice.appointment.end_at) %></td>
+                          <%= if @invoice.appointment.aircraft_id do %>
+                            <td>
+                              <a href="/admin/aircrafts/<%= @invoice.appointment.aircraft_id %>"><%= aircraft_display_name @invoice.appointment.aircraft %></a>
+                            </td>
+                          <% end %>
+                          <%= if @invoice.appointment.instructor_user_id do %>
+                            <td>
+                              <a href="instructor-profile.php"><%= display_name @invoice.appointment.instructor_user %></a>
+                            </td>
+                          <% end %>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </dl>
+              <% end %>
+
               <dl class="d-flex justify-content-between">
                 <dt>Payment date</dt>
                 <dd><%= @invoice.payment_date %></dd>
@@ -67,6 +106,7 @@
                     <tr>
                       <th>#</th>
                       <th>Description</th>
+                      <th></th>
                       <th>Rate</th>
                       <th>Quantity</th>
                       <th>Amount, $</th>
@@ -78,6 +118,7 @@
                       <tr>
                         <td><%= i %></td>
                         <td><%= line_item.description %></td>
+                        <td><%= line_item_notes(line_item) %></td>
                         <td><%= currency(line_item.rate) %></td>
                         <td><%= line_item.quantity %></td>
                         <td><%= currency(line_item.amount) %></td>

@@ -11,6 +11,10 @@ defmodule Flight.Billing.InvoiceLineItem do
     field(:amount, :integer)
     field(:quantity, :float)
     field(:description, :string)
+    field(:type, InvoiceLineItemTypeEnum, default: :other)
+
+    belongs_to(:instructor_user, Flight.Accounts.User)
+    belongs_to(:aircraft, Flight.Scheduling.Aircraft)
     belongs_to(:invoice, Flight.Billing.Invoice)
 
     timestamps()
@@ -20,6 +24,7 @@ defmodule Flight.Billing.InvoiceLineItem do
   def changeset(%InvoiceLineItem{} = invoice_line_item, attrs) do
     invoice_line_item
     |> cast(attrs, @required_fields)
+    |> cast(attrs, [:instructor_user_id, :aircraft_id, :type])
     |> validate_required(@required_fields)
   end
 end
