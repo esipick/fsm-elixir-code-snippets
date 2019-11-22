@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Flight School Manager</title>
+    <%= render FlightWeb.Admin.PartialView, "_shared_head.html", assigns %>
+  </head>
+<body class=" sidebar-mini">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-transparent  navbar-absolute bg-primary fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-wrapper">
+        <a class="navbar-brand" href="#pablo">Flight School Manager</a>
+      </div>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+  <div class="wrapper wrapper-full-page ">
+    <div class="full-page login-page section-image" filter-color="black">
+      <!--   you can change the color of the filter page using: data-color="blue | purple | green | orange | red | rose " -->
+      <div class="content">
+        <div class="container">
+          <div class="col-sm-10 col-md-8 col-lg-5 ml-auto mr-auto">
+            <%= form_for @conn, "/login", [as: :session, class: "form"], fn _ -> %>
+              <div class="card card-login card-plain">
+                <div class="card-header ">
+                  <div class="logo-container">
+                    <img src="/images/fsm-icon.png" alt="">
+                  </div>
+                  <h2 class="text-center">Login</h2>
+
+                  <%= if get_flash(@conn, :error) do %>
+                    <div class="alert alert-danger">
+                      <span><%= get_flash(@conn, :error) %></span>
+                    </div>
+                  <% end %>
+                  <!-- <h7 class="text-center">Login</h7> -->
+                </div>
+                <div class="card-body ">
+                  <div class="input-group no-border form-control-lg">
+                    <span class="input-group-addon">
+                      <i class="now-ui-icons users_circle-08"></i>
+                    </span>
+                    <input name="email" type="email" class="form-control" placeholder="Email">
+                  </div>
+                  <div class="input-group no-border form-control-lg">
+                    <span class="input-group-addon">
+                      <i class="now-ui-icons objects_key-25"></i>
+                    </span>
+                    <input name="password" type="password" placeholder="Password" class="form-control">
+                  </div>
+                </div>
+                <div class="card-footer ">
+                  <input type="submit" class="btn btn-primary btn-round btn-lg btn-block mb-3" value="Login"/>
+                  <div class="pull-left">
+                    <h6>
+                      <a href="/forgot_password" class="link footer-link">Forgot password?</a>
+                    </h6>
+                  </div>
+                  <div class="pull-right">
+                    <h6>
+                      <a href="https://flightschoolmanager.co" class="link footer-link">Get the app</a>
+                    </h6>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <?php include('_inc/foot.php'); ?>
+      <div class="full-page-background" style="background-image: url(/images/bg-plane-bw.jpg) "></div>
+    </div>
+  </div>
+</body>
+
+<?php include('_inc/js.php');?>
+
+</html>

@@ -17,8 +17,24 @@ defmodule FlightWeb.Router do
     plug(:put_layout, {FlightWeb.LayoutView, :admin})
   end
 
+  pipeline :student_layout do
+    plug(:put_layout, {FlightWeb.LayoutView, :student})
+  end
+
   pipeline :admin_authenticate do
     plug(FlightWeb.AuthenticateWebUser, roles: ["admin", "dispatcher"])
+  end
+
+  pipeline :student_authenticate do
+    plug(FlightWeb.AuthenticateWebUser, roles: ["student"])
+  end
+
+  pipeline :instructor_authenticate do
+    plug(FlightWeb.AuthenticateWebUser, roles: ["instructor"])
+  end
+
+  pipeline :web_user_authenticate do
+    plug(FlightWeb.AuthenticateWebUser, roles: ["admin", "dispatcher", "student", "instructor"])
   end
 
   pipeline :webhooks_authenticate do
@@ -57,6 +73,10 @@ defmodule FlightWeb.Router do
     post("/forgot_password", PasswordController, :forgot_submit)
     get("/reset_password", PasswordController, :reset)
     post("/reset_password", PasswordController, :reset_submit)
+
+    get("/login", SessionController, :login)
+    post("/login", SessionController, :login_submit)
+    get("/logout", SessionController, :logout)
   end
 
   scope "/webhooks", FlightWeb do
@@ -76,11 +96,33 @@ defmodule FlightWeb.Router do
   end
 
   # Unauthenticated admin pages
-  scope "/admin", FlightWeb.Admin do
+  scope "/admin", FlightWeb do
     pipe_through([:browser, :no_layout, :admin_metrics_namespace])
 
     get("/login", SessionController, :login)
     post("/login", SessionController, :login_submit)
+  end
+
+  scope "/student", FlightWeb.Student do
+    pipe_through([:browser, :admin_layout, :student_authenticate, :admin_metrics_namespace])
+
+    resources("/schedule", ScheduleController, only: [:index, :show, :edit])
+
+    resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true)
+  end
+
+  scope "/instructor", FlightWeb.Instructor do
+    pipe_through([:browser, :admin_layout, :instructor_authenticate, :admin_metrics_namespace])
+
+    resources("/schedule", ScheduleController, only: [:index, :show, :edit])
+    resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true)
+  end
+
+  scope("/billing", FlightWeb.Billing, as: :billing) do
+    pipe_through([:browser, :admin_layout, :web_user_authenticate, :admin_metrics_namespace])
+
+    resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show])
+    resources("/transactions", TransactionController, only: [:index])
   end
 
   scope "/admin", FlightWeb.Admin do
@@ -89,8 +131,6 @@ defmodule FlightWeb.Router do
     get("/", PageController, :root)
 
     get("/dashboard", PageController, :dashboard)
-
-    get("/logout", SessionController, :logout)
 
     resources("/schools", SchoolController, only: [:index, :show, :delete])
 
@@ -144,13 +184,6 @@ defmodule FlightWeb.Router do
     end
 
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
-
-    get("/billing", BillingController, :index)
-
-    scope("/billing", Billing, as: :admin_billing) do
-      resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show])
-      resources("/transactions", TransactionController, only: [:index])
-    end
   end
 
   ###
@@ -170,12 +203,14 @@ defmodule FlightWeb.Router do
     pipe_through([:api, :api_authenticate])
 
     get("/users/autocomplete", UserController, :autocomplete, as: :autocomplete)
+    get("/users/by_role", UserController, :by_role, as: :by_role)
 
     resources("/users", UserController, only: [:show, :update, :index]) do
       get("/form_items", UserController, :form_items)
       resources("/push_tokens", PushTokenController, only: [:create])
     end
 
+    get("/aircrafts/autocomplete", AircraftController, :autocomplete, as: :autocomplete)
     resources("/aircrafts", AircraftController, only: [:index, :show])
 
     resources("/transactions", TransactionController, only: [:create, :index, :show]) do
@@ -214,8 +249,11 @@ defmodule FlightWeb.Router do
       only: [:create, :index, :update, :show, :delete]
     )
 
-    resources("/courses", CourseController, only: [:index])
+    get("/invoices/appointments", InvoiceController, :appointments, as: :appointments)
+    post("/invoices/from_appointment/:appointment_id", InvoiceController, :from_appointment, as: :from_appointment)
     resources("/invoices", InvoiceController, only: [:index, :show, :create, :update])
+
+    resources("/courses", CourseController, only: [:index])
   end
 
   if Mix.env() == :dev do

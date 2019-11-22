@@ -1,0 +1,164 @@
+<div class="panel-header panel-header-sm">
+  <div class="header text-center">
+
+  </div>
+</div>
+
+<div class="content" id="schedule" data-user-id="<%= @student_id %>" data-instructor-id="<%= @instructor_user_id %>">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-calendar">
+        <div class="card-body">
+          <div id="fullCalendar"></div>
+          <div class="fc-bottom-border"></div>
+          <div id="calendar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> <!-- end content -->
+
+<div id="calendarNewModal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="apptTitle">Create New</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+
+      <div class="modal-body">
+        <ul id="apptTabs" class="nav nav-pills nav-pills-primary" role="tablist">
+          <li class="nav-item"><a id="navAppt" class="nav-link active" data-toggle="tab" href="#appointmentForm" role="tablist">Appointment</a></li>
+          <li class="nav-item"><a id="navUnavail" class="nav-link" data-toggle="tab" href="#unavailabilityForm" role="tablist">Unavailability</a></li>
+        </ul>
+        <div class="tab-content mt-2 mb-2">
+
+          <div class="tab-pane active" id="appointmentForm">
+            <div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="apptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value=""></div></div></div>
+            <div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="apptEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Renter</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="apptStudent" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Renter" placeholder="Student">
+                    <option>None</option>
+                    <%= for renter <- @renters do %>
+                      <option value="<%= renter.id %>"><%= display_name(renter) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Instructor</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="apptInstructor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
+                    <option>None</option>
+                    <%= for instructor <- @instructors do %>
+                      <option value="<%= instructor.id %>"><%= display_name(instructor) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Aircraft</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="apptAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Aircraft">
+                    <option>None</option>
+                    <%= for aircraft <- @aircrafts do %>
+                      <option value="<%= aircraft.id %>"><%= aircraft_display_name(aircraft, :short) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Note</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <textarea id="apptNote" class="form-control"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane" id="unavailabilityForm">
+            <div class="row">
+              <label class="col-md-3 col-form-label">For</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="unavailFor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Student" placeholder="Student">
+                    <option selected value="Instructor">Instructor</option>
+                    <option value="Aircraft">Aircraft</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div id="fieldInstructor" class="row">
+              <label class="col-md-3 col-form-label">Instructor</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="unavailInstructor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
+                    <%= for instructor <- @instructors do %>
+                      <option value="<%= instructor.id %>"><%= display_name(instructor) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div id="fieldAircraft" class="row">
+              <label class="col-md-3 col-form-label">Aircraft</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="unavailAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Aircraft">
+                    <%= for aircraft <- @aircrafts do %>
+                      <option value="<%= aircraft.id %>"><%= aircraft_display_name(aircraft, :short) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="unavailStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div></div></div>
+            <div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="unavailEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Note</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <textarea id="unavailNote" class="form-control"></textarea>
+                </div>
+              </div>
+            </div>
+            <!--
+            <div class="row">
+              <label class="col-md-3 col-form-label">Repeat</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="unavailRepeats" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Student" placeholder="Student">
+                    <option>None</option>
+                    <option value="Every Week">Every Week</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer d-flex justify-content-between">
+        <button id="btnDelete" type="button" class="btn btn-danger ml-0">Delete</button>
+        <div>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="btnSave" type="button" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+  require("js/admin/schedule.js")
+</script>

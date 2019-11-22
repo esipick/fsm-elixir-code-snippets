@@ -16,7 +16,8 @@ config :flight, Flight.Repo,
   password: "postgres",
   database: "flight_test",
   hostname: "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox
+  pool: Ecto.Adapters.SQL.Sandbox,
+  ownership_timeout: 600000
 
 config :bcrypt_elixir, log_rounds: 4
 

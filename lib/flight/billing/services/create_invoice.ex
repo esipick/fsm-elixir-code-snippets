@@ -4,12 +4,18 @@ defmodule Flight.Billing.CreateInvoice do
   alias Flight.Repo
   alias Flight.Accounts.User
   alias Flight.Billing.{Invoice, Transaction, PayTransaction}
-  alias FlightWeb.Admin.Billing.InvoiceStruct
+  alias FlightWeb.Billing.InvoiceStruct
 
   def run(invoice_params, school_context) do
     pay_off = Map.get(school_context.params, "pay_off", false)
+    school = school(school_context)
 
-    result = case Invoice.create(invoice_params) do
+    invoice_attrs = Map.merge(
+      invoice_params,
+      %{"school_id" => school.id, "tax_rate" => school.sales_tax || 0}
+    )
+
+    result = case Invoice.create(invoice_attrs) do
       {:ok, invoice} ->
         if pay_off == true do
           case pay(invoice, school_context) do
@@ -103,9 +109,13 @@ defmodule Flight.Billing.CreateInvoice do
       first_name: user.first_name,
       last_name: user.last_name,
       creator_user_id: school_context.assigns.current_user.id,
-      school_id: Flight.SchoolScope.school_id(school_context)
+      school_id: school(school_context).id
     }
     |> Transaction.changeset(attrs)
     |> Repo.insert
+  end
+
+  defp school(school_context) do
+    Flight.SchoolScope.get_school(school_context)
   end
 end

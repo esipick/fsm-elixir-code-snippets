@@ -8,7 +8,7 @@
 }
 
 .invoice-form .invoice-select-wrapper, .form-control.invoice-input {
-  width: 350px;
+  width: 450px;
 }
 .invoice-form .invoice-select-wrapper.with-error .react-select__control {
   border: 1px solid #f27474;
@@ -29,7 +29,7 @@
   max-width: 100px;
 }
 .invoice-form .lc-desc-column {
-  min-width: 250px;
+  min-width: 125px;
 }
 
 

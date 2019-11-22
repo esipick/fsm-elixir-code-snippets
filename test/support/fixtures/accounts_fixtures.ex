@@ -9,7 +9,8 @@ defmodule Flight.AccountsFixtures do
       contact_first_name: "Billy",
       contact_last_name: "Jean",
       contact_phone_number: "555-555-5555",
-      timezone: "America/Denver"
+      timezone: "America/Denver",
+      sales_tax: 10.0
     }
     |> School.create_changeset(attrs)
     |> Repo.insert!()
@@ -43,7 +44,8 @@ defmodule Flight.AccountsFixtures do
         last_name: "some last name",
         phone_number: "801-555-5555",
         stripe_customer_id: "cus_#{Flight.Random.hex(20)}",
-        school_id: school.id
+        school_id: school.id,
+        billing_rate: 100
       }
       |> User.__test_changeset(%{password: "some password"} |> Map.merge(attrs))
       |> Repo.insert!()

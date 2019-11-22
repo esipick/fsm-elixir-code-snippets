@@ -61,7 +61,7 @@ defmodule FlightWeb.AuthenticateWebUserTest do
       |> AuthenticateWebUser.log_in(user.id + 1)
       |> AuthenticateWebUser.call(roles: ["student"])
 
-    assert redirected_to(conn) == "/admin/login"
+    assert redirected_to(conn) == "/login"
     refute get_session(conn, :user_id)
   end
 
@@ -73,7 +73,7 @@ defmodule FlightWeb.AuthenticateWebUserTest do
       |> AuthenticateWebUser.log_in(user.id + 1)
       |> AuthenticateWebUser.call([])
 
-    assert redirected_to(conn) == "/admin/login"
+    assert redirected_to(conn) == "/login"
     refute get_session(conn, :user_id)
   end
 
@@ -82,7 +82,7 @@ defmodule FlightWeb.AuthenticateWebUserTest do
       conn
       |> AuthenticateWebUser.call([])
 
-    assert redirected_to(conn) == "/admin/login"
+    assert redirected_to(conn) == "/login"
     assert conn.halted
   end
 

@@ -1,0 +1,120 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @user.first_name %> <%= @user.last_name %></h2>
+    <p class="category"><a href="/instructor/profile/edit" class="btn btn-primary">Edit Profile</a></p>
+  </div>
+</div>
+
+<div class="content">
+
+<div class="row">
+
+  <div class="col-md-8 col-xs-12">
+    <div class="card ">
+      <div class="card-body">
+        <div class="tab-pane active detail-list" id="link1">
+          <dl class="d-flex justify-content-between">
+            <dt>Name</dt>
+            <dd><%= @user.first_name %> <%= @user.last_name %></dd>
+          </dl>
+          <dl class="d-flex justify-content-between">
+            <dt>Phone #</dt>
+            <dd><a href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a></dd>
+          </dl>
+          <dl class="d-flex justify-content-between">
+            <dt>Email</dt>
+            <dd><a href="mailto:<%= @user.email %>"><%= @user.email %></a></dd>
+          </dl>
+          <%= if has_address?(@user) && should_display_address?(@user) do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Address</dt>
+              <dd><%= @user.address_1 %></br>
+                <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></dd>
+            </dl>
+          <% end %>
+          <%= if has_cirriculum?(@user) do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Flight Training # (FTN)</dt>
+              <dd><%= @user.flight_training_number %></dd>
+            </dl>
+          <% end %>
+          <%= if has_pay_rates?(@user) do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Pay Rate</dt>
+              <dd><%= currency(@user.pay_rate) %>/hr</dd>
+            </dl>
+          <% end %>
+          <%= if has_teaching_info?(@user) do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Awards</dt>
+              <dd><%= @user.awards %></dd>
+            </dl>
+            <dl class="d-flex justify-content-between">
+              <dt>Certificates</dt>
+              <dd>
+                <%= human_flyer_certificates(@user.flyer_certificates) %>
+                <small>cert# <%= @user.certificate_number %></small>
+              </dd>
+            </dl>
+          <% end %>
+          <%= if has_medical?(@user) do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Medical</dt>
+              <dd><%= human_readable_medical_rating(@user.medical_rating) %>
+                <%= if @user.medical_expires_at do %>
+                  <small>expires: <%= format_date(@user.medical_expires_at) %></small>
+                <% end %>
+              </dd>
+            </dl>
+          <% end %>
+        </div>
+      </div>
+    </div> <!-- end card -->
+  </div>
+
+<%= if has_cirriculum?(@user) && false do %>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body text-center">
+          <div class="card-section detail-list course-progress">
+            <h7>Course Progress</h7>
+            <dl class="d-flex justify-content-between">
+              <dt>Private Pilot License</dt>
+              <dd>80%</dd>
+            </dl>
+            <div class="course-progress-bar"><span style="width: 80%;"></span></div>
+            <dl class="d-flex justify-content-between">
+              <dt>Commercial Pilot License</dt>
+              <dd>0%</dd>
+            </dl>
+            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
+            <dl class="d-flex justify-content-between">
+              <dt>Instrument Flight Rating</dt>
+              <dd>0%</dd>
+            </dl>
+            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <% end %>
+
+</div>
+
+</div> <!-- end content -->
+
+<%= if get_flash(@conn, :success) do %>
+  <script>
+    $(document).ready(function() {
+      $.notify({message: "<%= get_flash(@conn, :success) %>"}, {type: "success", placement: {align: "center"}})
+    })
+  </script>
+<% end %>
+
+<%= if get_flash(@conn, :error) do %>
+  <script>
+    $(document).ready(function() {
+      $.notify({message: "<%= get_flash(@conn, :error) %>"}, {type: "danger", placement: {align: "center"}})
+    })
+  </script>
+<% end %>

@@ -76,6 +76,7 @@
           status =
             case transaction.state do
               "pending" -> "pending student approval"
+              "failed" -> "failed"
               "completed" -> cond do
                 transaction.paid_by_cash ->
                   "completed - cash"
@@ -83,7 +84,7 @@
                   "completed - charge"
                 transaction.paid_by_balance ->
                   "completed - balance"
-                true -> 
+                true ->
                   "completed"
               end
             end

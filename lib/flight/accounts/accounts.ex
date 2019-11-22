@@ -18,6 +18,8 @@ defmodule Flight.Accounts do
 
   require Flight.Accounts.Role
 
+  import Pipe
+
   def get_user(id, school_context) do
     User
     |> default_users_query(school_context)
@@ -69,15 +71,15 @@ defmodule Flight.Accounts do
   end
 
   def roles_visible_to("student") do
-    [:instructor, :admin]
+    [:instructor, :admin, :dispatcher]
   end
 
   def roles_visible_to("instructor") do
-    [:student, :instructor, :admin]
+    [:student, :instructor, :admin, :dispatcher]
   end
 
   def roles_visible_to("renter") do
-    [:admin]
+    [:admin, :dispatcher]
   end
 
   def roles_visible_to("admin") do
@@ -229,6 +231,12 @@ defmodule Flight.Accounts do
       flyer_certificate_slugs,
       &User.admin_update_changeset/4
     )
+  end
+
+  def regular_user_update_profile(%User{} = user, attrs) do
+    user
+    |> User.regular_user_update_changeset(attrs)
+    |> Repo.update()
   end
 
   def archive_user(%User{} = user) do
@@ -394,11 +402,16 @@ defmodule Flight.Accounts do
     []
   end
 
-  def users_with_roles(roles, school_context) do
-    roles
-    |> Ecto.assoc(:users)
-    |> default_users_query(school_context)
-    |> Repo.all()
+  def users_with_roles(roles, school_context, params \\ %{}) do
+    case roles do
+      [] -> []
+      _ ->
+        roles
+        |> Ecto.assoc(:users)
+        |> default_users_query(school_context)
+        |> pass_unless(params["user_id"], &where(&1, [t], t.id == ^params["user_id"]))
+        |> Repo.all()
+    end
   end
 
   def default_users_query(query, school_context) do

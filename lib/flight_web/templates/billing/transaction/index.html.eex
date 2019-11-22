@@ -1,0 +1,93 @@
+<div class="panel-header panel-header-sm">
+  <div class="header text-center"></div>
+</div>
+
+<div class="content">
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="d-flex justify-content-between">
+          <ul class="nav nav-pills nav-pills-primary" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link" href="/billing/invoices" role="tablist" aria-expanded="false">
+                Invoices
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link active" href="#" role="tablist" aria-expanded="true">
+                Transactions
+              </a>
+            </li>
+          </ul>
+
+          <%= if can_create_invoice?(@conn) do %>
+            <div class="text-right">
+              <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date</th>
+              <th>Invoice ID</th>
+              <th>Student name</th>
+              <th>Amount due</th>
+              <th>Amount paid</th>
+              <th>State</th>
+              <th>Completed at</th>
+              <th>Payment method</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <%= for transaction <- @transactions do %>
+              <tr>
+                <td><%= transaction.id %></td>
+                <td><%= transaction.created %></td>
+                <td>
+                  <%= if transaction.invoice_id do %>
+                    <a href="/billing/invoices/<%= transaction.invoice_id %>">
+                      <%= transaction.invoice_id %>
+                    </a>
+                  <% end %>
+                </td>
+                <td><%= transaction.student_name %></td>
+                <td><%= currency(transaction.amount_due) %></td>
+                <td><%= currency(transaction.amount_paid) %></td>
+                <td><%= transaction.state %></td>
+                <td><%= transaction.completed_at %></td>
+                <td><%= transaction.payment_method %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+
+        <%= if @page.total_pages > 1 do %>
+          <div class="row">
+            <div class="col-md-10">
+              <%= pagination_links @conn,
+                @page,
+                path: &billing_transaction_path/3,
+                page_size: @page.page_size
+              %>
+            </div>
+
+            <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+          </div>
+        <% else %>
+          <div class="row justify-content-end">
+            <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

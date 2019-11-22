@@ -97,6 +97,48 @@ defmodule Flight.Scheduling.AvailabilityTest do
 
       assert Enum.find(available, &(&1.user.id == unavailable_student.id)).status == :unavailable
     end
+
+    test "returns status of single student" do
+      date = ~N[2018-03-03 16:00:00]
+      type = "rental"
+
+      _admin = user_fixture() |> assign_role("admin")
+      _instructor = user_fixture() |> assign_role("instructor")
+      available_student = user_fixture() |> assign_role("student")
+      available_student2 = user_fixture() |> assign_role("student")
+      unavailable_student = user_fixture() |> assign_role("student")
+
+      create_appointment(%{
+        start_at: date,
+        end_at: Timex.shift(date, hours: 2),
+        user_id: unavailable_student.id,
+        aircraft_id: aircraft_fixture().id,
+        type: type
+      })
+      create_appointment(%{
+        start_at: date,
+        end_at: Timex.shift(date, hours: 2),
+        user_id: available_student2.id,
+        aircraft_id: aircraft_fixture().id,
+        type: type
+      })
+
+      available =
+        Availability.student_availability(
+          Timex.shift(date, hours: 1),
+          Timex.shift(date, hours: 3),
+          [],
+          [],
+          available_student,
+          %{ "user_id" => available_student.id }
+        )
+
+      assert Enum.find(available, &(&1.user.id == available_student.id)).status == :available
+
+      assert Enum.find(available, &(&1.user.id == available_student2.id)) == nil
+
+      assert Enum.find(available, &(&1.user.id == unavailable_student.id)) == nil
+    end
   end
 
   describe "aircraft_availability" do
@@ -289,6 +331,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
       date = ~N[2018-03-03 16:00:00]
 
       user = user_fixture() |> assign_role("student")
+      # instructor_fixture()
 
       assert Availability.user_with_permission_status(
                permission_slug(:appointment_instructor, :modify, :personal),

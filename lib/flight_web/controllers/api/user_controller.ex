@@ -8,6 +8,7 @@ defmodule FlightWeb.API.UserController do
   plug(:get_user when action in [:show, :update, :form_items])
   plug(:authorize_modify when action in [:update, :form_items])
   plug(:authorize_view when action in [:show])
+  plug(:authorize_view_all when action in [:autocomplete])
 
   def index(conn, %{"form" => form}) do
     result =
@@ -74,8 +75,17 @@ defmodule FlightWeb.API.UserController do
     render(conn, "form_items.json", form_items: items)
   end
 
-  def autocomplete(conn, %{"name" => name}) do
-    users = Flight.Queries.User.search_users_by_name(name, conn)
+  def autocomplete(conn, %{"name" => name} = params) do
+    role_slug = Map.get(params, "role", "student")
+    role = Flight.Accounts.role_for_slug(role_slug)
+    users = Flight.Queries.User.search_users_by_name(name, role, conn)
+
+    render(conn, "autocomplete.json", users: users)
+  end
+
+  def by_role(conn, %{"role" => role_slug} = _params) do
+    role = Flight.Accounts.role_for_slug(role_slug)
+    users = Flight.Queries.User.get_users_by_role(role, conn)
 
     render(conn, "autocomplete.json", users: users)
   end
@@ -92,6 +102,10 @@ defmodule FlightWeb.API.UserController do
       Permission.new(:users, :view, {:personal, conn.assigns.user}),
       Permission.new(:users, :view, :all)
     ])
+  end
+
+  def authorize_view_all(conn, _) do
+    halt_unless_user_can?(conn, [Permission.new(:users, :view, :all)])
   end
 
   defp get_user(conn, _) do

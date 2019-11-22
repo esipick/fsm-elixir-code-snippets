@@ -1,0 +1,9 @@
+<%=
+  render(FlightWeb.Shared.ScheduleView, "index.html",
+    conn: @conn,
+    renters: @renters,
+    instructors: @instructors,
+    aircrafts: @aircrafts,
+    instructor_user_id: nil,
+    student_id: @user_id)
+%>

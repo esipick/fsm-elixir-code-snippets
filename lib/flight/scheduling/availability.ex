@@ -24,6 +24,7 @@ defmodule Flight.Scheduling.Availability do
   import Ecto.Query
   import Flight.Auth.Authorization
   import Flight.Auth.Permission, only: [permission_slug: 3]
+  import Pipe
 
   @scopes [:all, :appointment, :unavailability]
 
@@ -35,6 +36,7 @@ defmodule Flight.Scheduling.Availability do
         school_context
       ) do
     users_with_permission_availability(
+      :all,
       permission_slug(:appointment_instructor, :modify, :personal),
       start_at,
       end_at,
@@ -49,15 +51,19 @@ defmodule Flight.Scheduling.Availability do
         end_at,
         excluded_appointment_ids,
         excluded_unavailability_ids,
-        school_context
+        school_context,
+        params \\ %{}
       ) do
+
     users_with_permission_availability(
+      :all,
       permission_slug(:appointment_user, :modify, :personal),
       start_at,
       end_at,
       excluded_appointment_ids,
       excluded_unavailability_ids,
-      school_context
+      school_context,
+      params
     )
   end
 
@@ -99,13 +105,14 @@ defmodule Flight.Scheduling.Availability do
         end_at,
         excluded_appointment_ids,
         excluded_unavailability_ids,
-        school_context
+        school_context,
+        params \\ %{}
       )
       when scope in @scopes do
     role_slugs = role_slugs_for_permission_slug(permission_slug)
     roles = from(r in Role, where: r.slug in ^role_slugs) |> Repo.all()
 
-    visible_users = Flight.Accounts.users_with_roles(roles, school_context)
+    visible_users = Flight.Accounts.users_with_roles(roles, school_context, params)
 
     school = SchoolScope.get_school(school_context)
 
@@ -115,6 +122,7 @@ defmodule Flight.Scheduling.Availability do
         |> SchoolScope.scope_query(school_context)
         |> select_for_permission_slug(permission_slug)
         |> exclude_appointment_query(excluded_appointment_ids)
+        |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
         |> overlap_query(
           Flight.Walltime.utc_to_walltime(start_at, school.timezone),
           Flight.Walltime.utc_to_walltime(end_at, school.timezone)

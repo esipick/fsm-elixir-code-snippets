@@ -79,8 +79,8 @@
     </div>
     <div class="col-md-6">
       <div class="form-group">
-        <label>Sales Tax Rate</label>
-        <%= number_input f, :sales_tax, class: "form-control", step: "0.01", min: "0.0", max: 0.99 %>
+        <label>Sales Tax Rate, %</label>
+        <%= number_input f, :sales_tax, class: "form-control", step: "0.01", min: "0.0", max: 100 %>
       </div>
     </div>
   </div>

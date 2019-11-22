@@ -165,6 +165,27 @@ defmodule Flight.Accounts.User do
     |> base_validations(roles, flyer_certificates)
   end
 
+  def regular_user_accessible_fields() do
+    [
+      :email,
+      :first_name,
+      :last_name,
+      :password,
+      :phone_number,
+      :address_1,
+      :city,
+      :state,
+      :zipcode
+    ]
+  end
+
+  def regular_user_update_changeset(user, attrs) do
+    user
+    |> cast(attrs, regular_user_accessible_fields())
+    |> base_validations()
+    |> put_pass_hash()
+  end
+
   def update_password_changeset(user, attrs) do
     user
     |> cast(attrs, [:password])

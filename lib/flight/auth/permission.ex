@@ -16,6 +16,7 @@ defmodule Flight.Auth.Permission do
   defstruct [:resource, :verb, :scope]
 
   @resources [
+    :aircraft,
     :users,
     :user_protected_info,
     :appointment,
@@ -35,10 +36,10 @@ defmodule Flight.Auth.Permission do
     :unavailability_aircraft,
     :invoice,
     :billing_settings,
-    :admin_dashboard,
-    :admins
+    :admins,
+    :web_dashboard
   ]
-  @verbs [:view, :modify, :be, :request]
+  @verbs [:view, :modify, :be, :request, :access]
   @scopes [:all, :personal]
 
   @doc """
@@ -91,6 +92,9 @@ defmodule Flight.Auth.Permission do
 
       {_, user_id} when is_integer(user_id) or is_binary(user_id) ->
         "#{user_id}" == "#{user.id}"
+
+      {:invoice, %Flight.Billing.Invoice{user_id: user_id}} ->
+        user.id == user_id
 
       _ ->
         raise "Unknown resource_slug and resource: #{resource_slug} #{resource}"

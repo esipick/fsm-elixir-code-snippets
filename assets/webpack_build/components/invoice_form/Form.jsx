@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 
+import { authHeaders } from '../utils';
 import Error from '../common/Error';
 
 import LineItemsTable from './LineItemsTable';
@@ -28,8 +29,6 @@ const PAYMENT_OPTIONS = [
   { value: VENMO, label: 'Venmo' }
 ];
 
-const authHeaders = () => ({ 'Authorization': window.fsm_token });
-
 class Form extends Component {
   constructor(props) {
     super(props);
@@ -38,20 +37,78 @@ class Form extends Component {
 
     this.state = {
       id: this.props.id || '',
-      date: props.date && new Date(props.date) || new Date,
-      student: props.student,
-      line_items: props.line_items || [],
       sales_tax: props.tax_rate || 0,
-      payment_method: this.getPaymentMethod(props.payment_option),
       action: props.action || 'create',
-      total: props.total || 0,
-      total_tax: props.total_tax || 0,
-      total_amount_due: props.total_amount_due || 0,
       errors: props.errors || {},
       stripe_error: props.stripe_error || '',
       balance_warning_open: false,
-      balance_warning_accepted: false
+      balance_warning_accepted: false,
+      payment_method: {},
+      line_items: []
     }
+  }
+
+  componentDidMount() {
+    if (this.state.id) {
+      this.loadInvoice().then(() => this.loadData());
+    } else {
+      this.loadData();
+    }
+  }
+
+  loadData = () => {
+    this.loadAppointments();
+    this.loadAircrafts();
+    this.loadInstructors();
+  }
+
+  loadAircrafts = () => {
+    return http.get({ url: '/api/aircrafts', headers: authHeaders() })
+      .then(r => r.json())
+      .then(r => { this.setState({ aircrafts: r.data }); })
+      .catch(err => {
+        err.json().then(e => { console.warn(e); });
+      });
+  }
+
+  loadInstructors = () => {
+    return http.get({ url: '/api/users/by_role?role=instructor', headers: authHeaders() })
+      .then(r => r.json())
+      .then(r => { this.setState({ instructors: r.data }); })
+      .catch(err => {
+        err.json().then(e => { console.warn(e); });
+      });
+  }
+
+  loadInvoice = () => {
+    this.setState({ invoice_loading: true });
+
+    return http.get({
+        url: '/api/invoices/' + this.state.id,
+        headers: authHeaders()
+      }).then(r => r.json())
+      .then(r => {
+        const invoice = r.data;
+
+        this.setState({
+          date: invoice.date && new Date(invoice.date) || new Date(),
+          student: invoice.user,
+          line_items: invoice.line_items || [],
+          payment_method: this.getPaymentMethod(invoice.payment_option),
+          sales_tax: invoice.tax_rate,
+          total: invoice.total || 0,
+          total_tax: invoice.total_tax || 0,
+          total_amount_due: invoice.total_amount_due || 0,
+          appointment: invoice.appointment,
+          invoice_loading: false
+        });
+      })
+      .catch(err => {
+        err.json().then(e => {
+          console.warn(e);
+          this.setState({ invoice_loading: false });
+        });
+      });
   }
 
   getPaymentMethod = (payment_option) => {
@@ -69,10 +126,12 @@ class Form extends Component {
   };
 
   loadStudents = (input, callback) => {
+    if (this.state.students_loading) return;
+
     this.setState({ students_loading: true });
 
     http.get({
-        url: '/api/users/autocomplete?name=' + input,
+        url: '/api/users/autocomplete?role=student&name=' + input,
         headers: authHeaders()
       }).then(r => r.json())
       .then(r => {
@@ -87,13 +146,61 @@ class Form extends Component {
       });
   }
 
+  loadAppointments = () => {
+    if (!this.state.student) { return };
+    if (this.state.appointment_loading) return;
+
+    this.setState({ appointment_loading: true });
+    const { student } = this.state;
+
+    http.get({
+        url: '/api/invoices/appointments?user_id=' + student.id,
+        headers: authHeaders()
+      }).then(r => r.json())
+      .then(r => {
+        this.setState({ appointments: r.data, appointment_loading: false });
+      })
+      .catch(err => {
+        err.json().then(e => {
+          console.warn(e);
+          this.setState({ appointment_loading: false });
+        })
+      });
+  }
+
+  appointmentLabel = (appointment) => {
+    if (appointment) {
+      const { start_at, end_at, aircraft, instructor_user } = appointment;
+
+      const date = start_at.split("T")[0];
+      const start_time = start_at.split("T")[1];
+      const end_time = end_at.split("T")[1];
+      const instructor =
+        instructor_user ? `, Instructor: ${instructor_user.first_name} ${instructor_user.last_name}` : '';
+
+      return `${date}, ${start_time} - ${end_time}${instructor}`;
+    } else {
+      return '';
+    }
+  }
+
+  setAppointment = (appointment) => {
+    this.setState({ appointment });
+  }
+
   accountBalance = () => {
     if (!this.state.student) return 0;
 
     return (this.state.student.balance * 1.0 / 100).toFixed(2);
   }
 
-  setStudent = (student) => { this.setState({ student }); }
+  setStudent = (student) => {
+    if (student) {
+      this.setState({ student }, () => { this.loadAppointments(); });
+    } else {
+      this.setState({ student, appointments: [] });
+    }
+  }
 
   setDate = (date) => { this.setState({ date }); }
 
@@ -103,7 +210,8 @@ class Form extends Component {
 
   payload = () => {
     const {
-      student, sales_tax, total, total_tax, total_amount_due, date, payment_method, action
+      appointment, student, sales_tax, total, total_tax, total_amount_due, date,
+      payment_method, action
     } = this.state;
 
     const line_items = action == 'edit' ? this.state.line_items : this.state.line_items.map(i => {
@@ -119,7 +227,8 @@ class Form extends Component {
       total: total,
       total_tax: total_tax,
       total_amount_due: total_amount_due,
-      payment_option: payment_method.value
+      payment_option: payment_method.value,
+      appointment_id: appointment && appointment.id
     }
   }
 
@@ -137,6 +246,8 @@ class Form extends Component {
   }
 
   saveInvoice = ({ pay_off }) => {
+    if (this.state.saving) return;
+
     this.setState({ saving: true });
 
     const payload = this.payload();
@@ -148,9 +259,8 @@ class Form extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
-        console.log(JSON.stringify(data));
-        window.location = `/admin/billing/invoices/${data.id}`;
-      })
+        window.location = `/billing/invoices/${data.id}`;
+      });
     }).catch(response => {
       response.json().then(({ id = this.state.id, stripe_error = '', errors = {} }) => {
         const action = id ? 'edit' : 'create';
@@ -211,8 +321,9 @@ class Form extends Component {
 
   render() {
     const {
-      students_loading, student, date, line_items, sales_tax, total, total_tax,
-      total_amount_due, payment_method, errors, stripe_error, saving, id
+      appointment, appointment_loading, students_loading, student, date,
+      line_items, sales_tax, total, total_tax, total_amount_due, payment_method,
+      errors, stripe_error, saving, id
     } = this.state;
     const studentWrapperClass = classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '');
 
@@ -244,6 +355,24 @@ class Form extends Component {
                 </div>
 
                 <div className="form-group">
+                  <label>
+                    Appointment
+                    <Error text={errors.appointment_id} />
+                  </label>
+                  <div className={studentWrapperClass}>
+                    <Select placeholder="Appointment"
+                      classNamePrefix="react-select"
+                      options={this.state.appointments}
+                      onChange={this.setAppointment}
+                      isLoading={appointment_loading}
+                      getOptionLabel={this.appointmentLabel}
+                      getOptionValue ={(o) => o.id}
+                      isDisabled={!student}
+                      value={appointment} />
+                  </div>
+                </div>
+
+                <div className="form-group">
                   <label>Acct Balance</label>
                   <div>${this.accountBalance()}</div>
                 </div>
@@ -266,12 +395,16 @@ class Form extends Component {
                 </div>
 
                 <div className="form-group">
-                  <LineItemsTable line_items={line_items}
-                    onChange={this.onLineItemsTableChange}
-                    sales_tax={sales_tax}
-                    total={total}
-                    total_tax={total_tax}
-                    total_amount_due={total_amount_due} />
+                  { !this.state.invoice_loading &&
+                    <LineItemsTable appointment={appointment}
+                      line_items={line_items}
+                      onChange={this.onLineItemsTableChange}
+                      aircrafts={this.state.aircrafts}
+                      instructors={this.state.instructors}
+                      sales_tax={sales_tax}
+                      total={total}
+                      total_tax={total_tax}
+                      total_amount_due={total_amount_due} /> }
                 </div>
 
                 <div className="form-group">
