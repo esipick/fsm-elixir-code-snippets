@@ -83,6 +83,13 @@ defmodule FlightWeb.API.UserController do
     render(conn, "autocomplete.json", users: users)
   end
 
+  def by_role(conn, %{"role" => role_slug} = _params) do
+    role = Flight.Accounts.role_for_slug(role_slug)
+    users = Flight.Queries.User.get_users_by_role(role, conn)
+
+    render(conn, "autocomplete.json", users: users)
+  end
+
   def authorize_modify(conn, _) do
     halt_unless_user_can?(conn, [
       Permission.new(:users, :modify, {:personal, conn.assigns.user}),

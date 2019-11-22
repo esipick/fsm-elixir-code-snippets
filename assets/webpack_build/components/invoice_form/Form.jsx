@@ -50,10 +50,34 @@ class Form extends Component {
 
   componentDidMount() {
     if (this.state.id) {
-      this.loadInvoice().then(() => this.loadAppointments());
+      this.loadInvoice().then(() => this.loadData());
     } else {
-      this.loadAppointments();
+      this.loadData();
     }
+  }
+
+  loadData = () => {
+    this.loadAppointments();
+    this.loadAircrafts();
+    this.loadInstructors();
+  }
+
+  loadAircrafts = () => {
+    return http.get({ url: '/api/aircrafts', headers: authHeaders() })
+      .then(r => r.json())
+      .then(r => { this.setState({ aircrafts: r.data }); })
+      .catch(err => {
+        err.json().then(e => { console.warn(e); });
+      });
+  }
+
+  loadInstructors = () => {
+    return http.get({ url: '/api/users/by_role?role=instructor', headers: authHeaders() })
+      .then(r => r.json())
+      .then(r => { this.setState({ instructors: r.data }); })
+      .catch(err => {
+        err.json().then(e => { console.warn(e); });
+      });
   }
 
   loadInvoice = () => {
@@ -375,6 +399,8 @@ class Form extends Component {
                     <LineItemsTable appointment={appointment}
                       line_items={line_items}
                       onChange={this.onLineItemsTableChange}
+                      aircrafts={this.state.aircrafts}
+                      instructors={this.state.instructors}
                       sales_tax={sales_tax}
                       total={total}
                       total_tax={total_tax}

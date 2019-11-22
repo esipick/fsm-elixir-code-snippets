@@ -17,11 +17,13 @@ export const DESCRIPTION_OPTS = [
   "Equipment Rental"
 ].map(o => ({ label: o, value: o }));
 
+export const DEFAULT_RATE = 100;
+
 export class LineItemRecord {
   constructor(params = {}) {
     this.id = shortid.generate();
     this.description = params.description || DESCRIPTION_OPTS[0].value;
-    this.rate = params.rate || 100;
+    this.rate = params.rate || DEFAULT_RATE;
     this.quantity = params.quantity || 1;
     this.amount = this.rate * this.quantity;
     this.type = TYPES[this.description] || DEFAULT_TYPE;

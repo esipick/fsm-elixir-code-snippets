@@ -119,6 +119,8 @@ class LineItemsTable extends Component {
                 number={i + 1}
                 key={item.id || i}
                 onChange={this.setItem}
+                aircrafts={this.props.aircrafts}
+                instructors={this.props.instructors}
                 canRemove={line_items.length > 1}
                 onRemove={this.removeItem} />
             ))

@@ -203,6 +203,7 @@ defmodule FlightWeb.Router do
     pipe_through([:api, :api_authenticate])
 
     get("/users/autocomplete", UserController, :autocomplete, as: :autocomplete)
+    get("/users/by_role", UserController, :by_role, as: :by_role)
 
     resources("/users", UserController, only: [:show, :update, :index]) do
       get("/form_items", UserController, :form_items)

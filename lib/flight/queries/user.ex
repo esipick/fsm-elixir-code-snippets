@@ -40,4 +40,11 @@ defmodule Flight.Queries.User do
     |> Flight.Accounts.default_users_query(school_context)
     |> Repo.all
   end
+
+  def get_users_by_role(role, school_context) do
+    role
+    |> Ecto.assoc(:users)
+    |> Flight.Accounts.default_users_query(school_context)
+    |> Repo.all
+  end
 end

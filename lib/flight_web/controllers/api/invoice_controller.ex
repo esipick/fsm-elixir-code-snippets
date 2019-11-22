@@ -6,7 +6,6 @@ defmodule FlightWeb.API.InvoiceController do
   alias Flight.Repo
   alias Flight.Auth.Permission
   alias FlightWeb.{ViewHelpers, Pagination}
-  alias Flight.Scheduling.Appointment
   alias Flight.Billing.{Invoice, CreateInvoice, UpdateInvoice, CreateInvoiceFromAppointment}
 
   plug(:get_invoice when action in [:update, :show])
