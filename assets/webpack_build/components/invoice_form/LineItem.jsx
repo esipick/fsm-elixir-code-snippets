@@ -67,15 +67,12 @@ class InvoiceLineItem extends Component {
   }
 
   setAircraft = (aircraft) => {
-    const payload = aircraft ? {
-        rate: aircraft.rate_per_hour,
-        aircraft_id: aircraft.id
-      } : {
-        aircraft_id: null,
-        rate: DEFAULT_RATE
-      };
-
+    const rate = aircraft ? aircraft.rate_per_hour : DEFAULT_RATE;
+    const aircraft_id = aircraft ? aircraft.id : null;
+    const amount = rate * this.state.item.quantity;
+    const payload = { rate, aircraft_id, amount };
     const item = Object.assign({}, this.state.item, payload);
+
     this.setState({ aircraft, item });
     this.props.onChange(item);
   }
@@ -96,15 +93,12 @@ class InvoiceLineItem extends Component {
   }
 
   setInstructor = (instructor_user) => {
-    const payload = instructor_user ? {
-        rate: instructor_user.billing_rate,
-        instructor_user_id: instructor_user.id
-      } : {
-        instructor_user_id: null,
-        rate: DEFAULT_RATE
-      };
-
+    const rate = instructor_user ? instructor_user.billing_rate : DEFAULT_RATE;
+    const instructor_user_id = instructor_user ? instructor_user.id : null;
+    const amount = rate * this.state.item.quantity;
+    const payload = { rate, instructor_user_id, amount };
     const item = Object.assign({}, this.state.item, payload);
+
     this.setState({ instructor_user, item });
     this.props.onChange(item);
   }
