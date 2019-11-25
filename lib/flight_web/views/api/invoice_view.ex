@@ -12,7 +12,11 @@ defmodule FlightWeb.API.InvoiceView do
 
     %{
       id: invoice.id,
-      user: render(UserView, "skinny_user.json", user: invoice.user),
+      user: Optional.map(
+        invoice.user,
+        &render(UserView, "skinny_user.json", user: &1)
+      ),
+      payer_name: invoice.payer_name,
       user_id: invoice.user_id,
       payment_option: invoice.payment_option,
       date: invoice.date,

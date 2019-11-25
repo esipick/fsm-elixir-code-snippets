@@ -9,7 +9,6 @@ defmodule Flight.Billing.Invoice do
   alias Flight.Scheduling.Appointment
 
   @required_fields ~w(
-    user_id
     payment_option
     date
     total
@@ -18,6 +17,7 @@ defmodule Flight.Billing.Invoice do
     total_amount_due
     school_id
   )a
+  @payer_fields ~w(user_id payer_name)a
 
   schema "invoices" do
     field(:date, :date)
@@ -27,6 +27,7 @@ defmodule Flight.Billing.Invoice do
     field(:total_amount_due, :integer)
     field(:status, InvoiceStatusEnum, default: :pending)
     field(:payment_option, InvoicePaymentOptionEnum)
+    field(:payer_name, :string)
 
     belongs_to(:user, User)
     belongs_to(:school, School)
@@ -45,14 +46,30 @@ defmodule Flight.Billing.Invoice do
   def changeset(%Invoice{} = invoice, attrs) do
     invoice
     |> cast(attrs, @required_fields)
+    |> cast(attrs, @payer_fields)
     |> cast(attrs, [:appointment_id])
     |> cast_assoc(:line_items)
     |> assoc_constraint(:user)
     |> assoc_constraint(:school)
     |> validate_required(@required_fields)
+    |> validate_required_inclusion(@payer_fields)
   end
 
   def paid(%Invoice{} = invoice) do
     change(invoice, status: :paid) |> Repo.update
+  end
+
+  def validate_required_inclusion(changeset, fields) do
+    if Enum.any?(fields, &present?(changeset, &1)) do
+      changeset
+    else
+      # Add the error to the first field only since Ecto requires a field name for each error.
+      add_error(changeset, hd(fields), "One of these fields must be present: #{inspect fields}")
+    end
+  end
+
+  def present?(changeset, field) do
+    value = get_field(changeset, field)
+    value && value != ""
   end
 end

@@ -27,8 +27,8 @@
               </dl>
 
               <dl class="d-flex justify-content-between">
-                <dt>Student name</dt>
-                <dd><%= @invoice.student_name %></dd>
+                <dt>Payer name</dt>
+                <dd><%= @invoice.payer_name %></dd>
               </dl>
 
               <%= if @invoice.appointment do %>

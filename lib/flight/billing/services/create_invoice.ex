@@ -99,15 +99,16 @@ defmodule Flight.Billing.CreateInvoice do
 
   defp create_transaction(invoice, school_context, attrs) do
     user = invoice.user
+    first_name = if user, do: user.first_name, else: invoice.payer_name
 
     %Transaction{
       state: "pending",
       type: "debit",
-      user_id: user.id,
+      user_id: user && user.id,
       invoice_id: invoice.id,
-      email: user.email,
-      first_name: user.first_name,
-      last_name: user.last_name,
+      email: user && user.email,
+      first_name: first_name,
+      last_name: user && user.last_name,
       creator_user_id: school_context.assigns.current_user.id,
       school_id: school(school_context).id
     }

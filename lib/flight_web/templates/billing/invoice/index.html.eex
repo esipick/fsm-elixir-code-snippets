@@ -52,7 +52,7 @@
               <tr>
                 <td><%= invoice.id %></td>
                 <td><%= invoice.created %></td>
-                <td><%= invoice.student_name %></td>
+                <td><%= invoice.payer_name %></td>
                 <td><%= currency(invoice.amount_due) %></td>
                 <td><%= currency(invoice.amount_paid) %></td>
                 <td><%= invoice.status %></td>

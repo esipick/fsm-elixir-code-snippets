@@ -3,7 +3,7 @@ import http from 'j-fetch';
 import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
-import AsyncSelect from 'react-select/async';
+import AsyncCreatableSelect from 'react-select/async-creatable';
 
 import { authHeaders } from '../utils';
 import Error from '../common/Error';
@@ -20,13 +20,16 @@ const VENMO = 'venmo';
 const MARK_AS_PAID = 'Save and Mark as paid';
 const PAY = 'Save and Pay';
 
+const GUEST_PAYMENT_OPTIONS = [
+  { value: CASH, label: 'Cash' },
+  { value: CHECK, label: 'Check' },
+  { value: VENMO, label: 'Venmo' }
+];
 const DEFAULT_PAYMENT_OPTION = { value: BALANCE, label: 'Balance' };
 const PAYMENT_OPTIONS = [
   DEFAULT_PAYMENT_OPTION,
   { value: CREDIT_CARD, label: 'Credit Card' },
-  { value: CASH, label: 'Cash' },
-  { value: CHECK, label: 'Check' },
-  { value: VENMO, label: 'Venmo' }
+  ...GUEST_PAYMENT_OPTIONS
 ];
 
 class Form extends Component {
@@ -92,7 +95,7 @@ class Form extends Component {
 
         this.setState({
           date: invoice.date && new Date(invoice.date) || new Date(),
-          student: invoice.user,
+          student: invoice.user || this.guestPayer(invoice.payer_name),
           line_items: invoice.line_items || [],
           payment_method: this.getPaymentMethod(invoice.payment_option),
           sales_tax: invoice.tax_rate,
@@ -104,10 +107,15 @@ class Form extends Component {
         });
       })
       .catch(err => {
-        err.json().then(e => {
-          console.warn(e);
+        if (err.json) {
+          err.json().then(e => {
+            console.warn(e);
+            this.setState({ invoice_loading: false });
+          });
+        } else {
+          console.warn(err);
           this.setState({ invoice_loading: false });
-        });
+        }
       });
   }
 
@@ -135,7 +143,7 @@ class Form extends Component {
         headers: authHeaders()
       }).then(r => r.json())
       .then(r => {
-        callback(r.data);
+        callback(r.data.map(s => Object.assign({}, s, { label: s.first_name + ' ' + s.last_name })));
         this.setState({ students_loading: false });
       })
       .catch(err => {
@@ -147,11 +155,12 @@ class Form extends Component {
   }
 
   loadAppointments = () => {
-    if (!this.state.student) { return };
+    const { student } = this.state;
+
+    if (!student || student.guest) { return };
     if (this.state.appointment_loading) return;
 
     this.setState({ appointment_loading: true });
-    const { student } = this.state;
 
     http.get({
         url: '/api/invoices/appointments?user_id=' + student.id,
@@ -202,6 +211,26 @@ class Form extends Component {
     }
   }
 
+  guestPayer = (payer_name) => ({
+    label: payer_name,
+    balance: 0,
+    id: null,
+    guest: true
+  });
+
+  createGuestPayer = (payer_name) => {
+    const student = this.guestPayer(payer_name);
+
+    this.setState({ student, appointments: [] });
+  }
+
+  isGuestNameValid = (inputValue, selectValue, selectOptions) => {
+    return !(
+      inputValue.trim().length === 0 ||
+      selectOptions.find(option => option.name === inputValue)
+    );
+  };
+
   setDate = (date) => { this.setState({ date }); }
 
   setPaymentMethod = (option) => { this.setState({ payment_method: option }); }
@@ -222,6 +251,7 @@ class Form extends Component {
     return {
       line_items,
       user_id: student && student.id,
+      payer_name: student && student.guest ? student.label : '',
       date: date.toISOString(),
       tax_rate: sales_tax,
       total: total,
@@ -343,12 +373,14 @@ class Form extends Component {
                     <Error text={errors.user_id} />
                   </label>
                   <div className={studentWrapperClass}>
-                    <AsyncSelect placeholder="Student name"
+                    <AsyncCreatableSelect placeholder="Student name"
+                      allowCreateWhileLoading={true}
+                      isValidNewOption={this.isGuestNameValid}
+                      onCreateOption={this.createGuestPayer}
                       classNamePrefix="react-select"
                       loadOptions={this.loadStudents}
                       onChange={this.setStudent}
                       isLoading={students_loading}
-                      getOptionLabel={(o) => o.first_name + ' ' + o.last_name}
                       getOptionValue ={(o) => o.id}
                       value={student} />
                   </div>
@@ -367,7 +399,7 @@ class Form extends Component {
                       isLoading={appointment_loading}
                       getOptionLabel={this.appointmentLabel}
                       getOptionValue ={(o) => o.id}
-                      isDisabled={!student}
+                      isDisabled={!student || student.guest}
                       value={appointment} />
                   </div>
                 </div>
@@ -416,7 +448,7 @@ class Form extends Component {
                     <Select placeholder="Payment method"
                       value={payment_method}
                       classNamePrefix="react-select"
-                      options={PAYMENT_OPTIONS}
+                      options={student && student.guest ? GUEST_PAYMENT_OPTIONS : PAYMENT_OPTIONS}
                       onChange={this.setPaymentMethod}
                       required={true} />
                   </div>

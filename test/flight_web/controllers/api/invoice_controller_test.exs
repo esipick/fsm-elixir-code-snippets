@@ -6,6 +6,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   alias Flight.Billing.Invoice
 
   describe "POST /api/invoices" do
+    @tag :integration
     test "renders unauthorized", %{conn: conn} do
       student = student_fixture()
       invoice_params = %{}
@@ -16,6 +17,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       |> json_response(401)
     end
 
+    @tag :integration
     test "renders invoice json errors", %{conn: conn} do
       instructor = instructor_fixture()
       invoice_params = %{}
@@ -32,12 +34,13 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         "total" => ["can't be blank"],
         "total_amount_due" => ["can't be blank"],
         "total_tax" => ["can't be blank"],
-        "user_id" => ["can't be blank"]
+        "user_id" => ["One of these fields must be present: [:user_id, :payer_name]"]
       }
 
       assert json["errors"] == errors
     end
 
+    @tag :integration
     test "creates invoice", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
@@ -54,6 +57,23 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
+    @tag :integration
+    test "creates invoice for anonymous payer", %{conn: conn} do
+      instructor = instructor_fixture()
+      invoice_params = invoice_attrs(%Flight.Accounts.User{}, %{ payer_name: "Foo Bar" })
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices", %{invoice: invoice_params})
+        |> json_response(201)
+
+      invoice = Repo.get_by(Invoice, payer_name: "Foo Bar") |> preload_invoice
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
     test "renders stripe error", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
@@ -81,6 +101,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert String.starts_with?(json["stripe_error"], "No such customer: cus_")
     end
 
+    @tag :integration
     test "creates invoice when payment option is not balance or cc", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
@@ -108,6 +129,38 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
+    @tag :integration
+    test "creates and pays invoice for anonymous payer", %{conn: conn} do
+      instructor = instructor_fixture()
+      invoice_params = invoice_attrs(
+        %Flight.Accounts.User{},
+        %{payer_name: "Foo Bar", payment_option: "cash"}
+      )
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
+        |> json_response(201)
+
+      invoice = Repo.get_by(Invoice, payer_name: "Foo Bar") |> preload_invoice
+
+      transaction = List.first(invoice.transactions)
+
+      assert is_nil(transaction.stripe_charge_id)
+      assert not is_nil(transaction.completed_at)
+      assert transaction.first_name == "Foo Bar"
+
+      assert transaction.state == "completed"
+      assert transaction.total == 24000
+      assert transaction.type == "debit"
+      assert transaction.payment_option == :cash
+      assert transaction.paid_by_cash == 24000
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
     test "creates invoice when payment option is balance (enough)", %{conn: conn} do
       student = student_fixture(%{balance: 30000})
       instructor = instructor_fixture()
@@ -137,6 +190,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
+    @tag :integration
     test "creates invoice when payment option is balance (not enough)", %{conn: conn} do
       {student, _} = student_fixture(%{balance: 20000}) |> real_stripe_customer()
       instructor = instructor_fixture()
@@ -175,6 +229,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
+    @tag :integration
     test "creates only charge transaction when user balance is empty", %{conn: conn} do
       {student, _} = student_fixture() |> real_stripe_customer()
       instructor = instructor_fixture()
@@ -204,6 +259,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
+    @tag :integration
     test "creates invoice when payment option is cc", %{conn: conn} do
       {student, _} = student_fixture() |> real_stripe_customer()
       instructor = instructor_fixture()
@@ -233,6 +289,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   end
 
   describe "GET /api/invoices" do
+    @tag :integration
     test "renders unauthorized", %{conn: conn} do
       student = student_fixture()
 
@@ -242,6 +299,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       |> json_response(401)
     end
 
+    @tag :integration
     test "renders invoices", %{conn: conn} do
       invoice1 = invoice_fixture()
       invoice2 = invoice_fixture()
@@ -268,6 +326,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   end
 
   describe "GET /api/invoices/:id" do
+    @tag :integration
     test "renders unauthorized", %{conn: conn} do
       invoice = invoice_fixture()
       student = student_fixture()
@@ -278,6 +337,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       |> json_response(401)
     end
 
+    @tag :integration
     test "renders invoice", %{conn: conn} do
       invoice = invoice_fixture()
       instructor = instructor_fixture()
@@ -297,6 +357,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   end
 
   describe "PUT /api/invoices/:id" do
+    @tag :integration
     test "renders unauthorized for student", %{conn: conn} do
       invoice = invoice_fixture()
       student = student_fixture()
@@ -308,6 +369,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       |> json_response(401)
     end
 
+    @tag :integration
     test "renders unauthorized when invoice has already paid", %{conn: conn} do
       invoice = invoice_fixture(%{status: "paid"})
       student = student_fixture()
@@ -319,6 +381,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       |> json_response(401)
     end
 
+    @tag :integration
     test "renders invoice json errors", %{conn: conn} do
       invoice = invoice_fixture()
       instructor = instructor_fixture()
@@ -335,6 +398,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json["errors"] == errors
     end
 
+    @tag :integration
     test "updates invoice", %{conn: conn} do
       invoice = invoice_fixture()
       instructor = instructor_fixture()
@@ -351,6 +415,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
+    @tag :integration
     test "renders stripe error", %{conn: conn} do
       invoice = invoice_fixture(%{payment_option: "cc"})
       instructor = instructor_fixture()
@@ -378,6 +443,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert String.starts_with?(json["stripe_error"], "No such customer: cus_")
     end
 
+    @tag :integration
     test "creates invoice when payment option is not balance or cc", %{conn: conn} do
       invoice = invoice_fixture(%{payment_option: "cash"})
       instructor = instructor_fixture()
@@ -405,6 +471,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
+    @tag :integration
     test "creates invoice when payment option is balance (enough)", %{conn: conn} do
       student = student_fixture(%{balance: 30000})
       invoice = invoice_fixture(%{}, student)
@@ -435,6 +502,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
+    @tag :integration
     test "creates invoice when payment option is balance (not enough)", %{conn: conn} do
       {student, _} = student_fixture(%{balance: 20000}) |> real_stripe_customer()
       invoice = invoice_fixture(%{}, student)
@@ -472,6 +540,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
+    @tag :integration
     test "creates only charge transaction when user balance is empty", %{conn: conn} do
       {student, _} = student_fixture() |> real_stripe_customer()
       invoice = invoice_fixture(%{}, student)
@@ -502,6 +571,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
+    @tag :integration
     test "creates invoice when payment option is cc", %{conn: conn} do
       {student, _} = student_fixture() |> real_stripe_customer()
       invoice = invoice_fixture(%{payment_option: "cc"}, student)
@@ -531,6 +601,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
   end
 
+  @tag :integration
   test "creates invoice from appointment", %{conn: conn} do
     appointment = appointment_fixture()
     instructor = instructor_fixture()
