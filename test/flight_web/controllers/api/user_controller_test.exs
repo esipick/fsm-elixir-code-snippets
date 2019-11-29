@@ -69,6 +69,86 @@ defmodule FlightWeb.API.UserControllerTest do
     end
   end
 
+  describe "POST /api/users" do
+    @tag :integration
+    test "creates user", %{conn: conn} do
+      user_attrs = %{
+        email: "user-#{Flight.Random.string(20)}@email.com",
+        first_name: "Alexxx",
+        last_name: "Doe",
+        phone_number: "801-555-5555",
+        school_id: default_school_fixture().id
+      }
+      instructor = instructor_fixture()
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/users/", %{data: user_attrs})
+        |> json_response(200)
+
+      user =
+        Flight.Repo.get!(Flight.Accounts.User, json["data"]["id"])
+        |> FlightWeb.API.UserView.show_preload()
+
+      assert user.first_name == "Alexxx"
+
+      assert json ==
+               render_json(
+                 FlightWeb.API.UserView,
+                 "show.json",
+                 user: user
+               )
+    end
+
+    @tag :integration
+    test "creates user with stripe account", %{conn: conn} do
+      user_attrs = %{
+        email: "user-#{Flight.Random.string(20)}@email.com",
+        first_name: "Alexxx",
+        last_name: "Doe",
+        phone_number: "801-555-5555",
+        school_id: default_school_fixture().id
+      }
+      instructor = instructor_fixture()
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/users/", %{data: user_attrs, stripe_token: "tok_visa"})
+        |> json_response(200)
+
+      user =
+        Flight.Repo.get!(Flight.Accounts.User, json["data"]["id"])
+        |> FlightWeb.API.UserView.show_preload()
+
+      assert user.first_name == "Alexxx"
+
+      assert json ==
+               render_json(
+                 FlightWeb.API.UserView,
+                 "show.json",
+                 user: user
+               )
+    end
+
+    test "401 for unauhtorized", %{conn: conn} do
+      user_attrs = %{
+        email: "user-#{Flight.Random.string(20)}@email.com",
+        first_name: "Alexxx",
+        last_name: "Doe",
+        phone_number: "801-555-5555",
+        school_id: default_school_fixture().id
+      }
+      student = student_fixture()
+
+      conn
+      |> auth(student)
+      |> post("/api/users/", %{data: user_attrs})
+      |> response(401)
+    end
+  end
+
   @tag :integration
   describe "PUT /api/users/:id" do
     test "renders json", %{conn: conn} do

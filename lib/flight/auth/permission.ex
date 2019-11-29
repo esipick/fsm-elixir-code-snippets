@@ -39,7 +39,7 @@ defmodule Flight.Auth.Permission do
     :admins,
     :web_dashboard
   ]
-  @verbs [:view, :modify, :be, :request, :access]
+  @verbs [:view, :modify, :create, :be, :request, :access]
   @scopes [:all, :personal]
 
   @doc """

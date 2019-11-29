@@ -8,6 +8,7 @@ defmodule FlightWeb.API.UserController do
   plug(:get_user when action in [:show, :update, :form_items])
   plug(:authorize_modify when action in [:update, :form_items])
   plug(:authorize_view when action in [:show])
+  plug(:authorize_create when action in [:create])
   plug(:authorize_view_all when action in [:autocomplete])
 
   def index(conn, %{"form" => form}) do
@@ -42,6 +43,28 @@ defmodule FlightWeb.API.UserController do
       |> FlightWeb.API.UserView.show_preload()
 
     render(conn, "show.json", user: user)
+  end
+
+  def create(conn, %{"data" => data_params} = params) do
+    data_params = Map.put(data_params, "password", Flight.Random.string(20))
+
+    case Accounts.create_user(
+      data_params,
+      conn,
+      !!params["stripe_token"],
+      params["stripe_token"]
+    ) do
+      {:ok, user} ->
+        user =
+          user
+          |> FlightWeb.API.UserView.show_preload()
+
+        render(conn, "show.json", user: user)
+      {:error, changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
+    end
   end
 
   def update(conn, %{"data" => data_params}) do
@@ -106,6 +129,10 @@ defmodule FlightWeb.API.UserController do
 
   def authorize_view_all(conn, _) do
     halt_unless_user_can?(conn, [Permission.new(:users, :view, :all)])
+  end
+
+  def authorize_create(conn, _) do
+    halt_unless_user_can?(conn, [Permission.new(:users, :create, :all)])
   end
 
   defp get_user(conn, _) do

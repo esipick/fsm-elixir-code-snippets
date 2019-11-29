@@ -205,7 +205,7 @@ defmodule FlightWeb.Router do
     get("/users/autocomplete", UserController, :autocomplete, as: :autocomplete)
     get("/users/by_role", UserController, :by_role, as: :by_role)
 
-    resources("/users", UserController, only: [:show, :update, :index]) do
+    resources("/users", UserController, only: [:show, :create, :update, :index]) do
       get("/form_items", UserController, :form_items)
       resources("/push_tokens", PushTokenController, only: [:create])
     end

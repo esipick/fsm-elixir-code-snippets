@@ -14,8 +14,8 @@ defmodule Flight.Queries.Transaction do
   def page(school_context, page_params, params = %{}) do
     search_term = Map.get(params, "search", nil)
     user_ids = users_search(search_term, school_context)
-    transaction_ids = transaction_line_items_search(search_term, school_context)
-    invoice_ids = invoice_line_items_search(search_term, school_context)
+    transaction_ids = transaction_line_items_search(search_term)
+    invoice_ids = invoice_line_items_search(search_term)
 
     normalized_term = Utils.normalize(search_term || "")
 
@@ -61,7 +61,7 @@ defmodule Flight.Queries.Transaction do
     end
   end
 
-  defp transaction_line_items_search(search_term, school_context) do
+  defp transaction_line_items_search(search_term) do
     case search_term do
       nil -> []
       _ ->
@@ -76,7 +76,7 @@ defmodule Flight.Queries.Transaction do
     end
   end
 
-  defp invoice_line_items_search(search_term, school_context) do
+  defp invoice_line_items_search(search_term) do
     case search_term do
       nil -> []
       _ ->

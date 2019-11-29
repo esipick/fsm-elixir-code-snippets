@@ -50,6 +50,7 @@ defmodule Flight.Auth.Authorization do
 
   def dispatcher_permission_slugs() do
     MapSet.new([
+      permission_slug(:users, :create, :all),
       permission_slug(:users, :modify, :all),
       permission_slug(:users, :view, :all),
       permission_slug(:objective_score, :view, :all),
@@ -86,6 +87,7 @@ defmodule Flight.Auth.Authorization do
 
   def instructor_permission_slugs() do
     MapSet.new([
+      permission_slug(:users, :create, :all),
       permission_slug(:users, :modify, :personal),
       permission_slug(:users, :view, :all),
       permission_slug(:appointment, :modify, :all),
