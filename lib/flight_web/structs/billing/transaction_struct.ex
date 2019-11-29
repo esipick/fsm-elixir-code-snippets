@@ -1,6 +1,8 @@
 defmodule FlightWeb.Billing.TransactionStruct do
   alias __MODULE__
   alias Flight.Billing.Transaction
+  alias Flight.Accounts.User
+  alias Flight.Repo
 
   defstruct ~w(
     id invoice_id student_name amount_due amount_paid state completed_at
@@ -8,6 +10,8 @@ defmodule FlightWeb.Billing.TransactionStruct do
   )a
 
   def build(transaction) do
+    transaction = Repo.preload(transaction, [:user])
+
     %TransactionStruct{
       id: transaction.id,
       created: NaiveDateTime.to_date(transaction.inserted_at),
@@ -23,7 +27,11 @@ defmodule FlightWeb.Billing.TransactionStruct do
   end
 
   defp student_name(transaction) do
-    Transaction.full_name(transaction)
+    if transaction.user do
+      User.full_name(transaction.user)
+    else
+      Transaction.full_name(transaction)
+    end
   end
 
   defp amount_paid(transaction) do

@@ -13,16 +13,16 @@ defmodule FlightWeb.Billing.InvoiceController do
     page_params = Pagination.params(params)
     user = conn.assigns.current_user
 
-    options = if InvoicePolicy.create?(user) do
-      %{}
+    page = if InvoicePolicy.create?(user) do
+      Flight.Queries.Invoice.page(conn, page_params, params)
     else
-      %{"user_id" => user.id}
+      options = %{user_id: user.id}
+      Flight.Queries.Invoice.own_invoices(conn, page_params, options)
     end
 
-    page = Flight.Queries.Invoice.page(conn, page_params, options)
     invoices = page |> Enum.map(fn invoice -> InvoiceStruct.build(invoice) end)
 
-    render(conn, "index.html", page: page, invoices: invoices)
+    render(conn, "index.html", page: page, invoices: invoices, params: params)
   end
 
   def new(conn, _) do

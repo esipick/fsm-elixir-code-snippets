@@ -10,7 +10,7 @@
   <div class="col-md-12">
     <div class="card">
       <div class="card-header">
-        <h4 class="card-title">Instructors</h4> 
+        <h4 class="card-title">Instructors</h4>
         <h5 class="card-category">Choose Time Range</h5>
         <div class="d-flex form-group">
           <div class="mr-2"><input id="apptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value=""></div>
@@ -20,14 +20,14 @@
             <button id="btnSubmit" class="btn btn-default mt-0">print</button>
             <button id="btnSubmit" class="btn btn-default mt-0">csv</button>
           </div>
-        </div>         
+        </div>
       </div>
       <div class="card-body">
-        
 
-      
-          
-          
+
+
+
+
         <div class="row">
            <table style='display:none;' id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
             <thead>
@@ -40,7 +40,7 @@
               </tr>
             </thead>
             <tbody>
-              
+
               <script>
                 var names = ["Max Fischer", "Herman Blume", "Rosemary Cross", "Dirk Calloway"];
                 var hours = ["80", "120", "12", "200"];
@@ -62,8 +62,8 @@
                   document.write('<td>'+getHours()+'</td>');
                   document.write('</tr>');
                 }
-              </script>              
-               
+              </script>
+
             </tbody>
           </table>
         </div>
@@ -79,75 +79,6 @@
 
 
 <script>
-  $(document).ready(function() {
-    
-    // sets the reports nav item to active
-    $("a[href='/admin/reports']").parents('li').addClass('active');
-    
-    
-    $('#datatable').hide();
-    $('#btnSubmit').click(function(){
-      $('#datatable').show();
-      initDataTable();
-    });
-    
-    function initDataTable(){
-      $('#datatable').DataTable({
-        "pagingType": "full_numbers",
-        "lengthMenu": [
-          [10, 25, 50, -1],
-          [10, 25, 50, "All"]
-        ],
-        responsive: true,
-        language: {
-          search: "_INPUT_",
-          searchPlaceholder: "Search records",
-        }
-  
-      });
-    }
-
-    
-
-    function initDateTimePicker() {
-      $('.datetimepickerstart').datetimepicker({
-      		// debug: true,
-          icons: {
-              time: "now-ui-icons tech_watch-time",
-              date: "now-ui-icons ui-1_calendar-60",
-              up: "fa fa-chevron-up",
-              down: "fa fa-chevron-down",
-              previous: 'now-ui-icons arrows-1_minimal-left',
-              next: 'now-ui-icons arrows-1_minimal-right',
-              today: 'fa fa-screenshot',
-              clear: 'fa fa-trash',
-              close: 'fa fa-remove'
-          }
-      });
-      $('.datetimepickerend').datetimepicker({
-      		// debug: true,
-      		useCurrent: false, //Important! See issue #1075
-          icons: {
-            time: "now-ui-icons tech_watch-time",
-            date: "now-ui-icons ui-1_calendar-60",
-            up: "fa fa-chevron-up",
-            down: "fa fa-chevron-down",
-            previous: 'now-ui-icons arrows-1_minimal-left',
-            next: 'now-ui-icons arrows-1_minimal-right',
-            today: 'fa fa-screenshot',
-            clear: 'fa fa-trash',
-            close: 'fa fa-remove'
-          }
-      });
-      $(".datetimepickerstart").on("dp.change", function (e) {
-          $('.datetimepickerend').data("DateTimePicker").minDate(e.date);
-      });
-      $(".datetimepickerend").on("dp.change", function (e) {
-          $('.datetimepickerstart').data("DateTimePicker").maxDate(e.date);
-      });
-
-    }
-    initDateTimePicker();   
-    
-  });
+  require("js/admin/reports.js")
+  require("js/admin/datetimepicker.js")
 </script>

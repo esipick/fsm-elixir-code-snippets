@@ -1,6 +1,6 @@
 defmodule Pipe do
   def pass_unless(item, conditional, func) do
-    if conditional do
+    if conditional && conditional != "" do
       func.(item)
     else
       item

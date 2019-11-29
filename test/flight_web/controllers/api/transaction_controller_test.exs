@@ -36,6 +36,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    @tag :integration
     test "creates completed detailed transaction if user has enough in their balance", %{
       conn: conn
     } do
@@ -69,6 +70,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    @tag :integration
     test "creates completed detailed cash transaction starting with zero balance", %{
       conn: conn
     } do
@@ -113,6 +115,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    @tag :integration
     test "creates completed detailed transaction as student, taken from balance", %{conn: conn} do
       student = student_fixture(%{balance: 3_000_000})
       instructor = instructor_fixture()
@@ -208,6 +211,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    @tag :integration
     test "creates completed detailed cash transaction as instructor, charged to custom user", %{
       conn: conn
     } do
@@ -334,6 +338,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    @tag :integration
     test "creates completed custom transaction as student, taken from balance", %{conn: conn} do
       student = student_fixture(%{balance: 3_000_000})
 
@@ -356,6 +361,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    @tag :integration
     test "creates completed custom cash transaction starting with zero balance", %{conn: conn} do
       student = student_fixture(%{balance: 0})
       instructor = instructor_fixture()
@@ -395,6 +401,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    @tag :integration
     test "rejects non instructor or admin attempt to create a custom cash transaction", %{
       conn: conn
     } do
@@ -447,6 +454,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    @tag :integration
     test "401 if other student", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
@@ -472,6 +480,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       |> response(401)
     end
 
+    @tag :integration
     test "401 if student tries to make instructor the user", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
@@ -535,6 +544,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
   end
 
   describe "POST /api/transactions/preview" do
+    @tag :integration
     test "renders detailed preview", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
@@ -564,6 +574,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
                )
     end
 
+    @tag :integration
     test "renders custom preview", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
@@ -589,6 +600,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
                )
     end
 
+    @tag :integration
     test "renders preview for only one", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
@@ -616,6 +628,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
   end
 
   describe "GET /api/transactions" do
+    @tag :integration
     test "returns transactions for user_id", %{conn: conn} do
       student = student_fixture()
 
@@ -634,6 +647,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "index.json", transactions: [transaction1])
     end
 
+    @tag :integration
     test "returns filtered transactions by user name", %{conn: conn} do
       student = student_fixture(%{first_name: "Adrian", last_name: "Nairda"})
       instructor = instructor_fixture()
@@ -653,6 +667,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "index.json", transactions: [transaction1])
     end
 
+    @tag :integration
     test "returns filtered transactions by total", %{conn: conn} do
       instructor = instructor_fixture()
 
@@ -668,6 +683,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "index.json", transactions: [transaction1])
     end
 
+    @tag :integration
     test "401 if trying to request transactions for other users", %{conn: conn} do
       student = student_fixture()
 
@@ -679,6 +695,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
   end
 
   describe "GET /api/transactions/:id" do
+    @tag :integration
     test "returns transaction for user", %{conn: conn} do
       student = student_fixture()
 
@@ -695,6 +712,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    @tag :integration
     test "returns transaction for creator", %{conn: conn} do
       instructor = instructor_fixture()
 
@@ -711,6 +729,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       assert json == render_json(TransactionView, "show.json", transaction: transaction)
     end
 
+    @tag :integration
     test "401 if trying to request transaction for other users", %{conn: conn} do
       student = student_fixture()
       transaction = transaction_fixture(%{}, student, student)
@@ -723,6 +742,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
   end
 
   describe "POST /api/transactions/preferred_payment_method" do
+    @tag :integration
     test "returns balance", %{conn: conn} do
       user = student_fixture(%{balance: 30000})
 
@@ -736,6 +756,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
                render_json(TransactionView, "preferred_payment_method.json", method: "balance")
     end
 
+    @tag :integration
     test "returns charge", %{conn: conn} do
       user = student_fixture(%{balance: 10000})
 
