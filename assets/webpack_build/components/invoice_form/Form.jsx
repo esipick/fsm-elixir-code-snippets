@@ -381,7 +381,8 @@ class Form extends Component {
                       loadOptions={this.loadStudents}
                       onChange={this.setStudent}
                       isLoading={students_loading}
-                      getOptionValue ={(o) => o.id}
+                      getOptionLabel={(o) => (o.label || o.first_name + ' ' + o.last_name)}
+                      getOptionValue={(o) => o.id}
                       value={student} />
                   </div>
                 </div>
