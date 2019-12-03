@@ -76,8 +76,7 @@ defmodule FlightWeb.API.UserControllerTest do
         email: "user-#{Flight.Random.string(20)}@email.com",
         first_name: "Alexxx",
         last_name: "Doe",
-        phone_number: "801-555-5555",
-        school_id: default_school_fixture().id
+        phone_number: "801-555-5555"
       }
       instructor = instructor_fixture()
 
@@ -107,8 +106,7 @@ defmodule FlightWeb.API.UserControllerTest do
         email: "user-#{Flight.Random.string(20)}@email.com",
         first_name: "Alexxx",
         last_name: "Doe",
-        phone_number: "801-555-5555",
-        school_id: default_school_fixture().id
+        phone_number: "801-555-5555"
       }
       instructor = instructor_fixture()
 
@@ -137,8 +135,7 @@ defmodule FlightWeb.API.UserControllerTest do
         email: "user-#{Flight.Random.string(20)}@email.com",
         first_name: "Alexxx",
         last_name: "Doe",
-        phone_number: "801-555-5555",
-        school_id: default_school_fixture().id
+        phone_number: "801-555-5555"
       }
       student = student_fixture()
 
