@@ -72,11 +72,13 @@ defmodule FlightWeb.API.UserControllerTest do
   describe "POST /api/users" do
     @tag :integration
     test "creates user", %{conn: conn} do
+      student_role = role_fixture(%{slug: "student"})
       user_attrs = %{
         email: "user-#{Flight.Random.string(20)}@email.com",
         first_name: "Alexxx",
         last_name: "Doe",
-        phone_number: "801-555-5555"
+        phone_number: "801-555-5555",
+        role_id: student_role.id
       }
       instructor = instructor_fixture()
 
@@ -102,11 +104,13 @@ defmodule FlightWeb.API.UserControllerTest do
 
     @tag :integration
     test "creates user with stripe account", %{conn: conn} do
+      student_role = role_fixture(%{slug: "student"})
       user_attrs = %{
         email: "user-#{Flight.Random.string(20)}@email.com",
         first_name: "Alexxx",
         last_name: "Doe",
-        phone_number: "801-555-5555"
+        phone_number: "801-555-5555",
+        role_id: student_role.id
       }
       instructor = instructor_fixture()
 

@@ -202,6 +202,10 @@ defmodule FlightWeb.Router do
   scope "/api", FlightWeb.API do
     pipe_through([:api, :api_authenticate])
 
+    resources("/roles", RolesController, only: [:index])
+
+    get("/school", SchoolController, :index, as: :school)
+
     get("/users/autocomplete", UserController, :autocomplete, as: :autocomplete)
     get("/users/by_role", UserController, :by_role, as: :by_role)
 

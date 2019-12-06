@@ -37,7 +37,9 @@ defmodule Flight.Auth.Permission do
     :invoice,
     :billing_settings,
     :admins,
-    :web_dashboard
+    :web_dashboard,
+    :role,
+    :school,
   ]
   @verbs [:view, :modify, :create, :be, :request, :access]
   @scopes [:all, :personal]
@@ -95,6 +97,9 @@ defmodule Flight.Auth.Permission do
 
       {:invoice, %Flight.Billing.Invoice{user_id: user_id}} ->
         user.id == user_id
+
+      {:school, %Flight.Accounts.School{id: id}} ->
+        user.school_id == id
 
       _ ->
         raise "Unknown resource_slug and resource: #{resource_slug} #{resource}"

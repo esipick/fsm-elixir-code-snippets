@@ -10,6 +10,7 @@ defmodule Flight.Accounts.Invitation do
     field(:accepted_at, :naive_datetime)
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:role, Flight.Accounts.Role)
+    belongs_to(:user, Flight.Accounts.User)
 
     timestamps()
   end
@@ -17,7 +18,7 @@ defmodule Flight.Accounts.Invitation do
   @doc false
   def create_changeset(invitation, attrs) do
     invitation
-    |> cast(attrs, [:first_name, :last_name, :email, :role_id])
+    |> cast(attrs, [:first_name, :last_name, :email, :role_id, :user_id])
     |> generate_token()
     |> downcase_email()
     |> validate_required([:first_name, :last_name, :email, :role_id, :token, :school_id])

@@ -35,7 +35,8 @@ defmodule FlightWeb.API.UserView do
       roles: Enum.map(user.roles, & &1.slug),
       permissions: Flight.Auth.Authorization.permission_slugs_for_user(user),
       flyer_certificates: Enum.map(user.flyer_certificates, & &1.slug),
-      stripe_account_id: nil
+      stripe_account_id: nil,
+      school_id: user.school_id
     }
   end
 
