@@ -33,6 +33,7 @@ defmodule Flight.Queries.Transaction do
         ))
     ) |> pass_unless(start_date, &where(&1, [t], t.inserted_at >= ^start_date))
     |> pass_unless(end_date, &where(&1, [t], t.inserted_at <= ^end_date))
+    |> pass_unless(params["state"], &where(&1, [t], t.state == ^params["state"]))
     |> Repo.paginate(page_params)
   end
 

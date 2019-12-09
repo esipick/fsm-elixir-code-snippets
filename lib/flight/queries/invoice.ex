@@ -31,6 +31,7 @@ defmodule Flight.Queries.Invoice do
       ))
     ) |> pass_unless(start_date, &where(&1, [t], t.inserted_at >= ^start_date))
     |> pass_unless(end_date, &where(&1, [t], t.inserted_at <= ^end_date))
+    |> pass_unless(params["status"], &where(&1, [t], t.status == ^parse_status(params["status"])))
     |> Repo.paginate(page_params)
   end
 
@@ -71,6 +72,13 @@ defmodule Flight.Queries.Invoice do
         |> Flight.Scheduling.Search.Aircraft.run(search_term)
         |> Repo.all
         |> Enum.map(fn i -> i.invoice_id end)
+    end
+  end
+
+  defp parse_status(param) do
+    case Integer.parse(param) do
+      {num, _} -> num
+      :error -> nil
     end
   end
 end

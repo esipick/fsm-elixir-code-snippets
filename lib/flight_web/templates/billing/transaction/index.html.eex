@@ -33,12 +33,12 @@
         <div>
           <%= form_for @conn, "/billing/transactions", [method: "get"], fn f -> %>
             <div class="row mb-4">
-              <div class="col-md-5 col-xs-12">
+              <div class="col-md-4 col-xs-12">
                 <div class="form-group">
                   <%= text_input f, :search, value: @params["search"], class: "form-control", placeholder: "Search by student name or aircraft tail #" %>
                 </div>
               </div>
-              <div class="col-md-5 col-xs-12">
+              <div class="col-md-4 col-xs-12">
                 <div class="d-flex form-group">
                   <div class="mr-2">
                     <%= text_input f, :start_date, value: @params["start_date"], class: "form-control datetimepickerstart", placeholder: "Start Date" %>
@@ -47,6 +47,9 @@
                     <%= text_input f, :end_date, value: @params["end_date"], class: "form-control datetimepickerend", placeholder: "End Date" %>
                   </div>
                 </div>
+              </div>
+              <div class="col-md-2 col-xs-12">
+                <%= select f, :state, ["", "pending", "completed", "canceled", "failed"], class: "form-control selectpicker", selected: @params["state"], title: "Status" %>
               </div>
               <div class="col-md-2 pl-1 text-right">
                 <input type="submit" class="btn btn-primary m-0" value="Search" />
