@@ -129,9 +129,9 @@ defmodule Flight.Accounts do
     |> Repo.one()
   end
 
-  def create_user(attrs, school_context, requires_stripe_account? \\ true, stripe_token \\ nil) do
+  def create_user(attrs, school_context, requires_stripe_account? \\ true, stripe_token \\ nil, user \\ %User{}) do
     Flight.Accounts.CreateUserWithInvitation.create_user(
-      attrs, school_context, requires_stripe_account?, stripe_token
+      attrs, school_context, requires_stripe_account?, stripe_token, user
     )
   end
 
@@ -493,54 +493,7 @@ defmodule Flight.Accounts do
   end
 
   def create_user_from_invitation(user_data, stripe_token, invitation) do
-    invitation = Repo.preload(invitation, :school)
-
-    result =
-      Repo.transaction(fn ->
-        case create_user(user_data, invitation.school, true, stripe_token) do
-          {:ok, user} ->
-            accept_invitation(invitation)
-            role = get_role(invitation.role_id)
-            assign_roles(user, [role])
-
-            if role.slug == "student" do
-              amount = Application.get_env(:flight, :platform_fee_amount)
-
-              charge_result =
-                Stripe.Charge.create(%{
-                  amount: amount,
-                  currency: "usd",
-                  customer: user.stripe_customer_id,
-                  description: "One-Time Subscription",
-                  receipt_email: user.email
-                })
-
-              case charge_result do
-                {:ok, charge} ->
-                  %Flight.Billing.PlatformCharge{}
-                  |> Flight.Billing.PlatformCharge.changeset(%{
-                    user_id: user.id,
-                    amount: amount,
-                    type: "platform_fee",
-                    stripe_charge_id: charge.id
-                  })
-                  |> Repo.insert()
-
-                  user
-
-                {:error, error} ->
-                  Repo.rollback(error)
-              end
-            else
-              user
-            end
-
-          {:error, error} ->
-            Repo.rollback(error)
-        end
-      end)
-
-    result
+    Flight.Accounts.AcceptInvitation.run(user_data, stripe_token, invitation)
   end
 
   def send_invitation_email(invitation) do

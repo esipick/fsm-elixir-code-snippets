@@ -59,4 +59,20 @@ defmodule Flight.Accounts.Role do
       |> Role.changeset(%{})
       |> Flight.Repo.insert!()
   end
+
+  def accessible_by("admin") do
+    [:admin, :student, :renter, :instructor, :dispatcher]
+  end
+
+  def accessible_by("dispatcher") do
+    [:student, :renter, :instructor, :dispatcher]
+  end
+
+  def accessible_by("instructor") do
+    [:student, :instructor, :renter]
+  end
+
+  def accessible_by(_) do
+    []
+  end
 end

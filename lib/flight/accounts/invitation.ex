@@ -44,10 +44,14 @@ defmodule Flight.Accounts.Invitation do
   end
 
   def user_create_changeset(invitation) do
+    invitation = Flight.Repo.preload(invitation, [:user])
+    record = if invitation.user, do: invitation.user, else: invitation
+
     Flight.Accounts.User.create_changeset(%Flight.Accounts.User{}, %{
-      email: invitation.email,
-      first_name: invitation.first_name,
-      last_name: invitation.last_name
+      email: record.email,
+      first_name: record.first_name,
+      last_name: record.last_name,
+      phone_number: invitation.user && record.phone_number
     })
   end
 end

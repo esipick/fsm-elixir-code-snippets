@@ -2,7 +2,9 @@ defmodule FlightWeb.API.UserController do
   use FlightWeb, :controller
 
   alias Flight.Accounts
+  alias Flight.Accounts.Role
   alias Flight.Auth.Permission
+  import Flight.Auth.Authorization
 
   plug(FlightWeb.AuthenticateApiUser)
   plug(:get_user when action in [:show, :update, :form_items])
@@ -45,12 +47,14 @@ defmodule FlightWeb.API.UserController do
     render(conn, "show.json", user: user)
   end
 
-  def create(conn, %{"data" => data_params} = params) do
+  def create(conn, %{"data" => data_params, "role_id" => role_id} = params) do
     data_params = Map.put(data_params, "password", Flight.Random.string(20))
+    role = fetch_user_role(role_id, conn)
 
-    case Accounts.create_user(
+    case Accounts.CreateUserWithInvitation.run(
       data_params,
       conn,
+      role,
       !!params["stripe_token"],
       params["stripe_token"]
     ) do
@@ -137,5 +141,22 @@ defmodule FlightWeb.API.UserController do
 
   defp get_user(conn, _) do
     assign(conn, :user, Accounts.get_user(conn.params["id"] || conn.params["user_id"], conn))
+  end
+
+  defp fetch_user_role(role_id, conn) do
+    role = Flight.Repo.get(Role, role_id)
+    case role.slug do
+      role_slug when role_slug in ["admin", "dispatcher"] ->
+        if user_can?(conn.assigns.current_user, modify_admin_permission()) do
+          role
+        else
+          Role.student
+        end
+      _ -> role
+    end
+  end
+
+  defp modify_admin_permission() do
+    [Permission.new(:admins, :modify, :all)]
   end
 end

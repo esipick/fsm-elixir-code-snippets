@@ -20,33 +20,31 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
     end
   end
 
-  def create_user(attrs, school_context, requires_stripe_account? \\ true, stripe_token \\ nil) do
+  def create_user(attrs, school_context, requires_stripe_account? \\ true, stripe_token \\ nil, user \\ %User{}) do
     attrs =
       attrs
       |> Poison.encode!()
       |> Poison.decode!()
 
-    changeset = Accounts.user_changeset(%User{}, attrs, school_context)
+    changeset = Accounts.user_changeset(user, attrs, school_context)
 
     if changeset.valid? do
       if requires_stripe_account? do
-        case Flight.Billing.create_stripe_customer(
-               Ecto.Changeset.get_field(changeset, :email),
-               stripe_token
-             ) do
+        email = Ecto.Changeset.get_field(changeset, :email)
+
+        case Flight.Billing.create_stripe_customer(email, stripe_token) do
           {:ok, customer} ->
             changeset
             |> User.stripe_customer_changeset(%{
               stripe_customer_id: customer.id
             })
-            |> Repo.insert()
+            |> save_user(user)
 
           error ->
             error
         end
       else
-        changeset
-        |> Repo.insert()
+        changeset |> save_user(user)
       end
     else
       Ecto.Changeset.apply_action(changeset, :insert)
@@ -103,6 +101,14 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
           other ->
             other
         end
+    end
+  end
+
+  defp save_user(changeset, user) do
+    if user.id do
+      changeset |> Repo.update()
+    else
+      changeset |> Repo.insert()
     end
   end
 end

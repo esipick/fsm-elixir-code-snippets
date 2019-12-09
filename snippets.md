@@ -22,3 +22,8 @@ user = Flight.Accounts.dangerous_get_user_by(id)
 
 Stripe.Customer.update(user.stripe_customer_id, %{source: token.id})
 ```
+
+Test customer invitation via API:
+```
+curl -X POST --include 'http://localhost:4000/api/users' -H 'Authorization: SFMyNTY.g3QAAAACZAAEZGF0YWwAAAABaAJAR1c2VyYQFqZAAGc2lnbmVkbgYAyoqx6m4B.W9Q4BXypesH5nhUyYCSlFaIMrXDmPVimaoIEHlAUs3c' -H "Content-Type: application/json" -d @data/new_user.json
+```

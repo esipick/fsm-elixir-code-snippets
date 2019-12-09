@@ -2,23 +2,27 @@ defmodule FlightWeb.InvitationController do
   use FlightWeb, :controller
 
   alias Flight.Accounts
+  alias Flight.Repo
 
   plug(:get_invitation when action in [:accept, :accept_submit, :accept_success])
   plug(:forward_to_success_if_accepted when action in [:accept, :accept_submit])
   plug(:forward_to_accept_if_not_accepted when action in [:accept_success])
 
   def accept(conn, _params) do
+    invitation = Repo.preload(conn.assigns.invitation, [:user])
+    changeset = Accounts.Invitation.user_create_changeset(invitation)
+
     render(
       conn,
       "accept.html",
-      invitation: conn.assigns.invitation,
-      changeset: Accounts.Invitation.user_create_changeset(conn.assigns.invitation),
+      invitation: invitation,
+      changeset: changeset,
       stripe_error: nil
     )
   end
 
   def accept_submit(conn, %{"token" => token, "user" => user_data} = params) do
-    case Accounts.create_user_from_invitation(
+    case Accounts.AcceptInvitation.run(
            user_data,
            params["stripe_token"],
            conn.assigns.invitation

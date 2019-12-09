@@ -1,0 +1,9 @@
+{
+  "data":{
+    "email":"example-invitation-2@email.com",
+    "first_name":"John",
+    "last_name":"Doe",
+    "phone_number":"801-555-5555"
+  },
+  "role_id":2
+}
