@@ -46,7 +46,8 @@ defmodule FlightWeb.API.UserView do
       first_name: user.first_name,
       last_name: user.last_name,
       balance: user.balance,
-      billing_rate: user.billing_rate
+      billing_rate: user.billing_rate,
+      email: user.email
     }
   end
 
