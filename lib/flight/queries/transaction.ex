@@ -94,7 +94,9 @@ defmodule Flight.Queries.Transaction do
       _ ->
         from(
           i in InvoiceLineItem,
-          join: a in assoc(i, :aircraft),
+          join: aircraft in assoc(i, :aircraft),
+          join: invoice in assoc(i, :invoice),
+          where: invoice.archived == false,
           select: %{invoice_id: i.invoice_id}
         )
         |> Flight.Scheduling.Search.Aircraft.run(search_term)

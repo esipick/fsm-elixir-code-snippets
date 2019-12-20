@@ -28,6 +28,7 @@ defmodule Flight.Billing.Invoice do
     field(:status, InvoiceStatusEnum, default: :pending)
     field(:payment_option, InvoicePaymentOptionEnum)
     field(:payer_name, :string)
+    field(:archived, :boolean, default: false)
 
     belongs_to(:user, User)
     belongs_to(:school, School)
@@ -47,7 +48,7 @@ defmodule Flight.Billing.Invoice do
     invoice
     |> cast(attrs, @required_fields)
     |> cast(attrs, @payer_fields)
-    |> cast(attrs, [:appointment_id])
+    |> cast(attrs, [:appointment_id, :archived, :status])
     |> cast_assoc(:line_items)
     |> assoc_constraint(:user)
     |> assoc_constraint(:school)

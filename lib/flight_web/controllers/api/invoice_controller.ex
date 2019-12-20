@@ -8,13 +8,13 @@ defmodule FlightWeb.API.InvoiceController do
   alias FlightWeb.{ViewHelpers, Pagination}
   alias Flight.Billing.{Invoice, CreateInvoice, UpdateInvoice, CreateInvoiceFromAppointment}
 
-  plug(:get_invoice when action in [:update, :show])
+  plug(:get_invoice when action in [:update, :show, :delete])
   plug(:authorize_modify when action in [:create, :show, :index, :update])
-  plug(:check_paid_invoice when action in [:update])
+  plug(:check_paid_invoice when action in [:update, :delete])
 
   def index(conn, params) do
     page_params = Pagination.params(params)
-    page = from(i in Invoice) |> Repo.paginate(page_params)
+    page = from(i in Invoice, where: i.archived == false) |> Repo.paginate(page_params)
     invoices = Repo.preload(page.entries, [:user, :line_items, :appointment])
 
     conn
@@ -92,6 +92,14 @@ defmodule FlightWeb.API.InvoiceController do
     |> render("show.json", invoice: invoice)
   end
 
+  def delete(conn, _params) do
+    conn.assigns.invoice
+    |> Invoice.changeset(%{archived: true})
+    |> Repo.update()
+
+    resp(conn, 204, "")
+  end
+
   def from_appointment(conn, %{"appointment_id" => appointment_id} = _params) do
     case CreateInvoiceFromAppointment.run(appointment_id, conn) do
       {:ok, invoice} ->
@@ -129,9 +137,7 @@ defmodule FlightWeb.API.InvoiceController do
 
   defp check_paid_invoice(conn, _) do
     if conn.assigns.invoice.status == :paid do
-      conn
-      |> send_resp(401, "")
-      |> halt()
+      halt_unauthorized_response(conn, "Can't modify invoice that is already paid.")
     else
       conn
     end

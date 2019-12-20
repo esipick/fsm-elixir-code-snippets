@@ -158,11 +158,15 @@ defmodule Flight.Auth.Authorization.Extensions do
         conn
       end
     else
-      conn
-      |> Plug.Conn.put_resp_content_type("application/json")
-      |> Plug.Conn.resp(401, Poison.encode!(%{error: %{message: "Invalid permissions"}}))
-      |> Plug.Conn.halt()
+      halt_unauthorized_response(conn)
     end
+  end
+
+  def halt_unauthorized_response(conn, message \\ "Invalid permissions") do
+    conn
+    |> Plug.Conn.put_resp_content_type("application/json")
+    |> Plug.Conn.resp(401, Poison.encode!(%{error: %{message: message}}))
+    |> Plug.Conn.halt()
   end
 
   def redirect_unless_user_can?(conn, permissions) do
