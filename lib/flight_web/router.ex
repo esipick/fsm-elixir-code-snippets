@@ -259,7 +259,7 @@ defmodule FlightWeb.Router do
       as: :from_appointment
     )
 
-    resources("/invoices", InvoiceController, only: [:index, :show, :create, :update])
+    resources("/invoices", InvoiceController, only: [:index, :show, :create, :update, :delete])
 
     resources("/courses", CourseController, only: [:index])
   end

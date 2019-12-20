@@ -27,10 +27,12 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
     test "renders invoices filtered by student name", %{conn: conn} do
       instructor = instructor_fixture()
       student = student_fixture(%{first_name: "Correct", last_name: "User"})
-      another_student = student_fixture(%{first_name: "Another", last_name: "Student"})
+      student_2 = student_fixture(%{first_name: "Another", last_name: "Student"})
+      student_3 = student_fixture(%{first_name: "Archived", last_name: "User"})
 
       _invoice = invoice_fixture(%{}, student)
-      _another_invoice = invoice_fixture(%{}, another_student)
+      _another_invoice = invoice_fixture(%{}, student_2)
+      _archived_invoice = invoice_fixture(%{archived: true}, student_3)
 
       content =
         conn
@@ -39,7 +41,8 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
         |> html_response(200)
 
       assert content =~ student.first_name
-      refute content =~ another_student.first_name
+      refute content =~ student_2.first_name
+      refute content =~ "Archived User"
     end
 
     @tag :integration

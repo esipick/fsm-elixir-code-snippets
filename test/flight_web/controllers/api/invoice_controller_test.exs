@@ -305,6 +305,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     test "renders invoices", %{conn: conn} do
       invoice1 = invoice_fixture()
       invoice2 = invoice_fixture()
+      invoice3 = invoice_fixture(%{archived: true})
       instructor = instructor_fixture()
 
       response =
@@ -377,11 +378,11 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     @tag :integration
     test "renders unauthorized when invoice has already paid", %{conn: conn} do
       invoice = invoice_fixture(%{status: "paid"})
-      student = student_fixture()
+      instructor = instructor_fixture()
       invoice_params = %{}
 
       conn
-      |> auth(student)
+      |> auth(instructor)
       |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
       |> json_response(401)
     end
@@ -604,6 +605,36 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.paid_by_charge == 25000
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+  end
+
+  describe "DELETE /api/invoices/:id" do
+    test "deletes unpaid invoice", %{conn: conn} do
+      invoice = invoice_fixture()
+      instructor = instructor_fixture()
+
+      conn
+      |> auth(instructor)
+      |> delete("/api/invoices/#{invoice.id}")
+      |> response(204)
+
+      invoice = Repo.get(Invoice, invoice.id)
+
+      assert invoice.archived
+    end
+
+    test "can't delete paid invoice", %{conn: conn} do
+      invoice = invoice_fixture(%{status: "paid"})
+      instructor = instructor_fixture()
+
+      conn
+      |> auth(instructor)
+      |> delete("/api/invoices/#{invoice.id}")
+      |> json_response(401)
+
+      invoice = Repo.get(Invoice, invoice.id)
+
+      refute invoice.archived
     end
   end
 

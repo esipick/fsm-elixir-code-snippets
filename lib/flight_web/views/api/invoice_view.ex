@@ -34,6 +34,10 @@ defmodule FlightWeb.API.InvoiceView do
     }
   end
 
+  def render("delete.json", %{invoice: invoice}) do
+    %{id: invoice.id}
+  end
+
   def render("index.json", %{invoices: invoices}) do
     %{data: render_many(invoices, InvoiceView, "invoice.json", as: :invoice)}
   end
