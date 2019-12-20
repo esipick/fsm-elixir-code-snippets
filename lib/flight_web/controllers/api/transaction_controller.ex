@@ -16,7 +16,8 @@ defmodule FlightWeb.API.TransactionController do
 
     with {:ok, form} <- Ecto.Changeset.apply_action(changeset, :insert),
          {:ok, transaction} <- Flight.Billing.create_transaction_from_detailed_form(form, conn) do
-      transaction = Flight.Repo.preload(transaction, [:line_items, :user, :creator_user], force: true)
+      transaction =
+        Flight.Repo.preload(transaction, [:line_items, :user, :creator_user], force: true)
 
       conn
       |> put_status(201)
@@ -70,7 +71,8 @@ defmodule FlightWeb.API.TransactionController do
 
     with {:ok, form} <- Ecto.Changeset.apply_action(changeset, :insert),
          {:ok, transaction} <- Flight.Billing.create_transaction_from_custom_form(form, conn) do
-      transaction = Flight.Repo.preload(transaction, [:line_items, :user, :creator_user], force: true)
+      transaction =
+        Flight.Repo.preload(transaction, [:line_items, :user, :creator_user], force: true)
 
       conn
       |> put_status(201)
@@ -322,6 +324,7 @@ defmodule FlightWeb.API.TransactionController do
           else
             [Permission.new(:transaction_cash, :modify, :all)]
           end
+
         %{
           "custom" => %{
             "user_id" => user_id,

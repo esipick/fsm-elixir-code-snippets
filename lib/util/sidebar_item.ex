@@ -192,8 +192,10 @@ defmodule FlightWeb.SidebarItem do
       cond do
         String.starts_with?(full_path, item.path) ->
           %{item | active: true}
+
         String.starts_with?(full_path, item.prefix || "unset") ->
           %{item | active: true}
+
         true ->
           %{item | active: false}
       end

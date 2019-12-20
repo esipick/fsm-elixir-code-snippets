@@ -13,12 +13,13 @@ defmodule FlightWeb.Billing.InvoiceController do
     page_params = Pagination.params(params)
     user = conn.assigns.current_user
 
-    page = if InvoicePolicy.create?(user) do
-      Flight.Queries.Invoice.page(conn, page_params, params)
-    else
-      options = %{user_id: user.id}
-      Flight.Queries.Invoice.own_invoices(conn, page_params, options)
-    end
+    page =
+      if InvoicePolicy.create?(user) do
+        Flight.Queries.Invoice.page(conn, page_params, params)
+      else
+        options = %{user_id: user.id}
+        Flight.Queries.Invoice.own_invoices(conn, page_params, options)
+      end
 
     invoices = page |> Enum.map(fn invoice -> InvoiceStruct.build(invoice) end)
 
@@ -27,7 +28,7 @@ defmodule FlightWeb.Billing.InvoiceController do
 
   def new(conn, _) do
     props = %{
-      tax_rate: (conn.assigns.current_user.school.sales_tax || 0),
+      tax_rate: conn.assigns.current_user.school.sales_tax || 0,
       action: "create"
     }
 
@@ -35,7 +36,7 @@ defmodule FlightWeb.Billing.InvoiceController do
   end
 
   def edit(conn, _) do
-    props = %{ id: conn.assigns.invoice.id, action: "edit" }
+    props = %{id: conn.assigns.invoice.id, action: "edit"}
 
     render(conn, "edit.html", props: props)
   end
@@ -65,9 +66,11 @@ defmodule FlightWeb.Billing.InvoiceController do
     cond do
       InvoicePolicy.modify?(user, invoice) ->
         conn
+
       InvoicePolicy.create?(conn.assigns.current_user) ->
         conn
         |> redirect(to: "/billing/invoices/#{conn.assigns.invoice.id}")
+
       true ->
         redirect_unathorized_user(conn)
     end

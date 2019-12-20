@@ -199,7 +199,7 @@ defmodule Flight.BillingFixtures do
     invoice =
       %Invoice{}
       |> Invoice.changeset(invoice_attrs(user, attrs))
-      |> Repo.insert!
+      |> Repo.insert!()
 
     %{invoice | user: user}
   end
@@ -215,9 +215,9 @@ defmodule Flight.BillingFixtures do
       total_tax: 4000,
       total_amount_due: 24000,
       line_items: [
-        %{ description: "flight hours", rate: 1500, quantity: 10, amount: 15000, type: :aircraft },
-        %{ description: "discount", rate: -2500, quantity: 1, amount: -2500, type: :other },
-        %{ description: "fuel reimbursement", rate: 7500, quantity: 1, amount: 7500, type: :other }
+        %{description: "flight hours", rate: 1500, quantity: 10, amount: 15000, type: :aircraft},
+        %{description: "discount", rate: -2500, quantity: 1, amount: -2500, type: :other},
+        %{description: "fuel reimbursement", rate: 7500, quantity: 1, amount: 7500, type: :other}
       ]
     }
     |> Map.merge(attrs)

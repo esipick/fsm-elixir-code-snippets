@@ -5,7 +5,7 @@ defmodule Flight.Mixfile do
     [
       app: :flight,
       version: "0.0.1",
-      elixir: "~> 1.9.1",
+      elixir: ">= 1.9.1",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -22,8 +22,14 @@ defmodule Flight.Mixfile do
     [
       mod: {Flight.Application, []},
       extra_applications: [
-        :appsignal, :logger, :runtime_tools, :comeonin, :timex, :bamboo,
-        :scrivener_ecto, :scrivener_html
+        :appsignal,
+        :logger,
+        :runtime_tools,
+        :comeonin,
+        :timex,
+        :bamboo,
+        :scrivener_ecto,
+        :scrivener_html
       ]
     ]
   end
@@ -52,8 +58,8 @@ defmodule Flight.Mixfile do
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 4.0"},
       {:tzdata, "~> 0.1.8"},
-      {:timex, "~> 3.1"},
-      {:stripity_stripe, "~> 2.1"},
+      {:timex, "~> 3.2.0"},
+      {:stripity_stripe, "~> 2.1.0"},
       {:currency_formatter, "~> 0.4"},
       {:appsignal, "~> 1.8.0"},
       {:sweet_xml, "~> 0.6"},

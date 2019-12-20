@@ -18,9 +18,12 @@ defmodule FlightWeb.Billing.InvoiceView do
     cond do
       line_item.type == :instructor && line_item.instructor_user ->
         "Instructor: #{Flight.Accounts.User.full_name(line_item.instructor_user)}"
+
       line_item.type == :aircraft && line_item.aircraft ->
         "Tail #: #{line_item.aircraft.tail_number}"
-      true -> ""
+
+      true ->
+        ""
     end
   end
 end

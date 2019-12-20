@@ -3,16 +3,20 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   alias Flight.Repo
 
   def run(appointment_id, school_context) do
-    appointment = Repo.get(Appointment, appointment_id) |> Repo.preload([:instructor_user, :aircraft])
+    appointment =
+      Repo.get(Appointment, appointment_id) |> Repo.preload([:instructor_user, :aircraft])
+
     school = school(school_context)
     duration = Timex.diff(appointment.end_at, appointment.start_at, :hours)
 
-    line_items = [
-      aircraft_item(appointment, duration),
-      instructor_item(appointment, duration)
-    ] |> Enum.filter(fn x -> x end)
+    line_items =
+      [
+        aircraft_item(appointment, duration),
+        instructor_item(appointment, duration)
+      ]
+      |> Enum.filter(fn x -> x end)
 
-    total = Enum.map(line_items, fn x -> x["amount"] end) |> Enum.sum
+    total = Enum.map(line_items, fn x -> x["amount"] end) |> Enum.sum()
     total_tax = round(total * school.sales_tax / 100)
 
     invoice_params = %{
@@ -34,6 +38,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   def aircraft_item(appointment, quantity) do
     if appointment.aircraft do
       rate = appointment.aircraft.rate_per_hour
+
       %{
         "description" => "Flight Hours",
         "rate" => rate,

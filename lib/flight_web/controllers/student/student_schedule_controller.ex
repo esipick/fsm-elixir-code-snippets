@@ -8,7 +8,13 @@ defmodule FlightWeb.Student.ScheduleController do
     renters = [current_user]
     instructors = Flight.Accounts.users_with_roles([Role.instructor()], conn)
     aircrafts = Flight.Scheduling.visible_aircrafts(conn)
-    render(conn, "index.html", renters: renters, instructors: instructors, aircrafts: aircrafts, user_id: current_user.id)
+
+    render(conn, "index.html",
+      renters: renters,
+      instructors: instructors,
+      aircrafts: aircrafts,
+      user_id: current_user.id
+    )
   end
 
   def show(conn, _) do

@@ -54,7 +54,6 @@ defmodule Flight.Scheduling.Availability do
         school_context,
         params \\ %{}
       ) do
-
     users_with_permission_availability(
       :all,
       permission_slug(:appointment_user, :modify, :personal),

@@ -52,18 +52,19 @@ defmodule FlightWeb.API.UserController do
     role = fetch_user_role(role_id, conn)
 
     case Accounts.CreateUserWithInvitation.run(
-      data_params,
-      conn,
-      role,
-      !!params["stripe_token"],
-      params["stripe_token"]
-    ) do
+           data_params,
+           conn,
+           role,
+           !!params["stripe_token"],
+           params["stripe_token"]
+         ) do
       {:ok, user} ->
         user =
           user
           |> FlightWeb.API.UserView.show_preload()
 
         render(conn, "show.json", user: user)
+
       {:error, changeset} ->
         conn
         |> put_status(400)
@@ -145,14 +146,17 @@ defmodule FlightWeb.API.UserController do
 
   defp fetch_user_role(role_id, conn) do
     role = Flight.Repo.get(Role, role_id)
+
     case role.slug do
       role_slug when role_slug in ["admin", "dispatcher"] ->
         if user_can?(conn.assigns.current_user, modify_admin_permission()) do
           role
         else
-          Role.student
+          Role.student()
         end
-      _ -> role
+
+      _ ->
+        role
     end
   end
 

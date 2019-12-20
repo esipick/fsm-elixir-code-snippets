@@ -56,7 +56,7 @@ defmodule Flight.Billing.Invoice do
   end
 
   def paid(%Invoice{} = invoice) do
-    change(invoice, status: :paid) |> Repo.update
+    change(invoice, status: :paid) |> Repo.update()
   end
 
   def validate_required_inclusion(changeset, fields) do
@@ -64,7 +64,7 @@ defmodule Flight.Billing.Invoice do
       changeset
     else
       # Add the error to the first field only since Ecto requires a field name for each error.
-      add_error(changeset, hd(fields), "One of these fields must be present: #{inspect fields}")
+      add_error(changeset, hd(fields), "One of these fields must be present: #{inspect(fields)}")
     end
   end
 

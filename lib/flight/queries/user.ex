@@ -2,6 +2,7 @@ defmodule Flight.Queries.User do
   import Ecto.Query, warn: false
 
   alias Flight.Repo
+
   alias Flight.Accounts.{
     User,
     Search
@@ -18,7 +19,7 @@ defmodule Flight.Queries.User do
     )
     |> SchoolScope.scope_query(school_context)
     |> Search.User.name_only(search_term)
-    |> Repo.all
+    |> Repo.all()
     |> Enum.map(fn user -> user.id end)
   end
 
@@ -30,7 +31,7 @@ defmodule Flight.Queries.User do
     )
     |> SchoolScope.scope_query(school_context)
     |> Search.User.name_only(search_term)
-    |> Repo.all
+    |> Repo.all()
   end
 
   def search_users_by_name(search_term, role, school_context) do
@@ -38,13 +39,13 @@ defmodule Flight.Queries.User do
     |> Ecto.assoc(:users)
     |> Search.User.name_only(search_term)
     |> Flight.Accounts.default_users_query(school_context)
-    |> Repo.all
+    |> Repo.all()
   end
 
   def get_users_by_role(role, school_context) do
     role
     |> Ecto.assoc(:users)
     |> Flight.Accounts.default_users_query(school_context)
-    |> Repo.all
+    |> Repo.all()
   end
 end

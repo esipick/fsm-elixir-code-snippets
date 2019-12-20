@@ -129,9 +129,19 @@ defmodule Flight.Accounts do
     |> Repo.one()
   end
 
-  def create_user(attrs, school_context, requires_stripe_account? \\ true, stripe_token \\ nil, user \\ %User{}) do
+  def create_user(
+        attrs,
+        school_context,
+        requires_stripe_account? \\ true,
+        stripe_token \\ nil,
+        user \\ %User{}
+      ) do
     Flight.Accounts.CreateUserWithInvitation.create_user(
-      attrs, school_context, requires_stripe_account?, stripe_token, user
+      attrs,
+      school_context,
+      requires_stripe_account?,
+      stripe_token,
+      user
     )
   end
 
@@ -377,7 +387,9 @@ defmodule Flight.Accounts do
 
   def users_with_roles(roles, school_context, params \\ %{}) do
     case roles do
-      [] -> []
+      [] ->
+        []
+
       _ ->
         roles
         |> Ecto.assoc(:users)

@@ -15,10 +15,13 @@ defmodule FlightWeb.RoleUtil do
     cond do
       Enum.member?(roles, "admin") || Enum.member?(roles, "dispatcher") ->
         "admin"
+
       Enum.member?(roles, "instructor") ->
         "instructor"
+
       Enum.member?(roles, "student") ->
         "student"
+
       true ->
         nil
     end

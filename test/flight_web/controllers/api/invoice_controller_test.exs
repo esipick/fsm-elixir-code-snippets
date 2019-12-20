@@ -60,7 +60,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     @tag :integration
     test "creates invoice for anonymous payer", %{conn: conn} do
       instructor = instructor_fixture()
-      invoice_params = invoice_attrs(%Flight.Accounts.User{}, %{ payer_name: "Foo Bar" })
+      invoice_params = invoice_attrs(%Flight.Accounts.User{}, %{payer_name: "Foo Bar"})
 
       json =
         conn
@@ -132,10 +132,12 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     @tag :integration
     test "creates and pays invoice for anonymous payer", %{conn: conn} do
       instructor = instructor_fixture()
-      invoice_params = invoice_attrs(
-        %Flight.Accounts.User{},
-        %{payer_name: "Foo Bar", payment_option: "cash"}
-      )
+
+      invoice_params =
+        invoice_attrs(
+          %Flight.Accounts.User{},
+          %{payer_name: "Foo Bar", payment_option: "cash"}
+        )
 
       json =
         conn
@@ -313,10 +315,13 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       json = json_response(response, 200)
       headers = response.resp_headers
 
-      assert json == render_json(InvoiceView, "index.json", invoices: [
-        preload_invoice(invoice1),
-        preload_invoice(invoice2)
-      ])
+      assert json ==
+               render_json(InvoiceView, "index.json",
+                 invoices: [
+                   preload_invoice(invoice1),
+                   preload_invoice(invoice2)
+                 ]
+               )
 
       assert Enum.member?(headers, {"total", "2"})
       assert Enum.member?(headers, {"per-page", "50"})
@@ -514,6 +519,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> auth(instructor)
         |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: invoice_params})
         |> json_response(200)
+
       invoice = preload_invoice(invoice)
 
       balance_transaction = List.last(invoice.transactions)

@@ -367,12 +367,13 @@ defmodule Flight.Billing do
 
   def get_filtered_transactions(params, school_context) do
     params = Map.take(params, ["user_id", "creator_user_id", "state", "search_term"])
-    { _, parsed_search_term } = parse_amount(params["search_term"])
+    {_, parsed_search_term} = parse_amount(params["search_term"])
     total = is_number(parsed_search_term) && params["search_term"]
 
-    user_ids = params["search_term"] &&
-      !is_number(parsed_search_term) &&
-      Flight.Queries.User.search_users_ids_by_name(params["search_term"], school_context)
+    user_ids =
+      params["search_term"] &&
+        !is_number(parsed_search_term) &&
+        Flight.Queries.User.search_users_ids_by_name(params["search_term"], school_context)
 
     query =
       from(t in Transaction)

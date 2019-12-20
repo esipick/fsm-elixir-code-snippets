@@ -10,10 +10,14 @@ defmodule FlightWeb.Billing.InvoiceStruct do
   )a
 
   def build(invoice) do
-    invoice = invoice |> Repo.preload([
-      :user, :transactions, :line_items,
-      [appointment: [:user, :instructor_user, [aircraft: :inspections]]]
-    ])
+    invoice =
+      invoice
+      |> Repo.preload([
+        :user,
+        :transactions,
+        :line_items,
+        [appointment: [:user, :instructor_user, [aircraft: :inspections]]]
+      ])
 
     %InvoiceStruct{
       id: invoice.id,

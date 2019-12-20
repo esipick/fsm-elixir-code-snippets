@@ -19,7 +19,9 @@ defmodule Flight.Billing.PayTransaction do
     changeset = change(user, balance: user.balance - transaction.total)
 
     case Repo.update(changeset) do
-      {:ok, _} -> complete_transaction(transaction)
+      {:ok, _} ->
+        complete_transaction(transaction)
+
       {:error, changeset} ->
         error_message = ViewHelpers.human_error_messages(changeset) |> Enum.join(", ")
         fail_transaction(transaction, error_message)
@@ -40,7 +42,9 @@ defmodule Flight.Billing.PayTransaction do
       })
 
     case charge_result do
-      {:ok, charge} -> complete_transaction(transaction, %{stripe_charge_id: charge.id})
+      {:ok, charge} ->
+        complete_transaction(transaction, %{stripe_charge_id: charge.id})
+
       {:error, error} ->
         fail_transaction(transaction, error.message)
         {:error, error}
@@ -55,7 +59,7 @@ defmodule Flight.Billing.PayTransaction do
       |> Map.merge(attrs)
       |> Map.merge(%{paid_by_column => transaction.total})
 
-    change(transaction, transaction_attrs) |> Repo.update
+    change(transaction, transaction_attrs) |> Repo.update()
   end
 
   defp fail_transaction(transaction, error_message) do
@@ -65,6 +69,6 @@ defmodule Flight.Billing.PayTransaction do
       completed_at: NaiveDateTime.utc_now()
     }
 
-    change(transaction, changes) |> Repo.update
+    change(transaction, changes) |> Repo.update()
   end
 end

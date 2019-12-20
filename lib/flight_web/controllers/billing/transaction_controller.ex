@@ -8,12 +8,13 @@ defmodule FlightWeb.Billing.TransactionController do
     page_params = Pagination.params(params)
     user = conn.assigns.current_user
 
-    page = if InvoicePolicy.create?(user) do
-      Flight.Queries.Transaction.page(conn, page_params, params)
-    else
-      options = %{user_id: user.id}
-      Flight.Queries.Transaction.own_transactions(conn, page_params, options)
-    end
+    page =
+      if InvoicePolicy.create?(user) do
+        Flight.Queries.Transaction.page(conn, page_params, params)
+      else
+        options = %{user_id: user.id}
+        Flight.Queries.Transaction.own_transactions(conn, page_params, options)
+      end
 
     transactions =
       page

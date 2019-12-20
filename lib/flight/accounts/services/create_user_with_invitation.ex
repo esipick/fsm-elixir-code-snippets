@@ -6,7 +6,7 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
   alias Flight.Accounts.{
     User,
     Invitation,
-    School,
+    School
   }
 
   def run(attrs, school_context, role, requires_stripe_account? \\ true, stripe_token \\ nil) do
@@ -15,12 +15,19 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
         Accounts.admin_update_user_profile(user, %{}, [role.slug], [])
         create_invitation_from_user(user, role, school_context)
         payload
+
       error ->
         error
     end
   end
 
-  def create_user(attrs, school_context, requires_stripe_account? \\ true, stripe_token \\ nil, user \\ %User{}) do
+  def create_user(
+        attrs,
+        school_context,
+        requires_stripe_account? \\ true,
+        stripe_token \\ nil,
+        user \\ %User{}
+      ) do
     attrs =
       attrs
       |> Poison.encode!()

@@ -37,6 +37,7 @@ defmodule FlightWeb.Admin.UserListData do
 
       slug when slug in ["admin", "dispatcher"] ->
         user_table_data(:simple, role, search_term, school_context, page_params)
+
       _ ->
         raise "Unknown role slug: #{role.slug}"
     end
@@ -44,10 +45,12 @@ defmodule FlightWeb.Admin.UserListData do
 
   def user_table_data(mode, role, search_term, school_context, page_params) do
     page = users_page(role, search_term, school_context, page_params)
-    rows = case mode do
-      :detailed -> detailed_rows_for_users(page.entries)
-      :simple -> simple_rows_for_users(page.entries)
-    end
+
+    rows =
+      case mode do
+        :detailed -> detailed_rows_for_users(page.entries)
+        :simple -> simple_rows_for_users(page.entries)
+      end
 
     %FlightWeb.Admin.UserTableData{
       style: mode,
