@@ -73,12 +73,14 @@ defmodule FlightWeb.API.UserControllerTest do
     @tag :integration
     test "creates user", %{conn: conn} do
       student_role = role_fixture(%{slug: "student"})
+
       user_attrs = %{
         email: "user-#{Flight.Random.string(20)}@email.com",
         first_name: "Alexxx",
         last_name: "Doe",
         phone_number: "801-555-5555"
       }
+
       school = school_fixture() |> real_stripe_account()
       instructor = instructor_fixture(%{}, school)
 
@@ -105,18 +107,24 @@ defmodule FlightWeb.API.UserControllerTest do
     @tag :integration
     test "creates user with stripe account", %{conn: conn} do
       student_role = role_fixture(%{slug: "student"})
+
       user_attrs = %{
         email: "user-#{Flight.Random.string(20)}@email.com",
         first_name: "Alexxx",
         last_name: "Doe",
         phone_number: "801-555-5555"
       }
+
       instructor = instructor_fixture()
 
       json =
         conn
         |> auth(instructor)
-        |> post("/api/users/", %{data: user_attrs, role_id: student_role.id, stripe_token: "tok_visa"})
+        |> post("/api/users/", %{
+          data: user_attrs,
+          role_id: student_role.id,
+          stripe_token: "tok_visa"
+        })
         |> json_response(200)
 
       user =
@@ -135,12 +143,14 @@ defmodule FlightWeb.API.UserControllerTest do
 
     test "401 for unauhtorized", %{conn: conn} do
       student_role = role_fixture(%{slug: "student"})
+
       user_attrs = %{
         email: "user-#{Flight.Random.string(20)}@email.com",
         first_name: "Alexxx",
         last_name: "Doe",
         phone_number: "801-555-5555"
       }
+
       student = student_fixture()
 
       conn

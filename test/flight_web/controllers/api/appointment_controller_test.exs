@@ -89,7 +89,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
         |> json_response(200)
 
       rendered_data =
-        Flight.Scheduling.get_appointments(%{ "user_id" => student.id }, appointment1)
+        Flight.Scheduling.get_appointments(%{"user_id" => student.id}, appointment1)
         |> FlightWeb.API.AppointmentView.preload()
 
       assert json == render_json(AppointmentView, "index.json", appointments: rendered_data)

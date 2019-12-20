@@ -51,7 +51,7 @@ defmodule FlightWeb.Billing.TransactionControllerTest do
       _transaction = transaction_fixture(%{}, user)
       _another_transaction = transaction_fixture(%{}, another_user)
 
-      now = Timex.now |> Timex.to_date()
+      now = Timex.now() |> Timex.to_date()
       {:ok, start_date} = now |> Timex.shift(days: -2) |> Timex.format("{0M}-{0D}-{YYYY}")
       {:ok, end_date} = now |> Timex.shift(days: -1) |> Timex.format("{0M}-{0D}-{YYYY}")
 

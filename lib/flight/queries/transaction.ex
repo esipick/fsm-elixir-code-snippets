@@ -26,12 +26,17 @@ defmodule Flight.Queries.Transaction do
     |> SchoolScope.scope_query(school_context)
     |> pass_unless(
       search_term,
-      &where(&1, [t], t.user_id in ^user_ids or t.id in ^transaction_ids or t.invoice_id in ^invoice_ids
-        or fragment(
-          "to_tsvector('english', first_name) @@ to_tsquery(?)",
-          ^Utils.prefix_search(normalized_term)
-        ))
-    ) |> pass_unless(start_date, &where(&1, [t], t.inserted_at >= ^start_date))
+      &where(
+        &1,
+        [t],
+        t.user_id in ^user_ids or t.id in ^transaction_ids or t.invoice_id in ^invoice_ids or
+          fragment(
+            "to_tsvector('english', first_name) @@ to_tsquery(?)",
+            ^Utils.prefix_search(normalized_term)
+          )
+      )
+    )
+    |> pass_unless(start_date, &where(&1, [t], t.inserted_at >= ^start_date))
     |> pass_unless(end_date, &where(&1, [t], t.inserted_at <= ^end_date))
     |> pass_unless(params["state"], &where(&1, [t], t.state == ^params["state"]))
     |> Repo.paginate(page_params)
@@ -46,7 +51,9 @@ defmodule Flight.Queries.Transaction do
 
   defp parse_date(date, shift_days) do
     case date do
-      date when date in [nil, ""] -> nil
+      date when date in [nil, ""] ->
+        nil
+
       _ ->
         date
         |> Timex.parse!(@format_str)
@@ -64,7 +71,9 @@ defmodule Flight.Queries.Transaction do
 
   defp transaction_line_items_search(search_term) do
     case search_term do
-      nil -> []
+      nil ->
+        []
+
       _ ->
         from(
           i in TransactionLineItem,
@@ -72,14 +81,16 @@ defmodule Flight.Queries.Transaction do
           select: %{transaction_id: i.transaction_id}
         )
         |> Flight.Scheduling.Search.Aircraft.run(search_term)
-        |> Repo.all
+        |> Repo.all()
         |> Enum.map(fn i -> i.transaction_id end)
     end
   end
 
   defp invoice_line_items_search(search_term) do
     case search_term do
-      nil -> []
+      nil ->
+        []
+
       _ ->
         from(
           i in InvoiceLineItem,
@@ -87,7 +98,7 @@ defmodule Flight.Queries.Transaction do
           select: %{invoice_id: i.invoice_id}
         )
         |> Flight.Scheduling.Search.Aircraft.run(search_term)
-        |> Repo.all
+        |> Repo.all()
         |> Enum.map(fn i -> i.invoice_id end)
     end
   end

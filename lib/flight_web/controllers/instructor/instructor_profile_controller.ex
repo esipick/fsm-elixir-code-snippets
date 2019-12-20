@@ -20,12 +20,13 @@ defmodule FlightWeb.Instructor.ProfileController do
   end
 
   def update(conn, params) do
-    user_form = if String.trim(params["user"]["password"]) == "" do
-      Map.delete(params["user"], "password")
-    else
-      params["user"]
-    end
-    require IEx; IEx.pry()
+    user_form =
+      if String.trim(params["user"]["password"]) == "" do
+        Map.delete(params["user"], "password")
+      else
+        params["user"]
+      end
+
     user = Flight.Repo.preload(conn.assigns.current_user, [:roles, :flyer_certificates])
 
     case Accounts.regular_user_update_profile(user, user_form) do

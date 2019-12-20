@@ -6,6 +6,7 @@ defmodule Flight.Auth.InvoicePolicy do
     case invoice do
       nil ->
         create?(user)
+
       _ ->
         invoice.status == :pending && create?(user)
     end

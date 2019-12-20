@@ -11,6 +11,7 @@ defmodule Flight.Accounts.Search.User do
     case normalized_term = Utils.normalize(search_term) do
       "" ->
         query
+
       _ ->
         where(
           query,
@@ -38,6 +39,7 @@ defmodule Flight.Accounts.Search.User do
     case normalized_term = Utils.normalize(search_term) do
       "" ->
         query
+
       _ ->
         where(
           query,

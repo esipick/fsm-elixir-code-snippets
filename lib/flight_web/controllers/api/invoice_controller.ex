@@ -25,7 +25,9 @@ defmodule FlightWeb.API.InvoiceController do
 
   def appointments(conn, params) do
     timezone = Flight.SchoolScope.get_school(conn).timezone
-    appointments = Flight.Queries.Appointment.billable(conn, params)
+
+    appointments =
+      Flight.Queries.Appointment.billable(conn, params)
       |> FlightWeb.API.AppointmentView.preload()
       |> Flight.Scheduling.apply_timezone(timezone)
 
@@ -40,14 +42,17 @@ defmodule FlightWeb.API.InvoiceController do
         conn
         |> put_status(201)
         |> render("show.json", invoice: invoice)
+
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(422)
         |> json(%{errors: ViewHelpers.translate_errors(changeset)})
+
       {:error, id, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(422)
         |> json(%{id: id, errors: ViewHelpers.translate_errors(changeset)})
+
       {:error, id, %Stripe.Error{} = error} ->
         conn
         |> put_status(error.extra.http_status)
@@ -65,10 +70,12 @@ defmodule FlightWeb.API.InvoiceController do
         conn
         |> put_status(200)
         |> render("show.json", invoice: invoice)
+
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(422)
         |> json(%{errors: ViewHelpers.translate_errors(changeset)})
+
       {:error, %Stripe.Error{} = error} ->
         conn
         |> put_status(error.extra.http_status)
@@ -77,7 +84,8 @@ defmodule FlightWeb.API.InvoiceController do
   end
 
   def show(conn, _params) do
-    invoice = Repo.preload(conn.assigns.invoice, [:line_items, :user, :school, :appointment], force: true)
+    invoice =
+      Repo.preload(conn.assigns.invoice, [:line_items, :user, :school, :appointment], force: true)
 
     conn
     |> put_status(200)
@@ -94,6 +102,7 @@ defmodule FlightWeb.API.InvoiceController do
         conn
         |> put_status(201)
         |> render("show.json", invoice: invoice)
+
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(422)

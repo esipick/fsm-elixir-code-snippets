@@ -10,30 +10,33 @@ defmodule Flight.Billing.CreateInvoice do
     pay_off = Map.get(school_context.params, "pay_off", false)
     school = school(school_context)
 
-    invoice_attrs = Map.merge(
-      invoice_params,
-      %{"school_id" => school.id, "tax_rate" => school.sales_tax || 0}
-    )
+    invoice_attrs =
+      Map.merge(
+        invoice_params,
+        %{"school_id" => school.id, "tax_rate" => school.sales_tax || 0}
+      )
 
-    result = case Invoice.create(invoice_attrs) do
-      {:ok, invoice} ->
-        if pay_off == true do
-          case pay(invoice, school_context) do
-            {:ok, invoice} -> {:ok, invoice}
-            {:error, error} -> {:error, invoice.id, error}
+    result =
+      case Invoice.create(invoice_attrs) do
+        {:ok, invoice} ->
+          if pay_off == true do
+            case pay(invoice, school_context) do
+              {:ok, invoice} -> {:ok, invoice}
+              {:error, error} -> {:error, invoice.id, error}
+            end
+          else
+            {:ok, invoice}
           end
-        else
-          {:ok, invoice}
-        end
 
-      {:error, error} -> {:error, error}
-    end
+        {:error, error} ->
+          {:error, error}
+      end
 
     result
   end
 
   def pay(invoice, school_context) do
-    invoice = Repo.preload(invoice, user: (from i in User, lock: "FOR UPDATE NOWAIT"))
+    invoice = Repo.preload(invoice, user: from(i in User, lock: "FOR UPDATE NOWAIT"))
 
     case invoice.payment_option do
       :balance -> pay_off_balance(invoice, school_context)
@@ -52,18 +55,21 @@ defmodule Flight.Billing.CreateInvoice do
       total = if balance_enough, do: total_amount_due, else: user_balance
 
       case create_transaction(invoice, school_context, %{total: total, payment_option: :balance}) do
-        {:ok, transaction} -> case PayTransaction.run(transaction) do
-          {:ok, _} ->
-            if balance_enough do
-              Invoice.paid(invoice)
-            else
-              pay_off_cc(invoice, school_context, abs(remainder))
-            end
+        {:ok, transaction} ->
+          case PayTransaction.run(transaction) do
+            {:ok, _} ->
+              if balance_enough do
+                Invoice.paid(invoice)
+              else
+                pay_off_cc(invoice, school_context, abs(remainder))
+              end
 
-          {:error, changeset} -> {:error, changeset}
-        end
+            {:error, changeset} ->
+              {:error, changeset}
+          end
 
-        {:error, changeset} -> {:error, changeset}
+        {:error, changeset} ->
+          {:error, changeset}
       end
     else
       pay_off_cc(invoice, school_context, total_amount_due)
@@ -75,12 +81,14 @@ defmodule Flight.Billing.CreateInvoice do
     transaction_attrs = %{type: "credit", total: amount, payment_option: :cc}
 
     case create_transaction(invoice, school_context, transaction_attrs) do
-      {:ok, transaction} -> case PayTransaction.run(transaction) do
-        {:ok, _} -> Invoice.paid(invoice)
-        {:error, changeset} -> {:error, changeset}
-      end
+      {:ok, transaction} ->
+        case PayTransaction.run(transaction) do
+          {:ok, _} -> Invoice.paid(invoice)
+          {:error, changeset} -> {:error, changeset}
+        end
 
-      {:error, changeset} -> {:error, changeset}
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 
@@ -88,12 +96,14 @@ defmodule Flight.Billing.CreateInvoice do
     transaction_attrs = %{total: invoice.total_amount_due, payment_option: invoice.payment_option}
 
     case create_transaction(invoice, school_context, transaction_attrs) do
-      {:ok, transaction} -> case PayTransaction.run(transaction) do
-        {:ok, _} -> Invoice.paid(invoice)
-        {:error, changeset} -> {:error, changeset}
-      end
+      {:ok, transaction} ->
+        case PayTransaction.run(transaction) do
+          {:ok, _} -> Invoice.paid(invoice)
+          {:error, changeset} -> {:error, changeset}
+        end
 
-      {:error, changeset} -> {:error, changeset}
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 
@@ -113,7 +123,7 @@ defmodule Flight.Billing.CreateInvoice do
       school_id: school(school_context).id
     }
     |> Transaction.changeset(attrs)
-    |> Repo.insert
+    |> Repo.insert()
   end
 
   defp school(school_context) do

@@ -41,7 +41,7 @@ defmodule FlightWeb.ViewHelpers do
       "student" -> "Students"
       "renter" -> "Renters"
       "dispatcher" -> "Dispatchers"
-     end
+    end
   end
 
   def singular_label_for_role(role) do

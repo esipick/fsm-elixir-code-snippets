@@ -5,11 +5,13 @@ defmodule Flight.Accounts.AcceptInvitation do
 
   def run(user_data, stripe_token, invitation) do
     invitation = Repo.preload(invitation, [:school, :user])
-    user = if invitation.user do
-      Repo.preload(invitation.user, [:roles, :school, :flyer_certificates])
-    else
-      %User{}
-    end
+
+    user =
+      if invitation.user do
+        Repo.preload(invitation.user, [:roles, :school, :flyer_certificates])
+      else
+        %User{}
+      end
 
     Repo.transaction(fn ->
       case Accounts.create_user(user_data, invitation.school, true, stripe_token, user) do

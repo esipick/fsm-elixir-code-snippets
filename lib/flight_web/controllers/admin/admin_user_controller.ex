@@ -101,11 +101,13 @@ defmodule FlightWeb.Admin.UserController do
 
   def update(conn, %{"user" => user_form} = params) do
     role_params = Map.keys(params["role_slugs"] || %{})
-    role_slugs = if user_can?(conn.assigns.current_user, modify_admin_permission()) do
-      role_params
-    else
-      Enum.filter(role_params, fn p -> p != "admin" end)
-    end
+
+    role_slugs =
+      if user_can?(conn.assigns.current_user, modify_admin_permission()) do
+        role_params
+      else
+        Enum.filter(role_params, fn p -> p != "admin" end)
+      end
 
     case Accounts.admin_update_user_profile(
            conn.assigns.requested_user,
@@ -161,10 +163,11 @@ defmodule FlightWeb.Admin.UserController do
   end
 
   defp protect_admin_users(conn, _) do
-    requested_user_roles = Enum.map(
-      conn.assigns.requested_user.roles,
-      fn r -> r.slug end
-    )
+    requested_user_roles =
+      Enum.map(
+        conn.assigns.requested_user.roles,
+        fn r -> r.slug end
+      )
 
     if Enum.member?(requested_user_roles, "admin") do
       redirect_unless_user_can?(conn, modify_admin_permission())

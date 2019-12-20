@@ -50,18 +50,23 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
 
       aircraft = aircraft_fixture(%{tail_number: "foobar"})
 
-      _invoice = invoice_fixture(%{
-        line_items: [
+      _invoice =
+        invoice_fixture(
           %{
-            description: "flight hours",
-            rate: 1500,
-            quantity: 10,
-            amount: 15000,
-            type: :aircraft,
-            aircraft_id: aircraft.id
-          }
-        ]
-      }, student)
+            line_items: [
+              %{
+                description: "flight hours",
+                rate: 1500,
+                quantity: 10,
+                amount: 15000,
+                type: :aircraft,
+                aircraft_id: aircraft.id
+              }
+            ]
+          },
+          student
+        )
+
       _another_invoice = invoice_fixture(%{}, another_student)
 
       content =
@@ -83,7 +88,7 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
       _invoice = invoice_fixture(%{}, student)
       _another_invoice = invoice_fixture(%{}, another_student)
 
-      now = Timex.now |> Timex.to_date()
+      now = Timex.now() |> Timex.to_date()
       {:ok, start_date} = now |> Timex.shift(days: -2) |> Timex.format("{0M}-{0D}-{YYYY}")
       {:ok, end_date} = now |> Timex.shift(days: -1) |> Timex.format("{0M}-{0D}-{YYYY}")
 

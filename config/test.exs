@@ -17,7 +17,7 @@ config :flight, Flight.Repo,
   database: "flight_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox,
-  ownership_timeout: 600000
+  ownership_timeout: 600_000
 
 config :bcrypt_elixir, log_rounds: 4
 

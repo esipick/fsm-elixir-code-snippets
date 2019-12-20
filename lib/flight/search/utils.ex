@@ -11,9 +11,9 @@ defmodule Flight.Search.Utils do
   @spec normalize(any()) :: String.t()
   def normalize(term) do
     term
-    |> String.downcase
-    |> String.trim
-    |> String.split
+    |> String.downcase()
+    |> String.trim()
+    |> String.split()
     |> Enum.map(fn x -> x |> String.replace(~r/\W/u, "") end)
     |> Enum.join(" & ")
   end

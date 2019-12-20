@@ -12,10 +12,11 @@ defmodule FlightWeb.API.InvoiceView do
 
     %{
       id: invoice.id,
-      user: Optional.map(
-        invoice.user,
-        &render(UserView, "skinny_user.json", user: &1)
-      ),
+      user:
+        Optional.map(
+          invoice.user,
+          &render(UserView, "skinny_user.json", user: &1)
+        ),
       payer_name: invoice.payer_name,
       user_id: invoice.user_id,
       payment_option: invoice.payment_option,
@@ -24,10 +25,11 @@ defmodule FlightWeb.API.InvoiceView do
       tax_rate: invoice.tax_rate,
       total_tax: invoice.total_tax,
       total_amount_due: invoice.total_amount_due,
-      appointment: Optional.map(
-        invoice.appointment,
-        &render_appointment(&1)
-      ),
+      appointment:
+        Optional.map(
+          invoice.appointment,
+          &render_appointment(&1)
+        ),
       line_items: render_many(line_items, InvoiceLineItemView, "line_item.json", as: :line_item)
     }
   end
@@ -41,7 +43,9 @@ defmodule FlightWeb.API.InvoiceView do
   end
 
   def render_appointment(appointment) do
-    appointment = Flight.Repo.preload(appointment, [:user, :instructor_user, [aircraft: :inspections]])
+    appointment =
+      Flight.Repo.preload(appointment, [:user, :instructor_user, [aircraft: :inspections]])
+
     render(AppointmentView, "appointment.json", appointment: appointment)
   end
 end

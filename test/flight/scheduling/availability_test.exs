@@ -115,6 +115,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
         aircraft_id: aircraft_fixture().id,
         type: type
       })
+
       create_appointment(%{
         start_at: date,
         end_at: Timex.shift(date, hours: 2),
@@ -130,7 +131,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
           [],
           [],
           available_student,
-          %{ "user_id" => available_student.id }
+          %{"user_id" => available_student.id}
         )
 
       assert Enum.find(available, &(&1.user.id == available_student.id)).status == :available
@@ -331,6 +332,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
       date = ~N[2018-03-03 16:00:00]
 
       user = user_fixture() |> assign_role("student")
+
       # instructor_fixture()
 
       assert Availability.user_with_permission_status(

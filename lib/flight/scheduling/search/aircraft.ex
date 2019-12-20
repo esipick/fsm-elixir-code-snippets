@@ -11,6 +11,7 @@ defmodule Flight.Scheduling.Search.Aircraft do
     case normalized_term = Utils.normalize(search_term) do
       "" ->
         query
+
       _ ->
         where(
           query,

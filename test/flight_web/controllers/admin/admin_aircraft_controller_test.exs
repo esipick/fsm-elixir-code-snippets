@@ -17,8 +17,8 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
     end
 
     test "renders search results", %{conn: conn} do
-      aircraft = aircraft_fixture(%{ tail_number: "123456" })
-      another_aircraft = aircraft_fixture(%{ tail_number: "789123" })
+      aircraft = aircraft_fixture(%{tail_number: "123456"})
+      another_aircraft = aircraft_fixture(%{tail_number: "789123"})
 
       content =
         conn
