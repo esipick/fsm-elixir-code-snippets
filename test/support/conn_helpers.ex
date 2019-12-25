@@ -17,6 +17,11 @@ defmodule Flight.ConnCaseHelpers do
     |> Plug.Conn.put_session(:user_id, user.id)
   end
 
+  def web_auth_superadmin(conn, user \\ Flight.AccountsFixtures.admin_fixture()) do
+    Application.put_env(:flight, :superadmin_ids, [user.id])
+    web_auth(conn, user)
+  end
+
   def web_auth_admin(conn, user \\ Flight.AccountsFixtures.admin_fixture()) do
     web_auth(conn, user)
   end

@@ -10,7 +10,7 @@ defmodule FlightWeb.Admin.SchoolInvitationControllerTest do
 
       content =
         conn
-        |> web_auth_admin()
+        |> web_auth_superadmin()
         |> get("/admin/school_invitations")
         |> html_response(200)
 
@@ -24,7 +24,7 @@ defmodule FlightWeb.Admin.SchoolInvitationControllerTest do
 
       content =
         conn
-        |> web_auth_admin()
+        |> web_auth_superadmin()
         |> get("/admin/school_invitations")
         |> html_response(200)
 
@@ -46,7 +46,7 @@ defmodule FlightWeb.Admin.SchoolInvitationControllerTest do
 
       conn =
         conn
-        |> web_auth(admin)
+        |> web_auth_superadmin(admin)
         |> post("/admin/school_invitations", payload)
 
       assert redirected_to(conn) == "/admin/school_invitations"
@@ -62,7 +62,7 @@ defmodule FlightWeb.Admin.SchoolInvitationControllerTest do
       invitation = school_invitation_fixture()
 
       conn
-      |> web_auth_admin()
+      |> web_auth_superadmin()
       |> post("/admin/school_invitations/#{invitation.id}/resend")
       |> response_redirected_to("/admin/school_invitations")
 

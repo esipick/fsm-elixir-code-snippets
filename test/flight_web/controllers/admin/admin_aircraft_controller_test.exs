@@ -3,6 +3,21 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
 
   alias Flight.Scheduling
 
+  describe "GET /admin/aircrafts as superadmin" do
+    test "renders", %{conn: conn} do
+      aircraft_fixture(%{}, school_fixture(%{name: "another_school"}))
+
+      content =
+        conn
+        |> web_auth_superadmin()
+        |> get("/admin/aircrafts")
+        |> html_response(200)
+
+      assert content =~ "<th>School</th>"
+      assert content =~ "another_school"
+    end
+  end
+
   describe "GET /admin/aircrafts" do
     test "renders", %{conn: conn} do
       aircraft = aircraft_fixture()
@@ -13,6 +28,7 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
         |> get("/admin/aircrafts")
         |> html_response(200)
 
+      refute content =~ "<th>School</th>"
       assert content =~ aircraft.make
     end
 
@@ -80,6 +96,18 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
       |> html_response(200)
 
       refute Flight.Repo.get_by(Scheduling.Aircraft, make: "Some Crazy Make")
+    end
+  end
+
+  describe "GET /admin/aircrafts/:id as superadmin" do
+    test "renders", %{conn: conn} do
+      aircraft = aircraft_fixture(%{}, school_fixture(%{name: "another_school"}))
+
+      content =
+        conn
+        |> web_auth_superadmin()
+        |> get("/admin/aircrafts/#{aircraft.id}")
+        |> html_response(200)
     end
   end
 

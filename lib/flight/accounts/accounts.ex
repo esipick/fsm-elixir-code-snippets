@@ -718,6 +718,6 @@ defmodule Flight.Accounts do
   end
 
   def is_superadmin?(user) do
-    Mix.env() == :test || user.id in Application.get_env(:flight, :superadmin_ids)
+    user.id in Application.get_env(:flight, :superadmin_ids, [])
   end
 end

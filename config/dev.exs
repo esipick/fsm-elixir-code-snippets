@@ -35,10 +35,21 @@ config :stripity_stripe,
   connect_client_id: "ca_DGcV6SWq1ghyws1HwmcAHLgPldcHNisy"
 
 config :flight, :stripe_publishable_key, "pk_test_PKZCFv4SUII1gBu5wTeYw5OV"
-
 config :flight, :stripe_webhook_secret, "whsec_GRniVd07D9yl84sImiK3ijoy1JE6gqwf"
 config :flight, :stripe_livemode, false
-config :flight, :superadmin_ids, [1, 7]
+
+case(Map.fetch(System.get_env(), "SUPERADMIN_IDS")) do
+  {:ok, keys} ->
+    config :flight,
+      superadmin_ids:
+        keys
+        |> String.split(",")
+        |> Enum.map(&String.to_integer/1)
+
+  _ ->
+    config :flight, superadmin_ids: [1, 7]
+end
+
 config :flight, :webhook_token, "abc"
 config :flight, :platform_fee_amount, 5000
 

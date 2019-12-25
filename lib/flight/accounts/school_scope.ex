@@ -4,6 +4,13 @@ defmodule Flight.SchoolScope do
   require Ecto.Query
   import Ecto.Query
 
+  def scope_query(query, %{assigns: %{current_user: current_user}} = context) do
+    case Flight.Accounts.is_superadmin?(current_user) do
+      true -> query
+      false -> query |> where([s], s.school_id == ^school_id(context))
+    end
+  end
+
   def scope_query(query, context) do
     query
     |> where([s], s.school_id == ^school_id(context))
