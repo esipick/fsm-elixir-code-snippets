@@ -25,6 +25,7 @@ defmodule FlightWeb.API.InvoiceView do
       tax_rate: invoice.tax_rate,
       total_tax: invoice.total_tax,
       total_amount_due: invoice.total_amount_due,
+      status: invoice.status,
       appointment:
         Optional.map(
           invoice.appointment,
