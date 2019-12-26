@@ -5,9 +5,10 @@ defmodule FlightWeb.Billing.InvoiceController do
   alias FlightWeb.{Pagination, Billing.InvoiceStruct}
   alias Flight.Auth.InvoicePolicy
 
-  plug(:get_invoice when action in [:edit, :show])
-  plug(:authorize_modify when action in [:new, :edit])
+  plug(:get_invoice when action in [:edit, :show, :delete])
+  plug(:authorize_modify when action in [:new, :edit, :delete])
   plug(:authorize_view when action in [:show])
+  plug(:check_paid_invoice when action in [:delete])
 
   def index(conn, params) do
     page_params = Pagination.params(params)
@@ -45,6 +46,16 @@ defmodule FlightWeb.Billing.InvoiceController do
     invoice = InvoiceStruct.build(conn.assigns.invoice)
 
     render(conn, "show.html", invoice: invoice)
+  end
+
+  def delete(conn, _) do
+    conn.assigns.invoice
+    |> Invoice.changeset(%{archived: true})
+    |> Repo.update()
+
+    conn
+    |> put_flash(:success, "Invoice successfully archived.")
+    |> redirect(to: "/billing/invoices")
   end
 
   defp get_invoice(conn, _) do
@@ -85,5 +96,15 @@ defmodule FlightWeb.Billing.InvoiceController do
     else
       authorize_modify(conn, nil)
     end
+  end
+
+  defp check_paid_invoice(%{assigns: %{invoice: %{status: :paid}}} = conn, _) do
+    conn
+    |> put_flash(:error, "Can't modify invoice that is already paid.")
+    |> redirect(to: "/billing/invoices")
+  end
+
+  defp check_paid_invoice(conn, _) do
+    conn
   end
 end

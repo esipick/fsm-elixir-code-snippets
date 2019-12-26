@@ -14,6 +14,9 @@
               <a href="/billing/invoices/<%= @invoice.id %>/edit" class="btn btn-primary">
                 Edit
               </a>
+              <button stype="button" class="btn btn-danger _delete_button" data-invoice-id="<%= @invoice.id %>">
+                Delete
+              </button>
             </div>
           </div>
         <% end %>
@@ -174,3 +177,11 @@
     </div>
   </div>
 </div>
+
+<%= if can_modify_invoice?(@conn, @invoice) do %>
+  <%= render FlightWeb.Admin.PartialView,
+            "_shared_delete_form.html",
+            %{message: "This invoice and all of its information will be archived and removed from the system.",
+              path: "/billing/invoices/",
+              attribute: "invoice"} %>
+<% end %>

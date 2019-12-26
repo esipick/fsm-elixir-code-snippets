@@ -1,6 +1,9 @@
 defmodule FlightWeb.Billing.InvoiceControllerTest do
   use FlightWeb.ConnCase, async: true
 
+  alias Flight.Repo
+  alias Flight.Billing.Invoice
+
   describe "GET /billing/invoices" do
     @tag :integration
     test "renders for all except renters", %{conn: conn} do
@@ -15,11 +18,78 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
 
         assert content =~ user.first_name
 
-        if role_slug == "student" do
-          refute content =~ "New Invoice"
-        else
-          assert content =~ "New Invoice"
+        button_shown = content =~ "New Invoice"
+
+        case role_slug do
+          "student" -> refute button_shown
+          _ -> assert button_shown
         end
+      end
+    end
+
+    @tag :integration
+    test "student shouldn't to be able to delete invoices", %{conn: conn} do
+      student = student_fixture()
+      invoice = invoice_fixture(%{}, student)
+
+      content =
+        conn
+        |> web_auth(student)
+        |> get("/billing/invoices")
+        |> html_response(200)
+
+      refute content =~ "btn btn-danger btn-sm _delete_button"
+
+      content =
+        conn
+        |> web_auth(student)
+        |> get("/billing/invoices/#{invoice.id}")
+        |> html_response(200)
+
+      refute content =~ "btn btn-danger _delete_button"
+
+      content =
+        conn
+        |> web_auth(student)
+        |> delete("/billing/invoices/#{invoice.id}")
+
+      invoice = Repo.get(Invoice, invoice.id)
+
+      refute invoice.archived
+      assert redirected_to(content) == "/student/profile"
+    end
+
+    @tag :integration
+    test "admin, instructor and dispatcher able to delete any pending invoices", %{conn: conn} do
+      for role_slug <- ["admin", "dispatcher", "instructor"] do
+        user = user_fixture() |> assign_role(role_slug)
+        invoice = invoice_fixture()
+
+        content =
+          conn
+          |> web_auth(user)
+          |> get("/billing/invoices")
+          |> html_response(200)
+
+        assert content =~ "btn btn-danger btn-sm _delete_button"
+
+        content =
+          conn
+          |> web_auth(user)
+          |> get("/billing/invoices/#{invoice.id}")
+          |> html_response(200)
+
+        assert content =~ "btn btn-danger _delete_button"
+
+        content =
+          conn
+          |> web_auth(user)
+          |> delete("/billing/invoices/#{invoice.id}")
+
+        invoice = Repo.get(Invoice, invoice.id)
+
+        assert invoice.archived
+        assert redirected_to(content) == "/billing/invoices"
       end
     end
 

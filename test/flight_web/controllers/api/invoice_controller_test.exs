@@ -610,17 +610,30 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
   describe "DELETE /api/invoices/:id" do
     test "deletes unpaid invoice", %{conn: conn} do
+      for role_slug <- ["admin", "dispatcher", "instructor"] do
+        user = user_fixture() |> assign_role(role_slug)
+        invoice = invoice_fixture()
+
+        conn
+        |> auth(user)
+        |> delete("/api/invoices/#{invoice.id}")
+        |> response(204)
+
+        invoice = Repo.get(Invoice, invoice.id)
+
+        assert invoice.archived
+      end
+    end
+
+    test "student can't delete invoice", %{conn: conn} do
       invoice = invoice_fixture()
-      instructor = instructor_fixture()
+      student = student_fixture()
 
-      conn
-      |> auth(instructor)
-      |> delete("/api/invoices/#{invoice.id}")
-      |> response(204)
-
-      invoice = Repo.get(Invoice, invoice.id)
-
-      assert invoice.archived
+      conn =
+        conn
+        |> auth(student)
+        |> delete("/api/invoices/#{invoice.id}")
+        |> response(401)
     end
 
     test "can't delete paid invoice", %{conn: conn} do

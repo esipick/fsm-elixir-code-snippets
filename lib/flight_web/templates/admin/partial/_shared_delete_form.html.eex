@@ -1,0 +1,19 @@
+<div style="display:none">
+  <%= form_tag @path <> ":pending:", method: "delete", id: "delete_form" do %>
+  <% end %>
+</div>
+
+<script>
+$(document).ready(function() {
+  $('._delete_button').on('click', function() {
+    var id = $(this).attr('<%= "data-#{@attribute}-id" %>')
+    var shouldDelete = confirm("<%= @message %>")
+    if (shouldDelete) {
+      var form = $('#delete_form')[0]
+      form.action = '<%= @path %>' + id
+      form.submit()
+    }
+  });
+});
+</script>
+

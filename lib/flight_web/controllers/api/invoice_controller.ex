@@ -9,7 +9,7 @@ defmodule FlightWeb.API.InvoiceController do
   alias Flight.Billing.{Invoice, CreateInvoice, UpdateInvoice, CreateInvoiceFromAppointment}
 
   plug(:get_invoice when action in [:update, :show, :delete])
-  plug(:authorize_modify when action in [:create, :show, :index, :update])
+  plug(:authorize_modify when action in [:create, :show, :index, :update, :delete])
   plug(:check_paid_invoice when action in [:update, :delete])
 
   def index(conn, params) do

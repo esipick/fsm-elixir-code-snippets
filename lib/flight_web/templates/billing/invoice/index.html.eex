@@ -94,6 +94,11 @@
                     <a href="/billing/invoices/<%= invoice.id %>/edit" class="btn btn-primary btn-sm">
                       Edit
                     </a>
+                    <%= if invoice.status != :archived do %>
+                      <button stype="button" class="btn btn-danger btn-sm _delete_button" data-invoice-id="<%= invoice.id %>">
+                        Delete
+                      </button>
+                    <% end %>
                   <% end %>
                 </td>
               </tr>
@@ -126,3 +131,9 @@
 <script>
   require("js/admin/datetimepicker.js")
 </script>
+
+<%= render FlightWeb.Admin.PartialView,
+          "_shared_delete_form.html",
+          %{message: "This invoice and all of its information will be archived and removed from the system.",
+            path: "/billing/invoices/",
+            attribute: "invoice"} %>
