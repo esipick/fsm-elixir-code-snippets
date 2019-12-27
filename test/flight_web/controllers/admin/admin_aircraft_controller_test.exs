@@ -5,7 +5,7 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
 
   describe "GET /admin/aircrafts as superadmin" do
     test "renders", %{conn: conn} do
-      aircraft_fixture(%{}, school_fixture(%{name: "another_school"}))
+      aircraft_fixture(%{}, school_fixture(%{name: "another school"}))
 
       content =
         conn
@@ -14,7 +14,7 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
         |> html_response(200)
 
       assert content =~ "<th>School</th>"
-      assert content =~ "another_school"
+      assert content =~ "another school"
     end
   end
 
@@ -101,7 +101,7 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
 
   describe "GET /admin/aircrafts/:id as superadmin" do
     test "renders", %{conn: conn} do
-      aircraft = aircraft_fixture(%{}, school_fixture(%{name: "another_school"}))
+      aircraft = aircraft_fixture(%{}, school_fixture(%{name: "another school"}))
 
       content =
         conn

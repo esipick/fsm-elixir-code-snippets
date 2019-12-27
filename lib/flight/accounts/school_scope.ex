@@ -6,7 +6,7 @@ defmodule Flight.SchoolScope do
 
   def scope_query(query, %{assigns: %{current_user: current_user}} = context) do
     case Flight.Accounts.is_superadmin?(current_user) do
-      true -> query
+      true -> query |> preload(:school)
       false -> query |> where([s], s.school_id == ^school_id(context))
     end
   end

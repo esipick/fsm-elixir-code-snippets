@@ -44,8 +44,8 @@
               <div class="card-body">
                 <%=
                 case @data.user_table_data.style do
-                  :detailed -> render(FlightWeb.Admin.UserView, "_detailed_table.html", detailed_rows: @data.user_table_data.rows)
-                  :simple -> render(FlightWeb.Admin.UserView, "_simple_table.html", simple_rows: @data.user_table_data.rows)
+                  :detailed -> render(FlightWeb.Admin.UserView, "_detailed_table.html", conn: @conn, detailed_rows: @data.user_table_data.rows)
+                  :simple -> render(FlightWeb.Admin.UserView, "_simple_table.html", conn: @conn, simple_rows: @data.user_table_data.rows)
                 end
                 %>
 

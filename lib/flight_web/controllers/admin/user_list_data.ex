@@ -3,11 +3,11 @@ defmodule FlightWeb.Admin.UserTableData do
 end
 
 defmodule FlightWeb.Admin.UserTableDetailedRow do
-  defstruct [:user_id, :name, :phone_number, :next_appointment, :account_balance, :owes]
+  defstruct [:user_id, :name, :school, :phone_number, :next_appointment, :account_balance, :owes]
 end
 
 defmodule FlightWeb.Admin.UserTableSimpleRow do
-  defstruct [:user_id, :name, :phone_number]
+  defstruct [:user_id, :school, :name, :phone_number]
 end
 
 defmodule FlightWeb.Admin.UserListData do
@@ -63,6 +63,7 @@ defmodule FlightWeb.Admin.UserListData do
     for user <- users do
       %FlightWeb.Admin.UserTableDetailedRow{
         user_id: user.id,
+        school: user.school,
         name: "#{user.first_name} #{user.last_name}",
         phone_number: Flight.Format.display_phone_number(user.phone_number),
         next_appointment: "Unknown",
@@ -76,6 +77,7 @@ defmodule FlightWeb.Admin.UserListData do
     for user <- users do
       %FlightWeb.Admin.UserTableSimpleRow{
         user_id: user.id,
+        school: user.school,
         name: "#{user.first_name} #{user.last_name}",
         phone_number: Flight.Format.display_phone_number(user.phone_number)
       }

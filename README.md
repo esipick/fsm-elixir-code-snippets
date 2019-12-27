@@ -40,6 +40,7 @@ This will create school with name `Example School` and user with email `bryan@br
 Populate database with sample data:
 ```bash
 mix run priv/repo/user_seeds.ex # create 100 students
+mix run priv/repo/user_seeds.ex dispatcher # create 100 dispatchers
 mix run priv/repo/user_seeds.ex instructor # create 100 instructors
 mix run priv/repo/user_seeds.ex renter # create 100 renters
 

@@ -4,6 +4,26 @@ defmodule FlightWeb.Admin.UserControllerTest do
   alias Flight.Accounts
 
   describe "GET /admin/users" do
+    test "render users from all schools for superadmin", %{conn: conn} do
+      school = school_fixture(%{name: "another school"})
+      user = admin_fixture(%{first_name: "another name"}, school)
+
+      conn = web_auth_superadmin(conn)
+
+      for role_slug <- Accounts.Role.available_role_slugs() do
+        user = user |> assign_role(role_slug)
+
+        content =
+          conn
+          |> get("/admin/users?role=#{role_slug}")
+          |> html_response(200)
+
+        assert content =~ "<th>School</th>"
+        assert content =~ "another school"
+        assert content =~ "another school"
+      end
+    end
+
     test "renders for all roles", %{conn: conn} do
       for role_slug <- Accounts.Role.available_role_slugs() do
         user = user_fixture() |> assign_role(role_slug)

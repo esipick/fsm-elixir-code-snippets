@@ -134,4 +134,8 @@ defmodule FlightWeb.ViewHelpers do
       "custom" -> "Custom"
     end
   end
+
+  def show_to_superadmin?(%{assigns: %{current_user: current_user}}) do
+    Flight.Accounts.is_superadmin?(current_user)
+  end
 end
