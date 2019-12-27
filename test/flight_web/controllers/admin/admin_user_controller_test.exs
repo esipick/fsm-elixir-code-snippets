@@ -11,7 +11,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
       conn = web_auth_superadmin(conn)
 
       for role_slug <- Accounts.Role.available_role_slugs() do
-        user = user |> assign_role(role_slug)
+        user |> assign_role(role_slug)
 
         content =
           conn

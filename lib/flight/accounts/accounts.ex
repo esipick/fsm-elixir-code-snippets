@@ -399,14 +399,13 @@ defmodule Flight.Accounts do
     end
   end
 
-  def default_users_query(query, %{assigns: %{current_user: current_user}} = school_context) do
-    query =
-      from(
-        u in query,
-        where: u.archived == false,
-        order_by: u.last_name
-      )
-      |> SchoolScope.scope_query(school_context)
+  def default_users_query(query, %{assigns: %{current_user: _current_user}} = school_context) do
+    from(
+      u in query,
+      where: u.archived == false,
+      order_by: u.last_name
+    )
+    |> SchoolScope.scope_query(school_context)
   end
 
   def default_users_query(query, school_context) do

@@ -103,11 +103,10 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
     test "renders", %{conn: conn} do
       aircraft = aircraft_fixture(%{}, school_fixture(%{name: "another school"}))
 
-      content =
-        conn
-        |> web_auth_superadmin()
-        |> get("/admin/aircrafts/#{aircraft.id}")
-        |> html_response(200)
+      conn
+      |> web_auth_superadmin()
+      |> get("/admin/aircrafts/#{aircraft.id}")
+      |> html_response(200)
     end
   end
 

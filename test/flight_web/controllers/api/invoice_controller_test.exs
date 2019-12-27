@@ -305,7 +305,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     test "renders invoices", %{conn: conn} do
       invoice1 = invoice_fixture()
       invoice2 = invoice_fixture()
-      invoice3 = invoice_fixture(%{archived: true})
+      _invoice3 = invoice_fixture(%{archived: true})
       instructor = instructor_fixture()
 
       response =
@@ -629,11 +629,10 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       invoice = invoice_fixture()
       student = student_fixture()
 
-      conn =
-        conn
-        |> auth(student)
-        |> delete("/api/invoices/#{invoice.id}")
-        |> response(401)
+      conn
+      |> auth(student)
+      |> delete("/api/invoices/#{invoice.id}")
+      |> response(401)
     end
 
     test "can't delete paid invoice", %{conn: conn} do
