@@ -5,7 +5,7 @@ defmodule FlightWeb.Billing.TransactionStruct do
   alias Flight.Repo
 
   defstruct ~w(
-    id invoice_id student_name amount_due amount_paid state completed_at
+    id invoice_id school student_name amount_due amount_paid state completed_at
     payment_method error_message created
   )a
 
@@ -15,6 +15,7 @@ defmodule FlightWeb.Billing.TransactionStruct do
     %TransactionStruct{
       id: transaction.id,
       created: NaiveDateTime.to_date(transaction.inserted_at),
+      school: transaction.school,
       invoice_id: transaction.invoice_id,
       student_name: student_name(transaction),
       amount_due: transaction.total,

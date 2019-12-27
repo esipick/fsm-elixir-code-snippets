@@ -2,10 +2,26 @@ defmodule FlightWeb.Billing.TransactionControllerTest do
   use FlightWeb.ConnCase, async: true
 
   describe "GET /billing/transactions" do
+    test "render transactions for all schools as superadmin", %{conn: conn} do
+      another_school = school_fixture(%{name: "another school"})
+      student = student_fixture(%{}, another_school)
+      transaction_fixture(%{}, student, instructor_fixture(), another_school)
+
+      content =
+        conn
+        |> web_auth_superadmin()
+        |> get("/billing/transactions")
+        |> html_response(200)
+
+      assert content =~ "<th>School</th>"
+      assert content =~ another_school.name
+    end
+
     @tag :integration
     test "renders for all except renters", %{conn: conn} do
       for role_slug <- ["admin", "dispatcher", "instructor", "student"] do
         user = user_fixture() |> assign_role(role_slug)
+        transaction_fixture(%{}, user)
 
         content =
           conn
@@ -13,12 +29,13 @@ defmodule FlightWeb.Billing.TransactionControllerTest do
           |> get("/billing/transactions")
           |> html_response(200)
 
-        assert content =~ user.first_name
+        refute content =~ "<th>School</th>"
 
-        if role_slug == "student" do
-          refute content =~ "New Invoice"
-        else
-          assert content =~ "New Invoice"
+        button_shown = content =~ "New Invoice"
+
+        case role_slug do
+          "student" -> refute button_shown
+          _ -> assert button_shown
         end
       end
     end
