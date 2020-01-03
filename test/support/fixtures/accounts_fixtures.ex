@@ -65,6 +65,12 @@ defmodule Flight.AccountsFixtures do
     user_fixture(attrs, school) |> assign_role("admin")
   end
 
+  def superadmin_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
+    user = admin_fixture(attrs, school)
+    Application.put_env(:flight, :superadmin_ids, [user.id])
+    user
+  end
+
   def dispatcher_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
     user_fixture(attrs, school) |> assign_role("dispatcher")
   end

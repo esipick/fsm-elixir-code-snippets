@@ -65,7 +65,7 @@ defmodule Flight.Scheduling do
     Aircraft
     |> Flight.Scheduling.Search.Aircraft.run(search_term)
     |> order_by([a], asc: [a.make, a.model, a.tail_number])
-    |> SchoolScope.scope_query(school_context)
+    |> SchoolScope.superadmin_query(school_context)
     |> where([a], a.archived == false)
   end
 

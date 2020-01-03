@@ -1,5 +1,5 @@
 defmodule FlightWeb.Billing.InvoiceControllerTest do
-  use FlightWeb.ConnCase, async: true
+  use FlightWeb.ConnCase, async: false
 
   alias Flight.Repo
   alias Flight.Billing.Invoice

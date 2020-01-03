@@ -42,11 +42,9 @@ defmodule FlightWeb.Admin.SchoolInvitationControllerTest do
         }
       }
 
-      admin = admin_fixture()
-
       conn =
         conn
-        |> web_auth_superadmin(admin)
+        |> web_auth_superadmin()
         |> post("/admin/school_invitations", payload)
 
       assert redirected_to(conn) == "/admin/school_invitations"

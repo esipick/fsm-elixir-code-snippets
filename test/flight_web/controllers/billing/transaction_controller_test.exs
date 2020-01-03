@@ -1,5 +1,5 @@
 defmodule FlightWeb.Billing.TransactionControllerTest do
-  use FlightWeb.ConnCase, async: true
+  use FlightWeb.ConnCase, async: false
 
   describe "GET /billing/transactions" do
     test "render transactions for all schools as superadmin", %{conn: conn} do

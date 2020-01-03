@@ -6,14 +6,24 @@ defmodule Flight.SchoolScope do
 
   def scope_query(query, %{assigns: %{current_user: current_user}} = context) do
     case Flight.Accounts.is_superadmin?(current_user) do
-      true -> query |> preload(:school)
-      false -> query |> where([s], s.school_id == ^school_id(context))
+      true -> query
+      false -> school_scope(query, context)
     end
   end
 
   def scope_query(query, context) do
-    query
-    |> where([s], s.school_id == ^school_id(context))
+    school_scope(query, context)
+  end
+
+  def superadmin_query(query, %{assigns: %{current_user: current_user}} = context) do
+    case Flight.Accounts.is_superadmin?(current_user) do
+      true -> query |> preload(:school)
+      false -> scope_query(query, context)
+    end
+  end
+
+  def school_scope(query, context) do
+    query |> where([s], s.school_id == ^school_id(context))
   end
 
   def school_changeset(struct, school_context) do

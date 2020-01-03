@@ -41,6 +41,43 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                  aircrafts_available: aircrafts_available
                )
     end
+
+    test "returns availabilities to superadmin", %{conn: conn} do
+      _instructor = user_fixture() |> assign_role("instructor")
+      student = user_fixture() |> assign_role("student")
+      _aircraft = aircraft_fixture()
+
+      date = ~N[2018-03-03 10:30:00]
+
+      start_at = date
+
+      end_at = Timex.shift(date, hours: 2)
+
+      json =
+        conn
+        |> auth(superadmin_fixture())
+        |> get("/api/appointments/availability", %{
+          start_at: NaiveDateTime.to_iso8601(start_at),
+          end_at: NaiveDateTime.to_iso8601(end_at)
+        })
+        |> json_response(200)
+
+      students_available = Availability.student_availability(start_at, end_at, [], [], student)
+
+      instructors_available =
+        Availability.instructor_availability(start_at, end_at, [], [], student)
+
+      aircrafts_available = Availability.aircraft_availability(start_at, end_at, [], [], student)
+
+      assert json ==
+               render_json(
+                 AppointmentView,
+                 "availability.json",
+                 students_available: students_available,
+                 instructors_available: instructors_available,
+                 aircrafts_available: aircrafts_available
+               )
+    end
   end
 
   describe "GET /api/appointments" do

@@ -413,40 +413,6 @@ defmodule Flight.Billing do
     {:error, :invalid}
   end
 
-  defp add_funds_by_cash(user, creator_user, amount) when is_integer(amount) and amount > 0 do
-    ## TODO: Check that Instructor or Admin
-    ## TODO: Check that user_id and creator_user_id are different
-
-    transaction =
-      %Transaction{}
-      |> SchoolScope.school_changeset(user)
-      |> Transaction.changeset(%{
-        user_id: user.id,
-        creator_user_id: creator_user.id,
-        completed_at: NaiveDateTime.utc_now(),
-        state: "completed",
-        type: "credit",
-        paid_by_cash: amount,
-        total: amount
-      })
-      |> Repo.insert!()
-
-    line_item =
-      %TransactionLineItem{}
-      |> TransactionLineItem.changeset(%{
-        transaction_id: transaction.id,
-        type: "add_funds",
-        amount: amount
-      })
-      |> Repo.insert!()
-
-    {:ok, user} = update_balance(user, amount)
-
-    transaction = %{transaction | line_items: [line_item]}
-
-    {:ok, {user, transaction}}
-  end
-
   def add_funds_by_charge(user, creator_user, amount, source)
       when is_integer(amount) and amount > 0 do
     result = create_stripe_charge(source, user, user.email, amount, user)

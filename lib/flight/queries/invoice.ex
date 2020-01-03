@@ -11,7 +11,7 @@ defmodule Flight.Queries.Invoice do
 
   @format_str "{0M}-{0D}-{YYYY}"
 
-  def page(school_context, page_params, params = %{}) do
+  def page(%{assigns: %{current_user: _current_user}} = school_context, page_params, params = %{}) do
     search_term = Map.get(params, "search", nil)
     user_ids = users_search(search_term, school_context)
     invoice_ids = line_items_search(search_term)
@@ -22,7 +22,7 @@ defmodule Flight.Queries.Invoice do
     end_date = parse_date(params["end_date"], 1)
 
     from(i in Invoice, where: i.archived == false, order_by: [desc: i.inserted_at])
-    |> SchoolScope.scope_query(school_context)
+    |> SchoolScope.superadmin_query(school_context)
     |> pass_unless(
       search_term,
       &where(

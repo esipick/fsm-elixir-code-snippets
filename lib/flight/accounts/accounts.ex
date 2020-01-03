@@ -405,7 +405,7 @@ defmodule Flight.Accounts do
       where: u.archived == false,
       order_by: u.last_name
     )
-    |> SchoolScope.scope_query(school_context)
+    |> SchoolScope.superadmin_query(school_context)
   end
 
   def default_users_query(query, school_context) do
