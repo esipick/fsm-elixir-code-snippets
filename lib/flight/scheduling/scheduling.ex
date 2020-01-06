@@ -247,6 +247,7 @@ defmodule Flight.Scheduling do
       instructor_user_id_value,
       &from(a in &1, where: a.instructor_user_id == ^instructor_user_id_value)
     )
+    |> pass_unless(options["status"], &where(&1, [a], a.status == ^options["status"]))
     # |> limit(200)
     |> order_by([a], desc: a.start_at)
     |> Repo.all()

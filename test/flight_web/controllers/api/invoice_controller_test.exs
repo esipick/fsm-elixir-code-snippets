@@ -4,6 +4,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   alias Flight.Repo
   alias FlightWeb.API.InvoiceView
   alias Flight.Billing.Invoice
+  alias Flight.Scheduling.Appointment
 
   describe "POST /api/invoices" do
     @tag :integration
@@ -159,6 +160,27 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.payment_option == :cash
       assert transaction.paid_by_cash == 24000
 
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
+    test "pays invoice created from appointment", %{conn: conn} do
+      appointment = appointment_fixture()
+      instructor = instructor_fixture()
+      invoice = invoice_fixture(%{appointment_id: appointment.id, payment_option: "cash"})
+
+      json =
+        conn
+        |> auth(instructor)
+        |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: %{}})
+        |> json_response(200)
+
+      invoice = Repo.get(Invoice, invoice.id) |> preload_invoice
+      appointment = Repo.get(Appointment, appointment.id)
+      transaction = List.first(invoice.transactions)
+
+      assert transaction.state == "completed"
+      assert appointment.status == :paid
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 

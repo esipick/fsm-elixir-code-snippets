@@ -610,6 +610,29 @@ defmodule Flight.SchedulingTest do
                )
     end
 
+    test "get_appointments/2 returns appointments by status" do
+      appointment1 =
+        appointment_fixture(%{
+          status: :pending,
+          start_at: ~N[2018-03-03 10:00:00],
+          end_at: ~N[2018-03-03 11:00:00]
+        })
+
+      appointment_fixture(%{
+        status: :paid,
+        start_at: ~N[2018-03-02 22:59:59],
+        end_at: ~N[2018-03-02 23:59:59]
+      })
+
+      id = appointment1.id
+
+      assert [%Appointment{id: ^id}] =
+               Scheduling.get_appointments(
+                 %{"status" => 0},
+                 default_school_fixture()
+               )
+    end
+
     test "get_appointments/2 returns appointments for instructor" do
       appointment1 =
         appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})

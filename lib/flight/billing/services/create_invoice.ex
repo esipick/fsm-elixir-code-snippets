@@ -5,6 +5,7 @@ defmodule Flight.Billing.CreateInvoice do
   alias Flight.Accounts.User
   alias Flight.Billing.{Invoice, Transaction, PayTransaction}
   alias FlightWeb.Billing.InvoiceStruct
+  alias Flight.Scheduling.Appointment
 
   def run(invoice_params, school_context) do
     pay_off = Map.get(school_context.params, "pay_off", false)
@@ -36,8 +37,24 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   def pay(invoice, school_context) do
-    invoice = Repo.preload(invoice, user: from(i in User, lock: "FOR UPDATE NOWAIT"))
+    invoice =
+      Repo.preload(invoice, user: from(i in User, lock: "FOR UPDATE NOWAIT"))
+      |> Repo.preload(:appointment)
 
+    case process_payment(invoice, school_context) do
+      {:ok, invoice} ->
+        if invoice.appointment do
+          Appointment.paid(invoice.appointment)
+        end
+
+        {:ok, invoice}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  defp process_payment(invoice, school_context) do
     case invoice.payment_option do
       :balance -> pay_off_balance(invoice, school_context)
       :cc -> pay_off_cc(invoice, school_context)

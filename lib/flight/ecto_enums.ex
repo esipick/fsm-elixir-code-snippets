@@ -18,3 +18,5 @@ defenum(
   instructor: 2,
   discount: 3
 )
+
+defenum(AppointmentStatusEnum, pending: 0, paid: 1)

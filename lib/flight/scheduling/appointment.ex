@@ -7,6 +7,7 @@ defmodule Flight.Scheduling.Appointment do
     field(:start_at, :naive_datetime)
     field(:note, :string)
     field(:type, :string, default: "lesson")
+    field(:status, InvoiceStatusEnum, default: :pending)
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:user, Flight.Accounts.User)
@@ -26,7 +27,8 @@ defmodule Flight.Scheduling.Appointment do
       :instructor_user_id,
       :aircraft_id,
       :note,
-      :type
+      :type,
+      :status
     ])
     |> validate_required([
       :start_at,
@@ -92,5 +94,9 @@ defmodule Flight.Scheduling.Appointment do
     else
       add_error(changeset, :aircraft, "or instructor must be set.")
     end
+  end
+
+  def paid(%Flight.Scheduling.Appointment{} = appointment) do
+    change(appointment, status: :paid) |> Flight.Repo.update()
   end
 end
