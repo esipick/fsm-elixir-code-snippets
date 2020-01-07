@@ -1,6 +1,8 @@
 defmodule FlightWeb.Admin.SettingsControllerTest do
   use FlightWeb.ConnCase
 
+  alias Flight.Accounts.School
+
   describe "GET /admin/settings/:id" do
     test "renders", %{conn: conn} do
       first_school = school_fixture(%{name: "first school"})
@@ -11,7 +13,7 @@ defmodule FlightWeb.Admin.SettingsControllerTest do
 
       conn =
         conn
-        |> web_auth_admin()
+        |> web_auth_admin(admin)
 
       content =
         conn
@@ -21,7 +23,7 @@ defmodule FlightWeb.Admin.SettingsControllerTest do
 
       conn =
         conn
-        |> web_auth_superadmin()
+        |> web_auth_superadmin(superadmin)
 
       content =
         conn
@@ -68,6 +70,56 @@ defmodule FlightWeb.Admin.SettingsControllerTest do
         |> get("/admin/settings?tab=billing")
 
       assert redirected_to(conn) == "/admin/dashboard"
+    end
+  end
+
+  describe "PUT /admin/settings/:id" do
+    test "renders", %{conn: conn} do
+      first_school = school_fixture(%{name: "first school"})
+      admin = admin_fixture(%{}, first_school)
+
+      second_school = school_fixture(%{name: "second school"})
+      superadmin = superadmin_fixture(%{}, second_school)
+
+      params = %{
+        data: %{
+          name: "another name"
+        },
+        redirect_tab: "school"
+      }
+
+      first_school_path = "/admin/settings/#{first_school.id}"
+
+      conn =
+        conn
+        |> web_auth_admin(admin)
+
+      content =
+        conn
+        |> put(first_school_path, params)
+
+      assert redirected_to(content) == "/admin/settings"
+      refute Flight.Repo.get(School, first_school.id).name == "another name"
+
+      conn =
+        conn
+        |> web_auth_superadmin(superadmin)
+
+      content =
+        conn
+        |> put(first_school_path, params)
+
+      assert redirected_to(content) == first_school_path
+      assert Flight.Repo.get(School, first_school.id).name == "another name"
+
+      second_school_path = "/admin/settings/#{second_school.id}"
+
+      content =
+        conn
+        |> put(second_school_path, params)
+
+      assert redirected_to(content) == second_school_path
+      assert Flight.Repo.get(School, second_school.id).name == "another name"
     end
   end
 

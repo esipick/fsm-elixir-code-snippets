@@ -16,7 +16,6 @@ defmodule FlightWeb.Admin.SettingsController do
       "show.html",
       tab: :contact,
       school: conn.assigns.school,
-      base_tab_path: conn.assigns.base_tab_path,
       changeset: changeset
     )
   end
@@ -32,7 +31,6 @@ defmodule FlightWeb.Admin.SettingsController do
       conn,
       "show.html",
       tab: :school,
-      base_tab_path: conn.assigns.base_tab_path,
       school: conn.assigns.school,
       changeset: changeset
     )
@@ -49,7 +47,7 @@ defmodule FlightWeb.Admin.SettingsController do
 
         conn
         |> put_flash(:success, "Successfully updated settings.")
-        |> redirect(to: "/admin/settings#{redirect_append}")
+        |> redirect(to: conn.request_path <> redirect_append)
 
       {:error, changeset} ->
         tab =
@@ -63,7 +61,6 @@ defmodule FlightWeb.Admin.SettingsController do
           "show.html",
           tab: tab,
           school: conn.assigns.school,
-          base_tab_path: conn.assigns.base_tab_path,
           changeset: changeset
         )
     end
@@ -74,7 +71,6 @@ defmodule FlightWeb.Admin.SettingsController do
       if school = Flight.Accounts.get_school(id) |> preload(:stripe_account) do
         conn
         |> assign(:school, school)
-        |> assign(:base_tab_path, "/admin/settings/#{school.id}")
       else
         conn
         |> put_flash(:warning, "Unknown school.")
@@ -88,10 +84,9 @@ defmodule FlightWeb.Admin.SettingsController do
     end
   end
 
-  def get_school(conn, _) do
+  def get_school(%{assigns: %{current_user: %{school: school}}} = conn, _) do
     conn
-    |> assign(:school, Flight.Repo.preload(conn.assigns.current_user.school, :stripe_account))
-    |> assign(:base_tab_path, "/admin/settings")
+    |> assign(:school, Flight.Repo.preload(school, :stripe_account))
   end
 
   defp authorize_admin(conn, _) do

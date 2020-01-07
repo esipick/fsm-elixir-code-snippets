@@ -18,14 +18,14 @@
         <div class="d-flex justify-content-between mb-3">
           <ul class="nav nav-pills nav-pills-primary" role="tablist">
             <li class="nav-item">
-              <a class="nav-link <%= if @tab == :school, do: "active", else: "" %>" href=<%= @base_tab_path %>>School Details</a>
+              <a class="nav-link <%= if @tab == :school, do: "active", else: "" %>" href=<%= @conn.request_path %>>School Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link <%= if @tab == :contact, do: "active", else: "" %>" href=<%= "#{@base_tab_path}?tab=contact" %>>Contact Details</a>
+              <a class="nav-link <%= if @tab == :contact, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=contact" %>>Contact Details</a>
             </li>
             <%= if can_access_billing?(@conn) do %>
               <li class="nav-item">
-                <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href=<%= "#{@base_tab_path}?tab=billing" %>>Billing Setup</a>
+                <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=billing" %>>Billing Setup</a>
               </li>
             <% end %>
           </ul>
@@ -35,8 +35,8 @@
       <div class="card-body">
         <%=
           case @tab do
-            :school -> render "_school.html", school: @school, changeset: @changeset
-            :contact -> render "_contact.html", school: @school, changeset: @changeset
+            :school -> render "_school.html", school: @school, changeset: @changeset, request_path: @conn.request_path
+            :contact -> render "_contact.html", school: @school, changeset: @changeset, request_path: @conn.request_path
             :billing -> render "_billing.html", school: @school
           end
           %>

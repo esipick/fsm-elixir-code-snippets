@@ -1,4 +1,4 @@
-<%= form_for @changeset, "/admin/settings", [as: :data, method: "put"], fn f -> %>
+<%= form_for @changeset, @request_path, [as: :data, method: "put"], fn f -> %>
   <%= if Enum.count(f.errors) > 0 do %>
     <div class="alert alert-danger">
       <%= for error <- human_error_messages(@changeset) do %>
