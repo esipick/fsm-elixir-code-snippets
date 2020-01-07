@@ -1,6 +1,44 @@
 defmodule FlightWeb.Admin.SettingsControllerTest do
   use FlightWeb.ConnCase
 
+  describe "GET /admin/settings/:id" do
+    test "renders", %{conn: conn} do
+      first_school = school_fixture(%{name: "first school"})
+      admin = admin_fixture(%{}, first_school)
+
+      second_school = school_fixture(%{name: "second school"})
+      superadmin = superadmin_fixture(%{}, second_school)
+
+      conn =
+        conn
+        |> web_auth_admin()
+
+      content =
+        conn
+        |> get("/admin/settings/#{first_school.id}")
+
+      assert redirected_to(content) == "/admin/settings"
+
+      conn =
+        conn
+        |> web_auth_superadmin()
+
+      content =
+        conn
+        |> get("/admin/settings/#{first_school.id}")
+        |> html_response(200)
+
+      assert content =~ "value=\"first school\""
+
+      content =
+        conn
+        |> get("/admin/settings/#{second_school.id}")
+        |> html_response(200)
+
+      assert content =~ "value=\"second school\""
+    end
+  end
+
   describe "GET /admin/settings" do
     test "renders school info", %{conn: conn} do
       conn

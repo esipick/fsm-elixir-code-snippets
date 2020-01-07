@@ -94,12 +94,14 @@ defmodule FlightWeb.SidebarItem do
       #   icon_class: "education_agenda-bookmark",
       #   active: false
       # },
-      %SidebarItem{
-        path: "/admin/settings",
-        label: "School Settings",
-        icon_class: "loader_gear",
-        active: false
-      },
+      unless Flight.Accounts.is_superadmin?(user) do
+        %SidebarItem{
+          path: "/admin/settings",
+          label: "School Settings",
+          icon_class: "loader_gear",
+          active: false
+        }
+      end,
       %SidebarItem{
         path: "/logout",
         label: "Log out",

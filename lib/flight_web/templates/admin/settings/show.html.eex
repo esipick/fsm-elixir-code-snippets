@@ -18,14 +18,14 @@
         <div class="d-flex justify-content-between mb-3">
           <ul class="nav nav-pills nav-pills-primary" role="tablist">
             <li class="nav-item">
-              <a class="nav-link <%= if @tab == :school, do: "active", else: "" %>" href="/admin/settings">School Details</a>
+              <a class="nav-link <%= if @tab == :school, do: "active", else: "" %>" href=<%= @base_tab_path %>>School Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link <%= if @tab == :contact, do: "active", else: "" %>" href="/admin/settings?tab=contact">Contact Details</a>
+              <a class="nav-link <%= if @tab == :contact, do: "active", else: "" %>" href=<%= "#{@base_tab_path}?tab=contact" %>>Contact Details</a>
             </li>
             <%= if can_access_billing?(@conn) do %>
               <li class="nav-item">
-                <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href="/admin/settings?tab=billing">Billing Setup</a>
+                <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href=<%= "#{@base_tab_path}?tab=billing" %>>Billing Setup</a>
               </li>
             <% end %>
           </ul>

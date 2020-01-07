@@ -150,6 +150,7 @@ defmodule FlightWeb.Router do
       post("/cancel", TransactionController, :cancel)
     end
 
+    resources("/settings", SettingsController, only: [:show, :update])
     resources("/settings", SettingsController, only: [:show, :update], singleton: true)
 
     get("/stripe_connect", StripeController, :connect)
