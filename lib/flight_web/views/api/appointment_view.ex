@@ -77,6 +77,7 @@ defmodule FlightWeb.API.AppointmentView do
       user: render(FlightWeb.API.UserView, "skinny_user.json", user: appointment.user),
       transaction_id: appointment.transaction_id,
       note: appointment.note,
+      status: appointment.status,
       instructor_user:
         Optional.map(
           appointment.instructor_user,
