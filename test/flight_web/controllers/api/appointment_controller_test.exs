@@ -131,6 +131,43 @@ defmodule FlightWeb.API.AppointmentControllerTest do
 
       assert json == render_json(AppointmentView, "index.json", appointments: rendered_data)
     end
+
+    test "renders appointments with status", %{conn: conn} do
+      student = student_fixture()
+
+      appointment1 =
+        appointment_fixture(
+          %{status: :pending, start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]},
+          student
+        )
+
+      _appointment2 =
+        appointment_fixture(
+          %{status: :paid, start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]},
+          student
+        )
+
+      from = NaiveDateTime.to_iso8601(~N[2018-03-03 09:00:00])
+      to = NaiveDateTime.to_iso8601(~N[2018-03-03 12:00:00])
+
+      json =
+        conn
+        |> auth(student)
+        |> get("/api/appointments?status=0", %{
+          from: from,
+          to: to
+        })
+        |> json_response(200)
+
+      rendered_data =
+        Flight.Scheduling.get_appointments(
+          %{"user_id" => student.id, "status" => 0},
+          appointment1
+        )
+        |> FlightWeb.API.AppointmentView.preload()
+
+      assert json == render_json(AppointmentView, "index.json", appointments: rendered_data)
+    end
   end
 
   describe "GET /api/appointments/:id" do

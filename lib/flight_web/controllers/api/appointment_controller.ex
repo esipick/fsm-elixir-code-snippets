@@ -50,7 +50,13 @@ defmodule FlightWeb.API.AppointmentController do
         conn.assigns.current_user.id
       end
 
-    options = Map.merge(params, %{"user_id" => user_id})
+    status =
+      case Integer.parse(params["status"] || "") do
+        {value, _} -> value
+        :error -> nil
+      end
+
+    options = Map.merge(params, %{"user_id" => user_id, "status" => status})
 
     appointments =
       Scheduling.get_appointments(options, conn) |> FlightWeb.API.AppointmentView.preload()
