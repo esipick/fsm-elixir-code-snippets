@@ -1,8 +1,8 @@
 /* global $, swal, moment */
 
-$(document).ready(function() {
+$(document).ready(function () {
 
-  var fullName = function(user) {
+  var fullName = function (user) {
     return user.first_name + " " + user.last_name
   }
 
@@ -21,12 +21,12 @@ $(document).ready(function() {
   // dynamic unavailability form
   var unavailType = 'Instructor';
   $('#fieldAircraft').hide(); // hide aircraft by default
-  $('#unavailFor').on('change', function() {
-    unavailType=this.value;
-    if(this.value == "Aircraft"){
+  $('#unavailFor').on('change', function () {
+    unavailType = this.value;
+    if (this.value == "Aircraft") {
       $('#fieldAircraft').show();
       $('#fieldInstructor').hide();
-    }else if(this.value == "Instructor"){
+    } else if (this.value == "Instructor") {
       $('#fieldAircraft').hide();
       $('#fieldInstructor').show();
     }
@@ -36,7 +36,7 @@ $(document).ready(function() {
   var appointmentOrUnavailabilityId = null;
 
   // change event type based on user choice
-  $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+  $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     var id = $(e.target).get(0).id
     if (id == "navAppt") {
       $('#appointmentForm').addClass("active")
@@ -49,26 +49,26 @@ $(document).ready(function() {
     }
   })
 
-  $('#unavailInstructor').on('change', function(e) {
+  $('#unavailInstructor').on('change', function (e) {
     $('#unavailAircraft').val(null).selectpicker("refresh")
   })
 
-  $('#unavailAircraft').on('change', function(e) {
+  $('#unavailAircraft').on('change', function (e) {
     $('#unavailInstructor').val(null).selectpicker("refresh")
   })
 
   // collect event data on save and send to server
-  $('#btnSave').click(function(){
+  $('#btnSave').click(function () {
 
     var promise = null;
 
-    if(eventType=="appt") {
+    if (eventType == "appt") {
       var eventRenter = safeParseInt($('#apptStudent').val());
       var eventInstructor = safeParseInt($('#apptInstructor').val());
       var eventAircraft = safeParseInt($('#apptAircraft').val());
 
-      var eventStart = moment($('#apptStart').val(), displayFormat).toISOString();
-      var eventEnd = moment($('#apptEnd').val(), displayFormat).toISOString();
+      var eventStart = moment($('#apptStart').val()).format()
+      var eventEnd = moment($('#apptEnd').val()).format()
       var eventNote = $('#apptNote').val()
 
       var eventData = {
@@ -85,22 +85,22 @@ $(document).ready(function() {
         promise = $.ajax({
           method: "put",
           url: "/api/appointments/" + appointmentOrUnavailabilityId,
-          data: {data: eventData},
-          headers: {"Authorization": window.fsm_token}
+          data: { data: eventData },
+          headers: { "Authorization": window.fsm_token }
         })
       } else {
         promise = $.post({
           url: "/api/appointments",
-          data: {data: eventData},
-          headers: {"Authorization": window.fsm_token}
+          data: { data: eventData },
+          headers: { "Authorization": window.fsm_token }
         })
       }
     } else if (eventType == "unavail") {
       var eventInstructor = safeParseInt($('#unavailInstructor').val());
       var eventAircraft = safeParseInt($('#unavailAircraft').val());
 
-      var eventStart = moment($('#unavailStart').val(), displayFormat).toISOString();
-      var eventEnd = moment($('#unavailEnd').val(), displayFormat).toISOString();
+      var eventStart = moment($('#unavailStart').val()).format()
+      var eventEnd = moment($('#unavailEnd').val()).format()
       var eventNote = $('#unavailNote').val()
 
       var eventData = {
@@ -117,14 +117,14 @@ $(document).ready(function() {
         promise = $.ajax({
           method: "put",
           url: "/api/unavailabilities/" + appointmentOrUnavailabilityId,
-          data: {data: eventData},
-          headers: {"Authorization": window.fsm_token}
+          data: { data: eventData },
+          headers: { "Authorization": window.fsm_token }
         })
       } else {
         promise = $.post({
           url: "/api/unavailabilities",
-          data: {data: eventData},
-          headers: {"Authorization": window.fsm_token}
+          data: { data: eventData },
+          headers: { "Authorization": window.fsm_token }
         })
       }
 
@@ -134,7 +134,7 @@ $(document).ready(function() {
     }
 
     if (promise) {
-      promise.then(function() {
+      promise.then(function () {
         $('#calendarNewModal').modal('hide')
         $calendar.fullCalendar('refetchEvents')
 
@@ -149,25 +149,25 @@ $(document).ready(function() {
           message: "Successfully saved " + event
         }, {
           type: "success",
-          placement: {align: "center"}
+          placement: { align: "center" }
         })
-      }).catch(function(e) {
+      }).catch(function (e) {
         if (e.responseJSON.human_errors) {
-          for(var error of e.responseJSON.human_errors) {
+          for (var error of e.responseJSON.human_errors) {
             $.notify({
               message: error
             }, {
               type: "danger",
-              placement: {align: "center"}
+              placement: { align: "center" }
             })
           }
         } else {
-            $.notify({
-              message: "There was an error creating the event"
-            }, {
-              type: "danger",
-              placement: {align: "center"}
-            })
+          $.notify({
+            message: "There was an error creating the event"
+          }, {
+            type: "danger",
+            placement: { align: "center" }
+          })
         }
       })
     }
@@ -175,7 +175,7 @@ $(document).ready(function() {
   });
 
 
-  $('#btnDelete').click(function() {
+  $('#btnDelete').click(function () {
     if (appointmentOrUnavailabilityId) {
       var promise = null;
 
@@ -183,17 +183,17 @@ $(document).ready(function() {
         promise = $.ajax({
           method: "delete",
           url: "/api/appointments/" + appointmentOrUnavailabilityId,
-          headers: {"Authorization": window.fsm_token}
+          headers: { "Authorization": window.fsm_token }
         })
       } else {
         promise = $.ajax({
           method: "delete",
           url: "/api/unavailabilities/" + appointmentOrUnavailabilityId,
-          headers: {"Authorization": window.fsm_token}
+          headers: { "Authorization": window.fsm_token }
         })
       }
 
-      promise.then(function() {
+      promise.then(function () {
         $('#calendarNewModal').modal('hide')
         $calendar.fullCalendar('refetchEvents')
 
@@ -208,25 +208,25 @@ $(document).ready(function() {
           message: "Successfully deleted " + event
         }, {
           type: "success",
-          placement: {align: "center"}
+          placement: { align: "center" }
         })
-      }).catch(function(e) {
+      }).catch(function (e) {
         if (e.responseJSON.human_errors) {
-          for(var error of e.responseJSON.human_errors) {
+          for (var error of e.responseJSON.human_errors) {
             $.notify({
               message: error
             }, {
               type: "danger",
-              placement: {align: "center"}
+              placement: { align: "center" }
             })
           }
         } else {
-            $.notify({
-              message: "There was an error deleting the event"
-            }, {
-              type: "danger",
-              placement: {align: "center"}
-            })
+          $.notify({
+            message: "There was an error deleting the event"
+          }, {
+            type: "danger",
+            placement: { align: "center" }
+          })
         }
       })
     }
@@ -289,203 +289,203 @@ $(document).ready(function() {
 
   function fsmCalendar(instructors, aircrafts) {
 
-      var resources = instructors.map(function(instructor) {
-        return {
-          id: "instructor:" + instructor.id,
-          type: "Instructors",
-          title: fullName(instructor)
-        }
-      })
+    var resources = instructors.map(function (instructor) {
+      return {
+        id: "instructor:" + instructor.id,
+        type: "Instructors",
+        title: fullName(instructor)
+      }
+    })
 
-      resources = resources.concat(aircrafts.map(function(aircraft) {
-        return {
-          id: "aircraft:" + aircraft.id,
-          type: "Aircrafts",
-          title: aircraft.make + " " + aircraft.tail_number
-        }
-      }))
+    resources = resources.concat(aircrafts.map(function (aircraft) {
+      return {
+        id: "aircraft:" + aircraft.id,
+        type: "Aircrafts",
+        title: aircraft.make + " " + aircraft.tail_number
+      }
+    }))
 
-      var today = new Date();
-      var y = today.getFullYear();
-      var m = today.getMonth();
-      var d = today.getDate();
+    var today = new Date();
+    var y = today.getFullYear();
+    var m = today.getMonth();
+    var d = today.getDate();
 
-      $calendar.fullCalendar({
-        viewRender: function(view, element) { },
-        header: {
-          left: 'title,chooseDateButton',
-          center: 'timelineDay,timelineWeek,timelineMonth',
-          right: 'prev,next,today'
+    $calendar.fullCalendar({
+      viewRender: function (view, element) { },
+      header: {
+        left: 'title,chooseDateButton',
+        center: 'timelineDay,timelineWeek,timelineMonth',
+        right: 'prev,next,today'
+      },
+      resourceGroupField: "type",
+      resources: resources,
+      defaultView: "timelineDay",
+      defaultDate: today,
+      selectable: true,
+      selectHelper: true,
+      height: "auto",
+      views: {
+        month: { // name of view
+          titleFormat: 'MMMM YYYY'
+          // other view-specific options here
         },
-        resourceGroupField: "type",
-        resources: resources,
-        defaultView: "timelineDay",
-        defaultDate: today,
-        selectable: true,
-        selectHelper: true,
-        height: "auto",
-        views: {
-            month: { // name of view
-                titleFormat: 'MMMM YYYY'
-                // other view-specific options here
-            },
-            week: {
-                titleFormat: " MMMM D, YYYY"
-            },
-            day: {
-                titleFormat: 'ddd D MMM, YYYY'
-            }
+        week: {
+          titleFormat: " MMMM D, YYYY"
         },
+        day: {
+          titleFormat: 'ddd D MMM, YYYY'
+        }
+      },
 
-        select: function(start, end, notSure, notSure2, resource) {
-          var instructorId = null;
-          var aircraftId = null;
+      select: function (start, end, notSure, notSure2, resource) {
+        var instructorId = null;
+        var aircraftId = null;
 
-          if (resource) {
-            var split = resource.id.split(":")
-            var type = split[0]
-            var id = parseInt(split[1])
-            if (type == "instructor") {
-              instructorId = id
-            } else if (type == "aircraft") {
-              aircraftId = id
-            }
+        if (resource) {
+          var split = resource.id.split(":")
+          var type = split[0]
+          var id = parseInt(split[1])
+          if (type == "instructor") {
+            instructorId = id
+          } else if (type == "aircraft") {
+            aircraftId = id
+          }
+        }
+
+        var eventType = "appt"; // setting default event type to appt
+        var eventData;
+        var thatsAllDay = false;
+
+        openAppointmentModal({
+          start_at: start,
+          end_at: moment(start).add(1, 'hours'),
+          instructor_user_id: instructorId,
+          aircraft_id: aircraftId
+        })
+
+      },
+      editable: true,
+      eventClick: function (calEvent, jsEvent, view) {
+
+        if (calEvent.unavailability) {
+          var instructor_user_id = null;
+          if (calEvent.unavailability.instructor_user) {
+            instructor_user_id = calEvent.unavailability.instructor_user.id
           }
 
-          var eventType="appt"; // setting default event type to appt
-          var eventData;
-          var thatsAllDay = false;
+          var aircraft_id = null;
+          if (calEvent.unavailability.aircraft) {
+            aircraft_id = calEvent.unavailability.aircraft.id
+          }
 
           openAppointmentModal({
-            start_at: start,
-            end_at: moment(start).add(1, 'hours'),
-            instructor_user_id: instructorId,
-            aircraft_id: aircraftId
+            type: "unavailability",
+            start_at: moment(calEvent.unavailability.start_at),
+            end_at: moment(calEvent.unavailability.end_at),
+            instructor_user_id: instructor_user_id,
+            aircraft_id: aircraft_id,
+            note: calEvent.unavailability.note,
+            id: calEvent.unavailability.id
           })
-
-        },
-        editable: true,
-        eventClick: function(calEvent, jsEvent, view){
-
-          if (calEvent.unavailability) {
-            var instructor_user_id = null;
-            if (calEvent.unavailability.instructor_user) {
-              instructor_user_id = calEvent.unavailability.instructor_user.id
-            }
-
-            var aircraft_id = null;
-            if (calEvent.unavailability.aircraft) {
-              aircraft_id = calEvent.unavailability.aircraft.id
-            }
-
-            openAppointmentModal({
-              type: "unavailability",
-              start_at: moment(calEvent.unavailability.start_at),
-              end_at: moment(calEvent.unavailability.end_at),
-              instructor_user_id: instructor_user_id,
-              aircraft_id: aircraft_id,
-              note: calEvent.unavailability.note,
-              id: calEvent.unavailability.id
-            })
-            return;
-          } else if (calEvent.appointment) {
-            var instructor_user_id = null;
-            if (calEvent.appointment.instructor_user) {
-              instructor_user_id = calEvent.appointment.instructor_user.id
-            }
-
-            var aircraft_id = null;
-            if (calEvent.appointment.aircraft) {
-              aircraft_id = calEvent.appointment.aircraft.id
-            }
-
-            openAppointmentModal({
-              start_at: moment(calEvent.appointment.start_at),
-              end_at: moment(calEvent.appointment.end_at),
-              instructor_user_id: instructor_user_id,
-              aircraft_id: aircraft_id,
-              note: calEvent.appointment.note,
-              user_id: calEvent.appointment.user.id,
-              id: calEvent.appointment.id
-            })
+          return;
+        } else if (calEvent.appointment) {
+          var instructor_user_id = null;
+          if (calEvent.appointment.instructor_user) {
+            instructor_user_id = calEvent.appointment.instructor_user.id
           }
 
-        },
+          var aircraft_id = null;
+          if (calEvent.appointment.aircraft) {
+            aircraft_id = calEvent.appointment.aircraft.id
+          }
 
-
-        eventLimit: true, // allow "more" link when too many events
-
-        // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
-        events: function(start, end, timezone, callback) {
-          var startStr = moment(start).toISOString()
-          var endStr = moment(end).toISOString()
-          var appointmentsPromise = $.get({
-            url: "/api/appointments?from=" + startStr + "&to=" + endStr + "&walltime=true",
-            headers: {"Authorization": window.fsm_token}
-          })
-
-          var unavailabilityPromise = $.get({
-            url: "/api/unavailabilities?from=" + startStr + "&to=" + endStr + "&walltime=true",
-            headers: {"Authorization": window.fsm_token}
-          })
-
-
-          Promise.all([appointmentsPromise, unavailabilityPromise]).then(function(resp) {
-
-            var appointments = resp[0].data.map(function(appointment) {
-              var resourceIds = []
-
-              if (appointment.instructor_user) {
-                resourceIds.push("instructor:" + appointment.instructor_user.id)
-              }
-
-              if (appointment.aircraft) {
-                resourceIds.push("aircraft:" + appointment.aircraft.id)
-              }
-
-              return {
-                title: appointment.user.first_name + " " + appointment.user.last_name,
-                start: moment(appointment.start_at),
-                end: moment(appointment.end_at),
-                id: "appointment:" + appointment.id,
-                appointment: appointment,
-                resourceIds: resourceIds,
-                className: 'event-blue'
-              }
-            })
-
-            var unavailabilities = resp[1].data.map(function(unavailability) {
-              var resourceIds = []
-
-              if (unavailability.instructor_user) {
-                resourceIds.push("instructor:" + unavailability.instructor_user.id)
-              }
-
-              if (unavailability.aircraft) {
-                resourceIds.push("aircraft:" + unavailability.aircraft.id)
-              }
-
-              return {
-                title: "Unavailable",
-                start: moment(unavailability.start_at),
-                end: moment(unavailability.end_at),
-                id: "unavailability:" + unavailability.id,
-                unavailability: unavailability,
-                resourceIds: resourceIds,
-                className: 'event-default'
-              }
-            })
-            callback(appointments.concat(unavailabilities))
+          openAppointmentModal({
+            start_at: moment(calEvent.appointment.start_at),
+            end_at: moment(calEvent.appointment.end_at),
+            instructor_user_id: instructor_user_id,
+            aircraft_id: aircraft_id,
+            note: calEvent.appointment.note,
+            user_id: calEvent.appointment.user.id,
+            id: calEvent.appointment.id
           })
         }
-      });
+
+      },
+
+
+      eventLimit: true, // allow "more" link when too many events
+
+      // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
+      events: function (start, end, timezone, callback) {
+        var startStr = moment(start).toISOString()
+        var endStr = moment(end).toISOString()
+        var appointmentsPromise = $.get({
+          url: "/api/appointments?from=" + startStr + "&to=" + endStr,
+          headers: { "Authorization": window.fsm_token }
+        })
+
+        var unavailabilityPromise = $.get({
+          url: "/api/unavailabilities?from=" + startStr + "&to=" + endStr,
+          headers: { "Authorization": window.fsm_token }
+        })
+
+
+        Promise.all([appointmentsPromise, unavailabilityPromise]).then(function (resp) {
+
+          var appointments = resp[0].data.map(function (appointment) {
+            var resourceIds = []
+
+            if (appointment.instructor_user) {
+              resourceIds.push("instructor:" + appointment.instructor_user.id)
+            }
+
+            if (appointment.aircraft) {
+              resourceIds.push("aircraft:" + appointment.aircraft.id)
+            }
+
+            return {
+              title: appointment.user.first_name + " " + appointment.user.last_name,
+              start: moment(appointment.start_at),
+              end: moment(appointment.end_at),
+              id: "appointment:" + appointment.id,
+              appointment: appointment,
+              resourceIds: resourceIds,
+              className: 'event-blue'
+            }
+          })
+
+          var unavailabilities = resp[1].data.map(function (unavailability) {
+            var resourceIds = []
+
+            if (unavailability.instructor_user) {
+              resourceIds.push("instructor:" + unavailability.instructor_user.id)
+            }
+
+            if (unavailability.aircraft) {
+              resourceIds.push("aircraft:" + unavailability.aircraft.id)
+            }
+
+            return {
+              title: "Unavailable",
+              start: moment(unavailability.start_at),
+              end: moment(unavailability.end_at),
+              id: "unavailability:" + unavailability.id,
+              unavailability: unavailability,
+              resourceIds: resourceIds,
+              className: 'event-default'
+            }
+          })
+          callback(appointments.concat(unavailabilities))
+        })
+      }
+    });
   }
 
-  var users = $.get({url: "/api/users?form=directory", headers: {"Authorization": window.fsm_token}})
-  var aircrafts = $.get({url: "/api/aircrafts", headers: {"Authorization": window.fsm_token}})
+  var users = $.get({ url: "/api/users?form=directory", headers: { "Authorization": window.fsm_token } })
+  var aircrafts = $.get({ url: "/api/aircrafts", headers: { "Authorization": window.fsm_token } })
 
-  Promise.all([users, aircrafts]).then(function(values) {
-    var instructors = values[0].data.filter(function(user) {
+  Promise.all([users, aircrafts]).then(function (values) {
+    var instructors = values[0].data.filter(function (user) {
       return user.roles.indexOf("instructor") != -1
     });
 
@@ -495,35 +495,35 @@ $(document).ready(function() {
 
   function initDateTimePicker() {
     $('.datetimepickerstart').datetimepicker({
-        // debug: true,
-        stepping: 30,
-        icons: {
-            time: "now-ui-icons tech_watch-time",
-            date: "now-ui-icons ui-1_calendar-60",
-            up: "fa fa-chevron-up",
-            down: "fa fa-chevron-down",
-            previous: 'now-ui-icons arrows-1_minimal-left',
-            next: 'now-ui-icons arrows-1_minimal-right',
-            today: 'fa fa-screenshot',
-            clear: 'fa fa-trash',
-            close: 'fa fa-remove'
-        }
+      // debug: true,
+      stepping: 30,
+      icons: {
+        time: "now-ui-icons tech_watch-time",
+        date: "now-ui-icons ui-1_calendar-60",
+        up: "fa fa-chevron-up",
+        down: "fa fa-chevron-down",
+        previous: 'now-ui-icons arrows-1_minimal-left',
+        next: 'now-ui-icons arrows-1_minimal-right',
+        today: 'fa fa-screenshot',
+        clear: 'fa fa-trash',
+        close: 'fa fa-remove'
+      }
     });
     $('.datetimepickerend').datetimepicker({
-        // debug: true,
-        useCurrent: false, //Important! See issue #1075
-        stepping: 30,
-        icons: {
-          time: "now-ui-icons tech_watch-time",
-          date: "now-ui-icons ui-1_calendar-60",
-          up: "fa fa-chevron-up",
-          down: "fa fa-chevron-down",
-          previous: 'now-ui-icons arrows-1_minimal-left',
-          next: 'now-ui-icons arrows-1_minimal-right',
-          today: 'fa fa-screenshot',
-          clear: 'fa fa-trash',
-          close: 'fa fa-remove'
-        }
+      // debug: true,
+      useCurrent: false, //Important! See issue #1075
+      stepping: 30,
+      icons: {
+        time: "now-ui-icons tech_watch-time",
+        date: "now-ui-icons ui-1_calendar-60",
+        up: "fa fa-chevron-up",
+        down: "fa fa-chevron-down",
+        previous: 'now-ui-icons arrows-1_minimal-left',
+        next: 'now-ui-icons arrows-1_minimal-right',
+        today: 'fa fa-screenshot',
+        clear: 'fa fa-trash',
+        close: 'fa fa-remove'
+      }
     });
   }
   initDateTimePicker();
