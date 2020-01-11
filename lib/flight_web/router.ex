@@ -259,6 +259,12 @@ defmodule FlightWeb.Router do
     resources("/invoices", InvoiceController, only: [:index, :show, :create, :update, :delete])
 
     resources("/courses", CourseController, only: [:index])
+
+    scope "/v2", V2 do
+      get("/appointments/availability", AppointmentController, :availability)
+
+      resources("/appointments", AppointmentController, only: [:index])
+    end
   end
 
   if Mix.env() == :dev do

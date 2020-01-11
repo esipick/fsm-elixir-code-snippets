@@ -84,13 +84,13 @@ $(document).ready(function () {
       if (appointmentOrUnavailabilityId) {
         promise = $.ajax({
           method: "put",
-          url: "/api/appointments/" + appointmentOrUnavailabilityId,
+          url: "/api/v2/appointments/" + appointmentOrUnavailabilityId,
           data: { data: eventData },
           headers: { "Authorization": window.fsm_token }
         })
       } else {
         promise = $.post({
-          url: "/api/appointments",
+          url: "/api/v2/appointments",
           data: { data: eventData },
           headers: { "Authorization": window.fsm_token }
         })
@@ -182,7 +182,7 @@ $(document).ready(function () {
       if (eventType == "appt") {
         promise = $.ajax({
           method: "delete",
-          url: "/api/appointments/" + appointmentOrUnavailabilityId,
+          url: "/api/v2/appointments/" + appointmentOrUnavailabilityId,
           headers: { "Authorization": window.fsm_token }
         })
       } else {
@@ -420,7 +420,7 @@ $(document).ready(function () {
         var startStr = moment(start).toISOString()
         var endStr = moment(end).toISOString()
         var appointmentsPromise = $.get({
-          url: "/api/appointments?from=" + startStr + "&to=" + endStr,
+          url: "/api/v2/appointments?from=" + startStr + "&to=" + endStr,
           headers: { "Authorization": window.fsm_token }
         })
 
