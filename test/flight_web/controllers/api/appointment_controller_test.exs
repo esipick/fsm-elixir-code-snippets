@@ -105,6 +105,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       assert json == render_json(AppointmentView, "index.json", appointments: [appointment])
     end
 
+    @tag :skip
     test "renders appointments within student scope", %{conn: conn} do
       student = student_fixture()
       another_student = student_fixture()
