@@ -211,7 +211,7 @@ defmodule Flight.Scheduling do
     instructor_user_id_value = options["instructor_user_id"]
     aircraft_id_value = options["aircraft_id"]
 
-    from(a in Appointment)
+    from(a in Appointment, where: a.archived == false)
     |> SchoolScope.scope_query(school_context)
     |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at >= ^start_at_after_value))
     |> pass_unless(
@@ -565,7 +565,7 @@ defmodule Flight.Scheduling do
       get_appointment(id, school_context)
       |> Repo.preload([:user, :instructor_user])
 
-    Repo.delete!(appointment)
+    Appointment.archive(appointment)
 
     Mondo.Task.start(fn ->
       if deleting_user.id != appointment.user_id do

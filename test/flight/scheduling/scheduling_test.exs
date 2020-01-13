@@ -705,6 +705,10 @@ defmodule Flight.SchedulingTest do
       appointment = appointment_fixture()
 
       Scheduling.delete_appointment(appointment.id, admin, appointment)
+
+      appointment = Repo.get(Appointment, appointment.id)
+
+      assert appointment.archived
     end
   end
 

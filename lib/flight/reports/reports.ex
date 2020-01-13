@@ -191,7 +191,7 @@ defmodule Flight.Reports do
   end
 
   def get_renter_appointments(user_ids, start_at, end_at, school_context) do
-    Appointment
+    from(a in Appointment, where: a.archived == false)
     |> SchoolScope.scope_query(school_context)
     |> where([a], a.user_id in ^user_ids)
     |> where([a], a.start_at >= ^start_at and a.start_at < ^end_at)
@@ -200,7 +200,7 @@ defmodule Flight.Reports do
   end
 
   def get_aircraft_appointments(aircraft_ids, start_at, end_at, school_context) do
-    Appointment
+    from(a in Appointment, where: a.archived == false)
     |> SchoolScope.scope_query(school_context)
     |> where([a], a.aircraft_id in ^aircraft_ids)
     |> where([a], a.start_at >= ^start_at and a.start_at < ^end_at)
@@ -209,7 +209,7 @@ defmodule Flight.Reports do
   end
 
   def get_instructor_appointments(user_ids, start_at, end_at, school_context) do
-    Appointment
+    from(a in Appointment, where: a.archived == false)
     |> SchoolScope.scope_query(school_context)
     |> where([a], a.instructor_user_id in ^user_ids)
     |> where([a], a.start_at >= ^start_at and a.start_at < ^end_at)

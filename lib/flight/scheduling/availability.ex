@@ -117,7 +117,7 @@ defmodule Flight.Scheduling.Availability do
 
     appointment_unavailable_user_ids =
       if scope in [:all, :appointment] do
-        Appointment
+        from(a in Appointment, where: a.archived == false)
         |> SchoolScope.scope_query(school_context)
         |> select_for_permission_slug(permission_slug)
         |> exclude_appointment_query(excluded_appointment_ids)
@@ -227,7 +227,7 @@ defmodule Flight.Scheduling.Availability do
 
     appointment_unavailable_aircraft_ids =
       if scope in [:all, :appointment] do
-        Appointment
+        from(a in Appointment, where: a.archived == false)
         |> SchoolScope.scope_query(school_context)
         |> select([a], a.aircraft_id)
         |> overlap_query(

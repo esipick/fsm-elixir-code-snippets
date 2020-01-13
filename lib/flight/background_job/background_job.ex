@@ -45,7 +45,7 @@ defmodule Flight.BackgroundJob do
 
     from(
       a in Flight.Scheduling.Appointment,
-      where: a.start_at > ^lower_bound and a.start_at < ^upper_bound
+      where: a.start_at > ^lower_bound and a.start_at < ^upper_bound and a.archived == false
     )
     |> Flight.SchoolScope.scope_query(school_context)
     |> Repo.all()
