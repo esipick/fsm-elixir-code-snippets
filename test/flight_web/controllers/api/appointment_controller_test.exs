@@ -419,7 +419,9 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       |> delete("/api/appointments/#{appointment.id}")
       |> response(204)
 
-      refute Flight.Repo.get(Appointment, appointment.id)
+      appointment = Flight.Repo.get(Appointment, appointment.id)
+
+      assert appointment.archived
     end
   end
 end
