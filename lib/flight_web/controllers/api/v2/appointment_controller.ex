@@ -40,6 +40,12 @@ defmodule FlightWeb.API.V2.AppointmentController do
   end
 
   def index(conn, params) do
+    status =
+      case Integer.parse(params["status"] || "") do
+        {value, _} -> value
+        :error -> nil
+      end
+
     user_id =
       if user_can?(conn.assigns.current_user, [Permission.new(:appointment, :modify, :all)]) do
         Map.get(params, "user_id", nil)
@@ -47,7 +53,7 @@ defmodule FlightWeb.API.V2.AppointmentController do
         conn.assigns.current_user.id
       end
 
-    options = Map.merge(params, %{"user_id" => user_id})
+    options = Map.merge(params, %{"user_id" => user_id, "status" => status})
 
     appointments =
       Scheduling.get_appointments(options, conn) |> FlightWeb.API.AppointmentView.preload()

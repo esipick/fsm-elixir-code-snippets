@@ -34,8 +34,16 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def index(conn, params) do
+    status =
+      case Integer.parse(params["status"] || "") do
+        {value, _} -> value
+        :error -> nil
+      end
+
+    options = Map.merge(params, %{"status" => status})
+
     appointments =
-      Scheduling.get_appointments(params, conn)
+      Scheduling.get_appointments(options, conn)
       |> FlightWeb.API.AppointmentView.preload()
 
     render(conn, "index.json", appointments: appointments)
