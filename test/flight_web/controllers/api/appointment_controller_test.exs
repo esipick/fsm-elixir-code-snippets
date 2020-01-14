@@ -105,34 +105,6 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       assert json == render_json(AppointmentView, "index.json", appointments: [appointment])
     end
 
-    @tag :skip
-    test "renders appointments within student scope", %{conn: conn} do
-      student = student_fixture()
-      another_student = student_fixture()
-      attrs = %{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]}
-
-      appointment1 = appointment_fixture(attrs, student)
-      _appointment2 = appointment_fixture(attrs, another_student)
-
-      from = NaiveDateTime.to_iso8601(~N[2018-03-03 09:00:00])
-      to = NaiveDateTime.to_iso8601(~N[2018-03-03 12:00:00])
-
-      json =
-        conn
-        |> auth(student)
-        |> get("/api/appointments", %{
-          from: from,
-          to: to
-        })
-        |> json_response(200)
-
-      rendered_data =
-        Flight.Scheduling.get_appointments(%{"user_id" => student.id}, appointment1)
-        |> FlightWeb.API.AppointmentView.preload()
-
-      assert json == render_json(AppointmentView, "index.json", appointments: rendered_data)
-    end
-
     test "renders appointments with status", %{conn: conn} do
       student = student_fixture()
 

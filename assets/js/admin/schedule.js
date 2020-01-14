@@ -420,7 +420,7 @@ $(document).ready(function () {
         var startStr = moment(start).toISOString()
         var endStr = moment(end).toISOString()
         var appointmentsPromise = $.get({
-          url: "/api/v2/appointments?from=" + startStr + "&to=" + endStr,
+          url: "/api/appointments?from=" + startStr + "&to=" + endStr,
           headers: { "Authorization": window.fsm_token }
         })
 
