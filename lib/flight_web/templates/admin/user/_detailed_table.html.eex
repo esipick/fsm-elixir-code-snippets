@@ -2,7 +2,7 @@
   <thead>
     <tr>
       <th>Name</th>
-      <%= if show_to_superadmin? @conn do %>
+      <%= if show_to_superadmin?(@conn) do %>
         <th>School</th>
       <% end %>
       <th>Phone #</th>
@@ -15,7 +15,7 @@
     <%= for row <- @detailed_rows do %>
       <tr>
       <td class="text-nowrap"><b><%= row.name %></b></td>
-      <%= if show_to_superadmin? @conn do %>
+      <%= if show_to_superadmin?(@conn) do %>
         <td><a href="/admin/schools/<%= row.school.id %>"><%= row.school.name %></a></td>
       <% end %>
       <td><a href="tel:<%= row.phone_number %>"><%= row.phone_number %></a></td>

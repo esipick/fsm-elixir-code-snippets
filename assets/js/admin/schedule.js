@@ -14,6 +14,14 @@ $(document).ready(function () {
     }
   }
 
+  var addSchoolIdParam = (prefix = '', postfix = '') => {
+    let span = document.getElementById('current-school')
+
+    if (span) {
+      return prefix + "school_id=" + span.dataset.schoolId + postfix
+    } else { return '' }
+  }
+
   var $calendar = $('#fullCalendar');
 
   var displayFormat = 'MM/DD/YYYY h:mm A';
@@ -84,13 +92,13 @@ $(document).ready(function () {
       if (appointmentOrUnavailabilityId) {
         promise = $.ajax({
           method: "put",
-          url: "/api/appointments/" + appointmentOrUnavailabilityId,
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
           data: { data: eventData },
           headers: { "Authorization": window.fsm_token }
         })
       } else {
         promise = $.post({
-          url: "/api/appointments",
+          url: "/api/appointments" + addSchoolIdParam('?'),
           data: { data: eventData },
           headers: { "Authorization": window.fsm_token }
         })
@@ -116,13 +124,13 @@ $(document).ready(function () {
       if (appointmentOrUnavailabilityId) {
         promise = $.ajax({
           method: "put",
-          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId,
+          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
           data: { data: eventData },
           headers: { "Authorization": window.fsm_token }
         })
       } else {
         promise = $.post({
-          url: "/api/unavailabilities",
+          url: "/api/unavailabilities" + addSchoolIdParam('?'),
           data: { data: eventData },
           headers: { "Authorization": window.fsm_token }
         })
@@ -182,13 +190,13 @@ $(document).ready(function () {
       if (eventType == "appt") {
         promise = $.ajax({
           method: "delete",
-          url: "/api/appointments/" + appointmentOrUnavailabilityId,
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
           headers: { "Authorization": window.fsm_token }
         })
       } else {
         promise = $.ajax({
           method: "delete",
-          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId,
+          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
           headers: { "Authorization": window.fsm_token }
         })
       }
@@ -419,16 +427,16 @@ $(document).ready(function () {
       events: function (start, end, timezone, callback) {
         var startStr = moment(start).toISOString()
         var endStr = moment(end).toISOString()
+
         var appointmentsPromise = $.get({
-          url: "/api/appointments?from=" + startStr + "&to=" + endStr,
+          url: "/api/appointments?" + addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr,
           headers: { "Authorization": window.fsm_token }
         })
 
         var unavailabilityPromise = $.get({
-          url: "/api/unavailabilities?from=" + startStr + "&to=" + endStr,
+          url: "/api/unavailabilities?" + addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr,
           headers: { "Authorization": window.fsm_token }
         })
-
 
         Promise.all([appointmentsPromise, unavailabilityPromise]).then(function (resp) {
 
@@ -481,8 +489,8 @@ $(document).ready(function () {
     });
   }
 
-  var users = $.get({ url: "/api/users?form=directory", headers: { "Authorization": window.fsm_token } })
-  var aircrafts = $.get({ url: "/api/aircrafts", headers: { "Authorization": window.fsm_token } })
+  var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: { "Authorization": window.fsm_token } })
+  var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: { "Authorization": window.fsm_token } })
 
   Promise.all([users, aircrafts]).then(function (values) {
     var instructors = values[0].data.filter(function (user) {

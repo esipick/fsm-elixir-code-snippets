@@ -16,12 +16,13 @@ defmodule FlightWeb.Admin.SettingsController do
       "show.html",
       tab: :contact,
       school: conn.assigns.school,
-      changeset: changeset
+      changeset: changeset,
+      hide_school_info: true
     )
   end
 
   def show(conn, %{"tab" => "billing"}) do
-    render(conn, "show.html", tab: :billing, school: conn.assigns.school)
+    render(conn, "show.html", tab: :billing, school: conn.assigns.school, hide_school_info: true)
   end
 
   def show(conn, _) do
@@ -32,7 +33,8 @@ defmodule FlightWeb.Admin.SettingsController do
       "show.html",
       tab: :school,
       school: conn.assigns.school,
-      changeset: changeset
+      changeset: changeset,
+      hide_school_info: true
     )
   end
 
@@ -61,7 +63,8 @@ defmodule FlightWeb.Admin.SettingsController do
           "show.html",
           tab: tab,
           school: conn.assigns.school,
-          changeset: changeset
+          changeset: changeset,
+          hide_school_info: true
         )
     end
   end
@@ -74,7 +77,7 @@ defmodule FlightWeb.Admin.SettingsController do
       else
         conn
         |> put_flash(:warning, "Unknown school.")
-        |> redirect(to: "/admin/dashboard")
+        |> redirect(to: "/admin/schools")
         |> halt()
       end
     else

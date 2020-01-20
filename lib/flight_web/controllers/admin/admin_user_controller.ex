@@ -38,7 +38,8 @@ defmodule FlightWeb.Admin.UserController do
       "show.html",
       user: user,
       tab: :schedule,
-      appointments: appointments
+      appointments: appointments,
+      skip_shool_select: true
     )
   end
 
@@ -52,12 +53,17 @@ defmodule FlightWeb.Admin.UserController do
       "show.html",
       user: conn.assigns.requested_user,
       tab: :billing,
-      transactions: transactions
+      transactions: transactions,
+      skip_shool_select: true
     )
   end
 
   def show(conn, _params) do
-    render(conn, "show.html", user: conn.assigns.requested_user, tab: :profile)
+    render(conn, "show.html",
+      user: conn.assigns.requested_user,
+      tab: :profile,
+      skip_shool_select: true
+    )
   end
 
   def edit(conn, _params) do
@@ -65,7 +71,8 @@ defmodule FlightWeb.Admin.UserController do
       conn,
       "edit.html",
       user: conn.assigns.requested_user,
-      changeset: Accounts.User.create_changeset(conn.assigns.requested_user, %{})
+      changeset: Accounts.User.create_changeset(conn.assigns.requested_user, %{}),
+      skip_shool_select: true
     )
   end
 

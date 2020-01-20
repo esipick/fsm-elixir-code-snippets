@@ -1,5 +1,6 @@
 defmodule FlightWeb.ViewHelpers do
   alias FlightWeb.ErrorHelpers
+  alias Flight.Accounts
 
   def format_date(date) when is_binary(date), do: date
   def format_date(nil), do: ""
@@ -81,6 +82,80 @@ defmodule FlightWeb.ViewHelpers do
     Timex.format!(date, "%-I:%M%p", :strftime)
   end
 
+  def school_name_with_timezone(school) do
+    timezone_info = Timex.Timezone.get(school.timezone)
+    timezone_info.full_name
+
+    "<span class=\"navbar-brand\" id=\"current-school\" data-school-id=#{school.id}>#{school.name} (#{
+      timezone_info.full_name
+    } Timezone)</span>"
+  end
+
+  def school_select(%{assigns: %{hide_school_info: true}}), do: ""
+
+  def school_select(
+        %{
+          assigns: %{
+            current_user: %{school: %{id: school_id}} = current_user,
+            skip_shool_select: true
+          }
+        } = conn
+      ) do
+    school =
+      case Accounts.is_superadmin?(current_user) do
+        true -> Accounts.get_school_with_fallback(conn.req_cookies["school_id"], school_id)
+        false -> Accounts.get_school(school_id)
+      end
+
+    content = school_name_with_timezone(school)
+
+    Phoenix.HTML.raw(content)
+  end
+
+  def school_select(%{assigns: %{current_user: current_user}} = conn) do
+    content =
+      case Accounts.is_superadmin?(current_user) do
+        true ->
+          school =
+            Accounts.get_school_with_fallback(
+              conn.req_cookies["school_id"],
+              current_user.school.id
+            )
+
+          list_items = Accounts.get_schools_without_selected(school.id)
+
+          case Enum.empty?(list_items) do
+            true ->
+              school_name_with_timezone(school)
+
+            false ->
+              content =
+                "<div id=\"schoolSelect\" class=\"form-group\"><button type=\"button\" class=\"btn btn-primary dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">Change school</button><div class=\"dropdown-menu open\" role=\"combobox\">"
+
+              content =
+                Enum.reduce(
+                  list_items,
+                  content,
+                  fn item, content ->
+                    content <>
+                      "<span class=\"dropdown-item\" data-school-id=\"#{item.id}\">#{item.name}</span>"
+                  end
+                )
+
+              content <>
+                "</div></div><div class=\"container-fluid\">" <>
+                school_name_with_timezone(school) <>
+                "</div><script>require(\"js/admin/school-select.js\")</script>"
+          end
+
+        false ->
+          school = Accounts.get_school(current_user.school.id)
+          "<span class=\"navbar-brand\">#{school.name}</span>"
+      end
+
+    Phoenix.HTML.raw(content)
+  end
+
   def display_date(date) do
     display_date(date, :short)
   end
@@ -107,7 +182,7 @@ defmodule FlightWeb.ViewHelpers do
 
   def stripe_status_html(stripe_account) do
     {class, text} =
-      case Flight.Accounts.StripeAccount.status(stripe_account) do
+      case Accounts.StripeAccount.status(stripe_account) do
         :running -> {"badge-success", "Good"}
         _ -> {"badge-danger", "Error"}
       end
@@ -136,6 +211,6 @@ defmodule FlightWeb.ViewHelpers do
   end
 
   def show_to_superadmin?(%{assigns: %{current_user: current_user}}) do
-    Flight.Accounts.is_superadmin?(current_user)
+    Accounts.is_superadmin?(current_user)
   end
 end

@@ -42,7 +42,7 @@ defmodule Flight.Accounts do
     |> Repo.all()
   end
 
-  def get_directory_users_visible_to_user(user) do
+  def get_directory_users_visible_to_user(%{assigns: %{current_user: user}} = conn) do
     user = Repo.preload(user, :roles)
 
     roles =
@@ -60,7 +60,7 @@ defmodule Flight.Accounts do
         where: u.archived == false,
         where: r.slug in ^roles
       )
-      |> default_users_query(user)
+      |> default_users_query(conn)
       |> Repo.all()
 
     if Enum.find(users, &(&1.id == user.id)) do
@@ -284,11 +284,26 @@ defmodule Flight.Accounts do
     |> Repo.update()
   end
 
+  def get_school_with_fallback(id, fallback_id) do
+    case school = get_school(id) do
+      nil -> get_school(fallback_id)
+      _ -> school
+    end
+  end
+
+  def get_schools_without_selected(school_id) do
+    School
+    |> where([s], s.archived == false and s.id != ^school_id)
+    |> Repo.all()
+  end
+
   def get_schools() do
     School
     |> where([s], s.archived == false)
     |> Repo.all()
   end
+
+  def get_school(id) when is_nil(id), do: nil
 
   def get_school(id) do
     School
@@ -397,15 +412,6 @@ defmodule Flight.Accounts do
         |> pass_unless(params["user_id"], &where(&1, [t], t.id == ^params["user_id"]))
         |> Repo.all()
     end
-  end
-
-  def default_users_query(query, %{assigns: %{current_user: _current_user}} = school_context) do
-    from(
-      u in query,
-      where: u.archived == false,
-      order_by: u.last_name
-    )
-    |> SchoolScope.superadmin_query(school_context)
   end
 
   def default_users_query(query, school_context) do

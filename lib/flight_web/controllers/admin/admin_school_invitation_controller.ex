@@ -13,7 +13,8 @@ defmodule FlightWeb.Admin.SchoolInvitationController do
       conn,
       "index.html",
       invitations: invitations,
-      changeset: Accounts.SchoolInvitation.create_changeset(%Accounts.SchoolInvitation{}, %{})
+      changeset: Accounts.SchoolInvitation.create_changeset(%Accounts.SchoolInvitation{}, %{}),
+      hide_school_info: true
     )
   end
 

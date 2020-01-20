@@ -5,16 +5,51 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
 
   describe "GET /admin/aircrafts as superadmin" do
     test "renders", %{conn: conn} do
-      aircraft_fixture(%{}, school_fixture(%{name: "another school"}))
+      school = school_fixture()
+      aircraft = aircraft_fixture(%{}, school)
+      another_school = school_fixture(%{name: "another school"})
+      another_aircraft = aircraft_fixture(%{make: "another aircraft"}, another_school)
 
       content =
         conn
-        |> web_auth_superadmin()
+        |> web_auth_admin()
+        |> get("/admin/aircrafts")
+        |> html_response(200)
+
+      refute content =~ "<th>School</th>"
+      refute content =~ aircraft.make
+      refute content =~ another_aircraft.make
+
+      conn =
+        conn
+        |> web_auth(superadmin_fixture(%{}, school))
+
+      content =
+        conn
         |> get("/admin/aircrafts")
         |> html_response(200)
 
       assert content =~ "<th>School</th>"
-      assert content =~ "another school"
+      assert content =~ aircraft.make
+      assert content =~ "<a href=\"/admin/schools/#{school.id}\">#{school.name}</a>"
+      refute content =~ another_aircraft.make
+
+      refute content =~
+               "<a href=\"/admin/schools/#{another_school.id}\">#{another_school.name}</a>"
+
+      content =
+        conn
+        |> Plug.Test.put_req_cookie("school_id", "#{another_school.id}")
+        |> get("/admin/aircrafts")
+        |> html_response(200)
+
+      assert content =~ another_aircraft.make
+
+      assert content =~
+               "<a href=\"/admin/schools/#{another_school.id}\">#{another_school.name}</a>"
+
+      refute content =~ aircraft.make
+      refute content =~ "<a href=\"/admin/schools/#{school.id}\">#{school.name}</a>"
     end
   end
 
@@ -101,11 +136,26 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
 
   describe "GET /admin/aircrafts/:id as superadmin" do
     test "renders", %{conn: conn} do
-      aircraft = aircraft_fixture(%{}, school_fixture(%{name: "another school"}))
+      school = school_fixture()
+      aircraft = aircraft_fixture(%{}, school)
+      another_school = school_fixture()
+      another_aircraft = aircraft_fixture(%{}, another_school)
+
+      conn =
+        conn
+        |> web_auth(superadmin_fixture(%{}, school))
 
       conn
-      |> web_auth_superadmin()
       |> get("/admin/aircrafts/#{aircraft.id}")
+      |> html_response(200)
+
+      conn
+      |> get("/admin/aircrafts/#{another_aircraft.id}")
+      |> response_redirected_to("/admin/aircrafts")
+
+      conn
+      |> Plug.Test.put_req_cookie("school_id", "#{another_school.id}")
+      |> get("/admin/aircrafts/#{another_aircraft.id}")
       |> html_response(200)
     end
   end

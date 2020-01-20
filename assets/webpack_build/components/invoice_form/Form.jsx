@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import AsyncCreatableSelect from 'react-select/async-creatable';
 
-import { authHeaders } from '../utils';
+import { authHeaders, addSchoolIdParam } from '../utils';
 import Error from '../common/Error';
 
 import LineItemsTable from './LineItemsTable';
@@ -87,9 +87,9 @@ class Form extends Component {
     this.setState({ invoice_loading: true });
 
     return http.get({
-        url: '/api/invoices/' + this.state.id,
-        headers: authHeaders()
-      }).then(r => r.json())
+      url: '/api/invoices/' + this.state.id,
+      headers: authHeaders()
+    }).then(r => r.json())
       .then(r => {
         const invoice = r.data;
 
@@ -139,9 +139,9 @@ class Form extends Component {
     this.setState({ students_loading: true });
 
     http.get({
-        url: '/api/users/autocomplete?role=student&name=' + input,
-        headers: authHeaders()
-      }).then(r => r.json())
+      url: '/api/users/autocomplete?role=student&name=' + input + addSchoolIdParam('&'),
+      headers: authHeaders()
+    }).then(r => r.json())
       .then(r => {
         callback(r.data.map(s => Object.assign({}, s, { label: s.first_name + ' ' + s.last_name })));
         this.setState({ students_loading: false });
@@ -163,9 +163,9 @@ class Form extends Component {
     this.setState({ appointment_loading: true });
 
     http.get({
-        url: '/api/invoices/appointments?user_id=' + student.id,
-        headers: authHeaders()
-      }).then(r => r.json())
+      url: '/api/invoices/appointments?user_id=' + student.id + addSchoolIdParam('&'),
+      headers: authHeaders()
+    }).then(r => r.json())
       .then(r => {
         this.setState({ appointments: r.data, appointment_loading: false });
       })
@@ -319,12 +319,12 @@ class Form extends Component {
     const { payment_method: { value }, saving } = this.state;
     const inputValue = [CASH, CHECK, VENMO].includes(value) ? MARK_AS_PAID : PAY
 
-    return(
+    return (
       <input className="btn btn-danger invoice-form__pay-btn"
         type="submit"
         disabled={saving}
         value={inputValue}
-        onClick={()=>{this.submitForm({ pay_off: true })}} />
+        onClick={() => { this.submitForm({ pay_off: true }) }} />
     );
   }
 
@@ -399,7 +399,7 @@ class Form extends Component {
                       onChange={this.setAppointment}
                       isLoading={appointment_loading}
                       getOptionLabel={this.appointmentLabel}
-                      getOptionValue ={(o) => o.id}
+                      getOptionValue={(o) => o.id}
                       isDisabled={!student || student.guest}
                       value={appointment} />
                   </div>
@@ -410,10 +410,10 @@ class Form extends Component {
                   <div>${this.accountBalance()}</div>
                 </div>
 
-                { id && <div className="form-group">
+                {id && <div className="form-group">
                   <label>Invoice #</label>
                   <div>{id}</div>
-                </div> }
+                </div>}
 
                 <div className="form-group">
                   <label>
@@ -428,7 +428,7 @@ class Form extends Component {
                 </div>
 
                 <div className="form-group">
-                  { !this.state.invoice_loading &&
+                  {!this.state.invoice_loading &&
                     <LineItemsTable appointment={appointment}
                       line_items={line_items}
                       onChange={this.onLineItemsTableChange}
@@ -437,7 +437,7 @@ class Form extends Component {
                       sales_tax={sales_tax}
                       total={total}
                       total_tax={total_tax}
-                      total_amount_due={total_amount_due} /> }
+                      total_amount_due={total_amount_due} />}
                 </div>
 
                 <div className="form-group">
@@ -461,9 +461,9 @@ class Form extends Component {
                     type="submit"
                     value="Save"
                     disabled={saving}
-                    onClick={()=>{this.submitForm({ pay_off: false })}} />
+                    onClick={() => { this.submitForm({ pay_off: false }) }} />
 
-                  { this.saveAndPayButton() }
+                  {this.saveAndPayButton()}
                 </div>
 
                 <div className="form-group">

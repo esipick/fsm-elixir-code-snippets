@@ -23,7 +23,7 @@ defmodule Flight.Queries.Transaction do
     end_date = parse_date(params["end_date"], 1)
 
     from(i in Transaction, order_by: [desc: i.inserted_at])
-    |> SchoolScope.superadmin_query(school_context)
+    |> SchoolScope.scope_query(school_context)
     |> pass_unless(
       search_term,
       &where(

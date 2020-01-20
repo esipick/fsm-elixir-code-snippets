@@ -7,7 +7,7 @@ defmodule FlightWeb.Admin.SchoolController do
 
   def index(conn, _) do
     list_items = FlightWeb.Admin.SchoolListItem.items_from_schools(Flight.Accounts.get_schools())
-    render(conn, "index.html", school_list_items: list_items)
+    render(conn, "index.html", school_list_items: list_items, hide_school_info: true)
   end
 
   def show(conn, %{"id" => id}) do
@@ -27,7 +27,8 @@ defmodule FlightWeb.Admin.SchoolController do
       student_count: student_count,
       instructor_count: instructor_count,
       renter_count: renter_count,
-      aircraft_count: aircraft_count
+      aircraft_count: aircraft_count,
+      hide_school_info: true
     )
   end
 

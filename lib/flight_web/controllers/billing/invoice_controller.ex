@@ -39,13 +39,13 @@ defmodule FlightWeb.Billing.InvoiceController do
   def edit(conn, _) do
     props = %{id: conn.assigns.invoice.id, action: "edit"}
 
-    render(conn, "edit.html", props: props)
+    render(conn, "edit.html", props: props, skip_shool_select: true)
   end
 
   def show(conn, _) do
     invoice = InvoiceStruct.build(conn.assigns.invoice)
 
-    render(conn, "show.html", invoice: invoice)
+    render(conn, "show.html", invoice: invoice, skip_shool_select: true)
   end
 
   def delete(conn, _) do

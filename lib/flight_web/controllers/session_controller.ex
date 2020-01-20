@@ -43,6 +43,7 @@ defmodule FlightWeb.SessionController do
 
   def logout(conn, _) do
     conn
+    |> Plug.Conn.delete_resp_cookie("school_id")
     |> FlightWeb.AuthenticateWebUser.log_out()
     |> redirect(to: "/login")
   end

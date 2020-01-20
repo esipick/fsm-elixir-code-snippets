@@ -1,19 +1,18 @@
 defmodule Flight.Application do
-  use Application
-
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
-  def start(_type, _args) do
-    import Supervisor.Spec
+  @moduledoc false
 
-    # Define workers and child supervisors to be supervised
+  use Application
+
+  def start(_type, _args) do
     children = [
       # Start the Ecto repository
-      supervisor(Flight.Repo, []),
-      # Start the endpoint when the application starts
-      supervisor(FlightWeb.Endpoint, [])
-      # Start your own worker by calling: Flight.Worker.start_link(arg1, arg2, arg3)
-      # worker(Flight.Worker, [arg1, arg2, arg3]),
+      Flight.Repo,
+      # Start the Endpoint (http/https)
+      FlightWeb.Endpoint
+      # Start a worker by calling: Flight.Worker.start_link(arg)
+      # {Flight.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

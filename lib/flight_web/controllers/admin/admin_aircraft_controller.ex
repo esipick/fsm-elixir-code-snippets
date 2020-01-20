@@ -30,7 +30,7 @@ defmodule FlightWeb.Admin.AircraftController do
     aircraft = Flight.Repo.preload(conn.assigns.aircraft, :inspections)
 
     conn
-    |> render("show.html", aircraft: aircraft)
+    |> render("show.html", aircraft: aircraft, skip_shool_select: true)
   end
 
   def index(conn, params) do
@@ -46,7 +46,8 @@ defmodule FlightWeb.Admin.AircraftController do
     conn
     |> render(
       "edit.html",
-      changeset: Scheduling.Aircraft.admin_changeset(conn.assigns.aircraft, %{})
+      changeset: Scheduling.Aircraft.admin_changeset(conn.assigns.aircraft, %{}),
+      skip_shool_select: true
     )
   end
 

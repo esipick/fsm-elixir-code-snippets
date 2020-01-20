@@ -65,7 +65,7 @@
             <tr>
               <th>ID</th>
               <th>Date</th>
-              <%= if show_to_superadmin? @conn do %>
+              <%= if show_to_superadmin?(@conn) do %>
                 <th>School</th>
               <% end %>
               <th>Student name</th>
@@ -83,7 +83,7 @@
               <tr>
                 <td><%= invoice.id %></td>
                 <td><%= invoice.created %></td>
-                <%= if show_to_superadmin? @conn do %>
+                <%= if show_to_superadmin?(@conn) do %>
                   <td><a href="/admin/schools/<%= invoice.school.id %>"><%= invoice.school.name %></a></td>
                 <% end %>
                 <td><%= invoice.payer_name %></td>

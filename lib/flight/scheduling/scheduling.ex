@@ -56,20 +56,7 @@ defmodule Flight.Scheduling do
     result
   end
 
-  def visible_aircraft_query(school_context, search_term \\ "")
-
-  def visible_aircraft_query(
-        %{assigns: %{current_user: _current_user}} = school_context,
-        search_term
-      ) do
-    Aircraft
-    |> Flight.Scheduling.Search.Aircraft.run(search_term)
-    |> order_by([a], asc: [a.make, a.model, a.tail_number])
-    |> SchoolScope.superadmin_query(school_context)
-    |> where([a], a.archived == false)
-  end
-
-  def visible_aircraft_query(school_context, search_term) do
+  def visible_aircraft_query(school_context, search_term \\ "") do
     Aircraft
     |> Flight.Scheduling.Search.Aircraft.run(search_term)
     |> order_by([a], asc: [a.make, a.model, a.tail_number])

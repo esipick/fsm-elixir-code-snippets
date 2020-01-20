@@ -32,7 +32,7 @@
                   <table class="table">
                     <thead>
                       <th>Aircraft</th>
-                      <%= if show_to_superadmin? @conn do %>
+                      <%= if show_to_superadmin?(@conn) do %>
                         <th>School</th>
                       <% end %>
                       <th>Equipment</th>
@@ -49,7 +49,7 @@
                           <td><span class="text-nowrap"><b><%= aircraft.make %> <%= aircraft.model %></b></span></br>
                           <small><%= aircraft.tail_number %></small>
                           </td>
-                          <%= if show_to_superadmin? @conn do %>
+                          <%= if show_to_superadmin?(@conn) do %>
                             <td><a href="/admin/schools/<%= aircraft.school.id %>"><%= aircraft.school.name %></a></td>
                           <% end %>
                           <td><%= aircraft.equipment %></td>

@@ -59,7 +59,8 @@ defmodule FlightWeb.Admin.InspectionController do
       "new.html",
       aircraft: conn.assigns.aircraft,
       changeset: changeset,
-      form_type: form_type
+      form_type: form_type,
+      skip_shool_select: true
     )
   end
 
@@ -82,7 +83,8 @@ defmodule FlightWeb.Admin.InspectionController do
       "edit.html",
       inspection: conn.assigns.inspection,
       changeset: changeset,
-      form_type: form_type
+      form_type: form_type,
+      skip_shool_select: true
     )
   end
 

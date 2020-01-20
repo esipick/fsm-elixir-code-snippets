@@ -50,7 +50,7 @@
                 <td><%= display_date school_item.school.inserted_at, :short %></td>
                 <td><%= stripe_status_html(school_item.school.stripe_account) %></td>
                 <td class="text-right">
-                  <%= if show_to_superadmin? @conn do %>
+                  <%= if show_to_superadmin?(@conn) do %>
                     <a href="/admin/settings/<%= school_item.school.id %>" class="btn btn-primary btn-sm" >edit</a>
                   <% end %>
                   <a href="/admin/schools/<%= school_item.school.id %>" class="btn btn-primary btn-sm">view</a>
