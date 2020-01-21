@@ -47,7 +47,8 @@ class Form extends Component {
       balance_warning_open: false,
       balance_warning_accepted: false,
       payment_method: {},
-      line_items: []
+      line_items: [],
+      date: new Date()
     }
   }
 
@@ -94,7 +95,7 @@ class Form extends Component {
         const invoice = r.data;
 
         this.setState({
-          date: invoice.date && new Date(invoice.date) || new Date(),
+          date: invoice.date ? new Date(invoice.date) : new Date(),
           student: invoice.user || this.guestPayer(invoice.payer_name),
           line_items: invoice.line_items || [],
           payment_method: this.getPaymentMethod(invoice.payment_option),
@@ -423,6 +424,7 @@ class Form extends Component {
                   <div>
                     <DatePicker className="form-control invoice-input"
                       selected={date}
+                      required={true}
                       onChange={this.setDate} />
                   </div>
                 </div>
