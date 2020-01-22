@@ -2,42 +2,52 @@
 
 <div class="content">
 
-<div class="row">
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Edit Inspection</h3>
-      </div>
-      <%= form_for @changeset, "/admin/inspections/#{@inspection.id}", [as: :inspection, method: "put", class: "form-horizontal"], fn f -> %>
-        <div class="card-body">
-
-          <%= if Enum.count(f.errors) > 0 do %>
-            <div class="alert alert-danger">
-              <%= for error <- human_error_messages(@changeset) do %>
-                <span><%= error %></span></br>
-              <% end %>
-            </div>
-          <% end %>
-
-          <%= hidden_input f, :aircraft_id, value: @inspection.aircraft_id %>
-
-          <%= case @form_type do
-            :tach -> render("_tach_inputs.html", f: f, changeset: @changeset)
-            :date -> render("_date_inputs.html", f: f)
-          end %>
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Edit Inspection</h3>
         </div>
-        <div class="card-footer text-right">
-          <div class="pull-left">
-            <a href="/admin/aircrafts/<%= @inspection.aircraft_id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
-            <input type="submit" class="btn btn-fill btn-primary" value="Save">
+        <%= form_for @changeset, "/admin/inspections/#{@inspection.id}", [as: :inspection, method: "put", class: "form-horizontal"], fn f -> %>
+          <div class="card-body">
+
+            <%= if Enum.count(f.errors) > 0 do %>
+              <div class="alert alert-danger">
+                <%= for error <- human_error_messages(@changeset) do %>
+                  <span><%= error %></span></br>
+                <% end %>
+              </div>
+            <% end %>
+
+            <%= hidden_input f, :aircraft_id, value: @inspection.aircraft_id %>
+
+            <%= case @form_type do
+              :tach -> render("_tach_inputs.html", f: f, changeset: @changeset)
+              :date -> render("_date_inputs.html", f: f)
+            end %>
           </div>
-          <a href="" class="btn btn-fill btn-danger">Remove</a>
-        </div>
-      <% end %>
+          <div class="card-footer text-right">
+            <div class="pull-left">
+              <a href="/admin/aircrafts/<%= @inspection.aircraft_id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+              <input type="submit" class="btn btn-fill btn-primary" value="Save">
+            </div>
+            <button
+              style="margin-left: 4px;"
+              type="button"
+              class="btn btn-danger btn-fill _delete_button"
+              data-inspection-id="<%= @inspection.id %>">Remove</button>
+          </div>
+        <% end %>
 
 
-    </div> <!-- end card -->
+      </div> <!-- end card -->
+    </div>
   </div>
-</div>
 
 </div> <!-- end content -->
+
+<%= render FlightWeb.Admin.PartialView,
+          "_shared_delete_form.html",
+          %{message: "This inspection will be removed from the system.",
+            path: "/admin/inspections/",
+            attribute: "inspection"} %>
