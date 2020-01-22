@@ -21,7 +21,7 @@ defmodule Flight.Scheduling.ExpiredInspectionTest do
 
     test "returns good for tach" do
       aircraft = aircraft_fixture(%{last_tach_time: 3400})
-      inspection = tach_inspection_fixture(%{tach_time: 3411}, aircraft)
+      inspection = tach_inspection_fixture(%{tach_time: 3421}, aircraft)
       assert ExpiredInspection.inspection_status(inspection) == :good
     end
 

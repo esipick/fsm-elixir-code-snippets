@@ -63,7 +63,7 @@ defmodule Flight.Scheduling.ExpiredInspection do
         interval = tach_time - inspection.aircraft.last_tach_time
 
         cond do
-          interval < 10 && interval > 0 -> :expiring
+          interval < 20 && interval > 0 -> :expiring
           interval <= 0 -> :expired
           true -> :good
         end
