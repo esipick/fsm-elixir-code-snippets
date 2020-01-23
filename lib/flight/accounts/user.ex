@@ -44,6 +44,7 @@ defmodule Flight.Accounts.User do
       :first_name,
       :last_name,
       :password,
+      :balance,
       :phone_number,
       :address_1,
       :city,

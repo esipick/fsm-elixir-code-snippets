@@ -1,7 +1,7 @@
 role_name = List.first(System.argv())
 
-defmodule UserSeeds do
-  def seed(role_name, amount \\ 99) do
+defmodule Seeds.User do
+  def seed(role_name, amount \\ 99, school \\ Flight.Repo.one(Flight.Accounts.School)) do
     role = user_role(role_name)
 
     first_names = [
@@ -53,7 +53,6 @@ defmodule UserSeeds do
     ]
 
     Enum.each(0..amount, fn _i ->
-      school = Flight.Repo.one(Flight.Accounts.School)
       school_context = %Plug.Conn{assigns: %{current_user: %{school_id: school.id}}}
 
       phone_number =
@@ -74,8 +73,11 @@ defmodule UserSeeds do
         balance: Enum.random(0..99999)
       }
 
-      case Flight.Accounts.create_user(user_data, school_context, false) do
+      case Flight.Accounts.create_user(user_data, school_context) do
         {:ok, user} ->
+          if role_name == "student",
+            do: Stripe.Card.create(%{customer: user.stripe_customer_id, source: "tok_visa"})
+
           Flight.Accounts.assign_roles(user, [role])
 
         _ ->
@@ -100,5 +102,3 @@ defmodule UserSeeds do
     end
   end
 end
-
-UserSeeds.seed(role_name)

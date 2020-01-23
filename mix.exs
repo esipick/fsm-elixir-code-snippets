@@ -35,6 +35,7 @@ defmodule Flight.Mixfile do
   end
 
   # Specifies which paths to compile per environment.
+  defp elixirc_paths(:dev), do: ["lib", "priv/repo/seeds"]
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
@@ -59,6 +60,7 @@ defmodule Flight.Mixfile do
       {:comeonin, "~> 4.0"},
       {:tzdata, "~> 0.1.8"},
       {:timex, "~> 3.2.0"},
+      {:hackney, "~> 1.15.2", override: true},
       {:stripity_stripe, "~> 2.1.0"},
       {:currency_formatter, "~> 0.4"},
       {:appsignal, "~> 1.8.0"},
