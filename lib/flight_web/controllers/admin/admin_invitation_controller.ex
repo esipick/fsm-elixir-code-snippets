@@ -3,7 +3,7 @@ defmodule FlightWeb.Admin.InvitationController do
 
   alias Flight.Accounts
 
-  plug(:get_invitation when action in [:resend])
+  plug(:get_invitation when action in [:resend, :delete])
 
   def index(conn, %{"role" => role_slug}) do
     invitations = Accounts.visible_invitations_with_role(role_slug, conn)
@@ -33,6 +33,16 @@ defmodule FlightWeb.Admin.InvitationController do
         invitations = Accounts.visible_invitations_with_role(role.slug, conn)
         render(conn, "index.html", invitations: invitations, changeset: changeset, role: role)
     end
+  end
+
+  def delete(conn, _params) do
+    Accounts.delete_invitation!(conn.assigns.invitation)
+
+    role = Accounts.get_role(conn.assigns.invitation.role_id)
+
+    conn
+    |> put_flash(:success, "Invitation deleted")
+    |> redirect(to: "/admin/invitations?role=#{role.slug}")
   end
 
   def resend(conn, _params) do

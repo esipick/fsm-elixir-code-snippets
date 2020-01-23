@@ -4,7 +4,7 @@ defmodule FlightWeb.Admin.SchoolInvitationController do
   alias Flight.Accounts
 
   plug(FlightWeb.AuthorizeSuperadmin)
-  plug(:get_invitation when action in [:resend])
+  plug(:get_invitation when action in [:resend, :delete])
 
   def index(conn, _) do
     invitations = Accounts.visible_school_invitations()
@@ -32,6 +32,14 @@ defmodule FlightWeb.Admin.SchoolInvitationController do
         invitations = Accounts.visible_school_invitations()
         render(conn, "index.html", invitations: invitations, changeset: changeset)
     end
+  end
+
+  def delete(conn, _) do
+    Accounts.delete_school_invitation!(conn.assigns.invitation)
+
+    conn
+    |> put_flash(:success, "Invitation deleted")
+    |> redirect(to: "/admin/school_invitations")
   end
 
   def resend(conn, _params) do

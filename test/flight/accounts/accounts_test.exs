@@ -272,6 +272,12 @@ defmodule Flight.Accounts.AccountsTest do
       assert {:error, :already_accepted} = Accounts.accept_invitation(invitation)
     end
 
+    test "delete_invitation!/1 removes invitation" do
+      invitation = invitation_fixture()
+
+      assert {:ok, %Invitation{}} = Accounts.delete_invitation!(invitation)
+    end
+
     test "send_invitation_email/1 sends email" do
       invitation = invitation_fixture(%{}, Flight.Accounts.Role.admin())
       Accounts.send_invitation_email(invitation)
@@ -455,6 +461,12 @@ defmodule Flight.Accounts.AccountsTest do
       assert is_binary(invitation.token)
 
       assert_delivered_email(Flight.Email.school_invitation_email(invitation))
+    end
+
+    test "delete_school_invitation!/1 removes school_invitation" do
+      school_invitation = school_invitation_fixture()
+
+      assert {:ok, %SchoolInvitation{}} = Accounts.delete_school_invitation!(school_invitation)
     end
 
     @tag :integration

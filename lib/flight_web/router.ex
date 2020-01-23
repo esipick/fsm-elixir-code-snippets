@@ -166,12 +166,12 @@ defmodule FlightWeb.Router do
       only: [:index, :edit, :new, :create]
     )
 
-    resources("/invitations", InvitationController, only: [:create, :index]) do
+    resources("/invitations", InvitationController, only: [:create, :index, :delete]) do
       post("/resend", InvitationController, :resend)
       get("/resend", InvitationController, :resend)
     end
 
-    resources("/school_invitations", SchoolInvitationController, only: [:create, :index]) do
+    resources("/school_invitations", SchoolInvitationController, only: [:create, :index, :delete]) do
       post("/resend", SchoolInvitationController, :resend)
       get("/resend", SchoolInvitationController, :resend)
     end

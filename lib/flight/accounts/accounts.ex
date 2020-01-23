@@ -523,6 +523,8 @@ defmodule Flight.Accounts do
     Flight.Accounts.AcceptInvitation.run(user_data, stripe_token, invitation)
   end
 
+  def delete_invitation!(invitation), do: Repo.delete(invitation)
+
   def send_invitation_email(invitation) do
     Flight.Email.invitation_email(invitation)
     |> Flight.Mailer.deliver_later()
@@ -632,6 +634,8 @@ defmodule Flight.Accounts do
         end)
     end
   end
+
+  def delete_school_invitation!(invitation), do: Repo.delete(invitation)
 
   def send_school_invitation_email(invitation) do
     Flight.Email.school_invitation_email(invitation)
