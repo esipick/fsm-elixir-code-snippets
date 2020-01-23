@@ -67,4 +67,19 @@ defmodule FlightWeb.Admin.SchoolInvitationControllerTest do
       assert_delivered_email(Flight.Email.school_invitation_email(invitation))
     end
   end
+
+  describe "DELETE /admin/invitations/:id" do
+    test "deletes invitation", %{conn: conn} do
+      invitation = school_invitation_fixture()
+
+      conn =
+        conn
+        |> web_auth_superadmin()
+        |> delete("/admin/school_invitations/#{invitation.id}")
+
+      refute Accounts.get_school_invitation(invitation.id)
+
+      assert redirected_to(conn) == "/admin/school_invitations"
+    end
+  end
 end
