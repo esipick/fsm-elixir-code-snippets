@@ -26,7 +26,7 @@ mix phx.server
 ```
 
 3. Login with example user:
-- Email: `bryan@brycelabs.com`
+- Email: `admin-1@example.com`
 - Password: `password`
 
 ## Bootstrap first school and user on a new server
@@ -35,7 +35,7 @@ mix phx.server
 mix run priv/repo/seeds.exs # is also running automatically with mix ecto.setup
 ```
 
-This will create school with name `Example School` and user with email `bryan@brycelabs.com` and password `password`.
+This will create sample schools, users and aircrafts. Check `priv/repo/seeds.ex` for the login details.
 
 ## Cloud 9 Instructions
 

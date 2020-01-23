@@ -15,29 +15,29 @@ alias Seeds.Aircraft
 
 admins_info = [
   %{
-    email: "bryan@brycelabs.com",
-    first_name: "Bryan",
-    last_name: "Bryce",
+    email: "admin-1@example.com",
+    first_name: "William",
+    last_name: "Anderson",
     phone_number: "555-555-5555",
-    school_name: "Example school",
+    school_name: "Edge Aviation",
     timezone: "America/Denver",
     password: "password"
   },
   %{
-    email: "bruce_wayne@batman.com",
-    first_name: "Bruce",
+    email: "admin-2@example.com",
+    first_name: "Ryan",
     last_name: "Wayne",
     phone_number: "555-555-5555",
-    school_name: "Superhero school",
+    school_name: "Denver Aviation",
     timezone: "America/Denver",
     password: "password"
   },
   %{
-    email: "washington@usa.com",
-    first_name: "Donald J.",
-    last_name: "Trump",
+    email: "admin-3@example.com",
+    first_name: "Andy Jr.",
+    last_name: "Thompson",
     phone_number: "555-555-5555",
-    school_name: "White House",
+    school_name: "Aero Academy",
     timezone: "America/Denver",
     password: "password"
   }
