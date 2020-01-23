@@ -83,7 +83,7 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
 
     email = Ecto.Changeset.get_field(changeset, :email)
 
-    user = Accounts.dangerous_get_user_by_email(email)
+    user = Accounts.get_user_by_email(email)
 
     cond do
       !school.stripe_account ->

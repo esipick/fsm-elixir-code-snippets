@@ -6,7 +6,7 @@ defmodule FlightWeb.PasswordController do
   end
 
   def forgot_submit(conn, %{"email" => email}) do
-    user = Flight.Accounts.dangerous_get_user_by_email(email)
+    user = Flight.Accounts.get_user_by_email(email)
 
     if user do
       {:ok, reset} = Flight.Accounts.create_password_reset(user)

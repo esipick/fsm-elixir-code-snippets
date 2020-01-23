@@ -17,8 +17,8 @@ defmodule Flight.Accounts.SchoolInvitation do
     school_invitation
     |> cast(attrs, [:email, :first_name, :last_name])
     |> generate_token()
-    |> downcase_email()
     |> validate_required([:email, :first_name, :last_name, :token])
+    |> downcase_email()
     |> unique_constraint(:token)
   end
 

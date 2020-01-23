@@ -66,9 +66,27 @@ defmodule Flight.Accounts.AccountsTest do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs, school_fixture())
     end
 
-    test "get_user_by_email is case insensitive" do
+    test "get_user_by_email/2 is case insensitive" do
       user = user_fixture(%{email: "foo@example.com"})
       assert Accounts.get_user_by_email("FoO@EXampLE.com", user)
+    end
+
+    test "get_user_by_email/2 for email empty email" do
+      user = user_fixture(%{email: "foo@example.com"})
+      refute Accounts.get_user_by_email("", user)
+    end
+
+    test "get_user_by_email/2 for email is nil" do
+      user = user_fixture(%{email: "foo@example.com"})
+      refute Accounts.get_user_by_email(nil, user)
+    end
+
+    test "get_user_by_email for email empty email" do
+      refute Accounts.get_user_by_email("")
+    end
+
+    test "get_user_by_email for email is nil" do
+      refute Accounts.get_user_by_email(nil)
     end
 
     test "admin_update_user_profile/2 update roles" do

@@ -112,19 +112,19 @@ defmodule Flight.Accounts do
     |> Repo.one()
   end
 
-  def get_user_by_email(nil, _), do: nil
-  def get_user_by_email("", _), do: nil
+  def get_user_by_email(email) when is_nil(email) or email == "", do: nil
+  def get_user_by_email(email), do: email_query(User, email)
+
+  def get_user_by_email(email, _) when is_nil(email) or email == "", do: nil
 
   def get_user_by_email(email, school_context) do
     User
-    |> where([u], u.email == ^String.downcase(email))
     |> SchoolScope.scope_query(school_context)
-    |> Repo.one()
+    |> email_query(email)
   end
 
-  # Does not scope by school, use wisely!
-  def dangerous_get_user_by_email(email) do
-    User
+  def email_query(query, email) do
+    query
     |> where([u], u.email == ^String.downcase(email))
     |> Repo.one()
   end
@@ -577,7 +577,7 @@ defmodule Flight.Accounts do
 
     email = Ecto.Changeset.get_field(changeset, :email)
 
-    user = dangerous_get_user_by_email(email)
+    user = get_user_by_email(email)
 
     if !user do
       case Repo.insert(changeset) do
