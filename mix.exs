@@ -36,6 +36,7 @@ defmodule Flight.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:dev), do: ["lib", "priv/repo/seeds"]
+  defp elixirc_paths(:prod), do: ["lib", "priv/repo/seeds"]
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
