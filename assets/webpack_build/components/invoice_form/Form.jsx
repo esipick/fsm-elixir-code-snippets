@@ -3,7 +3,7 @@ import http from 'j-fetch';
 import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
-import AsyncCreatableSelect from 'react-select/async-creatable';
+import CreatableSelect from 'react-select/creatable';
 
 import { authHeaders, addSchoolIdParam } from '../utils';
 import Error from '../common/Error';
@@ -61,6 +61,7 @@ class Form extends Component {
   }
 
   loadData = () => {
+    this.loadStudents();
     this.loadAppointments();
     this.loadAircrafts();
     this.loadInstructors();
@@ -134,24 +135,12 @@ class Form extends Component {
     form.addEventListener("submit", (event) => { event.preventDefault() });
   };
 
-  loadStudents = (input, callback) => {
-    if (this.state.students_loading) return;
-
-    this.setState({ students_loading: true });
-
-    http.get({
-      url: '/api/users/autocomplete?role=student&name=' + input + addSchoolIdParam('&'),
-      headers: authHeaders()
-    }).then(r => r.json())
-      .then(r => {
-        callback(r.data.map(s => Object.assign({}, s, { label: s.first_name + ' ' + s.last_name })));
-        this.setState({ students_loading: false });
-      })
+  loadStudents = () => {
+    return http.get({ url: '/api/users/by_role?role=student', headers: authHeaders() })
+      .then(r => r.json())
+      .then(r => { this.setState({ students: r.data }); })
       .catch(err => {
-        err.json().then(e => {
-          callback([]);
-          this.setState({ students_loading: false });
-        })
+        err.json().then(e => { console.warn(e); });
       });
   }
 
@@ -228,7 +217,7 @@ class Form extends Component {
   isGuestNameValid = (inputValue, selectValue, selectOptions) => {
     return !(
       inputValue.trim().length === 0 ||
-      selectOptions.find(option => option.name === inputValue)
+      selectOptions.find(option => option.first_name + " " + option.last_name === inputValue)
     );
   };
 
@@ -352,7 +341,7 @@ class Form extends Component {
 
   render() {
     const {
-      appointment, appointment_loading, students_loading, student, date,
+      appointment, appointment_loading, student, date,
       line_items, sales_tax, total, total_tax, total_amount_due, payment_method,
       errors, stripe_error, saving, id
     } = this.state;
@@ -374,14 +363,13 @@ class Form extends Component {
                     <Error text={errors.user_id} />
                   </label>
                   <div className={studentWrapperClass}>
-                    <AsyncCreatableSelect placeholder="Student name"
-                      allowCreateWhileLoading={true}
+                    <CreatableSelect placeholder="Student name"
+                      isClearable
                       isValidNewOption={this.isGuestNameValid}
                       onCreateOption={this.createGuestPayer}
                       classNamePrefix="react-select"
-                      loadOptions={this.loadStudents}
+                      options={this.state.students}
                       onChange={this.setStudent}
-                      isLoading={students_loading}
                       getOptionLabel={(o) => (o.label || o.first_name + ' ' + o.last_name)}
                       getOptionValue={(o) => o.id}
                       value={student} />
