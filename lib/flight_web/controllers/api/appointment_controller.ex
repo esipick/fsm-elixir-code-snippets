@@ -91,11 +91,19 @@ defmodule FlightWeb.API.AppointmentController do
     end
   end
 
-  def delete(conn, _) do
-    Scheduling.delete_appointment(conn.assigns.appointment.id, conn.assigns.current_user, conn)
+  def delete(%{assigns: %{appointment: appointment, current_user: user}} = conn, _) do
+    case Scheduling.Appointment.allowed_for_archive?(appointment, user) do
+      true ->
+        Scheduling.delete_appointment(appointment.id, user, conn)
 
-    conn
-    |> resp(204, "")
+        conn
+        |> resp(204, "")
+
+      false ->
+        conn
+        |> put_status(401)
+        |> json(%{human_errors: ["Appointment is ended or paid."]})
+    end
   end
 
   def authorize_modify(conn, _) do

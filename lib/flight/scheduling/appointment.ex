@@ -1,6 +1,7 @@
 defmodule Flight.Scheduling.Appointment do
   use Ecto.Schema
   import Ecto.Changeset
+  import Flight.Walltime
 
   schema "appointments" do
     field(:end_at, :naive_datetime)
@@ -53,7 +54,7 @@ defmodule Flight.Scheduling.Appointment do
     change = get_field(changeset, key)
 
     if change do
-      put_change(changeset, key, Flight.Walltime.utc_to_walltime(change, timezone))
+      put_change(changeset, key, utc_to_walltime(change, timezone))
     else
       changeset
     end
@@ -97,11 +98,28 @@ defmodule Flight.Scheduling.Appointment do
     end
   end
 
+  def allowed_for_archive?(appointment, user) do
+    !(Flight.Accounts.has_role?(user, "student") &&
+        (is_paid?(appointment) ||
+           is_ended?(appointment)))
+  end
+
   def paid(%Flight.Scheduling.Appointment{} = appointment) do
     change(appointment, status: :paid) |> Flight.Repo.update()
   end
 
   def archive(%Flight.Scheduling.Appointment{} = appointment) do
     change(appointment, archived: true) |> Flight.Repo.update()
+  end
+
+  defp is_paid?(appointment) do
+    appointment.status == :paid
+  end
+
+  defp is_ended?(appointment) do
+    %{school: school} = Flight.Repo.preload(appointment, :school)
+
+    utc_end_at = walltime_to_utc(appointment.end_at, school.timezone)
+    Date.compare(Date.utc_today(), utc_end_at) == :gt
   end
 end

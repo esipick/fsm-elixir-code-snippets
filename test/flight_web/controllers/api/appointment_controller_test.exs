@@ -383,6 +383,44 @@ defmodule FlightWeb.API.AppointmentControllerTest do
   end
 
   describe "DELETE /api/appointments/:id" do
+    test "student can't delete paid or ended appointment", %{conn: conn} do
+      appointment = appointment_fixture()
+
+      conn
+      |> auth(appointment.user)
+      |> delete("/api/appointments/#{appointment.id}")
+      |> response(401)
+
+      appointment = Flight.Repo.get(Appointment, appointment.id)
+      refute appointment.archived
+
+      appointment = appointment_fixture()
+      Appointment.paid(appointment)
+
+      conn
+      |> auth(appointment.user)
+      |> delete("/api/appointments/#{appointment.id}")
+      |> response(401)
+
+      appointment = Flight.Repo.get(Appointment, appointment.id)
+      refute appointment.archived
+    end
+
+    test "student can delete new unpaid appointment", %{conn: conn} do
+      today = NaiveDateTime.utc_now()
+      start_at = NaiveDateTime.add(today, 50)
+      end_at = NaiveDateTime.add(today, 100)
+      appointment = appointment_fixture(%{end_at: end_at, start_at: start_at})
+
+      conn
+      |> auth(appointment.user)
+      |> delete("/api/appointments/#{appointment.id}")
+      |> response(204)
+
+      appointment = Flight.Repo.get(Appointment, appointment.id)
+      assert appointment.archived
+    end
+
     test "deletes appointment", %{conn: conn} do
       appointment = appointment_fixture()
 
