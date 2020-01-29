@@ -108,7 +108,7 @@ class LineItemsTable extends Component {
             <th></th>
             <th>Rate</th>
             <th>Qty/Hours</th>
-            <th>Amount, $</th>
+            <th>Amount $</th>
             <th></th>
           </tr>
         </thead>
@@ -138,7 +138,7 @@ class LineItemsTable extends Component {
           </tr>
           <tr>
             <td colSpan="5" className="text-right">
-              Sales Tax, %:
+              Sales Tax %:
             </td>
             <td colSpan="2">{sales_tax}</td>
           </tr>

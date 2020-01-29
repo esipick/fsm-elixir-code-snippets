@@ -5,7 +5,6 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
   alias Flight.Billing.Invoice
 
   describe "GET /billing/invoices" do
-    @tag :integration
     test "render invoices for all schools as superadmin", %{conn: conn} do
       another_school = school_fixture(%{name: "another school"})
       student = student_fixture(%{}, another_school)
@@ -14,11 +13,24 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
       content =
         conn
         |> web_auth_superadmin()
+        |> Plug.Test.put_req_cookie("school_id", "#{another_school.id}")
         |> get("/billing/invoices")
         |> html_response(200)
 
       assert content =~ "<th>School</th>"
       assert content =~ another_school.name
+    end
+
+    @tag :integration
+    test "render message when no invoices", %{conn: conn} do
+      content =
+        conn
+        |> web_auth_superadmin()
+        |> get("/billing/invoices")
+        |> html_response(200)
+
+      refute content =~ "<th>Student name</th>"
+      assert content =~ "No result found"
     end
 
     @tag :integration
