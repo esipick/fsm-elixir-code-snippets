@@ -188,7 +188,7 @@ class Form extends Component {
   }
 
   accountBalance = () => {
-    if (!this.state.student) return 0;
+    if (!this.state.student) return "0.00";
 
     return (this.state.student.balance * 1.0 / 100).toFixed(2);
   }
