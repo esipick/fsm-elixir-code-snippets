@@ -62,6 +62,11 @@ defmodule FlightWeb.API.InvoiceController do
 
   def update(conn, %{"invoice" => invoice_params}) do
     case UpdateInvoice.run(conn.assigns.invoice, invoice_params, conn) do
+      {:ok, %{archived: true}} ->
+        conn
+        |> put_status(404)
+        |> json(%{message: "Invoice has been already removed."})
+
       {:ok, invoice} ->
         invoice =
           Repo.get(Invoice, invoice.id)

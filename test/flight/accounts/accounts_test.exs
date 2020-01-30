@@ -25,6 +25,18 @@ defmodule Flight.Accounts.AccountsTest do
       refute Accounts.get_user(user.id, ["admin"], user)
     end
 
+    test "get_user_count/2 ignores archived users" do
+      school = school_fixture()
+      role = Accounts.Role.student()
+      user = student_fixture(%{}, school)
+      student_fixture(%{}, school)
+
+      assert Accounts.get_user_count(role, school)
+
+      Accounts.archive_user(user)
+      assert Accounts.get_user_count(role, school)
+    end
+
     @tag :integration
     test "create_user/1 with valid data creates a user" do
       school = school_fixture() |> real_stripe_account()

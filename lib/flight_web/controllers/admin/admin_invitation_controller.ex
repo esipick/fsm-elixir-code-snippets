@@ -13,6 +13,7 @@ defmodule FlightWeb.Admin.InvitationController do
       "index.html",
       invitations: invitations,
       changeset: Accounts.Invitation.create_changeset(%Accounts.Invitation{}, %{}),
+      request_path: invite_request_path(conn),
       role: Accounts.role_for_slug(role_slug)
     )
   end
@@ -31,7 +32,13 @@ defmodule FlightWeb.Admin.InvitationController do
 
       {:error, changeset} ->
         invitations = Accounts.visible_invitations_with_role(role.slug, conn)
-        render(conn, "index.html", invitations: invitations, changeset: changeset, role: role)
+
+        render(conn, "index.html",
+          invitations: invitations,
+          changeset: changeset,
+          request_path: invite_request_path(conn),
+          role: role
+        )
     end
   end
 
@@ -67,6 +74,13 @@ defmodule FlightWeb.Admin.InvitationController do
       conn
       |> resp(404, "")
       |> halt()
+    end
+  end
+
+  def invite_request_path(%{assigns: %{current_user: user}} = conn, path \\ "/admin/invitations") do
+    case Flight.Accounts.is_superadmin?(user) do
+      true -> "#{path}/#{Flight.SchoolScope.school_id(conn)}"
+      false -> path
     end
   end
 end

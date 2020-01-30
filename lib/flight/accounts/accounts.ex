@@ -93,6 +93,7 @@ defmodule Flight.Accounts do
   def get_user_count(role, school_context) do
     from(
       u in User,
+      where: u.archived == false,
       inner_join: r in assoc(u, :roles),
       where: r.id == ^role.id
     )
