@@ -49,7 +49,7 @@
                 </div>
               </div>
               <div class="col-md-2 col-xs-12">
-                <%= select f, :state, ["", "pending", "completed", "canceled", "failed"], class: "form-control selectpicker", selected: @params["state"], title: "Status" %>
+                <%= select f, :state, ["choose status", "pending", "completed", "canceled", "failed"], class: "form-control selectpicker", selected: @params["state"], title: "Status" %>
               </div>
               <div class="col-md-2 pl-1 text-right">
                 <input type="submit" class="btn btn-primary m-0" value="Search" />

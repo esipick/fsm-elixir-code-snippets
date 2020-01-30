@@ -21,6 +21,7 @@ defmodule Flight.Queries.Transaction do
 
     start_date = parse_date(params["start_date"], 0)
     end_date = parse_date(params["end_date"], 1)
+    state = parse_state(params["state"])
 
     from(i in Transaction, order_by: [desc: i.inserted_at])
     |> SchoolScope.scope_query(school_context)
@@ -38,7 +39,7 @@ defmodule Flight.Queries.Transaction do
     )
     |> pass_unless(start_date, &where(&1, [t], t.inserted_at >= ^start_date))
     |> pass_unless(end_date, &where(&1, [t], t.inserted_at <= ^end_date))
-    |> pass_unless(params["state"], &where(&1, [t], t.state == ^params["state"]))
+    |> pass_unless(state, &where(&1, [t], t.state == ^state))
     |> Repo.paginate(page_params)
   end
 
@@ -59,6 +60,16 @@ defmodule Flight.Queries.Transaction do
         |> Timex.parse!(@format_str)
         |> Timex.to_naive_datetime()
         |> Timex.shift(days: shift_days)
+    end
+  end
+
+  defp parse_state(param) do
+    case param do
+      param when param in ["pending", "completed", "canceled", "failed"] ->
+        param
+
+      _ ->
+        nil
     end
   end
 
