@@ -124,7 +124,7 @@
           <% end %>
         </div>
       <% else %>
-        <div class="card-body">No transaction is found</div>
+        <div class="card-body">No results found</div>
       <% end %>
     </div>
   </div>
