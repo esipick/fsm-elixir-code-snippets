@@ -83,7 +83,7 @@
               <%= for invoice <- @invoices do %>
                 <tr>
                   <td><%= invoice.id %></td>
-                  <td><%= invoice.created %></td>
+                  <td class="text-nowrap"><%= invoice.created %></td>
                   <%= if show_to_superadmin?(@conn) do %>
                     <td><a href="/admin/schools/<%= invoice.school.id %>"><%= invoice.school.name %></a></td>
                   <% end %>
@@ -91,10 +91,10 @@
                   <td><%= currency(invoice.amount_due) %></td>
                   <td><%= currency(invoice.amount_paid) %></td>
                   <td><%= invoice.status %></td>
-                  <td><%= invoice.payment_date %></td>
+                  <td class="text-nowrap"><%= invoice.payment_date %></td>
                   <td><%= invoice.payment_method %></td>
                   <td class="text-right">
-                    <div class="d-flex justify-content-end">
+                    <div id="button-wrapper" class="d-flex justify-content-end">
                       <a href="/billing/invoices/<%= invoice.id %>" class="btn btn-primary btn-sm">
                         Show
                       </a>

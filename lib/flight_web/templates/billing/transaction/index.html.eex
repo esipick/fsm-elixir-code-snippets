@@ -83,7 +83,7 @@
               <%= for transaction <- @transactions do %>
                 <tr>
                   <td><%= transaction.id %></td>
-                  <td><%= transaction.created %></td>
+                  <td class="text-nowrap"><%= transaction.created %></td>
                   <%= if show_to_superadmin?(@conn) do %>
                     <td><a href="/admin/schools/<%= transaction.school.id %>"><%= transaction.school.name %></a></td>
                   <% end %>
@@ -98,7 +98,7 @@
                   <td><%= currency(transaction.amount_due) %></td>
                   <td><%= currency(transaction.amount_paid) %></td>
                   <td><%= transaction.state %></td>
-                  <td><%= transaction.completed_at %></td>
+                  <td class="text-nowrap"><%= transaction.completed_at %></td>
                   <td><%= transaction.payment_method %></td>
                 </tr>
               <% end %>
