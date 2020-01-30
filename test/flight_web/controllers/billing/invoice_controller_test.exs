@@ -100,7 +100,7 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
           |> get("/billing/invoices")
           |> html_response(200)
 
-        assert content =~ "btn btn-danger btn-sm _delete_button"
+        assert content =~ "btn btn-danger btn-sm ml-1 _delete_button"
 
         content =
           conn

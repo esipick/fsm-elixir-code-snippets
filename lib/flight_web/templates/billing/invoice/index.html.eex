@@ -94,19 +94,21 @@
                   <td><%= invoice.payment_date %></td>
                   <td><%= invoice.payment_method %></td>
                   <td class="text-right">
-                    <a href="/billing/invoices/<%= invoice.id %>" class="btn btn-primary btn-sm">
-                      Show
-                    </a>
-                    <%= if can_modify_invoice?(@conn, invoice) do %>
-                      <a href="/billing/invoices/<%= invoice.id %>/edit" class="btn btn-primary btn-sm">
-                        Edit
+                    <div class="d-flex justify-content-end">
+                      <a href="/billing/invoices/<%= invoice.id %>" class="btn btn-primary btn-sm">
+                        Show
                       </a>
-                      <%= if invoice.status != :archived do %>
-                        <button stype="button" class="btn btn-danger btn-sm _delete_button" data-invoice-id="<%= invoice.id %>">
-                          Delete
-                        </button>
+                      <%= if can_modify_invoice?(@conn, invoice) do %>
+                        <a href="/billing/invoices/<%= invoice.id %>/edit" class="btn btn-primary btn-sm ml-1">
+                          Edit
+                        </a>
+                        <%= if invoice.status != :archived do %>
+                          <button stype="button" class="btn btn-danger btn-sm ml-1 _delete_button" data-invoice-id="<%= invoice.id %>">
+                            Delete
+                          </button>
+                        <% end %>
                       <% end %>
-                    <% end %>
+                    </div>
                   </td>
                 </tr>
               <% end %>
