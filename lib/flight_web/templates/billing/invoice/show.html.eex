@@ -90,7 +90,7 @@
 
               <dl class="d-flex justify-content-between">
                 <dt>Sales Tax</dt>
-                <dd><%= @invoice.tax_rate * 100 %>%</dd>
+                <dd><%= @invoice.tax_rate %>%</dd>
               </dl>
 
               <dl class="d-flex justify-content-between">
