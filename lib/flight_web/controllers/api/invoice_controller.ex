@@ -65,7 +65,7 @@ defmodule FlightWeb.API.InvoiceController do
       {:ok, %{archived: true}} ->
         conn
         |> put_status(404)
-        |> json(%{message: "Invoice has been already removed."})
+        |> json(%{error: %{message: "Invoice has been already removed."}})
 
       {:ok, invoice} ->
         invoice =
@@ -79,7 +79,10 @@ defmodule FlightWeb.API.InvoiceController do
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(422)
-        |> json(%{errors: ViewHelpers.translate_errors(changeset)})
+        |> json(%{
+          error: %{message: "Could not save invoice. Please correct errors in the form."},
+          errors: ViewHelpers.translate_errors(changeset)
+        })
 
       {:error, %Stripe.Error{} = error} ->
         conn
@@ -142,7 +145,7 @@ defmodule FlightWeb.API.InvoiceController do
 
   defp check_paid_invoice(conn, _) do
     if conn.assigns.invoice.status == :paid do
-      halt_unauthorized_response(conn, "Can't modify invoice that is already paid.")
+      halt_unauthorized_response(conn, "Invoice has been already paid.")
     else
       conn
     end

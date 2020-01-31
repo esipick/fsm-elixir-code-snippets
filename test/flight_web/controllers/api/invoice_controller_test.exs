@@ -403,10 +403,13 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       instructor = instructor_fixture()
       invoice_params = %{}
 
-      conn
-      |> auth(instructor)
-      |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
-      |> json_response(401)
+      json =
+        conn
+        |> auth(instructor)
+        |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
+        |> json_response(401)
+
+      assert json["error"] == %{"message" => "Invoice has been already paid."}
     end
 
     @tag :integration
@@ -441,6 +444,27 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       invoice = preload_invoice(invoice)
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
+    test "render already removed error", %{conn: conn} do
+      invoice = preload_invoice(invoice_fixture())
+      instructor = instructor_fixture()
+      invoice_params = %{total_amount_due: 25000}
+
+      invoice
+      |> Invoice.changeset(%{archived: true})
+      |> Repo.update()
+
+      json =
+        conn
+        |> auth(instructor)
+        |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
+        |> json_response(404)
+
+      IO.inspect(json["error"])
+
+      assert json["error"] == %{"message" => "Invoice has been already removed."}
     end
 
     @tag :integration

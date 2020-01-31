@@ -42,6 +42,7 @@ class Form extends Component {
       id: this.props.id || '',
       sales_tax: props.tax_rate || 0,
       action: props.action || 'create',
+      error: props.error || '',
       errors: props.errors || {},
       stripe_error: props.stripe_error || '',
       balance_warning_open: false,
@@ -282,9 +283,9 @@ class Form extends Component {
         window.location = `/billing/invoices/${data.id}`;
       });
     }).catch(response => {
-      response.json().then(({ id = this.state.id, stripe_error = '', errors = {} }) => {
+      response.json().then(({ id = this.state.id, stripe_error = '', error = '', errors = {} }) => {
         const action = id ? 'edit' : 'create';
-        this.setState({ saving: false, id, action, stripe_error, errors });
+        this.setState({ saving: false, id, action, stripe_error, error, errors });
       });
     });
   }
@@ -300,9 +301,7 @@ class Form extends Component {
   }
 
   globalError = () => {
-    if (Object.keys(this.state.errors).length > 0) {
-      return "Could not save invoice. Please correct errors in the form.";
-    }
+    if ('error' in this.state) return this.state.error.message
   }
 
   saveAndPayButton = () => {
