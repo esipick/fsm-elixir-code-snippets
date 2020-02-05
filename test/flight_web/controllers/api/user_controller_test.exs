@@ -211,6 +211,34 @@ defmodule FlightWeb.API.UserControllerTest do
     end
   end
 
+  describe "PUT /api/users/:user_id/change_password" do
+    test "update password", %{conn: conn} do
+      user = student_fixture()
+      new_password = "new password"
+
+      assert {:error, "invalid password"} = Flight.Accounts.check_password(user, new_password)
+
+      json =
+        conn
+        |> auth(user)
+        |> put("/api/users/#{user.id}/change_password", %{data: %{password: new_password}})
+        |> json_response(200)
+
+      user =
+        Flight.Repo.get!(Flight.Accounts.User, json["data"]["id"])
+        |> FlightWeb.API.UserView.show_preload()
+
+      assert {:ok, _user} = Flight.Accounts.check_password(user, new_password)
+
+      assert json ==
+               render_json(
+                 FlightWeb.API.UserView,
+                 "show.json",
+                 user: user
+               )
+    end
+  end
+
   @tag :integration
   describe "PUT /api/users/:id" do
     test "renders json", %{conn: conn} do
