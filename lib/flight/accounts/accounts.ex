@@ -247,7 +247,7 @@ defmodule Flight.Accounts do
 
   def update_password(user, %{"password" => password, "new_password" => new_password}) do
     with {:ok, user} <- check_password(user, password),
-         user <- User.update_password_changeset(user, %{password: new_password}) do
+         %{valid?: true} = user <- User.update_password_changeset(user, %{password: new_password}) do
       user
       |> set_password(new_password)
     else
@@ -261,6 +261,9 @@ defmodule Flight.Accounts do
            errors: [password: {"is invalid", []}],
            types: %{password: :string}
          }}
+
+      changeset ->
+        {:error, changeset}
     end
   end
 

@@ -247,6 +247,15 @@ defmodule FlightWeb.API.UserControllerTest do
 
       assert json == %{"human_errors" => ["Password is invalid"]}
 
+      json =
+        conn
+        |> put("/api/users/#{user.id}/change_password", %{
+          data: %{password: current_password, new_password: "new"}
+        })
+        |> json_response(422)
+
+      assert json == %{"human_errors" => ["Password is too short"]}
+
       updates = %{
         password: current_password,
         new_password: new_password
