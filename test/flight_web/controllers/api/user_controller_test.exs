@@ -30,7 +30,7 @@ defmodule FlightWeb.API.UserControllerTest do
         |> json_response(200)
 
       [%{"id" => id}] = json["data"]
-      assert id = superadmin.id
+      assert id == superadmin.id
 
       json =
         conn
@@ -214,14 +214,47 @@ defmodule FlightWeb.API.UserControllerTest do
   describe "PUT /api/users/:user_id/change_password" do
     test "update password", %{conn: conn} do
       user = student_fixture()
+      current_password = "some password"
       new_password = "new password"
 
+      assert {:ok, _user} = Flight.Accounts.check_password(user, current_password)
       assert {:error, "invalid password"} = Flight.Accounts.check_password(user, new_password)
+
+      conn =
+        conn
+        |> auth(user)
 
       json =
         conn
-        |> auth(user)
-        |> put("/api/users/#{user.id}/change_password", %{data: %{password: new_password}})
+        |> put("/api/users/#{user.id}/change_password", %{data: %{new_password: new_password}})
+        |> json_response(422)
+
+      assert json == %{"human_errors" => ["Password can't be empty"]}
+
+      json =
+        conn
+        |> put("/api/users/#{user.id}/change_password", %{data: %{password: current_password}})
+        |> json_response(422)
+
+      assert json == %{"human_errors" => ["New password can't be empty"]}
+
+      json =
+        conn
+        |> put("/api/users/#{user.id}/change_password", %{
+          data: %{password: "wrong password", new_password: new_password}
+        })
+        |> json_response(422)
+
+      assert json == %{"human_errors" => ["Password is invalid"]}
+
+      updates = %{
+        password: current_password,
+        new_password: new_password
+      }
+
+      json =
+        conn
+        |> put("/api/users/#{user.id}/change_password", %{data: updates})
         |> json_response(200)
 
       user =

@@ -72,19 +72,20 @@ defmodule FlightWeb.API.UserController do
     end
   end
 
-  def change_password(conn, %{"data" => %{"password" => password}}) do
-    with {:ok, user} <- Accounts.set_password(conn.assigns.current_user, password) do
-      user =
-        user
-        |> FlightWeb.API.UserView.show_preload()
+  def change_password(conn, %{"data" => data_params}) do
+    user = conn.assigns.current_user
 
-      render(conn, "show.json", user: user)
-    else
+    case Accounts.update_password(user, data_params) do
+      {:ok, _user} ->
+        user =
+          user
+          |> FlightWeb.API.UserView.show_preload()
+
+        render(conn, "show.json", user: user)
+
       {:error, changeset} ->
-        IO.inspect(changeset)
-
         conn
-        |> put_status(400)
+        |> put_status(422)
         |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
     end
   end

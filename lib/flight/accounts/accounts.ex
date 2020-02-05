@@ -245,6 +245,38 @@ defmodule Flight.Accounts do
     |> Repo.update()
   end
 
+  def update_password(user, %{"password" => password, "new_password" => new_password}) do
+    with {:ok, user} <- check_password(user, password),
+         user <- User.update_password_changeset(user, %{password: new_password}) do
+      user
+      |> set_password(new_password)
+    else
+      {:error, %{} = changeset} ->
+        {:error, changeset}
+
+      {:error, _} ->
+        {:error,
+         %Ecto.Changeset{
+           valid?: false,
+           errors: [password: {"is invalid", []}],
+           types: %{password: :string}
+         }}
+    end
+  end
+
+  def update_password(_, %{"password" => _}) do
+    {:error,
+     %Ecto.Changeset{
+       errors: [new_password: {"can't be empty", []}],
+       types: %{new_password: :string}
+     }}
+  end
+
+  def update_password(_, %{"new_password" => _}) do
+    {:error,
+     %Ecto.Changeset{errors: [password: {"can't be empty", []}], types: %{password: :string}}}
+  end
+
   def create_password_reset(user) do
     %PasswordReset{}
     |> PasswordReset.changeset(%{user_id: user.id, token: Flight.Random.hex(60)})
