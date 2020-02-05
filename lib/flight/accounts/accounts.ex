@@ -339,7 +339,8 @@ defmodule Flight.Accounts do
       :flight_training_number,
       :medical_rating,
       :medical_expires_at,
-      :certificate_number
+      :certificate_number,
+      :inserted_at
     ]
   end
 

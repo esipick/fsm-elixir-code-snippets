@@ -106,6 +106,16 @@ defmodule FlightWeb.UserForm do
     }
   end
 
+  def item(user, :inserted_at) do
+    %Item{
+      key: :inserted_at,
+      name: "Registration date",
+      type: :date,
+      value: user.inserted_at,
+      order: 70
+    }
+  end
+
   def human_readable_medical_rating(nil), do: nil
 
   def human_readable_medical_rating(medical_rating) when is_binary(medical_rating) do
