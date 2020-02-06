@@ -47,5 +47,28 @@ defmodule FlightWeb.API.RolesControllerTest do
                  roles: [instructor_role, student_role, renter_role]
                )
     end
+
+    test "renders only renter when demo_only=true", %{conn: conn} do
+      _admin_role = role_fixture(%{slug: "admin"})
+      _dispatcher_role = role_fixture(%{slug: "dispatcher"})
+      _instructor_role = role_fixture(%{slug: "instructor"})
+      _student_role = role_fixture(%{slug: "student"})
+      renter_role = role_fixture(%{slug: "renter"})
+
+      instructor = instructor_fixture()
+
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/roles?demo_only=true")
+        |> json_response(200)
+
+      assert json ==
+               render_json(
+                 FlightWeb.API.RolesView,
+                 "index.json",
+                 roles: [renter_role]
+               )
+    end
   end
 end
