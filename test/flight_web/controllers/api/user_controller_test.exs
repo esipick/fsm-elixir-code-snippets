@@ -2,6 +2,8 @@ defmodule FlightWeb.API.UserControllerTest do
   use FlightWeb.ConnCase
 
   alias FlightWeb.API.UserView
+  alias Flight.Accounts
+  alias Accounts.User
 
   @tag :integration
   describe "GET /api/users" do
@@ -142,7 +144,7 @@ defmodule FlightWeb.API.UserControllerTest do
         |> json_response(200)
 
       user =
-        Flight.Repo.get!(Flight.Accounts.User, json["data"]["id"])
+        Flight.Repo.get!(User, json["data"]["id"])
         |> FlightWeb.API.UserView.show_preload()
 
       assert user.first_name == "Alexxx"
@@ -179,7 +181,7 @@ defmodule FlightWeb.API.UserControllerTest do
         |> json_response(200)
 
       user =
-        Flight.Repo.get!(Flight.Accounts.User, json["data"]["id"])
+        Flight.Repo.get!(User, json["data"]["id"])
         |> FlightWeb.API.UserView.show_preload()
 
       assert user.first_name == "Alexxx"
@@ -208,6 +210,43 @@ defmodule FlightWeb.API.UserControllerTest do
       |> auth(student)
       |> post("/api/users/", %{data: user_attrs, role_id: student_role.id})
       |> response(401)
+    end
+  end
+
+  describe "Check password_token" do
+    test "Users with old api token must stay authorized", %{conn: conn} do
+      {:ok, user} =
+        student_fixture()
+        |> User.__test_password_token_changeset(%{password_token: nil})
+        |> Flight.Repo.update()
+
+      assert is_nil(user.password_token)
+
+      conn =
+        conn
+        |> auth(user)
+
+      conn
+      |> get("/api/users/#{user.id}")
+      |> json_response(200)
+
+      updates = %{
+        password: "some password",
+        new_password: "new password"
+      }
+
+      conn
+      |> put("/api/users/#{user.id}/change_password", %{data: updates})
+      |> json_response(200)
+
+      user = Flight.Repo.get!(User, user.id)
+
+      refute is_nil(user.password_token)
+
+      json =
+        conn
+        |> get("/api/users/#{user.id}")
+        |> response(401)
     end
   end
 
@@ -267,7 +306,7 @@ defmodule FlightWeb.API.UserControllerTest do
         |> json_response(200)
 
       user =
-        Flight.Repo.get!(Flight.Accounts.User, json["data"]["id"])
+        Flight.Repo.get!(User, json["data"]["id"])
         |> FlightWeb.API.UserView.show_preload()
 
       assert {:ok, _user} = Flight.Accounts.check_password(user, new_password)
@@ -304,7 +343,7 @@ defmodule FlightWeb.API.UserControllerTest do
         |> json_response(200)
 
       user =
-        Flight.Repo.get!(Flight.Accounts.User, user.id)
+        Flight.Repo.get!(User, user.id)
         |> FlightWeb.API.UserView.show_preload()
 
       assert user.first_name == "Alex"

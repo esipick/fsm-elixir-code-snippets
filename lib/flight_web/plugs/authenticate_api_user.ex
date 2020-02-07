@@ -29,9 +29,12 @@ defmodule FlightWeb.AuthenticateApiUser do
   end
 
   def authenticated_user(token) do
-    with {:ok, id} <- user_id_from_token(token),
+    with {:ok, id, password_token} <- user_id_from_token(token),
          %User{} = user <- Flight.Repo.get(Flight.Accounts.User, id) do
-      {:ok, user}
+      case password_token == user.password_token do
+        true -> {:ok, user}
+        false -> {:error, "Password was changed. Sign out required"}
+      end
     else
       _ ->
         {:error, "Invalid user authentication"}
@@ -41,7 +44,10 @@ defmodule FlightWeb.AuthenticateApiUser do
   # Tokens
 
   def token(user, context \\ FlightWeb.Endpoint) do
-    Phoenix.Token.sign(context, Application.get_env(:flight, :user_token_salt), user: user.id)
+    Phoenix.Token.sign(context, Application.get_env(:flight, :user_token_salt), %{
+      user: user.id,
+      token: user.password_token
+    })
   end
 
   def user_id_from_token(token, context \\ FlightWeb.Endpoint) do
@@ -52,7 +58,10 @@ defmodule FlightWeb.AuthenticateApiUser do
            max_age: 1_000_592_000
          ) do
       {:ok, [user: id]} ->
-        {:ok, id}
+        {:ok, id, nil}
+
+      {:ok, %{user: id, token: password_token}} ->
+        {:ok, id, password_token}
 
       {:ok, _} ->
         {:error, :unknown_type}

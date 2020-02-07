@@ -8,6 +8,7 @@ defmodule Flight.Accounts.User do
     field(:last_name, :string)
     field(:password, :string, virtual: true)
     field(:password_hash, :string)
+    field(:password_token, :string)
     field(:balance, :integer, default: 0)
     field(:phone_number, :string)
     field(:address_1, :string)
@@ -84,6 +85,11 @@ defmodule Flight.Accounts.User do
     |> base_validations()
     |> validate_password(:password)
     |> put_pass_hash()
+  end
+
+  def __test_password_token_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:password_token])
   end
 
   def __test_changeset(user, attrs) do
@@ -275,6 +281,7 @@ defmodule Flight.Accounts.User do
   defp put_pass_hash(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
     changeset
     |> change(Comeonin.Bcrypt.add_hash(password))
+    |> change(%{password_token: Flight.Random.string(10)})
     |> delete_change(:password)
   end
 

@@ -1,15 +1,17 @@
 defmodule FlightWeb.PasswordController do
   use FlightWeb, :controller
 
+  alias Flight.Accounts
+
   def forgot(conn, _) do
     render(conn, "forgot_password.html")
   end
 
   def forgot_submit(conn, %{"email" => email}) do
-    user = Flight.Accounts.get_user_by_email(email)
+    user = Accounts.get_user_by_email(email)
 
     if user do
-      {:ok, reset} = Flight.Accounts.create_password_reset(user)
+      {:ok, reset} = Accounts.create_password_reset(user)
 
       reset
       |> Flight.Repo.preload(:user)
@@ -23,7 +25,7 @@ defmodule FlightWeb.PasswordController do
   end
 
   def reset(conn, params) do
-    reset = Flight.Accounts.get_password_reset_from_token(params["token"] || "")
+    reset = Accounts.get_password_reset_from_token(params["token"] || "")
 
     if reset do
       render(conn, "reset_password.html", password_reset: reset, password: "", confirmation: "")
@@ -42,7 +44,7 @@ defmodule FlightWeb.PasswordController do
         "password" => password,
         "password_confirmation" => confirmation
       }) do
-    reset = Flight.Accounts.get_password_reset_from_token(token || "")
+    reset = Accounts.get_password_reset_from_token(token || "")
 
     if reset do
       if password != confirmation do
@@ -50,7 +52,7 @@ defmodule FlightWeb.PasswordController do
         |> put_flash(:error, "Password and confirmation didn't match. Please try again.")
         |> redirect(to: "/reset_password?token=#{token}")
       else
-        case Flight.Accounts.set_password(reset.user, password) do
+        case Accounts.set_password(reset.user, password) do
           {:ok, _user} ->
             render(conn, "reset_password_success.html")
 
