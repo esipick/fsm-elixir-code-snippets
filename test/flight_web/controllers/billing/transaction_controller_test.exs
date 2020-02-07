@@ -26,7 +26,7 @@ defmodule FlightWeb.Billing.TransactionControllerTest do
         |> html_response(200)
 
       refute content =~ "<th>Student name</th>"
-      assert content =~ "No results found"
+      assert content =~ "No result found"
     end
 
     @tag :integration
