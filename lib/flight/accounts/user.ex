@@ -202,10 +202,10 @@ defmodule Flight.Accounts.User do
 
   def base_validations(changeset, roles \\ nil, flyer_certificates \\ nil) do
     changeset
+    |> validate_required([:email, :first_name, :last_name])
     |> update_change(:first_name, &String.trim/1)
     |> update_change(:last_name, &String.trim/1)
     |> trim_email()
-    |> validate_required([:email, :first_name, :last_name])
     |> unique_constraint(:email, message: "already exist")
     |> validate_length(:roles, min: 1)
     |> validate_password(:password)
@@ -213,6 +213,16 @@ defmodule Flight.Accounts.User do
       :phone_number,
       Flight.Format.phone_number_regex(),
       message: "must be in the format: 555-555-5555"
+    )
+    |> validate_format(
+      :zipcode,
+      Flight.Format.zipcode_regex(),
+      message: "must contain only numbers"
+    )
+    |> validate_format(
+      :email,
+      Flight.Format.email_regex(),
+      message: "must be in a valid format"
     )
     |> normalize_phone_number()
     |> Pipe.pass_unless(roles, &put_assoc(&1, :roles, roles))

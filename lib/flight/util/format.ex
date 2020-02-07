@@ -3,6 +3,14 @@ defmodule Flight.Format do
     ~r/^\(?([0-9]{3})\)?[-.● ]?([0-9]{3})[-.● ]?([0-9]{4})$/
   end
 
+  def zipcode_regex do
+    ~r/^[0-9]+$/
+  end
+
+  def email_regex do
+    ~r/^[\w.!#$%&’*+\-\/=?\^`{|}~]+@([a-zA-Z0-9-]+)\.([a-zA-Z0-9-]+)*$/i
+  end
+
   def normalize_phone_number(number) do
     case Regex.run(phone_number_regex(), number) do
       [_, first, second, third] ->

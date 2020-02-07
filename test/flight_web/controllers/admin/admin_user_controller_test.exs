@@ -264,6 +264,25 @@ defmodule FlightWeb.Admin.UserControllerTest do
       assert user.last_name == "Duprix"
     end
 
+    test "does not allow update fields with wrong values", %{conn: conn} do
+      student = student_fixture()
+
+      payload = %{
+        user: %{email: "All@ison", zipcode: "Duprix"}
+      }
+
+      admin = admin_fixture()
+
+      content =
+        conn
+        |> web_auth(admin)
+        |> put("/admin/users/#{student.id}", payload)
+        |> html_response(200)
+
+      assert content =~ "must contain only numbers"
+      assert content =~ "must be in a valid format"
+    end
+
     test "does not allow dispatchers to update admins", %{conn: conn} do
       admin = user_fixture() |> assign_role("admin")
 
