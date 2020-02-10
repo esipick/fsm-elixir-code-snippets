@@ -157,6 +157,31 @@ defmodule FlightWeb.API.UserControllerTest do
                )
     end
 
+    # @tag :integration
+    test "can't create an user with same email", %{conn: conn} do
+      student_role = role_fixture(%{slug: "student"})
+      email = "unique@email.com"
+      student_fixture(%{email: email})
+
+      user_attrs = %{
+        email: email,
+        first_name: "Alexxx",
+        last_name: "Doe",
+        phone_number: "801-555-5555"
+      }
+
+      school = school_fixture() |> real_stripe_account()
+      instructor = instructor_fixture(%{}, school)
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/users/", %{data: user_attrs, role_id: student_role.id})
+        |> json_response(400)
+
+      assert json == %{"human_errors" => ["Email already exist"]}
+    end
+
     @tag :integration
     test "creates user with stripe account", %{conn: conn} do
       student_role = role_fixture(%{slug: "student"})
@@ -243,10 +268,9 @@ defmodule FlightWeb.API.UserControllerTest do
 
       refute is_nil(user.password_token)
 
-      json =
-        conn
-        |> get("/api/users/#{user.id}")
-        |> response(401)
+      conn
+      |> get("/api/users/#{user.id}")
+      |> response(401)
     end
   end
 
