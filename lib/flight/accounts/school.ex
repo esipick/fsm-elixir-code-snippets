@@ -65,24 +65,37 @@ defmodule Flight.Accounts.School do
 
   def base_validations(changeset) do
     changeset
-    |> validate_required([
-      :name,
-      :timezone,
-      :contact_email,
-      :contact_phone_number,
-      :contact_first_name,
-      :contact_last_name
-    ])
+    |> validate_required(:name, message: "Name can't be blank")
+    |> validate_required(:timezone, message: "Timezone can't be blank")
+    |> validate_required(:contact_email, message: "Email can't be blank")
+    |> validate_required(:contact_phone_number, message: "Phone # can't be blank")
+    |> validate_required(:contact_first_name, message: "First Name can't be blank")
+    |> validate_required(:contact_last_name, message: "Last Name can't be blank")
     |> validate_format(
       :phone_number,
       Flight.Format.phone_number_regex(),
-      message: "must be in the format: 555-555-5555"
+      message: "Phone # must be in the format: 555-555-5555"
     )
     |> normalize_phone_number(:phone_number)
     |> validate_format(
       :contact_phone_number,
       Flight.Format.phone_number_regex(),
-      message: "must be in the format: 555-555-5555"
+      message: "Phone # must be in the format: 555-555-5555"
+    )
+    |> validate_format(
+      :zipcode,
+      Flight.Format.zipcode_regex(),
+      message: "Zip code must contain only numbers"
+    )
+    |> validate_format(
+      :email,
+      Flight.Format.email_regex(),
+      message: "Email must be in a valid format"
+    )
+    |> validate_format(
+      :contact_email,
+      Flight.Format.email_regex(),
+      message: "Email must be in a valid format"
     )
     |> normalize_phone_number(:contact_phone_number)
     |> validate_inclusion(:timezone, valid_timezones())

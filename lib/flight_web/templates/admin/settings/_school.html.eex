@@ -1,21 +1,13 @@
 <%= form_for @changeset, @request_path, [as: :data, method: "put"], fn f -> %>
-  <%= if Enum.count(f.errors) > 0 do %>
-    <div class="alert alert-danger">
-      <%= for error <- human_error_messages(@changeset) do %>
-        <span><%= error %></span></br>
-      <% end %>
-    </div>
-  <% end %>
-
   <div class="row">
     <div class="col-md-12">
       <div class="form-group">
-        <label>School Name</label>
+        <label>School Name *</label>
         <%= text_input f, :name, class: "form-control" %>
+        <span class="text-danger"><%= error_tag f, :name%></span>
       </div>
     </div>
   </div>
-
   <div class="row">
     <div class="col-md-12">
       <div class="form-group">
@@ -24,7 +16,6 @@
       </div>
     </div>
   </div>
-
   <div class="row">
     <div class="col-md-4">
       <div class="form-group">
@@ -42,25 +33,26 @@
       <div class="form-group">
         <label>Zip Code</label>
         <%= text_input f, :zipcode, class: "form-control" %>
+        <span class="text-danger"><%= error_tag f, :zipcode%></span>
       </div>
     </div>
   </div>
-
   <div class="row">
     <div class="col-md-6">
       <div class="form-group">
         <label>School Phone #</label>
         <%= telephone_input f, :phone_number, class: "form-control" %>
+        <span class="text-danger"><%= error_tag f, :phone_number%></span>
       </div>
     </div>
     <div class="col-md-6">
       <div class="form-group">
         <label>School Email</label>
         <%= email_input f, :email, class: "form-control" %>
+        <span class="text-danger"><%= error_tag f, :email%></span>
       </div>
     </div>
   </div>
-
   <div class="row">
     <div class="col-md-12">
       <div class="form-group">
@@ -69,25 +61,22 @@
       </div>
     </div>
   </div>
-
   <div class="row">
     <div class="col-md-6">
       <div class="form-group">
-        <label>Timezone</label>
+        <label>Timezone *</label>
         <%= select f, :timezone, Flight.Accounts.School.valid_timezones(), class: "form-control" %>
+        <span class="text-danger"><%= error_tag f, :timezone%></span>
       </div>
     </div>
     <div class="col-md-6">
       <div class="form-group">
-        <label>Sales Tax Rate, %</label>
+        <label>Sales Tax Rate %</label>
         <%= number_input f, :sales_tax, class: "form-control", step: "0.01", min: "0.0", max: 100 %>
       </div>
     </div>
   </div>
-
-
   <input type="hidden" name="redirect_tab" value="school" />
-
   <div class="card-footer mt-3">
     <input type="submit" class="btn btn-fill btn-primary" value="Save">
   </div>
