@@ -55,6 +55,17 @@ defmodule FlightWeb.SessionControllerTest do
       assert get_flash(conn, :error) =~ "Invalid"
     end
 
+    test "redirects to login if empty fields", %{conn: conn} do
+      user_fixture(%{email: "hello@bar.com", password: "hey hey you"})
+
+      conn =
+        conn
+        |> post("/login", %{email: "", password: "hey hey you"})
+        |> redirected_to_login()
+
+      assert get_flash(conn, :error) =~ "Username and password can't be blank."
+    end
+
     test "redirects to login if user is not an admin", %{conn: conn} do
       user_fixture(%{email: "hello@bar.com", password: "hey hey you"})
       |> assign_role("renter")

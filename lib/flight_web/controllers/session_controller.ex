@@ -11,6 +11,14 @@ defmodule FlightWeb.SessionController do
     render(conn, "login.html")
   end
 
+  def login_submit(conn, %{"email" => "", "password" => _}) do
+    Comeonin.Bcrypt.dummy_checkpw()
+
+    conn
+    |> put_flash(:error, "Username and password can't be blank.")
+    |> redirect(to: "/login")
+  end
+
   def login_submit(conn, %{"email" => email, "password" => password}) do
     user = Accounts.get_user_by_email(email)
 
