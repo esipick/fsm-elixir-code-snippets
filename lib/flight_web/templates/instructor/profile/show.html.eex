@@ -53,7 +53,9 @@
               <dt>Certificates</dt>
               <dd>
                 <%= human_flyer_certificates(@user.flyer_certificates) %>
-                <small>cert# <%= @user.certificate_number %></small>
+                <%= if human_flyer_certificates(@user.flyer_certificates) != "None" do %>
+                  <small>cert# <%= @user.certificate_number %></small>
+                <% end %>
               </dd>
             </dl>
           <% end %>

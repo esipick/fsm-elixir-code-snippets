@@ -60,8 +60,19 @@
   <dl class="d-flex justify-content-between">
     <dt>Permission Roles</dt>
     <dd>
-      <%= for role <- @user.roles do %>
-        <%= human_role(role.slug) %></br>
+      <%= human_flyer_certificates(@user.flyer_certificates) %>
+      <%= if human_flyer_certificates(@user.flyer_certificates) != "None" do %>
+        <small>cert# <%= @user.certificate_number %></small>
+      <% end %>
+    </dd>
+  </dl>
+<% end %>
+<%= if has_medical?(@user) do %>
+  <dl class="d-flex justify-content-between">
+    <dt>Medical</dt>
+    <dd><%= human_readable_medical_rating(@user.medical_rating) %>
+      <%= if @user.medical_expires_at do %>
+        <small>expires: <%= format_date(@user.medical_expires_at) %></small>
       <% end %>
     </dd>
   </dl>

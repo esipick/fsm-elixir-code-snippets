@@ -80,6 +80,21 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
       assert content =~ another_aircraft.tail_number
       refute content =~ aircraft.tail_number
     end
+
+    test "renders message when press search with empty field", %{conn: conn} do
+      aircraft = aircraft_fixture(%{tail_number: "123456"})
+      another_aircraft = aircraft_fixture(%{tail_number: "789123"})
+
+      content =
+        conn
+        |> web_auth_admin()
+        |> get("/admin/aircrafts?search=")
+        |> html_response(200)
+
+      assert content =~ another_aircraft.tail_number
+      assert content =~ aircraft.tail_number
+      assert content =~ "Please fill out search field"
+    end
   end
 
   describe "GET /admin/aircrafts/new" do

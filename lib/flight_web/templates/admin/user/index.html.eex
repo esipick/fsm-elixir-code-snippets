@@ -5,94 +5,94 @@
 </div>
 
 <div class="content">
-
-
-<div class="row">
-          <div class="col-md-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex justify-content-between">
-                  <ul class="nav nav-pills nav-pills-primary" role="tablist">
-                    <li class="nav-item">
-                      <a class="nav-link active" href="#" role="tablist" aria-expanded="false"><%= plural_label_for_role(@data.role) %></a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="/admin/invitations?role=<%= @data.role.slug %>" role="tablist" aria-expanded="true">Invitations</a>
-                    </li>
-                  </ul>
-                  <!-- <a href="new-student.php" class="btn btn-primary">Add Student</a> -->
-                </div>
-
-                <%= if @data.role.slug != "admin" do %>
-                  <div>
-                    <%= form_for @conn, "/admin/users", [method: "get"], fn f -> %>
-                      <%= hidden_input f, :role, value: @data.role.slug %>
-                      <div class="row mb-4">
-                        <div class="col-md-10 col-xs-12">
-                          <div class="form-group">
-                            <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Search" %>
-                          </div>
-                        </div>
-                        <div class="col-md-2 pl-1">
-                          <input type="submit" class="btn btn-primary m-0" value="Search" />
-                        </div>
-                      </div>
-                    <% end %>
-                  </div>
-                <% end %>
-              </div>
-              <div class="card-body">
-                <%=
-                case @data.user_table_data.style do
-                  :detailed -> render(FlightWeb.Admin.UserView, "_detailed_table.html", conn: @conn, detailed_rows: @data.user_table_data.rows)
-                  :simple -> render(FlightWeb.Admin.UserView, "_simple_table.html", conn: @conn, simple_rows: @data.user_table_data.rows)
-                end
-                %>
-
-                <%= if @data.user_table_data.page.total_pages > 1 do %>
-                  <div class="row">
-                    <div class="col-md-10">
-                      <%= pagination_links @conn,
-                        @data.user_table_data.page,
-                        role: @data.role.slug,
-                        search: @data.search_term,
-                        page_size: @data.user_table_data.page.page_size
-                      %>
-                    </div>
-
-                    <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
-                  </div>
-                <% else %>
-                  <div class="row justify-content-end">
-                    <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
-                  </div>
-                <% end %>
-              <!-- end content-->
-            </div>
-            <!--  end card  -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="d-flex justify-content-between">
+            <ul class="nav nav-pills nav-pills-primary" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" href="#" role="tablist" aria-expanded="false"><%= plural_label_for_role(@data.role) %></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/invitations?role=<%= @data.role.slug %>" role="tablist" aria-expanded="true">Invitations</a>
+              </li>
+            </ul>
+            <!-- <a href="new-student.php" class="btn btn-primary">Add Student</a> -->
           </div>
-          <!-- end col-md-12 -->
+
+          <%= if @data.role.slug != "admin" do %>
+            <div>
+              <%= form_for @conn, "/admin/users", [method: "get"], fn f -> %>
+                <%= hidden_input f, :role, value: @data.role.slug %>
+                <div class="row mb-4">
+                  <div class="col-md-10 col-xs-12">
+                    <div class="form-group">
+                      <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Search" %>
+                      <span class="text-danger"><%= @message %></span>
+                    </div>
+                  </div>
+                  <div class="col-md-2 pl-1">
+                    <input type="submit" class="btn btn-primary m-0" value="Search" />
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
         </div>
-        <!-- end row -->
+        <div class="card-body">
+          <%=
+          case @data.user_table_data.style do
+            :detailed -> render(FlightWeb.Admin.UserView, "_detailed_table.html",
+              conn: @conn, detailed_rows: @data.user_table_data.rows, role: @data.role.slug)
+            :simple -> render(FlightWeb.Admin.UserView, "_simple_table.html",
+              conn: @conn, simple_rows: @data.user_table_data.rows, role: @data.role.slug)
+          end
+          %>
+
+          <%= if @data.user_table_data.page.total_pages > 1 do %>
+            <div class="row">
+              <div class="col-md-10">
+                <%= pagination_links @conn,
+                  @data.user_table_data.page,
+                  role: @data.role.slug,
+                  search: @data.search_term,
+                  page_size: @data.user_table_data.page.page_size
+                %>
+              </div>
+
+              <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+            </div>
+          <% else %>
+            <div class="row justify-content-end">
+              <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+            </div>
+          <% end %>
+        <!-- end content-->
+        </div>
+        <!--  end card  -->
       </div>
+      <!-- end col-md-12 -->
+    </div>
+    <!-- end row -->
+  </div>
 </div> <!-- end content -->
 
 <div style="display:none">
-<%= form_tag "/admin/users/:pending:", method: "delete", id: "delete_form" do %>
-  <input type="hidden" name="role" value="<%= @data.role.slug %>" />
-<% end %>
+  <%= form_tag "/admin/users/:pending:", method: "delete", id: "delete_form" do %>
+    <input type="hidden" name="role" value="<%= @data.role.slug %>" />
+  <% end %>
 </div>
-
 <script>
-$(document).ready(function() {
-  $('._delete_button').on('click', function() {
-    var id = $(this).attr("data-school-id")
-    var shouldDelete = confirm("This user and all of their information will be archived and removed from the system.")
-    if (shouldDelete) {
-      var form = $('#delete_form')[0]
-      form.action = "/admin/users/" + id
-      form.submit()
-    }
+  $(document).ready(function() {
+    $('._delete_button').on('click', function() {
+      var id = $(this).attr("data-school-id")
+      var shouldDelete = confirm("This user and all of their information will be archived and removed from the system.")
+      if (shouldDelete) {
+        var form = $('#delete_form')[0]
+        form.action = "/admin/users/" + id
+        form.submit()
+      }
+    });
   });
-});
 </script>

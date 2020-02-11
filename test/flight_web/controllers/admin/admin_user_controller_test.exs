@@ -94,6 +94,24 @@ defmodule FlightWeb.Admin.UserControllerTest do
       end
     end
 
+    test "renders message when press search with empty field", %{conn: conn} do
+      user = user_fixture() |> assign_role("student")
+
+      another_user =
+        user_fixture(%{first_name: "another name", last_name: "another last name"})
+        |> assign_role("student")
+
+      content =
+        conn
+        |> web_auth_admin()
+        |> get("/admin/users?role=student&search=")
+        |> html_response(200)
+
+      assert content =~ user.first_name
+      assert content =~ another_user.first_name
+      assert content =~ "Please fill out search field"
+    end
+
     test "does not render admins for dispatchers", %{conn: conn} do
       admin = user_fixture() |> assign_role("admin")
 

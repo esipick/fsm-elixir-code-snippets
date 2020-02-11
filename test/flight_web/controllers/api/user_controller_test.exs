@@ -317,7 +317,7 @@ defmodule FlightWeb.API.UserControllerTest do
         })
         |> json_response(422)
 
-      assert json == %{"human_errors" => ["Password is too short"]}
+      assert json == %{"human_errors" => ["Password must be at least 6 characters"]}
 
       updates = %{
         password: current_password,

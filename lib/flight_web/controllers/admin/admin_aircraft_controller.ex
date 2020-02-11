@@ -37,9 +37,10 @@ defmodule FlightWeb.Admin.AircraftController do
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
     data = FlightWeb.Admin.AircraftListData.build(conn, page_params, search_term)
+    message = params["search"] && set_message(params["search"])
 
     conn
-    |> render("index.html", data: data)
+    |> render("index.html", data: data, message: message)
   end
 
   def edit(conn, _params) do
@@ -84,6 +85,12 @@ defmodule FlightWeb.Admin.AircraftController do
       |> put_flash(:warning, "Unknown aircraft.")
       |> redirect(to: "/admin/aircrafts")
       |> halt()
+    end
+  end
+
+  defp set_message(search_param) do
+    if String.trim(search_param) == "" do
+      "Please fill out search field"
     end
   end
 end

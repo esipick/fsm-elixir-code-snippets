@@ -288,7 +288,7 @@ defmodule Flight.Accounts.User do
     {:ok, password}
   end
 
-  defp valid_password?(_), do: {:error, "is too short"}
+  defp valid_password?(_), do: {:error, "must be at least 6 characters"}
 
   defp put_pass_hash(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
     changeset

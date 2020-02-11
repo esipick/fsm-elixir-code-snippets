@@ -13,8 +13,9 @@ defmodule FlightWeb.Admin.UserController do
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
     data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term)
+    message = params["search"] && set_message(params["search"])
 
-    render(conn, "index.html", data: data)
+    render(conn, "index.html", data: data, message: message)
   end
 
   def show(conn, %{"tab" => "schedule"}) do
@@ -193,5 +194,11 @@ defmodule FlightWeb.Admin.UserController do
 
   defp modify_admin_permission() do
     [Permission.new(:admins, :modify, :all)]
+  end
+
+  defp set_message(search_param) do
+    if String.trim(search_param) == "" do
+      "Please fill out search field"
+    end
   end
 end
