@@ -1,129 +1,114 @@
 <% form_url = if @is_edit, do: "/admin/aircrafts/#{@aircraft.id}", else: "/admin/aircrafts" %>
 <%= form_for @changeset, form_url, [as: :data, method: (if @is_edit, do: "put", else: "post"), class: ""], fn f -> %>
   <div class="card-body">
-    <%= if Enum.count(f.errors) > 0 do %>
-      <div class="alert alert-danger">
-        <%= for error <- human_error_messages(@changeset) do %>
-          <span><%= error %></span></br>
-        <% end %>
-      </div>
-    <% end %>
-
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Make</label>
-            <%= text_input f, :make, class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Model</label>
-            <%= text_input f, :model, class: "form-control" %>
-          </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Make *</label>
+          <%= text_input f, :make, class: "form-control" %>
+          <span class="text-danger"><%= error_tag f, :make%></span>
         </div>
       </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Tail #</label>
-            <%= text_input f, :tail_number, class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Serial #</label>
-            <%= text_input f, :serial_number, class: "form-control" %>
-          </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Model *</label>
+          <%= text_input f, :model, class: "form-control" %>
+          <span class="text-danger"><%= error_tag f, :model%></span>
         </div>
       </div>
-
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Rate Per Hour</label>
-            <%= number_input f, :rate_per_hour, class: "form-control", value: Optional.map(@changeset.data.rate_per_hour, &Flight.Format.dollars_from_cents/1), step: "0.01" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Block Rate Per Hour</label>
-            <%= number_input f, :block_rate_per_hour, class: "form-control", value: Optional.map(@changeset.data.block_rate_per_hour, &Flight.Format.dollars_from_cents/1), step: "0.01" %>
-          </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Tail # *</label>
+          <%= text_input f, :tail_number, class: "form-control" %>
+          <span class="text-danger"><%= error_tag f, :tail_number%></span>
         </div>
       </div>
-
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Equipment</label>
-            <%= text_input f, :equipment, class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Last Recorded Tach Time</label>
-            <%= number_input f, :last_tach_time, class: "form-control", value: display_hour_tenths(@changeset.data.last_tach_time), step: "0.1" %>
-          </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Serial # *</label>
+          <%= text_input f, :serial_number, class: "form-control" %>
+          <span class="text-danger"><%= error_tag f, :serial_number%></span>
         </div>
       </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Last Recorded Hobbs Time</label>
-            <%= number_input f, :last_hobbs_time, class: "form-control", value: display_hour_tenths(@changeset.data.last_hobbs_time), step: "0.1" %>
-          </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Rate Per Hour *</label>
+          <%= number_input f, :rate_per_hour, class: "form-control", value: Optional.map(@changeset.data.rate_per_hour, &Flight.Format.dollars_from_cents/1), step: "0.01" %>
+          <span class="text-danger"><%= error_tag f, :rate_per_hour%></span>
         </div>
       </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-check">
-            <label class="form-check-label">
-              <%= checkbox f, :ifr_certified %>
-              <span class="form-check-sign"></span>
-              IFR Certified
-            </label>
-          </div>
-          <div class="form-check mt-3">
-            <label class="form-check-label">
-              <%= checkbox f, :simulator %>
-              <span class="form-check-sign"></span>
-              Simulator
-            </label>
-          </div>
-        </div>
-        <div class="col-md-6">
-
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Block Rate Per Hour *</label>
+          <%= number_input f, :block_rate_per_hour, class: "form-control", value: Optional.map(@changeset.data.block_rate_per_hour, &Flight.Format.dollars_from_cents/1), step: "0.01" %>
+          <span class="text-danger"><%= error_tag f, :block_rate_per_hour%></span>
         </div>
       </div>
-
-  </div> <!-- end card-body -->
-
-  <div class="card-footer ">
-        <%= if @is_edit do %>
-          <a href="/admin/aircrafts/<%= @aircraft.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
-        <% else %>
-          <a href="/admin/aircrafts" class="btn btn-fill btn-default mr-2">Cancel</a>
-        <% end %>
-        <input type="submit" class="btn btn-fill btn-primary" value="Save">
-        
-        <%= if @is_edit do %>
-          <!-- Button trigger modal -->
-          <button type="button" id="delete_button" class="btn btn-danger float-right">
-            Delete aircraft
-          </button>
-        <% end %>
-        
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Equipment *</label>
+          <%= text_input f, :equipment, class: "form-control" %>
+          <span class="text-danger"><%= error_tag f, :equipment%></span>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Last Recorded Tach Time</label>
+          <%= number_input f, :last_tach_time, class: "form-control", value: display_hour_tenths(@changeset.data.last_tach_time), step: "0.1" %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Last Recorded Hobbs Time</label>
+          <%= number_input f, :last_hobbs_time, class: "form-control", value: display_hour_tenths(@changeset.data.last_hobbs_time), step: "0.1" %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-check">
+          <label class="form-check-label">
+            <%= checkbox f, :ifr_certified %>
+            <span class="form-check-sign"></span>
+            IFR Certified
+          </label>
+        </div>
+        <div class="form-check mt-3">
+          <label class="form-check-label">
+            <%= checkbox f, :simulator %>
+            <span class="form-check-sign"></span>
+            Simulator
+          </label>
+        </div>
+      </div>
+      <div class="col-md-6">
+      </div>
+    </div>
   </div>
-
+  <!-- end card-body -->
+  <div class="card-footer ">
+    <%= if @is_edit do %>
+      <a href="/admin/aircrafts/<%= @aircraft.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+    <% else %>
+      <a href="/admin/aircrafts" class="btn btn-fill btn-default mr-2">Cancel</a>
+    <% end %>
+    <input type="submit" class="btn btn-fill btn-primary" value="Save">
+    <%= if @is_edit do %>
+      <!-- Button trigger modal -->
+      <button type="button" id="delete_button" class="btn btn-danger float-right">
+        Delete aircraft
+      </button>
+    <% end %>
+  </div>
 <% end %>
-
 <%= if @is_edit do %>
 <div style="display:none">
 <%= form_tag "/admin/aircrafts/#{@aircraft.id}", method: "delete", id: "delete_form" do %>

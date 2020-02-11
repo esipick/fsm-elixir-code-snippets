@@ -38,19 +38,19 @@ defmodule Flight.Scheduling.Aircraft do
       :block_rate_per_hour
     ])
     |> validate_required([
-      :make,
-      :model,
-      :tail_number,
-      :serial_number,
       :ifr_certified,
-      :equipment,
       :simulator,
       :last_tach_time,
       :last_hobbs_time,
-      :rate_per_hour,
-      :block_rate_per_hour,
       :school_id
     ])
+    |> validate_required(:make, message: "Make can't be blank")
+    |> validate_required(:model, message: "Model can't be blank")
+    |> validate_required(:tail_number, message: "Tail number can't be blank")
+    |> validate_required(:serial_number, message: "Serial number can't be blank")
+    |> validate_required(:equipment, message: "Equipment can't be blank")
+    |> validate_required(:rate_per_hour, message: "RPH can't be blank")
+    |> validate_required(:block_rate_per_hour, message: "BRPH can't be blank")
   end
 
   def admin_changeset(aircraft, attrs) do
