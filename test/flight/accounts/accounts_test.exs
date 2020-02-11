@@ -167,6 +167,12 @@ defmodule Flight.Accounts.AccountsTest do
       refute Accounts.get_user(user.id, user)
     end
 
+    test "delete_user/1 resets password token" do
+      user = user_fixture()
+      assert {:ok, %User{}} = Accounts.archive_user(user)
+      refute user.password_token == Repo.get(User, user.id).password_token
+    end
+
     test "set_password/2 sets password for user" do
       user = user_fixture()
 

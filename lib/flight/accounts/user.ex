@@ -125,7 +125,7 @@ defmodule Flight.Accounts.User do
 
   def archive_changeset(user, attrs) do
     user
-    |> cast(attrs, [:archived])
+    |> cast(attrs, [:archived, :password_token])
   end
 
   def api_update_changeset(user, attrs, _roles, flyer_certificates) do

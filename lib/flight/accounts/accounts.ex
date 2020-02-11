@@ -225,7 +225,7 @@ defmodule Flight.Accounts do
 
   def archive_user(%User{} = user) do
     user
-    |> User.archive_changeset(%{archived: true})
+    |> User.archive_changeset(%{archived: true, password_token: Flight.Random.string(10)})
     |> Repo.update()
   end
 

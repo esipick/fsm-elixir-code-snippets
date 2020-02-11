@@ -41,5 +41,23 @@ defmodule FlightWeb.API.SessionControllerTest do
       |> post("/api/login", %{email: "food@bard.com", password: "oh hey there"})
       |> json_response(401)
     end
+
+    test "401 after deleting the user", %{conn: conn} do
+      user = user_fixture()
+
+      conn =
+        conn
+        |> auth(user)
+
+      conn
+      |> get("/api/invoices/appointments")
+      |> json_response(200)
+
+      Flight.Accounts.archive_user(user)
+
+      conn
+      |> get("/api/invoices/appointments")
+      |> response(401)
+    end
   end
 end
