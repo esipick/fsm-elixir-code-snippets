@@ -4,7 +4,6 @@
     <p class="category">Edit Profile</p>
   </div>
 </div>
-
 <div class="content">
   <div class="row">
     <div class="col-md-8">
@@ -192,55 +191,26 @@
                   Delete User
                 </button>
               </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Medical Approval Expiration</label>
-            <%= text_input f, :medical_expires_at, class: "form-control", value: format_date(input_value(f, :medical_expires_at)), placeholder: "MM/DD/YYYY" %>
-          </div>
-        </div>
-      </div>
-      <% end %>
-
-      <div class="row">
-        <div class="col-md-12">
-          <div class="form-group">
-            <label>User Role/Permissions</label>
-            <div class="checkbox-radios">
-              <%= for {label, value} <- role_inputs(@conn.assigns.current_user) do %>
-                <div class="form-check">
-                  <label class="form-check-label">
-                    <input type="checkbox" name="role_slugs[<%= value %>]" <%= if user_has_role?(@user, value), do: "checked", else: "" %> />
-                    <span class="form-check-sign"></span>
-                    <%= label %>
-                  </label>
-                </div>
-              <% end %>
             </div>
           </div>
-        </div>
+        <% end %>
       </div>
       <!-- end card -->
     </div>
   </div>
 </div>
-
-</div> <!-- end content -->
-
+<!-- end content -->
 <div style="display:none">
-<%= form_tag "/admin/users/#{@user.id}", method: "delete", id: "delete_user_form" do %>
-<% end %>
+  <%= form_tag "/admin/users/#{@user.id}", method: "delete", id: "delete_user_form" do %>
+  <% end %>
 </div>
-
-
 <script>
-$(document).ready(function() {
-  $('#delete_user_button').on('click', function() {
-    var shouldDelete = confirm("This user and all of their information will be archived and removed from the system.")
-    if (shouldDelete) {
-      $('#delete_user_form')[0].submit()
-    }
+  $(document).ready(function() {
+    $('#delete_user_button').on('click', function() {
+      var shouldDelete = confirm("This user and all of their information will be archived and removed from the system.")
+      if (shouldDelete) {
+        $('#delete_user_form')[0].submit()
+      }
+    });
   });
-});
 </script>
