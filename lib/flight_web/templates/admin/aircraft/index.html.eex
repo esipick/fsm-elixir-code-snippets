@@ -1,7 +1,5 @@
 <div class="panel-header panel-header-sm">
-
 </div>
-
 <div class="content">
   <div class="row">
     <div class="col-md-12">
@@ -80,86 +78,81 @@
                         search: @data.search_term,
                         page_size: @data.table_data.page.page_size
                       %>
-                    </div>
-
-                    <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
-                  </div>
-                <% else %>
-                  <div class="row justify-content-end">
-                    <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
-                  </div>
-                <% end %>
-
-                <!-- Modal -->
-                <div class="modal fade" id="inspectionModal" tabindex="-1" role="dialog" aria-labelledby="inspectionModalCenterTitle" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="inspectionModalLongTitle">Inspections for Archer N40670</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body detail-list">
-                          <dl class="d-flex justify-content-between flex-row-reverse">
-                            <dt>Tach 8100</dt>
-                            <dd>100HR</dd>
-                          </dl>
-                          <dl class="d-flex justify-content-between flex-row-reverse">
-                            <dt>4/22/19</dt>
-                            <dd>Annual</dd>
-                          </dl>
-                          <dl class="d-flex justify-content-between flex-row-reverse">
-                            <dt class="text-right">
-                              <p class="mb-0 text-expiring">5/5/18</p>
-                              <small class="text-expiring">EXPIRES SOON</small>
-                            </dt>
-                            <dd>Transponder</dd>
-                          </dl>
-                          <dl class="d-flex justify-content-between flex-row-reverse">
-                            <dt class="text-right">
-                              <p class="mb-0 text-expired">3/12/18</p>
-                              <small class="text-expired">EXPIRED</small>
-                            </dt>
-                            <dd>Altimeter</dd>
-                          </dl>
-                          <dl class="d-flex justify-content-between flex-row-reverse">
-                            <dt>4/22/19</dt>
-                            <dd>ELT</dd>
-                          </dl>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-
-              </div>
-            <!--  end card  -->
           </div>
-          <!-- end col-md-12 -->
+          <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
         </div>
-        <!-- end row -->
+      <% else %>
+        <div class="row justify-content-end">
+          <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+        </div>
+      <% end %>
+      <!-- Modal -->
+      <div class="modal fade" id="inspectionModal" tabindex="-1" role="dialog" aria-labelledby="inspectionModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="inspectionModalLongTitle">Inspections for Archer N40670</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body detail-list">
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>Tach 8100</dt>
+                <dd>100HR</dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>4/22/19</dt>
+                <dd>Annual</dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt class="text-right">
+                  <p class="mb-0 text-expiring">5/5/18</p>
+                  <small class="text-expiring">EXPIRES SOON</small>
+                </dt>
+                <dd>Transponder</dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt class="text-right">
+                  <p class="mb-0 text-expired">3/12/18</p>
+                  <small class="text-expired">EXPIRED</small>
+                </dt>
+                <dd>Altimeter</dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>4/22/19</dt>
+                <dd>ELT</dd>
+              </dl>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
       </div>
-</div> <!-- end content -->
-
-<div style="display:none">
-<%= form_tag "/admin/aircrafts/:pending:", method: "delete", id: "delete_form" do %>
-<% end %>
+    </div>
+    <!--  end card  -->
+  </div>
+  <!-- end col-md-12 -->
 </div>
-
+<!-- end row -->
+</div>
+</div>
+<!-- end content -->
+<div style="display:none">
+  <%= form_tag "/admin/aircrafts/:pending:", method: "delete", id: "delete_form" do %>
+  <% end %>
+</div>
 <script>
-$(document).ready(function() {
-  $('._delete_button').on('click', function() {
-    var id = $(this).attr("data-aircraft-id")
-    var shouldDelete = confirm("This aircraft and all of its information will be archived and removed from the system.")
-    if (shouldDelete) {
-      var form = $('#delete_form')[0]
-      form.action = "/admin/aircrafts/" + id
-      form.submit()
-    }
+  $(document).ready(function() {
+    $('._delete_button').on('click', function() {
+      var id = $(this).attr("data-aircraft-id")
+      var shouldDelete = confirm("This aircraft and all of its information will be archived and removed from the system.")
+      if (shouldDelete) {
+        var form = $('#delete_form')[0]
+        form.action = "/admin/aircrafts/" + id
+        form.submit()
+      }
+    });
   });
-});
 </script>

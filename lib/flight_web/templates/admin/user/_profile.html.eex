@@ -15,50 +15,32 @@
     <dl class="d-flex justify-content-between">
       <dt>Address</dt>
       <dd><%= @user.address_1 %></br>
-        <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></dd>
-    </dl>
-  <% end %>
-  <%= if has_cirriculum?(@user) do %>
-    <dl class="d-flex justify-content-between">
-      <dt>Flight Training # (FTN)</dt>
-      <dd><%= @user.flight_training_number %></dd>
-    </dl>
-  <% end %>
-  <%= if has_pay_rates?(@user) do %>
-    <dl class="d-flex justify-content-between">
-      <dt>Billing Rate</dt>
-      <dd><%= currency(@user.billing_rate) %>/hr</dd>
-    </dl>
-    <dl class="d-flex justify-content-between">
-      <dt>Pay Rate</dt>
-      <dd><%= currency(@user.pay_rate) %>/hr</dd>
-    </dl>
-  <% end %>
-  <%= if has_teaching_info?(@user) do %>
-    <dl class="d-flex justify-content-between">
-      <dt>Awards</dt>
-      <dd><%= @user.awards %></dd>
-    </dl>
-    <dl class="d-flex justify-content-between">
-      <dt>Certificates</dt>
-      <dd>
-        <%= human_flyer_certificates(@user.flyer_certificates) %>
-        <small>cert# <%= @user.certificate_number %></small>
-      </dd>
-    </dl>
-  <% end %>
-  <%= if has_medical?(@user) do %>
-    <dl class="d-flex justify-content-between">
-      <dt>Medical</dt>
-      <dd><%= human_readable_medical_rating(@user.medical_rating) %>
-        <%= if @user.medical_expires_at do %>
-          <small>expires: <%= format_date(@user.medical_expires_at) %></small>
-        <% end %>
-      </dd>
-    </dl>
-  <% end %>
+      <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></dd>
+  </dl>
+<% end %>
+<%= if has_cirriculum?(@user) do %>
   <dl class="d-flex justify-content-between">
-    <dt>Permission Roles</dt>
+    <dt>Flight Training # (FTN)</dt>
+    <dd><%= @user.flight_training_number %></dd>
+  </dl>
+<% end %>
+<%= if has_pay_rates?(@user) do %>
+  <dl class="d-flex justify-content-between">
+    <dt>Billing Rate</dt>
+    <dd><%= currency(@user.billing_rate) %>/hr</dd>
+  </dl>
+  <dl class="d-flex justify-content-between">
+    <dt>Pay Rate</dt>
+    <dd><%= currency(@user.pay_rate) %>/hr</dd>
+  </dl>
+<% end %>
+<%= if has_teaching_info?(@user) do %>
+  <dl class="d-flex justify-content-between">
+    <dt>Awards</dt>
+    <dd><%= @user.awards %></dd>
+  </dl>
+  <dl class="d-flex justify-content-between">
+    <dt>Certificates</dt>
     <dd>
       <%= human_flyer_certificates(@user.flyer_certificates) %>
       <%= if human_flyer_certificates(@user.flyer_certificates) != "None" do %>
@@ -66,7 +48,7 @@
       <% end %>
     </dd>
   </dl>
-</div>
+<% end %>
 <%= if has_medical?(@user) do %>
   <dl class="d-flex justify-content-between">
     <dt>Medical</dt>
@@ -77,3 +59,12 @@
     </dd>
   </dl>
 <% end %>
+<dl class="d-flex justify-content-between">
+  <dt>Permission Roles</dt>
+  <dd>
+    <%= for role <- @user.roles do %>
+      <%= human_role(role.slug) %></br>
+    <% end %>
+  </dd>
+</dl>
+</div>

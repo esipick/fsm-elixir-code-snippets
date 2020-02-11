@@ -4,31 +4,28 @@
     <p class="category"><a href="/instructor/profile/edit" class="btn btn-primary">Edit Profile</a></p>
   </div>
 </div>
-
 <div class="content">
-
-<div class="row">
-
-  <div class="col-md-8 col-xs-12">
-    <div class="card ">
-      <div class="card-body">
-        <div class="tab-pane active detail-list" id="link1">
-          <dl class="d-flex justify-content-between">
-            <dt>Name</dt>
-            <dd><%= @user.first_name %> <%= @user.last_name %></dd>
-          </dl>
-          <dl class="d-flex justify-content-between">
-            <dt>Phone #</dt>
-            <dd><a href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a></dd>
-          </dl>
-          <dl class="d-flex justify-content-between">
-            <dt>Email</dt>
-            <dd><a href="mailto:<%= @user.email %>"><%= @user.email %></a></dd>
-          </dl>
-          <%= if has_address?(@user) && should_display_address?(@user) do %>
+  <div class="row">
+    <div class="col-md-8 col-xs-12">
+      <div class="card ">
+        <div class="card-body">
+          <div class="tab-pane active detail-list" id="link1">
             <dl class="d-flex justify-content-between">
-              <dt>Address</dt>
-              <dd><%= @user.address_1 %></br>
+              <dt>Name</dt>
+              <dd><%= @user.first_name %> <%= @user.last_name %></dd>
+            </dl>
+            <dl class="d-flex justify-content-between">
+              <dt>Phone #</dt>
+              <dd><a href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a></dd>
+            </dl>
+            <dl class="d-flex justify-content-between">
+              <dt>Email</dt>
+              <dd><a href="mailto:<%= @user.email %>"><%= @user.email %></a></dd>
+            </dl>
+            <%= if has_address?(@user) && should_display_address?(@user) do %>
+              <dl class="d-flex justify-content-between">
+                <dt>Address</dt>
+                <dd><%= @user.address_1 %></br>
                 <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></dd>
             </dl>
           <% end %>
@@ -71,13 +68,13 @@
           <% end %>
         </div>
       </div>
-    </div> <!-- end card -->
+    </div>
+    <!-- end card -->
   </div>
-
-<%= if has_cirriculum?(@user) && false do %>
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-body text-center">
+  <%= if has_cirriculum?(@user) && false do %>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body text-center">
           <div class="card-section detail-list course-progress">
             <h7>Course Progress</h7>
             <dl class="d-flex justify-content-between">
@@ -96,15 +93,13 @@
             </dl>
             <div class="course-progress-bar"><span style="width: 0%;"></span></div>
           </div>
+        </div>
       </div>
     </div>
-  </div>
   <% end %>
-
 </div>
-
-</div> <!-- end content -->
-
+</div>
+<!-- end content -->
 <%= if get_flash(@conn, :success) do %>
   <script>
     $(document).ready(function() {
@@ -112,7 +107,6 @@
     })
   </script>
 <% end %>
-
 <%= if get_flash(@conn, :error) do %>
   <script>
     $(document).ready(function() {
