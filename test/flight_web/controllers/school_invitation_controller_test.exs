@@ -54,7 +54,7 @@ defmodule FlightWeb.SchoolInvitationControllerTest do
 
       assert school = Flight.Repo.get_by(Accounts.School, name: "John Hopkins")
 
-      assert user = Accounts.get_user_by_email("food@bards.com", school)
+      assert user = Accounts.get_user_by_email("food@bards.com")
 
       assert user.phone_number == "801-555-5555"
 

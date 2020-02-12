@@ -65,7 +65,7 @@ defmodule FlightWeb.InvitationControllerTest do
       |> post("/invitations/#{invitation.token}", payload)
       |> response_redirected_to("/invitations/#{invitation.token}/success")
 
-      user = Accounts.get_user_by_email("food@bards.com", invitation.school)
+      user = Accounts.get_user_by_email("food@bards.com")
 
       assert user.phone_number == "801-555-5555"
 
@@ -100,7 +100,7 @@ defmodule FlightWeb.InvitationControllerTest do
       |> post("/invitations/#{invitation.token}", payload)
       |> response_redirected_to("/invitations/#{invitation.token}/success")
 
-      user = Accounts.get_user_by_email("food@bards.com", invitation.school)
+      user = Accounts.get_user_by_email("food@bards.com")
 
       assert user.phone_number == "801-555-5555"
 

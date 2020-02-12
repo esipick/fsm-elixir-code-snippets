@@ -114,18 +114,9 @@ defmodule Flight.Accounts do
   end
 
   def get_user_by_email(email) when is_nil(email) or email == "", do: nil
-  def get_user_by_email(email), do: email_query(User, email)
 
-  def get_user_by_email(email, _) when is_nil(email) or email == "", do: nil
-
-  def get_user_by_email(email, school_context) do
+  def get_user_by_email(email) do
     User
-    |> SchoolScope.scope_query(school_context)
-    |> email_query(email)
-  end
-
-  def email_query(query, email) do
-    query
     |> where([u], u.email == ^String.downcase(email))
     |> Repo.one()
   end

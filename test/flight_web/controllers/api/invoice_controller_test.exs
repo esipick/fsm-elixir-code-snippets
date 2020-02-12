@@ -462,8 +462,6 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
         |> json_response(404)
 
-      IO.inspect(json["error"])
-
       assert json["error"] == %{"message" => "Invoice has been already removed."}
     end
 

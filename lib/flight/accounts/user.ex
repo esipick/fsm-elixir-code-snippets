@@ -196,6 +196,7 @@ defmodule Flight.Accounts.User do
   def update_password_changeset(user, attrs) do
     user
     |> cast(attrs, [:password])
+    |> validate_required(:password)
     |> validate_password(:password)
     |> put_pass_hash()
   end
