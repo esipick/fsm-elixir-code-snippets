@@ -25,9 +25,9 @@
           <% end %>
           <h6><%= add_user_label_for_role(@role) %></h6>
           <%= form_for @changeset, @request_path, [as: :data, method: "post"], fn f -> %>
-            <%= if Enum.count(f.errors) > 0 do %>
+            <%= if Keyword.has_key?(f.errors, :user) do %>
               <div class="alert alert-danger">
-                <%= for error <- human_error_messages(@changeset) do %>
+                <%= for error <- human_error_messages_for_user(@changeset) do %>
                   <span><%= error %></span></br>
                 <% end %>
               </div>
@@ -38,18 +38,21 @@
                 <div class="form-group">
                   <label class="sr-only" >Student First Name</label>
                   <%= text_input f, :first_name, class: "form-control", placeholder: "First Name" %>
+                  <%= full_error_tag f, :first_name %>
                 </div>
               </div>
               <div class="col-md-3 pr-1 pl-1">
                 <div class="form-group">
                   <label class="sr-only" >Student Last Name</label>
                   <%= text_input f, :last_name, class: "form-control", placeholder: "Last Name" %>
+                  <%= full_error_tag f, :last_name %>
                 </div>
               </div>
               <div class="col-md-3 pl-1">
                 <div class="form-group">
                   <label class="sr-only" for="exampleInputEmail1">Student Email</label>
                   <%= email_input f, :email, class: "form-control", placeholder: "Email" %>
+                  <%= full_error_tag f, :email %>
                 </div>
               </div>
               <div class="col-md-2 pl-1">
@@ -57,7 +60,6 @@
               </div>
             </div>
           <% end %>
-
           <div class="row">
             <div class="col-12">
               <h6>Pending Invites</h6>
@@ -75,14 +77,14 @@
                       <td><%= invitation.first_name %> <%= invitation.last_name %></td>
                       <td><%= invitation.email %></td>
                       <!-- <td>No</td>
-                      <td>No</td>
-                      <td class="text-muted">sent 4/11/18</td> -->
+                            <td>No</td>
+                            <td class="text-muted">sent 4/11/18</td> -->
                       <td class="text-right">
                         <button
-                          style="margin-left: 4px;"
-                          type="button"
-                          class="btn btn-danger btn-sm _delete_button"
-                          data-invitation-id="<%= invitation.id %>">
+                                style="margin-left: 4px;"
+                                type="button"
+                                class="btn btn-danger btn-sm _delete_button"
+                                data-invitation-id="<%= invitation.id %>">
                           Remove
                         </button>
                         <a href="/admin/invitations/<%= invitation.id %>/resend" class="btn btn-sm btn-primary">Resend</a>
@@ -97,12 +99,12 @@
         </div>
         <!--  end card  -->
       </div>
-      <!-- end col-md-12 -->
+<!-- end col-md-12 -->
     </div>
-    <!-- end row -->
+<!-- end row -->
   </div>
-</div> <!-- end content -->
-
+</div>
+<!-- end content -->
 <%= render FlightWeb.Admin.PartialView,
           "_shared_delete_form.html",
           %{message: "This invitation will be removed from the system.",

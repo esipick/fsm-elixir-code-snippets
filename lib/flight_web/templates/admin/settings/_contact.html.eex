@@ -4,14 +4,14 @@
       <div class="form-group">
         <label>First Name *</label>
         <%= text_input f, :contact_first_name, class: "form-control" %>
-        <span class="text-danger"><%= error_tag f, :contact_first_name%></span>
+        <%= full_error_tag f, :contact_first_name %>
       </div>
     </div>
     <div class="col-md-6">
       <div class="form-group">
         <label>Last Name *</label>
         <%= text_input f, :contact_last_name, class: "form-control" %>
-        <span class="text-danger"><%= error_tag f, :contact_last_name%></span>
+        <%= full_error_tag f, :contact_last_name %>
       </div>
     </div>
   </div>
@@ -20,14 +20,14 @@
       <div class="form-group">
         <label>Phone # *</label>
         <%= telephone_input f, :contact_phone_number, class: "form-control" %>
-        <span class="text-danger"><%= error_tag f, :contact_phone_number%></span>
+        <%= full_error_tag f, :contact_phone_number %>
       </div>
     </div>
     <div class="col-md-6">
       <div class="form-group">
         <label>Email *</label>
         <%= email_input f, :contact_email, class: "form-control" %>
-        <span class="text-danger"><%= error_tag f, :contact_email%></span>
+        <%= full_error_tag f, :contact_email %>
       </div>
     </div>
   </div>

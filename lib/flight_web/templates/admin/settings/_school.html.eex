@@ -4,7 +4,7 @@
       <div class="form-group">
         <label>School Name *</label>
         <%= text_input f, :name, class: "form-control" %>
-        <span class="text-danger"><%= error_tag f, :name%></span>
+        <%= full_error_tag f, :name %>
       </div>
     </div>
   </div>
@@ -33,7 +33,7 @@
       <div class="form-group">
         <label>Zip Code</label>
         <%= text_input f, :zipcode, class: "form-control" %>
-        <span class="text-danger"><%= error_tag f, :zipcode%></span>
+        <%= full_error_tag f, :zipcode %>
       </div>
     </div>
   </div>
@@ -42,14 +42,14 @@
       <div class="form-group">
         <label>School Phone #</label>
         <%= telephone_input f, :phone_number, class: "form-control" %>
-        <span class="text-danger"><%= error_tag f, :phone_number%></span>
+        <%= full_error_tag f, :phone_number %>
       </div>
     </div>
     <div class="col-md-6">
       <div class="form-group">
         <label>School Email</label>
         <%= email_input f, :email, class: "form-control" %>
-        <span class="text-danger"><%= error_tag f, :email%></span>
+        <%= full_error_tag f, :email %>
       </div>
     </div>
   </div>
@@ -66,7 +66,7 @@
       <div class="form-group">
         <label>Timezone *</label>
         <%= select f, :timezone, Flight.Accounts.School.valid_timezones(), class: "form-control" %>
-        <span class="text-danger"><%= error_tag f, :timezone%></span>
+        <%= full_error_tag f, :timezone %>
       </div>
     </div>
     <div class="col-md-6">

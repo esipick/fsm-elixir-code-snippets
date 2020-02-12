@@ -19,8 +19,8 @@ defmodule Flight.Accounts.User do
     field(:medical_rating, :integer, default: 0)
     field(:medical_expires_at, Flight.Date)
     field(:certificate_number, :string)
-    field(:billing_rate, Flight.DollarCents, default: 7500)
-    field(:pay_rate, Flight.DollarCents, default: 5000)
+    field(:billing_rate, Flight.DollarCents, default: 0)
+    field(:pay_rate, Flight.DollarCents, default: 0)
     field(:awards, :string)
     field(:archived, :boolean, default: false)
     field(:stripe_customer_id, :string)
@@ -203,9 +203,7 @@ defmodule Flight.Accounts.User do
 
   def base_validations(changeset, roles \\ nil, flyer_certificates \\ nil) do
     changeset
-    |> validate_required(:email, message: "Email can't be blank")
-    |> validate_required(:first_name, message: "First Name can't be blank")
-    |> validate_required(:last_name, message: "Last Name can't be blank")
+    |> validate_required([:email, :first_name, :last_name])
     |> update_change(:first_name, &String.trim/1)
     |> update_change(:last_name, &String.trim/1)
     |> trim_email()
@@ -215,17 +213,17 @@ defmodule Flight.Accounts.User do
     |> validate_format(
       :phone_number,
       Flight.Format.phone_number_regex(),
-      message: "Phone # must be in the format: 555-555-5555"
+      message: "must be in the format: 555-555-5555"
     )
     |> validate_format(
       :zipcode,
       Flight.Format.zipcode_regex(),
-      message: "Zip code must contain only numbers"
+      message: "must contain only numbers"
     )
     |> validate_format(
       :email,
       Flight.Format.email_regex(),
-      message: "Email must be in a valid format"
+      message: "must be in a valid format"
     )
     |> normalize_phone_number()
     |> Pipe.pass_unless(roles, &put_assoc(&1, :roles, roles))

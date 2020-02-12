@@ -18,6 +18,11 @@ defmodule Flight.Accounts.SchoolInvitation do
     |> cast(attrs, [:email, :first_name, :last_name])
     |> generate_token()
     |> validate_required([:email, :first_name, :last_name, :token])
+    |> validate_format(
+      :email,
+      Flight.Format.email_regex(),
+      message: "must be in a valid format"
+    )
     |> downcase_email()
     |> unique_constraint(:token)
   end

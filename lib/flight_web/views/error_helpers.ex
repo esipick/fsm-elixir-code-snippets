@@ -4,6 +4,7 @@ defmodule FlightWeb.ErrorHelpers do
   """
 
   use Phoenix.HTML
+  import FlightWeb.ViewHelpers, only: [human_key_transform: 1]
 
   @doc """
   Generates tag for inlined form input errors.
@@ -11,6 +12,12 @@ defmodule FlightWeb.ErrorHelpers do
   def error_tag(form, field) do
     Enum.map(Keyword.get_values(form.errors, field), fn error ->
       content_tag(:span, translate_error(error), class: "help-block")
+    end)
+  end
+
+  def full_error_tag(form, field) do
+    Enum.map(Keyword.get_values(form.errors, field), fn error ->
+      content_tag(:span, error_message(field, error), class: "text-danger")
     end)
   end
 
@@ -40,5 +47,9 @@ defmodule FlightWeb.ErrorHelpers do
     else
       Gettext.dgettext(FlightWeb.Gettext, "errors", msg, opts)
     end
+  end
+
+  def error_message(field, error) do
+    Phoenix.Naming.humanize(human_key_transform(field)) <> " " <> translate_error(error)
   end
 end

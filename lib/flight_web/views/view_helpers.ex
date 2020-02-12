@@ -28,9 +28,28 @@ defmodule FlightWeb.ViewHelpers do
     end)
   end
 
+  def human_error_messages_for_user(changeset) do
+    Ecto.Changeset.traverse_errors(changeset, fn _, _, {message, _} ->
+      message
+    end)
+    |> Map.take([:user])
+    |> Enum.reduce([], fn {key, message_list}, acc ->
+      Enum.map(message_list, fn message ->
+        "#{Phoenix.Naming.humanize(human_key_transform(key))} #{message}"
+      end) ++ acc
+    end)
+  end
+
   def human_key_transform(key) do
     case key do
       :medical_expires_at -> :medical_expiration
+      :zipcode -> :zip_code
+      :contact_first_name -> :first_name
+      :contact_last_name -> :last_name
+      :contact_phone_number -> :phone_number
+      :contact_email -> :email
+      :rate_per_hour -> :RPH
+      :block_rate_per_hour -> :BRPH
       other -> other
     end
   end

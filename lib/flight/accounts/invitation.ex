@@ -20,7 +20,12 @@ defmodule Flight.Accounts.Invitation do
     invitation
     |> cast(attrs, [:first_name, :last_name, :email, :role_id, :user_id])
     |> generate_token()
-    |> validate_required([:first_name, :last_name, :email, :role_id, :token, :school_id])
+    |> validate_required([:email, :first_name, :last_name, :role_id, :token, :school_id])
+    |> validate_format(
+      :email,
+      Flight.Format.email_regex(),
+      message: "must be in a valid format"
+    )
     |> downcase_email()
     |> unique_constraint(:email, message: "already has an invitation.")
     |> unique_constraint(:token)

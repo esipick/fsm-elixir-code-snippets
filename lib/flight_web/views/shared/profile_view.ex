@@ -38,6 +38,10 @@ defmodule FlightWeb.Shared.ProfileView do
     end
   end
 
+  def medical_rating_exist?(user) do
+    user.medical_rating != 0 && user.medical_expires_at
+  end
+
   def human_flyer_certificates(flyer_certificates) do
     result =
       flyer_certificates

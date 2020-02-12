@@ -60,7 +60,7 @@
             <dl class="d-flex justify-content-between">
               <dt>Medical</dt>
               <dd><%= human_readable_medical_rating(@user.medical_rating) %>
-                <%= if @user.medical_expires_at do %>
+                <%= if medical_rating_exist?(@user) do %>
                   <small>expires: <%= format_date(@user.medical_expires_at) %></small>
                 <% end %>
               </dd>
