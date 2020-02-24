@@ -295,8 +295,13 @@ defmodule Flight.Scheduling do
 
       changeset =
         case status do
-          :available -> changeset
-          other -> add_error(changeset, :renter, "is #{other}", status: :unavailable)
+          :available ->
+            changeset
+
+          _ ->
+            add_error(changeset, :renter, "has already an appointment at this time",
+              status: :unavailable
+            )
         end
 
       changeset =

@@ -242,9 +242,12 @@ defmodule FlightWeb.API.AppointmentControllerTest do
           })
       }
 
-      json =
+      conn =
         conn
         |> auth(student)
+
+      json =
+        conn
         |> post("/api/appointments", params)
         |> json_response(200)
 
@@ -261,6 +264,19 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       appointment = FlightWeb.API.AppointmentView.preload(appointment)
 
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
+
+      json =
+        conn
+        |> post("/api/appointments", params)
+        |> json_response(400)
+
+      assert json == %{
+               "human_errors" => [
+                 "Renter has already an appointment at this time",
+                 "Instructor is unavailable",
+                 "Aircraft is unavailable"
+               ]
+             }
     end
 
     test "instructor creates appointment", %{conn: conn} do
