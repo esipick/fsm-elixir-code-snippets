@@ -2,12 +2,13 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   alias Flight.Scheduling.Appointment
   alias Flight.Repo
 
-  def run(appointment_id, school_context) do
+  def run(appointment_id, params, school_context) do
     appointment =
       Repo.get(Appointment, appointment_id) |> Repo.preload([:instructor_user, :aircraft])
 
     school = school(school_context)
     duration = Timex.diff(appointment.end_at, appointment.start_at, :hours)
+    payment_option = Map.get(params, "payment_option", "balance")
 
     line_items =
       [
@@ -24,7 +25,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
       "appointment_id" => appointment.id,
       "user_id" => appointment.user_id,
       "date" => NaiveDateTime.to_date(appointment.end_at),
-      "payment_option" => "balance",
+      "payment_option" => payment_option,
       "total" => total,
       "tax_rate" => school.sales_tax,
       "total_tax" => total_tax,

@@ -108,8 +108,8 @@ defmodule FlightWeb.API.InvoiceController do
     resp(conn, 204, "")
   end
 
-  def from_appointment(conn, %{"appointment_id" => appointment_id} = _params) do
-    case CreateInvoiceFromAppointment.run(appointment_id, conn) do
+  def from_appointment(conn, %{"appointment_id" => appointment_id} = params) do
+    case CreateInvoiceFromAppointment.run(appointment_id, params, conn) do
       {:ok, invoice} ->
         invoice =
           Repo.get(Invoice, invoice.id)
