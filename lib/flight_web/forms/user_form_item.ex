@@ -68,7 +68,7 @@ defmodule FlightWeb.UserForm do
   def item(user, :medical_rating) do
     %Item{
       key: :medical_rating,
-      name: "Medical Rating",
+      name: "Medical Approval",
       type: :enumeration,
       value: %Option{
         name: human_readable_medical_rating(user.medical_rating),

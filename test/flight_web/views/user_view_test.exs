@@ -117,7 +117,7 @@ defmodule FlightWeb.API.UserViewTest do
                 },
                 %FlightWeb.Form.Item{
                   key: :medical_rating,
-                  name: "Medical Rating",
+                  name: "Medical Approval",
                   options: [
                     %FlightWeb.Form.Option{name: "None", value: "0"},
                     %FlightWeb.Form.Option{name: "1st Class", value: "1"},
