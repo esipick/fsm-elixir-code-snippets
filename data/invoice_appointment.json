@@ -1,18 +1,18 @@
 {
   "invoice":{
-    "user_id":615,
+    "user_id":781,
     "user":{
-      "last_name":"Valid Card",
-      "id":615,
-      "first_name":"Slava",
-      "email":"letitbe400+fsm1@gmail.com",
+      "last_name":"Kihn",
+      "id":781,
+      "first_name":"Niko",
+      "email":"student-1@example.com",
       "billing_rate":7500,
-      "balance":0
+      "balance":213072
     },
-    "total_tax":1650,
-    "total_amount_due":29150,
+    "total_tax":2750,
+    "total_amount_due":30250,
     "total":27500,
-    "tax_rate":6.0,
+    "tax_rate":10.0,
     "status":"pending",
     "payment_option":"balance",
     "payer_name":null,
@@ -23,76 +23,76 @@
         "quantity":1.0,
         "instructor_user_id":null,
         "instructor_user":null,
-        "id":1463,
+        "id":1681,
         "description":"Flight Hours",
         "amount":20000,
-        "aircraft_id":48,
+        "aircraft_id":219,
         "aircraft":{
-          "tail_number":"01fad130bbc846d",
-          "serial_number":"4abc57b0138ce50",
+          "tail_number":"N8750E",
+          "serial_number":"17265410",
           "rate_per_hour":20000,
-          "model":"172SP",
-          "make":"Airbus",
-          "last_tach_time":1000,
-          "last_hobbs_time":1000,
-          "id":48
+          "model":"Jocasta",
+          "make":"Cessna",
+          "last_tach_time":0,
+          "last_hobbs_time":0,
+          "id":219
         }
       },
       {
         "type":"instructor",
         "rate":7500,
         "quantity":1.0,
-        "instructor_user_id":198,
+        "instructor_user_id":769,
         "instructor_user":{
-          "last_name":"Bartoletti",
-          "id":198,
-          "first_name":"Reid",
-          "email":"example+322eac9a8361855@gmail.com",
+          "last_name":"Schuster",
+          "id":769,
+          "first_name":"Aiyana",
+          "email":"instructor+5e85bf53892b303@gmail.com",
           "billing_rate":7500,
-          "balance":0
+          "balance":75317
         },
-        "id":1464,
+        "id":1682,
         "description":"Instructor Hours",
         "amount":7500,
         "aircraft_id":null,
         "aircraft":null
       }
     ],
-    "id":765,
-    "date":"2020-01-10",
-    "appointment_id":92,
+    "id":901,
+    "date":"2020-02-21",
+    "appointment_id":209,
     "appointment":{
       "user":{
-        "last_name":"Valid Card",
-        "id":615,
-        "first_name":"Slava",
-        "email":"letitbe400+fsm1@gmail.com",
+        "last_name":"Kihn",
+        "id":781,
+        "first_name":"Niko",
+        "email":"student-1@example.com",
         "billing_rate":7500,
-        "balance":0
+        "balance":213072
       },
       "transaction_id":null,
       "status":"pending",
-      "start_at":"2020-01-10T01:30:00",
+      "start_at":"2020-02-21T02:30:00",
       "note":null,
       "instructor_user":{
-        "last_name":"Bartoletti",
-        "id":198,
-        "first_name":"Reid",
-        "email":"example+322eac9a8361855@gmail.com",
+        "last_name":"Schuster",
+        "id":769,
+        "first_name":"Aiyana",
+        "email":"instructor+5e85bf53892b303@gmail.com",
         "billing_rate":7500,
-        "balance":0
+        "balance":75317
       },
-      "id":92,
-      "end_at":"2020-01-10T02:30:00",
+      "id":209,
+      "end_at":"2020-02-21T03:30:00",
       "aircraft":{
-        "tail_number":"01fad130bbc846d",
-        "simulator":false,
-        "serial_number":"4abc57b0138ce50",
+        "tail_number":"N8750E",
+        "simulator":true,
+        "serial_number":"17265410",
         "rate_per_hour":20000,
-        "model":"172SP",
-        "make":"Airbus",
-        "last_tach_time":1000,
-        "last_hobbs_time":1000,
+        "model":"Jocasta",
+        "make":"Cessna",
+        "last_tach_time":0,
+        "last_hobbs_time":0,
         "inspections":[
           {
             "type":"tach",
@@ -125,9 +125,9 @@
             "date_value":null
           }
         ],
-        "ifr_certified":true,
-        "id":48,
-        "equipment":"Garmin 530"
+        "ifr_certified":false,
+        "id":219,
+        "equipment":"Bendix King GPS"
       }
     }
   },
