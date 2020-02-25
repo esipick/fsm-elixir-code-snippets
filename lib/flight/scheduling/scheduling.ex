@@ -428,7 +428,7 @@ defmodule Flight.Scheduling do
 
     changeset =
       unavailability
-      |> SchoolScope.school_changeset(school_context)
+      |> SchoolScope.school_changeset(school)
       |> Unavailability.changeset(attrs)
       |> Unavailability.apply_timezone_changeset(school.timezone)
 
