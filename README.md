@@ -7,9 +7,10 @@
 
 ## Dev env setup
 
-1. Install elixir 1.9.1
+1. Install elixir 1.10.1
+2. Install node 13.5.0
 
-2. Install dependencies and run setup
+3. Install dependencies and run setup
 ```bash
 # Install elixir dependencies
 mix deps.get
@@ -25,7 +26,7 @@ mix ecto.setup
 mix phx.server
 ```
 
-3. Login with example user:
+4. Login with example user:
 - Email: `admin-1@example.com`
 - Password: `password`
 
