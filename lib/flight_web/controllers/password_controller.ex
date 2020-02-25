@@ -4,7 +4,8 @@ defmodule FlightWeb.PasswordController do
   alias Flight.Accounts
 
   def forgot(conn, _) do
-    render(conn, "forgot_password.html")
+    flash_token = inspect(:os.system_time)
+    render(conn, "forgot_password.html", flash_token: flash_token)
   end
 
   def forgot_submit(conn, %{"email" => email}) do
