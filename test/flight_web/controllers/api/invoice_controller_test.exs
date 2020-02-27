@@ -5,6 +5,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   alias FlightWeb.API.InvoiceView
   alias Flight.Billing.Invoice
   alias Flight.Scheduling.Appointment
+  alias Flight.{Accounts, AvatarUploader}
+  alias Accounts.User
 
   describe "POST /api/invoices" do
     @tag :integration
@@ -61,7 +63,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     @tag :integration
     test "creates invoice for anonymous payer", %{conn: conn} do
       instructor = instructor_fixture()
-      invoice_params = invoice_attrs(%Flight.Accounts.User{}, %{payer_name: "Foo Bar"})
+      invoice_params = invoice_attrs(%User{}, %{payer_name: "Foo Bar"})
 
       json =
         conn
@@ -136,7 +138,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice_params =
         invoice_attrs(
-          %Flight.Accounts.User{},
+          %User{},
           %{payer_name: "Foo Bar", payment_option: "cash"}
         )
 
@@ -327,7 +329,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     test "renders invoices", %{conn: conn} do
       invoice1 = invoice_fixture()
       invoice2 = invoice_fixture()
-      _invoice3 = invoice_fixture(%{archived: true})
+      invoice_fixture(%{archived: true})
       instructor = instructor_fixture()
 
       response =
@@ -367,7 +369,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
     @tag :integration
     test "renders invoice", %{conn: conn} do
-      invoice = invoice_fixture()
+      student = student_fixture(%{avatar: avatar_base64_fixture()})
+      invoice = invoice_fixture(%{}, student)
       instructor = instructor_fixture()
 
       json =
@@ -381,6 +384,23 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> preload_invoice
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+
+      user = Flight.Repo.get!(User, student.id)
+      base_path = "/uploads/test/user/avatars/"
+      file_name_regex = "/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89AB][0-9a-f]{3}-[0-9a-f]{12}"
+      user_avatar_urls = get_in(json, ["data", "user", "avatar"])
+
+      assert String.match?(
+               user_avatar_urls["original"],
+               ~r/#{base_path}original#{file_name_regex}\.jpeg\?v=\d*/i
+             )
+
+      assert String.match?(
+               user_avatar_urls["thumb"],
+               ~r/#{base_path}thumb#{file_name_regex}\.png\?v=\d*/i
+             )
+
+      AvatarUploader.delete({user.avatar, user})
     end
   end
 

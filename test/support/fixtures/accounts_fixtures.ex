@@ -2,6 +2,12 @@ defmodule Flight.AccountsFixtures do
   alias Flight.{Accounts, Repo}
   alias Flight.Accounts.{User, School, StripeAccount}
 
+  def avatar_base64_fixture do
+    "assets/static/images/margot.jpg"
+    |> File.read!()
+    |> Base.encode64()
+  end
+
   def school_fixture(attrs \\ %{}) do
     %School{
       name: "some_school_name",

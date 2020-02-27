@@ -1,5 +1,7 @@
 defmodule Flight.Accounts.User do
   use Ecto.Schema
+  use Waffle.Ecto.Schema
+
   import Ecto.Changeset
 
   schema "users" do
@@ -24,6 +26,7 @@ defmodule Flight.Accounts.User do
     field(:awards, :string)
     field(:archived, :boolean, default: false)
     field(:stripe_customer_id, :string)
+    field(:avatar, Flight.AvatarUploader.Type)
     belongs_to(:school, Flight.Accounts.School)
     many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
 
@@ -35,6 +38,38 @@ defmodule Flight.Accounts.User do
     )
 
     timestamps()
+  end
+
+  @doc false
+  def cast_avatar(user, attrs) do
+    attrs =
+      for {key, value} <- attrs, into: %{} do
+        if is_atom(key) do
+          {key, value}
+        else
+          {String.to_atom(key), value}
+        end
+      end
+
+    attr = :avatar
+
+    case attrs[attr] do
+      nil ->
+        user
+
+      base64_binary ->
+        binary = base64_binary |> Base.decode64!()
+        extension = ExImageInfo.seems?(binary)
+
+        attrs =
+          Map.put(attrs, attr, %{
+            filename: "#{Ecto.UUID.generate()}.#{extension}",
+            binary: binary
+          })
+
+        user
+        |> cast_attachments(attrs, [attr])
+    end
   end
 
   @doc false
@@ -53,6 +88,7 @@ defmodule Flight.Accounts.User do
       :zipcode,
       :school_id
     ])
+    |> cast_avatar(attrs)
     |> validate_required([
       :email,
       :first_name,
@@ -103,6 +139,7 @@ defmodule Flight.Accounts.User do
       :balance,
       :stripe_customer_id
     ])
+    |> cast_avatar(attrs)
     |> validate_required([
       :email,
       :first_name,
@@ -146,6 +183,7 @@ defmodule Flight.Accounts.User do
       :certificate_number,
       :awards
     ])
+    |> cast_avatar(attrs)
     |> base_validations(nil, flyer_certificates)
   end
 
@@ -169,6 +207,7 @@ defmodule Flight.Accounts.User do
       :pay_rate,
       :awards
     ])
+    |> cast_avatar(attrs)
     |> base_validations(roles, flyer_certificates)
   end
 
@@ -189,6 +228,7 @@ defmodule Flight.Accounts.User do
   def regular_user_update_changeset(user, attrs) do
     user
     |> cast(attrs, regular_user_accessible_fields())
+    |> cast_avatar(attrs)
     |> base_validations()
     |> put_pass_hash()
   end

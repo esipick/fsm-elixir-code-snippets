@@ -13,6 +13,9 @@ npm-debug.log
 # Static artifacts
 /assets/node_modules
 
+# Uploads
+/uploads
+
 .DS_Store
 
 # Since we are building assets from assets/,

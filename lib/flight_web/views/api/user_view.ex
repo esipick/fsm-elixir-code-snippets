@@ -18,6 +18,7 @@ defmodule FlightWeb.API.UserView do
   def render("user.json", %{user: user}) do
     %{
       id: user.id,
+      avatar: avatar_urls(user),
       first_name: user.first_name,
       last_name: user.last_name,
       email: user.email,
@@ -43,6 +44,7 @@ defmodule FlightWeb.API.UserView do
   def render("skinny_user.json", %{user: user}) do
     %{
       id: user.id,
+      avatar: avatar_urls(user),
       first_name: user.first_name,
       last_name: user.last_name,
       balance: user.balance,
@@ -54,6 +56,7 @@ defmodule FlightWeb.API.UserView do
   def render("directory_user.json", %{user: user}) do
     %{
       id: user.id,
+      avatar: avatar_urls(user),
       first_name: user.first_name,
       last_name: user.last_name,
       phone_number: user.phone_number,
@@ -71,5 +74,10 @@ defmodule FlightWeb.API.UserView do
   def show_preload(user) do
     user
     |> Flight.Repo.preload([:roles, :flyer_certificates, [school: :stripe_account]])
+  end
+
+  defp avatar_urls(user) do
+    urls = Flight.AvatarUploader.urls({user.avatar, user})
+    %{original: urls[:original], thumb: urls[:thumb]}
   end
 end

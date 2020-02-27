@@ -45,12 +45,13 @@ defmodule Flight.Mixfile do
     [
       {:phoenix, "1.3.3"},
       {:phoenix_pubsub, "~> 1.0"},
-      {:phoenix_ecto, "~> 3.2"},
-      {:postgrex, ">= 0.0.0"},
+      {:phoenix_ecto, "~> 3.6"},
+      {:postgrex, ">= 0.13.5"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
       {:plug_cowboy, "~> 1.0"},
+      {:jason, "~> 1.1"},
 
       # Flight dependencies
       {:bamboo, "~> 0.8"},
@@ -67,7 +68,9 @@ defmodule Flight.Mixfile do
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
       {:ex_aws_sns, "~> 2.0"},
-      {:scrivener_ecto, "~> 1.0"},
+      {:ex_image_info, "~> 0.2.4"},
+      {:waffle_ecto, "~> 0.0.7"},
+      {:scrivener_ecto, "~> 1.3"},
       {:scrivener_html, "~> 1.8"},
       {:scrivener_headers, "~> 3.1"},
       {:ecto_enum, "~> 1.3"},

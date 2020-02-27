@@ -31,8 +31,8 @@ config :flight, Flight.Repo, loggers: [Appsignal.Ecto, Ecto.LogEntry]
 
 import_config "appsignal.exs"
 
-aws_access_key = "AKIAIETEFGSBHU6Z7KJQ"
-aws_secret_key = "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"
+aws_access_key = "AKIAJOL6R4FAJJ4EQYOA"
+aws_secret_key = "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"
 
 config :flight,
        :aws_apns_application_arn,
@@ -46,8 +46,26 @@ config :flight, :aws_credentials,
 
 config :ex_aws,
   access_key_id: aws_access_key,
-  secret_access_key: aws_secret_key,
-  region: "us-east-1"
+  secret_access_key: aws_secret_key
+
+case(Map.fetch(System.get_env(), "AWS_S3_BUCKET")) do
+  {:ok, bucket} ->
+    config :ex_aws,
+      json_codec: Jason,
+      region: "us-east-1",
+      s3: [
+        region: "us-east-2"
+      ]
+
+    config :waffle,
+      bucket: bucket,
+      storage: Waffle.Storage.S3,
+      virtual_host: true
+
+  _ ->
+    config :waffle,
+      storage: Waffle.Storage.Local
+end
 
 config :flight, :push_service_client, Mondo.PushService.Client
 

@@ -6,6 +6,8 @@ defmodule FlightWeb.API.UserController do
   alias Flight.Auth.Permission
   import Flight.Auth.Authorization
 
+  require ExImageInfo
+
   plug(FlightWeb.AuthenticateApiUser)
   plug(:get_user when action in [:show, :update, :form_items])
   plug(:authorize_modify when action in [:update, :form_items])

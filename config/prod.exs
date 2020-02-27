@@ -73,11 +73,6 @@ config :flight, :aws_credentials,
   access_key: aws_access_key,
   secret_key: aws_secret_key
 
-config :ex_aws,
-  access_key_id: aws_access_key,
-  secret_access_key: aws_secret_key,
-  region: "us-east-1"
-
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

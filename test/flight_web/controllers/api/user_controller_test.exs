@@ -2,7 +2,7 @@ defmodule FlightWeb.API.UserControllerTest do
   use FlightWeb.ConnCase
 
   alias FlightWeb.API.UserView
-  alias Flight.Accounts
+  alias Flight.{Accounts, AvatarUploader}
   alias Accounts.User
 
   @tag :integration
@@ -128,6 +128,7 @@ defmodule FlightWeb.API.UserControllerTest do
       student_role = role_fixture(%{slug: "student"})
 
       user_attrs = %{
+        avatar: avatar_base64_fixture(),
         email: "user-#{Flight.Random.string(20)}@email.com",
         first_name: "Alexxx",
         last_name: "Doe",
@@ -146,6 +147,16 @@ defmodule FlightWeb.API.UserControllerTest do
       user =
         Flight.Repo.get!(User, json["data"]["id"])
         |> FlightWeb.API.UserView.show_preload()
+
+      urls = AvatarUploader.urls({user.avatar, user})
+      original_url = urls[:original]
+      thumb_url = urls[:thumb]
+      base_path = "/uploads/test/user/avatars/"
+      file_name_regex = "/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89AB][0-9a-f]{3}-[0-9a-f]{12}"
+
+      assert String.match?(original_url, ~r/#{base_path}original#{file_name_regex}\.jpeg\?v=\d*/i)
+      assert String.match?(thumb_url, ~r/#{base_path}thumb#{file_name_regex}\.png\?v=\d*/i)
+      AvatarUploader.delete({user.avatar, user})
 
       assert user.first_name == "Alexxx"
 
