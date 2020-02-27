@@ -64,14 +64,7 @@ config :stripity_stripe, :pool_options,
   timeout: 5_000,
   max_connections: 10
 
-aws_access_key = Map.fetch!(System.get_env(), "AWS_ACCESS_KEY")
-aws_secret_key = Map.fetch!(System.get_env(), "AWS_SECRET_KEY")
-
 config :flight, :aws_apns_application_arn, Map.fetch!(System.get_env(), "AWS_SNS_APNS_ARN")
-
-config :flight, :aws_credentials,
-  access_key: aws_access_key,
-  secret_key: aws_secret_key
 
 # ## SSL Support
 #
