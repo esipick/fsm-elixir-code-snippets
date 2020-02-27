@@ -338,13 +338,20 @@ class Form extends Component {
     this.saveInvoice({ pay_off: true });
   }
 
+  userErrors = (errorText) => {
+    if (errorText == "One of these fields must be present: [:user_id, :payer_name]") {
+      return "can't be blank";
+    } else {
+      return errorText;
+    }
+  }
+
   render() {
     const {
       appointment, appointment_loading, student, date,
       line_items, sales_tax, total, total_tax, total_amount_due, payment_method,
       errors, stripe_error, saving, id
     } = this.state;
-    const studentWrapperClass = classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '');
 
     return (
       <div className="card">
@@ -359,9 +366,9 @@ class Form extends Component {
                 <div className="form-group">
                   <label>
                     Student name
-                    <Error text={errors.user_id} />
+                    <Error text={this.userErrors(errors.user_id)} />
                   </label>
-                  <div className={studentWrapperClass}>
+                  <div className={classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '')}>
                     <CreatableSelect placeholder="Student name"
                       isClearable
                       isValidNewOption={this.isGuestNameValid}
@@ -380,7 +387,7 @@ class Form extends Component {
                     Appointment
                     <Error text={errors.appointment_id} />
                   </label>
-                  <div className={studentWrapperClass}>
+                  <div className={classnames('invoice-select-wrapper', errors.appointment_id ? 'with-error' : '')}>
                     <Select placeholder="Appointment"
                       classNamePrefix="react-select"
                       options={this.state.appointments}
