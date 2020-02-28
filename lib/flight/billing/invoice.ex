@@ -54,6 +54,7 @@ defmodule Flight.Billing.Invoice do
     |> assoc_constraint(:school)
     |> validate_required(@required_fields)
     |> validate_required_inclusion(@payer_fields)
+    |> validate_appointment_existence
   end
 
   def paid(%Invoice{} = invoice) do
@@ -66,6 +67,26 @@ defmodule Flight.Billing.Invoice do
     else
       # Add the error to the first field only since Ecto requires a field name for each error.
       add_error(changeset, hd(fields), "One of these fields must be present: #{inspect(fields)}")
+    end
+  end
+
+  def validate_appointment_existence(changeset) do
+    appointment_id = get_field(changeset, :appointment_id)
+
+    if appointment_id do
+      appointment = Repo.get(Appointment, appointment_id)
+
+      if appointment do
+        if appointment.archived do
+          add_error(changeset, :appointment_id, "has already been removed")
+        else
+          changeset
+        end
+      else
+        add_error(changeset, :appointment_id, "does not exist")
+      end
+    else
+      changeset
     end
   end
 
