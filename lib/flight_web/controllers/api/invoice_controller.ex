@@ -46,7 +46,10 @@ defmodule FlightWeb.API.InvoiceController do
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(422)
-        |> json(%{errors: ViewHelpers.translate_errors(changeset)})
+        |> json(%{
+          error: %{message: "Could not save invoice. Please correct errors in the form."},
+          errors: ViewHelpers.translate_errors(changeset)
+        })
 
       {:error, id, %Ecto.Changeset{} = changeset} ->
         conn
