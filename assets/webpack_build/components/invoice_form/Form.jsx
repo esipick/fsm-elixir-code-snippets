@@ -426,6 +426,7 @@ class Form extends Component {
                 <div className="form-group">
                   {!this.state.invoice_loading &&
                     <LineItemsTable appointment={appointment}
+                      errors={errors.line_items || []}
                       line_items={line_items}
                       onChange={this.onLineItemsTableChange}
                       aircrafts={this.state.aircrafts}

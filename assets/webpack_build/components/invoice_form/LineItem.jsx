@@ -2,6 +2,7 @@ import http from 'j-fetch';
 import NumericInput from 'react-numeric-input';
 import React, { Component } from 'react';
 
+import Error from '../common/Error';
 import Select from 'react-select';
 
 import {
@@ -78,17 +79,22 @@ class InvoiceLineItem extends Component {
   }
 
   aircraftSelect = () => {
+    const { errors } = this.props;
     const { aircrafts_loading, aircraft } = this.state;
 
     return (
-      <Select placeholder="Tail #"
-        classNamePrefix="react-select"
-        options={this.props.aircrafts}
-        onChange={this.setAircraft}
-        isClearable={true}
-        getOptionLabel={(o) => o.tail_number}
-        getOptionValue ={(o) => o.id}
-        value={aircraft} />
+      <div>
+        <Select placeholder="Tail #"
+          classNamePrefix="react-select"
+          options={this.props.aircrafts}
+          onChange={this.setAircraft}
+          isClearable={true}
+          getOptionLabel={(o) => o.tail_number}
+          getOptionValue ={(o) => o.id}
+          value={aircraft} />
+
+        <Error text={errors.aircraft_id} styleProps={{position: 'absolute'}} />
+      </div>
     );
   }
 
@@ -104,17 +110,22 @@ class InvoiceLineItem extends Component {
   }
 
   instructorSelect = () => {
+    const { errors } = this.props;
     const { instructors_loading, instructor_user } = this.state;
 
     return (
-      <Select placeholder="Instructor name"
-        classNamePrefix="react-select"
-        options={this.props.instructors}
-        onChange={this.setInstructor}
-        isClearable={true}
-        getOptionLabel={(o) => o.first_name + ' ' + o.last_name}
-        getOptionValue ={(o) => o.id}
-        value={instructor_user} />
+      <div>
+        <Select placeholder="Instructor name"
+          classNamePrefix="react-select"
+          options={this.props.instructors}
+          onChange={this.setInstructor}
+          isClearable={true}
+          getOptionLabel={(o) => o.first_name + ' ' + o.last_name}
+          getOptionValue ={(o) => o.id}
+          value={instructor_user} />
+
+        <Error text={errors.instructor_user_id} styleProps={{position: 'absolute'}} />
+      </div>
     );
   }
 
@@ -122,9 +133,10 @@ class InvoiceLineItem extends Component {
     const { item: { id, description, rate, quantity, amount } } = this.state;
     const { number, canRemove } = this.props;
     const descriptionOpt = DESCRIPTION_OPTS.find(o => o.value == description);
+    const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
 
     return (
-      <tr key={id}>
+      <tr key={id} className={wrapperClass}>
         <td>{number}.</td>
         <td className="lc-desc-column">
           <Select

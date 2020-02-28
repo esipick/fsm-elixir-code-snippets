@@ -32,6 +32,10 @@
   min-width: 125px;
 }
 
+.invoice-form .lc-row-with-error td {
+  padding-bottom: 25px;
+}
+
 
 
 .balance-warning-dialog {

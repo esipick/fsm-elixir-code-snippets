@@ -23,7 +23,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     @tag :integration
     test "renders invoice json errors", %{conn: conn} do
       instructor = instructor_fixture()
-      invoice_params = %{}
+      invoice_params = %{line_items: [%{type: :aircraft}, %{type: :instructor}]}
 
       json =
         conn
@@ -37,7 +37,23 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         "total" => ["can't be blank"],
         "total_amount_due" => ["can't be blank"],
         "total_tax" => ["can't be blank"],
-        "user_id" => ["One of these fields must be present: [:user_id, :payer_name]"]
+        "user_id" => ["One of these fields must be present: [:user_id, :payer_name]"],
+        "line_items" => [
+          %{
+            "rate" => ["can't be blank"],
+            "amount" => ["can't be blank"],
+            "quantity" => ["can't be blank"],
+            "description" => ["can't be blank"],
+            "aircraft_id" => ["can't be blank"]
+          },
+          %{
+            "rate" => ["can't be blank"],
+            "amount" => ["can't be blank"],
+            "quantity" => ["can't be blank"],
+            "description" => ["can't be blank"],
+            "instructor_user_id" => ["can't be blank"]
+          }
+        ]
       }
 
       assert json["errors"] == errors

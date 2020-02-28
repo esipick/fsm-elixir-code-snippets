@@ -96,11 +96,11 @@ class LineItemsTable extends Component {
 
   render() {
     const { total, total_tax, total_amount_due } = this.state;
-    const { sales_tax } = this.props;
+    const { sales_tax, errors } = this.props;
     const line_items = this.lineItems();
 
     return (
-      <table className="table table-striped">
+      <table className="table table-striped line-items-table">
         <thead>
           <tr>
             <th>#</th>
@@ -117,6 +117,7 @@ class LineItemsTable extends Component {
             line_items.map((item, i) => (
               <LineItem item={item}
                 number={i + 1}
+                errors={errors[i] || {}}
                 key={item.id || i}
                 onChange={this.setItem}
                 aircrafts={this.props.aircrafts}

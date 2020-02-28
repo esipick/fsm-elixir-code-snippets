@@ -20,11 +20,30 @@ defmodule Flight.Billing.InvoiceLineItem do
     timestamps()
   end
 
+  InvoiceLineItemTypeEnum.__enum_map__() |>
+    Enum.map(
+      fn {k, _v} ->
+        def unquote(:"#{k}_type?")(changeset) do
+          get_field(changeset, :type) == unquote(k)
+        end
+      end
+    )
+
   @doc false
   def changeset(%InvoiceLineItem{} = invoice_line_item, attrs) do
     invoice_line_item
     |> cast(attrs, @required_fields)
     |> cast(attrs, [:instructor_user_id, :aircraft_id, :type])
     |> validate_required(@required_fields)
+    |> validate_conditional_required(:aircraft_id, &aircraft_type?(&1))
+    |> validate_conditional_required(:instructor_user_id, &instructor_type?(&1))
+  end
+
+  def validate_conditional_required(changeset, field, conditional) do
+    if conditional.(changeset) do
+      validate_required(changeset, field)
+    else
+      changeset
+    end
   end
 end
