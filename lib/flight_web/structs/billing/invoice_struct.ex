@@ -1,6 +1,6 @@
 defmodule FlightWeb.Billing.InvoiceStruct do
   alias __MODULE__
-  alias Flight.{Repo, Accounts.User}
+  alias Flight.{Repo, Accounts.User, Scheduling}
   alias FlightWeb.Billing.TransactionStruct
 
   defstruct ~w(
@@ -14,6 +14,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       invoice
       |> Repo.preload([
         :user,
+        :school,
         :transactions,
         :line_items,
         [appointment: [:user, :instructor_user, [aircraft: :inspections]]]
@@ -37,7 +38,10 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       total_tax: invoice.total_tax,
       line_items: invoice.line_items,
       transactions: transactions(invoice),
-      appointment: invoice.appointment
+      appointment: Optional.map(
+        invoice.appointment,
+        &Scheduling.apply_timezone(&1, invoice.school.timezone)
+      )
     }
   end
 

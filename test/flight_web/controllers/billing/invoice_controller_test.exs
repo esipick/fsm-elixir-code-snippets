@@ -89,6 +89,22 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
     end
 
     @tag :integration
+    test "should render correct appointment time", %{conn: conn} do
+      student = student_fixture()
+      appointment = appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]}, student)
+      invoice = invoice_fixture(%{appointment_id: appointment.id}, student)
+
+      content =
+        conn
+        |> web_auth(student)
+        |> get("/billing/invoices/#{invoice.id}")
+        |> html_response(200)
+
+      assert content =~ "Mar 3, 2018"
+      assert content =~ "10:00AM - 11:00AM"
+    end
+
+    @tag :integration
     test "admin, instructor and dispatcher able to delete any pending invoices", %{conn: conn} do
       for role_slug <- ["admin", "dispatcher", "instructor"] do
         user = user_fixture() |> assign_role(role_slug)
