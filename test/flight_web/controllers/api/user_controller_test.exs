@@ -168,6 +168,47 @@ defmodule FlightWeb.API.UserControllerTest do
                )
     end
 
+    @tag :integration
+    test "can't create an user with invalid avatar", %{conn: conn} do
+      student_role = role_fixture(%{slug: "student"})
+
+      user_attrs = %{
+        avatar: "wrong base64 string",
+        email: "user-#{Flight.Random.string(20)}@email.com",
+        first_name: "Alexxx",
+        last_name: "Doe",
+        phone_number: "801-555-5555"
+      }
+
+      school = school_fixture() |> real_stripe_account()
+      instructor = instructor_fixture(%{}, school)
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/users/", %{data: user_attrs, role_id: student_role.id})
+        |> json_response(400)
+
+      assert json == %{"human_errors" => ["Avatar must be valid base64 encoded binary image"]}
+
+      user_attrs =
+        user_attrs
+        |> Map.put(:avatar, avatar_base64_fixture("assets/static/robots.txt"))
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/users/", %{data: user_attrs, role_id: student_role.id})
+        |> json_response(400)
+
+      assert json == %{
+               "human_errors" => [
+                 "Avatar format must be one of .jpg .jpeg .gif .png",
+                 "Avatar is invalid"
+               ]
+             }
+    end
+
     # @tag :integration
     test "can't create an user with same email", %{conn: conn} do
       student_role = role_fixture(%{slug: "student"})

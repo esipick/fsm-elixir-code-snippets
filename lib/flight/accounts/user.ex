@@ -4,6 +4,8 @@ defmodule Flight.Accounts.User do
 
   import Ecto.Changeset
 
+  alias Flight.AvatarUploader
+
   schema "users" do
     field(:email, :string)
     field(:first_name, :string)
@@ -26,7 +28,7 @@ defmodule Flight.Accounts.User do
     field(:awards, :string)
     field(:archived, :boolean, default: false)
     field(:stripe_customer_id, :string)
-    field(:avatar, Flight.AvatarUploader.Type)
+    field(:avatar, AvatarUploader.Type)
     belongs_to(:school, Flight.Accounts.School)
     many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
 
@@ -58,17 +60,25 @@ defmodule Flight.Accounts.User do
         user
 
       base64_binary ->
-        binary = base64_binary |> Base.decode64!()
-        extension = ExImageInfo.seems?(binary)
+        case base64_binary |> Base.decode64() do
+          {:ok, binary} ->
+            extension = ".#{ExImageInfo.seems?(binary)}"
 
-        attrs =
-          Map.put(attrs, attr, %{
-            filename: "#{Ecto.UUID.generate()}.#{extension}",
-            binary: binary
-          })
+            attrs =
+              Map.put(attrs, attr, %{
+                filename: Ecto.UUID.generate() <> extension,
+                binary: binary
+              })
 
-        user
-        |> cast_attachments(attrs, [attr])
+            user
+            |> validate_avatar_format(extension)
+            |> validate_avatar_size(binary)
+            |> cast_attachments(attrs, [attr])
+
+          _ ->
+            user
+            |> add_error(:avatar, "must be valid base64 encoded binary image")
+        end
     end
   end
 
@@ -328,6 +338,22 @@ defmodule Flight.Accounts.User do
   end
 
   defp valid_password?(_), do: {:error, "must be at least 6 characters"}
+
+  defp validate_avatar_format(user, extension) do
+    extensions = AvatarUploader.formats()
+
+    case extension in extensions do
+      true -> user
+      false -> add_error(user, :avatar, "format must be one of " <> Enum.join(extensions, " "))
+    end
+  end
+
+  defp validate_avatar_size(user, binary) do
+    case byte_size(binary) > 5_000_000 do
+      true -> add_error(user, :avatar, "size should not exceed 5 megabytes")
+      false -> user
+    end
+  end
 
   defp put_pass_hash(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
     changeset

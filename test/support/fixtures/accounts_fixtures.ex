@@ -2,8 +2,8 @@ defmodule Flight.AccountsFixtures do
   alias Flight.{Accounts, Repo}
   alias Flight.Accounts.{User, School, StripeAccount}
 
-  def avatar_base64_fixture do
-    "assets/static/images/margot.jpg"
+  def avatar_base64_fixture(path \\ "assets/static/images/margot.jpg") do
+    path
     |> File.read!()
     |> Base.encode64()
   end
