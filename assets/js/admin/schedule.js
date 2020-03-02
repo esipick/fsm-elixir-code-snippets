@@ -65,6 +65,12 @@ $(document).ready(function () {
     $('#unavailInstructor').val(null).selectpicker("refresh")
   })
 
+  // navigate calendar to selected date
+  $('#btnGo').click(function () {
+    $('#dateSelectModal').modal('hide')
+    $calendar.fullCalendar('gotoDate', moment($('#datepickercustom').val()).format())
+  })
+
   // collect event data on save and send to server
   $('#btnSave').click(function () {
 
@@ -323,7 +329,15 @@ $(document).ready(function () {
       header: {
         left: 'title,chooseDateButton',
         center: 'timelineDay,timelineWeek,timelineMonth',
-        right: 'prev,next,today'
+        right: 'prev,next,today,customDate'
+      },
+      customButtons: {
+        customDate: {
+          text: 'Select Date',
+          click: function() {
+            $('#dateSelectModal').modal();
+          }
+        }
       },
       resourceGroupField: "type",
       resources: resources,
@@ -532,6 +546,22 @@ $(document).ready(function () {
         clear: 'fa fa-trash',
         close: 'fa fa-remove'
       }
+    });
+    $('#datepickercustom').datetimepicker({
+      // debug: true,
+      stepping: 30,
+      icons: {
+        time: "now-ui-icons tech_watch-time",
+        date: "now-ui-icons ui-1_calendar-60",
+        up: "fa fa-chevron-up",
+        down: "fa fa-chevron-down",
+        previous: 'now-ui-icons arrows-1_minimal-left',
+        next: 'now-ui-icons arrows-1_minimal-right',
+        today: 'fa fa-screenshot',
+        clear: 'fa fa-trash',
+        close: 'fa fa-remove'
+      },
+      format: 'L'
     });
   }
   initDateTimePicker();
