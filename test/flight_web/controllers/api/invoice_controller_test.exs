@@ -823,4 +823,18 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     Repo.get(Invoice, invoice.id)
     |> Repo.preload([:user, :transactions, :line_items, :appointment], force: true)
   end
+
+  test "renders payment options", %{conn: conn} do
+    student = student_fixture()
+
+    json =
+      conn
+      |> auth(student)
+      |> get("/api/invoices/payment_options")
+      |> json_response(200)
+
+    assert json == %{
+             "data" => [["balance", 0], ["cc", 1], ["cash", 2], ["check", 3], ["venmo", 4]]
+           }
+  end
 end

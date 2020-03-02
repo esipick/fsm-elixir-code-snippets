@@ -54,4 +54,14 @@ defmodule FlightWeb.API.InvoiceView do
 
     render(AppointmentView, "appointment.json", appointment: appointment)
   end
+
+  def render("payment_options.json", _) do
+    %{
+      data:
+        Enum.map(InvoicePaymentOptionEnum.__enum_map__(), fn x ->
+          {key, value} = x
+          [Atom.to_string(key), value]
+        end)
+    }
+  end
 end

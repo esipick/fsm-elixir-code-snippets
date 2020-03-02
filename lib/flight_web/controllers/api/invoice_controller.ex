@@ -129,6 +129,10 @@ defmodule FlightWeb.API.InvoiceController do
     end
   end
 
+  def payment_options(conn, _) do
+    render(conn, "payment_options.json")
+  end
+
   defp get_invoice(conn, _) do
     invoice = Repo.get(Invoice, conn.params["id"])
     invoice = Repo.preload(invoice, :line_items)
