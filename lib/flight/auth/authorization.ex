@@ -169,6 +169,13 @@ defmodule Flight.Auth.Authorization.Extensions do
     |> Plug.Conn.halt()
   end
 
+  def halt_not_found_response(conn, message \\ "Not Found") do
+    conn
+    |> Plug.Conn.put_resp_content_type("application/json")
+    |> Plug.Conn.resp(404, Poison.encode!(%{error: %{message: message}}))
+    |> Plug.Conn.halt()
+  end
+
   def redirect_unless_user_can?(conn, permissions) do
     user = conn.assigns.current_user
 

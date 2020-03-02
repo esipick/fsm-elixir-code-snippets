@@ -554,6 +554,21 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
 
     @tag :integration
+    test "render already removed error attempting pay invoice", %{conn: conn} do
+      instructor = instructor_fixture()
+      invoice = invoice_fixture(%{archived: true})
+      invoice_params = %{pay_off: true}
+
+      json =
+        conn
+        |> auth(instructor)
+        |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
+        |> json_response(404)
+
+      assert json["error"] == %{"message" => "Invoice has been already removed."}
+    end
+
+    @tag :integration
     test "renders stripe error", %{conn: conn} do
       invoice = invoice_fixture(%{payment_option: "cc"})
       instructor = instructor_fixture()
