@@ -928,3 +928,7 @@ fieldset[disabled] .fc button:hover {
 .pagination-page-size-select {
   width: 75px;
 }
+
+.inherit-font-size {
+  font-size: inherit;
+}

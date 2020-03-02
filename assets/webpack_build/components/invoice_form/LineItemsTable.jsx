@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import LineItem from './LineItem';
-import NumericInput from 'react-numeric-input';
 
 import { itemsFromAppointment, LineItemRecord } from './line_item_utils';
 

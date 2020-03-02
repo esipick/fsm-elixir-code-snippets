@@ -16,7 +16,7 @@
     "react-datepicker": "^2.9.6",
     "react-dom": "^16.2.0",
     "react-modal": "^3.10.1",
-    "react-numeric-input": "^2.2.3",
+    "react-number-format": "^4.4.1",
     "react-phoenix": "file:../deps/react_phoenix",
     "react-select": "^3.0.8",
     "shortid": "^2.2.15"

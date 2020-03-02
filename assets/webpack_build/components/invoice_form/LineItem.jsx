@@ -1,5 +1,5 @@
 import http from 'j-fetch';
-import NumericInput from 'react-numeric-input';
+import NumberFormat from 'react-number-format';
 import React, { Component } from 'react';
 
 import Error from '../common/Error';
@@ -34,13 +34,15 @@ class InvoiceLineItem extends Component {
     this.props.onChange(item);
   }
 
-  setRate = (e) => {
-    const item = Object.assign({}, this.state.item, { rate: e * 100 });
+  setRate = ({ floatValue }) => {
+    const rate = floatValue >= 10000000 ? this.state.item.rate : floatValue;
+    const item = Object.assign({}, this.state.item, { rate: rate * 100 });
 
     this.calculateAmount(item);
   }
 
-  setQty = (quantity) => {
+  setQty = ({ floatValue }) => {
+    const quantity = floatValue >= 10000000 ? this.state.item.quantity : floatValue;
     const item = Object.assign({}, this.state.item, { quantity });
 
     this.calculateAmount(item);
@@ -155,19 +157,25 @@ class InvoiceLineItem extends Component {
           { this.isFlightHours() && this.aircraftSelect()}
         </td>
         <td className="lc-column">
-          <NumericInput precision={2}
+          <NumberFormat
+            className="form-control inherit-font-size"
+            decimalScale={2}
+            fixedDecimalScale={2}
+            thousandSeparator={true}
             value={rate / 100}
-            className="form-control"
-            step={0.1}
-            onChange={this.setRate}
+            onValueChange={this.setRate}
+            allowNegative={false}
             required={true} />
         </td>
         <td className="lc-column">
-          <NumericInput precision={2}
+          <NumberFormat
+            className="form-control inherit-font-size"
+            decimalScale={2}
+            fixedDecimalScale={2}
+            thousandSeparator={true}
             value={quantity}
-            className="form-control"
-            step={0.1}
-            onChange={this.setQty}
+            onValueChange={this.setQty}
+            allowNegative={false}
             required={true} />
         </td>
         <td className="lc-column">${(amount / 100).toFixed(2)}</td>
