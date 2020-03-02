@@ -9,3 +9,5 @@
     </div>
   </div>
 </div>
+
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>

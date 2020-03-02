@@ -185,3 +185,5 @@
               path: "/billing/invoices/",
               attribute: "invoice"} %>
 <% end %>
+
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>

@@ -11,7 +11,7 @@ defmodule FlightWeb.API.InvoiceController do
   plug(:get_invoice when action in [:update, :show, :delete])
   plug(:authorize_modify when action in [:create, :show, :index, :update, :delete])
   plug(:check_paid_invoice when action in [:update, :delete])
-  plug(:check_archived_invoice when action in [:update])
+  plug(:check_archived_invoice when action in [:update, :delete])
 
   def index(conn, params) do
     page_params = Pagination.params(params)
@@ -148,7 +148,7 @@ defmodule FlightWeb.API.InvoiceController do
 
   defp check_paid_invoice(conn, _) do
     if conn.assigns.invoice.status == :paid do
-      halt_unauthorized_response(conn, "Invoice has been already paid.")
+      halt_unauthorized_response(conn, "Invoice has already been paid.")
     else
       conn
     end
@@ -156,7 +156,7 @@ defmodule FlightWeb.API.InvoiceController do
 
   defp check_archived_invoice(conn, _) do
     if conn.assigns.invoice.archived == true do
-      halt_not_found_response(conn, "Invoice has been already removed.")
+      halt_not_found_response(conn, "Invoice has already been removed.")
     else
       conn
     end

@@ -75,6 +75,7 @@ defmodule Flight.Mixfile do
       {:scrivener_headers, "~> 3.1"},
       {:ecto_enum, "~> 1.3"},
       {:react_phoenix, "~> 0.6.0"},
+      {:fastglobal, "~> 1.0"},
 
       # Dev tools
       {:faker, "~> 0.12", only: [:dev, :test]}

@@ -149,3 +149,5 @@
           %{message: "This invoice and all of its information will be archived and removed from the system.",
             path: "/billing/invoices/",
             attribute: "invoice"} %>
+
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>

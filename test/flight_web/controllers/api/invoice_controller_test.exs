@@ -72,7 +72,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       instructor = instructor_fixture()
 
       invoice_params = %{
-        appointment_id: 100500,
+        appointment_id: 100_500,
         line_items: [%{type: :aircraft}, %{type: :instructor}]
       }
 
@@ -497,7 +497,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
         |> json_response(401)
 
-      assert json["error"] == %{"message" => "Invoice has been already paid."}
+      assert json["error"] == %{"message" => "Invoice has already been paid."}
     end
 
     @tag :integration
@@ -550,7 +550,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
         |> json_response(404)
 
-      assert json["error"] == %{"message" => "Invoice has been already removed."}
+      assert json["error"] == %{"message" => "Invoice has already been removed."}
     end
 
     @tag :integration
@@ -565,7 +565,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
         |> json_response(404)
 
-      assert json["error"] == %{"message" => "Invoice has been already removed."}
+      assert json["error"] == %{"message" => "Invoice has already been removed."}
     end
 
     @tag :integration

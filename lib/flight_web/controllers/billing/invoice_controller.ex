@@ -8,7 +8,8 @@ defmodule FlightWeb.Billing.InvoiceController do
   plug(:get_invoice when action in [:edit, :show, :delete])
   plug(:authorize_modify when action in [:new, :edit, :delete])
   plug(:authorize_view when action in [:show])
-  plug(:check_paid_invoice when action in [:delete])
+  plug(:check_paid_invoice when action in [:update, :edit, :delete])
+  plug(:check_archived_invoice when action in [:show, :edit, :update, :delete])
 
   def index(conn, params) do
     page_params = Pagination.params(params)
@@ -54,7 +55,7 @@ defmodule FlightWeb.Billing.InvoiceController do
     |> Repo.update()
 
     conn
-    |> put_flash(:success, "Invoice successfully archived.")
+    |> put_flash(:success, "Invoice was successfully deleted.")
     |> redirect(to: "/billing/invoices")
   end
 
@@ -80,6 +81,7 @@ defmodule FlightWeb.Billing.InvoiceController do
 
       InvoicePolicy.create?(conn.assigns.current_user) ->
         conn
+        |> put_flash(:error, "Can't modify invoice that is already paid.")
         |> redirect(to: "/billing/invoices/#{conn.assigns.invoice.id}")
 
       true ->
@@ -101,10 +103,20 @@ defmodule FlightWeb.Billing.InvoiceController do
   defp check_paid_invoice(%{assigns: %{invoice: %{status: :paid}}} = conn, _) do
     conn
     |> put_flash(:error, "Can't modify invoice that is already paid.")
-    |> redirect(to: "/billing/invoices")
+    |> redirect(to: "/billing/invoices/#{conn.assigns.invoice.id}")
   end
 
   defp check_paid_invoice(conn, _) do
+    conn
+  end
+
+  defp check_archived_invoice(%{assigns: %{invoice: %{archived: true}}} = conn, _) do
+    conn
+    |> put_flash(:error, "Invoice has already been removed.")
+    |> redirect(to: "/billing/invoices")
+  end
+
+  defp check_archived_invoice(conn, _) do
     conn
   end
 end
