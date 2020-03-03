@@ -34,14 +34,14 @@ class InvoiceLineItem extends Component {
     this.props.onChange(item);
   }
 
-  setRate = ({ floatValue }) => {
+  setRate = ({ floatValue = 0 }) => {
     const rate = floatValue >= 10000000 ? this.state.item.rate : floatValue;
     const item = Object.assign({}, this.state.item, { rate: rate * 100 });
 
     this.calculateAmount(item);
   }
 
-  setQty = ({ floatValue }) => {
+  setQty = ({ floatValue = 0 }) => {
     const quantity = floatValue >= 10000000 ? this.state.item.quantity : floatValue;
     const item = Object.assign({}, this.state.item, { quantity });
 
