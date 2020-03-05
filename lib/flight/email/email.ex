@@ -69,7 +69,7 @@ defmodule Flight.Email do
   # ensure that the email looks valid
   def validate_email(changeset, field) do
     changeset
-    |> Ecto.Changeset.validate_format(field, @mail_regex)
+    |> Ecto.Changeset.validate_format(field, @mail_regex, message: "Invalid email format")
   end
 
   def message_changeset(params) do
@@ -81,7 +81,8 @@ defmodule Flight.Email do
 
     {%{}, types}
     |> Ecto.Changeset.cast(params, Map.keys(types))
-    |> Ecto.Changeset.validate_required(Map.keys(types))
+    |> Ecto.Changeset.validate_required([:subject, :body])
+    |> Ecto.Changeset.validate_required(:from, message: "Email can't be blank")
     |> validate_email(:from)
   end
 
