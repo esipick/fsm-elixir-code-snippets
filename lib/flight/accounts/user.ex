@@ -268,7 +268,12 @@ defmodule Flight.Accounts.User do
     |> validate_format(
       :zipcode,
       Flight.Format.zipcode_regex(),
-      message: "must contain only numbers"
+      message: "must be in the format: 12345 or 12345-6789"
+    )
+    |> validate_format(
+      :flight_training_number,
+      Flight.Format.ftn_regex(),
+      message: "must be in the format: A1234567"
     )
     |> validate_format(
       :email,

@@ -1,25 +1,29 @@
-<div class="tab-pane detail-list list-billing" id="link3">
-  <%= for appointment <- @appointments do %>
-    <dl class="d-flex justify-content-between">
-      <dt><%= display_date(appointment.start_at, :long) %></dt>
-      <dd>
-        <dl class="d-flex justify-content-between">
-          <dt>Time</dt>
-          <dd><%= display_time(appointment.start_at) %> - <%= display_time(appointment.end_at) %></dd>
-        </dl>
-        <%= if appointment.aircraft_id do %>
+<%= if Enum.any?(@appointments) do %>
+  <div class="tab-pane detail-list list-billing" id="link3">
+    <%= for appointment <- @appointments do %>
+      <dl class="d-flex justify-content-between">
+        <dt><%= display_date(appointment.start_at, :long) %></dt>
+        <dd>
           <dl class="d-flex justify-content-between">
-            <dt>Aircraft</dt>
-            <dd><a href="/admin/aircrafts/<%= appointment.aircraft_id %>"><%= aircraft_display_name appointment.aircraft %></a></dd>
+            <dt>Time</dt>
+            <dd><%= display_time(appointment.start_at) %> - <%= display_time(appointment.end_at) %></dd>
           </dl>
-        <% end %>
-        <%= if appointment.instructor_user_id do %>
-          <dl class="d-flex justify-content-between">
-            <dt>Instructor</dt>
-            <dd><a href="instructor-profile.php"><%= display_name appointment.instructor_user %></a></dd>
-          </dl>
-        <% end %>
-      </dd>
-    </dl>
-  <% end %>
-</div>
+          <%= if appointment.aircraft_id do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Aircraft</dt>
+              <dd><a href="/admin/aircrafts/<%= appointment.aircraft_id %>"><%= aircraft_display_name appointment.aircraft %></a></dd>
+            </dl>
+          <% end %>
+          <%= if appointment.instructor_user_id do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Instructor</dt>
+              <dd><a href="/admin/aircrafts/<%= appointment.instructor_user_id %>"><%= display_name appointment.instructor_user %></a></dd>
+            </dl>
+          <% end %>
+        </dd>
+      </dl>
+    <% end %>
+  </div>
+<% else %>
+  <h5>No appointments</h5>
+<% end %>

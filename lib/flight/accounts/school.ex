@@ -87,7 +87,7 @@ defmodule Flight.Accounts.School do
     |> validate_format(
       :zipcode,
       Flight.Format.zipcode_regex(),
-      message: "must contain only numbers"
+      message: "must be in the format: 12345 or 12345-6789"
     )
     |> validate_format(
       :email,

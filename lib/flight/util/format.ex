@@ -4,7 +4,11 @@ defmodule Flight.Format do
   end
 
   def zipcode_regex do
-    ~r/^[0-9]+$/
+    ~r/^[0-9]{5}(?:-[0-9]{4})?$/
+  end
+
+  def ftn_regex do
+    ~r/^[A-Z][0-9]+$/
   end
 
   def email_regex do

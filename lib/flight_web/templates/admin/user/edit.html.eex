@@ -82,6 +82,7 @@
                   <div class="form-group">
                     <label>Flight Training # (FTN)</label>
                     <%= text_input f, :flight_training_number, class: "form-control" %>
+                    <%= full_error_tag f, :flight_training_number %>
                   </div>
                 </div>
               </div>

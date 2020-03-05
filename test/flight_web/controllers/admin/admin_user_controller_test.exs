@@ -170,6 +170,19 @@ defmodule FlightWeb.Admin.UserControllerTest do
       end
     end
 
+    test "if there is no appointment set for a student" do
+      user = user_fixture() |> assign_role("student")
+
+      content =
+        build_conn()
+        |> web_auth_admin()
+        |> get("/admin/users/#{user.id}?tab=schedule")
+        |> html_response(200)
+
+      assert content =~ user.first_name
+      assert content =~ "No appointments"
+    end
+
     test "does not render admins for dispatchers", %{conn: conn} do
       admin = user_fixture() |> assign_role("admin")
 
@@ -286,7 +299,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
       student = student_fixture()
 
       payload = %{
-        user: %{email: "All@ison", zipcode: "Duprix"}
+        user: %{email: "All@ison", zipcode: "Duprix", flight_training_number: "Duprix"}
       }
 
       admin = admin_fixture()
@@ -297,7 +310,8 @@ defmodule FlightWeb.Admin.UserControllerTest do
         |> put("/admin/users/#{student.id}", payload)
         |> html_response(200)
 
-      assert content =~ "must contain only numbers"
+      assert content =~ "must be in the format: 12345 or 12345-6789"
+      assert content =~ "must be in the format: A1234567"
       assert content =~ "must be in a valid format"
     end
 
