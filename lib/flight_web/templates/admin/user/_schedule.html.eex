@@ -17,7 +17,7 @@
           <%= if appointment.instructor_user_id do %>
             <dl class="d-flex justify-content-between">
               <dt>Instructor</dt>
-              <dd><a href="/admin/aircrafts/<%= appointment.instructor_user_id %>"><%= display_name appointment.instructor_user %></a></dd>
+              <dd><a href="/admin/users/<%= appointment.instructor_user_id %>"><%= display_name appointment.instructor_user %></a></dd>
             </dl>
           <% end %>
         </dd>
