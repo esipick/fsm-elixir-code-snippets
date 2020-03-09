@@ -267,10 +267,8 @@ defmodule FlightWeb.Router do
 
     resources("/courses", CourseController, only: [:index])
 
-    scope "/v2", V2 do
-      get("/appointments/availability", AppointmentController, :availability)
-
-      resources("/appointments", AppointmentController, only: [:index])
+    scope "/invoices", Invoices do
+      get("/line_items/extra_options", LineItemController, :extra_options)
     end
   end
 
