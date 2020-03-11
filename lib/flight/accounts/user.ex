@@ -60,7 +60,7 @@ defmodule Flight.Accounts.User do
         user
 
       base64_binary ->
-        case base64_binary |> Base.decode64() do
+        case base64_binary |> Base.decode64(ignore: :whitespace) do
           {:ok, binary} ->
             extension = ".#{ExImageInfo.seems?(binary)}"
 
