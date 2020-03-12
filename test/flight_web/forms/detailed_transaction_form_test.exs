@@ -68,46 +68,6 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
       assert Flight.Repo.insert!(transaction)
     end
 
-    test "to_transaction no instructor line item if no instructor" do
-      student = student_fixture()
-      instructor = instructor_fixture()
-      aircraft = aircraft_fixture()
-
-      appointment = appointment_fixture(%{instructor_user_id: nil}, student, instructor, aircraft)
-
-      attrs = detailed_transaction_form_attrs(student, student, appointment, aircraft, nil)
-
-      {:ok, form} =
-        %DetailedTransactionForm{}
-        |> DetailedTransactionForm.changeset(attrs)
-        |> Ecto.Changeset.apply_action(:insert)
-
-      assert {transaction, nil, nil, %TransactionLineItem{}, %AircraftLineItemDetail{}} =
-               DetailedTransactionForm.to_transaction(form, :normal, instructor)
-
-      assert Flight.Repo.insert!(transaction)
-    end
-
-    test "to_transaction no aircraft line item or details if no aircraft" do
-      student = student_fixture()
-      instructor = instructor_fixture()
-      aircraft = aircraft_fixture()
-
-      appointment = appointment_fixture(%{aircraft_id: nil}, student, instructor, aircraft)
-
-      attrs = detailed_transaction_form_attrs(student, student, appointment, nil, instructor)
-
-      {:ok, form} =
-        %DetailedTransactionForm{}
-        |> DetailedTransactionForm.changeset(attrs)
-        |> Ecto.Changeset.apply_action(:insert)
-
-      assert {transaction, %TransactionLineItem{}, %InstructorLineItemDetail{}, nil, nil} =
-               DetailedTransactionForm.to_transaction(form, :normal, student)
-
-      assert Flight.Repo.insert!(transaction)
-    end
-
     test "error if no instructor or aircraft" do
       appointment = appointment_fixture()
 

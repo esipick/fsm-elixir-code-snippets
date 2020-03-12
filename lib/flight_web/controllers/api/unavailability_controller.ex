@@ -75,7 +75,7 @@ defmodule FlightWeb.API.UnavailabilityController do
         instructor_user_id_from_unavailability
 
     cond do
-      instructor_user_id ->
+      parse_to_boolean(instructor_user_id) ->
         if user_can?(conn.assigns.current_user, [
              Permission.new(:unavailability_instructor, :modify, {:personal, instructor_user_id}),
              Permission.new(:unavailability_instructor, :modify, :all),
@@ -85,7 +85,7 @@ defmodule FlightWeb.API.UnavailabilityController do
         else
           render_bad_request(
             conn,
-            "Instructors cannot create unavailability for other instructors."
+            "You don't have permissions for this action."
           )
         end
 
@@ -99,7 +99,7 @@ defmodule FlightWeb.API.UnavailabilityController do
       true ->
         render_bad_request(
           conn,
-          "You don't have permission to create or modify unavailability."
+          "You don't have permissions for this action."
         )
     end
   end
@@ -116,5 +116,13 @@ defmodule FlightWeb.API.UnavailabilityController do
 
   defp get_unavailability(conn, _) do
     assign(conn, :unavailability, Scheduling.get_unavailability(conn.params["id"], conn))
+  end
+
+  defp parse_to_boolean(instructor_user_id) do
+    case instructor_user_id do
+      nil -> nil
+      "" -> nil
+      _ -> true
+    end
   end
 end

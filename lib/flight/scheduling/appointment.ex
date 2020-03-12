@@ -37,6 +37,8 @@ defmodule Flight.Scheduling.Appointment do
       :end_at,
       :user_id,
       :school_id,
+      :instructor_user_id,
+      :aircraft_id,
       :type
     ])
     |> validate_end_at_after_start_at()

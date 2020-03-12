@@ -8,6 +8,7 @@ defmodule Flight.Scheduling.Unavailability do
     field(:note, :string)
     field(:end_at, :naive_datetime)
     field(:start_at, :naive_datetime)
+    field(:belongs, :string)
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
@@ -25,9 +26,11 @@ defmodule Flight.Scheduling.Unavailability do
       :type,
       :note,
       :instructor_user_id,
-      :aircraft_id
+      :aircraft_id,
+      :belongs
     ])
     |> validate_required([:start_at, :end_at, :available, :type, :school_id])
+    |> validate_end_at_after_start_at()
     |> validate_inclusion(:type, ["time_off"])
     |> validate_resources()
   end
@@ -35,11 +38,13 @@ defmodule Flight.Scheduling.Unavailability do
   def validate_resources(changeset) do
     instructor_user_id = get_field(changeset, :instructor_user_id)
     aircraft_id = get_field(changeset, :aircraft_id)
+    belongs = get_field(changeset, :belongs)
 
-    case {instructor_user_id, aircraft_id} do
-      {x, y} when is_nil(x) and is_integer(y) -> changeset
-      {x, y} when is_integer(x) and is_nil(y) -> changeset
-      _ -> add_error(changeset, :aircraft, "cannot be assigned if instructor is also assigned")
+    case {instructor_user_id, aircraft_id, belongs} do
+      {_, y, "Aircraft"} when is_integer(y) -> changeset
+      {x, _, "Instructor"} when is_integer(x) -> changeset
+      {nil, _, "Instructor"} -> add_error(changeset, :instructor, "must be set.")
+      {_, nil, "Aircraft"} -> add_error(changeset, :aircraft, "must be set.")
     end
   end
 
@@ -54,6 +59,21 @@ defmodule Flight.Scheduling.Unavailability do
 
     if change do
       put_change(changeset, key, Flight.Walltime.utc_to_walltime(change, timezone))
+    else
+      changeset
+    end
+  end
+
+  def validate_end_at_after_start_at(changeset) do
+    if changeset.valid? do
+      start_at = get_field(changeset, :start_at)
+      end_at = get_field(changeset, :end_at)
+
+      if NaiveDateTime.compare(end_at, start_at) == :gt do
+        changeset
+      else
+        add_error(changeset, :end_at, "must come after start time.")
+      end
     else
       changeset
     end

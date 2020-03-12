@@ -121,7 +121,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       instructor = instructor_fixture()
       aircraft = aircraft_fixture()
 
-      appointment = appointment_fixture(%{instructor_user_id: nil}, student, instructor, aircraft)
+      appointment = appointment_fixture(%{}, student, instructor, aircraft)
 
       params = detailed_transaction_form_attrs(student, student, appointment, aircraft, nil)
 
@@ -147,7 +147,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       instructor = instructor_fixture()
       aircraft = aircraft_fixture()
 
-      appointment = appointment_fixture(%{instructor_user_id: nil}, student, instructor, aircraft)
+      appointment = appointment_fixture(%{}, student, instructor, aircraft)
 
       params =
         detailed_transaction_form_attrs(student, student, appointment, aircraft, nil)
@@ -264,7 +264,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
       instructor = instructor_fixture()
       aircraft = aircraft_fixture()
 
-      appointment = appointment_fixture(%{instructor_user_id: nil}, student, instructor, aircraft)
+      appointment = appointment_fixture(%{}, student, instructor, aircraft)
 
       params =
         detailed_transaction_form_attrs(student, student, appointment, aircraft, nil)

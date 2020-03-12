@@ -20,14 +20,12 @@ defmodule Flight.Billing.InvoiceLineItem do
     timestamps()
   end
 
-  InvoiceLineItemTypeEnum.__enum_map__() |>
-    Enum.map(
-      fn {k, _v} ->
-        def unquote(:"#{k}_type?")(changeset) do
-          get_field(changeset, :type) == unquote(k)
-        end
-      end
-    )
+  InvoiceLineItemTypeEnum.__enum_map__()
+  |> Enum.map(fn {k, _v} ->
+    def unquote(:"#{k}_type?")(changeset) do
+      get_field(changeset, :type) == unquote(k)
+    end
+  end)
 
   @doc false
   def changeset(%InvoiceLineItem{} = invoice_line_item, attrs) do

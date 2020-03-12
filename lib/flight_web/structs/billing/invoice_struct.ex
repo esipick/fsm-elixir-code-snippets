@@ -38,10 +38,11 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       total_tax: invoice.total_tax,
       line_items: invoice.line_items,
       transactions: transactions(invoice),
-      appointment: Optional.map(
-        invoice.appointment,
-        &Scheduling.apply_timezone(&1, invoice.school.timezone)
-      )
+      appointment:
+        Optional.map(
+          invoice.appointment,
+          &Scheduling.apply_timezone(&1, invoice.school.timezone)
+        )
     }
   end
 

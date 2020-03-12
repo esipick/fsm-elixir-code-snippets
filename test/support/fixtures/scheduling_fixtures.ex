@@ -75,6 +75,7 @@ defmodule Flight.SchedulingFixtures do
         end_at: Timex.shift(date, hours: 4),
         instructor_user_id: if(instructor, do: instructor.id, else: nil),
         aircraft_id: if(aircraft, do: aircraft.id, else: nil),
+        belongs: if(instructor, do: "Instructor", else: "Aircraft"),
         school_id: school.id
       }
       |> Unavailability.changeset(attrs)

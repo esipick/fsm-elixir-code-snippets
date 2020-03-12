@@ -91,7 +91,13 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
     @tag :integration
     test "should render correct appointment time", %{conn: conn} do
       student = student_fixture()
-      appointment = appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]}, student)
+
+      appointment =
+        appointment_fixture(
+          %{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]},
+          student
+        )
+
       invoice = invoice_fixture(%{appointment_id: appointment.id}, student)
 
       content =

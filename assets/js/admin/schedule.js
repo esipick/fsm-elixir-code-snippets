@@ -47,12 +47,12 @@ $(document).ready(function () {
   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     var id = $(e.target).get(0).id
     if (id == "navAppt") {
-      $('#appointmentForm').addClass("active")
-      $('#unavailabilityForm').removeClass("active")
+      $('#appointmentForm.tab-pane').toggleClass("active")
+      $('#unavailabilityForm.tab-pane').toggleClass("active")
       eventType = "appt";
     } else {
-      $('#appointmentForm').removeClass("active")
-      $('#unavailabilityForm').addClass("active")
+      $('#appointmentForm.tab-pane').toggleClass("active")
+      $('#unavailabilityForm.tab-pane').toggleClass("active")
       eventType = "unavail"
     }
   })
@@ -73,6 +73,11 @@ $(document).ready(function () {
 
   // collect event data on save and send to server
   $('#btnSave').click(function () {
+
+    $(this).attr("disabled", true);
+    setTimeout(function() {
+        $('#btnSave').removeAttr("disabled");
+    }, 3000);
 
     var promise = null;
 
@@ -110,6 +115,7 @@ $(document).ready(function () {
         })
       }
     } else if (eventType == "unavail") {
+      var eventFor = $('#unavailFor').val();
       var eventInstructor = safeParseInt($('#unavailInstructor').val());
       var eventAircraft = safeParseInt($('#unavailAircraft').val());
 
@@ -122,7 +128,8 @@ $(document).ready(function () {
         end_at: eventEnd,
         instructor_user_id: eventInstructor,
         aircraft_id: eventAircraft,
-        note: eventNote
+        note: eventNote,
+        belongs: eventFor
       };
 
       var promise;
@@ -165,6 +172,7 @@ $(document).ready(function () {
           type: "success",
           placement: { align: "center" }
         })
+
       }).catch(function (e) {
         if (e.responseJSON.human_errors) {
           for (var error of e.responseJSON.human_errors) {
@@ -185,7 +193,6 @@ $(document).ready(function () {
         }
       })
     }
-
   });
 
 
@@ -224,6 +231,7 @@ $(document).ready(function () {
           type: "success",
           placement: { align: "center" }
         })
+
       }).catch(function (e) {
         if (e.responseJSON.human_errors) {
           for (var error of e.responseJSON.human_errors) {

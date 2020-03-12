@@ -116,7 +116,8 @@ defmodule FlightWeb.API.ControllerTest do
         data:
           @default_attrs
           |> Map.merge(%{
-            instructor_user_id: instructor.id
+            instructor_user_id: instructor.id,
+            belongs: "Instructor"
           })
       }
 
@@ -129,7 +130,8 @@ defmodule FlightWeb.API.ControllerTest do
       assert unavailability =
                Flight.Repo.get_by(
                  Unavailability,
-                 instructor_user_id: instructor.id
+                 instructor_user_id: instructor.id,
+                 belongs: "Instructor"
                )
                |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
@@ -147,7 +149,8 @@ defmodule FlightWeb.API.ControllerTest do
         data:
           @default_attrs
           |> Map.merge(%{
-            aircraft_id: aircraft.id
+            aircraft_id: aircraft.id,
+            belongs: "Aircraft"
           })
       }
 
@@ -160,7 +163,8 @@ defmodule FlightWeb.API.ControllerTest do
       assert unavailability =
                Flight.Repo.get_by(
                  Unavailability,
-                 aircraft_id: aircraft.id
+                 aircraft_id: aircraft.id,
+                 belongs: "Aircraft"
                )
                |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
@@ -169,13 +173,28 @@ defmodule FlightWeb.API.ControllerTest do
       assert json == render_json(UnavailabilityView, "show.json", unavailability: unavailability)
     end
 
-    test "can't create unavailability without instructor or aircraft", %{conn: conn} do
+    test "can't create unavailability without instructor", %{conn: conn} do
       instructor = instructor_fixture()
 
       params = %{
         data:
           @default_attrs
-          |> Map.merge(%{})
+          |> Map.merge(%{belongs: "Instructor"})
+      }
+
+      conn
+      |> auth(instructor)
+      |> post("/api/unavailabilities", params)
+      |> json_response(400)
+    end
+
+    test "can't create unavailability without aircraft", %{conn: conn} do
+      instructor = instructor_fixture()
+
+      params = %{
+        data:
+          @default_attrs
+          |> Map.merge(%{belongs: "Aircraft"})
       }
 
       conn

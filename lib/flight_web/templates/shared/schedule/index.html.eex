@@ -55,20 +55,27 @@
 
       <div class="modal-body">
         <ul id="apptTabs" class="nav nav-pills nav-pills-primary" role="tablist">
-          <li class="nav-item"><a id="navAppt" class="nav-link active" data-toggle="tab" href="#appointmentForm" role="tablist">Appointment</a></li>
-          <li class="nav-item"><a id="navUnavail" class="nav-link" data-toggle="tab" href="#unavailabilityForm" role="tablist">Unavailability</a></li>
+          <li class="nav-item"><a id="navAppt" class="nav-link active" data-toggle="tab" href="#" role="tablist">Appointment</a></li>
+          <li class="nav-item"><a id="navUnavail" class="nav-link" data-toggle="tab" href="#" role="tablist">Unavailability</a></li>
         </ul>
         <div class="tab-content mt-2 mb-2">
 
           <div class="tab-pane active" id="appointmentForm">
-            <div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="apptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value=""></div></div></div>
-            <div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="apptEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>
+            <div class="row"><label class="col-md-3 col-form-label">Start Time *</label>
+              <div class="col-md-9">
+                <div class="form-group"><input id="apptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value=""></div>
+              </div>
+            </div>
+            <div class="row"><label class="col-md-3 col-form-label">End Time *</label>
+              <div class="col-md-9">
+                <div class="form-group"><input id="apptEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div>
+              </div>
+            </div>
             <div class="row">
-              <label class="col-md-3 col-form-label">Renter</label>
+              <label class="col-md-3 col-form-label">Renter/Student*</label>
               <div class="col-md-9">
                 <div class="form-group">
-                  <select id="apptStudent" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Renter" placeholder="Student">
-                    <option>None</option>
+                  <select id="apptStudent" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Renter/Student" placeholder="Student">
                     <%= for renter <- @renters do %>
                       <option value="<%= renter.id %>"><%= display_name(renter) %></option>
                     <% end %>
@@ -77,11 +84,10 @@
               </div>
             </div>
             <div class="row">
-              <label class="col-md-3 col-form-label">Instructor</label>
+              <label class="col-md-3 col-form-label">Instructor *</label>
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="apptInstructor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
-                    <option>None</option>
                     <%= for instructor <- @instructors do %>
                       <option value="<%= instructor.id %>"><%= display_name(instructor) %></option>
                     <% end %>
@@ -90,11 +96,10 @@
               </div>
             </div>
             <div class="row">
-              <label class="col-md-3 col-form-label">Aircraft</label>
+              <label class="col-md-3 col-form-label">Aircraft *</label>
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="apptAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Aircraft">
-                    <option>None</option>
                     <%= for aircraft <- @aircrafts do %>
                       <option value="<%= aircraft.id %>"><%= aircraft_display_name(aircraft, :short) %></option>
                     <% end %>
@@ -125,7 +130,7 @@
               </div>
             </div>
             <div id="fieldInstructor" class="row">
-              <label class="col-md-3 col-form-label">Instructor</label>
+              <label class="col-md-3 col-form-label">Instructor *</label>
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="unavailInstructor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
@@ -137,7 +142,7 @@
               </div>
             </div>
             <div id="fieldAircraft" class="row">
-              <label class="col-md-3 col-form-label">Aircraft</label>
+              <label class="col-md-3 col-form-label">Aircraft *</label>
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="unavailAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Aircraft">
@@ -148,8 +153,16 @@
                 </div>
               </div>
             </div>
-            <div class="row"><label class="col-md-3 col-form-label">Start Time</label><div class="col-md-9"><div class="form-group"><input id="unavailStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div></div></div>
-            <div class="row"><label class="col-md-3 col-form-label">End Time</label><div class="col-md-9"><div class="form-group"><input id="unavailEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div></div></div>
+            <div class="row"><label class="col-md-3 col-form-label">Start Time *</label>
+              <div class="col-md-9">
+                <div class="form-group"><input id="unavailStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div>
+              </div>
+            </div>
+            <div class="row"><label class="col-md-3 col-form-label">End Time *</label>
+              <div class="col-md-9">
+                <div class="form-group"><input id="unavailEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div>
+              </div>
+            </div>
             <div class="row">
               <label class="col-md-3 col-form-label">Note</label>
               <div class="col-md-9">

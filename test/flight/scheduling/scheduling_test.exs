@@ -448,6 +448,8 @@ defmodule Flight.SchedulingTest do
           start_at: Timex.shift(now, hours: 1),
           end_at: Timex.shift(now, hours: -1),
           user_id: student_fixture().id,
+          aircraft_id: aircraft_fixture().id,
+          instructor_user_id: instructor_fixture().id,
           type: type
         })
 
@@ -458,6 +460,8 @@ defmodule Flight.SchedulingTest do
           start_at: now,
           end_at: now,
           user_id: student_fixture().id,
+          aircraft_id: aircraft_fixture().id,
+          instructor_user_id: instructor_fixture().id,
           type: type
         })
 
@@ -490,6 +494,7 @@ defmodule Flight.SchedulingTest do
           end_at: Timex.shift(now, hours: 4),
           user_id: admin.id,
           aircraft_id: aircraft_fixture().id,
+          instructor_user_id: instructor_fixture().id,
           type: type
         })
 
@@ -502,6 +507,7 @@ defmodule Flight.SchedulingTest do
             end_at: Timex.shift(now, hours: 4),
             user_id: (user_fixture() |> assign_role(role)).id,
             aircraft_id: aircraft_fixture().id,
+            instructor_user_id: instructor_fixture().id,
             type: type
           })
       end
@@ -724,6 +730,7 @@ defmodule Flight.SchedulingTest do
           %Unavailability{},
           %{
             instructor_user_id: instructor.id,
+            belongs: "Instructor",
             start_at: @start_at,
             end_at: @end_at,
             reason: "time_off",
@@ -748,6 +755,7 @@ defmodule Flight.SchedulingTest do
           %Unavailability{},
           %{
             instructor_user_id: instructor.id,
+            belongs: "Instructor",
             start_at: @start_at,
             end_at: @end_at
           },
@@ -759,6 +767,7 @@ defmodule Flight.SchedulingTest do
                  %Unavailability{},
                  %{
                    instructor_user_id: instructor.id,
+                   belongs: "Instructor",
                    start_at: @start_at,
                    end_at: @end_at
                  },
@@ -775,6 +784,7 @@ defmodule Flight.SchedulingTest do
           %Unavailability{},
           %{
             aircraft_id: aircraft.id,
+            belongs: "Aircraft",
             start_at: @start_at,
             end_at: @end_at
           },
@@ -786,6 +796,7 @@ defmodule Flight.SchedulingTest do
                  %Unavailability{},
                  %{
                    aircraft_id: aircraft.id,
+                   belongs: "Aircraft",
                    start_at: @start_at,
                    end_at: @end_at
                  },
@@ -804,6 +815,7 @@ defmodule Flight.SchedulingTest do
           %{
             user_id: student_fixture().id,
             instructor_user_id: instructor.id,
+            aircraft_id: aircraft_fixture().id,
             start_at: @start_at,
             end_at: @end_at,
             type: type
@@ -817,6 +829,7 @@ defmodule Flight.SchedulingTest do
                  %Unavailability{},
                  %{
                    instructor_user_id: instructor.id,
+                   belongs: "Instructor",
                    start_at: @start_at,
                    end_at: @end_at
                  },
@@ -832,6 +845,7 @@ defmodule Flight.SchedulingTest do
           %Unavailability{},
           %{
             instructor_user_id: instructor.id,
+            belongs: "Instructor",
             start_at: @start_at,
             end_at: @end_at
           },
@@ -850,11 +864,12 @@ defmodule Flight.SchedulingTest do
       assert unavailability.start_at == Timex.shift(@start_at, hours: -1)
     end
 
-    test "error if no instructor/aircraft" do
+    test "error if no instructor" do
       {:error, _unavailability} =
         Scheduling.insert_or_update_unavailability(
           %Unavailability{},
           %{
+            belongs: "Instructor",
             start_at: @start_at,
             end_at: @end_at
           },
@@ -862,21 +877,50 @@ defmodule Flight.SchedulingTest do
         )
     end
 
-    test "error if both aircraft/instructor assigned" do
-      instructor = instructor_fixture()
-      aircraft = aircraft_fixture()
-
+    test "error if no aircraft" do
       {:error, _unavailability} =
         Scheduling.insert_or_update_unavailability(
           %Unavailability{},
           %{
-            instructor_user_id: instructor.id,
-            aircraft_id: aircraft.id,
+            belongs: "Aircraft",
             start_at: @start_at,
             end_at: @end_at
           },
           default_school_fixture()
         )
+    end
+
+    test "fails if end_at is not greater than start_at" do
+      now = NaiveDateTime.utc_now()
+      type = "rental"
+
+      {:error, changeset} =
+        Scheduling.insert_or_update_unavailability(
+          %Unavailability{},
+          %{
+            instructor_user_id: instructor_fixture().id,
+            belongs: "Instructor",
+            start_at: Timex.shift(now, hours: 1),
+            end_at: Timex.shift(now, hours: -1)
+          },
+          default_school_fixture()
+        )
+
+      assert Enum.count(errors_on(changeset).end_at) == 1
+
+      {:error, changeset} =
+        Scheduling.insert_or_update_unavailability(
+          %Unavailability{},
+          %{
+            instructor_user_id: instructor_fixture().id,
+            belongs: "Instructor",
+            start_at: now,
+            end_at: now
+          },
+          default_school_fixture()
+        )
+
+      assert Enum.count(errors_on(changeset).end_at) == 1
     end
   end
 end
