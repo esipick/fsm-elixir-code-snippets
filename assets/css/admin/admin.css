@@ -932,3 +932,126 @@ fieldset[disabled] .fc button:hover {
 .inherit-font-size {
   font-size: inherit;
 }
+
+#loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  padding: 0;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid #f7f7f7;
+  background: #000000;
+  box-shadow: 0 1px 0 #c5c5c5, inset 0 0 100px #2CA8Fe;
+  overflow: hidden;
+  z-index: 2000;
+}
+
+#loader:before {
+  content: '';
+  position: absolute;
+  top: 87%;
+  left: 55%;
+  width: 4px;
+  height: 4px;
+  background: #00ff00;
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: glow 2s linear infinite;
+}
+
+#loader:after {
+  content: '';
+  position: absolute;
+  top: 70%;
+  left: 45%;
+  width: 4px;
+  height: 4px;
+  background: #00ff00;
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: glow 2s linear infinite;
+}
+
+#loader li:nth-child(1),
+#loader li:nth-child(2),
+#loader li:nth-child(3),
+#loader li:nth-child(4) {
+  list-style: none;
+  position: absolute;
+  top: 50%;
+  height: 1px;
+  width: 100%;
+  background: #0164a9;
+  border-radius: 50%;
+}
+
+#loader li:nth-child(2) {
+  transform: rotate(90deg);
+}
+
+#loader li:nth-child(3) {
+  transform: rotate(45deg);
+}
+
+#loader li:nth-child(4) {
+  transform: rotate(-45deg);
+}
+
+#loader li:nth-child(5),
+#loader li:nth-child(6) {
+  list-style: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  border: 1px solid #0164a9;
+  background: transparent;
+  border-radius: 50%;
+}
+
+#loader li:nth-child(5) {
+  width: 12px;
+  height: 12px;
+}
+
+#loader li:nth-child(6) {
+  width: 23px;
+  height: 23px;
+}
+
+#loader li:nth-child(7) {
+  list-style: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 25px;
+  height: 25px;
+  transform-origin: top left;
+  background: linear-gradient(45deg, #00ff00 0%, transparent 50%);
+  animation: animate 2s linear infinite;
+}
+
+@keyframes animate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes glow {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

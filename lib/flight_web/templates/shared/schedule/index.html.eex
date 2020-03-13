@@ -194,11 +194,13 @@
         <button id="btnSave" type="button" class="btn btn-primary">Save</button>
         </div>
       </div>
-
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<%= render(FlightWeb.SharedView, "loader.html") %>
 <script>
   require("js/admin/schedule.js")
 </script>

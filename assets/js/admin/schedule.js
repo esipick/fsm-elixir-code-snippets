@@ -73,6 +73,9 @@ $(document).ready(function () {
 
   // collect event data on save and send to server
   $('#btnSave').click(function () {
+    var buttonPos = $(this).offset();
+
+    $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left -170 }).show();
 
     $(this).attr("disabled", true);
     setTimeout(function() {
@@ -191,6 +194,7 @@ $(document).ready(function () {
             placement: { align: "center" }
           })
         }
+        $('#loader').hide();
       })
     }
   });
@@ -199,6 +203,9 @@ $(document).ready(function () {
   $('#btnDelete').click(function () {
     if (appointmentOrUnavailabilityId) {
       var promise = null;
+      var buttonPos = $(this).offset();
+
+      $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 170 }).show();
 
       if (eventType == "appt") {
         promise = $.ajax({
@@ -250,6 +257,7 @@ $(document).ready(function () {
             placement: { align: "center" }
           })
         }
+        $('#loader').hide();
       })
     }
   });
@@ -505,6 +513,7 @@ $(document).ready(function () {
               className: 'event-default'
             }
           })
+          $('#loader').hide();
           callback(appointments.concat(unavailabilities))
         })
       }
