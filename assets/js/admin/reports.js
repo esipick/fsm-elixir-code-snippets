@@ -66,6 +66,9 @@ $(document).ready(function() {
       'border:1px solid #000;' +
       'padding:0.5em;' +
       '}' +
+      'a {' +
+      'text-decoration:none;' +
+      '}' +
       '</style>';
     $("#datatable_filter").remove();
     window.frames["print_frame"].document.body.innerHTML = htmlToPrint + $("#tableWrapper").html();
