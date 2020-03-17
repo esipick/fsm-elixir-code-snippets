@@ -35,14 +35,14 @@ class InvoiceLineItem extends Component {
   }
 
   setRate = ({ floatValue = 0 }) => {
-    const rate = floatValue >= 10000000 ? this.state.item.rate : floatValue;
+    const rate = floatValue >= 10000 ? 9999 : floatValue;
     const item = Object.assign({}, this.state.item, { rate: rate * 100 });
 
     this.calculateAmount(item);
   }
 
   setQty = ({ floatValue = 0 }) => {
-    const quantity = floatValue >= 10000000 ? this.state.item.quantity : floatValue;
+    const quantity = floatValue >= 1000 ? this.state.item.quantity : floatValue;
     const item = Object.assign({}, this.state.item, { quantity });
 
     this.calculateAmount(item);
@@ -133,7 +133,7 @@ class InvoiceLineItem extends Component {
 
   render() {
     const { item: { id, description, rate, quantity, amount } } = this.state;
-    const { number, canRemove } = this.props;
+    const { number, canRemove, errors } = this.props;
     const descriptionOpt = DESCRIPTION_OPTS.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
 
@@ -166,6 +166,7 @@ class InvoiceLineItem extends Component {
             onValueChange={this.setRate}
             allowNegative={false}
             required={true} />
+          <Error text={errors.rate} styleProps={{position: 'absolute'}} />
         </td>
         <td className="lc-column">
           <NumberFormat
@@ -177,6 +178,7 @@ class InvoiceLineItem extends Component {
             onValueChange={this.setQty}
             allowNegative={false}
             required={true} />
+          <Error text={errors.quantity} styleProps={{position: 'absolute'}} />
         </td>
         <td className="lc-column">${(amount / 100).toFixed(2)}</td>
         <td className="lc-column remove-line-item-wrapper">
