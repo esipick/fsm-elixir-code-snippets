@@ -1,4 +1,4 @@
-<td><%= Enum.at(@row, 0) %></td>
+<td><a href="/admin/users/<%= Enum.at(@row, 0) |> elem(0) %>"><%= Enum.at(@row, 0) |> elem(1) %></a></td>
 <td><%= Enum.at(@row, 1) %></td>
 <td><%= Enum.at(@row, 2) %></td>
 <td><%= display_hour_tenths Enum.at(@row, 3) %></td>

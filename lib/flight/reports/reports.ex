@@ -105,7 +105,7 @@ defmodule Flight.Reports do
       rows:
         Enum.map(users, fn user ->
           [
-            "#{user.first_name} #{user.last_name}",
+            {user.id, "#{user.first_name} #{user.last_name}"},
             num_transactions(user, transactions),
             time_flown(user, transactions),
             income_generated(user, transactions),
@@ -137,7 +137,7 @@ defmodule Flight.Reports do
       rows:
         Enum.map(users, fn user ->
           [
-            "#{user.first_name} #{user.last_name}",
+            {user.id, "#{user.first_name} #{user.last_name}"},
             num_appointments(user, appointments),
             num_transactions(user, transactions),
             time_flown(user, transactions),
@@ -167,7 +167,7 @@ defmodule Flight.Reports do
       rows:
         Enum.map(aircrafts, fn aircraft ->
           [
-            FlightWeb.ViewHelpers.aircraft_display_name(aircraft, :short),
+            {aircraft.id, FlightWeb.ViewHelpers.aircraft_display_name(aircraft, :short)},
             num_transactions(aircraft, transactions),
             time_flown(aircraft, transactions),
             amount_aircraft_billed(aircraft, transactions)
