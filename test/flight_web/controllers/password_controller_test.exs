@@ -34,8 +34,6 @@ defmodule FlightWeb.PasswordControllerTest do
     end
 
     test "empty email", %{conn: conn} do
-      user = user_fixture()
-
       conn =
         conn
         |> post("/forgot_password", %{email: ""})
@@ -50,8 +48,6 @@ defmodule FlightWeb.PasswordControllerTest do
     end
 
     test "invalid email", %{conn: conn} do
-      user = user_fixture()
-
       conn =
         conn
         |> post("/forgot_password", %{email: "invalid email"})
@@ -66,8 +62,6 @@ defmodule FlightWeb.PasswordControllerTest do
     end
 
     test "unregistered email", %{conn: conn} do
-      user = user_fixture()
-
       conn =
         conn
         |> post("/forgot_password", %{email: "unregistered@example.com"})

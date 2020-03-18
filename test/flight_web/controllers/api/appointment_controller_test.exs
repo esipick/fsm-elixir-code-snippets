@@ -225,6 +225,52 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       end_at: Timex.shift(@default_date, hours: 4)
     }
 
+    test "superadmin creates appointments", %{conn: conn} do
+      school = school_fixture()
+      student = student_fixture(%{}, school)
+      instructor = user_fixture(%{}, school) |> assign_role("instructor")
+      aircraft = aircraft_fixture(%{}, school)
+      type = "lesson"
+
+      params = %{
+        data:
+          @default_attrs
+          |> Map.merge(%{
+            user_id: student.id,
+            instructor_user_id: instructor.id,
+            aircraft_id: aircraft.id,
+            type: type
+          })
+      }
+
+      conn =
+        conn
+        |> auth(superadmin_fixture())
+
+      conn
+      |> post("/api/appointments", params)
+      |> json_response(400)
+
+      json =
+        conn
+        |> post("/api/appointments?school_id=#{school.id}", params)
+        |> json_response(200)
+
+      assert appointment =
+               Flight.Repo.get_by(
+                 Appointment,
+                 user_id: student.id,
+                 instructor_user_id: instructor.id,
+                 aircraft_id: aircraft.id,
+                 type: type
+               )
+               |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
+
+      appointment = FlightWeb.API.AppointmentView.preload(appointment)
+
+      assert json == render_json(AppointmentView, "show.json", appointment: appointment)
+    end
+
     test "student creates appointment", %{conn: conn} do
       student = student_fixture()
       instructor = user_fixture() |> assign_role("instructor")

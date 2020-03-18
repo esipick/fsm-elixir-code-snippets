@@ -79,17 +79,17 @@ defmodule Flight.Accounts.AccountsTest do
     end
 
     test "get_user_by_email/2 is case insensitive" do
-      user = user_fixture(%{email: "foo@example.com"})
+      user_fixture(%{email: "foo@example.com"})
       assert Accounts.get_user_by_email("FoO@EXampLE.com")
     end
 
     test "get_user_by_email/2 for email empty email" do
-      user = user_fixture(%{email: "foo@example.com"})
+      user_fixture(%{email: "foo@example.com"})
       refute Accounts.get_user_by_email("")
     end
 
     test "get_user_by_email/2 for email is nil" do
-      user = user_fixture(%{email: "foo@example.com"})
+      user_fixture(%{email: "foo@example.com"})
       refute Accounts.get_user_by_email(nil)
     end
 

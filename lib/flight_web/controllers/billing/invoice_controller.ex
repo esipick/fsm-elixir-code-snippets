@@ -1,9 +1,9 @@
 defmodule FlightWeb.Billing.InvoiceController do
   use FlightWeb, :controller
 
-  alias Flight.{Repo, Billing.Invoice}
+  alias Flight.{Auth.InvoicePolicy, Repo}
+  alias Flight.Billing.{Invoice, InvoiceCustomLineItem}
   alias FlightWeb.{Pagination, Billing.InvoiceStruct}
-  alias Flight.Auth.InvoicePolicy
 
   plug(:get_invoice when action in [:edit, :show, :delete])
   plug(:authorize_modify when action in [:new, :edit, :delete])
@@ -29,7 +29,19 @@ defmodule FlightWeb.Billing.InvoiceController do
   end
 
   def new(conn, _) do
+    custom_line_items =
+      InvoiceCustomLineItem
+      |> Flight.SchoolScope.school_scope(conn)
+      |> Repo.all()
+      |> Enum.map(fn custom_line_item ->
+        %{
+          default_rate: custom_line_item.default_rate,
+          description: custom_line_item.description
+        }
+      end)
+
     props = %{
+      custom_line_items: custom_line_items,
       tax_rate: conn.assigns.current_user.school.sales_tax || 0,
       action: "create"
     }
@@ -38,7 +50,18 @@ defmodule FlightWeb.Billing.InvoiceController do
   end
 
   def edit(conn, _) do
-    props = %{id: conn.assigns.invoice.id, action: "edit"}
+    custom_line_items =
+      InvoiceCustomLineItem
+      |> Flight.SchoolScope.school_scope(conn)
+      |> Repo.all()
+      |> Enum.map(fn custom_line_item ->
+        %{
+          default_rate: custom_line_item.default_rate,
+          description: custom_line_item.description
+        }
+      end)
+
+    props = %{action: "edit", custom_line_items: custom_line_items, id: conn.assigns.invoice.id}
 
     render(conn, "edit.html", props: props, skip_shool_select: true)
   end

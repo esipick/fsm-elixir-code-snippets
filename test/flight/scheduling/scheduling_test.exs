@@ -892,7 +892,6 @@ defmodule Flight.SchedulingTest do
 
     test "fails if end_at is not greater than start_at" do
       now = NaiveDateTime.utc_now()
-      type = "rental"
 
       {:error, changeset} =
         Scheduling.insert_or_update_unavailability(

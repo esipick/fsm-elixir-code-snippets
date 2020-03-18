@@ -54,17 +54,17 @@ class LineItemsTable extends Component {
     return this.state.memo[key];
   }
 
-  addItem = () => {
+  addLineItem = () => {
     const line_items = [...this.lineItems(), new LineItemRecord()];
     this.updateTotal(line_items);
   }
 
-  removeItem = (id) => {
+  removeLineItem = (id) => {
     const line_items = this.lineItems().filter(i => i.id != id);
     this.updateTotal(line_items);
   }
 
-  setItem = (item) => {
+  setLineItem = (item) => {
     const line_items = this.lineItems().map(i => i.id == item.id ? item : i);
     this.updateTotal(line_items);
   };
@@ -95,7 +95,7 @@ class LineItemsTable extends Component {
 
   render() {
     const { total, total_tax, total_amount_due } = this.state;
-    const { sales_tax, errors } = this.props;
+    const { aircrafts, custom_line_items, errors, instructors, sales_tax } = this.props;
     const line_items = this.lineItems();
 
     return (
@@ -113,21 +113,23 @@ class LineItemsTable extends Component {
         </thead>
         <tbody>
           {
-            line_items.map((item, i) => (
-              <LineItem item={item}
-                number={i + 1}
-                errors={errors[i] || {}}
-                key={item.id || i}
-                onChange={this.setItem}
-                aircrafts={this.props.aircrafts}
-                instructors={this.props.instructors}
+            line_items.map((line_item, i) => (
+              <LineItem aircrafts={aircrafts}
                 canRemove={line_items.length > 1}
-                onRemove={this.removeItem} />
+                custom_line_items={custom_line_items}
+                errors={errors[i] || {}}
+                instructors={instructors}
+                key={line_item.id || i}
+                line_item={line_item}
+                line_items={line_items}
+                number={i + 1}
+                onChange={this.setLineItem}
+                onRemove={this.removeLineItem} />
             ))
           }
           <tr>
             <td colSpan="7">
-              <button className="btn btn-sm btn-default" onClick={this.addItem}>Add</button>
+              <button className="btn btn-sm btn-default" onClick={this.addLineItem}>Add</button>
             </td>
           </tr>
           <tr>

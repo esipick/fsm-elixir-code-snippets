@@ -52,7 +52,7 @@ defmodule FlightWeb.SchoolInvitationControllerTest do
 
       assert redirected_to(conn) == "/admin/settings"
 
-      assert school = Flight.Repo.get_by(Accounts.School, name: "John Hopkins")
+      assert Flight.Repo.get_by(Accounts.School, name: "John Hopkins")
 
       assert user = Accounts.get_user_by_email("food@bards.com")
 

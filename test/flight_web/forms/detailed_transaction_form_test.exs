@@ -3,10 +3,9 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
 
   import Flight.BillingFixtures
 
+  alias Flight.Billing
   alias FlightWeb.API.DetailedTransactionForm
   alias FlightWeb.API.DetailedTransactionForm.{AircraftDetails, InstructorDetails}
-  alias Flight.Billing.{TransactionLineItem, AircraftLineItemDetail, InstructorLineItemDetail}
-  alias Flight.Billing
 
   describe "form" do
     test "validates filled out data" do

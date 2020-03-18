@@ -16,30 +16,31 @@ defmodule Flight.Auth.Permission do
   defstruct [:resource, :verb, :scope]
 
   @resources [
+    :admins,
     :aircraft,
-    :users,
-    :user_protected_info,
     :appointment,
-    :appointment_user,
     :appointment_instructor,
     :appointment_student,
+    :appointment_user,
+    :invoice,
+    :invoice_custom_line_items,
+    :objective_score,
+    :payment_settings,
     :push_token,
+    :role,
+    :school,
     :transaction,
     :transaction_approve,
-    :transaction_user,
-    :transaction_creator,
     :transaction_cash,
     :transaction_cash_self,
-    :objective_score,
+    :transaction_creator,
+    :transaction_user,
     :unavailability,
-    :unavailability_instructor,
     :unavailability_aircraft,
-    :invoice,
-    :billing_settings,
-    :admins,
-    :web_dashboard,
-    :role,
-    :school
+    :unavailability_instructor,
+    :user_protected_info,
+    :users,
+    :web_dashboard
   ]
   @verbs [:view, :modify, :create, :be, :request, :access]
   @scopes [:all, :personal]

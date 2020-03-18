@@ -1,0 +1,59 @@
+<%= if !@school.stripe_account do %>
+  <h4 class="card-title m-0 p-0 pb-2">Activate Stripe Account</h4>
+  <p>Flight School Manager uses <a href="http://stripe.com" target="_blank">Stripe.com</a> for all payment processing.
+    Every school needs to set up their own Stripe account in order to accept payments in the system.
+    Click the Connect to Stripe button below to create a new Stripe account, or to connect an existing Stripe account.</p>
+  <a href="<%= stripe_authorize_url() %>" class="btn btn-fill btn-primary btn-lg">Connect to Stripe&nbsp;&nbsp;&nbsp;➔</a>
+  <p class="text-muted mt-2 mb-2"><small><i>By connecting to Stripe, you are agreeing to our <a href="/terms">Terms of Service</a>.</i></small></p>
+  <hr/>
+  <div class="mt-4">
+    <a href="http://stripe.com" target="_blank"><img src="/images/powered_by_stripe.svg" alt="Powered by Stripe" width="120"></a>
+  </div>
+<% else %>
+  <h4 class="card-title m-0 p-0 pb-2">Stripe Account Status</h4>
+  <p>Below is a quick view of your Stripe Account Status. If everything is "good" you are good to go! If you see anything with an "error", click the supplied link and resolve them with Stripe to make sure your account is sending and recieving payments correctly.</p>
+  <div class="table-responsive">
+    <table class="table text-left">
+      <thead class="text-primary">
+        <tr>
+          <th>Item</th>
+          <th>Description</th>
+          <th class="text-right">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= if !@school.stripe_account.details_submitted do %>
+          <tr>
+            <td>Account Activated</td>
+            <td>Whether you have activated your Stripe account.</td>
+            <td class="text-right"><a target="_blank" href="<%= stripe_activation_url(@school.stripe_account) %>" class="btn btn-primary btn-sm">Activate</a><span class="badge badge-danger ml-3">Error</span></td>
+          </tr>
+        <% end %>
+        <tr>
+          <td>Charges Enabled</td>
+          <td>Whether Stripe can charge the credit cards of your students and renters.</td>
+          <%= if @school.stripe_account.charges_enabled do %>
+            <td class="text-right"><span class="badge badge-success">Good</span></td>
+          <% else %>
+            <td class="text-right"><a target="_blank" href="https://dashboard.stripe.com" class="btn btn-primary btn-sm">Resolve on Stripe</a><span class="badge badge-danger ml-3">Error</span></td>
+          <% end %>
+        </tr>
+        <tr>
+          <td>Payouts Enabled</td>
+          <td>Whether Stripe can send payouts to your bank account.</td>
+          <%= if @school.stripe_account.payouts_enabled do %>
+            <td class="text-right"><span class="badge badge-success">Good</span></td>
+          <% else %>
+            <td class="text-right"><a target="_blank" href="https://dashboard.stripe.com" class="btn btn-primary btn-sm">Resolve on Stripe</a><span class="badge badge-danger ml-3">Error</span></td>
+          <% end %>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <td class="text-right"><a target="_blank" href="https://dashboard.stripe.com" class="btn btn-fill btn-primary btn-lg">Go To Stripe Dashboard</a>
+    </div>
+    <div class="mt-4">
+      <a href="http://stripe.com" target="_blank"><img src="/images/powered_by_stripe.svg" alt="Powered by Stripe" width="120"></a>
+    </div>
+  <% end %>

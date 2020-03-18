@@ -11,10 +11,7 @@ export const TYPES = {
 
 export const DESCRIPTION_OPTS = [
   FLIGHT_HOURS,
-  INSTRUCTOR_HOURS,
-  "Fuel Charge",
-  "Fuel Reimbursement",
-  "Equipment Rental"
+  INSTRUCTOR_HOURS
 ].map(o => ({ label: o, value: o }));
 
 export const DEFAULT_RATE = 100;

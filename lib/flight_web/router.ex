@@ -269,6 +269,12 @@ defmodule FlightWeb.Router do
 
     scope "/invoices", Invoices do
       get("/line_items/extra_options", LineItemController, :extra_options)
+
+      scope "/:school_id" do
+        resources("/custom_line_items", CustomLineItemController,
+          only: [:create, :delete, :update]
+        )
+      end
     end
   end
 

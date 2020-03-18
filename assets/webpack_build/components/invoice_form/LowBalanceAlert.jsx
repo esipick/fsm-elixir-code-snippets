@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import Modal from 'react-modal';
 
 const customStyles = {
-  content : {
+  content: {
     top: '50%',
     left: '50%',
     right: 'auto',
@@ -37,15 +37,15 @@ class LowBalanceAlert extends PureComponent {
               Balance amount is less than total amount due.
             </div>
 
-            { (balance > 0) &&
-                <div>
-                  <b>${(balance / 100).toFixed(2)}</b> will be charged from balance and <b>${card_amount}</b> from the card.
-                </div> }
+            {(balance > 0) &&
+              <div>
+                <b>${(balance / 100).toFixed(2)}</b> will be charged from balance and <b>${card_amount}</b> from the card.
+                </div>}
 
-            { (balance == 0) &&
-                <div>
-                  <b>${card_amount}</b> will be charged from the card.
-                </div> }
+            {(balance == 0) &&
+              <div>
+                <b>${card_amount}</b> will be charged from the card.
+                </div>}
           </div>
           <div className="balance-warning-dialog__controls">
             <button className="btn btn-danger" onClick={this.props.onClose}>

@@ -14,6 +14,23 @@ defmodule FlightWeb.API.Invoices.LineItemControllerTest do
     test "renders available items", %{conn: conn} do
       instructor = instructor_fixture()
 
+      invoice_custom_line_item_fixture(%{
+        description: "Fuel Charge",
+        school_id: instructor.school_id
+      })
+
+      invoice_custom_line_item_fixture(%{
+        description: "Fuel Reimbursement",
+        default_rate: 1000,
+        school_id: instructor.school_id
+      })
+
+      invoice_custom_line_item_fixture(%{
+        description: "Equipment Rental",
+        default_rate: 10000,
+        school_id: instructor.school_id
+      })
+
       json =
         conn
         |> auth(instructor)
@@ -21,9 +38,9 @@ defmodule FlightWeb.API.Invoices.LineItemControllerTest do
         |> json_response(200)
 
       assert json["data"] == [
-               %{"default_rate" => 100, "description" => "Fuel Charge"},
-               %{"default_rate" => 100, "description" => "Fuel Reimbursement"},
-               %{"default_rate" => 100, "description" => "Equipment Rental"}
+               %{"default_rate" => 10000, "description" => "Equipment Rental"},
+               %{"default_rate" => 1000, "description" => "Fuel Reimbursement"},
+               %{"default_rate" => 100, "description" => "Fuel Charge"}
              ]
     end
   end

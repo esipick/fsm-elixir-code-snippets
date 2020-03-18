@@ -81,7 +81,8 @@ defmodule Flight.Auth.Authorization do
     MapSet.union(
       dispatcher_permission_slugs(),
       MapSet.new([
-        permission_slug(:billing_settings, :modify, :all),
+        permission_slug(:payment_settings, :modify, :all),
+        permission_slug(:invoice_custom_line_items, :modify, :all),
         permission_slug(:admins, :modify, :all)
       ])
     )

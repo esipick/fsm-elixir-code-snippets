@@ -347,10 +347,10 @@ class Form extends Component {
   }
 
   render() {
-    const {
-      appointment, appointment_loading, student, date,
-      line_items, sales_tax, total, total_tax, total_amount_due, payment_method,
-      errors, stripe_error, saving, id
+    const { custom_line_items } = this.props
+    const { aircrafts, appointment, appointment_loading, appointments, balance_warning_open,
+      instructors, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
+      saving, stripe_error, student, students, total, total_amount_due, total_tax
     } = this.state;
 
     return (
@@ -374,7 +374,7 @@ class Form extends Component {
                       isValidNewOption={this.isGuestNameValid}
                       onCreateOption={this.createGuestPayer}
                       classNamePrefix="react-select"
-                      options={this.state.students}
+                      options={students}
                       onChange={this.setStudent}
                       getOptionLabel={(o) => (o.label || o.first_name + ' ' + o.last_name)}
                       getOptionValue={(o) => o.id}
@@ -390,7 +390,7 @@ class Form extends Component {
                   <div className={classnames('invoice-select-wrapper', errors.appointment_id ? 'with-error' : '')}>
                     <Select placeholder="Appointment"
                       classNamePrefix="react-select"
-                      options={this.state.appointments}
+                      options={appointments}
                       onChange={this.setAppointment}
                       isLoading={appointment_loading}
                       getOptionLabel={this.appointmentLabel}
@@ -424,17 +424,18 @@ class Form extends Component {
                 </div>
 
                 <div className="form-group">
-                  {!this.state.invoice_loading &&
-                    <LineItemsTable appointment={appointment}
+                  {!invoice_loading &&
+                    <LineItemsTable aircrafts={aircrafts}
+                      appointment={appointment}
+                      custom_line_items={custom_line_items}
                       errors={errors.line_items || []}
+                      instructors={instructors}
                       line_items={line_items}
                       onChange={this.onLineItemsTableChange}
-                      aircrafts={this.state.aircrafts}
-                      instructors={this.state.instructors}
                       sales_tax={sales_tax}
                       total={total}
-                      total_tax={total_tax}
-                      total_amount_due={total_amount_due} />}
+                      total_amount_due={total_amount_due}
+                      total_tax={total_tax} />}
                 </div>
 
                 <div className="form-group">
@@ -471,7 +472,7 @@ class Form extends Component {
           </div>
         </div>
 
-        <LowBalanceAlert open={this.state.balance_warning_open}
+        <LowBalanceAlert open={balance_warning_open}
           onClose={this.closeBalanceWarning}
           onAccept={this.acceptBalanceWarning}
           balance={student ? student.balance : 0}

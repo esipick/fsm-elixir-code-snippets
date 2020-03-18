@@ -56,7 +56,14 @@ defmodule FlightWeb.Admin.SettingsControllerTest do
       |> html_response(200)
     end
 
-    test "renders billing info", %{conn: conn} do
+    test "renders payment setup", %{conn: conn} do
+      conn
+      |> web_auth_admin()
+      |> get("/admin/settings?tab=payment")
+      |> html_response(200)
+    end
+
+    test "renders billing settings", %{conn: conn} do
       conn
       |> web_auth_admin()
       |> get("/admin/settings?tab=billing")

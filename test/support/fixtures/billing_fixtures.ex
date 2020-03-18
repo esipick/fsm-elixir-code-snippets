@@ -1,17 +1,15 @@
 defmodule Flight.BillingFixtures do
-  alias Flight.Repo
-
   import Flight.AccountsFixtures
   import Flight.SchedulingFixtures
 
-  @hobbs_start 12200
+  alias Flight.Repo
+  alias Flight.Billing.{Invoice, InvoiceCustomLineItem, Transaction}
+
   @hobbs_end 12232
-  @tach_start 33333
-  @tach_end 33369
-
+  @hobbs_start 12200
   @instructor_hours 23
-
-  alias Flight.Billing.{Invoice, Transaction}
+  @tach_end 33369
+  @tach_start 33333
 
   def transaction_fixture(
         attrs \\ %{},
@@ -193,6 +191,22 @@ defmodule Flight.BillingFixtures do
        type: "standard",
        verification: nil
      }}
+  end
+
+  def invoice_custom_line_item_fixture(attrs \\ %{}) do
+    attrs =
+      %{
+        default_rate: 100,
+        description: "custom line item"
+      }
+      |> Map.merge(attrs)
+
+    custom_line_item =
+      %InvoiceCustomLineItem{}
+      |> InvoiceCustomLineItem.changeset(attrs)
+      |> Repo.insert!()
+
+    custom_line_item
   end
 
   def invoice_fixture(attrs \\ %{}, user \\ student_fixture()) do

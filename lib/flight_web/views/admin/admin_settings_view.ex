@@ -18,7 +18,7 @@ defmodule FlightWeb.Admin.SettingsView do
   def can_access_billing?(conn) do
     Flight.Auth.Authorization.user_can?(
       conn.assigns.current_user,
-      [Permission.new(:billing_settings, :modify, :all)]
+      [Permission.new(:payment_settings, :modify, :all)]
     )
   end
 end
