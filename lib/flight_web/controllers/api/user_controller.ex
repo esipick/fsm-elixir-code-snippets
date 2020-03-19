@@ -106,8 +106,6 @@ defmodule FlightWeb.API.UserController do
       render(conn, "show.json", user: user)
     else
       {:error, changeset} ->
-        IO.inspect(changeset)
-
         conn
         |> put_status(400)
         |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})

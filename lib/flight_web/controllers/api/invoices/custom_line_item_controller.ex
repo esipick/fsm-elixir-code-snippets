@@ -12,7 +12,8 @@ defmodule FlightWeb.API.Invoices.CustomLineItemController do
         custom_line_item = %{
           default_rate: changeset.default_rate,
           description: changeset.description,
-          id: changeset.id
+          id: changeset.id,
+          school_id: changeset.school_id
         }
 
         conn
@@ -26,11 +27,18 @@ defmodule FlightWeb.API.Invoices.CustomLineItemController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    InvoiceCustomLineItem.delete_custom_line_item!(id)
+  def delete(conn, %{"id" => id, "school_id" => school_id}) do
+    result = InvoiceCustomLineItem.delete_custom_line_item(id, school_id)
 
-    conn
-    |> resp(204, "")
+    case result do
+      {:ok, _} ->
+        conn
+        |> resp(204, "")
+
+      nil ->
+        conn
+        |> resp(404, "")
+    end
   end
 
   def update(conn, %{"custom_line_item" => data_params, "id" => id, "school_id" => school_id}) do
@@ -48,8 +56,6 @@ defmodule FlightWeb.API.Invoices.CustomLineItemController do
         |> json(custom_line_item)
 
       {:error, changeset} ->
-        IO.inspect(changeset)
-
         conn
         |> put_status(422)
         |> json(%{errors: ViewHelpers.translate_errors(changeset)})

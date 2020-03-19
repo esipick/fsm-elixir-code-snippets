@@ -201,12 +201,9 @@ defmodule Flight.BillingFixtures do
       }
       |> Map.merge(attrs)
 
-    custom_line_item =
-      %InvoiceCustomLineItem{}
-      |> InvoiceCustomLineItem.changeset(attrs)
-      |> Repo.insert!()
-
-    custom_line_item
+    %InvoiceCustomLineItem{}
+    |> InvoiceCustomLineItem.changeset(attrs)
+    |> Repo.insert!()
   end
 
   def invoice_fixture(attrs \\ %{}, user \\ student_fixture()) do

@@ -23,7 +23,6 @@ defmodule FlightWeb.SchoolInvitationController do
         |> redirect(to: "/admin/settings")
 
       {:error, changeset} ->
-        IO.inspect(changeset)
         render(conn, "accept.html", invitation: conn.assigns.invitation, changeset: changeset)
     end
   end

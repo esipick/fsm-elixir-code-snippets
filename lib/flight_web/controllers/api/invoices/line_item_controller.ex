@@ -7,7 +7,13 @@ defmodule FlightWeb.API.Invoices.LineItemController do
   plug(:authorize_view)
 
   def extra_options(conn, _) do
-    render(conn, "extra_options.json")
+    user = conn.assigns.current_user
+    custom_line_items =
+      Flight.Billing.InvoiceCustomLineItem
+      |> Flight.SchoolScope.scope_query(user)
+      |> Flight.Repo.all()
+
+    render(conn, "extra_options.json", custom_line_items: custom_line_items)
   end
 
   defp authorize_view(conn, _) do

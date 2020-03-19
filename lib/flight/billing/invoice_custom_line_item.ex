@@ -6,7 +6,7 @@ defmodule Flight.Billing.InvoiceCustomLineItem do
   alias __MODULE__
 
   @reserved_descriptions ["Flight Hours", "Instructor Hours"]
-  @required_fields ~w(default_rate description)a
+  @required_fields ~w(default_rate description school_id)a
 
   schema "invoice_custom_line_items" do
     field(:default_rate, :integer)
@@ -28,8 +28,14 @@ defmodule Flight.Billing.InvoiceCustomLineItem do
     |> insert()
   end
 
-  def delete_custom_line_item!(id) do
-    delete!(%InvoiceCustomLineItem{id: id_from_string(id)})
+  def delete_custom_line_item(id, school_id) do
+    custom_line_item =
+      get_by(InvoiceCustomLineItem, %{
+        id: id_from_string(id),
+        school_id: id_from_string(school_id)
+      })
+
+    if custom_line_item, do: delete(custom_line_item)
   end
 
   def update_custom_line_item(params, id, school_id) do
