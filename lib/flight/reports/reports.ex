@@ -340,7 +340,11 @@ defmodule Flight.Reports do
   def income_generated(user, transactions) do
     (transactions[user.id] || [])
     |> Enum.reduce(0, fn transaction, acc ->
-      acc + (transaction.paid_by_charge || 0)
+      acc +
+      (transaction.paid_by_cash ||
+      transaction.paid_by_charge ||
+      transaction.paid_by_check ||
+      transaction.paid_by_venmo || 0)
     end)
   end
 

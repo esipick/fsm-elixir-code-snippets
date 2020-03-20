@@ -36,7 +36,7 @@ class InvoiceLineItem extends Component {
   }
 
   setRate = ({ floatValue = 0 }) => {
-    const rate = floatValue >= 10000 ? 9999 : floatValue;
+    const rate = floatValue >= 10000 ? 9999 : floatValue <= -10000 ? -9999 : floatValue;
     const line_item = Object.assign({}, this.state.line_item, { rate: rate * 100 });
 
     this.calculateAmount(line_item);

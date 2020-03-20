@@ -51,7 +51,13 @@ $(document).ready(function() {
       }
     });
     $(".datetimepickerstart").on("dp.change", function (e) {
-      $('.datetimepickerend').data("DateTimePicker").minDate(e.date);
+      var inputEndDate = $('.datetimepickerend').data("DateTimePicker");
+
+      inputEndDate.minDate(e.date);
+
+      if (inputEndDate.date() < e.date) {
+        inputEndDate.date(e.date)
+      }
     });
     $(".datetimepickerend").on("dp.change", function (e) {
       $('.datetimepickerstart').data("DateTimePicker").maxDate(e.date);
