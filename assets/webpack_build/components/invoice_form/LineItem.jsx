@@ -69,6 +69,7 @@ class InvoiceLineItem extends Component {
       tach_end,
       quantity: 1,
       rate: amount,
+      amount: amount,
       hobbs_tach_used: true
     });
 
