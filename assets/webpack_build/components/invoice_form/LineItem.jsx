@@ -1,9 +1,11 @@
-import http from 'j-fetch';
+import classnames from 'classnames';
 import NumberFormat from 'react-number-format';
 import React, { Component } from 'react';
+import Select from 'react-select';
+
+import HobbsTachModal from './HobbsTachModal';
 
 import Error from '../common/Error';
-import Select from 'react-select';
 
 import {
   LineItemRecord, FLIGHT_HOURS, INSTRUCTOR_HOURS, DEFAULT_TYPE, TYPES, DESCRIPTION_OPTS, DEFAULT_RATE
@@ -20,7 +22,8 @@ class InvoiceLineItem extends Component {
     this.state = {
       aircraft,
       instructor_user,
-      line_item
+      line_item,
+      hobbs_and_tach_mode: false
     }
   }
 
@@ -56,6 +59,38 @@ class InvoiceLineItem extends Component {
     this.props.onChange(line_item);
   }
 
+  applyHobbsAndTach = (data) => {
+    const { hobbs_start, hobbs_end, tach_start, tach_end, amount } = data;
+
+    const line_item = Object.assign({}, this.state.line_item, {
+      hobbs_start,
+      hobbs_end,
+      tach_start,
+      tach_end,
+      quantity: 1,
+      rate: amount,
+      hobbs_tach_used: true
+    });
+
+    this.setState({ line_item, hobbs_and_tach_mode: false });
+    this.props.onChange(line_item);
+  }
+
+  resetHobbsAndTach = (e) => {
+    e && e.preventDefault();
+
+    const line_item = Object.assign({}, this.state.line_item, {
+      hobbs_start: null,
+      hobbs_end: null,
+      tach_start: null,
+      tach_end: null,
+      hobbs_tach_used: false
+    });
+
+    this.setState({ line_item });
+    this.props.onChange(line_item);
+  }
+
   remove = (e) => {
     e.preventDefault();
 
@@ -70,6 +105,8 @@ class InvoiceLineItem extends Component {
     return this.state.line_item.description == INSTRUCTOR_HOURS;
   }
 
+  isHobbsAndTach = () => (this.isFlightHours() && this.state.hobbs_and_tach_mode);
+
   setAircraft = (aircraft) => {
     const rate = aircraft ? aircraft.rate_per_hour : DEFAULT_RATE;
     const aircraft_id = aircraft ? aircraft.id : null;
@@ -77,8 +114,7 @@ class InvoiceLineItem extends Component {
     const payload = { rate, aircraft_id, amount };
     const line_item = Object.assign({}, this.state.line_item, payload);
 
-    this.setState({ aircraft, line_item });
-    this.props.onChange(line_item);
+    this.setState({ aircraft, line_item }, () => this.resetHobbsAndTach());
   }
 
   aircraftSelect = () => {
@@ -101,23 +137,21 @@ class InvoiceLineItem extends Component {
   }
 
   selectOptions = () => {
-    let options = DESCRIPTION_OPTS.concat(this.props.custom_line_items.map(o => ({
+    const options = DESCRIPTION_OPTS.concat(this.props.custom_line_items.map(o => ({
       label: o.description,
       rate: o.default_rate,
       value: o.description
     })))
 
-    for (let line_item of this.props.line_items) {
-      if (!options.find(o => o.value == line_item.description)) {
-        options = options.concat({
-          label: line_item.description,
-          rate: line_item.rate,
-          value: line_item.description
-        })
-      }
-    }
+    const additionalOptions = this.props.line_items.filter(line_item => (
+      !options.find(o => o.value == line_item.description)
+    )).map(line_item => ({
+      label: line_item.description,
+      rate: line_item.rate,
+      value: line_item.description
+    }));
 
-    return options
+    return [...options, ...additionalOptions];
   }
 
   setInstructor = (instructor_user) => {
@@ -150,8 +184,98 @@ class InvoiceLineItem extends Component {
     );
   }
 
+  toggleHobbsAndTach = (e) => {
+    e.preventDefault();
+
+    if (!this.isFlightHours() || !this.state.aircraft) return;
+
+    const hobbs_and_tach_mode = !this.state.hobbs_and_tach_mode;
+
+    this.setState({ hobbs_and_tach_mode });
+  }
+
+  flightModeToggler = () => {
+    const { aircraft } = this.state;
+    const klassName = aircraft ? '' : 'hobbs-tach-icon-disabled';
+
+    return (
+      <a className={klassName} onClick={this.toggleHobbsAndTach} title="Use Hobbs and Tach time" href="#">
+        <i className="now-ui-icons tech_watch-time"></i>
+      </a>
+    )
+  }
+
+  standardFields = () => {
+    const { line_item: { rate, quantity } } = this.state;
+    const { errors } = this.props;
+    const rateClass = classnames('form-control inherit-font-size', this.isFlightHours() ? 'aircraft-rate-control' : '');
+
+    return (
+      <React.Fragment>
+        <td className="lc-column">
+          { this.isFlightHours() && this.flightModeToggler() }
+          <NumberFormat allowNegative={true}
+            className={rateClass}
+            decimalScale={2}
+            fixedDecimalScale={2}
+            onValueChange={this.setRate}
+            required={true}
+            thousandSeparator={true}
+            value={rate / 100} />
+          <Error text={errors.rate} styleProps={{ position: 'absolute' }} />
+        </td>
+        <td className="lc-column">
+          <NumberFormat allowNegative={false}
+            className="form-control inherit-font-size"
+            decimalScale={2}
+            fixedDecimalScale={2}
+            onValueChange={this.setQty}
+            required={true}
+            thousandSeparator={true}
+            value={quantity} />
+          <Error text={errors.quantity} styleProps={{ position: 'absolute' }} />
+        </td>
+      </React.Fragment>
+    )
+  }
+
+  hobbsAndTachFields = () => {
+    return (
+      <React.Fragment>
+        <td className="lc-column" colSpan={2}>
+          Calculated using Hobbs & Tach time.
+          <a className="ml-1" onClick={this.toggleHobbsAndTach} href="#">Edit</a>
+          <a className="ml-1" onClick={this.resetHobbsAndTach} href="#">Clear</a>
+        </td>
+      </React.Fragment>
+    );
+  }
+
+  hobbsAndTachModal = () => {
+    const { aircraft, line_item } = this.state;
+
+    if (!aircraft) return;
+
+    const hobbs_start = line_item.hobbs_start || aircraft.last_hobbs_time;
+    const hobbs_end = line_item.hobbs_end || 0;
+    const tach_start = line_item.tach_start || aircraft.last_tach_time;
+    const tach_end = line_item.tach_end || 0;
+    const values = {
+      hobbs_start, hobbs_end, tach_start, tach_end
+    }
+
+    return (
+      <HobbsTachModal aircraft={aircraft}
+        values={values}
+        open={true}
+        creator={this.props.creator}
+        onClose={this.toggleHobbsAndTach}
+        onAccept={this.applyHobbsAndTach} />
+    )
+  }
+
   render() {
-    const { line_item: { id, description, rate, quantity, amount } } = this.state;
+    const { aircraft, line_item: { hobbs_tach_used, id, description, amount } } = this.state;
     const { number, canRemove, errors } = this.props;
     const options = this.selectOptions()
     const descriptionOpt = options.find(o => o.value == description);
@@ -175,28 +299,9 @@ class InvoiceLineItem extends Component {
           {this.isInstructorHours() && this.instructorSelect()}
           {this.isFlightHours() && this.aircraftSelect()}
         </td>
-        <td className="lc-column">
-          <NumberFormat allowNegative={true}
-            className="form-control inherit-font-size"
-            decimalScale={2}
-            fixedDecimalScale={2}
-            onValueChange={this.setRate}
-            required={true}
-            thousandSeparator={true}
-            value={rate / 100} />
-          <Error text={errors.rate} styleProps={{ position: 'absolute' }} />
-        </td>
-        <td className="lc-column">
-          <NumberFormat allowNegative={false}
-            className="form-control inherit-font-size"
-            decimalScale={2}
-            fixedDecimalScale={2}
-            onValueChange={this.setQty}
-            required={true}
-            thousandSeparator={true}
-            value={quantity} />
-          <Error text={errors.quantity} styleProps={{ position: 'absolute' }} />
-        </td>
+        { this.isHobbsAndTach() && this.hobbsAndTachModal() }
+        { !hobbs_tach_used && this.standardFields() }
+        { hobbs_tach_used && this.hobbsAndTachFields() }
         <td className="lc-column">${(amount / 100).toFixed(2)}</td>
         <td className="lc-column remove-line-item-wrapper">
           {canRemove && <a className="remove-line-item" href="" onClick={this.remove}>&times;</a>}

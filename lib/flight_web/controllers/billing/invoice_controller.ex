@@ -43,7 +43,8 @@ defmodule FlightWeb.Billing.InvoiceController do
     props = %{
       custom_line_items: custom_line_items,
       tax_rate: conn.assigns.current_user.school.sales_tax || 0,
-      action: "create"
+      action: "create",
+      creator: %{ id: conn.assigns.current_user.id }
     }
 
     render(conn, "new.html", props: props)
@@ -61,7 +62,12 @@ defmodule FlightWeb.Billing.InvoiceController do
         }
       end)
 
-    props = %{action: "edit", custom_line_items: custom_line_items, id: conn.assigns.invoice.id}
+    props = %{
+      action: "edit",
+      custom_line_items: custom_line_items,
+      id: conn.assigns.invoice.id,
+      creator: %{ id: conn.assigns.current_user.id }
+    }
 
     render(conn, "edit.html", props: props, skip_shool_select: true)
   end

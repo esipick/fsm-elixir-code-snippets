@@ -14,6 +14,11 @@ defmodule FlightWeb.API.InvoiceLineItemView do
       quantity: line_item.quantity,
       type: line_item.type,
       instructor_user_id: line_item.instructor_user_id,
+      hobbs_start: line_item.hobbs_start,
+      hobbs_end: line_item.hobbs_end,
+      tach_start: line_item.tach_start,
+      tach_end: line_item.tach_end,
+      hobbs_tach_used: line_item.hobbs_tach_used,
       aircraft_id: line_item.aircraft_id,
       aircraft:
         Optional.map(

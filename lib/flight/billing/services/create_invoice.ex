@@ -5,7 +5,7 @@ defmodule Flight.Billing.CreateInvoice do
   alias Flight.Accounts.User
   alias Flight.Billing.{Invoice, Transaction, PayTransaction}
   alias FlightWeb.Billing.InvoiceStruct
-  alias Flight.Scheduling.Appointment
+  alias Flight.Scheduling.{Appointment, Aircraft}
 
   def run(invoice_params, school_context) do
     pay_off = Map.get(school_context.params, "pay_off", false)
@@ -45,6 +45,20 @@ defmodule Flight.Billing.CreateInvoice do
       {:ok, invoice} ->
         if invoice.appointment do
           Appointment.paid(invoice.appointment)
+        end
+
+        line_item = Enum.find(invoice.line_items, fn i -> i.hobbs_tach_used end)
+
+        if line_item do
+          aircraft = Repo.get(Aircraft, line_item.aircraft_id)
+
+          {:ok, _} =
+            aircraft
+            |> Aircraft.changeset(%{
+              last_tach_time: line_item.tach_end,
+              last_hobbs_time: line_item.hobbs_end
+            })
+            |> Flight.Repo.update()
         end
 
         {:ok, invoice}

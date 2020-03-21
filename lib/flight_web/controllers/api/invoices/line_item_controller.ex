@@ -2,7 +2,6 @@ defmodule FlightWeb.API.Invoices.LineItemController do
   use FlightWeb, :controller
 
   alias Flight.Auth.Permission
-  alias FlightWeb.{ViewHelpers}
 
   plug(:authorize_view)
 

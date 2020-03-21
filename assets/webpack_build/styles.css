@@ -36,6 +36,15 @@
   padding-bottom: 25px;
 }
 
+.invoice-form .aircraft-rate-control {
+  width: 80%;
+  display: inline-block;
+  margin-left: 5px;
+}
+.invoice-form .hobbs-tach-icon-disabled {
+  color: gray;
+  cursor: not-allowed;
+}
 
 
 .balance-warning-dialog {
@@ -52,6 +61,27 @@
   flex-direction: row;
   justify-content: space-evenly;
   margin-top: 10px;
+}
+
+.hobbs-and-tach-dialog {
+  text-align: center;
+  width: 420px;
+}
+.hobbs-and-tach-dialog__content {
+  padding: 15px;
+}
+.hobbs-and-tach-dialog__content-disclaimer {
+  margin-bottom: 10px;
+}
+.hobbs-and-tach-dialog__controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin-top: 10px;
+}
+.hobbs-and-tach-dialog__error {
+  font-size: small;
+  text-align: left;
 }
 
 

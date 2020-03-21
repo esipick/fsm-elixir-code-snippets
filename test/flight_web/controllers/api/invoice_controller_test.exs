@@ -4,7 +4,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   alias Flight.Repo
   alias FlightWeb.API.InvoiceView
   alias Flight.Billing.Invoice
-  alias Flight.Scheduling.Appointment
+  alias Flight.Scheduling.{Appointment, Aircraft}
   alias Flight.{Accounts, AvatarUploader}
   alias Accounts.User
 
@@ -249,6 +249,50 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       appointment = Repo.get(Appointment, appointment.id)
       transaction = List.first(invoice.transactions)
 
+      assert transaction.state == "completed"
+      assert appointment.status == :paid
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
+    test "updates aircraft hobbs and tach time after payment", %{conn: conn} do
+      appointment = appointment_fixture()
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+      new_tach_time = aircraft.last_tach_time + 5
+      new_hobbs_time = aircraft.last_hobbs_time + 5
+
+      invoice = invoice_fixture(%{
+        appointment_id: appointment.id,
+        payment_option: "cash",
+        line_items: [%{
+          type: "aircraft",
+          aircraft_id: aircraft.id,
+          tach_start: aircraft.last_tach_time,
+          tach_end: new_tach_time,
+          hobbs_start: aircraft.last_hobbs_time,
+          hobbs_end: new_hobbs_time,
+          hobbs_tach_used: true,
+          description: "Flight Hours",
+          amount: 1700,
+          quantity: 1,
+          rate: 1700
+        }]
+      })
+
+      json =
+        conn
+        |> auth(instructor)
+        |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: %{}})
+        |> json_response(200)
+
+      invoice = Repo.get(Invoice, invoice.id) |> preload_invoice
+      appointment = Repo.get(Appointment, appointment.id)
+      transaction = List.first(invoice.transactions)
+      aircraft = Repo.get(Aircraft, aircraft.id)
+
+      assert aircraft.last_tach_time == new_tach_time
+      assert aircraft.last_hobbs_time == new_hobbs_time
       assert transaction.state == "completed"
       assert appointment.status == :paid
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)

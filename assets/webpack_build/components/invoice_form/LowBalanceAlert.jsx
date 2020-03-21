@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import Modal from 'react-modal';
 
-const customStyles = {
+export const modalStyles = {
   content: {
     top: '50%',
     left: '50%',
@@ -28,14 +28,14 @@ class LowBalanceAlert extends PureComponent {
       <Modal
         isOpen={this.props.open}
         onRequestClose={this.props.onClose}
-        style={customStyles}
+        style={modalStyles}
         contentLabel="Insufficient Balance"
       >
         <div className="balance-warning-dialog">
           <div className="balance-warning-dialog__content">
-            <div className="balance-warning-dialog__content-disclaimer">
+            <h5 className="balance-warning-dialog__content-disclaimer">
               Balance amount is less than total amount due.
-            </div>
+            </h5>
 
             {(balance > 0) &&
               <div>

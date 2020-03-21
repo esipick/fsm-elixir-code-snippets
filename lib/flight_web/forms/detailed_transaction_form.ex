@@ -2,6 +2,9 @@ defmodule FlightWeb.API.DetailedTransactionForm.AircraftDetails do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Flight.Repo
+  alias Flight.Scheduling.Aircraft
+
   @primary_key false
   embedded_schema do
     field(:aircraft_id, :integer)
@@ -22,9 +25,16 @@ defmodule FlightWeb.API.DetailedTransactionForm.AircraftDetails do
   def validate_hobbs_duration(changeset) do
     if changeset.valid? do
       if get_field(changeset, :hobbs_end) <= get_field(changeset, :hobbs_start) do
-        add_error(changeset, :hobbs_end, "cannot be less than or equal to hobbs_start")
+        add_error(changeset, :hobbs_end, "must be greater than hobbs start")
       else
-        changeset
+        aircraft = Repo.get(Aircraft, get_field(changeset, :aircraft_id))
+
+        if aircraft.last_hobbs_time > get_field(changeset, :hobbs_start) do
+          message = "must be greater than current aircraft hobbs start (#{aircraft.last_hobbs_time})"
+          add_error(changeset, :hobbs_start, message)
+        else
+          changeset
+        end
       end
     else
       changeset
@@ -34,9 +44,16 @@ defmodule FlightWeb.API.DetailedTransactionForm.AircraftDetails do
   def validate_tach_duration(changeset) do
     if changeset.valid? do
       if get_field(changeset, :tach_end) <= get_field(changeset, :tach_start) do
-        add_error(changeset, :tach_end, "cannot be less than or equal to hobbs_start")
+        add_error(changeset, :tach_end, "must be greater than tach start")
       else
-        changeset
+        aircraft = Repo.get(Aircraft, get_field(changeset, :aircraft_id))
+
+        if aircraft.last_tach_time > get_field(changeset, :tach_start) do
+          message = "must be greater than current aircraft tach start (#{aircraft.last_tach_time})"
+          add_error(changeset, :tach_start, message)
+        else
+          changeset
+        end
       end
     else
       changeset

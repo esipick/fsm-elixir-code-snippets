@@ -48,13 +48,6 @@ defmodule FlightWeb.API.InvoiceView do
     %{data: render_many(appointments, AppointmentView, "appointment.json", as: :appointment)}
   end
 
-  def render_appointment(appointment) do
-    appointment =
-      Flight.Repo.preload(appointment, [:user, :instructor_user, [aircraft: :inspections]])
-
-    render(AppointmentView, "appointment.json", appointment: appointment)
-  end
-
   def render("payment_options.json", _) do
     %{
       data:
@@ -63,5 +56,12 @@ defmodule FlightWeb.API.InvoiceView do
           [Atom.to_string(key), value]
         end)
     }
+  end
+
+  def render_appointment(appointment) do
+    appointment =
+      Flight.Repo.preload(appointment, [:user, :instructor_user, [aircraft: :inspections]])
+
+    render(AppointmentView, "appointment.json", appointment: appointment)
   end
 end

@@ -5,12 +5,18 @@ defmodule Flight.Billing.InvoiceLineItem do
   alias Flight.Billing.InvoiceLineItem
 
   @required_fields ~w(description rate amount quantity)a
+  @hobbs_tach_fields ~w(hobbs_start hobbs_end tach_start tach_end hobbs_tach_used)a
 
   schema "invoice_line_items" do
     field(:rate, :integer)
     field(:amount, :integer)
     field(:quantity, :float)
     field(:description, :string)
+    field(:hobbs_start, :integer)
+    field(:hobbs_end, :integer)
+    field(:tach_start, :integer)
+    field(:tach_end, :integer)
+    field(:hobbs_tach_used, :boolean)
     field(:type, InvoiceLineItemTypeEnum, default: :other)
 
     belongs_to(:instructor_user, Flight.Accounts.User)
@@ -31,6 +37,7 @@ defmodule Flight.Billing.InvoiceLineItem do
   def changeset(%InvoiceLineItem{} = invoice_line_item, attrs) do
     invoice_line_item
     |> cast(attrs, @required_fields)
+    |> cast(attrs, @hobbs_tach_fields)
     |> cast(attrs, [:instructor_user_id, :aircraft_id, :type])
     |> validate_required(@required_fields)
     |> validate_inclusion(:rate, -999_999..999_999, message: "must be less than 10,000")

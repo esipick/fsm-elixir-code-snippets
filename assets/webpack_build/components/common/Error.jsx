@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import classnames from 'classnames';
 
 class Error extends PureComponent {
   render() {
@@ -6,9 +7,11 @@ class Error extends PureComponent {
 
     if (!text) return null;
 
-    text = Array.isArray(text) ? text[0] : text
+    text = Array.isArray(text) ? text[0] : text;
 
-    return <span className="react-form-error" style={styleProps || {}}>{text}</span>
+    const klassName = classnames(this.props.className, 'react-form-error');
+
+    return <span className={klassName} style={styleProps || {}}>{text}</span>
   }
 }
 

@@ -427,6 +427,7 @@ class Form extends Component {
                   {!invoice_loading &&
                     <LineItemsTable aircrafts={aircrafts}
                       appointment={appointment}
+                      creator={this.props.creator}
                       custom_line_items={custom_line_items}
                       errors={errors.line_items || []}
                       instructors={instructors}

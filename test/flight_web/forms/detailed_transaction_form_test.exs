@@ -136,12 +136,13 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
 
   describe "aircraft_details" do
     test "fails if hobbs_end less than or equal to hobbs_start" do
+      aircraft = aircraft_fixture()
       attrs = %{
-        aircraft_id: 2,
-        hobbs_start: 23,
-        hobbs_end: 23,
-        tach_start: 23,
-        tach_end: 34
+        aircraft_id: aircraft.id,
+        hobbs_start: aircraft.last_hobbs_time,
+        hobbs_end: aircraft.last_hobbs_time,
+        tach_start: aircraft.last_tach_time,
+        tach_end: aircraft.last_tach_time + 10
       }
 
       changeset = AircraftDetails.changeset(%AircraftDetails{}, attrs)
@@ -151,13 +152,31 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
       assert errors_on(changeset).hobbs_end
     end
 
-    test "fails if tach_end less than or equal to tach_start" do
+    test "fails if hobbs_start is less than aircraft hobbs_start" do
+      aircraft = aircraft_fixture()
       attrs = %{
-        aircraft_id: 2,
-        hobbs_start: 23,
-        hobbs_end: 33,
-        tach_start: 23,
-        tach_end: 23
+        aircraft_id: aircraft.id,
+        hobbs_start: aircraft.last_hobbs_time - 1,
+        hobbs_end: aircraft.last_hobbs_time + 10,
+        tach_start: aircraft.last_tach_time,
+        tach_end: aircraft.last_tach_time + 10
+      }
+
+      changeset = AircraftDetails.changeset(%AircraftDetails{}, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset).hobbs_start
+    end
+
+    test "fails if tach_end less than or equal to tach_start" do
+      aircraft = aircraft_fixture()
+      attrs = %{
+        aircraft_id: aircraft.id,
+        hobbs_start: aircraft.last_hobbs_time,
+        hobbs_end: aircraft.last_hobbs_time + 10,
+        tach_start: aircraft.last_tach_time,
+        tach_end: aircraft.last_tach_time
       }
 
       changeset = AircraftDetails.changeset(%AircraftDetails{}, attrs)
@@ -165,6 +184,23 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
       refute changeset.valid?
 
       assert errors_on(changeset).tach_end
+    end
+
+    test "fails if tach_start is less than aircraft tach_start" do
+      aircraft = aircraft_fixture()
+      attrs = %{
+        aircraft_id: aircraft.id,
+        hobbs_start: aircraft.last_hobbs_time,
+        hobbs_end: aircraft.last_hobbs_time + 10,
+        tach_start: aircraft.last_tach_time - 1,
+        tach_end: aircraft.last_tach_time + 10
+      }
+
+      changeset = AircraftDetails.changeset(%AircraftDetails{}, attrs)
+
+      refute changeset.valid?
+
+      assert errors_on(changeset).tach_start
     end
   end
 

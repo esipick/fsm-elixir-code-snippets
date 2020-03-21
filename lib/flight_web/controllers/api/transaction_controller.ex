@@ -3,6 +3,7 @@ defmodule FlightWeb.API.TransactionController do
 
   alias FlightWeb.API.{DetailedTransactionForm, CustomTransactionForm, TransactionView}
   alias Flight.Billing
+  alias FlightWeb.ViewHelpers
 
   alias Flight.Auth.Permission
 
@@ -143,10 +144,10 @@ defmodule FlightWeb.API.TransactionController do
           line_items: [instructor_line_item, aircraft_line_item] |> Enum.filter(& &1)
         )
 
-      {:error, _changeset} ->
+      {:error, changeset} ->
         conn
         |> put_status(400)
-        |> json(%{error: "Invalid form"})
+        |> json(%{error: "Invalid form", errors: ViewHelpers.translate_errors(changeset)})
     end
   end
 
