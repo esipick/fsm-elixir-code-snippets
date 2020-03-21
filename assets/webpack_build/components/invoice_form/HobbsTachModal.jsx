@@ -29,26 +29,26 @@ class HobbsTachModal extends Component {
     Modal.setAppElement(document.getElementById('invoice-form'));
   }
 
-  setHobbsStart = ({ value = 0 }) => {
-    const hobbs_start = value >= MAX_INT ? this.state.hobbs_start : value;
+  setHobbsStart = ({ floatValue = 0 }) => {
+    const hobbs_start = floatValue >= MAX_INT ? this.state.hobbs_start : floatValue;
 
     this.setState({ hobbs_start });
   }
 
-  setHobbsEnd = ({ value = 0 }) => {
-    const hobbs_end = value >= MAX_INT ? this.state.hobbs_end : value;
+  setHobbsEnd = ({ floatValue = 0 }) => {
+    const hobbs_end = floatValue >= MAX_INT ? this.state.hobbs_end : floatValue;
 
     this.setState({ hobbs_end });
   }
 
-  setTachStart = ({ value = 0 }) => {
-    const tach_start = value >= MAX_INT ? this.state.tach_start : value;
+  setTachStart = ({ floatValue = 0 }) => {
+    const tach_start = floatValue >= MAX_INT ? this.state.tach_start : floatValue;
 
     this.setState({ tach_start });
   }
 
-  setTachEnd = ({ value = 0 }) => {
-    const tach_end = value >= MAX_INT ? this.state.tach_end : value;
+  setTachEnd = ({ floatValue = 0 }) => {
+    const tach_end = floatValue >= MAX_INT ? this.state.tach_end : floatValue;
 
     this.setState({ tach_end });
   }
@@ -56,6 +56,7 @@ class HobbsTachModal extends Component {
   calculate = () => {
     const { hobbs_start, hobbs_end, tach_start, tach_end } = this.state;
     const errors = {};
+    console.log(hobbs_start, hobbs_end, tach_start, tach_end)
     if (hobbs_end <= hobbs_start) {
       errors.hobbs_end = "must be greater than hobbs start";
     }
