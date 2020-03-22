@@ -31,9 +31,14 @@ defmodule FlightWeb.AuthenticateApiUser do
   def authenticated_user(token) do
     with {:ok, id, password_token} <- user_id_from_token(token),
          %User{} = user <- Flight.Repo.get(Flight.Accounts.User, id) do
-      case password_token == user.password_token do
-        true -> {:ok, user}
-        false -> {:error, "Password was changed. Sign out required"}
+
+      if user.archived do
+        {:error, account_suspended_error}
+      else
+        case password_token == user.password_token do
+          true -> {:ok, user}
+          false -> {:error, "Password was changed. Sign out required"}
+        end
       end
     else
       _ ->
@@ -69,5 +74,9 @@ defmodule FlightWeb.AuthenticateApiUser do
       _ = error ->
         error
     end
+  end
+
+  def account_suspended_error do
+    "Account is suspended. Please contact your school administrator to reinstate it."
   end
 end
