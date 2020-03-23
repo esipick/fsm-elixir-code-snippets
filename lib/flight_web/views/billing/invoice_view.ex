@@ -3,6 +3,7 @@ defmodule FlightWeb.Billing.InvoiceView do
   import FlightWeb.ViewHelpers
   import Scrivener.HTML
   alias Flight.Auth.InvoicePolicy
+  alias Flight.Accounts
 
   def can_modify_invoice?(conn, invoice) do
     InvoicePolicy.modify?(conn.assigns.current_user, invoice)
@@ -25,5 +26,9 @@ defmodule FlightWeb.Billing.InvoiceView do
       true ->
         ""
     end
+  end
+
+  def can_see_link_to_profile?(user) do
+    Accounts.has_any_role?(user, ["admin", "dispatcher"])
   end
 end

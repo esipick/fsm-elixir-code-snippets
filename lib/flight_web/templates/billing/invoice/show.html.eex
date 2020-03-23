@@ -58,12 +58,24 @@
                           <td><%= display_time(@invoice.appointment.start_at) %> - <%= display_time(@invoice.appointment.end_at) %></td>
                           <%= if @invoice.appointment.aircraft_id do %>
                             <td>
-                              <a href="/admin/aircrafts/<%= @invoice.appointment.aircraft_id %>"><%= aircraft_display_name @invoice.appointment.aircraft %></a>
+                              <%= if can_see_link_to_profile?(@current_user) do %>
+                                <a href="/admin/aircrafts/<%= @invoice.appointment.aircraft_id %>">
+                                  <%= aircraft_display_name @invoice.appointment.aircraft %>
+                                </a>
+                              <% else %>
+                                <%= aircraft_display_name @invoice.appointment.aircraft %>
+                              <% end %>
                             </td>
                           <% end %>
                           <%= if @invoice.appointment.instructor_user_id do %>
                             <td>
-                              <a href="/admin/users/<%= @invoice.appointment.instructor_user_id %>"><%= display_name @invoice.appointment.instructor_user %></a>
+                              <%= if can_see_link_to_profile?(@current_user) do %>
+                                <a href="/admin/users/<%= @invoice.appointment.instructor_user_id %>">
+                                  <%= display_name @invoice.appointment.instructor_user %>
+                                </a>
+                              <% else %>
+                                <%= display_name @invoice.appointment.instructor_user %>
+                              <% end %>
                             </td>
                           <% end %>
                         </tr>
