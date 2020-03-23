@@ -9,7 +9,7 @@ defmodule FlightWeb.Admin.InspectionControllerTest do
         date_inspection: %{
           aircraft_id: aircraft.id,
           name: "Some Good Thing",
-          expiration: "3/3/2018"
+          expiration: "3/3/2038"
         }
       }
 
@@ -109,7 +109,7 @@ defmodule FlightWeb.Admin.InspectionControllerTest do
       payload = %{
         inspection: %{
           name: "Some Good Edited Thing",
-          expiration: "3/3/2018"
+          expiration: "3/3/2038"
         }
       }
 

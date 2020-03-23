@@ -10,8 +10,8 @@ defmodule Flight.SchedulingTest do
     @valid_attrs %{
       make: "make",
       model: "model",
-      tail_number: "tail",
-      serial_number: "serial",
+      tail_number: "N876",
+      serial_number: "54-58423",
       equipment: "equipment",
       ifr_certified: true,
       simulator: true,
@@ -27,8 +27,8 @@ defmodule Flight.SchedulingTest do
 
       assert aircraft.make == "make"
       assert aircraft.model == "model"
-      assert aircraft.tail_number == "tail"
-      assert aircraft.serial_number == "serial"
+      assert aircraft.tail_number == "N876"
+      assert aircraft.serial_number == "54-58423"
       assert aircraft.ifr_certified == true
       assert aircraft.simulator == true
       assert aircraft.last_tach_time == 8010
@@ -106,7 +106,7 @@ defmodule Flight.SchedulingTest do
     @valid_attrs %{
       name: "Some New Name",
       aircraft_id: 3,
-      expiration: "3/3/2018"
+      expiration: "3/3/2038"
     }
 
     test "create_date_inspection/1 creates inspection" do
@@ -119,7 +119,7 @@ defmodule Flight.SchedulingTest do
                Inspection,
                name: "Some New Name",
                aircraft_id: aircraft.id,
-               date_value: "3/3/2018"
+               date_value: "3/3/2038"
              )
     end
 

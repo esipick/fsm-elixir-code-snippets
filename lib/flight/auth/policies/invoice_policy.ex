@@ -19,4 +19,8 @@ defmodule Flight.Auth.InvoicePolicy do
   def view?(user, invoice) do
     user.id == invoice.user_id || create?(user)
   end
+
+  def can_see_link_to_profile?(user) do
+    user_can?(user, [Permission.new(:users, :modify, :all), Permission.new(:aircraft, :modify, :all)])
+  end
 end

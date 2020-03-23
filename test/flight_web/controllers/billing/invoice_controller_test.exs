@@ -172,7 +172,7 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
       student = student_fixture(%{first_name: "Correct", last_name: "User"})
       another_student = student_fixture(%{first_name: "Another", last_name: "Student"})
 
-      aircraft = aircraft_fixture(%{tail_number: "foobar"})
+      aircraft = aircraft_fixture(%{tail_number: "N4685"})
 
       _invoice =
         invoice_fixture(
@@ -196,7 +196,7 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
       content =
         conn
         |> web_auth(instructor)
-        |> get("/billing/invoices?search=foo")
+        |> get("/billing/invoices?search=N46")
         |> html_response(200)
 
       assert content =~ student.first_name

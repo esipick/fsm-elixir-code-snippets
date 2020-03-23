@@ -1,6 +1,7 @@
 <div class="form-group">
-  <label>Name</label>
+  <label>Name *</label>
   <%= text_input @f, :name, class: "form-control" %>
+  <%= full_error_tag @f, :name %>
 </div>
 
 <div class="form-group">

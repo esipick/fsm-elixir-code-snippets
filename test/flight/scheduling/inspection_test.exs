@@ -7,7 +7,7 @@ defmodule Flight.Scheduling.InspectionTest do
     test "date validation passes" do
       assert Inspection.changeset(%Inspection{}, %{
                type: "date",
-               date_value: Date.utc_today(),
+               date_value: Date.add(Date.utc_today(), 1),
                aircraft_id: 3,
                name: "Annual"
              }).valid?
@@ -16,7 +16,7 @@ defmodule Flight.Scheduling.InspectionTest do
     test "date validation passes if using text date" do
       assert Inspection.changeset(%Inspection{}, %{
                type: "date",
-               date_value: "3/3/2018",
+               date_value: "3/3/2038",
                aircraft_id: 3,
                name: "Annual"
              }).valid?
@@ -43,14 +43,14 @@ defmodule Flight.Scheduling.InspectionTest do
     test "tach validation fails if number_value is set" do
       refute Inspection.changeset(%Inspection{}, %{
                type: "tach",
-               date_value: Date.utc_today(),
+               date_value: Date.add(Date.utc_today(), 1),
                aircraft_id: 3,
                name: "Annual"
              }).valid?
     end
 
     test "to_specific DateInspection" do
-      date = Date.utc_today()
+      date = Date.add(Date.utc_today(), 1)
       inspection = date_inspection_fixture(%{expiration: date})
 
       date_inspection = Inspection.to_specific(inspection)

@@ -68,13 +68,13 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
     end
 
     test "renders search results", %{conn: conn} do
-      aircraft = aircraft_fixture(%{tail_number: "123456"})
-      another_aircraft = aircraft_fixture(%{tail_number: "789123"})
+      aircraft = aircraft_fixture(%{tail_number: "N3456"})
+      another_aircraft = aircraft_fixture(%{tail_number: "N9123"})
 
       content =
         conn
         |> web_auth_admin()
-        |> get("/admin/aircrafts?search=789")
+        |> get("/admin/aircrafts?search=N91")
         |> html_response(200)
 
       assert content =~ another_aircraft.tail_number
@@ -82,8 +82,8 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
     end
 
     test "renders message when press search with empty field", %{conn: conn} do
-      aircraft = aircraft_fixture(%{tail_number: "123456"})
-      another_aircraft = aircraft_fixture(%{tail_number: "789123"})
+      aircraft = aircraft_fixture(%{tail_number: "N3456"})
+      another_aircraft = aircraft_fixture(%{tail_number: "N9123"})
 
       content =
         conn

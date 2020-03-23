@@ -51,6 +51,7 @@ defmodule FlightWeb.ViewHelpers do
       :rate_per_hour -> :RPH
       :block_rate_per_hour -> :BRPH
       :end_at -> :end_time
+      :expiration -> :expiration_date
       other -> other
     end
   end

@@ -10,17 +10,7 @@
         </div>
         <%= form_for @changeset, "/admin/inspections/#{@inspection.id}", [as: :inspection, method: "put", class: "form-horizontal"], fn f -> %>
           <div class="card-body">
-
-            <%= if Enum.count(f.errors) > 0 do %>
-              <div class="alert alert-danger">
-                <%= for error <- human_error_messages(@changeset) do %>
-                  <span><%= error %></span></br>
-                <% end %>
-              </div>
-            <% end %>
-
             <%= hidden_input f, :aircraft_id, value: @inspection.aircraft_id %>
-
             <%= case @form_type do
               :tach -> render("_tach_inputs.html", f: f, changeset: @changeset)
               :date -> render("_date_inputs.html", f: f)
@@ -38,14 +28,12 @@
               data-inspection-id="<%= @inspection.id %>">Remove</button>
           </div>
         <% end %>
-
-
-      </div> <!-- end card -->
+      </div>
+      <!-- end card -->
     </div>
   </div>
-
-</div> <!-- end content -->
-
+</div>
+<!-- end content -->
 <%= render FlightWeb.Admin.PartialView,
           "_shared_delete_form.html",
           %{message: "This inspection will be removed from the system.",

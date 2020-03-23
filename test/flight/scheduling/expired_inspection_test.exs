@@ -5,18 +5,18 @@ defmodule Flight.Scheduling.ExpiredInspectionTest do
 
   describe "inspection_status" do
     test "returns good for date" do
-      inspection = date_inspection_fixture(%{expiration: ~D[2018-04-03]})
-      assert ExpiredInspection.inspection_status(inspection, ~D[2018-03-01]) == :good
+      inspection = date_inspection_fixture(%{expiration: ~D[2038-04-03]})
+      assert ExpiredInspection.inspection_status(inspection, ~D[2038-03-01]) == :good
     end
 
     test "returns expiring for date" do
-      inspection = date_inspection_fixture(%{expiration: ~D[2018-03-03]})
-      assert ExpiredInspection.inspection_status(inspection, ~D[2018-03-01]) == :expiring
+      inspection = date_inspection_fixture(%{expiration: ~D[2038-03-03]})
+      assert ExpiredInspection.inspection_status(inspection, ~D[2038-03-01]) == :expiring
     end
 
     test "returns expired for date" do
-      inspection = date_inspection_fixture(%{expiration: ~D[2018-03-03]})
-      assert ExpiredInspection.inspection_status(inspection, ~D[2018-03-05]) == :expired
+      inspection = date_inspection_fixture(%{expiration: ~D[2038-03-03]})
+      assert ExpiredInspection.inspection_status(inspection, ~D[2038-03-05]) == :expired
     end
 
     test "returns good for tach" do

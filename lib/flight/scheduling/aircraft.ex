@@ -53,6 +53,18 @@ defmodule Flight.Scheduling.Aircraft do
       :rate_per_hour,
       :block_rate_per_hour
     ])
+    |> validate_number(:rate_per_hour, greater_than_or_equal_to: 0)
+    |> validate_number(:block_rate_per_hour, greater_than_or_equal_to: 0)
+    |> validate_format(
+      :serial_number,
+      Flight.Format.serial_number_regex(),
+      message: "must be in a valid format"
+    )
+    |> validate_format(
+      :tail_number,
+      Flight.Format.tail_number_regex(),
+      message: "must be in a valid format"
+    )
   end
 
   def admin_changeset(aircraft, attrs) do

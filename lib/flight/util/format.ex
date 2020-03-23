@@ -11,6 +11,14 @@ defmodule Flight.Format do
     ~r/^[A-Z][0-9]+$/
   end
 
+  def serial_number_regex do
+    ~r/^([0-9]{5})|([0-9]{2}-[0-9]{5})$/
+  end
+
+  def tail_number_regex do
+    ~r/^N[1-9]((\d{0,4})|(\d{0,3}[A-HJ-NP-Z])|(\d{0,2}[A-HJ-NP-Z]{2}))$/
+  end
+
   def email_regex do
     ~r/^[\w.!#$%&’*+\-\/=?\^`{|}~]+@([a-zA-Z0-9-]+)\.([a-zA-Z0-9-]+)*$/i
   end

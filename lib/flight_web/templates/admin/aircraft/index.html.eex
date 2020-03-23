@@ -4,139 +4,139 @@
   <div class="row">
     <div class="col-md-12">
       <div class="card">
-        <div class="card-header">
+        <div class="card-header d-flex flex-column">
           <div class="text-right">
             <h3 class="card-title pull-left">Aircraft</h3>
             <a href="/admin/aircrafts/new" class="btn btn-primary">Add New</a>
           </div>
           <div>
             <%= form_for @conn, "/admin/aircrafts", [method: "get"], fn f -> %>
-            <div class="row mb-4">
-              <div class="col-md-10 col-xs-12">
-                <div class="form-group">
-                  <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Tail #" %>
-                  <span class="text-danger"><%= @message %></span>
+              <div class="row mb-4">
+                <div class="col-md-10 col-xs-12">
+                  <div class="form-group">
+                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Tail #" %>
+                    <span class="text-danger"><%= @message %></span>
+                  </div>
+                </div>
+                <div class="col-md-2 pl-1">
+                  <input type="submit" class="btn btn-primary m-0 pull-right" value="Search" />
                 </div>
               </div>
-              <div class="col-md-2 pl-1">
-                <input type="submit" class="btn btn-primary m-0 pull-right" value="Search" />
+            <% end %>
+          </div>
+        </div>
+        <%= if Enum.any?(@data.table_data.rows) do %>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <th>Aircraft</th>
+                  <%= if show_to_superadmin?(@conn) do %>
+                    <th>School</th>
+                  <% end %>
+                  <th>Equipment</th>
+                  <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
+                  <th data-toggle="tooltip" data-placement="top" title="Has Simulator">Sim</th>
+                  <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
+                  <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
+                  <th data-toggle="tooltip" data-placement="top" title="Last Recorded Tach Time">Tach Time</th>
+                  <th data-toggle="tooltip" data-placement="top" title="Last Recorded Hobbs Time">Hobbs Time</th>
+                </thead>
+                <tbody>
+                  <%= for aircraft <- @data.table_data.rows do %>
+                    <tr>
+                      <td><span class="text-nowrap"><b><%= aircraft.make %> <%= aircraft.model %></b></span></br>
+                        <small><%= aircraft.tail_number %></small>
+                      </td>
+                      <%= if show_to_superadmin?(@conn) do %>
+                        <td><a href="/admin/schools/<%= aircraft.school.id %>"><%= aircraft.school.name %></a></td>
+                      <% end %>
+                      <td><%= aircraft.equipment %></td>
+                      <td><%= display_boolean(aircraft.ifr_certified) %></td>
+                      <td><%= display_boolean(aircraft.simulator) %></td>
+                      <td><%= currency aircraft.rate_per_hour %></td>
+                      <td><%= currency aircraft.block_rate_per_hour %></td>
+                      <td><%= display_hour_tenths(aircraft.last_tach_time) %></td>
+                      <td><%= display_hour_tenths(aircraft.last_hobbs_time) %></td>
+                      <td class="text-right">
+                        <a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm">view</a>
+                        <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-aircraft-id="<%= aircraft.id %>">delete</button>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% else %>
+          <div class="card-body">No result found</div>
+        <% end %>
+        <%= if @data.table_data.page.total_pages > 1 do %>
+          <div class="row">
+            <div class="col-md-10">
+              <%= pagination_links @conn,
+                          @data.table_data.page,
+                          search: @data.search_term,
+                          page_size: @data.table_data.page.page_size
+                        %>
+            </div>
+            <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+          </div>
+        <% else %>
+          <div class="row justify-content-end">
+            <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+          </div>
+        <% end %>
+        <!-- Modal -->
+        <div class="modal fade" id="inspectionModal" tabindex="-1" role="dialog" aria-labelledby="inspectionModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="inspectionModalLongTitle">Inspections for Archer N40670</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body detail-list">
+                <dl class="d-flex justify-content-between flex-row-reverse">
+                  <dt>Tach 8100</dt>
+                  <dd>100HR</dd>
+                </dl>
+                <dl class="d-flex justify-content-between flex-row-reverse">
+                  <dt>4/22/19</dt>
+                  <dd>Annual</dd>
+                </dl>
+                <dl class="d-flex justify-content-between flex-row-reverse">
+                  <dt class="text-right">
+                    <p class="mb-0 text-expiring">5/5/18</p>
+                    <small class="text-expiring">EXPIRES SOON</small>
+                  </dt>
+                  <dd>Transponder</dd>
+                </dl>
+                <dl class="d-flex justify-content-between flex-row-reverse">
+                  <dt class="text-right">
+                    <p class="mb-0 text-expired">3/12/18</p>
+                    <small class="text-expired">EXPIRED</small>
+                  </dt>
+                  <dd>Altimeter</dd>
+                </dl>
+                <dl class="d-flex justify-content-between flex-row-reverse">
+                  <dt>4/22/19</dt>
+                  <dd>ELT</dd>
+                </dl>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               </div>
             </div>
-          <% end %>
-        </div>
-      </div>
-      <%= if Enum.any?(@data.table_data.rows) do %>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <th>Aircraft</th>
-                <%= if show_to_superadmin?(@conn) do %>
-                  <th>School</th>
-                <% end %>
-                <th>Equipment</th>
-                <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
-                <th data-toggle="tooltip" data-placement="top" title="Has Simulator">Sim</th>
-                <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
-                <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
-                <th data-toggle="tooltip" data-placement="top" title="Last Recorded Tach Time">Tach Time</th>
-                <th data-toggle="tooltip" data-placement="top" title="Last Recorded Hobbs Time">Hobbs Time</th>
-              </thead>
-              <tbody>
-                <%= for aircraft <- @data.table_data.rows do %>
-                  <tr>
-                    <td><span class="text-nowrap"><b><%= aircraft.make %> <%= aircraft.model %></b></span></br>
-                    <small><%= aircraft.tail_number %></small>
-                  </td>
-                  <%= if show_to_superadmin?(@conn) do %>
-                    <td><a href="/admin/schools/<%= aircraft.school.id %>"><%= aircraft.school.name %></a></td>
-                  <% end %>
-                  <td><%= aircraft.equipment %></td>
-                  <td><%= display_boolean(aircraft.ifr_certified) %></td>
-                  <td><%= display_boolean(aircraft.simulator) %></td>
-                  <td><%= currency aircraft.rate_per_hour %></td>
-                  <td><%= currency aircraft.block_rate_per_hour %></td>
-                  <td><%= display_hour_tenths(aircraft.last_tach_time) %></td>
-                  <td><%= display_hour_tenths(aircraft.last_hobbs_time) %></td>
-                  <td class="text-right">
-                    <a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm">view</a>
-                    <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-aircraft-id="<%= aircraft.id %>">delete</button>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      <% else %>
-        <div class="card-body">No result found</div>
-      <% end %>
-      <%= if @data.table_data.page.total_pages > 1 do %>
-        <div class="row">
-          <div class="col-md-10">
-            <%= pagination_links @conn,
-                        @data.table_data.page,
-                        search: @data.search_term,
-                        page_size: @data.table_data.page.page_size
-                      %>
-          </div>
-          <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
-        </div>
-      <% else %>
-        <div class="row justify-content-end">
-          <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
-        </div>
-      <% end %>
-      <!-- Modal -->
-      <div class="modal fade" id="inspectionModal" tabindex="-1" role="dialog" aria-labelledby="inspectionModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="inspectionModalLongTitle">Inspections for Archer N40670</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body detail-list">
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>Tach 8100</dt>
-                <dd>100HR</dd>
-              </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>4/22/19</dt>
-                <dd>Annual</dd>
-              </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt class="text-right">
-                  <p class="mb-0 text-expiring">5/5/18</p>
-                  <small class="text-expiring">EXPIRES SOON</small>
-                </dt>
-                <dd>Transponder</dd>
-              </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt class="text-right">
-                  <p class="mb-0 text-expired">3/12/18</p>
-                  <small class="text-expired">EXPIRED</small>
-                </dt>
-                <dd>Altimeter</dd>
-              </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>4/22/19</dt>
-                <dd>ELT</dd>
-              </dl>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
           </div>
         </div>
       </div>
+      <!--  end card  -->
     </div>
-    <!--  end card  -->
+    <!-- end col-md-12 -->
   </div>
-  <!-- end col-md-12 -->
-</div>
-<!-- end row -->
-</div>
+  <!-- end row -->
 </div>
 <!-- end content -->
 <div style="display:none">

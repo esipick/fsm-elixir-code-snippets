@@ -11,7 +11,8 @@ defmodule Flight.Scheduling.DateInspection do
   def changeset(date_inspection, attrs) do
     date_inspection
     |> cast(attrs, [:expiration, :aircraft_id, :name])
-    |> validate_required([:aircraft_id, :name])
+    |> validate_required([:aircraft_id, :name, :expiration])
+    |> validate_expiration_after_today()
   end
 
   def attrs(date_inspection) do
@@ -25,5 +26,20 @@ defmodule Flight.Scheduling.DateInspection do
 
   def new_changeset() do
     changeset(%Flight.Scheduling.DateInspection{}, %{})
+  end
+
+  def validate_expiration_after_today(changeset) do
+    if changeset.valid? do
+      today = Date.utc_today()
+      expiration = get_field(changeset, :expiration)
+
+      if Date.compare(expiration, today) == :gt do
+        changeset
+      else
+        add_error(changeset, :expiration, "should be future date")
+      end
+    else
+      changeset
+    end
   end
 end

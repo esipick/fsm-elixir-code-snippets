@@ -17,8 +17,8 @@ defmodule Flight.SchedulingFixtures do
       %Aircraft{
         make: "Sesna",
         model: "Thing",
-        tail_number: Flight.Random.hex(15),
-        serial_number: Flight.Random.hex(15),
+        tail_number: "N1546",
+        serial_number: "54-54615",
         ifr_certified: true,
         equipment: Flight.Random.hex(15),
         simulator: true,
@@ -88,7 +88,7 @@ defmodule Flight.SchedulingFixtures do
   def date_inspection_fixture(attrs \\ %{}, aircraft \\ aircraft_fixture()) do
     {:ok, date_inspection} =
       %DateInspection{
-        expiration: Date.utc_today(),
+        expiration: Date.add(Date.utc_today(), 1),
         aircraft_id: aircraft.id,
         name: "Annual"
       }
