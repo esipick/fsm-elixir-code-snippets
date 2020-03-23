@@ -212,7 +212,7 @@ class Form extends Component {
   createGuestPayer = (payer_name) => {
     const student = this.guestPayer(payer_name);
 
-    this.setState({ student, appointments: [] });
+    this.setState({ student, appointments: [], payment_method: {} });
   }
 
   isGuestNameValid = (inputValue, selectValue, selectOptions) => {
