@@ -63,7 +63,7 @@
                           <% end %>
                           <%= if @invoice.appointment.instructor_user_id do %>
                             <td>
-                              <a href="instructor-profile.php"><%= display_name @invoice.appointment.instructor_user %></a>
+                              <a href="/admin/users/<%= @invoice.appointment.instructor_user_id %>"><%= display_name @invoice.appointment.instructor_user %></a>
                             </td>
                           <% end %>
                         </tr>
