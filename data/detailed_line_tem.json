@@ -1,7 +1,7 @@
 {
   "detailed": {
     "aircraft_details": {
-      "aircraft_id": 222, "hobbs_start": 0, "hobbs_end": 1, "tach_start": 0, "tach_end": 1
+      "aircraft_id": 219, "hobbs_start": 7, "hobbs_end": 19, "tach_start": 11, "tach_end": 12
     },
     "appointment_id": 342,
     "creator_user_id": 1,

@@ -11,6 +11,15 @@ import { modalStyles } from './LowBalanceAlert';
 
 const MAX_INT = 2147483647;
 
+const NUMBER_PROPS = {
+  allowNegative: false,
+  className: "form-control inherit-font-size",
+  decimalScale: 1,
+  fixedDecimalScale: 1,
+  required: true,
+  thousandSeparator: true
+};
+
 class HobbsTachModal extends Component {
   constructor(props) {
     super(props);
@@ -29,26 +38,44 @@ class HobbsTachModal extends Component {
     Modal.setAppElement(document.getElementById('invoice-form'));
   }
 
+  componentDidUpdate(prevProps, _prevState, _snapshot) {
+    const { student, aircraft } = this.props;
+    const prevStudent = prevProps.student;
+
+    if ((student && student.id) !== (prevStudent && prevStudent.id)) {
+      this.calculate();
+    }
+
+    let newState = {};
+
+    if (this.props.open && !prevProps.open) newState.errors = {};
+    if ((aircraft && aircraft.id) !== (prevProps.aircraft && prevProps.aircraft.id)) {
+      newState = Object.assign(newState, this.props.values);
+    }
+
+    if (Object.keys(newState).length) this.setState(newState);
+  }
+
   setHobbsStart = ({ floatValue = 0 }) => {
-    const hobbs_start = floatValue >= MAX_INT ? this.state.hobbs_start : floatValue;
+    const hobbs_start = floatValue >= MAX_INT ? this.state.hobbs_start : floatValue * 10;
 
     this.setState({ hobbs_start });
   }
 
   setHobbsEnd = ({ floatValue = 0 }) => {
-    const hobbs_end = floatValue >= MAX_INT ? this.state.hobbs_end : floatValue;
+    const hobbs_end = floatValue >= MAX_INT ? this.state.hobbs_end : floatValue * 10;
 
     this.setState({ hobbs_end });
   }
 
   setTachStart = ({ floatValue = 0 }) => {
-    const tach_start = floatValue >= MAX_INT ? this.state.tach_start : floatValue;
+    const tach_start = floatValue >= MAX_INT ? this.state.tach_start : floatValue * 10;
 
     this.setState({ tach_start });
   }
 
   setTachEnd = ({ floatValue = 0 }) => {
-    const tach_end = floatValue >= MAX_INT ? this.state.tach_end : floatValue;
+    const tach_end = floatValue >= MAX_INT ? this.state.tach_end : floatValue * 10;
 
     this.setState({ tach_end });
   }
@@ -56,7 +83,7 @@ class HobbsTachModal extends Component {
   calculate = () => {
     const { hobbs_start, hobbs_end, tach_start, tach_end } = this.state;
     const errors = {};
-    console.log(hobbs_start, hobbs_end, tach_start, tach_end)
+
     if (hobbs_end <= hobbs_start) {
       errors.hobbs_end = "must be greater than hobbs start";
     }
@@ -71,16 +98,18 @@ class HobbsTachModal extends Component {
     if (this.state.saving) return;
     this.setState({ saving: true });
 
+    const { student, creator } = this.props;
+
     const payload = {
       aircraft_details: {
-        aircraft_id: this.props.aircraft.id,
+        aircraft_id: this.props.aircraft && this.props.aircraft.id,
         hobbs_start,
         hobbs_end,
         tach_start,
         tach_end
       },
-      creator_user_id: this.props.creator.id,
-      user_id: this.props.creator.id
+      creator_user_id: creator.id,
+      user_id: student ? student.id : creator.id
     };
 
     http.post({
@@ -102,8 +131,11 @@ class HobbsTachModal extends Component {
     }).catch(response => {
       response.json().then((err) => {
         console.warn(err);
-        const { aircraft_details: { hobbs_start, hobbs_end, tach_start, tach_end } } = err.errors;
+
+        const aircraft_details = err.errors.aircraft_details || {};
+        const { hobbs_start, hobbs_end, tach_start, tach_end } = aircraft_details;
         const errors = { hobbs_start, hobbs_end, tach_start, tach_end };
+
         this.setState({ saving: false, errors });
       });
     });
@@ -128,56 +160,36 @@ class HobbsTachModal extends Component {
             <div className="row my-1">
               <label className="col-md-5 col-form-label text-left">Hobbs Start *</label>
               <div className="col-md-7">
-                <NumberFormat allowNegative={false}
-                  className="form-control inherit-font-size"
-                  decimalScale={0}
-                  fixedDecimalScale={0}
+                <NumberFormat {...NUMBER_PROPS}
                   onValueChange={this.setHobbsStart}
-                  required={true}
-                  thousandSeparator={true}
-                  value={hobbs_start} />
+                  value={hobbs_start / 10} />
                 <Error text={errors.hobbs_start} className="hobbs-and-tach-dialog__error" />
               </div>
             </div>
             <div className="row my-1">
               <label className="col-md-5 col-form-label text-left">Hobbs End *</label>
               <div className="col-md-7">
-                <NumberFormat allowNegative={false}
-                  className="form-control inherit-font-size"
-                  decimalScale={0}
-                  fixedDecimalScale={0}
+                <NumberFormat {...NUMBER_PROPS}
                   onValueChange={this.setHobbsEnd}
-                  required={true}
-                  thousandSeparator={true}
-                  value={hobbs_end} />
+                  value={hobbs_end / 10} />
                 <Error text={errors.hobbs_end} className="hobbs-and-tach-dialog__error" />
               </div>
             </div>
             <div className="row my-1">
               <label className="col-md-5 col-form-label text-left">Tach Start *</label>
               <div className="col-md-7">
-                <NumberFormat allowNegative={false}
-                  className="form-control inherit-font-size"
-                  decimalScale={0}
-                  fixedDecimalScale={0}
+                <NumberFormat {...NUMBER_PROPS}
                   onValueChange={this.setTachStart}
-                  required={true}
-                  thousandSeparator={true}
-                  value={tach_start} />
+                  value={tach_start / 10} />
                 <Error text={errors.tach_start} className="hobbs-and-tach-dialog__error" />
               </div>
             </div>
             <div className="row my-1">
               <label className="col-md-5 col-form-label text-left">Tach End *</label>
               <div className="col-md-7">
-                <NumberFormat allowNegative={false}
-                  className="form-control inherit-font-size"
-                  decimalScale={0}
-                  fixedDecimalScale={0}
+                <NumberFormat {...NUMBER_PROPS}
                   onValueChange={this.setTachEnd}
-                  required={true}
-                  thousandSeparator={true}
-                  value={tach_end} />
+                  value={tach_end / 10} />
                 <Error text={errors.tach_end} className="hobbs-and-tach-dialog__error" />
               </div>
             </div>

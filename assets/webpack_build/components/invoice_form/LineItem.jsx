@@ -255,20 +255,17 @@ class InvoiceLineItem extends Component {
   hobbsAndTachModal = () => {
     const { aircraft, line_item } = this.state;
 
-    if (!aircraft) return;
-
-    const hobbs_start = line_item.hobbs_start || aircraft.last_hobbs_time;
+    const hobbs_start = line_item.hobbs_start || aircraft && aircraft.last_hobbs_time || 0;
     const hobbs_end = line_item.hobbs_end || 0;
-    const tach_start = line_item.tach_start || aircraft.last_tach_time;
+    const tach_start = line_item.tach_start || aircraft && aircraft.last_tach_time || 0;
     const tach_end = line_item.tach_end || 0;
-    const values = {
-      hobbs_start, hobbs_end, tach_start, tach_end
-    }
+    const values = { hobbs_start, hobbs_end, tach_start, tach_end };
 
     return (
       <HobbsTachModal aircraft={aircraft}
         values={values}
-        open={true}
+        open={this.isHobbsAndTach()}
+        student={this.props.student}
         creator={this.props.creator}
         onClose={this.toggleHobbsAndTach}
         onAccept={this.applyHobbsAndTach} />
@@ -300,7 +297,7 @@ class InvoiceLineItem extends Component {
           {this.isInstructorHours() && this.instructorSelect()}
           {this.isFlightHours() && this.aircraftSelect()}
         </td>
-        { this.isHobbsAndTach() && this.hobbsAndTachModal() }
+        { this.isFlightHours() && this.hobbsAndTachModal() }
         { !hobbs_tach_used && this.standardFields() }
         { hobbs_tach_used && this.hobbsAndTachFields() }
         <td className="lc-column">${(amount / 100).toFixed(2)}</td>

@@ -117,6 +117,7 @@ class LineItemsTable extends Component {
               <LineItem aircrafts={aircrafts}
                 canRemove={line_items.length > 1}
                 custom_line_items={custom_line_items}
+                student={this.props.student}
                 creator={this.props.creator}
                 errors={errors[i] || {}}
                 instructors={instructors}
