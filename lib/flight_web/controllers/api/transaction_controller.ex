@@ -195,7 +195,7 @@ defmodule FlightWeb.API.TransactionController do
   end
 
   def ephemeral_keys(conn, %{"api_version" => api_version}) do
-    case Billing.create_ephemeral_key(
+    case Billing.Stripe.create_ephemeral_key(
            conn.assigns.current_user,
            api_version
          ) do

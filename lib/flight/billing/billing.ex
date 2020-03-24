@@ -748,11 +748,4 @@ defmodule Flight.Billing do
   def application_fee_for_total(total) do
     trunc(total * 0.01)
   end
-
-  def create_ephemeral_key(user, api_version) do
-    Stripe.EphemeralKey.create(
-      %{customer: user.stripe_customer_id},
-      api_version
-    )
-  end
 end

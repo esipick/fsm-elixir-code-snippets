@@ -499,7 +499,7 @@ defmodule Flight.BillingTest do
     end
   end
 
-  describe "create_ephemeral_key/3" do
+  describe "create_ephemeral_key/2" do
     @tag :integration
     test "creates ephemeral key" do
       _school = school_fixture() |> real_stripe_account()
@@ -509,7 +509,7 @@ defmodule Flight.BillingTest do
 
       user = user_fixture(%{stripe_customer_id: customer.id})
 
-      assert {:ok, _} = Billing.create_ephemeral_key(user, "2018-05-21")
+      assert {:ok, _} = Billing.Stripe.create_ephemeral_key(user, "2018-05-21")
     end
   end
 
