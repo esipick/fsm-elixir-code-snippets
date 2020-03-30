@@ -60,7 +60,9 @@ defmodule FlightWeb.API.InvoiceView do
 
   def render_appointment(appointment) do
     appointment =
-      Flight.Repo.preload(appointment, [:user, :instructor_user, [aircraft: :inspections]])
+      Flight.Repo.preload(appointment, [:user, :school, :instructor_user, [aircraft: :inspections]])
+
+    appointment = Flight.Scheduling.apply_timezone(appointment, appointment.school.timezone)
 
     render(AppointmentView, "appointment.json", appointment: appointment)
   end
