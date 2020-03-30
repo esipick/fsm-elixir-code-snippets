@@ -39,15 +39,13 @@ class InvoiceLineItem extends Component {
   }
 
   setRate = ({ floatValue = 0 }) => {
-    const rate = floatValue >= 10000 ? 9999 : floatValue <= -10000 ? -9999 : floatValue;
-    const line_item = Object.assign({}, this.state.line_item, { rate: rate * 100 });
+    const line_item = Object.assign({}, this.state.line_item, { rate: floatValue * 100 });
 
     this.calculateAmount(line_item);
   }
 
   setQty = ({ floatValue = 0 }) => {
-    const quantity = floatValue >= 1000 ? this.state.line_item.quantity : floatValue;
-    const line_item = Object.assign({}, this.state.line_item, { quantity });
+    const line_item = Object.assign({}, this.state.line_item, { quantity: floatValue });
 
     this.calculateAmount(line_item);
   }
@@ -223,6 +221,7 @@ class InvoiceLineItem extends Component {
             required={true}
             thousandSeparator={true}
             value={rate / 100} />
+          { errors.rate && <br /> }
           <Error text={errors.rate} styleProps={{ position: 'absolute' }} />
         </td>
         <td className="lc-column">
