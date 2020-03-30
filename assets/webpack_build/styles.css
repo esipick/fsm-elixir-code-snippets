@@ -34,6 +34,7 @@
 
 .invoice-form .lc-row-with-error td {
   padding-bottom: 25px;
+  vertical-align: top;
 }
 
 .invoice-form .aircraft-rate-control {

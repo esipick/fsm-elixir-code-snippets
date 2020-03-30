@@ -40,7 +40,7 @@ defmodule Flight.Billing.InvoiceLineItem do
     |> cast(attrs, @hobbs_tach_fields)
     |> cast(attrs, [:instructor_user_id, :aircraft_id, :type])
     |> validate_required(@required_fields)
-    |> validate_inclusion(:rate, -999_999..999_999, message: "must be less than 10,000")
+    |> validate_number(:rate, greater_than: -999_999, less_than: 999_999, message: "must be between $10,000 and -$10,000")
     |> validate_number(:quantity, greater_than: 0, less_than: 1000)
     |> validate_conditional_required(:aircraft_id, &aircraft_type?(&1))
     |> validate_conditional_required(:instructor_user_id, &instructor_type?(&1))

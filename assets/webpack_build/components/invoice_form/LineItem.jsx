@@ -130,7 +130,7 @@ class InvoiceLineItem extends Component {
           options={this.props.aircrafts}
           placeholder="Tail #"
           value={aircraft} />
-        <Error text={errors.aircraft_id} styleProps={{ position: 'absolute' }} />
+        <Error text={errors.aircraft_id} />
       </div>
     );
   }
@@ -178,7 +178,7 @@ class InvoiceLineItem extends Component {
           options={this.props.instructors}
           value={instructor_user}
           placeholder="Instructor name" />
-        <Error text={errors.instructor_user_id} styleProps={{ position: 'absolute' }} />
+        <Error text={errors.instructor_user_id} />
       </div>
     );
   }
@@ -222,7 +222,7 @@ class InvoiceLineItem extends Component {
             thousandSeparator={true}
             value={rate / 100} />
           { errors.rate && <br /> }
-          <Error text={errors.rate} styleProps={{ position: 'absolute' }} />
+          <Error text={errors.rate} />
         </td>
         <td className="lc-column">
           <NumberFormat allowNegative={false}
@@ -233,7 +233,7 @@ class InvoiceLineItem extends Component {
             required={true}
             thousandSeparator={true}
             value={quantity} />
-          <Error text={errors.quantity} styleProps={{ position: 'absolute' }} />
+          <Error text={errors.quantity} />
         </td>
       </React.Fragment>
     )
