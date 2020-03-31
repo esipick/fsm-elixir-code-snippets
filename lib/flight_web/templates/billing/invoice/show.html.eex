@@ -58,7 +58,8 @@
                           <td><%= display_time(@invoice.appointment.start_at) %> - <%= display_time(@invoice.appointment.end_at) %></td>
                           <%= if @invoice.appointment.aircraft_id do %>
                             <td>
-                              <%= if InvoicePolicy.can_see_link_to_profile?(@current_user) do %>
+                              <%= if InvoicePolicy.can_see_link_to_profile?(@current_user) &&
+                                !@invoice.appointment.aircraft.archived do %>
                                 <a href="/admin/aircrafts/<%= @invoice.appointment.aircraft_id %>">
                                   <%= aircraft_display_name @invoice.appointment.aircraft %>
                                 </a>
@@ -69,7 +70,8 @@
                           <% end %>
                           <%= if @invoice.appointment.instructor_user_id do %>
                             <td>
-                              <%= if InvoicePolicy.can_see_link_to_profile?(@current_user) do %>
+                              <%= if InvoicePolicy.can_see_link_to_profile?(@current_user) &&
+                                !@invoice.appointment.instructor_user.archived do %>
                                 <a href="/admin/users/<%= @invoice.appointment.instructor_user_id %>">
                                   <%= display_name @invoice.appointment.instructor_user %>
                                 </a>
