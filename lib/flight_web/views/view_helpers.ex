@@ -234,4 +234,14 @@ defmodule FlightWeb.ViewHelpers do
   def show_to_superadmin?(%{assigns: %{current_user: current_user}}) do
     Accounts.is_superadmin?(current_user)
   end
+
+  def hide_sidebar_for_table(conn) do
+    pages = ["/billing/invoices", "/billing/transactions", "/admin/aircrafts"]
+
+    if Enum.member?(pages, conn.request_path) do
+      "hide-sidebar-for-table"
+    else
+      ""
+    end
+  end
 end

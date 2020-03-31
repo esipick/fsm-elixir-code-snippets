@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>
     <script src="/js/schedule.min.js"></script>
   </head>
-  <body>
+  <body id="<%= hide_sidebar_for_table(@conn) %>">
     <div class="wrapper">
 
     <%= render FlightWeb.Admin.PartialView, "_sidebar.html", assigns %>
