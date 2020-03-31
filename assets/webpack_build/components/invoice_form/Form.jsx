@@ -106,6 +106,8 @@ class Form extends Component {
           total_tax: invoice.total_tax || 0,
           total_amount_due: invoice.total_amount_due || 0,
           appointment: invoice.appointment,
+          default_appointment: invoice.appointment,
+          default_user: invoice.user,
           invoice_loading: false
         });
       })
@@ -145,8 +147,8 @@ class Form extends Component {
       });
   }
 
-  loadAppointments = () => {
-    const { student } = this.state;
+  loadAppointments = (student) => {
+    if (!student) student = this.state.student;
 
     if (!student || student.guest) { return };
     if (this.state.appointment_loading) return;
@@ -158,7 +160,16 @@ class Form extends Component {
       headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
-        this.setState({ appointments: r.data, appointment_loading: false });
+        let appointments;
+        const { student, default_user, default_appointment } = this.state;
+
+        if ((student && student.id) == (default_user && default_user.id)) {
+          appointments = [default_appointment, ...r.data];
+        } else {
+          appointments = r.data;
+        }
+
+        this.setState({ appointments, appointment_loading: false });
       })
       .catch(err => {
         err.json().then(e => {
@@ -196,9 +207,18 @@ class Form extends Component {
 
   setStudent = (student) => {
     if (student) {
-      this.setState({ student }, () => { this.loadAppointments(); });
+      let appointment;
+      const { default_user, default_appointment } = this.state;
+
+      if ((student && student.id) == (default_user && default_user.id)) {
+        appointment = default_appointment;
+      } else {
+        appointment = null;
+      }
+
+      this.setState({ student, appointment, }, () => { this.loadAppointments(); });
     } else {
-      this.setState({ student, appointments: [] });
+      this.setState({ student, appointment: null, appointments: [] });
     }
   }
 
