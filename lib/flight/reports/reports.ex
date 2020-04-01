@@ -167,7 +167,8 @@ defmodule Flight.Reports do
       rows:
         Enum.map(aircrafts, fn aircraft ->
           [
-            {aircraft.id, FlightWeb.ViewHelpers.aircraft_display_name(aircraft, :short), aircraft.archived},
+            {aircraft.id, FlightWeb.ViewHelpers.aircraft_display_name(aircraft, :short),
+             aircraft.archived},
             num_transactions(aircraft, transactions),
             time_flown(aircraft, transactions),
             amount_aircraft_billed(aircraft, transactions)
@@ -341,10 +342,10 @@ defmodule Flight.Reports do
     (transactions[user.id] || [])
     |> Enum.reduce(0, fn transaction, acc ->
       acc +
-      (transaction.paid_by_cash ||
-      transaction.paid_by_charge ||
-      transaction.paid_by_check ||
-      transaction.paid_by_venmo || 0)
+        (transaction.paid_by_cash ||
+           transaction.paid_by_charge ||
+           transaction.paid_by_check ||
+           transaction.paid_by_venmo || 0)
     end)
   end
 

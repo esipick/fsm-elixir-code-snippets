@@ -30,7 +30,9 @@ defmodule FlightWeb.API.DetailedTransactionForm.AircraftDetails do
         aircraft = Repo.get(Aircraft, get_field(changeset, :aircraft_id))
 
         if aircraft.last_hobbs_time > get_field(changeset, :hobbs_start) do
-          message = "must be greater than current aircraft hobbs start (#{aircraft.last_hobbs_time})"
+          message =
+            "must be greater than current aircraft hobbs start (#{aircraft.last_hobbs_time})"
+
           add_error(changeset, :hobbs_start, message)
         else
           changeset
@@ -49,7 +51,9 @@ defmodule FlightWeb.API.DetailedTransactionForm.AircraftDetails do
         aircraft = Repo.get(Aircraft, get_field(changeset, :aircraft_id))
 
         if aircraft.last_tach_time > get_field(changeset, :tach_start) do
-          message = "must be greater than current aircraft tach start (#{aircraft.last_tach_time})"
+          message =
+            "must be greater than current aircraft tach start (#{aircraft.last_tach_time})"
+
           add_error(changeset, :tach_start, message)
         else
           changeset

@@ -7,6 +7,7 @@ defmodule FlightWeb.API.Invoices.LineItemController do
 
   def extra_options(conn, _) do
     user = conn.assigns.current_user
+
     custom_line_items =
       Flight.Billing.InvoiceCustomLineItem
       |> Flight.SchoolScope.scope_query(user)

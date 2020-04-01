@@ -21,6 +21,9 @@ defmodule Flight.Auth.InvoicePolicy do
   end
 
   def can_see_link_to_profile?(user) do
-    user_can?(user, [Permission.new(:users, :modify, :all), Permission.new(:aircraft, :modify, :all)])
+    user_can?(user, [
+      Permission.new(:users, :modify, :all),
+      Permission.new(:aircraft, :modify, :all)
+    ])
   end
 end

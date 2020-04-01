@@ -11,11 +11,16 @@ defmodule Flight.Queries.Appointment do
 
   def billable(school_context, params = %{}) do
     datetime = DateTime.utc_now()
-    excluded_appointment_ids = from(
-      i in Invoice,
-      where: i.archived == false and not is_nil(i.appointment_id) and i.school_id == ^SchoolScope.school_id(school_context),
-      select: i.appointment_id
-    ) |> Repo.all()
+
+    excluded_appointment_ids =
+      from(
+        i in Invoice,
+        where:
+          i.archived == false and not is_nil(i.appointment_id) and
+            i.school_id == ^SchoolScope.school_id(school_context),
+        select: i.appointment_id
+      )
+      |> Repo.all()
 
     from(a in Appointment, where: a.end_at <= ^datetime, order_by: [desc: a.end_at])
     |> where([a], a.archived == false)

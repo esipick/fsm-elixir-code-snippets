@@ -14,22 +14,7 @@ defmodule FlightWeb.PasswordController do
           conn |> put_flash(:error, "Please enter your email")
 
         String.match?(email, Flight.Format.email_regex()) ->
-          with %Flight.Accounts.User{} = user <- Accounts.get_user_by_email(email),
-               {:ok, reset} = Accounts.create_password_reset(user) do
-            reset
-            |> Flight.Repo.preload(:user)
-            |> Flight.Email.reset_password_email()
-            |> Flight.Mailer.deliver_later()
-
-            conn
-            |> put_flash(:success, "Please check your email for password reset instructions.")
-          else
-            nil ->
-              conn |> put_flash(:error, "This email is not registered")
-
-            _ ->
-              conn |> put_flash(:error, "Something went wrong")
-          end
+          check_user(conn, email)
 
         true ->
           conn |> put_flash(:error, "Invalid email format")
@@ -93,4 +78,26 @@ defmodule FlightWeb.PasswordController do
   end
 
   defp forgot_password_redirect(conn), do: redirect(conn, to: "/forgot_password")
+
+  defp check_user(conn, email) do
+    user = Accounts.get_user_by_email(email)
+
+    cond do
+      user && user.archived ->
+        conn |> put_flash(:error, "Account is suspended. Please contact your school administrator to reinstate it.")
+
+      user && !user.archived ->
+        {:ok, reset} = Accounts.create_password_reset(user)
+          reset
+          |> Flight.Repo.preload(:user)
+          |> Flight.Email.reset_password_email()
+          |> Flight.Mailer.deliver_later()
+
+        conn
+          |> put_flash(:success, "Please check your email for password reset instructions.")
+
+      user == nil ->
+        conn |> put_flash(:error, "This email is not registered")
+    end
+  end
 end

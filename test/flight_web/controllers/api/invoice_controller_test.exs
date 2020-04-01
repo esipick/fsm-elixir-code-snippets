@@ -262,23 +262,26 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       new_tach_time = aircraft.last_tach_time + 5
       new_hobbs_time = aircraft.last_hobbs_time + 5
 
-      invoice = invoice_fixture(%{
-        appointment_id: appointment.id,
-        payment_option: "cash",
-        line_items: [%{
-          type: "aircraft",
-          aircraft_id: aircraft.id,
-          tach_start: aircraft.last_tach_time,
-          tach_end: new_tach_time,
-          hobbs_start: aircraft.last_hobbs_time,
-          hobbs_end: new_hobbs_time,
-          hobbs_tach_used: true,
-          description: "Flight Hours",
-          amount: 1700,
-          quantity: 1,
-          rate: 1700
-        }]
-      })
+      invoice =
+        invoice_fixture(%{
+          appointment_id: appointment.id,
+          payment_option: "cash",
+          line_items: [
+            %{
+              type: "aircraft",
+              aircraft_id: aircraft.id,
+              tach_start: aircraft.last_tach_time,
+              tach_end: new_tach_time,
+              hobbs_start: aircraft.last_hobbs_time,
+              hobbs_end: new_hobbs_time,
+              hobbs_tach_used: true,
+              description: "Flight Hours",
+              amount: 1700,
+              quantity: 1,
+              rate: 1700
+            }
+          ]
+        })
 
       json =
         conn

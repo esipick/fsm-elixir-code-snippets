@@ -31,7 +31,6 @@ defmodule FlightWeb.AuthenticateApiUser do
   def authenticated_user(token) do
     with {:ok, id, password_token} <- user_id_from_token(token),
          %User{} = user <- Flight.Repo.get(Flight.Accounts.User, id) do
-
       if user.archived do
         {:error, account_suspended_error}
       else

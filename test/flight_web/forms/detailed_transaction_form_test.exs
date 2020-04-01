@@ -137,6 +137,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
   describe "aircraft_details" do
     test "fails if hobbs_end less than or equal to hobbs_start" do
       aircraft = aircraft_fixture()
+
       attrs = %{
         aircraft_id: aircraft.id,
         hobbs_start: aircraft.last_hobbs_time,
@@ -154,6 +155,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
 
     test "fails if hobbs_start is less than aircraft hobbs_start" do
       aircraft = aircraft_fixture()
+
       attrs = %{
         aircraft_id: aircraft.id,
         hobbs_start: aircraft.last_hobbs_time - 1,
@@ -171,6 +173,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
 
     test "fails if tach_end less than or equal to tach_start" do
       aircraft = aircraft_fixture()
+
       attrs = %{
         aircraft_id: aircraft.id,
         hobbs_start: aircraft.last_hobbs_time,
@@ -188,6 +191,7 @@ defmodule FlightWeb.API.DetailedTransactionFormTest do
 
     test "fails if tach_start is less than aircraft tach_start" do
       aircraft = aircraft_fixture()
+
       attrs = %{
         aircraft_id: aircraft.id,
         hobbs_start: aircraft.last_hobbs_time,

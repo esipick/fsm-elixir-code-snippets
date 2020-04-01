@@ -33,6 +33,23 @@ defmodule FlightWeb.PasswordControllerTest do
       assert html =~ "Please check your email for password reset instructions."
     end
 
+    test "user removed", %{conn: conn} do
+      user = user_fixture()
+      Flight.Accounts.archive_user(user)
+
+      conn =
+        conn
+        |> post("/forgot_password", %{email: user.email})
+        |> response_redirected_to("/forgot_password")
+
+      html =
+        conn
+        |> get("/forgot_password")
+        |> html_response(200)
+
+      assert html =~ "Account is suspended. Please contact your school administrator to reinstate it."
+    end
+
     test "empty email", %{conn: conn} do
       conn =
         conn
