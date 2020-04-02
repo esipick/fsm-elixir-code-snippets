@@ -23,7 +23,9 @@ class InvoiceLineItem extends Component {
       aircraft,
       instructor_user,
       line_item,
-      hobbs_and_tach_mode: false
+      hobbs_and_tach_mode: false,
+      tempRate: line_item.rate,
+      tempQuantity: line_item.quantity
     }
   }
 
@@ -38,16 +40,20 @@ class InvoiceLineItem extends Component {
     this.props.onChange(line_item);
   }
 
-  setRate = ({ floatValue = 0 }) => {
-    const line_item = Object.assign({}, this.state.line_item, { rate: floatValue * 100 });
+  setRate = ({ floatValue }) => {
+    const rate = floatValue == null ? 0 : floatValue;
+    const line_item = Object.assign({}, this.state.line_item, { rate: rate * 100 });
 
     this.calculateAmount(line_item);
+    this.setState({ tempRate: floatValue == null ? null : rate });
   }
 
-  setQty = ({ floatValue = 0 }) => {
-    const line_item = Object.assign({}, this.state.line_item, { quantity: floatValue });
+  setQty = ({ floatValue }) => {
+    const quantity = floatValue == null ? 0 : floatValue;
+    const line_item = Object.assign({}, this.state.line_item, { quantity: quantity });
 
     this.calculateAmount(line_item);
+    this.setState({ tempQuantity: floatValue == null ? null : quantity });
   }
 
   calculateAmount = (line_item) => {
@@ -205,7 +211,7 @@ class InvoiceLineItem extends Component {
   }
 
   standardFields = () => {
-    const { line_item: { rate, quantity } } = this.state;
+    const { tempRate, tempQuantity } = this.state;
     const { errors } = this.props;
     const rateClass = classnames('form-control inherit-font-size', this.isFlightHours() ? 'aircraft-rate-control' : '');
 
@@ -219,8 +225,9 @@ class InvoiceLineItem extends Component {
             fixedDecimalScale={2}
             onValueChange={this.setRate}
             required={true}
+            placeholder="0.00"
             thousandSeparator={true}
-            value={rate / 100} />
+            value={tempRate} />
           { errors.rate && <br /> }
           <Error text={errors.rate} />
         </td>
@@ -231,8 +238,9 @@ class InvoiceLineItem extends Component {
             fixedDecimalScale={2}
             onValueChange={this.setQty}
             required={true}
+            placeholder="0.00"
             thousandSeparator={true}
-            value={quantity} />
+            value={tempQuantity} />
           <Error text={errors.quantity} />
         </td>
       </React.Fragment>

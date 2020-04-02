@@ -84,17 +84,22 @@ defmodule FlightWeb.PasswordController do
 
     cond do
       user && user.archived ->
-        conn |> put_flash(:error, "Account is suspended. Please contact your school administrator to reinstate it.")
+        conn
+        |> put_flash(
+          :error,
+          "Account is suspended. Please contact your school administrator to reinstate it."
+        )
 
       user && !user.archived ->
         {:ok, reset} = Accounts.create_password_reset(user)
-          reset
-          |> Flight.Repo.preload(:user)
-          |> Flight.Email.reset_password_email()
-          |> Flight.Mailer.deliver_later()
+
+        reset
+        |> Flight.Repo.preload(:user)
+        |> Flight.Email.reset_password_email()
+        |> Flight.Mailer.deliver_later()
 
         conn
-          |> put_flash(:success, "Please check your email for password reset instructions.")
+        |> put_flash(:success, "Please check your email for password reset instructions.")
 
       user == nil ->
         conn |> put_flash(:error, "This email is not registered")
