@@ -132,7 +132,8 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:push_token, :modify, :personal),
       permission_slug(:transaction_user, :view, :personal),
       permission_slug(:invoice, :view, :personal),
-      permission_slug(:web_dashboard, :access, :all)
+      permission_slug(:web_dashboard, :access, :all),
+      permission_slug(:school, :view, :personal)
     ])
   end
 
@@ -146,7 +147,8 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:transaction_creator, :modify, :personal),
       permission_slug(:transaction, :view, :personal),
       permission_slug(:push_token, :modify, :personal),
-      permission_slug(:transaction_user, :view, :personal)
+      permission_slug(:transaction_user, :view, :personal),
+      permission_slug(:school, :view, :personal)
     ])
   end
 end

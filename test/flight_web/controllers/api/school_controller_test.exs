@@ -53,22 +53,38 @@ defmodule FlightWeb.API.SchoolControllerTest do
                )
     end
 
-    test "renders error to student", %{conn: conn} do
+    test "renders school info to student", %{conn: conn} do
       student = student_fixture()
 
-      conn
-      |> auth(student)
-      |> get("/api/school")
-      |> json_response(401)
+      json =
+        conn
+        |> auth(student)
+        |> get("/api/school")
+        |> json_response(200)
+
+      assert json ==
+               render_json(
+                 FlightWeb.API.SchoolView,
+                 "index.json",
+                 school: default_school_fixture()
+               )
     end
 
-    test "renders error to renter", %{conn: conn} do
+    test "renders school info to renter", %{conn: conn} do
       renter = user_fixture() |> assign_role("renter")
 
-      conn
-      |> auth(renter)
-      |> get("/api/school")
-      |> json_response(401)
+      json =
+        conn
+        |> auth(renter)
+        |> get("/api/school")
+        |> json_response(200)
+
+      assert json ==
+               render_json(
+                 FlightWeb.API.SchoolView,
+                 "index.json",
+                 school: default_school_fixture()
+               )
     end
   end
 end
