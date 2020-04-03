@@ -522,14 +522,21 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   describe "PUT /api/invoices/:id" do
     @tag :integration
     test "renders unauthorized for student", %{conn: conn} do
-      invoice = invoice_fixture()
       student = student_fixture()
-      invoice_params = %{}
+      invoice = invoice_fixture(%{user_id: student.id})
+      invoice_params = %{payment_option: "venmo", total_amount_due: 100}
 
-      conn
-      |> auth(student)
-      |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
-      |> json_response(401)
+      json =
+        conn
+        |> auth(student)
+        |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params, pay_off: true})
+        |> json_response(200)
+
+      invoice = preload_invoice(invoice)
+
+      assert invoice.status == :paid
+      assert invoice.payment_option == :venmo
+      assert invoice.total_amount_due == 24000
     end
 
     @tag :integration
