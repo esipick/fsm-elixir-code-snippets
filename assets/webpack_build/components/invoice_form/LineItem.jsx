@@ -38,16 +38,28 @@ class InvoiceLineItem extends Component {
     this.props.onChange(line_item);
   }
 
-  setRate = ({ floatValue = 0 }) => {
-    const line_item = Object.assign({}, this.state.line_item, { rate: floatValue * 100 });
+  setRate = ({ floatValue }) => {
+    const rate = floatValue == null ? 0 : floatValue;
+    let line_item = Object.assign({}, this.state.line_item, { rate: rate * 100});
 
     this.calculateAmount(line_item);
+
+    if (floatValue == null) {
+      line_item.rate = null;
+      this.setState({ line_item })
+    }
   }
 
-  setQty = ({ floatValue = 0 }) => {
-    const line_item = Object.assign({}, this.state.line_item, { quantity: floatValue });
+  setQty = ({ floatValue }) => {
+    const quantity = floatValue == null ? 0 : floatValue;
+    let line_item = Object.assign({}, this.state.line_item, { quantity: quantity });
 
     this.calculateAmount(line_item);
+
+    if (floatValue == null) {
+      line_item.quantity = null;
+      this.setState({ line_item })
+    }
   }
 
   calculateAmount = (line_item) => {
@@ -219,8 +231,9 @@ class InvoiceLineItem extends Component {
             fixedDecimalScale={2}
             onValueChange={this.setRate}
             required={true}
+            placeholder="0.00"
             thousandSeparator={true}
-            value={rate / 100} />
+            value={rate == null ? null : rate / 100 } />
           { errors.rate && <br /> }
           <Error text={errors.rate} />
         </td>
@@ -231,6 +244,7 @@ class InvoiceLineItem extends Component {
             fixedDecimalScale={2}
             onValueChange={this.setQty}
             required={true}
+            placeholder="0.00"
             thousandSeparator={true}
             value={quantity} />
           <Error text={errors.quantity} />
