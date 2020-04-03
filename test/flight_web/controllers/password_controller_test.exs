@@ -47,8 +47,7 @@ defmodule FlightWeb.PasswordControllerTest do
         |> get("/forgot_password")
         |> html_response(200)
 
-      assert html =~
-               "Account is suspended. Please contact your school administrator to reinstate it."
+      assert html =~ "Account is suspended. Please contact your school administrator to reinstate it."
     end
 
     test "empty email", %{conn: conn} do
