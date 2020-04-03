@@ -12,6 +12,7 @@ defmodule FlightWeb.API.Invoices.LineItemController do
       Flight.Billing.InvoiceCustomLineItem
       |> Flight.SchoolScope.scope_query(user)
       |> Flight.Repo.all()
+      |> Enum.sort_by(& &1.inserted_at)
 
     render(conn, "extra_options.json", custom_line_items: custom_line_items)
   end
