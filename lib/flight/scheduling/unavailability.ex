@@ -43,6 +43,8 @@ defmodule Flight.Scheduling.Unavailability do
     case {instructor_user_id, aircraft_id, belongs} do
       {_, y, "Aircraft"} when is_integer(y) -> changeset
       {x, _, "Instructor"} when is_integer(x) -> changeset
+      {_, y, nil} when is_integer(y) -> changeset
+      {x, _, nil} when is_integer(x) -> changeset
       {nil, _, "Instructor"} -> add_error(changeset, :instructor, "must be set.")
       {_, nil, "Aircraft"} -> add_error(changeset, :aircraft, "must be set.")
     end
