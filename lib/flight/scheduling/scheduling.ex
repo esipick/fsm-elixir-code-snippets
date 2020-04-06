@@ -325,7 +325,7 @@ defmodule Flight.Scheduling do
             changeset
 
           _ ->
-            add_error(changeset, :renter, "has already an appointment at this time",
+            add_error(changeset, :renter, "or student has already an appointment at this time",
               status: :unavailable
             )
         end

@@ -318,7 +318,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
 
       assert json == %{
                "human_errors" => [
-                 "Renter has already an appointment at this time",
+                 "Renter or student has already an appointment at this time",
                  "Instructor is unavailable",
                  "Aircraft is unavailable"
                ]
