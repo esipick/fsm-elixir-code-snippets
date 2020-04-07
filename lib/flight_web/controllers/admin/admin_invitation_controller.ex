@@ -79,7 +79,7 @@ defmodule FlightWeb.Admin.InvitationController do
 
   def invite_request_path(%{assigns: %{current_user: user}} = conn, path \\ "/admin/invitations") do
     case Flight.Accounts.is_superadmin?(user) do
-      true -> "#{path}/#{Flight.SchoolScope.school_id(conn)}"
+      true -> "#{path}?school_id=#{Flight.SchoolScope.school_id(conn)}"
       false -> path
     end
   end
