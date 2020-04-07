@@ -2,6 +2,8 @@
 
 $(document).ready(function () {
 
+  var AUTH_HEADERS = { "Authorization": window.fsm_token };
+
   var fullName = function (user) {
     return user.first_name + " " + user.last_name
   }
@@ -100,7 +102,8 @@ $(document).ready(function () {
         instructor_user_id: eventInstructor,
         aircraft_id: eventAircraft,
         note: eventNote,
-        type: "lesson"
+        type: "lesson",
+        in_school_tz: true
       };
 
       if (appointmentOrUnavailabilityId) {
@@ -108,13 +111,13 @@ $(document).ready(function () {
           method: "put",
           url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
           data: { data: eventData },
-          headers: { "Authorization": window.fsm_token }
+          headers: AUTH_HEADERS
         })
       } else {
         promise = $.post({
           url: "/api/appointments" + addSchoolIdParam('?'),
           data: { data: eventData },
-          headers: { "Authorization": window.fsm_token }
+          headers: AUTH_HEADERS
         })
       }
     } else if (eventType == "unavail") {
@@ -132,7 +135,8 @@ $(document).ready(function () {
         instructor_user_id: eventInstructor,
         aircraft_id: eventAircraft,
         note: eventNote,
-        belongs: eventFor
+        belongs: eventFor,
+        in_school_tz: true
       };
 
       var promise;
@@ -142,13 +146,13 @@ $(document).ready(function () {
           method: "put",
           url: "/api/unavailabilities/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
           data: { data: eventData },
-          headers: { "Authorization": window.fsm_token }
+          headers: AUTH_HEADERS
         })
       } else {
         promise = $.post({
           url: "/api/unavailabilities" + addSchoolIdParam('?'),
           data: { data: eventData },
-          headers: { "Authorization": window.fsm_token }
+          headers: AUTH_HEADERS
         })
       }
 
@@ -211,13 +215,13 @@ $(document).ready(function () {
         promise = $.ajax({
           method: "delete",
           url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
-          headers: { "Authorization": window.fsm_token }
+          headers: AUTH_HEADERS
         })
       } else {
         promise = $.ajax({
           method: "delete",
           url: "/api/unavailabilities/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
-          headers: { "Authorization": window.fsm_token }
+          headers: AUTH_HEADERS
         })
       }
 
@@ -458,18 +462,19 @@ $(document).ready(function () {
         var startStr = moment(start).toISOString()
         var endStr = moment(end).toISOString()
 
+        var paramStr = addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr + "&in_school_tz=true";
+
         var appointmentsPromise = $.get({
-          url: "/api/appointments?" + addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr,
-          headers: { "Authorization": window.fsm_token }
-        })
+          url: "/api/appointments?" + paramStr,
+          headers: AUTH_HEADERS
+        });
 
         var unavailabilityPromise = $.get({
-          url: "/api/unavailabilities?" + addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr,
-          headers: { "Authorization": window.fsm_token }
-        })
+          url: "/api/unavailabilities?" + paramStr,
+          headers: AUTH_HEADERS
+        });
 
         Promise.all([appointmentsPromise, unavailabilityPromise]).then(function (resp) {
-
           var appointments = resp[0].data.map(function (appointment) {
             var resourceIds = []
 
@@ -520,8 +525,8 @@ $(document).ready(function () {
     });
   }
 
-  var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: { "Authorization": window.fsm_token } })
-  var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: { "Authorization": window.fsm_token } })
+  var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
+  var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: AUTH_HEADERS })
 
   Promise.all([users, aircrafts]).then(function (values) {
     var instructors = values[0].data.filter(function (user) {
