@@ -1,6 +1,7 @@
 defmodule Flight.Billing.CreateInvoiceFromAppointment do
   alias Flight.Scheduling.Appointment
   alias Flight.Repo
+  alias Flight.Billing.CalculateInvoice
 
   def run(appointment_id, params, school_context) do
     invoice = Repo.get_by(Flight.Billing.Invoice, appointment_id: appointment_id)
@@ -25,23 +26,15 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         aircraft_item(appointment, duration),
         instructor_item(appointment, duration)
       ]
-      |> Enum.filter(fn x -> x end)
 
-    total = Enum.map(line_items, fn x -> x["amount"] end) |> Enum.sum()
-    total_tax = round(total * school.sales_tax / 100)
-
-    invoice_params = %{
+    {:ok, invoice_params} = CalculateInvoice.run(%{
       "school_id" => school.id,
       "appointment_id" => appointment.id,
       "user_id" => appointment.user_id,
       "date" => NaiveDateTime.to_date(appointment.end_at),
       "payment_option" => payment_option,
-      "total" => total,
-      "tax_rate" => school.sales_tax,
-      "total_tax" => total_tax,
-      "total_amount_due" => total + total_tax,
       "line_items" => line_items
-    }
+    }, school_context)
 
     Flight.Billing.CreateInvoice.run(invoice_params, school_context)
   end

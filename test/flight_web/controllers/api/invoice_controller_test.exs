@@ -809,6 +809,73 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
   end
 
+  describe "POST /api/invoices/calculate" do
+    test "calculates invoice" do
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+      student = student_fixture()
+
+      payload = %{
+        "line_items" => [
+          %{
+            "type" => "aircraft",
+            "tach_start" => aircraft.last_tach_time,
+            "tach_end" => aircraft.last_tach_time + 14,
+            "rate" => 28500,
+            "quantity" => 1,
+            "hobbs_start" => aircraft.last_hobbs_time,
+            "hobbs_end" => aircraft.last_hobbs_time + 13,
+            "description" => "Flight Hours",
+            "aircraft_id" => aircraft.id
+          },
+          %{
+            "type" => "other",
+            "rate" => 5200,
+            "quantity" => 1,
+            "description" => "Fuel"
+          }
+        ],
+        "user_id" => student.id
+      }
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices/calculate", %{"invoice" => payload})
+        |> json_response(200)
+
+      assert json == %{
+        "total" => 5369,
+        "total_tax" => 537,
+        "total_amount_due" => 5906,
+        "tax_rate" => 10.0,
+        "school_id" => default_school_fixture().id,
+        "line_items" => [
+          %{
+            "type" => "aircraft",
+            "tach_start" => 400,
+            "tach_end" => 414,
+            "rate" => 28500,
+            "quantity" => 1,
+            "hobbs_start" => 400,
+            "hobbs_end" => 413,
+            "description" => "Flight Hours",
+            "aircraft_id" => aircraft.id,
+            "amount" => 169
+          },
+          %{
+            "type" => "other",
+            "rate" => 5200,
+            "quantity" => 1,
+            "description" => "Fuel",
+            "amount" => 5200
+          }
+        ],
+        "user_id" => student.id
+      }
+    end
+  end
+
   describe "DELETE /api/invoices/:id" do
     test "deletes unpaid invoice", %{conn: conn} do
       for role_slug <- ["admin", "dispatcher", "instructor"] do
@@ -888,11 +955,6 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     assert json == render_json(InvoiceView, "show.json", invoice: invoice)
   end
 
-  def preload_invoice(invoice) do
-    Repo.get(Invoice, invoice.id)
-    |> Repo.preload([:user, :transactions, :line_items, :appointment], force: true)
-  end
-
   test "renders payment options", %{conn: conn} do
     student = student_fixture()
 
@@ -905,5 +967,10 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     assert json == %{
              "data" => [["balance", 0], ["cc", 1], ["cash", 2], ["check", 3], ["venmo", 4]]
            }
+  end
+
+  def preload_invoice(invoice) do
+    Repo.get(Invoice, invoice.id)
+    |> Repo.preload([:user, :transactions, :line_items, :appointment], force: true)
   end
 end

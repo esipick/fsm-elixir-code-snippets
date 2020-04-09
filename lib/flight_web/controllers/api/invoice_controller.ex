@@ -7,7 +7,7 @@ defmodule FlightWeb.API.InvoiceController do
   alias Flight.Auth.Permission
   import Flight.Auth.Authorization
   alias FlightWeb.{ViewHelpers, Pagination}
-  alias Flight.Billing.{Invoice, CreateInvoice, UpdateInvoice, CreateInvoiceFromAppointment}
+  alias Flight.Billing.{Invoice, CreateInvoice, UpdateInvoice, CreateInvoiceFromAppointment, CalculateInvoice}
 
   plug(:get_invoice when action in [:update, :show, :delete])
   plug(:authorize_modify when action in [:create, :show, :index, :delete])
@@ -35,6 +35,14 @@ defmodule FlightWeb.API.InvoiceController do
       |> Flight.Scheduling.apply_timezone(timezone)
 
     render(conn, "appointments.json", appointments: appointments)
+  end
+
+  def calculate(conn, %{"invoice" => invoice_params}) do
+    {:ok, calculated_params} = CalculateInvoice.run(invoice_params, conn)
+
+    conn
+    |> put_status(200)
+    |> json(calculated_params)
   end
 
   def create(conn, %{"invoice" => invoice_params}) do

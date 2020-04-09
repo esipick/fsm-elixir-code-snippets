@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
+import http from 'j-fetch';
 import LineItem from './LineItem';
 
 import { itemsFromAppointment, LineItemRecord } from './line_item_utils';
+
+import { authHeaders, addSchoolIdParam } from '../utils';
 
 const lineItemsKey = (appointment) => appointment && appointment.id || 'none';
 
@@ -24,11 +27,11 @@ class LineItemsTable extends Component {
   }
 
   componentDidUpdate = () => {
-    const total_amount_due = this.calculateTotal(this.lineItems()).total_amount_due;
-
-    if (total_amount_due !== this.state.total_amount_due) {
-      this.updateTotal(this.lineItems());
-    }
+    this.calculateTotal(this.lineItems(), ({ total_amount_due }) => {
+      if (total_amount_due !== this.state.total_amount_due) {
+        this.updateTotal(this.lineItems());
+      }
+    });
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -69,28 +72,37 @@ class LineItemsTable extends Component {
     this.updateTotal(line_items);
   };
 
-  calculateTotal = (line_items) => {
-    const { sales_tax } = this.props;
-    const total = line_items.reduce((sum, i) => (sum + i.rate * i.quantity), 0);
-    const total_tax = Math.round((total * sales_tax / 100));
-    const total_amount_due = total + total_tax;
+  calculateTotal = (line_items, callback) => {
+    const { sales_tax, student, appointment } = this.props;
 
-    return {
+    const payload = {
       line_items,
-      total,
-      total_tax,
-      total_amount_due
+      user_id: student && student.id,
+      appointment_id: appointment && appointment.id
     }
+
+    http.post({
+      url: '/api/invoices/calculate?' + addSchoolIdParam(),
+      body: { invoice: payload },
+      headers: authHeaders()
+    }).then(response => {
+      response.json().then(callback);
+    }).catch(response => {
+      response.json().then((err) => {
+        console.warn(err);
+      });
+    });
   }
 
   updateTotal = (line_items) => {
-    const values = this.calculateTotal(line_items);
-    const { memo } = this.state;
+    this.calculateTotal(line_items, (values) => {
+      const { memo } = this.state;
 
-    memo[lineItemsKey(this.state.appointment)] = values.line_items;
+      memo[lineItemsKey(this.state.appointment)] = values.line_items;
 
-    this.setState({ ...values, memo });
-    this.props.onChange(values);
+      this.setState({ ...values, memo });
+      this.props.onChange(values);
+    });
   }
 
   render() {
