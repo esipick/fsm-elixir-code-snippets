@@ -34,13 +34,19 @@ defmodule Flight.Billing.CalculateInvoice do
   end
 
   defp calculate_line_item(line_item, invoice, school_context) do
-    amount = if line_item["type"] == "aircraft" do
+    amount = if line_item_type(line_item) == :aircraft do
       calculate_aircraft_item_amount(line_item, invoice, school_context)
     else
-      line_item["quantity"] * line_item["rate"]
+      (line_item["quantity"] || 0) * (line_item["rate"] || 0)
     end
 
     Map.put(line_item, "amount", amount)
+  end
+
+  def line_item_type(line_item) do
+    String.to_atom(line_item["type"])
+  rescue
+    ArgumentError -> line_item["type"]
   end
 
   defp calculate_aircraft_item_amount(line_item, invoice, school_context) do
@@ -52,7 +58,7 @@ defmodule Flight.Billing.CalculateInvoice do
     if hobbs_start && hobbs_end && tach_start && tach_end do
       calculate_from_hobbs_tach(line_item, invoice, school_context)
     else
-      line_item["quantity"] * line_item["rate"]
+      (line_item["quantity"] || 0) * (line_item["rate"] || 0)
     end
   end
 

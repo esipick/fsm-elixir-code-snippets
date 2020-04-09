@@ -30,7 +30,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
       [
         aircraft_item(appointment, duration),
         instructor_item(appointment, duration)
-      ]
+      ] |> Enum.filter(fn x -> x end)
 
     {:ok, invoice_params} = CalculateInvoice.run(%{
       "school_id" => school.id,
