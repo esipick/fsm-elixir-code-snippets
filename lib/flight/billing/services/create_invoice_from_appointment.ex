@@ -1,10 +1,15 @@
 defmodule Flight.Billing.CreateInvoiceFromAppointment do
+  import Ecto.Query, warn: false
+
   alias Flight.Scheduling.Appointment
   alias Flight.Repo
-  alias Flight.Billing.CalculateInvoice
+  alias Flight.Billing.{Invoice, CalculateInvoice}
 
   def run(appointment_id, params, school_context) do
-    invoice = Repo.get_by(Flight.Billing.Invoice, appointment_id: appointment_id)
+    invoice =
+      from(i in Invoice, where: i.appointment_id == ^appointment_id, order_by: [desc: i.inserted_at])
+      |> limit(1)
+      |> Repo.one()
 
     if invoice do
       {:ok, invoice}
