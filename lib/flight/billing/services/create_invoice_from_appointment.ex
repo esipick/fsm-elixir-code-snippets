@@ -3,6 +3,16 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   alias Flight.Repo
 
   def run(appointment_id, params, school_context) do
+    invoice = Repo.get_by(Flight.Billing.Invoice, appointment_id: appointment_id)
+
+    if invoice do
+      {:ok, invoice}
+    else
+      create_invoice_from_appointment(appointment_id, params, school_context)
+    end
+  end
+
+  def create_invoice_from_appointment(appointment_id, params, school_context) do
     appointment =
       Repo.get(Appointment, appointment_id) |> Repo.preload([:instructor_user, :aircraft])
 

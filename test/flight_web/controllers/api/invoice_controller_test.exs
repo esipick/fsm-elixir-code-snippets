@@ -873,6 +873,21 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     assert json == render_json(InvoiceView, "show.json", invoice: invoice)
   end
 
+  @tag :integration
+  test "returns existing invoice for appointment", %{conn: conn} do
+    appointment = appointment_fixture()
+    instructor = instructor_fixture()
+    invoice = invoice_fixture(%{appointment_id: appointment.id}) |> preload_invoice
+
+    json =
+      conn
+      |> auth(instructor)
+      |> post("/api/invoices/from_appointment/#{appointment.id}")
+      |> json_response(201)
+
+    assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+  end
+
   def preload_invoice(invoice) do
     Repo.get(Invoice, invoice.id)
     |> Repo.preload([:user, :transactions, :line_items, :appointment], force: true)
