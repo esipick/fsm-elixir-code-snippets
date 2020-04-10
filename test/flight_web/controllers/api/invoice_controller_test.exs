@@ -526,11 +526,10 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       invoice = invoice_fixture(%{user_id: student.id})
       invoice_params = %{payment_option: "venmo", total_amount_due: 100}
 
-      json =
-        conn
-        |> auth(student)
-        |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params, pay_off: true})
-        |> json_response(200)
+      conn
+      |> auth(student)
+      |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params, pay_off: true})
+      |> json_response(200)
 
       invoice = preload_invoice(invoice)
 
@@ -810,7 +809,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   end
 
   describe "POST /api/invoices/calculate" do
-    test "calculates invoice" do
+    test "calculates invoice", %{conn: conn} do
       instructor = instructor_fixture()
       aircraft = aircraft_fixture()
       student = student_fixture()
@@ -826,13 +825,15 @@ defmodule FlightWeb.API.InvoiceControllerTest do
             "hobbs_start" => aircraft.last_hobbs_time,
             "hobbs_end" => aircraft.last_hobbs_time + 13,
             "description" => "Flight Hours",
-            "aircraft_id" => aircraft.id
+            "aircraft_id" => aircraft.id,
+            "taxable" => true
           },
           %{
             "type" => "other",
             "rate" => 5200,
             "quantity" => 1,
-            "description" => "Fuel"
+            "description" => "Fuel",
+            "taxable" => false
           }
         ],
         "user_id" => student.id
@@ -846,8 +847,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       assert json == %{
                "total" => 5369,
-               "total_tax" => 537,
-               "total_amount_due" => 5906,
+               "total_tax" => 17,
+               "total_amount_due" => 5386,
                "tax_rate" => 10.0,
                "school_id" => default_school_fixture().id,
                "line_items" => [
@@ -861,14 +862,16 @@ defmodule FlightWeb.API.InvoiceControllerTest do
                    "hobbs_end" => 413,
                    "description" => "Flight Hours",
                    "aircraft_id" => aircraft.id,
-                   "amount" => 169
+                   "amount" => 169,
+                   "taxable" => true
                  },
                  %{
                    "type" => "other",
                    "rate" => 5200,
                    "quantity" => 1,
                    "description" => "Fuel",
-                   "amount" => 5200
+                   "amount" => 5200,
+                   "taxable" => false
                  }
                ],
                "user_id" => student.id
@@ -933,8 +936,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
     assert invoice.total == 460
     assert invoice.tax_rate == 10
-    assert invoice.total_tax == 46
-    assert invoice.total_amount_due == 506
+    assert invoice.total_tax == 26
+    assert invoice.total_amount_due == 486
     assert Enum.count(invoice.line_items) == 2
 
     assert json == render_json(InvoiceView, "show.json", invoice: invoice)

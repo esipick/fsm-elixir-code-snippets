@@ -20,6 +20,7 @@ defmodule FlightWeb.API.InvoiceLineItemView do
       tach_end: line_item.tach_end,
       hobbs_tach_used: line_item.hobbs_tach_used,
       aircraft_id: line_item.aircraft_id,
+      taxable: line_item.taxable,
       aircraft:
         Optional.map(
           line_item.aircraft,

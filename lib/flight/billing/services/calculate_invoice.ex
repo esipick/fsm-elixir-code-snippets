@@ -18,7 +18,9 @@ defmodule Flight.Billing.CalculateInvoice do
       end)
 
     total = Enum.map(line_items, fn x -> x["amount"] end) |> Enum.sum() |> round
-    total_tax = round(total * tax_rate / 100)
+    total_taxable =
+      Enum.map(line_items, fn x -> if x["taxable"], do: x["amount"], else: 0 end) |> Enum.sum()
+    total_tax = round(total_taxable * tax_rate / 100)
 
     invoice_attrs =
       Map.merge(invoice_attrs, %{

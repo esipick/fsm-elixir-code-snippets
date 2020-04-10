@@ -36,7 +36,8 @@ defmodule FlightWeb.Admin.SettingsController do
         %{
           description: custom_line_item.description,
           default_rate: custom_line_item.default_rate,
-          id: custom_line_item.id
+          id: custom_line_item.id,
+          taxable: custom_line_item.taxable
         }
       end)
 

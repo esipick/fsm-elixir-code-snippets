@@ -7,6 +7,13 @@ import { authHeaders } from '../utils';
 import Error from '../common/Error';
 import CustomLineItemsTable from './CustomLineItemsTable';
 
+const DEFAULT_VALUES = {
+  default_rate: '',
+  description: '',
+  taxable: false,
+  saving: false,
+  errors: {}
+}
 
 class Form extends Component {
   constructor(props) {
@@ -14,12 +21,9 @@ class Form extends Component {
 
     this.formRef = null;
 
-    this.state = {
+    this.state = Object.assign({
       custom_line_items: this.props.custom_line_items,
-      default_rate: '',
-      description: '',
-      errors: {}
-    }
+    }, DEFAULT_VALUES);
   }
 
   setFormRef = (form) => {
@@ -29,11 +33,12 @@ class Form extends Component {
   };
 
   payload = () => {
-    const { default_rate, description } = this.state;
+    const { default_rate, description, taxable } = this.state;
 
     return {
       default_rate: default_rate.replace(/,/g, '') * 100,
-      description: description
+      description: description,
+      taxable: taxable == "on"
     }
   }
 
@@ -45,14 +50,11 @@ class Form extends Component {
 
   addCustomLineItem = (custom_line_item) => {
     const custom_line_items = this.state.custom_line_items;
-
-    this.setState({
+    const nextState = Object.assign({
       custom_line_items: [...custom_line_items, custom_line_item],
-      default_rate: '',
-      description: '',
-      errors: {},
-      saving: false
-    });
+    }, DEFAULT_VALUES);
+
+    this.setState(nextState);
   }
 
   saveCustomLineItem = () => {
@@ -85,7 +87,7 @@ class Form extends Component {
   }
 
   render() {
-    const { default_rate, description, errors, custom_line_items, saving } = this.state;
+    const { default_rate, description, errors, custom_line_items, saving, taxable } = this.state;
 
     return (
       <div className="invoice-form">
@@ -93,7 +95,7 @@ class Form extends Component {
         <p>Manage custom line items for the <a href="/billing/invoices/new">New Invoice</a> form.</p>
         <form ref={this.setFormRef}>
           <div className="row mb-4">
-            <div className="col-md-5 pr-1">
+            <div className="col-md-4 pr-1">
               <div className="form-group">
                 <input className="form-control"
                   onChange={e => this.setState({ description: e.target.value })}
@@ -106,7 +108,7 @@ class Form extends Component {
                 <Error text={errors.description} />
               </label>
             </div>
-            <div className="col-md-5 pr-1">
+            <div className="col-md-4 pr-1">
               <div className="form-group">
                 <NumberFormat allowNegative={true}
                   className="form-control"
@@ -120,6 +122,18 @@ class Form extends Component {
               </div>
               <label>
                 <Error text={errors.default_rate} />
+              </label>
+            </div>
+            <div className="col-md-2 pr-1">
+              <div className="form-group m-0">
+                <input type="checkbox"
+                  className="form-control has-error"
+                  onChange={e => this.setState({ taxable: e.target.value })}
+                  checked={taxable} />
+              </div>
+              <label>
+                Taxable
+                <Error text={errors.taxable} />
               </label>
             </div>
             <div className="col-md-2">

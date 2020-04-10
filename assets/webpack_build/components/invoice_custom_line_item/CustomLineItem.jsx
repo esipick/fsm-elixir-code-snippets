@@ -13,13 +13,14 @@ class CustomLineItem extends Component {
 
     this.formRef = null;
 
-    const { default_rate, description } = this.props.custom_line_item
+    const { default_rate, description, taxable } = this.props.custom_line_item
 
     this.state = {
       default_rate: `${default_rate / 100}`,
       description,
       errors: {},
-      saving: true
+      saving: true,
+      taxable
     }
   }
 
@@ -28,9 +29,12 @@ class CustomLineItem extends Component {
   };
 
   payload = () => {
+    const { taxable, description, default_rate } = this.state;
+
     return {
-      description: this.state.description,
-      default_rate: this.state.default_rate.replace(/,/g, '') * 100
+      taxable: taxable == "on",
+      description,
+      default_rate: default_rate.replace(/,/g, '') * 100
     }
   }
 
@@ -85,12 +89,16 @@ class CustomLineItem extends Component {
     this.setState({ default_rate: e.target.value, saving: false })
   }
 
+  onTaxableChange = (e) => {
+    this.setState({ taxable: e.target.value, saving: false });
+  }
+
   render() {
-    const { default_rate, description, errors, saving } = this.state;
+    const { default_rate, description, errors, saving, taxable } = this.state;
 
     return (
       <form className="row" ref={this.setFormRef}>
-        <div className="col-md-5 pr-1">
+        <div className="col-md-4 pr-1">
           <div className="form-group m-0">
             <input className="form-control"
               onChange={this.onDescriptionChange}
@@ -102,7 +110,7 @@ class CustomLineItem extends Component {
             <Error text={errors.description} />
           </label>
         </div>
-        <div className="col-md-4 pr-1">
+        <div className="col-md-3 pr-1">
           <div className="form-group m-0">
             <NumberFormat allowNegative={true}
               className="form-control has-error"
@@ -116,6 +124,18 @@ class CustomLineItem extends Component {
           </div>
           <label>
             <Error text={errors.default_rate} />
+          </label>
+        </div>
+        <div className="col-md-2 pr-1">
+          <div className="form-group m-0">
+            <input type="checkbox"
+              className="form-control has-error"
+              onChange={this.onTaxableChange}
+              checked={taxable} />
+          </div>
+          <label>
+            Taxable
+            <Error text={errors.taxable} />
           </label>
         </div>
         <div className="col-md-3">

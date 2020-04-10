@@ -38,9 +38,9 @@ defmodule FlightWeb.API.Invoices.LineItemControllerTest do
         |> json_response(200)
 
       assert json["data"] == [
-               %{"default_rate" => 100, "description" => "Fuel Charge"},
-               %{"default_rate" => 1000, "description" => "Fuel Reimbursement"},
-               %{"default_rate" => 10000, "description" => "Equipment Rental"}
+               %{"default_rate" => 100, "description" => "Fuel Charge", "taxable" => true},
+               %{"default_rate" => 1000, "description" => "Fuel Reimbursement", "taxable" => true},
+               %{"default_rate" => 10000, "description" => "Equipment Rental", "taxable" => true}
              ]
     end
   end

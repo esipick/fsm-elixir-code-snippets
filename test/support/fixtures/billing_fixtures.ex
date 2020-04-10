@@ -197,7 +197,8 @@ defmodule Flight.BillingFixtures do
     attrs =
       %{
         default_rate: 100,
-        description: "custom line item"
+        description: "custom line item",
+        taxable: true
       }
       |> Map.merge(attrs)
 

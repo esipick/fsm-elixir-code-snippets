@@ -9,16 +9,9 @@ defmodule FlightWeb.API.Invoices.CustomLineItemController do
   def create(conn, %{"custom_line_item" => data_params, "school_id" => school_id}) do
     case InvoiceCustomLineItem.create_custom_line_item(data_params, school_id) do
       {:ok, changeset} ->
-        custom_line_item = %{
-          default_rate: changeset.default_rate,
-          description: changeset.description,
-          id: changeset.id,
-          school_id: changeset.school_id
-        }
-
         conn
         |> put_status(200)
-        |> json(custom_line_item)
+        |> render("custom_line_item.json", %{custom_line_item: changeset})
 
       {:error, changeset} ->
         conn
@@ -44,16 +37,9 @@ defmodule FlightWeb.API.Invoices.CustomLineItemController do
   def update(conn, %{"custom_line_item" => data_params, "id" => id, "school_id" => school_id}) do
     case InvoiceCustomLineItem.update_custom_line_item(data_params, id, school_id) do
       {:ok, changeset} ->
-        custom_line_item = %{
-          default_rate: changeset.default_rate,
-          description: changeset.description,
-          id: changeset.id,
-          school_id: changeset.school_id
-        }
-
         conn
         |> put_status(200)
-        |> json(custom_line_item)
+        |> render("custom_line_item.json", %{custom_line_item: changeset})
 
       {:error, changeset} ->
         conn

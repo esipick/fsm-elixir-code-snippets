@@ -7,7 +7,8 @@ defmodule FlightWeb.API.Invoices.LineItemView do
         for custom_line_item <- custom_line_items do
           %{
             default_rate: custom_line_item.default_rate,
-            description: custom_line_item.description
+            description: custom_line_item.description,
+            taxable: custom_line_item.taxable
           }
         end
     }

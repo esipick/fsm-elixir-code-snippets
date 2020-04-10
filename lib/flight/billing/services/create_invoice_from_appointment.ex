@@ -62,7 +62,8 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "quantity" => quantity,
         "amount" => rate * quantity,
         "type" => :aircraft,
-        "aircraft_id" => appointment.aircraft.id
+        "aircraft_id" => appointment.aircraft.id,
+        "taxable" => true
       }
     end
   end
@@ -77,7 +78,8 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "quantity" => quantity,
         "amount" => rate * quantity,
         "type" => :instructor,
-        "instructor_user_id" => appointment.instructor_user.id
+        "instructor_user_id" => appointment.instructor_user.id,
+        "taxable" => false
       }
     end
   end

@@ -17,6 +17,7 @@ defmodule Flight.Billing.InvoiceLineItem do
     field(:tach_start, :integer)
     field(:tach_end, :integer)
     field(:hobbs_tach_used, :boolean)
+    field(:taxable, :boolean)
     field(:type, InvoiceLineItemTypeEnum, default: :other)
 
     belongs_to(:instructor_user, Flight.Accounts.User)
@@ -38,7 +39,7 @@ defmodule Flight.Billing.InvoiceLineItem do
     invoice_line_item
     |> cast(attrs, @required_fields)
     |> cast(attrs, @hobbs_tach_fields)
-    |> cast(attrs, [:instructor_user_id, :aircraft_id, :type])
+    |> cast(attrs, [:instructor_user_id, :aircraft_id, :type, :taxable])
     |> validate_required(@required_fields)
     |> validate_number(:rate,
       greater_than: -999_999,

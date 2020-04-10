@@ -15,6 +15,7 @@ class LineItemsTable extends Component {
     const { appointment } = props;
     const line_items =
       props.line_items.length > 0 ? props.line_items : itemsFromAppointment(appointment);
+
     const memo = {
       [lineItemsKey(appointment)]: line_items
     }
@@ -73,7 +74,7 @@ class LineItemsTable extends Component {
   };
 
   calculateTotal = (line_items, callback) => {
-    const { sales_tax, student, appointment } = this.props;
+    const { student, appointment } = this.props;
 
     const payload = {
       line_items,

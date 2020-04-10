@@ -31,7 +31,8 @@ class InvoiceLineItem extends Component {
     const line_item = Object.assign({}, this.state.line_item, {
       description: option.value,
       rate: option.rate || DEFAULT_RATE,
-      type: TYPES[option.value] || DEFAULT_TYPE
+      type: TYPES[option.value] || DEFAULT_TYPE,
+      taxable: option.taxable
     });
 
     this.setState({ line_item });
@@ -151,7 +152,8 @@ class InvoiceLineItem extends Component {
     const options = DESCRIPTION_OPTS.concat(this.props.custom_line_items.map(o => ({
       label: o.description,
       rate: o.default_rate,
-      value: o.description
+      value: o.description,
+      taxable: o.taxable
     })))
 
     const additionalOptions = this.props.line_items.filter(line_item => (
@@ -159,7 +161,8 @@ class InvoiceLineItem extends Component {
     )).map(line_item => ({
       label: line_item.description,
       rate: line_item.rate,
-      value: line_item.description
+      value: line_item.description,
+      taxable: line_item.taxable
     }));
 
     return [...options, ...additionalOptions];
