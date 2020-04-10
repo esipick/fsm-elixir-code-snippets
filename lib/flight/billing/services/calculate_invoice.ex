@@ -57,12 +57,7 @@ defmodule Flight.Billing.CalculateInvoice do
   end
 
   defp calculate_aircraft_item_amount(line_item, invoice, school_context) do
-    hobbs_start = line_item["hobbs_start"]
-    hobbs_end = line_item["hobbs_end"]
-    tach_start = line_item["tach_start"]
-    tach_end = line_item["tach_end"]
-
-    if hobbs_start && hobbs_end && tach_start && tach_end do
+    if line_item["hobbs_tach_used"] do
       calculate_from_hobbs_tach(line_item, invoice, school_context)
     else
       (line_item["quantity"] || 0) * (line_item["rate"] || 0)

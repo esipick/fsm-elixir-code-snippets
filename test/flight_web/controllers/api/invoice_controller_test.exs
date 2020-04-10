@@ -824,6 +824,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
             "quantity" => 1,
             "hobbs_start" => aircraft.last_hobbs_time,
             "hobbs_end" => aircraft.last_hobbs_time + 13,
+            "hobbs_tach_used" => true,
             "description" => "Flight Hours",
             "aircraft_id" => aircraft.id,
             "taxable" => true
@@ -863,7 +864,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
                    "description" => "Flight Hours",
                    "aircraft_id" => aircraft.id,
                    "amount" => 169,
-                   "taxable" => true
+                   "taxable" => true,
+                   "hobbs_tach_used" => true
                  },
                  %{
                    "type" => "other",
