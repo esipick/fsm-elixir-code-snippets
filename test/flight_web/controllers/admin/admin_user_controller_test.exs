@@ -315,6 +315,30 @@ defmodule FlightWeb.Admin.UserControllerTest do
       assert content =~ "must be in a valid format"
     end
 
+    test "show error when user already removed", %{conn: conn} do
+      student = student_fixture()
+
+      payload = %{
+        user: %{email: "All@ison", zipcode: "Duprix", flight_training_number: "Duprix"}
+      }
+
+      Flight.Accounts.archive_user(student)
+      admin = admin_fixture()
+
+      conn =
+        conn
+        |> web_auth(admin)
+        |> put("/admin/users/#{student.id}", payload)
+        |> response_redirected_to("/admin/dashboard")
+
+      html =
+        conn
+        |> get("/admin/dashboard")
+        |> html_response(200)
+
+      assert get_flash(conn, :error) =~ "User already removed."
+    end
+
     test "does not allow dispatchers to update admins", %{conn: conn} do
       admin = user_fixture() |> assign_role("admin")
 

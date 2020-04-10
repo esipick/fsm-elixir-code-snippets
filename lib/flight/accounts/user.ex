@@ -280,6 +280,8 @@ defmodule Flight.Accounts.User do
       Flight.Format.email_regex(),
       message: "must be in a valid format"
     )
+    |> validate_number(:billing_rate, greater_than_or_equal_to: 0)
+    |> validate_number(:pay_rate, greater_than_or_equal_to: 0)
     |> normalize_phone_number()
     |> Pipe.pass_unless(roles, &put_assoc(&1, :roles, roles))
     |> Pipe.pass_unless(

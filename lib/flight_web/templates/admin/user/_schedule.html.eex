@@ -11,13 +11,21 @@
           <%= if appointment.aircraft_id do %>
             <dl class="d-flex justify-content-between">
               <dt>Aircraft</dt>
-              <dd><a href="/admin/aircrafts/<%= appointment.aircraft_id %>"><%= aircraft_display_name appointment.aircraft %></a></dd>
+              <%= if appointment.aircraft.archived do %>
+                <dd><%= aircraft_display_name appointment.aircraft %></dd>
+              <% else %>
+                <dd><a href="/admin/aircrafts/<%= appointment.aircraft_id %>"><%= aircraft_display_name appointment.aircraft %></a></dd>
+              <% end %>
             </dl>
           <% end %>
           <%= if appointment.instructor_user_id do %>
             <dl class="d-flex justify-content-between">
               <dt>Instructor</dt>
-              <dd><a href="/admin/users/<%= appointment.instructor_user_id %>"><%= display_name appointment.instructor_user %></a></dd>
+              <%= if appointment.instructor_user.archived do %>
+                <dd><%= display_name appointment.instructor_user %></dd>
+              <% else %>
+                <dd><a href="/admin/users/<%= appointment.instructor_user_id %>"><%= display_name appointment.instructor_user %></a></dd>
+              <% end %>
             </dl>
           <% end %>
         </dd>

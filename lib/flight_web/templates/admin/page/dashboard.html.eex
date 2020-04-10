@@ -5,153 +5,198 @@
 </div>
 
 <div class="content">
-
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
           <div class="row">
-            <div class="col-md-12">
-              <div class="card card-stats card-raised">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-md-3">
-                      <div class="statistics">
-                        <div class="info">
-                          <div class="icon icon-primary">
-                            <i class="now-ui-icons education_hat"></i>
-                          </div>
-                          <h3 class="info-title"><%= @student_count %></h3>
-                          <h6 class="stats-title">Students</h6>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="statistics">
-                        <div class="info">
-                          <div class="icon icon-primary">
-                            <i class="now-ui-icons users_single-02"></i>
-                          </div>
-                          <h3 class="info-title"><%= @instructor_count %></h3>
-                          <h6 class="stats-title">Instructors</h6>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="statistics">
-                        <div class="info">
-                          <div class="icon icon-primary">
-                            <i class="now-ui-icons business_badge"></i>
-                          </div>
-                          <h3 class="info-title"><%= @renter_count %></h3>
-                          <h6 class="stats-title">Renters</h6>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="statistics">
-                        <div class="info">
-                          <div class="icon icon-primary">
-                            <i class="now-ui-icons objects_spaceship"></i>
-                          </div>
-                          <h3 class="info-title"><%= @aircraft_count %></h3>
-                          <h6 class="stats-title">Aircraft</h6>
-                        </div>
-                      </div>
-                    </div>
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons education_hat"></i>
                   </div>
+                  <h3 class="info-title"><%= @student_count %></h3>
+                  <h6 class="stats-title">Students</h6>
                 </div>
               </div>
             </div>
-          </div> <!-- end row -->
-          <div class="row">
-            <div class="col-md-6">
-              <div class="card card-chart">
-                <div class="card-header">
-                  <h5 class="card-category">Upcoming Inspections</h5>
-                  <h1 class="card-title"><%= Enum.count(@expired_inspections) %></h1>
-                </div>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table">
-                      <tbody>
-                        <%= for inspection <- @expired_inspections do %>
-                          <%
-                            inspection_class = case inspection.status do
-                              :good -> ""
-                              :expiring -> "text-expiring"
-                              :expired -> "text-expired"
-                            end
-                          %>
-                          <tr>
-                            <td class="text-nowrap"><a href="/admin/aircrafts/<%= inspection.aircraft.id %>"><span class="photo"><img src="/images/archer.jpg"></span><%= aircraft_display_name(inspection.aircraft) %></a></td>
-                            <td class="text-right">
-                              <%= inspection.inspection.name %><br />
-                              <a href="/admin/inspections/<%= inspection.inspection.id %>/edit" class="<%= inspection_class %>"><%= inspection.description %></a>
-                            </td>
-                          </tr>
-                        <% end %>
-                      </tbody>
-                    </table>
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons users_single-02"></i>
                   </div>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
-                  </div>
+                  <h3 class="info-title"><%= @instructor_count %></h3>
+                  <h6 class="stats-title">Instructors</h6>
                 </div>
               </div>
             </div>
-            <div class="col-md-6">
-              <div class="card card-chart">
-                <div class="card-header">
-                  <h5 class="card-category">Payments Pending Approval</h5>
-                  <h1 class="card-title"><%= Enum.count(@pending_transactions) %></h1>
-                </div>
-                <div class="card-body">
-                  <%= if @total_pending > 0 do %>
-                    <p>These individuals did not have a credit card available to charge. They need to add a credit or debit card through the mobile app and approve the transactions.</p>
-                  <% end %>
-                  <div class="table-responsive">
-                    <table class="table">
-                      <tbody>
-                        <%= for transaction <- @pending_transactions do %>
-                          <tr>
-                            <td class="text-nowrap"><a href="/admin/users/<%= transaction.user.id %>"><%= display_name transaction.user %></a></td>
-                            <td class="text-right"><%= currency transaction.total %></td>
-                            <td class="text-right"><%= display_date transaction.inserted_at %></td>
-                          </tr>
-                        <% end %>
-                        <%= if @total_pending > 0 do %>
-                          <tr>
-                            <td class="text-nowrap"><b>Total</b></td>
-                            <td class="text-right"><%= currency @total_pending %></td>
-                            <td class="text-right"></td>
-                          </tr>
-                        <% end %>
-                      </tbody>
-                    </table>
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons business_badge"></i>
                   </div>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
-                  </div>
+                  <h3 class="info-title"><%= @renter_count %></h3>
+                  <h6 class="stats-title">Renters</h6>
                 </div>
               </div>
             </div>
-          </div> <!-- end row -->
-          <%= if can_see_fsm_panels?(@conn.assigns.current_user) do %>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="card card-chart">
-                  <div class="card-header">
-                    <h5 class="card-category">Total FSM Income</h5>
-                    <h1 class="card-title"><%= currency @fsm_income %></h1>
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons objects_spaceship"></i>
                   </div>
-                  <div class="card-footer">
-                    <div class="stats">
-                      <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
-                    </div>
-                  </div>
+                  <h3 class="info-title"><%= @aircraft_count %></h3>
+                  <h6 class="stats-title">Aircraft</h6>
                 </div>
               </div>
-            </div> <!-- end row -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- end row -->
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Upcoming Inspections</h5>
+          <h1 class="card-title"><%= Enum.count(@expired_inspections) %></h1>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <tbody>
+                <%= for inspection <- @expired_inspections do %>
+                  <%
+                    inspection_class = case inspection.status do
+                      :good -> ""
+                      :expiring -> "text-expiring"
+                      :expired -> "text-expired"
+                    end
+                  %>
+                  <tr>
+                    <td class="text-nowrap"><a href="/admin/aircrafts/<%= inspection.aircraft.id %>"><span class="photo"><img src="/images/archer.jpg"></span><%= aircraft_display_name(inspection.aircraft) %></a></td>
+                    <td class="text-right">
+                      <%= inspection.inspection.name %><br />
+                      <a href="/admin/inspections/<%= inspection.inspection.id %>/edit" class="<%= inspection_class %>"><%= inspection.description %></a>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Payments Pending Approval</h5>
+          <h1 class="card-title"><%= Enum.count(@pending_transactions) %></h1>
+        </div>
+        <div class="card-body">
+          <%= if @total_pending > 0 do %>
+            <p>These individuals did not have a credit card available to charge. They need to add a credit or debit card through the mobile app and approve the transactions.</p>
           <% end %>
-</div> <!-- end content -->
+          <div class="table-responsive">
+            <table class="table">
+              <tbody>
+                <%= for transaction <- @pending_transactions do %>
+                  <tr>
+                    <td class="text-nowrap"><a href="/admin/users/<%= transaction.user.id %>"><%= display_name transaction.user %></a></td>
+                    <td class="text-right"><%= currency transaction.total %></td>
+                    <td class="text-right"><%= display_date transaction.inserted_at %></td>
+                  </tr>
+                <% end %>
+                <%= if @total_pending > 0 do %>
+                  <tr>
+                    <td class="text-nowrap"><b>Total</b></td>
+                    <td class="text-right"><%= currency @total_pending %></td>
+                    <td class="text-right"></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- end row -->
+  <%= if can_see_fsm_panels?(@conn.assigns.current_user) do %>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card card-chart">
+          <div class="card-header">
+            <h5 class="card-category">Total FSM Income</h5>
+            <h1 class="card-title"><%= currency @fsm_income %></h1>
+          </div>
+          <div class="card-footer">
+            <div class="stats">
+              <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- end row -->
+  <% end %>
+  <div class="table-responsive">
+    <table class="table">
+      <tbody>
+        <%= for transaction <- @pending_transactions do %>
+          <tr>
+            <td class="text-nowrap"><a href="/admin/users/<%= transaction.user.id %>"><%= display_name transaction.user %></a></td>
+            <td class="text-right"><%= currency transaction.total %></td>
+            <td class="text-right"><%= display_date transaction.inserted_at %></td>
+          </tr>
+        <% end %>
+        <%= if @total_pending > 0 do %>
+          <tr>
+            <td class="text-nowrap"><b>Total</b></td>
+            <td class="text-right"><%= currency @total_pending %></td>
+            <td class="text-right"></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer">
+    <div class="stats">
+      <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+    </div>
+  </div>
+  <!-- end row -->
+  <%= if can_see_fsm_panels?(@conn.assigns.current_user) do %>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card card-chart">
+          <div class="card-header">
+            <h5 class="card-category">Total FSM Income</h5>
+            <h1 class="card-title"><%= currency @fsm_income %></h1>
+          </div>
+          <div class="card-footer">
+            <div class="stats">
+              <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end row -->
+  <% end %>
+</div>
+<!-- end content -->
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>

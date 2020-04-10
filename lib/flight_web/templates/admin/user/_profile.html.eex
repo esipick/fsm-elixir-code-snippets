@@ -42,9 +42,10 @@
   <dl class="d-flex justify-content-between">
     <dt>Certificates</dt>
     <dd>
-      <%= human_flyer_certificates(@user.flyer_certificates) %>
-      <%= if human_flyer_certificates(@user.flyer_certificates) != "None" do %>
-        <small>cert# <%= @user.certificate_number %></small>
+      <%= if @user.certificate_number do %>
+        cert# <%= @user.certificate_number %>
+      <% else %>
+        None
       <% end %>
     </dd>
   </dl>
