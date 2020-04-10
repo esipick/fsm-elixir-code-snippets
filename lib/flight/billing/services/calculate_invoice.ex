@@ -13,7 +13,9 @@ defmodule Flight.Billing.CalculateInvoice do
       )
 
     line_items =
-      Enum.map(invoice_attrs["line_items"], fn x -> calculate_line_item(x, invoice_attrs, school_context) end)
+      Enum.map(invoice_attrs["line_items"], fn x ->
+        calculate_line_item(x, invoice_attrs, school_context)
+      end)
 
     total = Enum.map(line_items, fn x -> x["amount"] end) |> Enum.sum() |> round
     total_tax = round(total * tax_rate / 100)
@@ -34,11 +36,12 @@ defmodule Flight.Billing.CalculateInvoice do
   end
 
   defp calculate_line_item(line_item, invoice, school_context) do
-    amount = if line_item_type(line_item) == :aircraft do
-      calculate_aircraft_item_amount(line_item, invoice, school_context)
-    else
-      (line_item["quantity"] || 0) * (line_item["rate"] || 0)
-    end
+    amount =
+      if line_item_type(line_item) == :aircraft do
+        calculate_aircraft_item_amount(line_item, invoice, school_context)
+      else
+        (line_item["quantity"] || 0) * (line_item["rate"] || 0)
+      end
 
     Map.put(line_item, "amount", amount)
   end
@@ -64,12 +67,14 @@ defmodule Flight.Billing.CalculateInvoice do
 
   defp calculate_from_hobbs_tach(line_item, invoice, school_context) do
     current_user = school_context.assigns.current_user
+
     detailed_params = %{
       "aircraft_details" => line_item,
       "appointment_id" => invoice["appointment_id"],
       "creator_user_id" => current_user.id,
       "user_id" => invoice["user_id"] || current_user.id
     }
+
     changeset = DetailedTransactionForm.changeset(%DetailedTransactionForm{}, detailed_params)
 
     case Ecto.Changeset.apply_action(changeset, :insert) do

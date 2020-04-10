@@ -845,34 +845,34 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> json_response(200)
 
       assert json == %{
-        "total" => 5369,
-        "total_tax" => 537,
-        "total_amount_due" => 5906,
-        "tax_rate" => 10.0,
-        "school_id" => default_school_fixture().id,
-        "line_items" => [
-          %{
-            "type" => "aircraft",
-            "tach_start" => 400,
-            "tach_end" => 414,
-            "rate" => 28500,
-            "quantity" => 1,
-            "hobbs_start" => 400,
-            "hobbs_end" => 413,
-            "description" => "Flight Hours",
-            "aircraft_id" => aircraft.id,
-            "amount" => 169
-          },
-          %{
-            "type" => "other",
-            "rate" => 5200,
-            "quantity" => 1,
-            "description" => "Fuel",
-            "amount" => 5200
-          }
-        ],
-        "user_id" => student.id
-      }
+               "total" => 5369,
+               "total_tax" => 537,
+               "total_amount_due" => 5906,
+               "tax_rate" => 10.0,
+               "school_id" => default_school_fixture().id,
+               "line_items" => [
+                 %{
+                   "type" => "aircraft",
+                   "tach_start" => 400,
+                   "tach_end" => 414,
+                   "rate" => 28500,
+                   "quantity" => 1,
+                   "hobbs_start" => 400,
+                   "hobbs_end" => 413,
+                   "description" => "Flight Hours",
+                   "aircraft_id" => aircraft.id,
+                   "amount" => 169
+                 },
+                 %{
+                   "type" => "other",
+                   "rate" => 5200,
+                   "quantity" => 1,
+                   "description" => "Fuel",
+                   "amount" => 5200
+                 }
+               ],
+               "user_id" => student.id
+             }
     end
   end
 

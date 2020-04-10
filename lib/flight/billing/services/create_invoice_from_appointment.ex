@@ -7,7 +7,10 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   def run(appointment_id, params, school_context) do
     invoice =
-      from(i in Invoice, where: i.appointment_id == ^appointment_id, order_by: [desc: i.inserted_at])
+      from(i in Invoice,
+        where: i.appointment_id == ^appointment_id,
+        order_by: [desc: i.inserted_at]
+      )
       |> limit(1)
       |> Repo.one()
 
@@ -30,16 +33,21 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
       [
         aircraft_item(appointment, duration),
         instructor_item(appointment, duration)
-      ] |> Enum.filter(fn x -> x end)
+      ]
+      |> Enum.filter(fn x -> x end)
 
-    {:ok, invoice_params} = CalculateInvoice.run(%{
-      "school_id" => school.id,
-      "appointment_id" => appointment.id,
-      "user_id" => appointment.user_id,
-      "date" => NaiveDateTime.to_date(appointment.end_at),
-      "payment_option" => payment_option,
-      "line_items" => line_items
-    }, school_context)
+    {:ok, invoice_params} =
+      CalculateInvoice.run(
+        %{
+          "school_id" => school.id,
+          "appointment_id" => appointment.id,
+          "user_id" => appointment.user_id,
+          "date" => NaiveDateTime.to_date(appointment.end_at),
+          "payment_option" => payment_option,
+          "line_items" => line_items
+        },
+        school_context
+      )
 
     Flight.Billing.CreateInvoice.run(invoice_params, school_context)
   end

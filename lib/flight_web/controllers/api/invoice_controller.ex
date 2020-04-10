@@ -7,7 +7,14 @@ defmodule FlightWeb.API.InvoiceController do
   alias Flight.Auth.Permission
   import Flight.Auth.Authorization
   alias FlightWeb.{ViewHelpers, Pagination}
-  alias Flight.Billing.{Invoice, CreateInvoice, UpdateInvoice, CreateInvoiceFromAppointment, CalculateInvoice}
+
+  alias Flight.Billing.{
+    Invoice,
+    CreateInvoice,
+    UpdateInvoice,
+    CreateInvoiceFromAppointment,
+    CalculateInvoice
+  }
 
   plug(:get_invoice when action in [:update, :show, :delete])
   plug(:authorize_modify when action in [:create, :show, :index, :delete])
