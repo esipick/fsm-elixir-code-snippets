@@ -952,6 +952,24 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       assert json == %{"error" => "Not found."}
     end
+
+    @tag :integration
+    test "returns error when invoice is archived", %{conn: conn} do
+      appointment = appointment_fixture()
+      instructor = instructor_fixture()
+
+      invoice_fixture(%{appointment_id: appointment.id})
+      |> Invoice.changeset(%{archived: true})
+      |> Repo.update()
+
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/invoices/from_appointment/#{appointment.id}")
+        |> json_response(404)
+
+      assert json == %{"error" => "Not found."}
+    end
   end
 
   describe "POST from_appointment" do

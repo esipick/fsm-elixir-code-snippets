@@ -17,8 +17,9 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   def fetch_invoice(appointment_id) do
     invoice =
-      from(i in Invoice,
-        where: i.appointment_id == ^appointment_id,
+      from(
+        i in Invoice,
+        where: i.appointment_id == ^appointment_id and i.archived == false,
         order_by: [desc: i.inserted_at]
       )
       |> limit(1)
