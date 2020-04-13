@@ -146,8 +146,8 @@ defmodule FlightWeb.API.InvoiceController do
 
       {:error, _} ->
         conn
-        |> put_status(404)
-        |> json(%{error: "Not found."})
+        |> put_status(200)
+        |> json(%{data: nil})
     end
   end
 

@@ -948,9 +948,9 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         conn
         |> auth(instructor)
         |> get("/api/invoices/from_appointment/#{appointment.id}")
-        |> json_response(404)
+        |> json_response(200)
 
-      assert json == %{"error" => "Not found."}
+      assert json == %{"data" => nil}
     end
 
     @tag :integration
@@ -966,9 +966,9 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         conn
         |> auth(instructor)
         |> get("/api/invoices/from_appointment/#{appointment.id}")
-        |> json_response(404)
+        |> json_response(200)
 
-      assert json == %{"error" => "Not found."}
+      assert json == %{"data" => nil}
     end
   end
 
