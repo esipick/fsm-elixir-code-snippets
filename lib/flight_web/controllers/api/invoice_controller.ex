@@ -135,6 +135,21 @@ defmodule FlightWeb.API.InvoiceController do
     resp(conn, 204, "")
   end
 
+  def get_from_appointment(conn, %{"appointment_id" => appointment_id} = params) do
+    case CreateInvoiceFromAppointment.fetch_invoice(appointment_id) do
+      {:ok, invoice} ->
+        invoice = Repo.preload(invoice, [:line_items, :user, :school, :appointment])
+
+        conn
+        |> put_status(200)
+        |> render("show.json", invoice: invoice)
+      {:error, _} ->
+        conn
+        |> put_status(404)
+        |> json(%{error: "Not found."})
+    end
+  end
+
   def from_appointment(conn, %{"appointment_id" => appointment_id} = params) do
     case CreateInvoiceFromAppointment.run(appointment_id, params, conn) do
       {:ok, invoice} ->

@@ -923,41 +923,74 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
   end
 
-  @tag :integration
-  test "creates invoice from appointment", %{conn: conn} do
-    appointment = appointment_fixture()
-    instructor = instructor_fixture()
+  describe "GET from_appointment" do
+    @tag :integration
+    test "fetches invoice by appointment id", %{conn: conn} do
+      appointment = appointment_fixture()
+      instructor = instructor_fixture()
+      invoice = invoice_fixture(%{appointment_id: appointment.id}) |> preload_invoice
 
-    json =
-      conn
-      |> auth(instructor)
-      |> post("/api/invoices/from_appointment/#{appointment.id}")
-      |> json_response(201)
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/invoices/from_appointment/#{appointment.id}")
+        |> json_response(200)
 
-    invoice = Repo.get_by(Invoice, user_id: appointment.user_id) |> preload_invoice
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
 
-    assert invoice.total == 460
-    assert invoice.tax_rate == 10
-    assert invoice.total_tax == 26
-    assert invoice.total_amount_due == 486
-    assert Enum.count(invoice.line_items) == 2
+    @tag :integration
+    test "returns error when invoice not found", %{conn: conn} do
+      appointment = appointment_fixture()
+      instructor = instructor_fixture()
 
-    assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/invoices/from_appointment/#{appointment.id}")
+        |> json_response(404)
+
+      assert json == %{"error" => "Not found."}
+    end
   end
 
-  @tag :integration
-  test "returns existing invoice for appointment", %{conn: conn} do
-    appointment = appointment_fixture()
-    instructor = instructor_fixture()
-    invoice = invoice_fixture(%{appointment_id: appointment.id}) |> preload_invoice
+  describe "POST from_appointment" do
+    @tag :integration
+    test "creates invoice from appointment", %{conn: conn} do
+      appointment = appointment_fixture()
+      instructor = instructor_fixture()
 
-    json =
-      conn
-      |> auth(instructor)
-      |> post("/api/invoices/from_appointment/#{appointment.id}")
-      |> json_response(201)
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices/from_appointment/#{appointment.id}")
+        |> json_response(201)
 
-    assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+      invoice = Repo.get_by(Invoice, user_id: appointment.user_id) |> preload_invoice
+
+      assert invoice.total == 460
+      assert invoice.tax_rate == 10
+      assert invoice.total_tax == 26
+      assert invoice.total_amount_due == 486
+      assert Enum.count(invoice.line_items) == 2
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
+    test "returns existing invoice for appointment", %{conn: conn} do
+      appointment = appointment_fixture()
+      instructor = instructor_fixture()
+      invoice = invoice_fixture(%{appointment_id: appointment.id}) |> preload_invoice
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices/from_appointment/#{appointment.id}")
+        |> json_response(201)
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
   end
 
   test "renders payment options", %{conn: conn} do

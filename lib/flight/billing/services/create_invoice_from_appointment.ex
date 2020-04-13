@@ -6,6 +6,15 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   alias Flight.Billing.{Invoice, CalculateInvoice}
 
   def run(appointment_id, params, school_context) do
+    case fetch_invoice(appointment_id) do
+      {:ok, invoice} ->
+        {:ok, invoice}
+      {:error, _} ->
+        create_invoice_from_appointment(appointment_id, params, school_context)
+    end
+  end
+
+  def fetch_invoice(appointment_id) do
     invoice =
       from(i in Invoice,
         where: i.appointment_id == ^appointment_id,
@@ -17,7 +26,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     if invoice do
       {:ok, invoice}
     else
-      create_invoice_from_appointment(appointment_id, params, school_context)
+      {:error, nil}
     end
   end
 
