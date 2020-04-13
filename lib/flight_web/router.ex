@@ -262,6 +262,7 @@ defmodule FlightWeb.Router do
     get("/invoices/from_appointment/:appointment_id", InvoiceController, :get_from_appointment,
       as: :get_from_appointment
     )
+
     post("/invoices/from_appointment/:appointment_id", InvoiceController, :from_appointment,
       as: :from_appointment
     )

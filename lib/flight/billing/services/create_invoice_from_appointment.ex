@@ -9,6 +9,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     case fetch_invoice(appointment_id) do
       {:ok, invoice} ->
         {:ok, invoice}
+
       {:error, _} ->
         create_invoice_from_appointment(appointment_id, params, school_context)
     end

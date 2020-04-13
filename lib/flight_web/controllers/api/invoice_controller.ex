@@ -135,7 +135,7 @@ defmodule FlightWeb.API.InvoiceController do
     resp(conn, 204, "")
   end
 
-  def get_from_appointment(conn, %{"appointment_id" => appointment_id} = params) do
+  def get_from_appointment(conn, %{"appointment_id" => appointment_id} = _params) do
     case CreateInvoiceFromAppointment.fetch_invoice(appointment_id) do
       {:ok, invoice} ->
         invoice = Repo.preload(invoice, [:line_items, :user, :school, :appointment])
@@ -143,6 +143,7 @@ defmodule FlightWeb.API.InvoiceController do
         conn
         |> put_status(200)
         |> render("show.json", invoice: invoice)
+
       {:error, _} ->
         conn
         |> put_status(404)

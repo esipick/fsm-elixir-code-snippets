@@ -22,10 +22,24 @@ defmodule FlightWeb.ViewHelpers do
       message
     end)
     |> Enum.reduce([], fn {key, message_list}, acc ->
-      Enum.map(message_list, fn message ->
-        "#{Phoenix.Naming.humanize(human_key_transform(key))} #{message}"
-      end) ++ acc
+      humanize_message_list(key, message_list) ++ acc
     end)
+  end
+
+  def humanize_message_list(key, message_list) do
+    cond do
+      is_list(message_list) ->
+        Enum.map(message_list, fn message ->
+          "#{Phoenix.Naming.humanize(human_key_transform(key))} #{message}"
+        end)
+
+      is_map(message_list) ->
+        Enum.map(Map.keys(message_list), fn subkey ->
+          "#{Phoenix.Naming.humanize(human_key_transform(key))} " <>
+            "#{Phoenix.Naming.humanize(human_key_transform(subkey))} " <>
+            "#{message_list[subkey]}"
+        end)
+    end
   end
 
   def human_error_messages_for_user(changeset) do
@@ -34,9 +48,7 @@ defmodule FlightWeb.ViewHelpers do
     end)
     |> Map.take([:user])
     |> Enum.reduce([], fn {key, message_list}, acc ->
-      Enum.map(message_list, fn message ->
-        "#{Phoenix.Naming.humanize(human_key_transform(key))} #{message}"
-      end) ++ acc
+      humanize_message_list(key, message_list) ++ acc
     end)
   end
 

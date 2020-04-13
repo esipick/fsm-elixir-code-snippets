@@ -37,6 +37,35 @@ defmodule FlightWeb.API.TransactionControllerTest do
     end
 
     @tag :integration
+    test "returns correct error when hobbs time is invalid", %{conn: conn} do
+      {student, _} = student_fixture() |> real_stripe_customer(false)
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+
+      appointment = appointment_fixture(%{}, student, instructor, aircraft)
+
+      params =
+        detailed_transaction_form_attrs(student, instructor, appointment, aircraft, instructor)
+
+      aircraft_details =
+        Map.put(params[:aircraft_details], :hobbs_start, aircraft.last_hobbs_time - 1)
+
+      params = Map.merge(params, %{aircraft_details: aircraft_details})
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/transactions", %{detailed: params})
+        |> json_response(400)
+
+      assert json == %{
+               "human_errors" => [
+                 "Aircraft details Hobbs start must be greater than current aircraft hobbs start (400)"
+               ]
+             }
+    end
+
+    @tag :integration
     test "creates completed detailed transaction if user has enough in their balance", %{
       conn: conn
     } do
