@@ -319,10 +319,10 @@ defmodule FlightWeb.Admin.UserControllerTest do
       student = student_fixture()
 
       payload = %{
-        user: %{email: "All@ison", zipcode: "Duprix", flight_training_number: "Duprix"}
+        user: %{email: "All@ison"}
       }
 
-      Flight.Accounts.archive_user(student)
+      Accounts.archive_user(student)
       admin = admin_fixture()
 
       conn =

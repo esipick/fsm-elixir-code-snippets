@@ -5,7 +5,7 @@ defmodule FlightWeb.Admin.UserController do
   alias Flight.Auth.Permission
   import Flight.Auth.Authorization
 
-  plug(:get_user when action in [:show, :edit, :update, :add_funds])
+  plug(:get_user when action in [:show, :edit, :update, :add_funds, :delete])
   plug(:authorize_admin when action in [:index])
   plug(:protect_admin_users when action in [:show, :edit, :update])
 
@@ -21,76 +21,60 @@ defmodule FlightWeb.Admin.UserController do
   def show(conn, %{"tab" => "schedule"}) do
     user = conn.assigns.requested_user
 
-    if user do
-      options =
-        cond do
-          Accounts.has_role?(user, "instructor") ->
-            %{"instructor_user_id" => user.id}
+    options =
+      cond do
+        Accounts.has_role?(user, "instructor") ->
+          %{"instructor_user_id" => user.id}
 
-          true ->
-            %{"user_id" => user.id}
-        end
+        true ->
+          %{"user_id" => user.id}
+      end
 
-      appointments =
-        Scheduling.get_appointments(options, conn)
-        |> Flight.Repo.preload([:aircraft, :instructor_user])
+    appointments =
+      Scheduling.get_appointments(options, conn)
+      |> Flight.Repo.preload([:aircraft, :instructor_user])
 
-      render(
-        conn,
-        "show.html",
-        user: user,
-        tab: :schedule,
-        appointments: appointments,
-        skip_shool_select: true
-      )
-    else
-      redirect_user(conn)
-    end
+    render(
+      conn,
+      "show.html",
+      user: user,
+      tab: :schedule,
+      appointments: appointments,
+      skip_shool_select: true
+    )
   end
 
   def show(conn, %{"tab" => "billing"}) do
-    if conn.assigns.requested_user do
-      transactions =
-        Billing.get_filtered_transactions(%{"user_id" => conn.assigns.requested_user.id}, conn)
-        |> Flight.Repo.preload([:line_items, :user, :creator_user])
+    transactions =
+      Billing.get_filtered_transactions(%{"user_id" => conn.assigns.requested_user.id}, conn)
+      |> Flight.Repo.preload([:line_items, :user, :creator_user])
 
-      render(
-        conn,
-        "show.html",
-        user: conn.assigns.requested_user,
-        tab: :billing,
-        transactions: transactions,
-        skip_shool_select: true
-      )
-    else
-      redirect_user(conn)
-    end
+    render(
+      conn,
+      "show.html",
+      user: conn.assigns.requested_user,
+      tab: :billing,
+      transactions: transactions,
+      skip_shool_select: true
+    )
   end
 
   def show(conn, _params) do
-    if conn.assigns.requested_user do
-      render(conn, "show.html",
-        user: conn.assigns.requested_user,
-        tab: :profile,
-        skip_shool_select: true
-      )
-    else
-      redirect_user(conn)
-    end
+    render(conn, "show.html",
+      user: conn.assigns.requested_user,
+      tab: :profile,
+      skip_shool_select: true
+    )
   end
 
   def edit(conn, _params) do
-    if conn.assigns.requested_user do
-      render(
-        conn,
-        "edit.html",
-        user: conn.assigns.requested_user,
-        changeset: Accounts.User.create_changeset(conn.assigns.requested_user, %{}),
-        skip_shool_select: true
-      )
-    else
-      redirect_user(conn)
-    end
+    render(
+      conn,
+      "edit.html",
+      user: conn.assigns.requested_user,
+      changeset: Accounts.User.create_changeset(conn.assigns.requested_user, %{}),
+      skip_shool_select: true
+    )
   end
 
   def add_funds(conn, %{"amount" => amount, "description" => description}) do
@@ -141,57 +125,62 @@ defmodule FlightWeb.Admin.UserController do
         Enum.filter(role_params, fn p -> p != "admin" end)
       end
 
-    if conn.assigns.requested_user do
-      case Accounts.admin_update_user_profile(
-             conn.assigns.requested_user,
-             user_form,
-             role_slugs,
-             Map.keys(params["flyer_certificate_slugs"] || %{})
-           ) do
-        {:ok, user} ->
-          redirect(conn, to: "/admin/users/#{user.id}")
+    case Accounts.admin_update_user_profile(
+           conn.assigns.requested_user,
+           user_form,
+           role_slugs,
+           Map.keys(params["flyer_certificate_slugs"] || %{})
+         ) do
+      {:ok, user} ->
+        redirect(conn, to: "/admin/users/#{user.id}")
 
-        {:error, changeset} ->
-          render(
-            conn,
-            "edit.html",
-            user: conn.assigns.requested_user,
-            changeset: changeset
-          )
-      end
-    else
-      redirect_user(conn)
+      {:error, changeset} ->
+        render(
+          conn,
+          "edit.html",
+          user: conn.assigns.requested_user,
+          changeset: changeset
+        )
     end
   end
 
-  def delete(conn, %{"id" => id} = params) do
-    user = Flight.Accounts.get_user(id, conn)
+  def delete(conn, params) do
+    user = conn.assigns.requested_user
+    Accounts.archive_user(user)
 
-    if user do
-      Flight.Accounts.archive_user(user)
+    conn =
+      conn
+      |> put_flash(:success, "Successfully archived #{user.first_name} #{user.last_name}")
 
-      conn =
-        conn
-        |> put_flash(:success, "Successfully archived #{user.first_name} #{user.last_name}")
-
-      if params["role"] do
-        redirect(conn, to: "/admin/users?role=#{params["role"]}")
-      else
-        redirect(conn, to: "/admin/dashboard")
-      end
+    if params["role"] do
+      redirect(conn, to: "/admin/users?role=#{params["role"]}")
     else
-      redirect_user(conn)
+      redirect(conn, to: "/admin/dashboard")
     end
   end
 
   defp get_user(conn, _) do
     user =
       (conn.params["id"] || conn.params["user_id"])
-      |> Accounts.get_user(conn)
+      |> Accounts.get_school_user_by_id(conn)
       |> Flight.Repo.preload([:roles, :flyer_certificates])
 
-    conn
-    |> assign(:requested_user, user)
+    cond do
+      user && !user.archived ->
+        assign(conn, :requested_user, user)
+
+      user && user.archived ->
+        conn
+        |> put_flash(:error, "User already removed.")
+        |> redirect(to: "/admin/dashboard")
+        |> halt()
+
+      true ->
+        conn
+        |> put_flash(:error, "Unknown user.")
+        |> redirect(to: "/admin/dashboard")
+        |> halt()
+    end
   end
 
   defp authorize_admin(conn, _) do
@@ -203,18 +192,14 @@ defmodule FlightWeb.Admin.UserController do
   end
 
   defp protect_admin_users(conn, _) do
-    if conn.assigns.requested_user do
-      requested_user_roles =
-        Enum.map(
-          conn.assigns.requested_user.roles,
-          fn r -> r.slug end
-        )
+    requested_user_roles =
+      Enum.map(
+        conn.assigns.requested_user.roles,
+        fn r -> r.slug end
+      )
 
-      if Enum.member?(requested_user_roles, "admin") do
-        redirect_unless_user_can?(conn, modify_admin_permission())
-      else
-        conn
-      end
+    if Enum.member?(requested_user_roles, "admin") do
+      redirect_unless_user_can?(conn, modify_admin_permission())
     else
       conn
     end
@@ -228,11 +213,5 @@ defmodule FlightWeb.Admin.UserController do
     if String.trim(search_param) == "" do
       "Please fill out search field"
     end
-  end
-
-  defp redirect_user(conn) do
-    conn
-    |> put_flash(:error, "User already removed.")
-    |> redirect(to: "/admin/dashboard")
   end
 end

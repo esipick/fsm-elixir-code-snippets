@@ -20,6 +20,13 @@ defmodule Flight.Accounts do
 
   import Pipe
 
+  def get_school_user_by_id(id, school_context) do
+    User
+    |> SchoolScope.scope_query(school_context)
+    |> where([u], u.id == ^id)
+    |> Repo.one()
+  end
+
   def get_user(id, school_context) do
     User
     |> default_users_query(school_context)
