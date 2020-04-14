@@ -115,14 +115,23 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   defp get_aircraft(conn, _) do
-    aircraft = Scheduling.get_visible_aircraft(conn.params["aircraft_id"], conn)
+    aircraft = Scheduling.get_aircraft(conn.params["aircraft_id"], conn)
 
-    if aircraft do
-      assign(conn, :aircraft, aircraft)
-    else
-      conn
-      |> redirect(to: "/admin/aircrafts")
-      |> halt()
+    cond do
+      aircraft && !aircraft.archived ->
+        assign(conn, :aircraft, aircraft)
+
+      aircraft && aircraft.archived ->
+        conn
+        |> put_flash(:error, "Aircraft already removed.")
+        |> redirect(to: "/admin/aircrafts")
+        |> halt()
+
+      true ->
+        conn
+        |> put_flash(:error, "Unknown aircraft.")
+        |> redirect(to: "/admin/aircrafts")
+        |> halt()
     end
   end
 
@@ -130,10 +139,20 @@ defmodule FlightWeb.Admin.InspectionController do
     inspection = Scheduling.get_inspection(conn.params["id"])
 
     if inspection do
-      inspection = Flight.Repo.preload(inspection, :aircraft)
-      assign(conn, :inspection, inspection)
+      cond do
+        Scheduling.get_visible_aircraft(inspection.aircraft_id, conn) ->
+          inspection = Flight.Repo.preload(inspection, :aircraft)
+          assign(conn, :inspection, inspection)
+
+        true ->
+          conn
+          |> put_flash(:error, "Aircraft already removed.")
+          |> redirect(to: "/admin/aircrafts")
+          |> halt()
+      end
     else
       conn
+      |> put_flash(:error, "Inspection not exists or already removed.")
       |> redirect(to: "/admin/aircrafts")
       |> halt()
     end

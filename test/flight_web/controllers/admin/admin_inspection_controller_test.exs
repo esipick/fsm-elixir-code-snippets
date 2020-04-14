@@ -138,6 +138,32 @@ defmodule FlightWeb.Admin.InspectionControllerTest do
 
       assert redirected_to(conn) == "/admin/aircrafts/#{inspection.aircraft.id}"
     end
+
+    test "show error when inspection already removed", %{conn: conn} do
+      inspection = date_inspection_fixture()
+
+      payload = %{
+        inspection: %{
+          name: "Some Good Edited Thing",
+          expiration: "3/3/2038"
+        }
+      }
+
+      Flight.Scheduling.delete_inspection!(inspection)
+
+      conn =
+        conn
+        |> web_auth_admin()
+        |> put("/admin/inspections/#{inspection.id}", payload)
+        |> response_redirected_to("/admin/aircrafts")
+
+      html =
+        conn
+        |> get("/admin/aircrafts")
+        |> html_response(200)
+
+      assert get_flash(conn, :error) =~ "Inspection not exists or already removed"
+    end
   end
 
   describe "DELETE /admin/inspections/:id" do
