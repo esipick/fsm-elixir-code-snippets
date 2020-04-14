@@ -143,6 +143,7 @@
   <%= form_tag "/admin/aircrafts/:pending:", method: "delete", id: "delete_form" do %>
   <% end %>
 </div>
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
 <script>
   $(document).ready(function() {
     $('._delete_button').on('click', function() {

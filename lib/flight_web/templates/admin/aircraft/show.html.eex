@@ -6,89 +6,87 @@
 </div>
 
 <div class="content">
+  <div class="row">
+    <div class="col-md-10 col-lg-8">
+      <div class="card ">
+        <div class="card-body">
+            <div class="detail-list">
+              <dl class="d-flex justify-content-between">
+                <dt>Make</dt>
+                <dd><%= @aircraft.make %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Model</dt>
+                <dd><%= @aircraft.model %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Tail #</dt>
+                <dd><%= @aircraft.tail_number %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Serial #</dt>
+                <dd><%= @aircraft.serial_number %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Equipment</dt>
+                <dd><%= @aircraft.equipment %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>IFR Certified</dt>
+                <dd><%= display_boolean(@aircraft.ifr_certified) %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Simulator</dt>
+                <dd><%= display_boolean(@aircraft.simulator) %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Last Recorded Tach Time</dt>
+                <dd><%= display_hour_tenths(@aircraft.last_tach_time) %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Last Recorded Hobbs Time</dt>
+                <dd><%= display_hour_tenths(@aircraft.last_hobbs_time) %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Rate Per Hour</dt>
+                <dd><%= currency @aircraft.rate_per_hour %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Block Rate Per Hour</dt>
+                <dd><%= currency @aircraft.block_rate_per_hour %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between border-none">
+                <dt>Inspections</dt>
+                <dd></dd>
+              </dl>
 
-<div class="row">
-          <div class="col-md-10 col-lg-8">
-            <div class="card ">
+                <div class="table-responsive">
+                    <table class="table text-left">
+                      <thead class="text-primary">
+                        <tr>
+                          <th>Name</th>
+                          <th>Expiration</th>
+                          <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new" class="btn btn-primary btn-sm">Add New</a></th>
+                        </tr>
+                      </thead>
+                      <tbody>
 
-              <div class="card-body">
-                  <div class="detail-list">
-                    <dl class="d-flex justify-content-between">
-                      <dt>Make</dt>
-                      <dd><%= @aircraft.make %></dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between">
-                      <dt>Model</dt>
-                      <dd><%= @aircraft.model %></dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between">
-                      <dt>Tail #</dt>
-                      <dd><%= @aircraft.tail_number %></dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between">
-                      <dt>Serial #</dt>
-                      <dd><%= @aircraft.serial_number %></dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between">
-                      <dt>Equipment</dt>
-                      <dd><%= @aircraft.equipment %></dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between">
-                      <dt>IFR Certified</dt>
-                      <dd><%= display_boolean(@aircraft.ifr_certified) %></dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between">
-                      <dt>Simulator</dt>
-                      <dd><%= display_boolean(@aircraft.simulator) %></dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between">
-                      <dt>Last Recorded Tach Time</dt>
-                      <dd><%= display_hour_tenths(@aircraft.last_tach_time) %></dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between">
-                      <dt>Last Recorded Hobbs Time</dt>
-                      <dd><%= display_hour_tenths(@aircraft.last_hobbs_time) %></dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between">
-                      <dt>Rate Per Hour</dt>
-                      <dd><%= currency @aircraft.rate_per_hour %></dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between">
-                      <dt>Block Rate Per Hour</dt>
-                      <dd><%= currency @aircraft.block_rate_per_hour %></dd>
-                    </dl>
-                    <dl class="d-flex justify-content-between border-none">
-                      <dt>Inspections</dt>
-                      <dd></dd>
-                    </dl>
+                        <%= for inspection <- @aircraft.inspections do %>
+                          <%= case Flight.Scheduling.Inspection.to_specific(inspection) do
+                            %Flight.Scheduling.DateInspection{} = date_inspection -> render("_date_inspection_list_item.html", date_inspection: date_inspection)
+                            %Flight.Scheduling.TachInspection{} = tach_inspection -> render("_tach_inspection_list_item.html", tach_inspection: tach_inspection)
+                          end %>
+                        <% end %>
 
-                      <div class="table-responsive">
-                          <table class="table text-left">
-                            <thead class="text-primary">
-                              <tr>
-                                <th>Name</th>
-                                <th>Expiration</th>
-                                <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new" class="btn btn-primary btn-sm">Add New</a></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-
-                              <%= for inspection <- @aircraft.inspections do %>
-                                <%= case Flight.Scheduling.Inspection.to_specific(inspection) do
-                                  %Flight.Scheduling.DateInspection{} = date_inspection -> render("_date_inspection_list_item.html", date_inspection: date_inspection)
-                                  %Flight.Scheduling.TachInspection{} = tach_inspection -> render("_tach_inspection_list_item.html", tach_inspection: tach_inspection)
-                                end %>
-                              <% end %>
-
-                            </tbody>
-                          </table>
-                        </div>
-
-
+                      </tbody>
+                    </table>
                   </div>
-              </div>
-            </div> <!-- end card -->
-          </div>
 
+
+            </div>
         </div>
+      </div> <!-- end card -->
+    </div>
+  </div>
 </div> <!-- end content -->
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>

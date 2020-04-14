@@ -64,6 +64,13 @@ defmodule Flight.Scheduling do
     |> where([a], a.archived == false)
   end
 
+  def aircraft_query(school_context, search_term \\ "") do
+    Aircraft
+    |> Flight.Scheduling.Search.Aircraft.run(search_term)
+    |> order_by([a], asc: [a.make, a.model, a.tail_number])
+    |> SchoolScope.scope_query(school_context)
+  end
+
   def visible_aircrafts(school_context) do
     visible_aircraft_query(school_context)
     |> Repo.all()
@@ -74,8 +81,14 @@ defmodule Flight.Scheduling do
     |> Repo.aggregate(:count, :id)
   end
 
-  def get_aircraft(id, school_context) do
+  def get_visible_aircraft(id, school_context) do
     visible_aircraft_query(school_context)
+    |> where([a], a.id == ^id)
+    |> Repo.one()
+  end
+
+  def get_aircraft(id, school_context) do
+    aircraft_query(school_context)
     |> where([a], a.id == ^id)
     |> Repo.one()
   end

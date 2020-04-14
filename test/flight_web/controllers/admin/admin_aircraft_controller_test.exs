@@ -217,5 +217,29 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
       assert %Scheduling.Aircraft{} =
                Flight.Repo.get_by(Scheduling.Aircraft, make: "Some Crazy Make", id: aircraft.id)
     end
+
+    test "show error when aircraft already removed", %{conn: conn} do
+      aircraft = aircraft_fixture()
+      aircraft_payload = %{Map.from_struct(aircraft) | make: "Some Crazy Make"}
+
+      payload = %{
+        data: aircraft_payload
+      }
+
+      Flight.Scheduling.archive_aircraft(aircraft)
+
+      conn =
+        conn
+        |> web_auth_admin()
+        |> put("/admin/aircrafts/#{aircraft.id}", payload)
+        |> response_redirected_to("/admin/aircrafts")
+
+      html =
+        conn
+        |> get("/admin/aircrafts")
+        |> html_response(200)
+
+      assert get_flash(conn, :error) =~ "Aircraft already removed."
+    end
   end
 end

@@ -82,10 +82,10 @@ defmodule Flight.SchedulingTest do
       assert {:error, _} = Scheduling.admin_create_aircraft(%{}, default_school_fixture())
     end
 
-    test "get_aircraft/1 gets aircraft" do
+    test "get_visible_aircraft/1 gets aircraft" do
       aircraft = aircraft_fixture()
 
-      assert %Aircraft{} = Scheduling.get_aircraft(aircraft.id, aircraft)
+      assert %Aircraft{} = Scheduling.get_visible_aircraft(aircraft.id, aircraft)
     end
 
     test "visible_aircrafts/0 gets aircrafts" do

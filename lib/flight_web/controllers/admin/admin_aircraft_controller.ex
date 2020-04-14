@@ -3,7 +3,7 @@ defmodule FlightWeb.Admin.AircraftController do
 
   alias Flight.Scheduling
 
-  plug(:get_aircraft when action in [:show, :edit, :update])
+  plug(:get_aircraft when action in [:show, :edit, :update, :delete])
 
   def create(conn, %{"data" => aircraft_data}) do
     case Scheduling.admin_create_aircraft(aircraft_data, conn) do
@@ -65,10 +65,8 @@ defmodule FlightWeb.Admin.AircraftController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    aircraft = Flight.Scheduling.get_aircraft(id, conn)
-
-    Flight.Scheduling.archive_aircraft(aircraft)
+  def delete(conn, _params) do
+    Scheduling.archive_aircraft(conn.assigns.aircraft)
 
     conn
     |> put_flash(:success, "Aircraft successfully archived.")
@@ -78,13 +76,21 @@ defmodule FlightWeb.Admin.AircraftController do
   defp get_aircraft(conn, _) do
     aircraft = Scheduling.get_aircraft(conn.params["id"] || conn.params["aircraft_id"], conn)
 
-    if aircraft do
-      assign(conn, :aircraft, aircraft)
-    else
-      conn
-      |> put_flash(:warning, "Unknown aircraft.")
-      |> redirect(to: "/admin/aircrafts")
-      |> halt()
+    cond do
+      aircraft && !aircraft.archived ->
+        assign(conn, :aircraft, aircraft)
+
+      aircraft && aircraft.archived ->
+        conn
+        |> put_flash(:error, "Aircraft already removed.")
+        |> redirect(to: "/admin/aircrafts")
+        |> halt()
+
+      true ->
+        conn
+        |> put_flash(:error, "Unknown aircraft.")
+        |> redirect(to: "/admin/aircrafts")
+        |> halt()
     end
   end
 
