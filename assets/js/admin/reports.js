@@ -74,6 +74,7 @@ $(document).ready(function() {
       '}' +
       'a {' +
       'text-decoration:none;' +
+      'color:black;' +
       '}' +
       '</style>';
     $("#datatable_filter").remove();
@@ -209,6 +210,7 @@ $(document).ready(function() {
         var parsedValue = tableCell.textContent;
 
         parsedValue = parsedValue.replace(/"/g, "\"\"");
+        parsedValue = parsedValue.replace(/\n|\u0020{2}/g, "");
         parsedValue = /[",\n]/.test(parsedValue) ? "\"".concat(parsedValue, "\"") : parsedValue;
         return parsedValue;
       }
