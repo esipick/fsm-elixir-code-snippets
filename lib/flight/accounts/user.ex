@@ -108,7 +108,6 @@ defmodule Flight.Accounts.User do
       :school_id
     ])
     |> base_validations()
-    |> validate_password(:password)
     |> put_pass_hash()
   end
 
@@ -129,7 +128,6 @@ defmodule Flight.Accounts.User do
       :password
     ])
     |> base_validations()
-    |> validate_password(:password)
     |> put_pass_hash()
   end
 
@@ -160,7 +158,6 @@ defmodule Flight.Accounts.User do
       :school_id
     ])
     |> base_validations()
-    |> validate_password(:password)
     |> put_pass_hash()
   end
 
