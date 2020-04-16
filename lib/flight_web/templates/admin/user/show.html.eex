@@ -79,13 +79,11 @@
                   <% end %>
                   <div class="field">
                     <h3>Insctructor</h3>
-                    <p>Chief Instructor Name</p>
-                    <p>Instructor Name</p>
+                    <p>-</p>
                   </div>
                   <div class="field">
                     <h3>Aircraft Name</h3>
-                    <p>Chief instructor name</p>
-                    <p>Instructor name</p>
+                    <p>-</p>
                   </div>
                 </div>
               </div>
