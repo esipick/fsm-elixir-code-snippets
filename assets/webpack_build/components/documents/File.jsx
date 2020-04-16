@@ -30,7 +30,7 @@ class File extends Component {
     const message = this.rowMessage(expired)
 
     return (
-      <div className={"row file" + " ${expired}"}>
+      <div className={"row file" + ` ${expired}`}>
         {admin &&
           <div className="th checkbox-col desktop">
             <div className="checkbox">

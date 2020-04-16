@@ -581,10 +581,10 @@
     color: #666;
     font-size: 14px;
   }
-  .profile .documents .files .alert .message {
+  .profile .documents .files .eq .message {
     color: #ffc532;
   }
-  .profile .documents .files .warning .message {
+  .profile .documents .files .lt .message {
     color: red;
   }
 }
@@ -614,11 +614,11 @@
     border-radius: 15px;
     border: 1px solid transparent;
   }
-  .profile .documents .file.alert {
+  .profile .documents .file.eq {
     border-color: rgba(255, 197, 50, .5);
     background-color: rgba(255, 197, 50, .1);
   }
-  .profile .documents .file.warning {
+  .profile .documents .file.lt {
     border-color: rgba(227, 76, 74, .5);
     background-color: rgba(227, 76, 74, .1);
   }
