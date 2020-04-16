@@ -136,25 +136,25 @@ defmodule FlightWeb.API.UserController do
     render(conn, "autocomplete.json", users: users)
   end
 
-  def authorize_modify(conn, _) do
+  defp authorize_modify(conn, _) do
     halt_unless_user_can?(conn, [
       Permission.new(:users, :modify, {:personal, conn.assigns.user}),
       Permission.new(:users, :modify, :all)
     ])
   end
 
-  def authorize_view(conn, _) do
+  defp authorize_view(conn, _) do
     halt_unless_user_can?(conn, [
       Permission.new(:users, :view, {:personal, conn.assigns.user}),
       Permission.new(:users, :view, :all)
     ])
   end
 
-  def authorize_view_all(conn, _) do
+  defp authorize_view_all(conn, _) do
     halt_unless_user_can?(conn, [Permission.new(:users, :view, :all)])
   end
 
-  def authorize_create(conn, _) do
+  defp authorize_create(conn, _) do
     halt_unless_user_can?(conn, [Permission.new(:users, :create, :all)])
   end
 

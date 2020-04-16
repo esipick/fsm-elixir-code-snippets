@@ -1,11 +1,5 @@
-import classnames from 'classnames';
-import http from 'j-fetch';
 import React, { Component } from 'react';
-
-import { authHeaders } from '../utils';
-import Error from '../common/Error';
 import CustomLineItem from './CustomLineItem';
-
 
 class CustomLineItemsTable extends Component {
   constructor(props) {

@@ -31,6 +31,7 @@ defmodule Flight.Accounts.User do
     field(:avatar, AvatarUploader.Type)
     belongs_to(:school, Flight.Accounts.School)
     many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
+    has_many(:documents, Flight.Accounts.Document, on_replace: :delete, on_delete: :delete_all)
 
     many_to_many(
       :flyer_certificates,

@@ -1,5 +1,8 @@
 defmodule Flight.Billing.InvoiceCustomLineItem do
   use Ecto.Schema
+
+  require Ecto.Query
+  import Ecto.Query
   import Flight.Repo
   import Ecto.Changeset
 
@@ -37,6 +40,13 @@ defmodule Flight.Billing.InvoiceCustomLineItem do
       })
 
     if custom_line_item, do: delete(custom_line_item)
+  end
+
+  def get_custom_line_items(conn) do
+    InvoiceCustomLineItem
+    |> Flight.SchoolScope.school_scope(conn)
+    |> order_by([c], desc: c.id)
+    |> all
   end
 
   def update_custom_line_item(params, id, school_id) do

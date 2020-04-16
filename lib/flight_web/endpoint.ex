@@ -2,7 +2,19 @@ defmodule FlightWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :flight
   use Appsignal.Phoenix
 
-  socket("/socket", FlightWeb.UserSocket)
+  socket("/socket", FlightWeb.UserSocket,
+    websocket: true,
+    longpoll: false
+  )
+
+  if Application.get_env(:waffle, :storage) == Waffle.Storage.Local do
+    plug(
+      Plug.Static,
+      at: "/uploads",
+      from: Path.expand("./uploads"),
+      gzip: false
+    )
+  end
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -13,7 +25,7 @@ defmodule FlightWeb.Endpoint do
     at: "/",
     from: :flight,
     gzip: true,
-    only: ~w(css fonts images js favicon.ico robots.txt)
+    only: ~w(css fonts images js favicon.ico robots.txt uploads)
   )
 
   # Code reloading can be explicitly enabled under the

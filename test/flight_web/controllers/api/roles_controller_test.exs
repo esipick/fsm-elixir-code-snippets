@@ -1,5 +1,5 @@
 defmodule FlightWeb.API.RolesControllerTest do
-  use FlightWeb.ConnCase, async: true
+  use FlightWeb.ConnCase, async: false
 
   describe "GET /api/roles" do
     test "renders all roles to admin", %{conn: conn} do

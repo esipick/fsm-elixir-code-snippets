@@ -1,0 +1,151 @@
+<div class="panel-header"></div>
+<div class="content profile">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card profile">
+        <div class="card-header">
+          <div class="user-info">
+            <div class="photo">
+              <div class="user-avatar">
+              </div>
+              <p class="roles">
+                <%= for role <- @user.roles do %>
+                  <%= human_role(role.slug) %><br>
+                <% end %>
+              </p>
+            </div>
+            <div class="details">
+              <h2 class="title"><%= @user.first_name %> <%= @user.last_name %></h2>
+              <div class="contacts">
+                <a class="contact" href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a>
+                <a class="contact" href="mailto:<%= @user.email %>"><%= @user.email %></a>
+                <%= if has_address?(@user) && should_display_address?(@user) do %>
+                  <div class="contact">
+                    <%= @user.address_1 %><%= @user.city %>, <%= @user.state %> <%= @user.zipcode %>
+                  </div>
+                <% end %>
+              </div>
+              <div class="fields">
+                <%= if has_cirriculum?(@user) do %>
+                  <div class="field">
+                    <span class="title">Flight Training # (FTN)</span>
+                    <br>
+                    <span><%= @user.flight_training_number %></span>
+                  </div>
+                <% end %>
+                <%= if has_pay_rates?(@user) do %>
+                  <div class="field">
+                    <span class="title">Billing Rate</span>
+                    <br>
+                    <span><%= currency(@user.billing_rate) %>/hr</span>
+                  </div>
+                  <div class="field">
+                    <span class="title">Pay Rate</span>
+                    <br>
+                    <span><%= currency(@user.pay_rate) %>/hr</span>
+                  </div>
+                <% end %>
+                <%= if has_teaching_info?(@user) do %>
+                  <div class="field">
+                    <span class="title">Awards</span>
+                    <br>
+                    <span><%= @user.awards %></span>
+                  </div>
+                  <div class="field">
+                    <span class="title">Certificates</span>
+                    <br>
+                    <span>
+                      <%= human_flyer_certificates(@user.flyer_certificates) %>
+                      <%= if human_flyer_certificates(@user.flyer_certificates) != "None" do %>
+                        <small>cert# <%= @user.certificate_number %></small>
+                      <% end %>
+                    </span>
+                  </div>
+                <% end %>
+                <%= if has_medical?(@user) do %>
+                  <div class="field">
+                    <span class="title">Medical</span>
+                    <br>
+                    <span>
+                      <%= human_readable_medical_rating(@user.medical_rating) %>
+                      <%= if medical_rating_exist?(@user) do %>
+                        <small>expires: <%= format_date(@user.medical_expires_at) %></small>
+                      <% end %>
+                    </span>
+                  </div>
+                <% end %>
+                <a href="/admin/users/<%= @user.id %>/edit" class="edit">Edit Profile</a>
+              </div>
+            </div>
+          </div>
+          <ul class="nav nav-pills nav-pills-primary" role="tablist">
+            <%= if has_billing?(@user) do %>
+              <li class="nav-item">
+                <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href="/admin/users/<%= @user.id %>?tab=billing">Billing</a>
+              </li>
+            <% end %>
+            <%= if has_appointments?(@user) do %>
+              <li class="nav-item">
+                <a class="nav-link <%= if @tab == :schedule, do: "active", else: "" %>" href="/admin/users/<%= @user.id %>?tab=schedule">Appointments</a>
+              </li>
+            <% end %>
+            <li class="nav-item">
+              <a class="nav-link <%= if @tab == :documents, do: "active", else: "" %>" href="/admin/users/<%= @user.id %>">Documents</a>
+            </li>
+          </ul>
+        </div>
+        <div class="card-body">
+          <%=
+          case @tab do
+            :billing -> render "_billing.html", user: @user, transactions: @transactions, conn: @conn
+            :schedule -> render "_schedule.html", user: @user, appointments: @appointments
+            :documents -> render "_documents.html", user: @user, props: @props
+          end
+        %>
+        </div>
+      </div>
+      <!-- end card -->
+    </div>
+    <%= if has_cirriculum?(@user) && false do %>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <div class="card-section detail-list course-progress">
+              <h7>Course Progress</h7>
+              <dl class="d-flex justify-content-between">
+                <dt>Private Pilot License</dt>
+                <dd>80%</dd>
+              </dl>
+              <div class="course-progress-bar"><span style="width: 80%;"></span></div>
+              <dl class="d-flex justify-content-between">
+                <dt>Commercial Pilot License</dt>
+                <dd>0%</dd>
+              </dl>
+              <div class="course-progress-bar"><span style="width: 0%;"></span></div>
+              <dl class="d-flex justify-content-between">
+                <dt>Instrument Flight Rating</dt>
+                <dd>0%</dd>
+              </dl>
+              <div class="course-progress-bar"><span style="width: 0%;"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+<!-- end content -->
+<%= if get_flash(@conn, :success) do %>
+  <script>
+    $(document).ready(function() {
+      $.notify({message: "<%= get_flash(@conn, :success) %>"}, {type: "success", placement: {align: "center"}})
+    })
+  </script>
+<% end %>
+<%= if get_flash(@conn, :error) do %>
+  <script>
+    $(document).ready(function() {
+      $.notify({message: "<%= get_flash(@conn, :error) %>"}, {type: "danger", placement: {align: "center"}})
+    })
+  </script>
+<% end %>

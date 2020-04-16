@@ -50,31 +50,32 @@ defmodule Flight.Auth.Authorization do
 
   def dispatcher_permission_slugs() do
     MapSet.new([
-      permission_slug(:users, :create, :all),
-      permission_slug(:users, :modify, :all),
-      permission_slug(:users, :view, :all),
-      permission_slug(:objective_score, :view, :all),
-      permission_slug(:objective_score, :modify, :all),
+      permission_slug(:aircraft, :modify, :all),
+      permission_slug(:aircraft, :view, :all),
       permission_slug(:appointment, :modify, :all),
+      permission_slug(:documents, :view, :personal),
+      permission_slug(:invoice, :modify, :all),
+      permission_slug(:invoice, :view, :all),
+      permission_slug(:objective_score, :modify, :all),
+      permission_slug(:objective_score, :view, :all),
+      permission_slug(:push_token, :modify, :all),
+      permission_slug(:role, :view, :all),
+      permission_slug(:school, :view, :personal),
+      permission_slug(:transaction, :modify, :all),
+      permission_slug(:transaction, :request, :all),
+      permission_slug(:transaction, :view, :all),
+      permission_slug(:transaction_cash, :modify, :all),
       permission_slug(:transaction_creator, :modify, :all),
       permission_slug(:transaction_creator, :view, :all),
       permission_slug(:transaction_creator, :view, :personal),
       permission_slug(:transaction_user, :modify, :all),
-      permission_slug(:transaction, :request, :all),
-      permission_slug(:transaction, :modify, :all),
-      permission_slug(:transaction, :view, :all),
       permission_slug(:transaction_user, :view, :all),
-      permission_slug(:transaction_cash, :modify, :all),
-      permission_slug(:user_protected_info, :view, :all),
-      permission_slug(:push_token, :modify, :all),
       permission_slug(:unavailability, :modify, :all),
-      permission_slug(:invoice, :modify, :all),
-      permission_slug(:invoice, :view, :all),
-      permission_slug(:web_dashboard, :access, :all),
-      permission_slug(:aircraft, :view, :all),
-      permission_slug(:aircraft, :modify, :all),
-      permission_slug(:role, :view, :all),
-      permission_slug(:school, :view, :personal)
+      permission_slug(:user_protected_info, :view, :all),
+      permission_slug(:users, :create, :all),
+      permission_slug(:users, :modify, :all),
+      permission_slug(:users, :view, :all),
+      permission_slug(:web_dashboard, :access, :all)
     ])
   end
 
@@ -82,76 +83,80 @@ defmodule Flight.Auth.Authorization do
     MapSet.union(
       dispatcher_permission_slugs(),
       MapSet.new([
-        permission_slug(:payment_settings, :modify, :all),
+        permission_slug(:admins, :modify, :all),
+        permission_slug(:documents, :modify, :all),
         permission_slug(:invoice_custom_line_items, :modify, :all),
-        permission_slug(:admins, :modify, :all)
+        permission_slug(:payment_settings, :modify, :all)
       ])
     )
   end
 
   def instructor_permission_slugs() do
     MapSet.new([
+      permission_slug(:aircraft, :view, :all),
+      permission_slug(:appointment, :modify, :all),
+      permission_slug(:appointment_instructor, :modify, :personal),
+      permission_slug(:documents, :view, :personal),
+      permission_slug(:invoice, :modify, :all),
+      permission_slug(:objective_score, :modify, :all),
+      permission_slug(:objective_score, :view, :all),
+      permission_slug(:push_token, :modify, :personal),
+      permission_slug(:role, :view, :all),
+      permission_slug(:school, :view, :personal),
+      permission_slug(:transaction, :request, :all),
+      permission_slug(:transaction, :view, :personal),
+      permission_slug(:transaction_approve, :modify, :personal),
+      permission_slug(:transaction_cash, :modify, :all),
+      permission_slug(:transaction_creator, :modify, :personal),
+      permission_slug(:transaction_creator, :view, :all),
+      permission_slug(:transaction_creator, :view, :personal),
+      permission_slug(:transaction_user, :be, :all),
+      permission_slug(:transaction_user, :view, :personal),
+      permission_slug(:unavailability_aircraft, :modify, :all),
+      permission_slug(:unavailability_instructor, :modify, :personal),
+      permission_slug(:user_protected_info, :view, :all),
       permission_slug(:users, :create, :all),
       permission_slug(:users, :modify, :personal),
       permission_slug(:users, :view, :all),
-      permission_slug(:appointment, :modify, :all),
-      permission_slug(:appointment_instructor, :modify, :personal),
-      permission_slug(:objective_score, :view, :all),
-      permission_slug(:objective_score, :modify, :all),
-      permission_slug(:transaction_approve, :modify, :personal),
-      permission_slug(:transaction_creator, :view, :personal),
-      permission_slug(:transaction_creator, :view, :all),
-      permission_slug(:transaction_user, :be, :all),
-      permission_slug(:transaction, :request, :all),
-      permission_slug(:transaction_creator, :modify, :personal),
-      permission_slug(:transaction, :view, :personal),
-      permission_slug(:transaction_cash, :modify, :all),
-      permission_slug(:push_token, :modify, :personal),
-      permission_slug(:user_protected_info, :view, :all),
-      permission_slug(:transaction_user, :view, :personal),
-      permission_slug(:unavailability_instructor, :modify, :personal),
-      permission_slug(:unavailability_aircraft, :modify, :all),
-      permission_slug(:invoice, :modify, :all),
-      permission_slug(:web_dashboard, :access, :all),
-      permission_slug(:aircraft, :view, :all),
-      permission_slug(:role, :view, :all),
-      permission_slug(:school, :view, :personal)
+      permission_slug(:web_dashboard, :access, :all)
     ])
   end
 
   def student_permission_slugs() do
     MapSet.new([
-      permission_slug(:users, :modify, :personal),
-      permission_slug(:users, :view, :personal),
-      permission_slug(:appointment_user, :modify, :personal),
       permission_slug(:appointment_student, :modify, :personal),
+      permission_slug(:appointment_user, :modify, :personal),
+      permission_slug(:documents, :view, :personal),
+      permission_slug(:invoice, :modify, :personal),
+      permission_slug(:invoice, :view, :personal),
       permission_slug(:objective_score, :view, :personal),
+      permission_slug(:push_token, :modify, :personal),
+      permission_slug(:school, :view, :personal),
+      permission_slug(:transaction, :view, :personal),
       permission_slug(:transaction_approve, :modify, :personal),
       permission_slug(:transaction_creator, :modify, :personal),
-      permission_slug(:transaction, :view, :personal),
-      permission_slug(:push_token, :modify, :personal),
       permission_slug(:transaction_user, :view, :personal),
-      permission_slug(:invoice, :view, :personal),
-      permission_slug(:invoice, :modify, :personal),
-      permission_slug(:web_dashboard, :access, :all),
-      permission_slug(:school, :view, :personal)
+      permission_slug(:users, :modify, :personal),
+      permission_slug(:users, :view, :personal),
+      permission_slug(:web_dashboard, :access, :all)
     ])
   end
 
   def renter_permission_slugs() do
     MapSet.new([
-      permission_slug(:users, :modify, :personal),
-      permission_slug(:users, :view, :personal),
       permission_slug(:appointment_user, :modify, :personal),
+      permission_slug(:documents, :view, :personal),
+      permission_slug(:invoice, :modify, :personal),
+      permission_slug(:invoice, :view, :personal),
       permission_slug(:objective_score, :view, :personal),
+      permission_slug(:push_token, :modify, :personal),
+      permission_slug(:school, :view, :personal),
+      permission_slug(:transaction, :view, :personal),
       permission_slug(:transaction_approve, :modify, :personal),
       permission_slug(:transaction_creator, :modify, :personal),
-      permission_slug(:transaction, :view, :personal),
-      permission_slug(:push_token, :modify, :personal),
       permission_slug(:transaction_user, :view, :personal),
-      permission_slug(:school, :view, :personal),
-      permission_slug(:invoice, :view, :personal),
-      permission_slug(:invoice, :modify, :personal)
+      permission_slug(:users, :modify, :personal),
+      permission_slug(:users, :view, :personal)
     ])
   end
 end

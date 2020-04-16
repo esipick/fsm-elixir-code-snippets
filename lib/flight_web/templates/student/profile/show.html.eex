@@ -1,89 +1,149 @@
-<div class="panel-header">
-  <div class="header text-center">
-    <h2 class="title"><%= @user.first_name %> <%= @user.last_name %></h2>
-    <p class="category"><a href="/student/profile/edit" class="btn btn-primary">Edit Profile</a></p>
-  </div>
-</div>
-
-<div class="content">
-
-<div class="row">
-
-  <div class="col-md-8 col-xs-12">
-    <div class="card ">
-      <div class="card-body">
-        <div class="tab-pane active detail-list" id="link1">
-          <dl class="d-flex justify-content-between">
-            <dt>Name</dt>
-            <dd><%= @user.first_name %> <%= @user.last_name %></dd>
-          </dl>
-          <dl class="d-flex justify-content-between">
-            <dt>Phone #</dt>
-            <dd><a href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a></dd>
-          </dl>
-          <dl class="d-flex justify-content-between">
-            <dt>Email</dt>
-            <dd><a href="mailto:<%= @user.email %>"><%= @user.email %></a></dd>
-          </dl>
-          <%= if has_address?(@user) && should_display_address?(@user) do %>
-            <dl class="d-flex justify-content-between">
-              <dt>Address</dt>
-              <dd><%= @user.address_1 %></br>
-                <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></dd>
-            </dl>
-          <% end %>
-          <%= if has_cirriculum?(@user) do %>
-            <dl class="d-flex justify-content-between">
-              <dt>Flight Training # (FTN)</dt>
-              <dd><%= @user.flight_training_number %></dd>
-            </dl>
-          <% end %>
-          <%= if has_medical?(@user) do %>
-            <dl class="d-flex justify-content-between">
-              <dt>Medical</dt>
-              <dd><%= human_readable_medical_rating(@user.medical_rating) %>
-                <%= if medical_rating_exist?(@user) do %>
-                  <small>expires: <%= format_date(@user.medical_expires_at) %></small>
+<div class="panel-header"></div>
+<div class="content profile">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header" data-background-color="gray">
+          <div class="user-info">
+            <div class=mobile>
+              <div class="photo">
+                <img src="<%= static_path(@conn, "/images/james.jpg") %>"/>
+              </div>
+              <h2><%= @user.first_name %> <%= @user.last_name %></h2>
+              <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
+              <p class="enrolled"><small>Enrolled <%= display_date(@user.inserted_at, :student) %></small></p>
+              <a class="btn  btn-primary" href=""/student/profile">View Profile</a>
+              <div class="contacts">
+                <div class="contact">
+                  <img src="<%= static_path(@conn, "/images/phone.svg") %>"/>
+                  <div class="tip">
+                    <a href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a>
+                  </div>
+                </div>
+                <div class="contact">
+                  <img src="<%= static_path(@conn, "/images/email.svg") %>"/>
+                  <div class="tip">
+                    <a href="mailto:<%= @user.email %>"><%= @user.email %></a>
+                  </div>
+                </div>
+                <%= if has_address?(@user) && should_display_address?(@user) do %>
+                  <div class="contact">
+                    <img src="<%= static_path(@conn, "/images/address.svg") %>"/>
+                    <div class="tip"><%= @user.address_1 %> <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></div>
+                  </div>
                 <% end %>
-              </dd>
-            </dl>
-          <% end %>
-        </div>
-      </div>
-    </div> <!-- end card -->
-  </div>
-
-<%= if has_cirriculum?(@user) && false do %>
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-body text-center">
-          <div class="card-section detail-list course-progress">
-            <h7>Course Progress</h7>
-            <dl class="d-flex justify-content-between">
-              <dt>Private Pilot License</dt>
-              <dd>80%</dd>
-            </dl>
-            <div class="course-progress-bar"><span style="width: 80%;"></span></div>
-            <dl class="d-flex justify-content-between">
-              <dt>Commercial Pilot License</dt>
-              <dd>0%</dd>
-            </dl>
-            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
-            <dl class="d-flex justify-content-between">
-              <dt>Instrument Flight Rating</dt>
-              <dd>0%</dd>
-            </dl>
-            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
+              </div>
+            </div>
+            <div class=desktop>
+              <div class="photo-container">
+                <div class="photo">
+                  <img src="<%= static_path(@conn, "/images/james.jpg") %>"/>
+                </div>
+                <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
+              </div>
+              <div class="details">
+                <h2><%= @user.first_name %> <%= @user.last_name %></h2>
+                <div class="contacts">
+                  <a class="contact" href="tel:<%= @user.phone_number %>" title="<%= @user.phone_number %>">
+                    <img src="<%= static_path(@conn, "/images/phone-blue.svg") %>"/>
+                    <%= @user.phone_number %>
+                  </a>
+                  <a class="contact" href="mailto:<%= @user.email %>" title="<%= @user.email %>">
+                    <img src="<%= static_path(@conn, "/images/email-blue.svg") %>"/>
+                    <%= @user.email %>
+                  </a>
+                  <%= if has_address?(@user) && should_display_address?(@user) do %>
+                    <div class="contact" title="<%= @user.address_1 %><%= @user.city %>, <%= @user.state %> <%= @user.zipcode %>">
+                      <img src="<%= static_path(@conn, "/images/address-blue.svg") %>"/>
+                      <%= @user.address_1 %><%= @user.city %>, <%= @user.state %> <%= @user.zipcode %>
+                    </div>
+                  <% end %>
+                </div>
+                <div class="fields">
+                  <%= if has_cirriculum?(@user) do %>
+                    <div class="field">
+                      <h3>Flight Training # (FTN)</h3>
+                      <p><%= @user.flight_training_number %></p>
+                    </div>
+                  <% end %>
+                  <%= if has_medical?(@user) do %>
+                    <div class="field">
+                      <h3>Medical</h3>
+                      <p>
+                        <span><%= human_readable_medical_rating(@user.medical_rating) %></span>
+                        <%= if medical_rating_exist?(@user) do %>
+                          <small>expires: <%= format_date(@user.medical_expires_at) %></small>
+                        <% end %>
+                      </p>
+                    </div>
+                  <% end %>
+                  <div class="field">
+                    <h3>Insctructor</h3>
+                    <p>Chief Instructor Name</p>
+                    <p>Instructor Name</p>
+                  </div>
+                  <div class="field">
+                    <h3>Aircraft Name</h3>
+                    <p>Chief instructor name</p>
+                    <p>Instructor name</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+          <div class=mobile>
+            <div class="fields-container">
+              <div class="fields top">
+                <%= if has_cirriculum?(@user) do %>
+                  <div class="field ftn">
+                    <h3>Training # (FTN)</h3>
+                    <p><%= @user.flight_training_number %></p>
+                  </div>
+                <% end %>
+                <%= if has_medical?(@user) do %>
+                  <div class="field medical">
+                    <span class="title">Medical:</span>
+                    <span><%= human_readable_medical_rating(@user.medical_rating) %></span>
+                    <%= if medical_rating_exist?(@user) do %>
+                      <br>
+                      <span class="title">Expires:</span>
+                      <span><%= format_date(@user.medical_expires_at) %></span>
+                      <% end %>
+                    </span>
+                  </div>
+                <% end %>
+              </div>
+              <div class="fields">
+                <div class="field">
+                  <h3>Insctructor</h3>
+                  <p>Chief Instructor Name</p>
+                  <p>Instructor Name</p>
+                </div>
+                <div class="field">
+                  <h3>Aircraft Name</h3>
+                  <p>Chief instructor name</p>
+                  <p>Instructor name</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <nav class="tabs">
+            <a <%= if @tab == :billing, do: "class=active" %> href="/student/profile">Billing</a>
+            <a <%= if @tab == :appointments, do: "class=active" %> href="/student/profile">Appointments</a>
+            <a <%= if @tab == :documents, do: "class=active" %> href="/student/profile">Documents</a>
+          </nav>
+        </div>
+        <!-- end card-header -->
+        <div class="card-body profile">
+          <%= ReactPhoenix.ClientSide.react_component("Components.Documents", @props) %>
+        </div>
+        <!-- end card-body -->
       </div>
+      <!-- end card -->
     </div>
   </div>
-  <% end %>
-
 </div>
-
-</div> <!-- end content -->
-
+<!-- end content -->
 <%= if get_flash(@conn, :success) do %>
   <script>
     $(document).ready(function() {

@@ -190,8 +190,8 @@ defmodule Flight.SchedulingTest do
 
       now = NaiveDateTime.utc_now()
 
-      start_at = Timex.shift(now, hours: 1)
-      end_at = Timex.shift(now, hours: 2)
+      start_at = NaiveDateTime.truncate(Timex.shift(now, hours: 1), :second)
+      end_at = NaiveDateTime.truncate(Timex.shift(now, hours: 2), :second)
 
       type = "lesson"
 
@@ -225,8 +225,8 @@ defmodule Flight.SchedulingTest do
 
       now = NaiveDateTime.utc_now()
 
-      start_at = Timex.shift(now, hours: 1)
-      end_at = Timex.shift(now, hours: 2)
+      start_at = NaiveDateTime.truncate(Timex.shift(now, hours: 1), :second)
+      end_at = NaiveDateTime.truncate(Timex.shift(now, hours: 2), :second)
 
       {:ok, %Appointment{} = appointment} =
         create_appointment(%{
@@ -238,7 +238,7 @@ defmodule Flight.SchedulingTest do
           type: type
         })
 
-      new_start_at = Timex.shift(now, minutes: 30)
+      new_start_at = NaiveDateTime.truncate(Timex.shift(now, minutes: 30), :second)
 
       {:ok, %Appointment{} = updatedAppointment} =
         Scheduling.insert_or_update_appointment(
@@ -251,7 +251,6 @@ defmodule Flight.SchedulingTest do
         )
 
       assert updatedAppointment.id == appointment.id
-
       assert updatedAppointment.start_at == new_start_at
       assert updatedAppointment.end_at == end_at
     end

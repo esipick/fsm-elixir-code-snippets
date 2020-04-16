@@ -478,7 +478,6 @@ dl .disc.expired {background-color: #FF5572;}
 
 .panel-header {
   height: auto;
-  min-height: 260px;
   background-image: url('/images/bg-plane-bw.jpg');
   background-size: 138%;
   background-position: 0 888px;
@@ -1322,4 +1321,8 @@ fieldset[disabled] .fc button:hover {
     transform: translate3d(260px, 0, 0); }
   #hide-sidebar-for-table .main-panel {
     width: 100%; }
+}
+
+.dropzone-description {
+  font-size: small !important;
 }

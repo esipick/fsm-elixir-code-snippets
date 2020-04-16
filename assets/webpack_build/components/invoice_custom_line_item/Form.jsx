@@ -1,8 +1,6 @@
-import classnames from 'classnames';
 import http from 'j-fetch';
 import NumberFormat from 'react-number-format';
 import React, { Component } from 'react';
-
 import { authHeaders } from '../utils';
 import Error from '../common/Error';
 import CustomLineItemsTable from './CustomLineItemsTable';
@@ -28,7 +26,6 @@ class Form extends Component {
 
   setFormRef = (form) => {
     this.formRef = form;
-
     form.addEventListener("submit", (event) => { event.preventDefault() });
   };
 
@@ -44,7 +41,6 @@ class Form extends Component {
 
   removeCustomLineItem = (id) => {
     const custom_line_items = this.state.custom_line_items.filter(i => i.id != id);
-
     this.setState({ custom_line_items });
   }
 

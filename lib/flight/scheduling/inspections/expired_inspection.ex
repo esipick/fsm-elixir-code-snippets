@@ -1,7 +1,9 @@
 defmodule Flight.Scheduling.ExpiredInspection do
-  defstruct [:aircraft, :inspection, :description, :status]
+  use Timex
 
   alias Flight.Scheduling.{Inspection, DateInspection, TachInspection}
+
+  defstruct [:aircraft, :inspection, :description, :status]
 
   def inspections_for_aircrafts(aircrafts) do
     inspections =

@@ -20,6 +20,11 @@ defmodule Flight.Accounts.School do
     field(:archived, :boolean, default: false)
     has_one(:stripe_account, Flight.Accounts.StripeAccount)
 
+    has_many(:custom_line_items, Flight.Billing.InvoiceCustomLineItem,
+      on_replace: :delete,
+      on_delete: :delete_all
+    )
+
     timestamps()
   end
 

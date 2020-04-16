@@ -1,7 +1,7 @@
 defmodule FlightWeb.Admin.UserController do
   use FlightWeb, :controller
 
-  alias Flight.{Accounts, Billing, Scheduling}
+  alias Flight.{Accounts, Billing, Repo, Scheduling}
   alias Flight.Auth.Permission
   import Flight.Auth.Authorization
 
@@ -18,7 +18,7 @@ defmodule FlightWeb.Admin.UserController do
     render(conn, "index.html", data: data, message: message)
   end
 
-  def show(conn, %{"tab" => "schedule"}) do
+  def show(conn, %{"tab" => "appointments"}) do
     user = conn.assigns.requested_user
 
     options =
@@ -38,7 +38,7 @@ defmodule FlightWeb.Admin.UserController do
       conn,
       "show.html",
       user: user,
-      tab: :schedule,
+      tab: :appointments,
       appointments: appointments,
       skip_shool_select: true
     )
@@ -59,11 +59,39 @@ defmodule FlightWeb.Admin.UserController do
     )
   end
 
-  def show(conn, _params) do
+  def show(%{assigns: %{current_user: current_user, requested_user: user}} = conn, params) do
+    search_term = Map.get(params, "search", "")
+    page_params = FlightWeb.Pagination.params(params)
+    page = Accounts.Document.documents_by_page(user.id, page_params, search_term)
+    today = DateTime.to_date(Timex.now(current_user.school.timezone))
+
+    documents =
+      page.entries
+      |> Enum.map(fn document ->
+        %{
+          expired: Date.compare(document.expires_at || Date.add(today, 2), today),
+          expires_at: document.expires_at,
+          file_name: document.file.file_name,
+          file_url: Accounts.Document.file_url(document),
+          id: document.id
+        }
+      end)
+
+    props = %{
+      admin: user_can?(current_user, [Permission.new(:documents, :modify, :all)]),
+      documents: documents,
+      page_number: page.page_number,
+      page_size: page.page_size,
+      total_entries: page.total_entries,
+      total_pages: page.total_pages,
+      user_id: user.id
+    }
+
     render(conn, "show.html",
-      user: conn.assigns.requested_user,
-      tab: :profile,
-      skip_shool_select: true
+      props: props,
+      skip_shool_select: true,
+      tab: :documents,
+      user: user
     )
   end
 
@@ -163,7 +191,7 @@ defmodule FlightWeb.Admin.UserController do
     user =
       (conn.params["id"] || conn.params["user_id"])
       |> Accounts.get_school_user_by_id(conn)
-      |> Flight.Repo.preload([:roles, :flyer_certificates])
+      |> Repo.preload([:roles, :flyer_certificates])
 
     cond do
       user && !user.archived ->

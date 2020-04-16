@@ -2,12 +2,7 @@ defmodule FlightWeb.Admin.SettingsController do
   use FlightWeb, :controller
   import Flight.Repo
 
-  alias Flight.{
-    Accounts,
-    Auth.Permission,
-    Billing.InvoiceCustomLineItem,
-    SchoolScope
-  }
+  alias Flight.{Accounts, Auth.Permission, Billing.InvoiceCustomLineItem}
 
   plug(:get_school)
   plug(:authorize_admin when action in [:show])
@@ -29,9 +24,7 @@ defmodule FlightWeb.Admin.SettingsController do
 
   def show(%{assigns: %{school: school}} = conn, %{"tab" => "billing"}) do
     custom_line_items =
-      InvoiceCustomLineItem
-      |> SchoolScope.school_scope(school)
-      |> all
+      InvoiceCustomLineItem.get_custom_line_items(school)
       |> Enum.map(fn custom_line_item ->
         %{
           description: custom_line_item.description,

@@ -63,7 +63,7 @@ defmodule FlightWeb.API.UnavailabilityController do
     |> resp(204, "")
   end
 
-  def authorize_modify(conn, _) do
+  defp authorize_modify(conn, _) do
     instructor_user_id_from_unavailability =
       case conn.assigns do
         %{unavailability: %{instructor_user_id: id}} -> id
@@ -104,10 +104,10 @@ defmodule FlightWeb.API.UnavailabilityController do
     end
   end
 
-  def render_bad_request(
-        conn,
-        message \\ "You are not authorized to create or change this unavailability. Please talk to your school's Admin."
-      ) do
+  defp render_bad_request(
+         conn,
+         message \\ "You are not authorized to create or change this unavailability. Please talk to your school's Admin."
+       ) do
     conn
     |> put_status(400)
     |> json(%{human_errors: [message]})

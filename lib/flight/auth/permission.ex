@@ -22,6 +22,7 @@ defmodule Flight.Auth.Permission do
     :appointment_instructor,
     :appointment_student,
     :appointment_user,
+    :documents,
     :invoice,
     :invoice_custom_line_items,
     :objective_score,

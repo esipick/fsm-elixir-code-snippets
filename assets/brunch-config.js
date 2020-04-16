@@ -44,7 +44,8 @@ exports.config = {
     stylesheets: {
       joinTo: {
         "css/app.css": /^(?!admin)/,
-        "css/admin/admin.css": /^css\/admin/
+        "css/admin/admin.css": /^css\/admin/,
+        "css/admin/student.css": /^css\/admin/
       }
     },
     templates: {

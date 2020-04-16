@@ -93,7 +93,6 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :flight, Flight.Repo,
-  adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
   database: "flight_dev",

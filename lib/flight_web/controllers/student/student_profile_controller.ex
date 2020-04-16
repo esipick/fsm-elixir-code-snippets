@@ -3,9 +3,45 @@ defmodule FlightWeb.Student.ProfileController do
 
   alias Flight.Accounts
 
-  def show(conn, _) do
-    user = Flight.Repo.preload(conn.assigns.current_user, [:roles, :flyer_certificates])
-    render(conn, "show.html", user: user)
+  def show(%{assigns: %{current_user: current_user}} = conn, params) do
+    user =
+      Flight.Repo.preload(
+        current_user,
+        :roles
+      )
+
+    search_term = Map.get(params, "search", "")
+    page_params = FlightWeb.Pagination.params(params)
+    page = Accounts.Document.documents_by_page(user.id, page_params, search_term)
+    today = DateTime.to_date(Timex.now(current_user.school.timezone))
+
+    documents =
+      page.entries
+      |> Enum.map(fn document ->
+        %{
+          expired: Date.compare(document.expires_at || Date.add(today, 2), today),
+          expires_at: document.expires_at,
+          file_name: document.file.file_name,
+          file_url: Accounts.Document.file_url(document),
+          id: document.id
+        }
+      end)
+
+    props = %{
+      documents: documents,
+      page_number: page.page_number,
+      page_size: page.page_size,
+      total_entries: page.total_entries,
+      total_pages: page.total_pages,
+      user_id: user.id
+    }
+
+    render(conn, "show.html",
+      hide_shool_select: true,
+      props: props,
+      tab: :documents,
+      user: user
+    )
   end
 
   def edit(conn, _) do

@@ -35,18 +35,18 @@ defmodule FlightWeb.API.ObjectiveNoteController do
     end
   end
 
-  def get_objective_notes(conn, _) do
+  defp get_objective_notes(conn, _) do
     assign(conn, :objective_notes, Curriculum.get_objective_notes(conn.params["user_id"], conn))
   end
 
-  def authorize_view(conn, _) do
+  defp authorize_view(conn, _) do
     halt_unless_user_can?(conn, [
       Permission.new(:objective_score, :view, :all),
       Permission.new(:objective_score, :view, {:personal, conn.params["user_id"]})
     ])
   end
 
-  def authorize_modify(conn, _) do
+  defp authorize_modify(conn, _) do
     halt_unless_user_can?(conn, [
       Permission.new(:objective_score, :modify, :all)
     ])

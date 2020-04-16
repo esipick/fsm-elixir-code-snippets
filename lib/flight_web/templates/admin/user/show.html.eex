@@ -1,71 +1,149 @@
-<div class="panel-header">
-  <div class="header text-center">
-    <h2 class="title"><%= @user.first_name %> <%= @user.last_name %></h2>
-    <p class="category"><a href="/admin/users/<%= @user.id %>/edit" class="btn btn-primary">Edit Profile</a></p>
-  </div>
-</div>
-
-<div class="content">
-
-<div class="row">
-
-  <div class="col-md-8">
-    <div class="card ">
-      <div class="card-header">
-        <ul class="nav nav-pills nav-pills-primary" role="tablist">
-          <li class="nav-item">
-              <a class="nav-link <%= if @tab == :profile, do: "active", else: "" %>" href="/admin/users/<%= @user.id %>">Profile</a>
-          </li>
-
-          <%= if has_billing?(@user) do %>
-            <li class="nav-item">
-              <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href="/admin/users/<%= @user.id %>?tab=billing">Billing</a>
-            </li>
-          <% end %>
-
-          <%= if has_appointments?(@user) do %>
-          <li class="nav-item">
-              <a class="nav-link <%= if @tab == :schedule, do: "active", else: "" %>" href="/admin/users/<%= @user.id %>?tab=schedule">Appointments</a>
-          </li>
-          <% end %>
-
-        </ul>
-      </div>
-      <div class="card-body">
-        <%=
-          case @tab do
-            :profile -> render "_profile.html", user: @user
-            :billing -> render "_billing.html", user: @user, transactions: @transactions, conn: @conn
-            :schedule -> render "_schedule.html", user: @user, appointments: @appointments
-          end
-          %>
-      </div>
-    </div> <!-- end card -->
-  </div>
-
-<%= if has_cirriculum?(@user) && false do %>
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-body text-center">
-          <div class="card-section detail-list course-progress">
-            <h7>Course Progress</h7>
-            <dl class="d-flex justify-content-between">
-              <dt>Private Pilot License</dt>
-              <dd>80%</dd>
-            </dl>
-            <div class="course-progress-bar"><span style="width: 80%;"></span></div>
-            <dl class="d-flex justify-content-between">
-              <dt>Commercial Pilot License</dt>
-              <dd>0%</dd>
-            </dl>
-            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
-            <dl class="d-flex justify-content-between">
-              <dt>Instrument Flight Rating</dt>
-              <dd>0%</dd>
-            </dl>
-            <div class="course-progress-bar"><span style="width: 0%;"></span></div>
+<div class="panel-header"></div>
+<div class="content profile">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header" data-background-color="gray">
+          <div class="user-info">
+            <div class=mobile>
+              <div class="photo">
+                <img src="<%= static_path(@conn, "/images/james.jpg") %>"/>
+              </div>
+              <h2><%= @user.first_name %> <%= @user.last_name %></h2>
+              <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
+              <p class="enrolled"><small>Enrolled <%= display_date(@user.inserted_at, :student) %></small></p>
+              <a class="btn  btn-primary" href=""/student/profile">View Profile</a>
+              <div class="contacts">
+                <div class="contact">
+                  <img src="<%= static_path(@conn, "/images/phone.svg") %>"/>
+                  <div class="tip">
+                    <a href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a>
+                  </div>
+                </div>
+                <div class="contact">
+                  <img src="<%= static_path(@conn, "/images/email.svg") %>"/>
+                  <div class="tip">
+                    <a href="mailto:<%= @user.email %>"><%= @user.email %></a>
+                  </div>
+                </div>
+                <%= if has_address?(@user) && should_display_address?(@user) do %>
+                  <div class="contact">
+                    <img src="<%= static_path(@conn, "/images/address.svg") %>"/>
+                    <div class="tip"><%= @user.address_1 %> <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <div class=desktop>
+              <div class="photo-container">
+                <div class="photo">
+                  <img src="<%= static_path(@conn, "/images/james.jpg") %>"/>
+                </div>
+                <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
+              </div>
+              <div class="details">
+                <h2><%= @user.first_name %> <%= @user.last_name %></h2>
+                <div class="contacts">
+                  <a class="contact" href="tel:<%= @user.phone_number %>" title="<%= @user.phone_number %>">
+                    <img src="<%= static_path(@conn, "/images/phone-blue.svg") %>"/>
+                    <%= @user.phone_number %>
+                  </a>
+                  <a class="contact" href="mailto:<%= @user.email %>" title="<%= @user.email %>">
+                    <img src="<%= static_path(@conn, "/images/email-blue.svg") %>"/>
+                    <%= @user.email %>
+                  </a>
+                  <%= if has_address?(@user) && should_display_address?(@user) do %>
+                    <div class="contact" title="<%= @user.address_1 %><%= @user.city %>, <%= @user.state %> <%= @user.zipcode %>">
+                      <img src="<%= static_path(@conn, "/images/address-blue.svg") %>"/>
+                      <%= @user.address_1 %><%= @user.city %>, <%= @user.state %> <%= @user.zipcode %>
+                    </div>
+                  <% end %>
+                </div>
+                <div class="fields">
+                  <%= if has_cirriculum?(@user) do %>
+                    <div class="field">
+                      <h3>Flight Training # (FTN)</h3>
+                      <p><%= @user.flight_training_number %></p>
+                    </div>
+                  <% end %>
+                  <%= if has_medical?(@user) do %>
+                    <div class="field">
+                      <h3>Medical</h3>
+                      <p>
+                        <span><%= human_readable_medical_rating(@user.medical_rating) %></span>
+                        <%= if medical_rating_exist?(@user) do %>
+                          <small>expires: <%= format_date(@user.medical_expires_at) %></small>
+                        <% end %>
+                      </p>
+                    </div>
+                  <% end %>
+                  <div class="field">
+                    <h3>Insctructor</h3>
+                    <p>Chief Instructor Name</p>
+                    <p>Instructor Name</p>
+                  </div>
+                  <div class="field">
+                    <h3>Aircraft Name</h3>
+                    <p>Chief instructor name</p>
+                    <p>Instructor name</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+          <div class=mobile>
+            <div class="fields-container">
+              <div class="fields top">
+                <%= if has_cirriculum?(@user) do %>
+                  <div class="field ftn">
+                    <h3>Training # (FTN)</h3>
+                    <p><%= @user.flight_training_number %></p>
+                  </div>
+                <% end %>
+                <%= if has_medical?(@user) do %>
+                  <div class="field medical">
+                    <span class="title">Medical:</span>
+                    <span><%= human_readable_medical_rating(@user.medical_rating) %></span>
+                    <%= if medical_rating_exist?(@user) do %>
+                      <br>
+                      <span class="title">Expires:</span>
+                      <span><%= format_date(@user.medical_expires_at) %></span>
+                      <% end %>
+                    </span>
+                  </div>
+                <% end %>
+              </div>
+              <div class="fields">
+                <div class="field">
+                  <h3>Insctructor</h3>
+                  <p>Chief Instructor Name</p>
+                  <p>Instructor Name</p>
+                </div>
+                <div class="field">
+                  <h3>Aircraft Name</h3>
+                  <p>Chief instructor name</p>
+                  <p>Instructor name</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <nav class="tabs">
+            <a <%= if @tab == :billing, do: "class=active" %> href="/admin/users/<%= @user.id %>?tab=billing">Billing</a>
+            <a <%= if @tab == :appointments, do: "class=active" %> href="/admin/users/<%= @user.id %>?tab=appointments">Appointments</a>
+            <a <%= if @tab == :documents, do: "class=active" %> href="/admin/users/<%= @user.id %>">Documents</a>
+          </nav>
+        </div>
+        <!-- end card-header -->
+        <div class="card-body profile">
+          <%= case @tab do
+            :appointments -> render "_appointments.html", user: @user, appointments: @appointments
+            :billing -> render "_billing.html", user: @user, transactions: @transactions, conn: @conn
+            :documents -> render "_documents.html", user: @user, props: @props
+          end %>
+        </div>
+        <!-- end card-body -->
       </div>
+      <!-- end card -->
     </div>
   </div>
   <% end %>

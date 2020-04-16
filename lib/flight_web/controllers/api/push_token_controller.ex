@@ -17,7 +17,7 @@ defmodule FlightWeb.API.PushTokenController do
     end
   end
 
-  def authorize_modify(conn, _) do
+  defp authorize_modify(conn, _) do
     halt_unless_user_can?(conn, [
       Permission.new(:push_token, :modify, {:personal, conn.params["user_id"]}),
       Permission.new(:push_token, :modify, :all)

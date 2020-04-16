@@ -1,11 +1,8 @@
-import classnames from 'classnames';
 import http from 'j-fetch';
 import NumberFormat from 'react-number-format';
 import React, { Component } from 'react';
-
 import { authHeaders } from '../utils';
 import Error from '../common/Error';
-
 
 class CustomLineItem extends Component {
   constructor(props) {
@@ -60,8 +57,8 @@ class CustomLineItem extends Component {
     });
   }
 
-  submitForm = () => {
-    event.preventDefault()
+  submitForm = (e) => {
+    e.preventDefault()
 
     if (this.state.saving) return
     if (this.formRef.checkValidity()) { this.save() }
@@ -70,13 +67,14 @@ class CustomLineItem extends Component {
   delete = (e) => {
     e.preventDefault();
 
-    const { custom_line_item: { id }, school_id } = this.props
+    const { custom_line_item: { id }, onRemove, school_id } = this.props
+
     http['delete']({
       url: `/api/invoices/${school_id}/custom_line_items/${id}`,
       headers: authHeaders()
     }).then(response => {
       if (response.status == 204) {
-        this.props.onRemove(id);
+        onRemove(id);
       }
     })
   }

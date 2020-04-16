@@ -112,7 +112,7 @@ defmodule FlightWeb.API.AppointmentController do
     end
   end
 
-  def authorize_modify(conn, _) do
+  defp authorize_modify(conn, _) do
     user_id =
       conn.params["data"] |> Optional.map(& &1["user_id"]) ||
         if conn.assigns[:appointment], do: conn.assigns[:appointment].user_id
@@ -149,10 +149,10 @@ defmodule FlightWeb.API.AppointmentController do
     end
   end
 
-  def render_bad_request(
-        conn,
-        message \\ "You are not authorized to create or change this appointment. Please talk to your school's Admin."
-      ) do
+  defp render_bad_request(
+         conn,
+         message \\ "You are not authorized to create or change this appointment. Please talk to your school's Admin."
+       ) do
     conn
     |> put_status(400)
     |> json(%{human_errors: [message]})

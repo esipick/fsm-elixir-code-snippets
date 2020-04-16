@@ -55,7 +55,10 @@ defmodule Flight.Billing.PayTransaction do
     paid_by_column = Transaction.get_paid_by_column(transaction)
 
     transaction_attrs =
-      %{state: "completed", completed_at: NaiveDateTime.utc_now()}
+      %{
+        state: "completed",
+        completed_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+      }
       |> Map.merge(attrs)
       |> Map.merge(%{paid_by_column => transaction.total})
 
@@ -66,7 +69,7 @@ defmodule Flight.Billing.PayTransaction do
     changes = %{
       state: "failed",
       error_message: error_message,
-      completed_at: NaiveDateTime.utc_now()
+      completed_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
     }
 
     change(transaction, changes) |> Repo.update()

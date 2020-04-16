@@ -242,7 +242,7 @@ class Form extends Component {
     );
   };
 
-  setDate = (date) => { this.setState({ date }); }
+  setDate = (date) => { console.log(date); this.setState({ date }); }
 
   setPaymentMethod = (option) => { this.setState({ payment_method: option }); }
 

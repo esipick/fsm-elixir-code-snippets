@@ -180,7 +180,7 @@ defmodule Flight.Reports do
   def get_users(role, school_context) do
     User
     |> SchoolScope.scope_query(school_context)
-    |> join(:inner, [u], r in UserRole, r.user_id == u.id)
+    |> join(:inner, [u], r in UserRole, on: r.user_id == u.id)
     |> where([u, r], r.role_id == ^role.id)
     |> Repo.all()
   end

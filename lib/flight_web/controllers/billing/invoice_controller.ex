@@ -30,9 +30,7 @@ defmodule FlightWeb.Billing.InvoiceController do
 
   def new(conn, _) do
     custom_line_items =
-      InvoiceCustomLineItem
-      |> Flight.SchoolScope.school_scope(conn)
-      |> Repo.all()
+      InvoiceCustomLineItem.get_custom_line_items(conn)
       |> Enum.map(fn custom_line_item ->
         %{
           default_rate: custom_line_item.default_rate,
@@ -53,9 +51,7 @@ defmodule FlightWeb.Billing.InvoiceController do
 
   def edit(conn, _) do
     custom_line_items =
-      InvoiceCustomLineItem
-      |> Flight.SchoolScope.school_scope(conn)
-      |> Repo.all()
+      InvoiceCustomLineItem.get_custom_line_items(conn)
       |> Enum.map(fn custom_line_item ->
         %{
           default_rate: custom_line_item.default_rate,
@@ -101,7 +97,7 @@ defmodule FlightWeb.Billing.InvoiceController do
     end
   end
 
-  def authorize_modify(conn, _) do
+  defp authorize_modify(conn, _) do
     invoice = if conn.params["id"], do: conn.assigns.invoice, else: nil
     user = conn.assigns.current_user
 

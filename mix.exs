@@ -43,9 +43,9 @@ defmodule Flight.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "1.3.3"},
+      {:phoenix, "~> 1.4"},
       {:phoenix_pubsub, "~> 1.0"},
-      {:phoenix_ecto, "~> 3.6"},
+      {:phoenix_ecto, "~> 4.1"},
       {:postgrex, ">= 0.13.5"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
@@ -59,7 +59,7 @@ defmodule Flight.Mixfile do
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 4.0"},
       {:tzdata, "~> 0.1.8"},
-      {:timex, "~> 3.2.0"},
+      {:timex, "~> 3.6.1"},
       {:hackney, "~> 1.15.2", override: true},
       {:stripity_stripe, "~> 2.1.0"},
       {:currency_formatter, "~> 0.4"},
@@ -70,7 +70,8 @@ defmodule Flight.Mixfile do
       {:ex_aws_sns, "~> 2.0"},
       {:ex_image_info, "~> 0.2.4"},
       {:waffle_ecto, "~> 0.0.7"},
-      {:scrivener_ecto, "~> 1.3"},
+      {:size, "~> 0.1.0"},
+      {:scrivener_ecto, "~> 2.0"},
       {:scrivener_html, "~> 1.8"},
       {:scrivener_headers, "~> 3.1"},
       {:ecto_enum, "~> 1.3"},

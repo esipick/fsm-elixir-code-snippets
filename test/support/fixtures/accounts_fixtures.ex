@@ -8,6 +8,12 @@ defmodule Flight.AccountsFixtures do
     |> Base.encode64()
   end
 
+  def upload_fixture(path \\ "assets/static/images/margot.jpg") do
+    type = MIME.from_path(path)
+
+    %Plug.Upload{content_type: type, filename: Path.basename(path), path: path}
+  end
+
   def school_fixture(attrs \\ %{}) do
     %School{
       name: "some_school_name",

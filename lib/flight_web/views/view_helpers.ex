@@ -103,6 +103,10 @@ defmodule FlightWeb.ViewHelpers do
     Flight.Format.currency(amount, :short)
   end
 
+  def display_date(date, :student) do
+    Timex.format!(date, "%d/%m/%Y", :strftime)
+  end
+
   def display_date(date, :short) do
     Timex.format!(date, "%B %-d, %Y", :strftime)
   end
@@ -226,7 +230,7 @@ defmodule FlightWeb.ViewHelpers do
   def display_hour_tenths(tenths) do
     tenths
     |> Flight.Format.hours_from_tenths()
-    |> Decimal.new()
+    |> Decimal.cast()
     |> Decimal.round(1)
     |> Decimal.to_string()
   end
