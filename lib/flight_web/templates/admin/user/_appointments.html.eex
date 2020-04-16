@@ -5,8 +5,12 @@
         <dt><%= display_date(appointment.start_at, :long) %></dt>
         <dd>
           <dl class="d-flex justify-content-between">
-            <dt>Time</dt>
-            <dd><%= display_time(appointment.start_at) %> - <%= display_time(appointment.end_at) %></dd>
+            <dt>Start Time</dt>
+            <dd><%= display_datetime(appointment.start_at) %></dd>
+          </dl>
+          <dl class="d-flex justify-content-between">
+            <dt>End Time</dt>
+            <dd><%= display_datetime(appointment.end_at) %></dd>
           </dl>
           <%= if appointment.aircraft_id do %>
             <dl class="d-flex justify-content-between">

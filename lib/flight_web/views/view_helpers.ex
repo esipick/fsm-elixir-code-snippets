@@ -115,6 +115,10 @@ defmodule FlightWeb.ViewHelpers do
     Timex.format!(date, "%A %b %-d, %Y", :strftime)
   end
 
+  def display_datetime(date) do
+    Timex.format!(date, "%-d %B %-I:%M%p", :strftime)
+  end
+
   def display_time(date) do
     Timex.format!(date, "%-I:%M%p", :strftime)
   end
