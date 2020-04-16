@@ -46,7 +46,7 @@ defmodule Flight.Mixfile do
       {:phoenix, "~> 1.4"},
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_ecto, "~> 4.1"},
-      {:postgrex, ">= 0.13.5"},
+      {:postgrex, ">= 0.15.3"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
