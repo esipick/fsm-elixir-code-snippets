@@ -332,10 +332,9 @@ defmodule FlightWeb.Admin.UserControllerTest do
         |> put("/admin/users/#{student.id}", payload)
         |> response_redirected_to("/admin/dashboard")
 
-      html =
-        conn
-        |> get("/admin/dashboard")
-        |> html_response(200)
+      conn
+      |> get("/admin/dashboard")
+      |> html_response(200)
 
       assert get_flash(conn, :error) =~ "User already removed."
     end

@@ -176,11 +176,10 @@ defmodule FlightWeb.API.DocumentControllerTest do
       payload = %{"document" => %{"file" => upload_fixture()}}
       payload_same = %{"document" => %{"file" => upload_fixture()}}
 
-      json =
-        conn
-        |> auth(admin_fixture(%{}, school))
-        |> post("/api/users/#{student_id}/documents", payload)
-        |> json_response(200)
+      conn
+      |> auth(admin_fixture(%{}, school))
+      |> post("/api/users/#{student_id}/documents", payload)
+      |> json_response(200)
 
       json =
         conn

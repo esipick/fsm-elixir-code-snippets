@@ -56,19 +56,18 @@ defmodule Flight.Scheduling.ExpiredInspection do
 
     case Inspection.to_specific(inspection) do
       %DateInspection{expiration: expiration} when not is_nil(expiration) ->
-        interval =
-          Timex.Interval.new(from: time_now, until: expiration)
-          |> Timex.Interval.duration(:hours)
-
-        cond do
-          interval <= 20 && interval > 0 ->
-            :expiring
-
-          interval <= 0 ->
+        case Timex.Interval.new(from: time_now, until: expiration) do
+          {:error, :invalid_until} ->
             :expired
 
-          true ->
-            :good
+          interval ->
+            duration = Timex.Interval.duration(interval, :hours)
+
+            if duration <= 20 && duration > 0 do
+              :expiring
+            else
+              :good
+            end
         end
 
       %TachInspection{tach_time: tach_time} when not is_nil(tach_time) ->

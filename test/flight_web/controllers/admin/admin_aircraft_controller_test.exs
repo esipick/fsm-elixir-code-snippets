@@ -234,10 +234,9 @@ defmodule FlightWeb.Admin.AircraftControllerTest do
         |> put("/admin/aircrafts/#{aircraft.id}", payload)
         |> response_redirected_to("/admin/aircrafts")
 
-      html =
-        conn
-        |> get("/admin/aircrafts")
-        |> html_response(200)
+      conn
+      |> get("/admin/aircrafts")
+      |> html_response(200)
 
       assert get_flash(conn, :error) =~ "Aircraft already removed."
     end

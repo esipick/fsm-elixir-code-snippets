@@ -157,10 +157,9 @@ defmodule FlightWeb.Admin.InspectionControllerTest do
         |> put("/admin/inspections/#{inspection.id}", payload)
         |> response_redirected_to("/admin/aircrafts")
 
-      html =
-        conn
-        |> get("/admin/aircrafts")
-        |> html_response(200)
+      conn
+      |> get("/admin/aircrafts")
+      |> html_response(200)
 
       assert get_flash(conn, :error) =~ "Inspection not exists or already removed"
     end
