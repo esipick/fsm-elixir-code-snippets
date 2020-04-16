@@ -146,10 +146,6 @@
       <!-- end card -->
     </div>
   </div>
-  <% end %>
-
-</div>
-
 </div> <!-- end content -->
 
 <%= if get_flash(@conn, :success) do %>
