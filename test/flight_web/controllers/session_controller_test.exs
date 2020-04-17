@@ -55,6 +55,19 @@ defmodule FlightWeb.SessionControllerTest do
       assert get_flash(conn, :error) =~ "Invalid"
     end
 
+    test "redirects to login if user archived", %{conn: conn} do
+      user = user_fixture(%{email: "hello@bar.com", password: "hey hey you"})
+
+      Flight.Accounts.archive_user(user)
+
+      conn =
+        conn
+        |> post("/login", %{email: "hello@bar.com", password: "hey hey you"})
+        |> redirected_to_login()
+
+      assert get_flash(conn, :error) =~ "Account is suspended. Please contact your school administrator to reinstate it."
+    end
+
     test "redirects to login if empty fields", %{conn: conn} do
       user_fixture(%{email: "hello@bar.com", password: "hey hey you"})
 

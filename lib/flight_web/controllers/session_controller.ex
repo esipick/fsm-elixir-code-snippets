@@ -25,14 +25,21 @@ defmodule FlightWeb.SessionController do
     if user do
       case Accounts.check_password(user, password) do
         {:ok, user} ->
-          if user_can?(user, [Permission.new(:web_dashboard, :access, :all)]) do
-            conn
-            |> FlightWeb.AuthenticateWebUser.log_in(user.id)
-            |> redirect(to: FlightWeb.RoleUtil.default_redirect_path(user))
-          else
-            conn
-            |> put_flash(:error, "You are not allowed to log in.")
-            |> redirect(to: "/login")
+          cond do
+            user.archived ->
+              conn
+              |> put_flash(:error, "Account is suspended. Please contact your school administrator to reinstate it.")
+              |> redirect(to: "/login")
+
+            user_can?(user, [Permission.new(:web_dashboard, :access, :all)]) ->
+              conn
+              |> FlightWeb.AuthenticateWebUser.log_in(user.id)
+              |> redirect(to: FlightWeb.RoleUtil.default_redirect_path(user))
+
+            true ->
+              conn
+              |> put_flash(:error, "You are not allowed to log in.")
+              |> redirect(to: "/login")
           end
 
         {:error, _} ->
