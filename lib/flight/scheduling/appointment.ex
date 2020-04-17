@@ -20,7 +20,7 @@ defmodule Flight.Scheduling.Appointment do
   end
 
   @doc false
-  def changeset(appointment, attrs) do
+  def changeset(appointment, attrs, timezone) do
     appointment
     |> cast(attrs, [
       :start_at,
@@ -39,6 +39,7 @@ defmodule Flight.Scheduling.Appointment do
       :school_id,
       :type
     ])
+    |> validate_start_at_after_current_time(timezone)
     |> validate_end_at_after_start_at()
     |> validate_user_instructor_different()
     |> validate_either_instructor_or_aircraft_set()
@@ -121,5 +122,20 @@ defmodule Flight.Scheduling.Appointment do
 
     utc_end_at = walltime_to_utc(appointment.end_at, school.timezone)
     Date.compare(Date.utc_today(), utc_end_at) == :gt
+  end
+
+  defp validate_start_at_after_current_time(changeset, timezone) do
+    if changeset.valid? do
+      start_at = get_field(changeset, :start_at)
+      today = Flight.NaiveDateTime.get_school_current_time(timezone)
+
+      if NaiveDateTime.compare(start_at, today) == :gt do
+        changeset
+      else
+        add_error(changeset, :start_at, "should be future date")
+      end
+    else
+      changeset
+    end
   end
 end

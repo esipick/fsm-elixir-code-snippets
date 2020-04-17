@@ -553,19 +553,19 @@ defmodule Flight.SchedulingTest do
 
     test "get_appointments/2 returns appointments within range" do
       appointment1 =
-        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+        appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
 
       _appointment2 =
-        appointment_fixture(%{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]})
+        appointment_fixture(%{start_at: ~N[2038-03-02 22:59:59], end_at: ~N[2038-03-02 23:59:59]})
 
       appointment3 =
-        appointment_fixture(%{start_at: ~N[2018-03-03 22:59:59], end_at: ~N[2018-03-03 23:59:59]})
+        appointment_fixture(%{start_at: ~N[2038-03-03 22:59:59], end_at: ~N[2038-03-03 23:59:59]})
 
       appointments =
         Scheduling.get_appointments(
           %{
-            "from" => "2018-03-03T00:00:00Z",
-            "to" => "2018-03-04T00:00:00Z"
+            "from" => "2038-03-03T00:00:00Z",
+            "to" => "2038-03-04T00:00:00Z"
           },
           default_school_fixture()
         )
@@ -579,15 +579,15 @@ defmodule Flight.SchedulingTest do
 
     test "get_appointments/2 returns appointments starting after `start_at_after` value" do
       appointment1 =
-        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+        appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
 
       _appointment2 =
-        appointment_fixture(%{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]})
+        appointment_fixture(%{start_at: ~N[2038-03-02 22:59:59], end_at: ~N[2038-03-02 23:59:59]})
 
       appointments =
         Scheduling.get_appointments(
           %{
-            "start_at_after" => "2018-03-03T00:00:00Z"
+            "start_at_after" => "2038-03-03T00:00:00Z"
           },
           default_school_fixture()
         )
@@ -599,10 +599,10 @@ defmodule Flight.SchedulingTest do
 
     test "get_appointments/2 returns appointments for user" do
       appointment1 =
-        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+        appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
 
       _appointment2 =
-        appointment_fixture(%{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]})
+        appointment_fixture(%{start_at: ~N[2038-03-02 22:59:59], end_at: ~N[2038-03-02 23:59:59]})
 
       id = appointment1.id
 
@@ -619,14 +619,14 @@ defmodule Flight.SchedulingTest do
       appointment1 =
         appointment_fixture(%{
           status: :pending,
-          start_at: ~N[2018-03-03 10:00:00],
-          end_at: ~N[2018-03-03 11:00:00]
+          start_at: ~N[2038-03-03 10:00:00],
+          end_at: ~N[2038-03-03 11:00:00]
         })
 
       appointment_fixture(%{
         status: :paid,
-        start_at: ~N[2018-03-02 22:59:59],
-        end_at: ~N[2018-03-02 23:59:59]
+        start_at: ~N[2038-03-02 22:59:59],
+        end_at: ~N[2038-03-02 23:59:59]
       })
 
       id = appointment1.id
@@ -640,10 +640,10 @@ defmodule Flight.SchedulingTest do
 
     test "get_appointments/2 returns appointments for instructor" do
       appointment1 =
-        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+        appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
 
       _appointment2 =
-        appointment_fixture(%{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]})
+        appointment_fixture(%{start_at: ~N[2038-03-02 22:59:59], end_at: ~N[2038-03-02 23:59:59]})
 
       id = appointment1.id
 
@@ -658,10 +658,10 @@ defmodule Flight.SchedulingTest do
 
     test "get_appointments/2 returns appointments for aircraft" do
       appointment1 =
-        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+        appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
 
       _appointment2 =
-        appointment_fixture(%{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]})
+        appointment_fixture(%{start_at: ~N[2038-03-02 22:59:59], end_at: ~N[2038-03-02 23:59:59]})
 
       id = appointment1.id
 
@@ -676,11 +676,11 @@ defmodule Flight.SchedulingTest do
 
     test "get_appointments/2 returns appointments for aircraft & student" do
       appointment1 =
-        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+        appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
 
       _appointment2 =
         appointment_fixture(
-          %{start_at: ~N[2018-03-02 22:59:59], end_at: ~N[2018-03-02 23:59:59]},
+          %{start_at: ~N[2038-03-02 22:59:59], end_at: ~N[2038-03-02 23:59:59]},
           appointment1.user
         )
 
@@ -698,10 +698,10 @@ defmodule Flight.SchedulingTest do
 
     test "get_appointment/2 returns correct timezone" do
       appointment =
-        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+        appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
 
       assert Scheduling.get_appointment(appointment.id, appointment).start_at ==
-               ~N[2018-03-03 10:00:00]
+               ~N[2038-03-03 10:00:00]
     end
 
     test "delete_appointment/3 deletes appointment" do
@@ -718,8 +718,8 @@ defmodule Flight.SchedulingTest do
   end
 
   describe "insert_or_update_unavailability/3" do
-    @start_at ~N[2018-03-03 10:00:00]
-    @end_at ~N[2018-03-03 12:00:00]
+    @start_at ~N[2038-03-03 10:00:00]
+    @end_at ~N[2038-03-03 12:00:00]
 
     test "inserts unavailability" do
       instructor = instructor_fixture()

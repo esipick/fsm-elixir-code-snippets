@@ -94,7 +94,7 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
 
       appointment =
         appointment_fixture(
-          %{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]},
+          %{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]},
           student
         )
 
@@ -106,7 +106,7 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
         |> get("/billing/invoices/#{invoice.id}")
         |> html_response(200)
 
-      assert content =~ "Mar 3, 2018"
+      assert content =~ "Mar 3, 2038"
       assert content =~ "10:00AM - 11:00AM"
     end
 

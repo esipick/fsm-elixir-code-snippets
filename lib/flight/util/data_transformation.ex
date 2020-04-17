@@ -28,10 +28,13 @@ defmodule Flight.DataTransformation do
 
         for appointment <- appointments do
           appointment
-          |> Scheduling.Appointment.changeset(%{
-            start_at: Flight.Walltime.utc_to_walltime(appointment.start_at, school.timezone),
-            end_at: Flight.Walltime.utc_to_walltime(appointment.end_at, school.timezone)
-          })
+          |> Scheduling.Appointment.changeset(
+            %{
+              start_at: Flight.Walltime.utc_to_walltime(appointment.start_at, school.timezone),
+              end_at: Flight.Walltime.utc_to_walltime(appointment.end_at, school.timezone)
+            },
+            school.timezone
+          )
           |> Repo.update!()
         end
       end

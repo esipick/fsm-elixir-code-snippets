@@ -50,8 +50,7 @@ defmodule Flight.Scheduling.ExpiredInspection do
       else
         %{school: school} = Flight.Repo.preload(inspection.aircraft, :school)
 
-        NaiveDateTime.utc_now()
-        |> Flight.Walltime.utc_to_walltime(school.timezone)
+        Flight.NaiveDateTime.get_school_current_time(school.timezone)
       end
 
     case Inspection.to_specific(inspection) do

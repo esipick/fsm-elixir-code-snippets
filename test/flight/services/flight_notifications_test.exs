@@ -7,7 +7,7 @@ defmodule Flight.PushNotificationsTest do
     user = user_fixture()
 
     appointment =
-      appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+      appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
 
     notification =
       PushNotifications.appointment_in_1_hour_notification(

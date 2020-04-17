@@ -42,7 +42,7 @@ defmodule Flight.SchedulingFixtures do
         school \\ default_school_fixture(),
         type \\ "lesson"
       ) do
-    date = ~N[2018-03-03 10:00:00]
+    date = ~N[2038-03-03 10:00:00]
 
     appointment =
       %Appointment{
@@ -54,7 +54,7 @@ defmodule Flight.SchedulingFixtures do
         school_id: school.id,
         type: type
       }
-      |> Appointment.changeset(attrs)
+      |> Appointment.changeset(attrs, school.timezone)
       |> Appointment.apply_timezone_changeset(school.timezone)
       |> Repo.insert!()
 
@@ -67,7 +67,7 @@ defmodule Flight.SchedulingFixtures do
         aircraft \\ nil,
         school \\ default_school_fixture()
       ) do
-    date = ~N[2018-03-03 10:00:00]
+    date = ~N[2038-03-03 10:00:00]
 
     unavailability =
       %Unavailability{
@@ -78,7 +78,7 @@ defmodule Flight.SchedulingFixtures do
         belongs: if(instructor, do: "Instructor", else: "Aircraft"),
         school_id: school.id
       }
-      |> Unavailability.changeset(attrs)
+      |> Unavailability.changeset(attrs, school.timezone)
       |> Unavailability.apply_timezone_changeset(school.timezone)
       |> Repo.insert!()
 

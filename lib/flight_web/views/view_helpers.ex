@@ -62,6 +62,7 @@ defmodule FlightWeb.ViewHelpers do
       :contact_email -> :email
       :rate_per_hour -> :RPH
       :block_rate_per_hour -> :BRPH
+      :start_at -> :start_time
       :end_at -> :end_time
       :expiration -> :expiration_date
       other -> other

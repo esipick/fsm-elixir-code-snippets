@@ -8,12 +8,12 @@ defmodule FlightWeb.API.ControllerTest do
     test "returns unavailabilities", %{conn: conn} do
       unavailability1 =
         unavailability_fixture(%{
-          start_at: ~N[2018-03-03 10:00:00],
-          end_at: ~N[2018-03-03 11:00:00]
+          start_at: ~N[2038-03-03 10:00:00],
+          end_at: ~N[2038-03-03 11:00:00]
         })
 
-      from = NaiveDateTime.to_iso8601(~N[2018-03-03 09:00:00])
-      to = NaiveDateTime.to_iso8601(~N[2018-03-03 12:00:00])
+      from = NaiveDateTime.to_iso8601(~N[2038-03-03 09:00:00])
+      to = NaiveDateTime.to_iso8601(~N[2038-03-03 12:00:00])
 
       json =
         conn
@@ -39,8 +39,8 @@ defmodule FlightWeb.API.ControllerTest do
     test "renders unavailability", %{conn: conn} do
       unavailability =
         unavailability_fixture(%{
-          start_at: ~N[2018-03-03 10:00:00],
-          end_at: ~N[2018-03-03 11:00:00]
+          start_at: ~N[2038-03-03 10:00:00],
+          end_at: ~N[2038-03-03 11:00:00]
         })
         |> FlightWeb.API.UnavailabilityView.preload()
         |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
@@ -56,7 +56,7 @@ defmodule FlightWeb.API.ControllerTest do
   end
 
   describe "PUT /api/unavailabilities/:id" do
-    @default_date ~N[2018-03-03 10:00:00]
+    @default_date ~N[2038-03-03 10:00:00]
     @default_attrs %{
       start_at: Timex.shift(@default_date, hours: 2),
       end_at: Timex.shift(@default_date, hours: 4)
@@ -103,7 +103,7 @@ defmodule FlightWeb.API.ControllerTest do
   end
 
   describe "POST /api/unavailabilities" do
-    @default_date ~N[2018-03-03 10:00:00]
+    @default_date ~N[2038-03-03 10:00:00]
     @default_attrs %{
       start_at: Timex.shift(@default_date, hours: 2),
       end_at: Timex.shift(@default_date, hours: 4)

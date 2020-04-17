@@ -299,7 +299,7 @@ defmodule Flight.Scheduling do
     changeset =
       appointment
       |> SchoolScope.school_changeset(school_context)
-      |> Appointment.changeset(attrs)
+      |> Appointment.changeset(attrs, school.timezone)
       |> Appointment.apply_timezone_changeset(school.timezone)
 
     is_create? = is_nil(appointment.id)
@@ -494,7 +494,7 @@ defmodule Flight.Scheduling do
     changeset =
       unavailability
       |> SchoolScope.school_changeset(school)
-      |> Unavailability.changeset(attrs)
+      |> Unavailability.changeset(attrs, school.timezone)
       |> Unavailability.apply_timezone_changeset(school.timezone)
 
     if changeset.valid? do

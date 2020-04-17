@@ -7,8 +7,7 @@ defmodule Flight.BackgroundJob do
     appointments_count =
       Enum.reduce(Flight.Accounts.get_schools(), 0, fn school, acc ->
         appointments =
-          NaiveDateTime.utc_now()
-          |> Flight.Walltime.utc_to_walltime(school.timezone)
+          Flight.NaiveDateTime.get_school_current_time(school.timezone)
           |> Timex.shift(hours: 1)
           |> appointments_around(school)
           |> Repo.preload([:user, :instructor_user])

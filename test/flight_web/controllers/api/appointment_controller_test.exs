@@ -10,7 +10,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       student = user_fixture() |> assign_role("student")
       _aircraft = aircraft_fixture()
 
-      date = ~N[2018-03-03 10:30:00]
+      date = ~N[2038-03-03 10:30:00]
 
       start_at = date
 
@@ -47,7 +47,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       student = user_fixture() |> assign_role("student")
       _aircraft = aircraft_fixture()
 
-      date = ~N[2018-03-03 10:30:00]
+      date = ~N[2038-03-03 10:30:00]
 
       start_at = date
 
@@ -83,10 +83,10 @@ defmodule FlightWeb.API.AppointmentControllerTest do
   describe "GET /api/appointments" do
     test "renders appointments within time range", %{conn: conn} do
       appointment1 =
-        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+        appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
 
-      from = NaiveDateTime.to_iso8601(~N[2018-03-03 09:00:00])
-      to = NaiveDateTime.to_iso8601(~N[2018-03-03 12:00:00])
+      from = NaiveDateTime.to_iso8601(~N[2038-03-03 09:00:00])
+      to = NaiveDateTime.to_iso8601(~N[2038-03-03 12:00:00])
 
       json =
         conn
@@ -110,18 +110,18 @@ defmodule FlightWeb.API.AppointmentControllerTest do
 
       appointment1 =
         appointment_fixture(
-          %{status: :pending, start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]},
+          %{status: :pending, start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]},
           student
         )
 
       _appointment2 =
         appointment_fixture(
-          %{status: :paid, start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]},
+          %{status: :paid, start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]},
           student
         )
 
-      from = NaiveDateTime.to_iso8601(~N[2018-03-03 09:00:00])
-      to = NaiveDateTime.to_iso8601(~N[2018-03-03 12:00:00])
+      from = NaiveDateTime.to_iso8601(~N[2038-03-03 09:00:00])
+      to = NaiveDateTime.to_iso8601(~N[2038-03-03 12:00:00])
 
       json =
         conn
@@ -147,7 +147,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
     @tag :wip
     test "renders appointment", %{conn: conn} do
       appointment =
-        appointment_fixture(%{start_at: ~N[2018-03-03 10:00:00], end_at: ~N[2018-03-03 11:00:00]})
+        appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
         |> FlightWeb.API.AppointmentView.preload()
         |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
@@ -162,7 +162,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
   end
 
   describe "PUT /api/appointments/:id" do
-    @default_date ~N[2018-03-03 10:00:00]
+    @default_date ~N[2038-03-03 10:00:00]
     @default_attrs %{
       start_at: Timex.shift(@default_date, hours: 2),
       end_at: Timex.shift(@default_date, hours: 4)
@@ -219,7 +219,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
   end
 
   describe "POST /api/appointments" do
-    @default_date ~N[2018-03-03 10:00:00]
+    @default_date ~N[2038-03-03 10:00:00]
     @default_attrs %{
       start_at: Timex.shift(@default_date, hours: 2),
       end_at: Timex.shift(@default_date, hours: 4)
@@ -446,16 +446,6 @@ defmodule FlightWeb.API.AppointmentControllerTest do
 
   describe "DELETE /api/appointments/:id" do
     test "student can't delete paid or ended appointment", %{conn: conn} do
-      appointment = appointment_fixture()
-
-      conn
-      |> auth(appointment.user)
-      |> delete("/api/appointments/#{appointment.id}")
-      |> response(401)
-
-      appointment = Flight.Repo.get(Appointment, appointment.id)
-      refute appointment.archived
-
       appointment = appointment_fixture()
       Appointment.paid(appointment)
 

@@ -17,7 +17,7 @@ defmodule Flight.Scheduling.Unavailability do
   end
 
   @doc false
-  def changeset(unavailability, attrs) do
+  def changeset(unavailability, attrs, timezone) do
     unavailability
     |> cast(attrs, [
       :start_at,
@@ -30,6 +30,7 @@ defmodule Flight.Scheduling.Unavailability do
       :belongs
     ])
     |> validate_required([:start_at, :end_at, :available, :type, :school_id])
+    |> validate_start_at_after_current_time(timezone)
     |> validate_end_at_after_start_at()
     |> validate_inclusion(:type, ["time_off"])
     |> validate_resources()
@@ -75,6 +76,21 @@ defmodule Flight.Scheduling.Unavailability do
         changeset
       else
         add_error(changeset, :end_at, "must come after start time.")
+      end
+    else
+      changeset
+    end
+  end
+
+  defp validate_start_at_after_current_time(changeset, timezone) do
+    if changeset.valid? do
+      start_at = get_field(changeset, :start_at)
+      today = Flight.NaiveDateTime.get_school_current_time(timezone)
+
+      if NaiveDateTime.compare(start_at, today) == :gt do
+        changeset
+      else
+        add_error(changeset, :start_at, "should be future date")
       end
     else
       changeset

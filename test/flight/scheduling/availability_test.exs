@@ -17,7 +17,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
 
   describe "instructor_availability" do
     test "returns status of all instructors" do
-      date = ~N[2018-03-03 16:00:00]
+      date = ~N[2038-03-03 16:00:00]
 
       _admin = user_fixture() |> assign_role("admin")
       _student = user_fixture() |> assign_role("student")
@@ -55,7 +55,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
 
   describe "student_availability" do
     test "returns status of all students" do
-      date = ~N[2018-03-03 16:00:00]
+      date = ~N[2038-03-03 16:00:00]
       type = "rental"
 
       _admin = user_fixture() |> assign_role("admin")
@@ -91,7 +91,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
     end
 
     test "returns status of single student" do
-      date = ~N[2018-03-03 16:00:00]
+      date = ~N[2038-03-03 16:00:00]
       type = "rental"
 
       _admin = user_fixture() |> assign_role("admin")
@@ -136,7 +136,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
 
   describe "aircraft_availability" do
     test "returns status of all aircraft" do
-      date = ~N[2018-03-03 16:00:00]
+      date = ~N[2038-03-03 16:00:00]
 
       available_aircraft = aircraft_fixture()
       available_aircraft2 = aircraft_fixture()
@@ -267,7 +267,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
 
   describe "user_with_permission_status" do
     test "returns available" do
-      date = ~N[2018-03-03 16:00:00]
+      date = ~N[2038-03-03 16:00:00]
       user = user_fixture() |> assign_role("instructor")
       type = "lesson"
 
@@ -294,7 +294,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
 
     @tag :wip
     test "returns unavailable" do
-      date = ~N[2018-03-03 16:00:00]
+      date = ~N[2038-03-03 16:00:00]
       type = "lesson"
 
       user = user_fixture() |> assign_role("instructor")
@@ -321,7 +321,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
     end
 
     test "returns invalid" do
-      date = ~N[2018-03-03 16:00:00]
+      date = ~N[2038-03-03 16:00:00]
 
       user = user_fixture() |> assign_role("student")
 
@@ -341,7 +341,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
 
   describe "aircraft_status" do
     test "returns available" do
-      date = ~N[2018-03-03 16:00:00]
+      date = ~N[2038-03-03 16:00:00]
       type = "rental"
 
       aircraft = aircraft_fixture()
@@ -367,7 +367,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
     end
 
     test "returns unavailable" do
-      date = ~N[2018-03-03 16:00:00]
+      date = ~N[2038-03-03 16:00:00]
       aircraft = aircraft_fixture()
       type = "rental"
 
@@ -392,7 +392,7 @@ defmodule Flight.Scheduling.AvailabilityTest do
     end
 
     test "returns invalid" do
-      date = ~N[2018-03-03 16:00:00]
+      date = ~N[2038-03-03 16:00:00]
 
       aircraft = aircraft_fixture()
 
