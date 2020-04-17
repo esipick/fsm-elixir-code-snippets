@@ -109,7 +109,7 @@ class HobbsTachModal extends Component {
         tach_end
       },
       creator_user_id: creator.id,
-      user_id: student ? student.id : creator.id
+      user_id: student && student.id || creator.id
     };
 
     http.post({
