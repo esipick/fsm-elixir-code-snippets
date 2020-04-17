@@ -59,16 +59,22 @@ defmodule FlightWeb.Admin.InvitationController do
   end
 
   def resend(conn, _params) do
-    Accounts.send_invitation_email(conn.assigns.invitation)
-
     role = Accounts.get_role(conn.assigns.invitation.role_id)
 
-    conn
-    |> put_flash(
-      :success,
-      "Successfully sent invitation email to #{conn.assigns.invitation.email}"
-    )
-    |> redirect(to: "/admin/invitations?role=#{role.slug}")
+    if conn.assigns.invitation.accepted_at do
+      conn
+      |> put_flash(:error, "User already registered.")
+      |> redirect(to: "/admin/invitations?role=#{role.slug}")
+    else
+      Accounts.send_invitation_email(conn.assigns.invitation)
+
+      conn
+      |> put_flash(
+        :success,
+        "Successfully sent invitation email to #{conn.assigns.invitation.email}"
+      )
+      |> redirect(to: "/admin/invitations?role=#{role.slug}")
+    end
   end
 
   defp get_invitation(conn, _) do

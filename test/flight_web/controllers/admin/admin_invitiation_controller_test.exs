@@ -102,6 +102,19 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
 
       assert_delivered_email(Flight.Email.invitation_email(invitation))
     end
+
+    test "show error if user already registered", %{conn: conn} do
+      invitation = invitation_fixture(%{}, Accounts.Role.admin())
+
+      Accounts.accept_invitation(invitation)
+
+      conn =
+        conn
+        |> web_auth_admin()
+        |> post("/admin/invitations/#{invitation.id}/resend")
+
+      assert get_flash(conn, :error) =~ "User already registered."
+    end
   end
 
   describe "DELETE /admin/invitations/:id" do
