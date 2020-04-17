@@ -43,13 +43,19 @@ defmodule FlightWeb.Admin.InvitationController do
   end
 
   def delete(conn, _params) do
-    Accounts.delete_invitation!(conn.assigns.invitation)
-
     role = Accounts.get_role(conn.assigns.invitation.role_id)
 
-    conn
-    |> put_flash(:success, "Invitation deleted")
-    |> redirect(to: "/admin/invitations?role=#{role.slug}")
+    if conn.assigns.invitation.accepted_at do
+      conn
+      |> put_flash(:error, "User already registered.")
+      |> redirect(to: "/admin/invitations?role=#{role.slug}")
+    else
+      Accounts.delete_invitation!(conn.assigns.invitation)
+
+      conn
+      |> put_flash(:success, "Invitation deleted")
+      |> redirect(to: "/admin/invitations?role=#{role.slug}")
+    end
   end
 
   def resend(conn, _params) do

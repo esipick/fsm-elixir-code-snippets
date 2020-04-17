@@ -117,5 +117,18 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
 
       assert redirected_to(conn) == "/admin/invitations?role=admin"
     end
+
+    test "show error if user already registered", %{conn: conn} do
+      invitation = invitation_fixture(%{}, Accounts.Role.admin())
+
+      Accounts.accept_invitation(invitation)
+
+      conn =
+        conn
+        |> web_auth_admin()
+        |> delete("/admin/invitations/#{invitation.id}")
+
+      assert get_flash(conn, :error) =~ "User already registered."
+    end
   end
 end

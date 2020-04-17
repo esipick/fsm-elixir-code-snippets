@@ -18,11 +18,6 @@
             </ul>
             <!-- <a href="new-student.php" class="btn btn-primary">Add Student</a> -->
           </div>
-          <%= if get_flash(@conn, :success) do %>
-            <div class="alert alert-success">
-              <span><%= get_flash(@conn, :success) %></span></br>
-            </div>
-          <% end %>
           <h6><%= add_user_label_for_role(@role) %></h6>
           <%= form_for @changeset, @request_path, [as: :data, method: "post"], fn f -> %>
             <%= if Keyword.has_key?(f.errors, :user) do %>
@@ -110,3 +105,4 @@
           %{message: "This invitation will be removed from the system.",
             path: "/admin/invitations/",
             attribute: "invitation"} %>
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
