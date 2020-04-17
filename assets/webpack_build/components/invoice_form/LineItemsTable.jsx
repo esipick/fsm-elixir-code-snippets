@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import http from 'j-fetch';
+import debounce from 'lodash.debounce';
+
 import LineItem from './LineItem';
 
 import { itemsFromAppointment, LineItemRecord } from './line_item_utils';
@@ -7,6 +9,8 @@ import { itemsFromAppointment, LineItemRecord } from './line_item_utils';
 import { authHeaders, addSchoolIdParam } from '../utils';
 
 const lineItemsKey = (appointment) => appointment && appointment.id || 'none';
+
+let calculateRequest = () => {};
 
 class LineItemsTable extends Component {
   constructor(props) {
@@ -74,6 +78,10 @@ class LineItemsTable extends Component {
   };
 
   calculateTotal = (line_items, callback) => {
+    if (calculateRequest.hasOwnProperty('cancel')) {
+      calculateRequest.cancel();
+    }
+
     const { student, appointment } = this.props;
 
     const payload = {
@@ -82,17 +90,21 @@ class LineItemsTable extends Component {
       appointment_id: appointment && appointment.id
     }
 
-    http.post({
-      url: '/api/invoices/calculate?' + addSchoolIdParam(),
-      body: { invoice: payload },
-      headers: authHeaders()
-    }).then(response => {
-      response.json().then(callback);
-    }).catch(response => {
-      response.json().then((err) => {
-        console.warn(err);
+    calculateRequest = debounce(payloadParams => {
+      http.post({
+        url: '/api/invoices/calculate?' + addSchoolIdParam(),
+        body: { invoice: payloadParams },
+        headers: authHeaders()
+      }).then(response => {
+        response.json().then(callback);
+      }).catch(response => {
+        response.json().then((err) => {
+          console.warn(err);
+        });
       });
-    });
+    }, 500);
+
+    calculateRequest(payload);
   }
 
   updateTotal = (line_items) => {
