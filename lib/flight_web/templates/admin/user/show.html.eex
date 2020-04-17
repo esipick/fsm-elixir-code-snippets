@@ -12,7 +12,7 @@
               <h2><%= @user.first_name %> <%= @user.last_name %></h2>
               <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
               <p class="enrolled"><small>Enrolled <%= display_date(@user.inserted_at, :student) %></small></p>
-              <a class="btn  btn-primary" href=""/student/profile">View Profile</a>
+              <a class="btn  btn-primary" href="/admin/users/<%= @user.id %>/edit">Edit Profile</a>
               <div class="contacts">
                 <div class="contact">
                   <img src="<%= static_path(@conn, "/images/phone.svg") %>"/>
@@ -42,7 +42,10 @@
                 <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
               </div>
               <div class="details">
-                <h2><%= @user.first_name %> <%= @user.last_name %></h2>
+                <h2>
+                  <%= @user.first_name %> <%= @user.last_name %>
+                   <a href="/admin/users/<%= @user.id %>/edit" class="edit">Edit Profile</a>
+                </h2>
                 <div class="contacts">
                   <a class="contact" href="tel:<%= @user.phone_number %>" title="<%= @user.phone_number %>">
                     <img src="<%= static_path(@conn, "/images/phone-blue.svg") %>"/>
