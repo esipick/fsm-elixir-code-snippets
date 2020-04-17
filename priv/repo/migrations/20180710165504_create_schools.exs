@@ -3,10 +3,9 @@ defmodule Flight.Repo.Migrations.CreateSchools do
 
   def change do
     create table(:schools) do
-      add :name, :string
+      add(:name, :string)
 
       timestamps()
     end
-
   end
 end

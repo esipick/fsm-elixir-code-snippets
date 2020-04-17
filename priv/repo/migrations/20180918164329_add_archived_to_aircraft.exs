@@ -3,7 +3,7 @@ defmodule Flight.Repo.Migrations.AddArchivedToAircraft do
 
   def change do
     alter table(:aircrafts) do
-      add :archived, :boolean, default: false, null: false
+      add(:archived, :boolean, default: false, null: false)
     end
   end
 end

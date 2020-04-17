@@ -142,10 +142,7 @@ defmodule FlightWeb.API.AppointmentController do
         conn
 
       true ->
-        render_bad_request(
-          conn,
-          "You must be either the renter or the instructor of the appointment you're trying to create or modify."
-        )
+        render_bad_request(conn)
     end
   end
 

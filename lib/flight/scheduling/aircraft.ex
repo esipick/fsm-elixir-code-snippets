@@ -18,6 +18,8 @@ defmodule Flight.Scheduling.Aircraft do
     belongs_to(:school, Flight.Accounts.School)
     has_many(:inspections, Flight.Scheduling.Inspection)
 
+    many_to_many(:users, Flight.Accounts.User, join_through: "user_aircrafts", on_replace: :delete)
+
     timestamps()
   end
 

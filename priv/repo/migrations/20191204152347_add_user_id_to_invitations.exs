@@ -3,7 +3,7 @@ defmodule Flight.Repo.Migrations.AddUserIdToInvitations do
 
   def change do
     alter table(:invitations) do
-      add :user_id, references(:users, on_delete: :nothing), null: true
+      add(:user_id, references(:users, on_delete: :nothing), null: true)
     end
   end
 end

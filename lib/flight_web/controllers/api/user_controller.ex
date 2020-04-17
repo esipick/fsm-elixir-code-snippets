@@ -57,6 +57,7 @@ defmodule FlightWeb.API.UserController do
            data_params,
            conn,
            role,
+           params["aircrafts"],
            !!params["stripe_token"],
            params["stripe_token"]
          ) do
@@ -97,6 +98,7 @@ defmodule FlightWeb.API.UserController do
            Accounts.api_update_user_profile(
              conn.assigns.user,
              data_params,
+             data_params["aircrafts"],
              data_params["flyer_certificates"]
            ) do
       user =

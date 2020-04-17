@@ -30,8 +30,14 @@ defmodule Flight.Accounts.User do
     field(:stripe_customer_id, :string)
     field(:avatar, AvatarUploader.Type)
     belongs_to(:school, Flight.Accounts.School)
-    many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
     has_many(:documents, Flight.Accounts.Document, on_replace: :delete, on_delete: :delete_all)
+
+    many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
+
+    many_to_many(:aircrafts, Flight.Scheduling.Aircraft,
+      join_through: "user_aircrafts",
+      on_replace: :delete
+    )
 
     many_to_many(
       :flyer_certificates,
@@ -173,7 +179,7 @@ defmodule Flight.Accounts.User do
     |> cast(attrs, [:archived, :password_token])
   end
 
-  def api_update_changeset(user, attrs, _roles, flyer_certificates) do
+  def api_update_changeset(user, attrs, _roles, aircrafts, flyer_certificates) do
     user
     |> cast(attrs, [
       :email,
@@ -192,10 +198,10 @@ defmodule Flight.Accounts.User do
       :awards
     ])
     |> cast_avatar(attrs)
-    |> base_validations(nil, flyer_certificates)
+    |> base_validations(nil, aircrafts, flyer_certificates)
   end
 
-  def admin_update_changeset(user, attrs, roles, flyer_certificates) do
+  def admin_update_changeset(user, attrs, roles, aircrafts, flyer_certificates) do
     user
     |> cast(attrs, [
       :email,
@@ -216,7 +222,7 @@ defmodule Flight.Accounts.User do
       :awards
     ])
     |> cast_avatar(attrs)
-    |> base_validations(roles, flyer_certificates)
+    |> base_validations(roles, aircrafts, flyer_certificates)
   end
 
   def regular_user_accessible_fields() do
@@ -249,7 +255,7 @@ defmodule Flight.Accounts.User do
     |> put_pass_hash()
   end
 
-  def base_validations(changeset, roles \\ nil, flyer_certificates \\ nil) do
+  def base_validations(changeset, roles \\ nil, aircrafts \\ nil, flyer_certificates \\ nil) do
     changeset
     |> validate_required([:email, :first_name, :last_name])
     |> update_change(:first_name, &String.trim/1)
@@ -282,6 +288,7 @@ defmodule Flight.Accounts.User do
     |> validate_number(:pay_rate, greater_than_or_equal_to: 0)
     |> normalize_phone_number()
     |> Pipe.pass_unless(roles, &put_assoc(&1, :roles, roles))
+    |> Pipe.pass_unless(aircrafts, &put_assoc(&1, :aircrafts, aircrafts))
     |> Pipe.pass_unless(
       flyer_certificates,
       &put_assoc(&1, :flyer_certificates, flyer_certificates)

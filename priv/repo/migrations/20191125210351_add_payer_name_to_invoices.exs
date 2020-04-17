@@ -3,7 +3,7 @@ defmodule Flight.Repo.Migrations.AddPayerNameToInvoices do
 
   def change do
     alter table(:invoices) do
-      add :payer_name, :string
+      add(:payer_name, :string)
     end
   end
 end

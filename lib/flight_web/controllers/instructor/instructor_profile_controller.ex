@@ -4,12 +4,15 @@ defmodule FlightWeb.Instructor.ProfileController do
   alias Flight.Accounts
 
   def show(conn, _) do
-    user = Flight.Repo.preload(conn.assigns.current_user, [:roles, :flyer_certificates])
+    user =
+      Flight.Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :flyer_certificates])
+
     render(conn, "show.html", user: user)
   end
 
   def edit(conn, _) do
-    user = Flight.Repo.preload(conn.assigns.current_user, [:roles, :flyer_certificates])
+    user =
+      Flight.Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :flyer_certificates])
 
     render(
       conn,
@@ -27,7 +30,8 @@ defmodule FlightWeb.Instructor.ProfileController do
         params["user"]
       end
 
-    user = Flight.Repo.preload(conn.assigns.current_user, [:roles, :flyer_certificates])
+    user =
+      Flight.Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :flyer_certificates])
 
     case Accounts.regular_user_update_profile(user, user_form) do
       {:ok, _} ->

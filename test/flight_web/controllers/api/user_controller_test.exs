@@ -2,7 +2,7 @@ defmodule FlightWeb.API.UserControllerTest do
   use FlightWeb.ConnCase
 
   alias FlightWeb.API.UserView
-  alias Flight.{Accounts, AvatarUploader}
+  alias Flight.{Accounts, AvatarUploader, Repo}
   alias Accounts.User
 
   @tag :integration
@@ -69,7 +69,7 @@ defmodule FlightWeb.API.UserControllerTest do
         |> json_response(200)
 
       users =
-        Flight.Repo.preload(
+        Repo.preload(
           Flight.Accounts.get_directory_users_visible_to_user(conn),
           :roles
         )
@@ -126,6 +126,9 @@ defmodule FlightWeb.API.UserControllerTest do
     @tag :integration
     test "creates user", %{conn: conn} do
       student_role = role_fixture(%{slug: "student"})
+      school = school_fixture() |> real_stripe_account()
+      aircraft = aircraft_fixture(%{}, school)
+      instructor = instructor_fixture(%{}, school)
 
       user_attrs = %{
         avatar: avatar_base64_fixture(),
@@ -135,17 +138,18 @@ defmodule FlightWeb.API.UserControllerTest do
         phone_number: "801-555-5555"
       }
 
-      school = school_fixture() |> real_stripe_account()
-      instructor = instructor_fixture(%{}, school)
-
       json =
         conn
         |> auth(instructor)
-        |> post("/api/users/", %{data: user_attrs, role_id: student_role.id})
+        |> post("/api/users/", %{
+          data: user_attrs,
+          role_id: student_role.id,
+          aircrafts: [aircraft.id]
+        })
         |> json_response(200)
 
       user =
-        Flight.Repo.get!(User, json["data"]["id"])
+        Repo.get!(User, json["data"]["id"])
         |> FlightWeb.API.UserView.show_preload()
 
       urls = AvatarUploader.urls({user.avatar, user})
@@ -258,7 +262,7 @@ defmodule FlightWeb.API.UserControllerTest do
         |> json_response(200)
 
       user =
-        Flight.Repo.get!(User, json["data"]["id"])
+        Repo.get!(User, json["data"]["id"])
         |> FlightWeb.API.UserView.show_preload()
 
       assert user.first_name == "Alexxx"
@@ -295,7 +299,7 @@ defmodule FlightWeb.API.UserControllerTest do
       {:ok, user} =
         student_fixture()
         |> User.__test_password_token_changeset(%{password_token: nil})
-        |> Flight.Repo.update()
+        |> Repo.update()
 
       assert is_nil(user.password_token)
 
@@ -316,7 +320,7 @@ defmodule FlightWeb.API.UserControllerTest do
       |> put("/api/users/#{user.id}/change_password", %{data: updates})
       |> json_response(200)
 
-      user = Flight.Repo.get!(User, user.id)
+      user = Repo.get!(User, user.id)
 
       refute is_nil(user.password_token)
 
@@ -382,7 +386,7 @@ defmodule FlightWeb.API.UserControllerTest do
         |> json_response(200)
 
       user =
-        Flight.Repo.get!(User, json["data"]["id"])
+        Repo.get!(User, json["data"]["id"])
         |> FlightWeb.API.UserView.show_preload()
 
       assert {:ok, _user} = Flight.Accounts.check_password(user, new_password)
@@ -399,16 +403,21 @@ defmodule FlightWeb.API.UserControllerTest do
   @tag :integration
   describe "PUT /api/users/:id" do
     test "renders json", %{conn: conn} do
-      user =
-        student_fixture(%{first_name: "Justin"})
-        |> Flight.Repo.preload(:flyer_certificates)
+      school = school_fixture()
 
+      user =
+        student_fixture(%{first_name: "Justin"}, school)
+        |> Repo.preload([:aircrafts, :flyer_certificates])
+
+      assert user.aircrafts == []
       assert user.flyer_certificates == []
 
+      aircraft = aircraft_fixture(%{}, school)
       cert = flyer_certificate_fixture()
 
       updates = %{
         first_name: "Alex",
+        aircrafts: [aircraft.id],
         flyer_certificates: [cert.slug]
       }
 
@@ -419,10 +428,11 @@ defmodule FlightWeb.API.UserControllerTest do
         |> json_response(200)
 
       user =
-        Flight.Repo.get!(User, user.id)
+        Repo.get!(User, user.id)
         |> FlightWeb.API.UserView.show_preload()
 
       assert user.first_name == "Alex"
+      assert user.aircrafts == [aircraft]
       assert user.flyer_certificates == [cert]
 
       assert json ==

@@ -157,6 +157,7 @@ defmodule FlightWeb.Admin.UserController do
            conn.assigns.requested_user,
            user_form,
            role_slugs,
+           Map.keys(params["aircrafts"] || %{}),
            Map.keys(params["flyer_certificate_slugs"] || %{})
          ) do
       {:ok, user} ->
@@ -191,7 +192,7 @@ defmodule FlightWeb.Admin.UserController do
     user =
       (conn.params["id"] || conn.params["user_id"])
       |> Accounts.get_school_user_by_id(conn)
-      |> Repo.preload([:roles, :flyer_certificates])
+      |> Repo.preload([:roles, :aircrafts, :flyer_certificates])
 
     cond do
       user && !user.archived ->

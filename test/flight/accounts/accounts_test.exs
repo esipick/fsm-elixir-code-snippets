@@ -104,7 +104,7 @@ defmodule Flight.Accounts.AccountsTest do
     test "admin_update_user_profile/2 update roles" do
       user = user_fixture() |> assign_role("admin")
       role_fixture(%{slug: "student"})
-      assert {:ok, user} = Accounts.admin_update_user_profile(user, %{}, ["student"], [])
+      assert {:ok, user} = Accounts.admin_update_user_profile(user, %{}, ["student"], [], [])
 
       role =
         assoc(user, :roles)
@@ -117,7 +117,7 @@ defmodule Flight.Accounts.AccountsTest do
     test "admin_update_user_profile/2 update flyer certificates" do
       user = user_fixture() |> assign_role("admin")
       flyer_certificate_fixture(%{slug: "cfi"})
-      assert {:ok, user} = Accounts.admin_update_user_profile(user, %{}, ["admin"], ["cfi"])
+      assert {:ok, user} = Accounts.admin_update_user_profile(user, %{}, ["admin"], [], ["cfi"])
 
       cert =
         assoc(user, :flyer_certificates)
@@ -138,6 +138,7 @@ defmodule Flight.Accounts.AccountsTest do
                  [
                    "student"
                  ],
+                 [],
                  []
                )
 
@@ -155,6 +156,7 @@ defmodule Flight.Accounts.AccountsTest do
                  [
                    "student"
                  ],
+                 [],
                  []
                )
 

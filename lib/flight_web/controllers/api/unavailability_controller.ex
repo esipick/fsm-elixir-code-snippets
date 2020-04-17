@@ -97,10 +97,7 @@ defmodule FlightWeb.API.UnavailabilityController do
         conn
 
       true ->
-        render_bad_request(
-          conn,
-          "You don't have permissions for this action."
-        )
+        render_bad_request(conn)
     end
   end
 
