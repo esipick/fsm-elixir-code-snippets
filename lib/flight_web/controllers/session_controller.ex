@@ -28,7 +28,10 @@ defmodule FlightWeb.SessionController do
           cond do
             user.archived ->
               conn
-              |> put_flash(:error, "Account is suspended. Please contact your school administrator to reinstate it.")
+              |> put_flash(
+                :error,
+                "Account is suspended. Please contact your school administrator to reinstate it."
+              )
               |> redirect(to: "/login")
 
             user_can?(user, [Permission.new(:web_dashboard, :access, :all)]) ->

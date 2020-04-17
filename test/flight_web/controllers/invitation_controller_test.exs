@@ -55,7 +55,8 @@ defmodule FlightWeb.InvitationControllerTest do
       |> get("/login")
       |> html_response(200)
 
-      assert get_flash(conn, :error) =~ "Invitation has been canceled, contact your school administrator."
+      assert get_flash(conn, :error) =~
+               "Invitation has been canceled, contact your school administrator."
     end
   end
 

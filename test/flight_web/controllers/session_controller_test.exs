@@ -65,7 +65,8 @@ defmodule FlightWeb.SessionControllerTest do
         |> post("/login", %{email: "hello@bar.com", password: "hey hey you"})
         |> redirected_to_login()
 
-      assert get_flash(conn, :error) =~ "Account is suspended. Please contact your school administrator to reinstate it."
+      assert get_flash(conn, :error) =~
+               "Account is suspended. Please contact your school administrator to reinstate it."
     end
 
     test "redirects to login if empty fields", %{conn: conn} do
