@@ -441,6 +441,14 @@ defmodule FlightWeb.API.UserControllerTest do
                  "show.json",
                  user: user
                )
+
+      content =
+        conn
+        |> web_auth(user)
+        |> get("/student/profile")
+        |> html_response(200)
+
+      assert content =~ "<p>#{aircraft.make} #{aircraft.model} (#{aircraft.tail_number})</p>"
     end
 
     test "401 if no auth", %{conn: conn} do

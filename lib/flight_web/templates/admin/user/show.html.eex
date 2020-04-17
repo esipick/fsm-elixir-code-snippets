@@ -119,8 +119,9 @@
                 </div>
                 <div class="field">
                   <h3>Aircraft Name</h3>
-                  <p>Chief instructor name</p>
-                  <p>Instructor name</p>
+                  <%= for aircraft <- @user.aircrafts do %>
+                    <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
+                  <% end %>
                 </div>
               </div>
             </div>
