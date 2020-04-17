@@ -40,6 +40,23 @@ defmodule FlightWeb.InvitationControllerTest do
       |> get("/invitations/#{invitation.token}")
       |> response_redirected_to("/invitations/#{invitation.token}/success")
     end
+
+    test "render error if invitation removed", %{conn: conn} do
+      invitation = invitation_fixture(%{}, Accounts.Role.student())
+
+      Flight.Repo.delete(invitation)
+
+      conn =
+        conn
+        |> get("/invitations/#{invitation.token}")
+        |> response_redirected_to("/login")
+
+      conn
+      |> get("/login")
+      |> html_response(200)
+
+      assert get_flash(conn, :error) =~ "Invitation has been canceled, contact your school administrator."
+    end
   end
 
   describe "POST /invitations/:token" do

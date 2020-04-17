@@ -65,6 +65,7 @@ defmodule FlightWeb.InvitationController do
     else
       # TODO: Not the right place...where to though?
       conn
+      |> put_flash(:error, "Invitation has been canceled, contact your school administrator.")
       |> redirect(to: "/login")
       |> halt()
     end
