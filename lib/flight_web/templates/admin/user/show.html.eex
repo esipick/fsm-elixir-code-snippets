@@ -86,7 +86,17 @@
                   </div>
                   <div class="field">
                     <h3>Aircraft Name</h3>
-                    <p>-</p>
+                    <%= if Enum.any?(@user.aircrafts) do %>
+                      <%= for aircraft <- @user.aircrafts do %>
+                        <%= if aircraft.archived do %>
+                          <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
+                        <% else %>
+                          <a href="/admin/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a>
+                        <% end %>
+                      <% end %>
+                    <% else %>
+                      <p>-</p>
+                    <% end %>
                   </div>
                 </div>
               </div>
@@ -122,8 +132,16 @@
                 </div>
                 <div class="field">
                   <h3>Aircraft Name</h3>
-                  <%= for aircraft <- @user.aircrafts do %>
-                    <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
+                  <%= if Enum.any?(@user.aircrafts) do %>
+                    <%= for aircraft <- @user.aircrafts do %>
+                      <%= if aircraft.archived do %>
+                        <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
+                      <% else %>
+                        <a href="/admin/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a>
+                      <% end %>
+                    <% end %>
+                  <% else %>
+                    <p>-</p>
                   <% end %>
                 </div>
               </div>
