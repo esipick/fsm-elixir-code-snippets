@@ -119,9 +119,9 @@ defmodule Flight.Scheduling.Appointment do
 
   defp is_ended?(appointment) do
     %{school: school} = Flight.Repo.preload(appointment, :school)
+    today = Flight.NaiveDateTime.get_school_current_time(school.timezone)
 
-    utc_end_at = walltime_to_utc(appointment.end_at, school.timezone)
-    Date.compare(Date.utc_today(), utc_end_at) == :gt
+    NaiveDateTime.compare(today, appointment.end_at) == :gt
   end
 
   defp validate_start_at_after_current_time(changeset, timezone) do
