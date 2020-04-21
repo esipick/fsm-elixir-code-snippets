@@ -58,6 +58,7 @@ defmodule FlightWeb.API.UserController do
            conn,
            role,
            params["aircrafts"],
+           params["instructors"],
            !!params["stripe_token"],
            params["stripe_token"]
          ) do
@@ -99,11 +100,12 @@ defmodule FlightWeb.API.UserController do
              conn.assigns.user,
              data_params,
              data_params["aircrafts"],
-             data_params["flyer_certificates"]
+             data_params["flyer_certificates"],
+             data_params["instructors"]
            ) do
       user =
         user
-        |> FlightWeb.API.UserView.show_preload()
+        |> FlightWeb.API.UserView.show_preload(force: true)
 
       render(conn, "show.json", user: user)
     else

@@ -8,7 +8,14 @@ defmodule Flight.Accounts.AcceptInvitation do
 
     user =
       if invitation.user do
-        Repo.preload(invitation.user, [:roles, :school, :aircrafts, :flyer_certificates])
+        Repo.preload(invitation.user, [
+          :roles,
+          :school,
+          :aircrafts,
+          :flyer_certificates,
+          :instructors,
+          :main_instructor
+        ])
       else
         %User{}
       end

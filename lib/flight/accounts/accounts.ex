@@ -150,14 +150,21 @@ defmodule Flight.Accounts do
     |> User.create_changeset(attrs)
   end
 
-  def api_update_user_profile(%User{} = user, attrs, aircrafts, flyer_certificates) do
+  def api_update_user_profile(
+        %User{} = user,
+        attrs,
+        aircrafts,
+        flyer_certificates,
+        instructors
+      ) do
     update_user_profile(
       user,
       attrs,
       nil,
       aircrafts,
       flyer_certificates,
-      &User.api_update_changeset/5
+      instructors,
+      &User.api_update_changeset/6
     )
   end
 
@@ -167,9 +174,11 @@ defmodule Flight.Accounts do
          role_slugs,
          aircraft_ids,
          flyer_certificate_slugs,
+         instructor_ids,
          changeset_func
        ) do
-    user = Repo.preload(user, [:roles, :aircrafts, :flyer_certificates])
+    user =
+      Repo.preload(user, [:roles, :aircrafts, :flyer_certificates, :instructors, :main_instructor])
 
     {valid_roles?, roles} =
       if role_slugs do
@@ -198,11 +207,28 @@ defmodule Flight.Accounts do
         {true, nil}
       end
 
+    {valid_instructors?, instructors} =
+      if instructor_ids do
+        instructors = Repo.all(from(r in User, where: r.id in ^instructor_ids))
+        valid_instructors? = Enum.count(instructor_ids) == Enum.count(instructors)
+        {valid_instructors?, instructors}
+      else
+        {true, nil}
+      end
+
+    valid_main_instructor? =
+      if main_instructor_id = attrs["main_instructor_id"] do
+        main_instructor = Repo.one(from(r in User, where: r.id == ^main_instructor_id))
+        !main_instructor.archived and main_instructor_id != "#{user.id}"
+      else
+        true
+      end
+
     cond do
       !valid_roles? ->
         {:error,
          Ecto.Changeset.add_error(
-           changeset_func.(user, attrs, [], [], []),
+           changeset_func.(user, attrs, [], [], [], []),
            :roles,
            "are not all known: #{Enum.join(role_slugs, ", ")}"
          )}
@@ -210,7 +236,7 @@ defmodule Flight.Accounts do
       !valid_aircrafts? ->
         {:error,
          Ecto.Changeset.add_error(
-           changeset_func.(user, attrs, [], [], []),
+           changeset_func.(user, attrs, [], [], [], []),
            :aircrafts,
            "are not all known: #{Enum.join(aircraft_ids, ", ")}"
          )}
@@ -218,25 +244,41 @@ defmodule Flight.Accounts do
       !valid_certs? ->
         {:error,
          Ecto.Changeset.add_error(
-           changeset_func.(user, attrs, [], [], []),
+           changeset_func.(user, attrs, [], [], [], []),
            :flyer_certificates,
            "are not all known: #{Enum.join(flyer_certificate_slugs, ", ")}"
          )}
 
+      !valid_instructors? ->
+        {:error,
+         Ecto.Changeset.add_error(
+           changeset_func.(user, attrs, [], [], [], []),
+           :instructors,
+           "are not all known: #{Enum.join(instructor_ids, ", ")}"
+         )}
+
+      !valid_main_instructor? ->
+        {:error,
+         Ecto.Changeset.add_error(
+           changeset_func.(user, attrs, [], [], [], []),
+           :main_instructor_id,
+           "is invalid"
+         )}
+
       true ->
         user
-        |> changeset_func.(attrs, roles, aircrafts, certs)
+        |> changeset_func.(attrs, roles, aircrafts, certs, instructors)
         |> Repo.update()
     end
   end
 
-  @spec admin_update_user_profile(Flight.Accounts.User.t(), any, any, any, any) :: any
   def admin_update_user_profile(
         %User{} = user,
         attrs,
         role_slugs,
         aircrafts,
-        flyer_certificate_slugs
+        flyer_certificate_slugs,
+        instructors
       ) do
     update_user_profile(
       user,
@@ -244,7 +286,8 @@ defmodule Flight.Accounts do
       role_slugs,
       aircrafts,
       flyer_certificate_slugs,
-      &User.admin_update_changeset/5
+      instructors,
+      &User.admin_update_changeset/6
     )
   end
 

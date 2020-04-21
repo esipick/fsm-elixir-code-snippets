@@ -129,22 +129,26 @@ defmodule FlightWeb.API.UserControllerTest do
       school = school_fixture() |> real_stripe_account()
       aircraft = aircraft_fixture(%{}, school)
       instructor = instructor_fixture(%{}, school)
+      another_instructor = instructor_fixture(%{}, school)
 
       user_attrs = %{
         avatar: avatar_base64_fixture(),
         email: "user-#{Flight.Random.string(20)}@email.com",
         first_name: "Alexxx",
         last_name: "Doe",
-        phone_number: "801-555-5555"
+        phone_number: "801-555-5555",
+        main_instructor_id: instructor.id
       }
 
       json =
         conn
         |> auth(instructor)
-        |> post("/api/users/", %{
+        |> post("/api/users", %{
           data: user_attrs,
           role_id: student_role.id,
-          aircrafts: [aircraft.id]
+          aircrafts: [aircraft.id],
+          instructors: [instructor.id, another_instructor.id],
+          main_instructor_id: instructor.id
         })
         |> json_response(200)
 
@@ -163,6 +167,8 @@ defmodule FlightWeb.API.UserControllerTest do
       AvatarUploader.delete({user.avatar, user})
 
       assert user.first_name == "Alexxx"
+      assert user.main_instructor_id == instructor.id
+      assert user.main_instructor_id == user.main_instructor.id
 
       assert json ==
                render_json(
@@ -190,7 +196,7 @@ defmodule FlightWeb.API.UserControllerTest do
       json =
         conn
         |> auth(instructor)
-        |> post("/api/users/", %{data: user_attrs, role_id: student_role.id})
+        |> post("/api/users", %{data: user_attrs, role_id: student_role.id})
         |> json_response(400)
 
       assert json == %{"human_errors" => ["Avatar must be valid base64 encoded binary image"]}
@@ -202,7 +208,7 @@ defmodule FlightWeb.API.UserControllerTest do
       json =
         conn
         |> auth(instructor)
-        |> post("/api/users/", %{data: user_attrs, role_id: student_role.id})
+        |> post("/api/users", %{data: user_attrs, role_id: student_role.id})
         |> json_response(400)
 
       assert json == %{
@@ -232,7 +238,7 @@ defmodule FlightWeb.API.UserControllerTest do
       json =
         conn
         |> auth(instructor)
-        |> post("/api/users/", %{data: user_attrs, role_id: student_role.id})
+        |> post("/api/users", %{data: user_attrs, role_id: student_role.id})
         |> json_response(400)
 
       assert json == %{"human_errors" => ["Email already exist"]}
@@ -254,7 +260,7 @@ defmodule FlightWeb.API.UserControllerTest do
       json =
         conn
         |> auth(instructor)
-        |> post("/api/users/", %{
+        |> post("/api/users", %{
           data: user_attrs,
           role_id: student_role.id,
           stripe_token: "tok_visa"
@@ -289,7 +295,7 @@ defmodule FlightWeb.API.UserControllerTest do
 
       conn
       |> auth(student)
-      |> post("/api/users/", %{data: user_attrs, role_id: student_role.id})
+      |> post("/api/users", %{data: user_attrs, role_id: student_role.id})
       |> response(401)
     end
   end
@@ -403,22 +409,28 @@ defmodule FlightWeb.API.UserControllerTest do
   @tag :integration
   describe "PUT /api/users/:id" do
     test "renders json", %{conn: conn} do
-      school = school_fixture()
+      school = school_fixture() |> Repo.preload(:stripe_account)
 
       user =
         student_fixture(%{first_name: "Justin"}, school)
-        |> Repo.preload([:aircrafts, :flyer_certificates])
+        |> Repo.preload([:aircrafts, :flyer_certificates, :instructors, :main_instructor])
 
       assert user.aircrafts == []
       assert user.flyer_certificates == []
+      assert user.instructors == []
+      refute user.main_instructor_id
 
       aircraft = aircraft_fixture(%{}, school)
       cert = flyer_certificate_fixture()
+      instructor = instructor_fixture(%{}, school)
+      another_instructor = instructor_fixture(%{}, school)
 
       updates = %{
         first_name: "Alex",
         aircrafts: [aircraft.id],
-        flyer_certificates: [cert.slug]
+        flyer_certificates: [cert.slug],
+        instructors: [another_instructor.id],
+        main_instructor_id: instructor.id
       }
 
       json =
@@ -432,8 +444,9 @@ defmodule FlightWeb.API.UserControllerTest do
         |> FlightWeb.API.UserView.show_preload()
 
       assert user.first_name == "Alex"
-      assert user.aircrafts == [aircraft]
       assert user.flyer_certificates == [cert]
+      assert user.main_instructor_id == instructor.id
+      assert user.main_instructor_id == user.main_instructor.id
 
       assert json ==
                render_json(
@@ -441,14 +454,6 @@ defmodule FlightWeb.API.UserControllerTest do
                  "show.json",
                  user: user
                )
-
-      content =
-        conn
-        |> web_auth(user)
-        |> get("/student/profile")
-        |> html_response(200)
-
-      assert content =~ "<p>#{aircraft.make} #{aircraft.model} (#{aircraft.tail_number})</p>"
     end
 
     test "401 if no auth", %{conn: conn} do

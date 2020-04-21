@@ -4,7 +4,7 @@ defmodule FlightWeb.Student.ProfileController do
   alias Flight.Accounts
 
   def show(%{assigns: %{current_user: current_user}} = conn, params) do
-    user = Flight.Repo.preload(current_user, [:roles, :aircrafts])
+    user = Flight.Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
     page = Accounts.Document.documents_by_page(user.id, page_params, search_term)

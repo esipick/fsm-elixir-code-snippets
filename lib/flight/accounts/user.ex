@@ -4,6 +4,7 @@ defmodule Flight.Accounts.User do
 
   import Ecto.Changeset
 
+  alias __MODULE__
   alias Flight.AvatarUploader
 
   schema "users" do
@@ -29,9 +30,9 @@ defmodule Flight.Accounts.User do
     field(:archived, :boolean, default: false)
     field(:stripe_customer_id, :string)
     field(:avatar, AvatarUploader.Type)
+    belongs_to(:main_instructor, User)
     belongs_to(:school, Flight.Accounts.School)
     has_many(:documents, Flight.Accounts.Document, on_replace: :delete, on_delete: :delete_all)
-
     many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
     has_many(:user_roles, Flight.Accounts.UserRole, on_delete: :delete_all)
 
@@ -44,6 +45,12 @@ defmodule Flight.Accounts.User do
       :flyer_certificates,
       Flight.Accounts.FlyerCertificate,
       join_through: "user_flyer_certificates",
+      on_replace: :delete
+    )
+
+    many_to_many(:instructors, User,
+      join_through: "user_instructors",
+      join_keys: [instructor_id: :id, user_id: :id],
       on_replace: :delete
     )
 
@@ -104,6 +111,7 @@ defmodule Flight.Accounts.User do
       :city,
       :state,
       :zipcode,
+      :main_instructor_id,
       :school_id
     ])
     |> cast_avatar(attrs)
@@ -153,7 +161,8 @@ defmodule Flight.Accounts.User do
       :password,
       :phone_number,
       :balance,
-      :stripe_customer_id
+      :stripe_customer_id,
+      :main_instructor_id
     ])
     |> cast_avatar(attrs)
     |> validate_required([
@@ -180,7 +189,14 @@ defmodule Flight.Accounts.User do
     |> cast(attrs, [:archived, :password_token])
   end
 
-  def api_update_changeset(user, attrs, _roles, aircrafts, flyer_certificates) do
+  def api_update_changeset(
+        user,
+        attrs,
+        _roles,
+        aircrafts,
+        flyer_certificates,
+        instructors
+      ) do
     user
     |> cast(attrs, [
       :email,
@@ -192,6 +208,7 @@ defmodule Flight.Accounts.User do
       :city,
       :state,
       :zipcode,
+      :main_instructor_id,
       :flight_training_number,
       :medical_rating,
       :medical_expires_at,
@@ -199,10 +216,17 @@ defmodule Flight.Accounts.User do
       :awards
     ])
     |> cast_avatar(attrs)
-    |> base_validations(nil, aircrafts, flyer_certificates)
+    |> base_validations(nil, aircrafts, flyer_certificates, instructors)
   end
 
-  def admin_update_changeset(user, attrs, roles, aircrafts, flyer_certificates) do
+  def admin_update_changeset(
+        user,
+        attrs,
+        roles,
+        aircrafts,
+        flyer_certificates,
+        instructors
+      ) do
     user
     |> cast(attrs, [
       :email,
@@ -214,6 +238,7 @@ defmodule Flight.Accounts.User do
       :city,
       :state,
       :zipcode,
+      :main_instructor_id,
       :flight_training_number,
       :medical_rating,
       :medical_expires_at,
@@ -223,7 +248,7 @@ defmodule Flight.Accounts.User do
       :awards
     ])
     |> cast_avatar(attrs)
-    |> base_validations(roles, aircrafts, flyer_certificates)
+    |> base_validations(roles, aircrafts, flyer_certificates, instructors)
   end
 
   def regular_user_accessible_fields() do
@@ -256,7 +281,13 @@ defmodule Flight.Accounts.User do
     |> put_pass_hash()
   end
 
-  def base_validations(changeset, roles \\ nil, aircrafts \\ nil, flyer_certificates \\ nil) do
+  def base_validations(
+        changeset,
+        roles \\ nil,
+        aircrafts \\ nil,
+        flyer_certificates \\ nil,
+        instructors \\ nil
+      ) do
     changeset
     |> validate_required([:email, :first_name, :last_name])
     |> update_change(:first_name, &String.trim/1)
@@ -294,6 +325,7 @@ defmodule Flight.Accounts.User do
       flyer_certificates,
       &put_assoc(&1, :flyer_certificates, flyer_certificates)
     )
+    |> Pipe.pass_unless(instructors, &put_assoc(&1, :instructors, instructors))
   end
 
   def balance_changeset(user, attrs) do

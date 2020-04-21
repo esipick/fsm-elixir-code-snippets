@@ -37,6 +37,9 @@ defmodule FlightWeb.API.UserView do
       permissions: Flight.Auth.Authorization.permission_slugs_for_user(user),
       aircrafts: user.aircrafts,
       flyer_certificates: Enum.map(user.flyer_certificates, & &1.slug),
+      instructors: user.instructors,
+      main_instructor: user.main_instructor,
+      main_instructor_id: user.main_instructor_id,
       stripe_account_id: nil,
       school_id: user.school_id
     }
@@ -73,9 +76,19 @@ defmodule FlightWeb.API.UserView do
     %{data: items}
   end
 
-  def show_preload(user) do
+  def show_preload(user, opts \\ []) do
     user
-    |> Flight.Repo.preload([:roles, :aircrafts, :flyer_certificates, [school: :stripe_account]])
+    |> Flight.Repo.preload(
+      [
+        :roles,
+        :aircrafts,
+        :flyer_certificates,
+        :instructors,
+        :main_instructor,
+        [school: :stripe_account]
+      ],
+      opts
+    )
   end
 
   defp avatar_urls(user) do

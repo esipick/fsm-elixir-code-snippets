@@ -14,12 +14,21 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
         school_context,
         role,
         aircrafts \\ [],
+        instructors \\ [],
         requires_stripe_account? \\ true,
         stripe_token \\ nil
       ) do
     case create_user(attrs, school_context, requires_stripe_account?, stripe_token) do
       {:ok, user} = payload ->
-        Accounts.admin_update_user_profile(user, %{}, [role.slug], aircrafts, [])
+        Accounts.admin_update_user_profile(
+          user,
+          %{},
+          [role.slug],
+          aircrafts,
+          [],
+          instructors
+        )
+
         create_invitation_from_user(user, role, school_context)
         payload
 

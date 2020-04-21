@@ -131,15 +131,52 @@ defmodule FlightWeb.Admin.UserControllerTest do
   describe "GET /admin/users/:id" do
     test "all roles", %{conn: conn} do
       for slug <- Role.available_role_slugs() do
-        user = user_fixture() |> assign_role(slug)
+        school = school_fixture()
+        admin = admin_fixture(%{}, school)
+        aircraft = aircraft_fixture(%{}, school)
+
+        instructor =
+          instructor_fixture(
+            %{first_name: "main_instructor_first_name", last_name: "main_instructor_last_name"},
+            school
+          )
+
+        another_instructor =
+          instructor_fixture(
+            %{
+              first_name: "another_instructor_first_name",
+              last_name: "another_instructor_last_name"
+            },
+            school
+          )
+
+        user =
+          user_fixture(%{main_instructor_id: instructor.id}, school)
+          |> assign_role(slug)
+
+        user
+        |> FlightWeb.API.UserView.show_preload()
+        |> Accounts.User.api_update_changeset(
+          %{},
+          nil,
+          [aircraft],
+          [],
+          [instructor, another_instructor]
+        )
+        |> Repo.update()
+
+        user = user |> FlightWeb.API.UserView.show_preload(force: true)
 
         content =
           conn
-          |> web_auth_admin()
+          |> web_auth_admin(admin)
           |> get("/admin/users/#{user.id}")
           |> html_response(200)
 
         assert content =~ user.first_name
+        assert content =~ "#{aircraft.make} #{aircraft.model} (#{aircraft.tail_number})"
+        assert content =~ "#{instructor.first_name} #{instructor.last_name}"
+        assert content =~ "#{another_instructor.first_name} #{another_instructor.last_name}"
       end
     end
 

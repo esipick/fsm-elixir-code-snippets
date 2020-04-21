@@ -66,7 +66,7 @@
                   <%= if has_cirriculum?(@user) do %>
                     <div class="field">
                       <h3>Flight Training # (FTN)</h3>
-                      <p><%= @user.flight_training_number %></p>
+                      <p><%= @user.flight_training_number  || "-" %></p>
                     </div>
                   <% end %>
                   <%= if has_medical?(@user) do %>
@@ -82,7 +82,24 @@
                   <% end %>
                   <div class="field">
                     <h3>Insctructor</h3>
-                    <p>-</p>
+                    <%= if @user.main_instructor_id do%>
+                      <%= if @user.main_instructor.archived do %>
+                        <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
+                      <% else %>
+                        <a href="/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a>
+                      <% end %>
+                    <% end %>
+                    <%= if Enum.any?(@user.instructors) do %>
+                      <%= for instructor <- @user.instructors do %>
+                        <%= if instructor.archived do %>
+                          <p><%= instructor.first_name %> <%= instructor.last_name %></p>
+                        <% else %>
+                          <a href="/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a>
+                        <% end %>
+                      <% end %>
+                    <% else %>
+                      <p>-</p>
+                    <% end %>
                   </div>
                   <div class="field">
                     <h3>Aircraft Name</h3>
@@ -108,7 +125,7 @@
                 <%= if has_cirriculum?(@user) do %>
                   <div class="field ftn">
                     <h3>Training # (FTN)</h3>
-                    <p><%= @user.flight_training_number %></p>
+                    <p><%= @user.flight_training_number  || "-" %></p>
                   </div>
                 <% end %>
                 <%= if has_medical?(@user) do %>
@@ -127,17 +144,19 @@
               <div class="fields">
                 <div class="field">
                   <h3>Insctructor</h3>
-                  <p>Chief Instructor Name</p>
-                  <p>Instructor Name</p>
-                </div>
-                <div class="field">
-                  <h3>Aircraft Name</h3>
-                  <%= if Enum.any?(@user.aircrafts) do %>
-                    <%= for aircraft <- @user.aircrafts do %>
-                      <%= if aircraft.archived do %>
-                        <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
+                  <%= if @user.main_instructor_id do%>
+                    <%= if @user.main_instructor.archived do %>
+                      <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
+                    <% else %>
+                      <a href="/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a>
+                    <% end %>
+                  <% end %>
+                  <%= if Enum.any?(@user.instructors) do %>
+                    <%= for instructor <- @user.instructors do %>
+                      <%= if instructor.archived do %>
+                        <p><%= instructor.first_name %> <%= instructor.last_name %></p>
                       <% else %>
-                        <a href="/admin/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a>
+                        <a href="/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a>
                       <% end %>
                     <% end %>
                   <% else %>
