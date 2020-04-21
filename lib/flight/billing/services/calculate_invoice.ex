@@ -40,28 +40,28 @@ defmodule Flight.Billing.CalculateInvoice do
   end
 
   defp calculate_line_item(line_item, invoice, school_context) do
-    amount =
-      if line_item_type(line_item) == :aircraft do
-        calculate_aircraft_item_amount(line_item, invoice, school_context)
-      else
-        (line_item["quantity"] || 0) * (line_item["rate"] || 0)
-      end
+    {amount, rate} = calculate_amount_and_rate(line_item, invoice, school_context)
 
-    Map.put(line_item, "amount", amount)
+    Map.merge(line_item, %{"amount" => amount, "rate" => rate})
+  end
+
+  defp calculate_amount_and_rate(line_item, invoice, school_context) do
+    if line_item_type(line_item) == :aircraft && line_item["hobbs_tach_used"] do
+      amount = calculate_from_hobbs_tach(line_item, invoice, school_context)
+
+      {amount, amount}
+    else
+      rate = line_item["rate"] || 0
+      amount = (line_item["quantity"] || 0) * rate
+
+      {amount, rate}
+    end
   end
 
   def line_item_type(line_item) do
     String.to_atom(line_item["type"])
   rescue
     ArgumentError -> line_item["type"]
-  end
-
-  defp calculate_aircraft_item_amount(line_item, invoice, school_context) do
-    if line_item["hobbs_tach_used"] do
-      calculate_from_hobbs_tach(line_item, invoice, school_context)
-    else
-      (line_item["quantity"] || 0) * (line_item["rate"] || 0)
-    end
   end
 
   defp calculate_from_hobbs_tach(line_item, invoice, school_context) do
