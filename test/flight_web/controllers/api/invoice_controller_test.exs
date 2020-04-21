@@ -870,14 +870,16 @@ defmodule FlightWeb.API.InvoiceControllerTest do
             "hobbs_tach_used" => true,
             "description" => "Flight Hours",
             "aircraft_id" => aircraft.id,
-            "taxable" => true
+            "taxable" => true,
+            "amount" => 999
           },
           %{
             "type" => "other",
             "rate" => 5200,
             "quantity" => 1,
             "description" => "Fuel",
-            "taxable" => false
+            "taxable" => false,
+            "amount" => 999
           }
         ],
         "user_id" => student.id
