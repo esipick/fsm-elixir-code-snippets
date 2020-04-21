@@ -52,6 +52,7 @@ defmodule FlightWeb.API.TransactionView do
       paid_by_cash: transaction.paid_by_cash,
       paid_by_check: transaction.paid_by_check,
       paid_by_venmo: transaction.paid_by_venmo,
+      payment_option: transaction.payment_option,
       line_items:
         render_many(
           transaction.line_items,
