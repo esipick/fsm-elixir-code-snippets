@@ -129,6 +129,49 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
 
     @tag :integration
+    test "renders error when aircraft not exists", %{conn: conn} do
+      student = student_fixture()
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+      invoice_params = invoice_attrs(student, %{}, aircraft)
+
+      Repo.delete!(aircraft)
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices", %{invoice: invoice_params})
+        |> json_response(422)
+
+      assert json["errors"] == %{
+               "line_items" => [%{"aircraft_id" => ["does not exist"]}, %{}, %{}]
+             }
+    end
+
+    @tag :integration
+    test "renders error when instructor not exists", %{conn: conn} do
+      student = student_fixture()
+      current_user = instructor_fixture()
+      instructor = instructor_fixture()
+
+      invoice_params =
+        invoice_attrs(
+          student,
+          %{line_items: [instructor_line_item_attrs(instructor)]}
+        )
+
+      Repo.delete!(instructor)
+
+      json =
+        conn
+        |> auth(current_user)
+        |> post("/api/invoices", %{invoice: invoice_params})
+        |> json_response(422)
+
+      assert json["errors"] == %{"line_items" => [%{"instructor_user_id" => ["does not exist"]}]}
+    end
+
+    @tag :integration
     test "creates invoice for anonymous payer", %{conn: conn} do
       instructor = instructor_fixture()
       invoice_params = invoice_attrs(%User{}, %{payer_name: "Foo Bar"})

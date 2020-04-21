@@ -73,8 +73,14 @@ defmodule Flight.Scheduling.Aircraft do
     changeset(aircraft, attrs)
   end
 
-  def archive_changeset(user, attrs) do
-    user
+  def archive_changeset(aircraft, attrs) do
+    aircraft
     |> cast(attrs, [:archived])
+  end
+
+  def archive(%Flight.Scheduling.Aircraft{} = aircraft) do
+    aircraft
+    |> change(archived: true)
+    |> Flight.Repo.update()
   end
 end

@@ -216,9 +216,7 @@ defmodule Flight.BillingFixtures do
     %{invoice | user: user}
   end
 
-  def invoice_attrs(user \\ student_fixture(), attrs \\ %{}) do
-    aircraft = aircraft_fixture()
-
+  def invoice_attrs(user \\ student_fixture(), attrs \\ %{}, aircraft \\ aircraft_fixture()) do
     %{
       user_id: user.id,
       school_id: user.school_id,
@@ -229,17 +227,34 @@ defmodule Flight.BillingFixtures do
       total_tax: 4000,
       total_amount_due: 24000,
       line_items: [
-        %{
-          description: "flight hours",
-          rate: 1500,
-          quantity: 10,
-          amount: 15000,
-          type: :aircraft,
-          aircraft_id: aircraft.id
-        },
+        aircraft_line_item_attrs(aircraft),
         %{description: "discount", rate: -2500, quantity: 1, amount: -2500, type: :other},
         %{description: "fuel reimbursement", rate: 7500, quantity: 1, amount: 7500, type: :other}
       ]
+    }
+    |> Map.merge(attrs)
+  end
+
+  def aircraft_line_item_attrs(aircraft \\ aircraft_fixture(), attrs \\ %{}) do
+    %{
+      description: "Flight Hours",
+      rate: 1500,
+      quantity: 10,
+      amount: 15000,
+      type: :aircraft,
+      aircraft_id: aircraft.id
+    }
+    |> Map.merge(attrs)
+  end
+
+  def instructor_line_item_attrs(instructor \\ instructor_fixture(), attrs \\ %{}) do
+    %{
+      description: "Instructor Hours",
+      rate: 1500,
+      quantity: 10,
+      amount: 15000,
+      type: :instructor,
+      instructor_user_id: instructor.id
     }
     |> Map.merge(attrs)
   end

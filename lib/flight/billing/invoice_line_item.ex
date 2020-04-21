@@ -1,6 +1,9 @@
 defmodule Flight.Billing.InvoiceLineItem do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Flight.Repo
+  alias Flight.Scheduling.{Aircraft}
+  alias Flight.Accounts.User
 
   alias Flight.Billing.InvoiceLineItem
 
@@ -20,7 +23,7 @@ defmodule Flight.Billing.InvoiceLineItem do
     field(:taxable, :boolean)
     field(:type, InvoiceLineItemTypeEnum, default: :other)
 
-    belongs_to(:instructor_user, Flight.Accounts.User)
+    belongs_to(:instructor_user, User)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
     belongs_to(:invoice, Flight.Billing.Invoice)
 
@@ -49,11 +52,45 @@ defmodule Flight.Billing.InvoiceLineItem do
     |> validate_number(:quantity, greater_than: 0, less_than: 1000)
     |> validate_conditional_required(:aircraft_id, &aircraft_type?(&1))
     |> validate_conditional_required(:instructor_user_id, &instructor_type?(&1))
+    |> validate_aircraft_existence
+    |> validate_instructor_existence
   end
 
   def validate_conditional_required(changeset, field, conditional) do
     if conditional.(changeset) do
       validate_required(changeset, field)
+    else
+      changeset
+    end
+  end
+
+  def validate_aircraft_existence(changeset) do
+    aircraft_id = get_field(changeset, :aircraft_id)
+
+    if aircraft_id do
+      aircraft = Repo.get(Aircraft, aircraft_id)
+
+      if aircraft do
+        changeset
+      else
+        add_error(changeset, :aircraft_id, "does not exist")
+      end
+    else
+      changeset
+    end
+  end
+
+  def validate_instructor_existence(changeset) do
+    instructor_user_id = get_field(changeset, :instructor_user_id)
+
+    if instructor_user_id do
+      instructor_user = Repo.get(User, instructor_user_id)
+
+      if instructor_user do
+        changeset
+      else
+        add_error(changeset, :instructor_user_id, "does not exist")
+      end
     else
       changeset
     end
