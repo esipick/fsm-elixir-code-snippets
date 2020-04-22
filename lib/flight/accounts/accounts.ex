@@ -189,13 +189,22 @@ defmodule Flight.Accounts do
         {true, nil}
       end
 
-    {valid_aircrafts?, aircrafts} =
+    {valid_aircrafts?, aircrafts, invalid_aircraft_ids} =
       if aircraft_ids do
         aircrafts = Repo.all(from(r in Flight.Scheduling.Aircraft, where: r.id in ^aircraft_ids))
-        valid_aircrafts? = Enum.count(aircraft_ids) == Enum.count(aircrafts)
-        {valid_aircrafts?, aircrafts}
+
+        invalid_aircraft_ids =
+          Enum.filter(aircraft_ids, fn id ->
+            aircraft = Enum.find(aircrafts, fn aircraft -> aircraft.id == id end)
+            aircraft.archived
+          end)
+
+        valid_aircrafts? =
+          Enum.count(aircraft_ids) == Enum.count(aircrafts) and invalid_aircraft_ids == []
+
+        {valid_aircrafts?, aircrafts, invalid_aircraft_ids}
       else
-        {true, nil}
+        {true, nil, []}
       end
 
     {valid_certs?, certs} =
@@ -207,19 +216,28 @@ defmodule Flight.Accounts do
         {true, nil}
       end
 
-    {valid_instructors?, instructors} =
+    {valid_instructors?, instructors, invalid_instructor_ids} =
       if instructor_ids do
         instructors = Repo.all(from(r in User, where: r.id in ^instructor_ids))
-        valid_instructors? = Enum.count(instructor_ids) == Enum.count(instructors)
-        {valid_instructors?, instructors}
+
+        invalid_instructor_ids =
+          Enum.filter(instructor_ids, fn id ->
+            instructor = Enum.find(instructors, fn instructor -> instructor.id == id end)
+            instructor.archived
+          end)
+
+        valid_instructors? =
+          Enum.count(instructor_ids) == Enum.count(instructors) and invalid_instructor_ids == []
+
+        {valid_instructors?, instructors, invalid_instructor_ids}
       else
-        {true, nil}
+        {true, nil, []}
       end
 
     valid_main_instructor? =
       if main_instructor_id = attrs["main_instructor_id"] do
         main_instructor = Repo.one(from(r in User, where: r.id == ^main_instructor_id))
-        !main_instructor.archived and main_instructor_id != "#{user.id}"
+        !main_instructor.archived and main_instructor_id != user.id
       else
         true
       end
@@ -234,11 +252,20 @@ defmodule Flight.Accounts do
          )}
 
       !valid_aircrafts? ->
+        message =
+          case invalid_aircraft_ids do
+            [] ->
+              "are not all known: #{Enum.join(role_slugs, ", ")}"
+
+            invalid_aircraft_ids ->
+              "should be active: #{Enum.join(invalid_aircraft_ids, ", ")}"
+          end
+
         {:error,
          Ecto.Changeset.add_error(
            changeset_func.(user, attrs, [], [], [], []),
            :aircrafts,
-           "are not all known: #{Enum.join(aircraft_ids, ", ")}"
+           message
          )}
 
       !valid_certs? ->
@@ -250,11 +277,20 @@ defmodule Flight.Accounts do
          )}
 
       !valid_instructors? ->
+        message =
+          case invalid_instructor_ids do
+            [] ->
+              "are not all known: #{Enum.join(role_slugs, ", ")}"
+
+            invalid_instructor_ids ->
+              "should be active: #{Enum.join(invalid_instructor_ids, ", ")}"
+          end
+
         {:error,
          Ecto.Changeset.add_error(
            changeset_func.(user, attrs, [], [], [], []),
            :instructors,
-           "are not all known: #{Enum.join(instructor_ids, ", ")}"
+           message
          )}
 
       !valid_main_instructor? ->
@@ -262,7 +298,7 @@ defmodule Flight.Accounts do
          Ecto.Changeset.add_error(
            changeset_func.(user, attrs, [], [], [], []),
            :main_instructor_id,
-           "is invalid"
+           "should be active"
          )}
 
       true ->

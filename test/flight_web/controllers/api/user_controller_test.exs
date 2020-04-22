@@ -2,8 +2,7 @@ defmodule FlightWeb.API.UserControllerTest do
   use FlightWeb.ConnCase
 
   alias FlightWeb.API.UserView
-  alias Flight.{Accounts, AvatarUploader, Repo}
-  alias Accounts.User
+  alias Flight.{Accounts, Accounts.User, AvatarUploader, Repo}
 
   @tag :integration
   describe "GET /api/users" do
@@ -147,8 +146,7 @@ defmodule FlightWeb.API.UserControllerTest do
           data: user_attrs,
           role_id: student_role.id,
           aircrafts: [aircraft.id],
-          instructors: [instructor.id, another_instructor.id],
-          main_instructor_id: instructor.id
+          instructors: [instructor.id, another_instructor.id]
         })
         |> json_response(200)
 
@@ -167,6 +165,7 @@ defmodule FlightWeb.API.UserControllerTest do
       AvatarUploader.delete({user.avatar, user})
 
       assert user.first_name == "Alexxx"
+      assert user.aircrafts == [aircraft]
       assert user.main_instructor_id == instructor.id
       assert user.main_instructor_id == user.main_instructor.id
 
@@ -176,6 +175,101 @@ defmodule FlightWeb.API.UserControllerTest do
                  "show.json",
                  user: user
                )
+    end
+
+    @tag :integration
+    test "can't create an user with invalid aircrafts", %{
+      conn: conn
+    } do
+      student_role = role_fixture(%{slug: "student"})
+      school = school_fixture()
+      aircraft = aircraft_fixture(%{}, school)
+      instructor = instructor_fixture(%{}, school)
+
+      user_attrs = %{
+        email: "user-#{Flight.Random.string(20)}@email.com",
+        first_name: "Alexxx",
+        last_name: "Doe",
+        phone_number: "801-555-5555"
+      }
+
+      Flight.Scheduling.Aircraft.archive(aircraft)
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/users", %{
+          data: user_attrs,
+          role_id: student_role.id,
+          aircrafts: [aircraft.id]
+        })
+        |> json_response(400)
+
+      assert json == %{"human_errors" => ["Aircrafts should be active: #{aircraft.id}"]}
+    end
+
+    @tag :integration
+    test "can't create an user with invalid instructors", %{
+      conn: conn
+    } do
+      student_role = role_fixture(%{slug: "student"})
+      school = school_fixture()
+      instructor = instructor_fixture(%{}, school)
+      another_instructor = instructor_fixture(%{}, school)
+
+      user_attrs = %{
+        email: "user-#{Flight.Random.string(20)}@email.com",
+        first_name: "Alexxx",
+        last_name: "Doe",
+        phone_number: "801-555-5555"
+      }
+
+      Accounts.archive_user(another_instructor)
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/users", %{
+          data: user_attrs,
+          role_id: student_role.id,
+          instructors: instructors = [another_instructor.id]
+        })
+        |> json_response(400)
+
+      assert json == %{
+               "human_errors" => ["Instructors should be active: #{Enum.join(instructors, ", ")}"]
+             }
+    end
+
+    @tag :integration
+    test "can't create an user with invalid main_instructor", %{
+      conn: conn
+    } do
+      student_role = role_fixture(%{slug: "student"})
+      school = school_fixture()
+      instructor = instructor_fixture(%{}, school)
+      another_instructor = instructor_fixture(%{}, school)
+
+      user_attrs = %{
+        email: "user-#{Flight.Random.string(20)}@email.com",
+        first_name: "Alexxx",
+        last_name: "Doe",
+        phone_number: "801-555-5555",
+        main_instructor_id: another_instructor.id
+      }
+
+      Accounts.archive_user(another_instructor)
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/users", %{
+          data: user_attrs,
+          role_id: student_role.id
+        })
+        |> json_response(400)
+
+      assert json == %{"human_errors" => ["Main instructor should be active"]}
     end
 
     @tag :integration
@@ -219,7 +313,7 @@ defmodule FlightWeb.API.UserControllerTest do
              }
     end
 
-    # @tag :integration
+    @tag :integration
     test "can't create an user with same email", %{conn: conn} do
       student_role = role_fixture(%{slug: "student"})
       email = "unique@email.com"
@@ -470,6 +564,82 @@ defmodule FlightWeb.API.UserControllerTest do
       |> auth(user1)
       |> put("/api/users/#{user2.id}")
       |> response(401)
+    end
+
+    @tag :integration
+    test "can't update an user with invalid aircrafts", %{
+      conn: conn
+    } do
+      school = school_fixture()
+      user = student_fixture(%{}, school)
+      aircraft = aircraft_fixture(%{}, school)
+
+      Flight.Scheduling.Aircraft.archive(aircraft)
+
+      updates = %{
+        first_name: "Alex",
+        aircrafts: [aircraft.id]
+      }
+
+      json =
+        conn
+        |> auth(user)
+        |> put("/api/users/#{user.id}", %{data: updates})
+        |> json_response(400)
+
+      assert json == %{"human_errors" => ["Aircrafts should be active: #{aircraft.id}"]}
+    end
+
+    @tag :integration
+    test "can't update an user with invalid instructors", %{
+      conn: conn
+    } do
+      school = school_fixture()
+      user = student_fixture(%{}, school)
+      instructor = instructor_fixture(%{}, school)
+      another_instructor = instructor_fixture(%{}, school)
+
+      Accounts.archive_user(instructor)
+      Accounts.archive_user(another_instructor)
+
+      updates = %{
+        first_name: "Alex",
+        instructors: instructors = [instructor.id, another_instructor.id]
+      }
+
+      json =
+        conn
+        |> auth(user)
+        |> put("/api/users/#{user.id}", %{data: updates})
+        |> json_response(400)
+
+      assert json == %{
+               "human_errors" => ["Instructors should be active: #{Enum.join(instructors, ", ")}"]
+             }
+    end
+
+    @tag :integration
+    test "can't update an user with invalid main_instructor", %{
+      conn: conn
+    } do
+      school = school_fixture()
+      user = student_fixture(%{}, school)
+      instructor = instructor_fixture(%{}, school)
+
+      Accounts.archive_user(instructor)
+
+      updates = %{
+        first_name: "Alex",
+        main_instructor_id: instructor.id
+      }
+
+      json =
+        conn
+        |> auth(user)
+        |> put("/api/users/#{user.id}", %{data: updates})
+        |> json_response(400)
+
+      assert json == %{"human_errors" => ["Main instructor should be active"]}
     end
   end
 

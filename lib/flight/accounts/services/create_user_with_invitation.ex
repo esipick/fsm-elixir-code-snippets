@@ -18,20 +18,22 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
         requires_stripe_account? \\ true,
         stripe_token \\ nil
       ) do
-    case create_user(attrs, school_context, requires_stripe_account?, stripe_token) do
-      {:ok, user} = payload ->
-        Accounts.admin_update_user_profile(
-          user,
-          %{},
-          [role.slug],
-          aircrafts,
-          [],
-          instructors
-        )
+    main_instructor_id = Map.get(attrs, "main_instructor_id")
 
-        create_invitation_from_user(user, role, school_context)
-        payload
-
+    with {:ok, user} = payload <-
+           create_user(attrs, school_context, requires_stripe_account?, stripe_token),
+         {:ok, user} <-
+           Accounts.admin_update_user_profile(
+             user,
+             %{"main_instructor_id" => main_instructor_id},
+             [role.slug],
+             aircrafts,
+             [],
+             instructors
+           ) do
+      create_invitation_from_user(user, role, school_context)
+      payload
+    else
       error ->
         error
     end
