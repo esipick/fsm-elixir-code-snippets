@@ -52,9 +52,9 @@ case(Map.fetch(System.get_env(), "AWS_S3_BUCKET")) do
   {:ok, bucket} ->
     config :ex_aws,
       json_codec: Jason,
-      region: "us-east-2",
+      region: "us-east-1",
       s3: [
-        region: "us-east-2"
+        region: "us-east-1"
       ]
 
     config :waffle,
