@@ -149,8 +149,7 @@ defmodule Flight.Reports do
   end
 
   def aircraft_report(start_at, end_at, school_context) do
-    aircrafts = get_aircrafts(school_context)
-
+    aircrafts = Flight.Accounts.get_aircrafts(school_context)
     aircraft_ids = Enum.map(aircrafts, & &1.id)
 
     # appointments = get_aircraft_appointments(aircraft_ids, start_at, end_at, school_context)
@@ -182,12 +181,6 @@ defmodule Flight.Reports do
     |> SchoolScope.scope_query(school_context)
     |> join(:inner, [u], r in UserRole, on: r.user_id == u.id)
     |> where([u, r], r.role_id == ^role.id)
-    |> Repo.all()
-  end
-
-  def get_aircrafts(school_context) do
-    Flight.Scheduling.Aircraft
-    |> SchoolScope.scope_query(school_context)
     |> Repo.all()
   end
 

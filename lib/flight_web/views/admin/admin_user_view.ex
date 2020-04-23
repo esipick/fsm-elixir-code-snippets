@@ -45,6 +45,14 @@ defmodule FlightWeb.Admin.UserView do
     Accounts.has_role?(user, role_slug)
   end
 
+  def user_has_aircraft?(user, aircraft_id) do
+    Accounts.has_aircraft?(user, aircraft_id)
+  end
+
+  def user_has_instructor?(user, instructor_id) do
+    Accounts.has_instructor?(user, instructor_id)
+  end
+
   def user_has_flyer_certificate?(user, cert_slug) do
     Accounts.has_flyer_certificate?(user, cert_slug)
   end
@@ -53,4 +61,13 @@ defmodule FlightWeb.Admin.UserView do
     Flight.Accounts.flyer_certificates()
     |> Enum.map(&{String.upcase(&1.slug), &1.slug})
   end
+
+  def aircrafts_for_select(aircrafts),
+    do: aircrafts |> Enum.map(&{"#{&1.make} #{&1.model} (#{&1.tail_number})", &1.id})
+
+  def main_instructor_select(instructors),
+    do: [{"None", nil} | instructors_for_select(instructors)]
+
+  def instructors_for_select(instructors),
+    do: instructors |> Enum.map(&{"#{&1.first_name} #{&1.last_name}", &1.id})
 end

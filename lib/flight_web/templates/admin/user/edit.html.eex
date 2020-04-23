@@ -188,6 +188,37 @@
                 </div>
               </div>
             </div>
+            <%= if Enum.any?(@aircrafts) do %>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Aircrafts</label>
+                    <%= multiple_select f, :aircrafts, aircrafts_for_select(@aircrafts), selected: Enum.map(@user.aircrafts, & &1.id), class: "form-control" %>
+                    <%= full_error_tag f, :aircrafts %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            <%= if Enum.any?(@instructors) do %>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Main instructor</label>
+                    <%= select f, :main_instructor_id, main_instructor_select(@instructors), class: "form-control" %>
+                    <%= full_error_tag f, :main_instructor_id %>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Instructors</label>
+                    <%= multiple_select f, :instructors, instructors_for_select(@instructors), selected: Enum.map(@user.instructors, & &1.id), class: "form-control" %>
+                    <%= full_error_tag f, :instructors %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
           </div>
           <div class="card-footer ">
             <div class="row">

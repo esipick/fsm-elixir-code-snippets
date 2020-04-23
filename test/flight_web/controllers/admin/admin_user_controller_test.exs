@@ -241,6 +241,8 @@ defmodule FlightWeb.Admin.UserControllerTest do
       for slug <- Role.available_role_slugs() do
         user = user_fixture() |> assign_role(slug)
 
+        unless slug == "student", do: user |> assign_role("student")
+
         content =
           conn
           |> web_auth_admin()
@@ -313,15 +315,57 @@ defmodule FlightWeb.Admin.UserControllerTest do
       refute Accounts.has_flyer_certificate?(user, "cfii")
     end
 
-    test "updates fields", %{conn: conn} do
-      user = user_fixture() |> assign_role("admin")
+    test "updates aircrafts", %{conn: conn} do
+      school = school_fixture()
+      user = user_fixture(%{}, school) |> assign_role("admin")
+      aircraft = aircraft_fixture(%{}, school)
 
       payload = %{
-        user: %{first_name: "Allison", last_name: "Duprix"},
+        user: %{aircrafts: [aircraft.id]}
+      }
+
+      admin = admin_fixture(%{}, school)
+
+      conn
+      |> web_auth(admin)
+      |> put("/admin/users/#{user.id}", payload)
+      |> response_redirected_to("/admin/users/#{user.id}")
+
+      user = Accounts.get_user(user.id, admin) |> Repo.preload(:aircrafts)
+      assert Accounts.has_aircraft?(user, aircraft.id)
+    end
+
+    test "updates instructors", %{conn: conn} do
+      school = school_fixture()
+      user = user_fixture(%{}, school) |> assign_role("admin")
+      instructor = instructor_fixture(%{}, school)
+
+      payload = %{
+        user: %{instructors: [instructor.id]}
+      }
+
+      admin = admin_fixture(%{}, school)
+
+      conn
+      |> web_auth(admin)
+      |> put("/admin/users/#{user.id}", payload)
+      |> response_redirected_to("/admin/users/#{user.id}")
+
+      user = Accounts.get_user(user.id, admin) |> Repo.preload(:instructors)
+      assert Accounts.has_instructor?(user, instructor.id)
+    end
+
+    test "updates fields", %{conn: conn} do
+      school = school_fixture()
+      user = user_fixture(%{}, school) |> assign_role("admin")
+      instructor = instructor_fixture(%{}, school)
+
+      payload = %{
+        user: %{first_name: "Allison", last_name: "Duprix", main_instructor_id: instructor.id},
         role_slugs: %{"admin" => "on"}
       }
 
-      admin = admin_fixture()
+      admin = admin_fixture(%{}, school)
 
       conn
       |> web_auth(admin)
@@ -331,6 +375,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
       user = Accounts.get_user(user.id, admin)
       assert user.first_name == "Allison"
       assert user.last_name == "Duprix"
+      assert user.main_instructor_id == instructor.id
     end
 
     test "does not allow update fields with wrong values", %{conn: conn} do

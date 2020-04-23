@@ -1,7 +1,7 @@
 defmodule FlightWeb.Admin.UserController do
   use FlightWeb, :controller
 
-  alias Flight.{Accounts, Billing, Repo, Scheduling}
+  alias Flight.{Accounts, Billing, Repo, Scheduling, Queries}
   alias Flight.Auth.Permission
   import Flight.Auth.Authorization
 
@@ -96,12 +96,19 @@ defmodule FlightWeb.Admin.UserController do
   end
 
   def edit(conn, _params) do
+    user = conn.assigns.requested_user
+    aircrafts = Accounts.get_aircrafts(conn)
+    role = Accounts.role_for_slug("student")
+    instructors = Queries.User.get_users_by_role(role, conn)
+
     render(
       conn,
       "edit.html",
-      user: conn.assigns.requested_user,
-      changeset: Accounts.User.create_changeset(conn.assigns.requested_user, %{}),
-      skip_shool_select: true
+      aircrafts: aircrafts,
+      changeset: Accounts.User.create_changeset(user, %{}),
+      instructors: instructors,
+      skip_shool_select: true,
+      user: user
     )
   end
 
@@ -144,6 +151,8 @@ defmodule FlightWeb.Admin.UserController do
   end
 
   def update(conn, %{"user" => user_form} = params) do
+    aircrafts_params = Map.get(params["user"], "aircrafts", [])
+    instructors_params = Map.get(params["user"], "instructors", [])
     role_params = Map.keys(params["role_slugs"] || %{})
 
     role_slugs =
@@ -157,9 +166,9 @@ defmodule FlightWeb.Admin.UserController do
            conn.assigns.requested_user,
            user_form,
            role_slugs,
-           [],
+           aircrafts_params,
            Map.keys(params["flyer_certificate_slugs"] || %{}),
-           []
+           instructors_params
          ) do
       {:ok, user} ->
         redirect(conn, to: "/admin/users/#{user.id}")
@@ -168,8 +177,10 @@ defmodule FlightWeb.Admin.UserController do
         render(
           conn,
           "edit.html",
-          user: conn.assigns.requested_user,
-          changeset: changeset
+          aircrafts: [],
+          changeset: changeset,
+          instructors: [],
+          user: conn.assigns.requested_user
         )
     end
   end

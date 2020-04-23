@@ -20,6 +20,12 @@ defmodule Flight.Accounts do
 
   import Pipe
 
+  def get_aircrafts(school_context) do
+    Flight.Scheduling.Aircraft
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.all()
+  end
+
   def get_school_user_by_id(id, school_context) do
     User
     |> SchoolScope.scope_query(school_context)
@@ -592,6 +598,22 @@ defmodule Flight.Accounts do
 
   def role_for_slug(slug) do
     Repo.get_by(Role, slug: slug)
+  end
+
+  def has_aircraft?(user, aircraft_id) do
+    user = Repo.preload(user, :aircrafts)
+
+    user.aircrafts
+    |> Enum.map(& &1.id)
+    |> Enum.member?(aircraft_id)
+  end
+
+  def has_instructor?(user, instructor_id) do
+    user = Repo.preload(user, :instructors)
+
+    user.instructors
+    |> Enum.map(& &1.id)
+    |> Enum.member?(instructor_id)
   end
 
   #
