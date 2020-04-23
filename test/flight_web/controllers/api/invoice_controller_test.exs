@@ -1041,6 +1041,40 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
 
     @tag :integration
+    test "creates paid invoice from appointment", %{conn: conn} do
+      student = student_fixture(%{balance: 999_999})
+      appointment = appointment_fixture(%{}, student)
+      instructor = instructor_fixture()
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices/from_appointment/#{appointment.id}", %{"pay_off" => true})
+        |> json_response(201)
+
+      invoice = Repo.get_by(Invoice, user_id: appointment.user_id) |> preload_invoice
+
+      assert invoice.total == 460
+      assert invoice.tax_rate == 10
+      assert invoice.total_tax == 26
+      assert invoice.total_amount_due == 486
+      assert invoice.status == :paid
+      assert Enum.count(invoice.line_items) == 2
+
+      transaction = List.first(invoice.transactions)
+
+      assert not is_nil(transaction.completed_at)
+
+      assert transaction.state == "completed"
+      assert transaction.total == 486
+      assert transaction.type == "debit"
+      assert transaction.payment_option == :balance
+      assert transaction.paid_by_balance == 486
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
     test "returns existing invoice for appointment", %{conn: conn} do
       appointment = appointment_fixture()
       instructor = instructor_fixture()
