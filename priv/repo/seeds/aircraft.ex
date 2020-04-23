@@ -67,7 +67,7 @@ defmodule Seeds.Aircraft do
 
     rates = [10000, 17000, 20000, 999_900, 15000]
 
-    Enum.each(0..amount, fn _i ->
+    Enum.each(1..amount, fn _i ->
       school_context = %Plug.Conn{assigns: %{current_user: %{school_id: school.id}}}
       rate = Enum.random(rates)
 
