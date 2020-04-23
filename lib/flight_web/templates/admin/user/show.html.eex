@@ -80,41 +80,43 @@
                       </p>
                     </div>
                   <% end %>
-                  <div class="field">
-                    <h3>Insctructor</h3>
-                    <%= if @user.main_instructor_id do%>
-                      <%= if @user.main_instructor.archived do %>
-                        <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
+                  <%= if Accounts.has_role?(@user, "student") do %>
+                    <div class="field">
+                      <h3>Insctructor</h3>
+                      <%= if @user.main_instructor_id do%>
+                        <%= if @user.main_instructor.archived do %>
+                          <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
+                        <% else %>
+                          <p><a href="/admin/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
+                        <% end %>
+                      <% end %>
+                      <%= if Enum.any?(@user.instructors) do %>
+                        <%= for instructor <- @user.instructors do %>
+                          <%= if instructor.archived do %>
+                            <p><%= instructor.first_name %> <%= instructor.last_name %></p>
+                          <% else %>
+                            <p><a href="/admin/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
+                          <% end %>
+                        <% end %>
                       <% else %>
-                        <p><a href="/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
+                        <p>-</p>
                       <% end %>
-                    <% end %>
-                    <%= if Enum.any?(@user.instructors) do %>
-                      <%= for instructor <- @user.instructors do %>
-                        <%= if instructor.archived do %>
-                          <p><%= instructor.first_name %> <%= instructor.last_name %></p>
-                        <% else %>
-                          <p><a href="/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
+                    </div>
+                    <div class="field">
+                      <h3>Aircraft Name</h3>
+                      <%= if Enum.any?(@user.aircrafts) do %>
+                        <%= for aircraft <- @user.aircrafts do %>
+                          <%= if aircraft.archived do %>
+                            <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
+                          <% else %>
+                            <p><a href="/admin/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a></p>
+                          <% end %>
                         <% end %>
+                      <% else %>
+                        <p>-</p>
                       <% end %>
-                    <% else %>
-                      <p>-</p>
-                    <% end %>
-                  </div>
-                  <div class="field">
-                    <h3>Aircraft Name</h3>
-                    <%= if Enum.any?(@user.aircrafts) do %>
-                      <%= for aircraft <- @user.aircrafts do %>
-                        <%= if aircraft.archived do %>
-                          <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
-                        <% else %>
-                          <p><a href="/admin/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a></p>
-                        <% end %>
-                      <% end %>
-                    <% else %>
-                      <p>-</p>
-                    <% end %>
-                  </div>
+                    </div>
+                  <% end %>
                 </div>
               </div>
             </div>
@@ -148,7 +150,7 @@
                     <%= if @user.main_instructor.archived do %>
                       <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
                     <% else %>
-                      <p><a href="/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
+                      <p><a href="/admin/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
                     <% end %>
                   <% end %>
                   <%= if Enum.any?(@user.instructors) do %>
@@ -156,7 +158,7 @@
                       <%= if instructor.archived do %>
                         <p><%= instructor.first_name %> <%= instructor.last_name %></p>
                       <% else %>
-                        <p><a href="/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
+                        <p><a href="/admin/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
                       <% end %>
                     <% end %>
                   <% else %>

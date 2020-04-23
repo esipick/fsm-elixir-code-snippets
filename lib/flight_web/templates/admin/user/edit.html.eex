@@ -193,7 +193,7 @@
                 <div class="col-md-12">
                   <div class="form-group">
                     <label>Aircrafts</label>
-                    <%= multiple_select f, :aircrafts, aircrafts_for_select(@aircrafts), selected: Enum.map(@user.aircrafts, & &1.id), class: "form-control" %>
+                    <%= multiple_select f, :aircrafts, aircrafts_for_select(@aircrafts), selected: Enum.map(@user.aircrafts, & &1.id), class: "form-control selectpicker" %>
                     <%= full_error_tag f, :aircrafts %>
                   </div>
                 </div>
@@ -204,7 +204,7 @@
                 <div class="col-md-12">
                   <div class="form-group">
                     <label>Main instructor</label>
-                    <%= select f, :main_instructor_id, main_instructor_select(@instructors), class: "form-control" %>
+                    <%= select f, :main_instructor_id, main_instructor_select(@instructors), class: "form-control selectpicker" %>
                     <%= full_error_tag f, :main_instructor_id %>
                   </div>
                 </div>
@@ -213,7 +213,7 @@
                 <div class="col-md-12">
                   <div class="form-group">
                     <label>Instructors</label>
-                    <%= multiple_select f, :instructors, instructors_for_select(@instructors), selected: Enum.map(@user.instructors, & &1.id), class: "form-control" %>
+                    <%= multiple_select f, :instructors, instructors_for_select(@instructors), selected: Enum.map(@user.instructors, & &1.id), class: "form-control selectpicker" %>
                     <%= full_error_tag f, :instructors %>
                   </div>
                 </div>

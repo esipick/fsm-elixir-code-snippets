@@ -98,7 +98,7 @@ defmodule FlightWeb.Admin.UserController do
   def edit(conn, _params) do
     user = conn.assigns.requested_user
     aircrafts = Accounts.get_aircrafts(conn)
-    role = Accounts.role_for_slug("student")
+    role = Accounts.role_for_slug("instructor")
     instructors = Queries.User.get_users_by_role(role, conn)
 
     render(

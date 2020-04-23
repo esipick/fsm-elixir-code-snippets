@@ -86,7 +86,7 @@
                       <%= if @user.main_instructor.archived do %>
                         <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
                       <% else %>
-                        <p><a href="/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
+                        <p><a href="/admin/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
                       <% end %>
                     <% end %>
                     <%= if Enum.any?(@user.instructors) do %>
@@ -94,7 +94,7 @@
                         <%= if instructor.archived do %>
                           <p><%= instructor.first_name %> <%= instructor.last_name %></p>
                         <% else %>
-                          <p><a href="/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
+                          <p><a href="/admin/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
                         <% end %>
                       <% end %>
                     <% else %>
@@ -148,7 +148,7 @@
                     <%= if @user.main_instructor.archived do %>
                       <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
                     <% else %>
-                      <p><a href="/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
+                      <p><a href="/admin/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
                     <% end %>
                   <% end %>
                   <%= if Enum.any?(@user.instructors) do %>
@@ -156,7 +156,7 @@
                       <%= if instructor.archived do %>
                         <p><%= instructor.first_name %> <%= instructor.last_name %></p>
                       <% else %>
-                        <p><a href="/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
+                        <p><a href="/admin/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
                       <% end %>
                     <% end %>
                   <% else %>
