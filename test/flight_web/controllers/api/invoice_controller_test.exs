@@ -487,7 +487,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     test "renders invoices", %{conn: conn} do
       invoice1 = invoice_fixture()
       invoice2 = invoice_fixture()
-      invoice_fixture(%{archived: true})
+      Invoice.archive(invoice_fixture())
+
       instructor = instructor_fixture()
 
       response =
@@ -636,9 +637,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       instructor = instructor_fixture()
       invoice_params = %{total_amount_due: 25000}
 
-      invoice
-      |> Invoice.changeset(%{archived: true})
-      |> Repo.update()
+      Invoice.archive(invoice)
 
       json =
         conn
@@ -652,8 +651,10 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     @tag :integration
     test "render already removed error attempting pay invoice", %{conn: conn} do
       instructor = instructor_fixture()
-      invoice = invoice_fixture(%{archived: true})
+      invoice = invoice_fixture()
       invoice_params = %{pay_off: true}
+
+      Invoice.archive(invoice)
 
       json =
         conn
@@ -1003,9 +1004,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       appointment = appointment_fixture()
       instructor = instructor_fixture()
 
-      invoice_fixture(%{appointment_id: appointment.id})
-      |> Invoice.changeset(%{archived: true})
-      |> Repo.update()
+      invoice = invoice_fixture(%{appointment_id: appointment.id})
+      Invoice.archive(invoice)
 
       json =
         conn

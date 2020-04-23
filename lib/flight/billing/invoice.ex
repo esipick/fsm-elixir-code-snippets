@@ -29,6 +29,7 @@ defmodule Flight.Billing.Invoice do
     field(:payment_option, InvoicePaymentOptionEnum)
     field(:payer_name, :string)
     field(:archived, :boolean, default: false)
+    field(:archived_at, :naive_datetime)
 
     belongs_to(:user, User)
     belongs_to(:school, School)
@@ -87,6 +88,15 @@ defmodule Flight.Billing.Invoice do
       end
     else
       changeset
+    end
+  end
+
+  def archive(%Flight.Billing.Invoice{} = invoice) do
+    if !invoice.archived do
+      archived_at = NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
+
+      change(invoice, %{archived: true, archived_at: archived_at})
+      |> Flight.Repo.update()
     end
   end
 

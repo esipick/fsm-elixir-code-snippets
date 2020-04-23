@@ -128,9 +128,7 @@ defmodule FlightWeb.API.InvoiceController do
   end
 
   def delete(conn, _params) do
-    conn.assigns.invoice
-    |> Invoice.changeset(%{archived: true})
-    |> Repo.update()
+    Invoice.archive(conn.assigns.invoice)
 
     resp(conn, 204, "")
   end

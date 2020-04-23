@@ -76,9 +76,7 @@ defmodule FlightWeb.Billing.InvoiceController do
   end
 
   def delete(conn, _) do
-    conn.assigns.invoice
-    |> Invoice.changeset(%{archived: true})
-    |> Repo.update()
+    Invoice.archive(conn.assigns.invoice)
 
     conn
     |> put_flash(:success, "Invoice was successfully deleted.")
