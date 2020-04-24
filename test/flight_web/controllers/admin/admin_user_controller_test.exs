@@ -241,7 +241,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
       for slug <- Role.available_role_slugs() do
         user = user_fixture() |> assign_role(slug)
 
-        unless slug == "student", do: user |> assign_role("student")
+        unless slug == "instructor", do: user |> assign_role("instructor")
 
         content =
           conn
@@ -321,7 +321,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
       aircraft = aircraft_fixture(%{}, school)
 
       payload = %{
-        user: %{aircrafts: [aircraft.id]}
+        user: %{aircrafts: ["#{aircraft.id}"]}
       }
 
       admin = admin_fixture(%{}, school)
@@ -341,7 +341,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
       instructor = instructor_fixture(%{}, school)
 
       payload = %{
-        user: %{instructors: [instructor.id]}
+        user: %{instructors: ["#{instructor.id}"]}
       }
 
       admin = admin_fixture(%{}, school)

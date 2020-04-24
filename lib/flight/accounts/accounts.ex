@@ -241,11 +241,13 @@ defmodule Flight.Accounts do
       end
 
     valid_main_instructor? =
-      if main_instructor_id = attrs["main_instructor_id"] do
-        main_instructor = Repo.one(from(r in User, where: r.id == ^main_instructor_id))
-        !main_instructor.archived and main_instructor_id != user.id
-      else
-        true
+      case attrs["main_instructor_id"] do
+        id when id in ["", nil] ->
+          true
+
+        id ->
+          main_instructor = Repo.one(from(r in User, where: r.id == ^id))
+          !main_instructor.archived and id != user.id
       end
 
     cond do

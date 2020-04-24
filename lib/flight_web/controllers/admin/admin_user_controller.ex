@@ -155,6 +155,9 @@ defmodule FlightWeb.Admin.UserController do
     instructors_params = Map.get(params["user"], "instructors", [])
     role_params = Map.keys(params["role_slugs"] || %{})
 
+    aircrafts = Enum.map(aircrafts_params, &String.to_integer(&1))
+    instructors = Enum.map(instructors_params, &String.to_integer(&1))
+
     role_slugs =
       if user_can?(conn.assigns.current_user, modify_admin_permission()) do
         role_params
@@ -166,9 +169,9 @@ defmodule FlightWeb.Admin.UserController do
            conn.assigns.requested_user,
            user_form,
            role_slugs,
-           aircrafts_params,
+           aircrafts,
            Map.keys(params["flyer_certificate_slugs"] || %{}),
-           instructors_params
+           instructors
          ) do
       {:ok, user} ->
         redirect(conn, to: "/admin/users/#{user.id}")
