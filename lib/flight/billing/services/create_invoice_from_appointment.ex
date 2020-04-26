@@ -42,30 +42,35 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
     line_items =
       [
-        aircraft_item(appointment, duration),
+        aircraft_item(appointment, duration, params),
         instructor_item(appointment, duration)
       ]
       |> Enum.filter(fn x -> x end)
 
-    {:ok, invoice_params} =
-      CalculateInvoice.run(
-        %{
-          "school_id" => school.id,
-          "appointment_id" => appointment.id,
-          "user_id" => appointment.user_id,
-          "date" => NaiveDateTime.to_date(appointment.end_at),
-          "payment_option" => payment_option,
-          "line_items" => line_items
-        },
-        school_context
-      )
+    case CalculateInvoice.run(
+           %{
+             "school_id" => school.id,
+             "appointment_id" => appointment.id,
+             "user_id" => appointment.user_id,
+             "date" => NaiveDateTime.to_date(appointment.end_at),
+             "payment_option" => payment_option,
+             "line_items" => line_items
+           },
+           school_context
+         ) do
+      {:ok, invoice_params} ->
+        Flight.Billing.CreateInvoice.run(invoice_params, school_context)
 
-    Flight.Billing.CreateInvoice.run(invoice_params, school_context)
+      {:error, errors} ->
+        {:error, errors}
+    end
   end
 
-  def aircraft_item(appointment, quantity) do
+  def aircraft_item(appointment, quantity, params \\ %{}) do
     if appointment.aircraft do
       rate = appointment.aircraft.rate_per_hour
+      hobbs_end = Map.get(params, "hobbs_time", nil)
+      tach_end = Map.get(params, "tach_time", nil)
 
       %{
         "description" => "Flight Hours",
@@ -74,7 +79,12 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "amount" => rate * quantity,
         "type" => :aircraft,
         "aircraft_id" => appointment.aircraft.id,
-        "taxable" => true
+        "taxable" => true,
+        "hobbs_tach_used" => !!(hobbs_end || tach_end),
+        "hobbs_start" => appointment.aircraft.last_hobbs_time,
+        "tach_start" => appointment.aircraft.last_tach_time,
+        "hobbs_end" => hobbs_end,
+        "tach_end" => tach_end
       }
     end
   end

@@ -388,8 +388,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
 
-      balance_transaction = List.last(invoice.transactions)
-      stripe_transaction = List.first(invoice.transactions)
+      balance_transaction = Enum.find(invoice.transactions, fn x -> x.type == "debit" end)
+      stripe_transaction = Enum.find(invoice.transactions, fn x -> x.type == "credit" end)
 
       assert is_nil(balance_transaction.stripe_charge_id)
       assert not is_nil(balance_transaction.completed_at)
@@ -767,8 +767,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice = preload_invoice(invoice)
 
-      balance_transaction = List.last(invoice.transactions)
-      stripe_transaction = List.first(invoice.transactions)
+      balance_transaction = Enum.find(invoice.transactions, fn x -> x.type == "debit" end)
+      stripe_transaction = Enum.find(invoice.transactions, fn x -> x.type == "credit" end)
 
       assert is_nil(balance_transaction.stripe_charge_id)
       assert not is_nil(balance_transaction.completed_at)
@@ -925,6 +925,54 @@ defmodule FlightWeb.API.InvoiceControllerTest do
                "user_id" => student.id
              }
     end
+
+    test "displays errors", %{conn: conn} do
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+      student = student_fixture()
+
+      payload = %{
+        "line_items" => [
+          %{
+            "type" => "aircraft",
+            "tach_start" => aircraft.last_tach_time,
+            "tach_end" => aircraft.last_tach_time - 14,
+            "rate" => 1,
+            "quantity" => 1,
+            "hobbs_start" => aircraft.last_hobbs_time,
+            "hobbs_end" => aircraft.last_hobbs_time - 13,
+            "hobbs_tach_used" => true,
+            "description" => "Flight Hours",
+            "aircraft_id" => aircraft.id,
+            "taxable" => true,
+            "amount" => 999
+          },
+          %{
+            "type" => "other",
+            "rate" => 5200,
+            "quantity" => 1,
+            "description" => "Fuel",
+            "taxable" => false,
+            "amount" => 999
+          }
+        ],
+        "user_id" => student.id
+      }
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices/calculate", %{"invoice" => payload})
+        |> json_response(422)
+
+      assert json == %{
+               "errors" => %{
+                 "aircraft_details" => %{
+                   "hobbs_end" => ["must be greater than hobbs start"]
+                 }
+               }
+             }
+    end
   end
 
   describe "DELETE /api/invoices/:id" do
@@ -1036,6 +1084,42 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert invoice.total_tax == 26
       assert invoice.total_amount_due == 486
       assert Enum.count(invoice.line_items) == 2
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    test "creates invoice from appointment with hobbs/tach time", %{conn: conn} do
+      student = student_fixture(%{balance: 999_999})
+      aircraft = aircraft_fixture()
+      instructor = instructor_fixture()
+      appointment = appointment_fixture(%{}, student, instructor, aircraft)
+
+      new_tach_time = aircraft.last_tach_time + 5
+      new_hobbs_time = aircraft.last_hobbs_time + 5
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices/from_appointment/#{appointment.id}", %{
+          "hobbs_time" => new_hobbs_time,
+          "tach_time" => new_tach_time,
+          "pay_off" => true
+        })
+        |> json_response(201)
+
+      invoice = Repo.get_by(Invoice, user_id: appointment.user_id) |> preload_invoice
+
+      assert invoice.total == 260
+      assert invoice.tax_rate == 10
+      assert invoice.total_tax == 6
+      assert invoice.total_amount_due == 266
+      assert invoice.status == :paid
+      assert Enum.count(invoice.line_items) == 2
+
+      aircraft = Repo.get(Aircraft, aircraft.id)
+
+      assert aircraft.last_tach_time == new_tach_time
+      assert aircraft.last_hobbs_time == new_hobbs_time
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end

@@ -17,23 +17,20 @@ defmodule Flight.Billing.CreateInvoice do
         %{"school_id" => school.id, "tax_rate" => school.sales_tax || 0}
       )
 
-    result =
-      case Invoice.create(invoice_attrs) do
-        {:ok, invoice} ->
-          if pay_off == true do
-            case pay(invoice, school_context) do
-              {:ok, invoice} -> {:ok, invoice}
-              {:error, error} -> {:error, invoice.id, error}
-            end
-          else
-            {:ok, invoice}
+    case Invoice.create(invoice_attrs) do
+      {:ok, invoice} ->
+        if pay_off == true do
+          case pay(invoice, school_context) do
+            {:ok, invoice} -> {:ok, invoice}
+            {:error, error} -> {:error, invoice.id, error}
           end
+        else
+          {:ok, invoice}
+        end
 
-        {:error, error} ->
-          {:error, error}
-      end
-
-    result
+      {:error, error} ->
+        {:error, error}
+    end
   end
 
   def pay(invoice, school_context) do

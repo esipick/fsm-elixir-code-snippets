@@ -45,11 +45,17 @@ defmodule FlightWeb.API.InvoiceController do
   end
 
   def calculate(conn, %{"invoice" => invoice_params}) do
-    {:ok, calculated_params} = CalculateInvoice.run(invoice_params, conn)
+    case CalculateInvoice.run(invoice_params, conn) do
+      {:ok, calculated_params} ->
+        conn
+        |> put_status(200)
+        |> json(calculated_params)
 
-    conn
-    |> put_status(200)
-    |> json(calculated_params)
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(422)
+        |> json(%{errors: ViewHelpers.translate_errors(changeset)})
+    end
   end
 
   def create(conn, %{"invoice" => invoice_params}) do

@@ -12,49 +12,87 @@ defmodule Flight.Billing.CalculateInvoice do
         %{"school_id" => school.id, "tax_rate" => tax_rate}
       )
 
-    line_items =
-      Enum.map(invoice_attrs["line_items"], fn x ->
-        calculate_line_item(x, invoice_attrs, school_context)
-      end)
+    case calculate_line_items(invoice_attrs, school_context) do
+      {:ok, line_items} ->
+        total = Enum.map(line_items, fn x -> x["amount"] end) |> Enum.sum() |> round
 
-    total = Enum.map(line_items, fn x -> x["amount"] end) |> Enum.sum() |> round
+        total_taxable =
+          Enum.map(line_items, fn x -> if x["taxable"], do: x["amount"], else: 0 end)
+          |> Enum.sum()
 
-    total_taxable =
-      Enum.map(line_items, fn x -> if x["taxable"], do: x["amount"], else: 0 end) |> Enum.sum()
+        total_tax = round(total_taxable * tax_rate / 100)
 
-    total_tax = round(total_taxable * tax_rate / 100)
+        invoice_attrs =
+          Map.merge(invoice_attrs, %{
+            "line_items" => line_items,
+            "total_tax" => total_tax,
+            "total" => total,
+            "total_amount_due" => total + total_tax
+          })
 
-    invoice_attrs =
-      Map.merge(invoice_attrs, %{
-        "line_items" => line_items,
-        "total_tax" => total_tax,
-        "total" => total,
-        "total_amount_due" => total + total_tax
-      })
+        {:ok, invoice_attrs}
 
-    {:ok, invoice_attrs}
+      {:error, errors} ->
+        {:error, errors}
+    end
   end
 
   defp school(school_context) do
     Flight.SchoolScope.get_school(school_context)
   end
 
-  defp calculate_line_item(line_item, invoice, school_context) do
-    {amount, rate} = calculate_amount_and_rate(line_item, invoice, school_context)
+  defp calculate_line_items(invoice_attrs, school_context) do
+    calculated_items =
+      Enum.map(invoice_attrs["line_items"], fn x ->
+        calculate_line_item(x, invoice_attrs, school_context)
+      end)
 
-    Map.merge(line_item, %{"amount" => amount, "rate" => rate})
+    errors =
+      Enum.map(calculated_items, fn x ->
+        case x do
+          {:error, errors} -> errors
+          _ -> nil
+        end
+      end)
+      |> Enum.filter(fn x -> x end)
+
+    if Enum.any?(errors) do
+      {:error, Enum.at(errors, 0)}
+    else
+      line_items =
+        Enum.map(calculated_items, fn x ->
+          case x do
+            {:ok, li} -> li
+            _ -> nil
+          end
+        end)
+        |> Enum.filter(fn x -> x end)
+
+      {:ok, line_items}
+    end
+  end
+
+  defp calculate_line_item(line_item, invoice, school_context) do
+    case calculate_amount_and_rate(line_item, invoice, school_context) do
+      {:ok, {amount, rate}} ->
+        {:ok, Map.merge(line_item, %{"amount" => amount, "rate" => rate})}
+
+      {:error, errors} ->
+        {:error, errors}
+    end
   end
 
   defp calculate_amount_and_rate(line_item, invoice, school_context) do
     if line_item_type(line_item) == :aircraft && line_item["hobbs_tach_used"] do
-      amount = calculate_from_hobbs_tach(line_item, invoice, school_context)
-
-      {amount, amount}
+      case calculate_from_hobbs_tach(line_item, invoice, school_context) do
+        {:ok, amount} -> {:ok, {amount, amount}}
+        {:error, errors} -> {:error, errors}
+      end
     else
       rate = line_item["rate"] || 0
       amount = (line_item["quantity"] || 0) * rate
 
-      {amount, rate}
+      {:ok, {amount, rate}}
     end
   end
 
@@ -85,10 +123,10 @@ defmodule Flight.Billing.CalculateInvoice do
             school_context
           )
 
-        transaction.total
+        {:ok, transaction.total}
 
-      {:error, _changeset} ->
-        0
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 end
