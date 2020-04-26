@@ -52,6 +52,29 @@ defmodule FlightWeb.ViewHelpers do
     end)
   end
 
+  def human_error_messages_for_user_without_key(changeset) do
+    Ecto.Changeset.traverse_errors(changeset, fn _, _, {message, _} ->
+      message
+    end)
+    |> Map.take([:user])
+    |> Enum.reduce([], fn {_key, message_list}, acc ->
+      humanize_message_list_without_key(message_list) ++ acc
+    end)
+  end
+
+  def humanize_message_list_without_key(message_list) do
+    cond do
+      is_list(message_list) ->
+        Enum.map(message_list, fn message -> "#{message}" end)
+
+      is_map(message_list) ->
+        Enum.map(Map.keys(message_list), fn subkey ->
+          "#{Phoenix.Naming.humanize(human_key_transform(subkey))} " <>
+            "#{message_list[subkey]}"
+        end)
+    end
+  end
+
   def human_key_transform(key) do
     case key do
       :medical_expires_at -> :medical_expiration

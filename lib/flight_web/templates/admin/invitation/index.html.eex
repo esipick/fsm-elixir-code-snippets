@@ -22,7 +22,7 @@
           <%= form_for @changeset, @request_path, [as: :data, method: "post"], fn f -> %>
             <%= if Keyword.has_key?(f.errors, :user) do %>
               <div class="alert alert-danger">
-                <%= for error <- human_error_messages_for_user(@changeset) do %>
+                <%= for error <- human_error_messages_for_user_without_key(@changeset) do %>
                   <span><%= error %></span></br>
                 <% end %>
               </div>

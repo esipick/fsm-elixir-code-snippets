@@ -101,6 +101,12 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
 
     email = Ecto.Changeset.get_field(changeset, :email)
 
+    role_id = Ecto.Changeset.get_field(changeset, :role_id)
+
+    role =
+      Repo.get(Accounts.Role, role_id).slug
+      |> String.capitalize()
+
     user = Accounts.get_user_by_email(email)
 
     cond do
@@ -108,13 +114,13 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
         changeset
         |> Ecto.Changeset.add_error(
           :user,
-          "can't be invited unless you've attached a Stripe account. Go to Settings → Billing Setup to attach a Stripe account."
+          "#{role} can't be invited unless you've attached a Stripe account. Go to Settings → Billing Setup to attach a Stripe account."
         )
         |> Ecto.Changeset.apply_action(:insert)
 
       user && require_uniq? ->
         changeset
-        |> Ecto.Changeset.add_error(:email, "already exists for another user.")
+        |> Ecto.Changeset.add_error(:user, "#{role} has already signed up.")
         |> Ecto.Changeset.apply_action(:insert)
 
       true ->
