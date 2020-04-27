@@ -7,7 +7,7 @@
           <div class="user-info">
             <div class=mobile>
               <div class="photo">
-                <img src="<%= static_path(@conn, "/images/james.jpg") %>"/>
+                <img src="<%= avatar_url(@conn, @user) %>"/>
               </div>
               <h2><%= @user.first_name %> <%= @user.last_name %></h2>
               <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
@@ -37,7 +37,7 @@
             <div class=desktop>
               <div class="photo-container">
                 <div class="photo">
-                  <img src="<%= static_path(@conn, "/images/james.jpg") %>"/>
+                  <img src="<%= avatar_url(@conn, @user) %>"/>
                 </div>
                 <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
               </div>
@@ -83,7 +83,7 @@
                   <%= if Accounts.has_role?(@user, "student") do %>
                     <div class="field">
                       <h3>Insctructor</h3>
-                      <%= if @user.main_instructor_id do%>
+                      <%= if @user.main_instructor_id do %>
                         <%= if @user.main_instructor.archived do %>
                           <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
                         <% else %>
@@ -146,7 +146,7 @@
               <div class="fields">
                 <div class="field">
                   <h3>Insctructor</h3>
-                  <%= if @user.main_instructor_id do%>
+                  <%= if @user.main_instructor_id do %>
                     <%= if @user.main_instructor.archived do %>
                       <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
                     <% else %>

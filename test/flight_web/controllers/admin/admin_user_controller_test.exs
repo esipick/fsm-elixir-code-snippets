@@ -293,6 +293,39 @@ defmodule FlightWeb.Admin.UserControllerTest do
       refute Accounts.has_role?(user, "admin")
     end
 
+    test "updates avatar", %{conn: conn} do
+      role_fixture(%{slug: "instructor"})
+      school = school_fixture()
+      user = student_fixture(%{}, school)
+      admin = admin_fixture(%{}, school)
+
+      payload = %{user: %{avatar: upload_fixture("assets/static/images/avatar.png")}}
+
+      conn
+      |> web_auth_admin(admin)
+      |> put("/admin/users/#{user.id}", payload)
+      |> response_redirected_to("/admin/users/#{user.id}")
+
+      user = Accounts.get_user(user.id, admin)
+      url = Flight.AvatarUploader.urls({user.avatar, user})[:original]
+      file_name_regex = "/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89AB][0-9a-f]{3}-[0-9a-f]{12}"
+
+      assert String.match?(
+               url,
+               ~r/\/uploads\/test\/user\/avatars\/original#{file_name_regex}\.png\?v=\d*/i
+             )
+
+      payload = %{user: %{delete_avatar: "1"}}
+
+      conn
+      |> web_auth_admin(admin)
+      |> put("/admin/users/#{user.id}", payload)
+      |> response_redirected_to("/admin/users/#{user.id}")
+
+      user = Accounts.get_user(user.id, admin)
+      refute user.avatar
+    end
+
     test "updates certificates", %{conn: conn} do
       user = user_fixture() |> assign_role("admin")
       flyer_certificate_fixture(%{slug: "mei"})
@@ -380,6 +413,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
 
     test "does not allow update fields with wrong values", %{conn: conn} do
       student = student_fixture()
+      instructor_fixture(%{slug: "instructor"})
 
       payload = %{
         user: %{email: "All@ison", zipcode: "Duprix", flight_training_number: "Duprix"}

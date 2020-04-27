@@ -326,6 +326,17 @@ small.light-text {
 .card .avatar {
   border-radius: 32%;
 }
+.card form .avatar {
+  border-radius: 2px;
+  height: 124px;
+  margin: 15px 0 0;
+  overflow: hidden;
+  width: 124px;
+}
+.card form .avatar img{
+  height: 100%;
+  width: 100%;
+}
 .description,
 .card-description,
 .footer-big p,

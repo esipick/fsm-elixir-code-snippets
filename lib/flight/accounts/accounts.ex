@@ -250,6 +250,8 @@ defmodule Flight.Accounts do
           !main_instructor.archived and id != user.id
       end
 
+    avatar = user.avatar
+
     cond do
       !valid_roles? ->
         {:error,
@@ -310,9 +312,22 @@ defmodule Flight.Accounts do
          )}
 
       true ->
-        user
-        |> changeset_func.(attrs, roles, aircrafts, certs, instructors)
-        |> Repo.update()
+        result =
+          user
+          |> changeset_func.(attrs, roles, aircrafts, certs, instructors)
+          |> Repo.update()
+
+        case result do
+          {:ok, user} ->
+            if attrs["delete_avatar"] == "1" and avatar do
+              Flight.AvatarUploader.delete({avatar, user})
+            end
+
+            {:ok, user}
+
+          error ->
+            error
+        end
     end
   end
 
@@ -336,9 +351,24 @@ defmodule Flight.Accounts do
   end
 
   def regular_user_update_profile(%User{} = user, attrs) do
-    user
-    |> User.regular_user_update_changeset(attrs)
-    |> Repo.update()
+    avatar = user.avatar
+
+    result =
+      user
+      |> User.regular_user_update_changeset(attrs)
+      |> Repo.update()
+
+    case result do
+      {:ok, user} ->
+        if attrs["delete_avatar"] == "1" and avatar do
+          Flight.AvatarUploader.delete({avatar, user})
+        end
+
+        {:ok, user}
+
+      error ->
+        error
+    end
   end
 
   def archive_user(%User{} = user) do

@@ -11,7 +11,7 @@
         <div class="card-header">
           <!--<h3>Edit Profile</h3>-->
         </div>
-        <%= form_for @changeset, "/admin/users/#{@user.id}", [as: :user, method: "put", class: "form-horizontal"], fn f -> %>
+        <%= form_for @changeset, "/admin/users/#{@user.id}", [as: :user, method: "put", class: "form-horizontal", multipart: true], fn f -> %>
           <div class="card-body">
             <div class="row">
               <div class="col-md-6">
@@ -42,6 +42,27 @@
                   <label>Email Address *</label>
                   <%= text_input f, :email, class: "form-control" %>
                   <%= full_error_tag f, :email %>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group-file">
+                  <label>Upload avatar</label>
+                  <div class="avatar">
+                    <img src="<%= avatar_url(@conn, @user) %>"/>
+                  </div>
+                  <%= if @user.avatar do %>
+                    <button id="delete_avatar_button" type="button" class="btn btn-danger">
+                      Remove image
+                    </button>
+                  <% end %>
+                </div>
+                <div class="form-group-file">
+                  <br>
+                  <%= file_input f, :avatar, class: "form-control-file" %>
+                  <br>
+                  <%= full_error_tag f, :avatar %>
                 </div>
               </div>
             </div>
@@ -175,6 +196,7 @@
                 <div class="form-group">
                   <label>User Role/Permissions</label>
                   <div class="checkbox-radios">
+                    <input name="role_slugs" type="hidden" value="">
                     <%= for {label, value} <- role_inputs(@conn.assigns.current_user) do %>
                       <div class="form-check">
                         <label class="form-check-label">
@@ -244,6 +266,9 @@
 <div style="display:none">
   <%= form_tag "/admin/users/#{@user.id}", method: "delete", id: "delete_user_form" do %>
   <% end %>
+  <%= form_tag "/admin/users/#{@user.id}", method: "put", id: "delete_avatar_form" do %>
+    <input name="user[delete_avatar]" type="hidden" value="1">
+  <% end %>
 </div>
 <script>
   $(document).ready(function() {
@@ -251,6 +276,13 @@
       var shouldDelete = confirm("This user and all of their information will be archived and removed from the system.")
       if (shouldDelete) {
         $('#delete_user_form')[0].submit()
+      }
+    });
+
+    $('#delete_avatar_button').on('click', function() {
+      var shouldDelete = confirm("Are you sure?")
+      if (shouldDelete) {
+        $('#delete_avatar_form')[0].submit()
       }
     });
 

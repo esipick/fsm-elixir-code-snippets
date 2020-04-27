@@ -2,6 +2,11 @@ defmodule FlightWeb.ViewHelpers do
   alias FlightWeb.ErrorHelpers
   alias Flight.Accounts
 
+  def avatar_url(conn, user) do
+    Flight.AvatarUploader.urls({user.avatar, user})[:thumb] ||
+      FlightWeb.Router.Helpers.static_path(conn, "/images/avatar.png")
+  end
+
   def format_date(date) when is_binary(date), do: date
   def format_date(nil), do: ""
 

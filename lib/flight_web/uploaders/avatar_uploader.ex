@@ -10,7 +10,8 @@ defmodule Flight.AvatarUploader do
   def formats, do: @extension_whitelist
 
   def validate({file, _}) do
-    Path.extname(file.file_name) in @extension_whitelist
+    ext = file.file_name |> Path.extname() |> String.downcase()
+    ext in @extension_whitelist
   end
 
   def transform(:thumb, _) do

@@ -4,12 +4,11 @@
     <p class="category">Edit Profile</p>
   </div>
 </div>
-
 <div class="content">
   <div class="row">
     <div class="col-md-8 col-xs-12">
       <div class="card">
-        <%= form_for @changeset, "/student/profile", [as: :user, method: "put", class: "form-horizontal"], fn f -> %>
+        <%= form_for @changeset, "/student/profile", [as: :user, method: "put", class: "form-horizontal", multipart: true], fn f -> %>
           <div class="card-body">
             <div class="row">
               <div class="col-md-6">
@@ -49,6 +48,27 @@
                   <label>Email Address *</label>
                   <%= text_input f, :email, class: "form-control" %>
                   <%= full_error_tag f, :email %>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group-file">
+                  <label>Upload avatar</label>
+                  <div class="avatar">
+                    <img src="<%= avatar_url(@conn, @user) %>"/>
+                  </div>
+                  <%= if @user.avatar do %>
+                    <button id="delete_avatar_button" type="button" class="btn btn-danger">
+                      Remove image
+                    </button>
+                  <% end %>
+                </div>
+                <div class="form-group-file">
+                  <br>
+                  <%= file_input f, :avatar, class: "form-control-file" %>
+                  <br>
+                  <%= full_error_tag f, :avatar %>
                 </div>
               </div>
             </div>
@@ -92,11 +112,27 @@
               </div>
             </div>
           </div>
-          <% end %>
+        <% end %>
       </div>
       <!-- end card -->
     </div>
   </div>
 </div>
-
-</div> <!-- end content -->
+<!-- end content -->
+<%= if @user.avatar do %>
+  <div style="display:none">
+    <%= form_tag "/student/profile", method: "put", id: "delete_avatar_form" do %>
+      <input name="user[delete_avatar]" type="hidden" value="1">
+    <% end %>
+  </div>
+  <script>
+    $(document).ready(function() {
+      $('#delete_avatar_button').on('click', function() {
+        var shouldDelete = confirm("Are you sure?")
+        if (shouldDelete) {
+          $('#delete_avatar_form')[0].submit()
+        }
+      });
+    });
+  </script>
+<% end %>

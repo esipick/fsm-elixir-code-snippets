@@ -151,18 +151,39 @@ defmodule FlightWeb.Admin.UserController do
   end
 
   def update(conn, %{"user" => user_form} = params) do
-    aircrafts_params = Map.get(params["user"], "aircrafts", [])
-    instructors_params = Map.get(params["user"], "instructors", [])
-    role_params = Map.keys(params["role_slugs"] || %{})
+    aircrafts =
+      case Map.get(params["user"], "aircrafts") do
+        params when is_list(params) -> Enum.map(params, &String.to_integer(&1))
+        _ -> nil
+      end
 
-    aircrafts = Enum.map(aircrafts_params, &String.to_integer(&1))
-    instructors = Enum.map(instructors_params, &String.to_integer(&1))
+    instructors =
+      case Map.get(params["user"], "instructors") do
+        params when is_list(params) -> Enum.map(params, &String.to_integer(&1))
+        _ -> nil
+      end
+
+    role_params = params["role_slugs"]
 
     role_slugs =
-      if user_can?(conn.assigns.current_user, modify_admin_permission()) do
-        role_params
+      with %{} <- role_params, params <- Map.keys(params["role_slugs"]) do
+        if user_can?(conn.assigns.current_user, modify_admin_permission()) do
+          params
+        else
+          Enum.filter(params, fn p -> p != "admin" end)
+        end
       else
-        Enum.filter(role_params, fn p -> p != "admin" end)
+        "" ->
+          %{}
+
+        _ ->
+          nil
+      end
+
+    certs =
+      case params["flyer_certificate_slugs"] do
+        %{} = params -> Map.keys(params)
+        _ -> nil
       end
 
     case Accounts.admin_update_user_profile(
@@ -170,20 +191,26 @@ defmodule FlightWeb.Admin.UserController do
            user_form,
            role_slugs,
            aircrafts,
-           Map.keys(params["flyer_certificate_slugs"] || %{}),
+           certs,
            instructors
          ) do
       {:ok, user} ->
         redirect(conn, to: "/admin/users/#{user.id}")
 
       {:error, changeset} ->
+        user = conn.assigns.requested_user
+        aircrafts = Accounts.get_aircrafts(conn)
+        role = Accounts.role_for_slug("instructor")
+        instructors = Queries.User.get_users_by_role(role, conn)
+
         render(
           conn,
           "edit.html",
-          aircrafts: [],
+          aircrafts: aircrafts,
           changeset: changeset,
-          instructors: [],
-          user: conn.assigns.requested_user
+          instructors: instructors,
+          skip_shool_select: true,
+          user: user
         )
     end
   end

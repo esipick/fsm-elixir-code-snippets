@@ -53,10 +53,11 @@ defmodule FlightWeb.Student.ProfileController do
 
   def update(conn, params) do
     user_form =
-      if String.trim(params["user"]["password"]) == "" do
+      with password_params when password_params != nil <- params["user"]["password"],
+           true <- String.trim(password_params) == "" do
         Map.delete(params["user"], "password")
       else
-        params["user"]
+        _ -> params["user"]
       end
 
     user =

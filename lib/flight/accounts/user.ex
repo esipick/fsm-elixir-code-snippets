@@ -7,6 +7,8 @@ defmodule Flight.Accounts.User do
   alias __MODULE__
   alias Flight.AvatarUploader
 
+  @avatar_size 5_000_000
+
   schema "users" do
     field(:email, :string)
     field(:first_name, :string)
@@ -68,26 +70,51 @@ defmodule Flight.Accounts.User do
         end
       end
 
+    attrs =
+      case attrs[:delete_avatar] do
+        "1" -> Map.put(attrs, :avatar, nil)
+        _ -> attrs
+      end
+
     attr = :avatar
 
     case attrs[attr] do
       nil ->
         user
+        |> cast_attachments(attrs, [attr])
+
+      %Plug.Upload{} = upload ->
+        extname =
+          upload.filename
+          |> Path.extname()
+          |> String.downcase()
+
+        upload =
+          upload
+          |> Map.put(:filename, Ecto.UUID.generate() <> extname)
+
+        attrs =
+          attrs
+          |> Map.put(:avatar, upload)
+
+        user
+        |> validate_avatar_file_size(upload.path)
+        |> cast_attachments(attrs, [attr])
 
       base64_binary ->
         case base64_binary |> Base.decode64(ignore: :whitespace) do
           {:ok, binary} ->
-            extension = ".#{ExImageInfo.seems?(binary)}"
+            extname = ".#{ExImageInfo.seems?(binary)}"
 
             attrs =
               Map.put(attrs, attr, %{
-                filename: Ecto.UUID.generate() <> extension,
+                filename: Ecto.UUID.generate() <> extname,
                 binary: binary
               })
 
             user
-            |> validate_avatar_format(extension)
-            |> validate_avatar_size(binary)
+            |> validate_avatar_format(extname)
+            |> validate_avatar_binary_size(binary)
             |> cast_attachments(attrs, [attr])
 
           _ ->
@@ -393,8 +420,26 @@ defmodule Flight.Accounts.User do
     end
   end
 
-  defp validate_avatar_size(user, binary) do
-    case byte_size(binary) > 5_000_000 do
+  defp validate_avatar_file_size(user, path) do
+    # Use`:prim_file` Erlang module instead of the more common and Elixir-y `File` module and
+    # `File.Stat` struct. The reason behind this is performance: all the `File` operations pass
+    # through a single process in order to support node operations.
+    with {:ok,
+          {_, size, _type, _access, _atime, _mtime, _ctime, _mode, _links, _major_device,
+           _minor_device, _inode, _uid, _gid}} <- :prim_file.read_file_info(path),
+         true <- size < @avatar_size do
+      user
+    else
+      {:error, :invalid_file} ->
+        add_error(user, :avatar, "is invalid")
+
+      _ ->
+        add_error(user, :avatar, "size should not exceed 5 megabytes")
+    end
+  end
+
+  defp validate_avatar_binary_size(user, binary) do
+    case byte_size(binary) > @avatar_size do
       true -> add_error(user, :avatar, "size should not exceed 5 megabytes")
       false -> user
     end
