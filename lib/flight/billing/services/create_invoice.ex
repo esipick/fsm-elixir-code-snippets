@@ -111,7 +111,7 @@ defmodule Flight.Billing.CreateInvoice do
     case create_transaction(invoice, school_context, transaction_attrs) do
       {:ok, transaction} ->
         case PayTransaction.run(transaction) do
-          {:ok, _} -> Invoice.paid(invoice)
+          {:ok, _} -> Invoice.paid_by_cc(invoice)
           {:error, changeset} -> {:error, changeset}
         end
 

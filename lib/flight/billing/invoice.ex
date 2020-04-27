@@ -62,6 +62,11 @@ defmodule Flight.Billing.Invoice do
     change(invoice, status: :paid) |> Repo.update()
   end
 
+  def paid_by_cc(%Invoice{} = invoice) do
+    attrs = [payment_option: :cc, status: :paid]
+    change(invoice, attrs) |> Repo.update()
+  end
+
   def validate_required_inclusion(changeset, fields) do
     if Enum.any?(fields, &present?(changeset, &1)) do
       changeset

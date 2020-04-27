@@ -766,6 +766,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> json_response(200)
 
       invoice = preload_invoice(invoice)
+      assert invoice.payment_option == :cc
 
       balance_transaction = Enum.find(invoice.transactions, fn x -> x.type == "debit" end)
       stripe_transaction = Enum.find(invoice.transactions, fn x -> x.type == "credit" end)
