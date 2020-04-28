@@ -43,11 +43,13 @@ defmodule Flight.SchedulingFixtures do
         type \\ "lesson"
       ) do
     date = ~N[2038-03-03 10:00:00]
+    start_at = Map.get(attrs, :start_at, Timex.shift(date, hours: 2))
+    end_at = Map.get(attrs, :end_at, Timex.shift(date, hours: 4))
 
     appointment =
       %Appointment{
-        start_at: Timex.shift(date, hours: 2),
-        end_at: Timex.shift(date, hours: 4),
+        start_at: start_at,
+        end_at: end_at,
         user_id: user.id,
         instructor_user_id: instructor.id,
         aircraft_id: aircraft.id,
@@ -55,6 +57,35 @@ defmodule Flight.SchedulingFixtures do
         type: type
       }
       |> Appointment.changeset(attrs, school.timezone)
+      |> Appointment.apply_timezone_changeset(school.timezone)
+      |> Repo.insert!()
+
+    %{appointment | aircraft: aircraft, instructor_user: instructor, user: user}
+  end
+
+  def past_appointment_fixture(
+        attrs \\ %{},
+        user \\ student_fixture(),
+        instructor \\ instructor_fixture(),
+        aircraft \\ aircraft_fixture(),
+        school \\ default_school_fixture(),
+        type \\ "lesson"
+      ) do
+    date = ~N[2018-03-03 10:00:00]
+    start_at = Map.get(attrs, :start_at, Timex.shift(date, hours: 2))
+    end_at = Map.get(attrs, :end_at, Timex.shift(date, hours: 4))
+
+    appointment =
+      %Appointment{
+        start_at: start_at,
+        end_at: end_at,
+        user_id: user.id,
+        instructor_user_id: instructor.id,
+        aircraft_id: aircraft.id,
+        school_id: school.id,
+        type: type
+      }
+      |> Appointment.__test_changeset(attrs, school.timezone)
       |> Appointment.apply_timezone_changeset(school.timezone)
       |> Repo.insert!()
 

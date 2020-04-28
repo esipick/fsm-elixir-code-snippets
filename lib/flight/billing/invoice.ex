@@ -55,7 +55,7 @@ defmodule Flight.Billing.Invoice do
     |> assoc_constraint(:school)
     |> validate_required(@required_fields)
     |> validate_required_inclusion(@payer_fields)
-    |> validate_appointment_existence
+    |> validate_appointment_is_valid
   end
 
   def paid(%Invoice{} = invoice) do
@@ -76,17 +76,26 @@ defmodule Flight.Billing.Invoice do
     end
   end
 
-  def validate_appointment_existence(changeset) do
+  def validate_appointment_is_valid(changeset) do
     appointment_id = get_field(changeset, :appointment_id)
 
     if appointment_id do
-      appointment = Repo.get(Appointment, appointment_id)
+      appointment = Repo.get(Appointment, appointment_id) |> Repo.preload(:school)
 
       if appointment do
-        if appointment.archived do
-          add_error(changeset, :appointment_id, "has already been removed")
-        else
-          changeset
+        case appointment.archived do
+          true ->
+            add_error(changeset, :appointment_id, "has already been removed")
+
+          false ->
+            timezone = appointment.school.timezone
+            now = Flight.Walltime.utc_to_walltime(NaiveDateTime.utc_now(), timezone)
+            end_at = Flight.Walltime.walltime_to_utc(appointment.end_at, timezone)
+
+            case NaiveDateTime.compare(now, end_at) do
+              :lt -> add_error(changeset, :appointment_id, "did not end")
+              _ -> changeset
+            end
         end
       else
         add_error(changeset, :appointment_id, "does not exist")

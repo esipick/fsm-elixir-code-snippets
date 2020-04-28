@@ -278,7 +278,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
     @tag :integration
     test "pays invoice created from appointment", %{conn: conn} do
-      appointment = appointment_fixture()
+      appointment = past_appointment_fixture()
       instructor = instructor_fixture()
       invoice = invoice_fixture(%{appointment_id: appointment.id, payment_option: "cash"})
 
@@ -299,7 +299,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
     @tag :integration
     test "updates aircraft hobbs and tach time after payment", %{conn: conn} do
-      appointment = appointment_fixture()
+      appointment = past_appointment_fixture()
       instructor = instructor_fixture()
       aircraft = aircraft_fixture()
       new_tach_time = aircraft.last_tach_time + 5
@@ -1021,7 +1021,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   describe "GET from_appointment" do
     @tag :integration
     test "fetches invoice by appointment id", %{conn: conn} do
-      appointment = appointment_fixture()
+      appointment = past_appointment_fixture()
       instructor = instructor_fixture()
       invoice = invoice_fixture(%{appointment_id: appointment.id}) |> preload_invoice
 
@@ -1050,7 +1050,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
     @tag :integration
     test "returns error when invoice is archived", %{conn: conn} do
-      appointment = appointment_fixture()
+      appointment = past_appointment_fixture()
       instructor = instructor_fixture()
 
       invoice = invoice_fixture(%{appointment_id: appointment.id})
@@ -1069,7 +1069,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   describe "POST from_appointment" do
     @tag :integration
     test "creates invoice from appointment", %{conn: conn} do
-      appointment = appointment_fixture()
+      appointment = past_appointment_fixture()
       instructor = instructor_fixture()
 
       json =
@@ -1093,7 +1093,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       student = student_fixture(%{balance: 999_999})
       aircraft = aircraft_fixture()
       instructor = instructor_fixture()
-      appointment = appointment_fixture(%{}, student, instructor, aircraft)
+      appointment = past_appointment_fixture(%{}, student, instructor, aircraft)
 
       new_tach_time = aircraft.last_tach_time + 5
       new_hobbs_time = aircraft.last_hobbs_time + 5
@@ -1128,7 +1128,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     @tag :integration
     test "creates paid invoice from appointment", %{conn: conn} do
       student = student_fixture(%{balance: 999_999})
-      appointment = appointment_fixture(%{}, student)
+      appointment = past_appointment_fixture(%{}, student)
       instructor = instructor_fixture()
 
       json =
@@ -1161,7 +1161,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
     @tag :integration
     test "returns existing invoice for appointment", %{conn: conn} do
-      appointment = appointment_fixture()
+      appointment = past_appointment_fixture()
       instructor = instructor_fixture()
       invoice = invoice_fixture(%{appointment_id: appointment.id}) |> preload_invoice
 

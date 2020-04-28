@@ -19,6 +19,30 @@ defmodule Flight.Scheduling.Appointment do
     timestamps()
   end
 
+  def __test_changeset(appointment, attrs, timezone) do
+    appointment
+    |> cast(attrs, [
+      :start_at,
+      :end_at,
+      :user_id,
+      :instructor_user_id,
+      :aircraft_id,
+      :note,
+      :type,
+      :status
+    ])
+    |> validate_required([
+      :start_at,
+      :end_at,
+      :user_id,
+      :school_id,
+      :type
+    ])
+    |> validate_end_at_after_start_at()
+    |> validate_user_instructor_different()
+    |> validate_either_instructor_or_aircraft_set()
+  end
+
   @doc false
   def changeset(appointment, attrs, timezone) do
     appointment
