@@ -531,7 +531,8 @@ defmodule FlightWeb.Admin.UserControllerTest do
   @tag :integration
   describe "GET /admin/users/:id/restore" do
     test "restore", %{conn: conn} do
-      student = student_fixture(%{first_name: "Bill", last_name: "Murray", archived: true})
+      student = student_fixture(%{first_name: "Bill", last_name: "Murray"})
+      Accounts.archive_user(student)
 
       admin = admin_fixture()
 
@@ -540,8 +541,23 @@ defmodule FlightWeb.Admin.UserControllerTest do
         |> web_auth_admin(admin)
         |> get("/admin/users/#{student.id}/restore?role=student")
 
+      assert redirected_to(conn) == "/admin/users?role=student"
       assert get_flash(conn, :success) =~ "Successfully restored Bill Murray account"
       assert student.archived == false
+    end
+
+    test "Displays error if user already restored", %{conn: conn} do
+      student = student_fixture(%{first_name: "Bill", last_name: "Murray", archived: false})
+
+      admin = admin_fixture()
+
+      conn =
+        conn
+        |> web_auth_admin(admin)
+        |> get("/admin/users/#{student.id}/restore?role=student")
+
+      assert redirected_to(conn) == "/admin/dashboard"
+      assert get_flash(conn, :error) =~ "Bill Murray account is already restored"
     end
   end
 end

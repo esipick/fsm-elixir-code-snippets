@@ -6,6 +6,7 @@ defmodule FlightWeb.Admin.UserController do
   import Flight.Auth.Authorization
 
   plug(:get_user when action in [:show, :edit, :update, :add_funds, :delete])
+  plug(:check_user when action in [:restore])
   plug(:authorize_admin when action in [:index])
   plug(:protect_admin_users when action in [:show, :edit, :update])
 
@@ -243,10 +244,7 @@ defmodule FlightWeb.Admin.UserController do
   end
 
   def restore(conn, params) do
-    user =
-      conn.params["user_id"]
-      |> Accounts.get_school_user_by_id(conn)
-
+    user = conn.assigns.requested_user
     Accounts.restore_user(user)
 
     conn =
@@ -273,6 +271,29 @@ defmodule FlightWeb.Admin.UserController do
       user && user.archived ->
         conn
         |> put_flash(:error, "User already removed.")
+        |> redirect(to: "/admin/dashboard")
+        |> halt()
+
+      true ->
+        conn
+        |> put_flash(:error, "Unknown user.")
+        |> redirect(to: "/admin/dashboard")
+        |> halt()
+    end
+  end
+
+  defp check_user(conn, _) do
+    user =
+      conn.params["user_id"]
+      |> Accounts.get_school_user_by_id(conn)
+
+    cond do
+      user && user.archived ->
+        assign(conn, :requested_user, user)
+
+      user && !user.archived ->
+        conn
+        |> put_flash(:error, "#{user.first_name} #{user.last_name} account is already restored")
         |> redirect(to: "/admin/dashboard")
         |> halt()
 
