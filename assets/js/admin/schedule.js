@@ -73,6 +73,29 @@ $(document).ready(function () {
     $calendar.fullCalendar('gotoDate', moment($('#datepickercustom').val()).format())
   })
 
+  var showError = function (errors, event) {
+    if (errors.filter(s => s.includes("already removed")).length) {
+      $('#calendarNewModal').modal('hide')
+      $calendar.fullCalendar('refetchEvents')
+
+      $.notify({
+        message: event + " already removed please recreate it"
+      }, {
+        type: "danger",
+        placement: { align: "center" }
+      })
+    } else {
+      for (var error of errors) {
+        $.notify({
+          message: error
+        }, {
+          type: "danger",
+          placement: { align: "center" }
+        })
+      }
+    }
+  }
+
   // collect event data on save and send to server
   $('#btnSave').click(function () {
     var buttonPos = $(this).offset();
@@ -162,16 +185,16 @@ $(document).ready(function () {
     }
 
     if (promise) {
+      var event;
+      if (eventType == "appt") {
+        event = "appointment"
+      } else {
+        event = "unavailability"
+      }
+
       promise.then(function () {
         $('#calendarNewModal').modal('hide')
         $calendar.fullCalendar('refetchEvents')
-
-        var event;
-        if (eventType == "appt") {
-          event = "appointment"
-        } else {
-          event = "unavailability"
-        }
 
         $.notify({
           message: "Successfully saved " + event
@@ -182,14 +205,7 @@ $(document).ready(function () {
 
       }).catch(function (e) {
         if (e.responseJSON.human_errors) {
-          for (var error of e.responseJSON.human_errors) {
-            $.notify({
-              message: error
-            }, {
-              type: "danger",
-              placement: { align: "center" }
-            })
-          }
+          showError(e.responseJSON.human_errors, event)
         } else {
           $.notify({
             message: "There was an error creating the event"
@@ -225,16 +241,16 @@ $(document).ready(function () {
         })
       }
 
+      var event;
+      if (eventType == "appt") {
+        event = "appointment"
+      } else {
+        event = "unavailability"
+      }
+
       promise.then(function () {
         $('#calendarNewModal').modal('hide')
         $calendar.fullCalendar('refetchEvents')
-
-        var event;
-        if (eventType == "appt") {
-          event = "appointment"
-        } else {
-          event = "unavailability"
-        }
 
         $.notify({
           message: "Successfully deleted " + event
@@ -245,14 +261,7 @@ $(document).ready(function () {
 
       }).catch(function (e) {
         if (e.responseJSON.human_errors) {
-          for (var error of e.responseJSON.human_errors) {
-            $.notify({
-              message: error
-            }, {
-              type: "danger",
-              placement: { align: "center" }
-            })
-          }
+          showError(e.responseJSON.human_errors, event)
         } else {
           $.notify({
             message: "There was an error deleting the event"

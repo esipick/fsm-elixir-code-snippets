@@ -112,7 +112,18 @@ defmodule FlightWeb.API.UnavailabilityController do
   end
 
   defp get_unavailability(conn, _) do
-    assign(conn, :unavailability, Scheduling.get_unavailability(conn.params["id"], conn))
+    cond do
+      check_unavailability(conn.params["id"]) ->
+        unavailability = Scheduling.get_unavailability(conn.params["id"], conn)
+
+        assign(conn, :unavailability, unavailability)
+
+      true ->
+        conn
+        |> put_status(401)
+        |> json(%{human_errors: ["Unavailability already removed please recreate it"]})
+        |> halt()
+    end
   end
 
   defp parse_to_boolean(instructor_user_id) do
@@ -121,5 +132,9 @@ defmodule FlightWeb.API.UnavailabilityController do
       "" -> nil
       _ -> true
     end
+  end
+
+  defp check_unavailability(id) do
+    Flight.Repo.get(Scheduling.Unavailability, id)
   end
 end

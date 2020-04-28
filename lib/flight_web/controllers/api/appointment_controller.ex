@@ -157,6 +157,17 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   defp get_appointment(conn, _) do
-    assign(conn, :appointment, Scheduling.get_appointment(conn.params["id"], conn))
+    appointment = Scheduling.get_appointment(conn.params["id"], conn)
+
+    cond do
+      appointment && appointment.archived ->
+        conn
+        |> put_status(401)
+        |> json(%{human_errors: ["Appointment already removed please recreate it"]})
+        |> halt()
+
+      true ->
+        assign(conn, :appointment, appointment)
+    end
   end
 end

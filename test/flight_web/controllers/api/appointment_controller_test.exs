@@ -216,6 +216,29 @@ defmodule FlightWeb.API.AppointmentControllerTest do
 
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
     end
+
+    @tag :integration
+    test "show error if appointment already removed", %{conn: conn} do
+      appointment = appointment_fixture()
+
+      Appointment.archive(appointment)
+
+      params = %{
+        data: %{note: "Heyo Timeo"}
+      }
+
+      json =
+        conn
+        |> auth(appointment.instructor_user)
+        |> put("/api/appointments/#{appointment.id}", params)
+        |> json_response(401)
+
+      assert json == %{
+               "human_errors" => [
+                 "Appointment already removed please recreate it"
+               ]
+             }
+    end
   end
 
   describe "POST /api/appointments" do
@@ -484,6 +507,25 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       appointment = Flight.Repo.get(Appointment, appointment.id)
 
       assert appointment.archived
+    end
+
+    @tag :integration
+    test "show error if appointment already removed", %{conn: conn} do
+      appointment = appointment_fixture()
+
+      Appointment.archive(appointment)
+
+      json =
+        conn
+        |> auth(appointment.instructor_user)
+        |> delete("/api/appointments/#{appointment.id}")
+        |> json_response(401)
+
+      assert json == %{
+               "human_errors" => [
+                 "Appointment already removed please recreate it"
+               ]
+             }
     end
   end
 end

@@ -100,6 +100,30 @@ defmodule FlightWeb.API.ControllerTest do
 
       assert json == render_json(UnavailabilityView, "show.json", unavailability: unavailability)
     end
+
+    @tag :integration
+    test "show error if unavailability already removed", %{conn: conn} do
+      instructor = user_fixture() |> assign_role("instructor")
+      unavailability = unavailability_fixture(@default_attrs, instructor)
+
+      Flight.Repo.delete!(unavailability)
+
+      params = %{
+        data: %{note: "Heyo Timeo"}
+      }
+
+      json =
+        conn
+        |> auth(instructor)
+        |> put("/api/unavailabilities/#{unavailability.id}", params)
+        |> json_response(401)
+
+      assert json == %{
+               "human_errors" => [
+                 "Unavailability already removed please recreate it"
+               ]
+             }
+    end
   end
 
   describe "POST /api/unavailabilities" do
@@ -272,6 +296,30 @@ defmodule FlightWeb.API.ControllerTest do
       |> auth(instructor)
       |> delete("/api/unavailabilities/#{unavailability.id}")
       |> response(400)
+    end
+
+    @tag :integration
+    test "show error if unavailability already removed", %{conn: conn} do
+      instructor = user_fixture() |> assign_role("instructor")
+      unavailability = unavailability_fixture(@default_attrs, instructor)
+
+      Flight.Repo.delete!(unavailability)
+
+      params = %{
+        data: %{note: "Heyo Timeo"}
+      }
+
+      json =
+        conn
+        |> auth(instructor)
+        |> delete("/api/unavailabilities/#{unavailability.id}")
+        |> json_response(401)
+
+      assert json == %{
+               "human_errors" => [
+                 "Unavailability already removed please recreate it"
+               ]
+             }
     end
   end
 end
