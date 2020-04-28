@@ -377,6 +377,12 @@ defmodule Flight.Accounts do
     |> Repo.update()
   end
 
+  def restore_user(%User{} = user) do
+    user
+    |> User.archive_changeset(%{archived: false})
+    |> Repo.update()
+  end
+
   def archive_school(%School{} = school) do
     school
     |> School.archive_changeset(%{archived: true})
@@ -581,6 +587,13 @@ defmodule Flight.Accounts do
     |> default_users_query(school_context)
   end
 
+  def archived_users_with_role_query(role, search_term, school_context) do
+    role
+    |> Ecto.assoc(:users)
+    |> Flight.Accounts.Search.User.run(search_term)
+    |> archived_users_query(school_context)
+  end
+
   def users_with_roles([], _school_context) do
     []
   end
@@ -603,6 +616,15 @@ defmodule Flight.Accounts do
     from(
       u in query,
       where: u.archived == false,
+      order_by: u.last_name
+    )
+    |> SchoolScope.scope_query(school_context)
+  end
+
+  def archived_users_query(query, school_context) do
+    from(
+      u in query,
+      where: u.archived == true,
       order_by: u.last_name
     )
     |> SchoolScope.scope_query(school_context)

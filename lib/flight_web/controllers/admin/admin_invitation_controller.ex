@@ -4,6 +4,7 @@ defmodule FlightWeb.Admin.InvitationController do
   alias Flight.Accounts
 
   plug(:get_invitation when action in [:resend, :delete])
+  plug(:check_invitation when action in [:create])
 
   def index(conn, %{"role" => role_slug}) do
     invitations = Accounts.visible_invitations_with_role(role_slug, conn)
@@ -18,9 +19,7 @@ defmodule FlightWeb.Admin.InvitationController do
     )
   end
 
-  def create(conn, %{"data" => %{"role_id" => role_id} = data}) do
-    role = Accounts.get_role!(role_id)
-
+  def create(conn, %{"data" => %{} = data}) do
     case Accounts.create_invitation(data, conn) do
       {:ok, invitation} ->
         conn
@@ -28,64 +27,98 @@ defmodule FlightWeb.Admin.InvitationController do
           :success,
           "Successfully sent invitation. Please have #{invitation.first_name} check their email to complete the sign up process."
         )
-        |> redirect(to: "/admin/invitations?role=#{role.slug}")
+        |> redirect(to: "/admin/invitations?role=#{conn.assigns.role.slug}")
 
       {:error, changeset} ->
-        invitations = Accounts.visible_invitations_with_role(role.slug, conn)
+        invitations = Accounts.visible_invitations_with_role(conn.assigns.role.slug, conn)
 
         render(conn, "index.html",
           invitations: invitations,
           changeset: changeset,
           request_path: invite_request_path(conn),
-          role: role
+          role: conn.assigns.role
         )
     end
   end
 
   def delete(conn, _params) do
-    role = Accounts.get_role(conn.assigns.invitation.role_id)
+    Accounts.delete_invitation!(conn.assigns.invitation)
 
-    if conn.assigns.invitation.accepted_at do
-      conn
-      |> put_flash(:error, "User already registered.")
-      |> redirect(to: "/admin/invitations?role=#{role.slug}")
-    else
-      Accounts.delete_invitation!(conn.assigns.invitation)
-
-      conn
-      |> put_flash(:success, "Invitation deleted")
-      |> redirect(to: "/admin/invitations?role=#{role.slug}")
-    end
+    conn
+    |> put_flash(:success, "Invitation deleted")
+    |> redirect(to: "/admin/invitations?role=#{conn.assigns.role}")
   end
 
   def resend(conn, _params) do
-    role = Accounts.get_role(conn.assigns.invitation.role_id)
+    Accounts.send_invitation_email(conn.assigns.invitation)
 
-    if conn.assigns.invitation.accepted_at do
-      conn
-      |> put_flash(:error, "User already registered.")
-      |> redirect(to: "/admin/invitations?role=#{role.slug}")
-    else
-      Accounts.send_invitation_email(conn.assigns.invitation)
-
-      conn
-      |> put_flash(
-        :success,
-        "Successfully sent invitation email to #{conn.assigns.invitation.email}"
-      )
-      |> redirect(to: "/admin/invitations?role=#{role.slug}")
-    end
+    conn
+    |> put_flash(
+      :success,
+      "Successfully sent invitation email to #{conn.assigns.invitation.email}"
+    )
+    |> redirect(to: "/admin/invitations?role=#{conn.assigns.role}")
   end
 
   defp get_invitation(conn, _) do
     invitation = Accounts.get_invitation(conn.params["id"] || conn.params["invitation_id"], conn)
+    role = invitation && Accounts.get_role(invitation.role_id)
+    slug = invitation && String.capitalize(role.slug)
 
-    if invitation do
-      assign(conn, :invitation, invitation)
-    else
-      conn
-      |> resp(404, "")
-      |> halt()
+    cond do
+      invitation && invitation.accepted_at ->
+        conn
+        |> put_flash(:error, "#{slug} already registered.")
+        |> redirect(to: "/admin/invitations?role=#{role.slug}")
+        |> halt()
+
+      invitation ->
+        conn
+        |> assign(:invitation, invitation)
+        |> assign(:role, role.slug)
+
+      true ->
+        conn
+        |> put_flash(:error, "Invitation already removed.")
+        |> redirect(to: "/admin/dashboard")
+        |> halt()
+    end
+  end
+
+  defp check_invitation(conn, _) do
+    email = conn.params["data"]["email"]
+    invitation = Accounts.get_invitation_for_email(email, conn)
+    user = Accounts.get_user_by_email(email)
+    role = invitation && Accounts.get_role!(invitation.role_id)
+    slug = invitation && String.capitalize(role.slug)
+
+    cond do
+      invitation && invitation.accepted_at && user.archived ->
+        conn
+        |> put_flash(
+          :error,
+          "#{slug} already removed. You may reinstate this account using \"Restore\" button below"
+        )
+        |> redirect(to: "/admin/users?role=#{role.slug}&tab=archived")
+        |> halt()
+
+      invitation && invitation.accepted_at && !user.archived ->
+        conn
+        |> put_flash(:error, "#{slug} has already registered.")
+        |> redirect(to: "/admin/users?role=#{role.slug}")
+        |> halt()
+
+      invitation ->
+        conn
+        |> put_flash(
+          :error,
+          "#{slug} already invited. Please wait for invitation acceptance or resend invitation"
+        )
+        |> redirect(to: "/admin/invitations?role=#{role.slug}")
+        |> halt()
+
+      true ->
+        assign(conn, :role, Accounts.get_role!(conn.params["data"]["role_id"]))
     end
   end
 

@@ -15,14 +15,15 @@ defmodule FlightWeb.Admin.UserListData do
 
   alias FlightWeb.Admin.UserListData
 
-  def build(school_context, role_slug, page_params, search_term) do
+  def build(school_context, role_slug, page_params, search_term, archived) do
     role = Flight.Accounts.role_for_slug(role_slug)
 
     if role do
       %UserListData{
         role: role,
         search_term: search_term,
-        user_table_data: table_data_for_role(role, search_term, school_context, page_params),
+        user_table_data:
+          table_data_for_role(role, search_term, school_context, page_params, archived),
         invitations: []
       }
     else
@@ -30,21 +31,21 @@ defmodule FlightWeb.Admin.UserListData do
     end
   end
 
-  def table_data_for_role(role, search_term, school_context, page_params) do
+  def table_data_for_role(role, search_term, school_context, page_params, archived) do
     case role.slug do
       slug when slug in ["renter", "instructor", "student"] ->
-        user_table_data(:detailed, role, search_term, school_context, page_params)
+        user_table_data(:detailed, role, search_term, school_context, page_params, archived)
 
       slug when slug in ["admin", "dispatcher"] ->
-        user_table_data(:simple, role, search_term, school_context, page_params)
+        user_table_data(:simple, role, search_term, school_context, page_params, archived)
 
       _ ->
         raise "Unknown role slug: #{role.slug}"
     end
   end
 
-  def user_table_data(mode, role, search_term, school_context, page_params) do
-    page = users_page(role, search_term, school_context, page_params)
+  def user_table_data(mode, role, search_term, school_context, page_params, archived) do
+    page = users_page(role, search_term, school_context, page_params, archived)
 
     rows =
       case mode do
@@ -84,8 +85,13 @@ defmodule FlightWeb.Admin.UserListData do
     end
   end
 
-  def users_page(role, search_term, school_context, page_params) do
-    Flight.Accounts.users_with_role_query(role, search_term, school_context)
-    |> Flight.Repo.paginate(page_params)
+  def users_page(role, search_term, school_context, page_params, archived) do
+    if archived == :archived do
+      Flight.Accounts.archived_users_with_role_query(role, search_term, school_context)
+      |> Flight.Repo.paginate(page_params)
+    else
+      Flight.Accounts.users_with_role_query(role, search_term, school_context)
+      |> Flight.Repo.paginate(page_params)
+    end
   end
 end

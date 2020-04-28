@@ -4,9 +4,6 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header">
-          <!-- <h4 class="card-title">Students</h4> -->
-        </div>
-        <div class="card-body">
           <div class="d-flex justify-content-between mb-3">
             <ul class="nav nav-pills nav-pills-primary" role="tablist">
               <li class="nav-item">
@@ -15,9 +12,13 @@
               <li class="nav-item">
                 <a class="nav-link active" href="/admin/invitations?role=<%= @role.slug %>" role="tablist" aria-expanded="true">Invitations</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/users?role=<%= @role.slug %>&tab=archived" role="tablist" aria-expanded="false">Archived</a>
+              </li>
             </ul>
-            <!-- <a href="new-student.php" class="btn btn-primary">Add Student</a> -->
           </div>
+        </div>
+        <div class="card-body">
           <h6><%= add_user_label_for_role(@role) %></h6>
           <%= form_for @changeset, @request_path, [as: :data, method: "post"], fn f -> %>
             <%= if Keyword.has_key?(f.errors, :user) do %>

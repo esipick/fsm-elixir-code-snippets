@@ -527,4 +527,21 @@ defmodule FlightWeb.Admin.UserControllerTest do
       assert get_flash(conn, :error) =~ "Users cannot have a negative balance."
     end
   end
+
+  @tag :integration
+  describe "GET /admin/users/:id/restore" do
+    test "restore", %{conn: conn} do
+      student = student_fixture(%{first_name: "Bill", last_name: "Murray", archived: true})
+
+      admin = admin_fixture()
+
+      conn =
+        conn
+        |> web_auth_admin(admin)
+        |> get("/admin/users/#{student.id}/restore?role=student")
+
+      assert get_flash(conn, :success) =~ "Successfully restored Bill Murray account"
+      assert student.archived == false
+    end
+  end
 end

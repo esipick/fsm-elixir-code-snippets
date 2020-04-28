@@ -63,6 +63,79 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
       assert invitation
     end
 
+    @tag :integration
+    test "show error if user already registered", %{conn: conn} do
+      invitation = invitation_fixture(%{email: "onesy@hello.com"}, Accounts.Role.instructor())
+      instructor = instructor_fixture(%{email: "onesy@hello.com"})
+      Accounts.accept_invitation(invitation)
+
+      payload = %{
+        data: %{
+          first_name: "John",
+          last_name: "Sullivan",
+          email: "onesy@hello.com",
+          role_id: Accounts.Role.instructor().id
+        }
+      }
+
+      conn =
+        conn
+        |> web_auth_admin()
+        |> post("/admin/invitations", payload)
+        |> response_redirected_to("/admin/users?role=instructor")
+
+      assert get_flash(conn, :error) =~ "Instructor has already registered."
+    end
+
+    @tag :integration
+    test "show error if user archived", %{conn: conn} do
+      invitation = invitation_fixture(%{email: "onesy@hello.com"}, Accounts.Role.student())
+      Accounts.accept_invitation(invitation)
+      student = student_fixture(%{email: "onesy@hello.com"})
+      Accounts.archive_user(student)
+
+      payload = %{
+        data: %{
+          first_name: "John",
+          last_name: "Sullivan",
+          email: "onesy@hello.com",
+          role_id: Accounts.Role.student().id
+        }
+      }
+
+      conn =
+        conn
+        |> web_auth_admin()
+        |> post("/admin/invitations", payload)
+        |> response_redirected_to("/admin/users?role=student&tab=archived")
+
+      assert get_flash(conn, :error) =~
+               "Student already removed. You may reinstate this account using \"Restore\" button below"
+    end
+
+    @tag :integration
+    test "show error if invitation exist", %{conn: conn} do
+      invitation = invitation_fixture(%{email: "onesy@hello.com"}, Accounts.Role.student())
+
+      payload = %{
+        data: %{
+          first_name: "John",
+          last_name: "Sullivan",
+          email: "onesy@hello.com",
+          role_id: Accounts.Role.student().id
+        }
+      }
+
+      conn =
+        conn
+        |> web_auth_admin()
+        |> post("/admin/invitations", payload)
+        |> response_redirected_to("/admin/invitations?role=student")
+
+      assert get_flash(conn, :error) =~
+               "Student already invited. Please wait for invitation acceptance or resend invitation"
+    end
+
     @tag :wip
     test "fails to create invitation due to no Stripe account", %{conn: conn} do
       payload = %{
@@ -91,6 +164,7 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
     end
   end
 
+  @tag :integration
   describe "POST /admin/invitations/:id/resend" do
     test "works", %{conn: conn} do
       invitation = invitation_fixture(%{}, Accounts.Role.admin())
@@ -113,10 +187,11 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
         |> web_auth_admin()
         |> post("/admin/invitations/#{invitation.id}/resend")
 
-      assert get_flash(conn, :error) =~ "User already registered."
+      assert get_flash(conn, :error) =~ "Admin already registered."
     end
   end
 
+  @tag :integration
   describe "DELETE /admin/invitations/:id" do
     test "deletes invitation", %{conn: conn} do
       invitation = invitation_fixture(%{}, Accounts.Role.admin())
@@ -141,7 +216,7 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
         |> web_auth_admin()
         |> delete("/admin/invitations/#{invitation.id}")
 
-      assert get_flash(conn, :error) =~ "User already registered."
+      assert get_flash(conn, :error) =~ "Admin already registered."
     end
   end
 end

@@ -9,13 +9,25 @@ defmodule FlightWeb.Admin.UserController do
   plug(:authorize_admin when action in [:index])
   plug(:protect_admin_users when action in [:show, :edit, :update])
 
+  def index(conn, %{"role" => role_slug, "tab" => "archived"} = params) do
+    search_term = Map.get(params, "search", "")
+    page_params = FlightWeb.Pagination.params(params)
+
+    data =
+      FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, :archived)
+
+    message = params["search"] && set_message(params["search"])
+
+    render(conn, "index.html", data: data, message: message, tab: :archived)
+  end
+
   def index(conn, %{"role" => role_slug} = params) do
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
-    data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term)
+    data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, nil)
     message = params["search"] && set_message(params["search"])
 
-    render(conn, "index.html", data: data, message: message)
+    render(conn, "index.html", data: data, message: message, tab: :main)
   end
 
   def show(conn, %{"tab" => "appointments"}) do
@@ -222,6 +234,24 @@ defmodule FlightWeb.Admin.UserController do
     conn =
       conn
       |> put_flash(:success, "Successfully archived #{user.first_name} #{user.last_name}")
+
+    if params["role"] do
+      redirect(conn, to: "/admin/users?role=#{params["role"]}")
+    else
+      redirect(conn, to: "/admin/dashboard")
+    end
+  end
+
+  def restore(conn, params) do
+    user =
+      conn.params["user_id"]
+      |> Accounts.get_school_user_by_id(conn)
+
+    Accounts.restore_user(user)
+
+    conn =
+      conn
+      |> put_flash(:success, "Successfully restored #{user.first_name} #{user.last_name} account")
 
     if params["role"] do
       redirect(conn, to: "/admin/users?role=#{params["role"]}")

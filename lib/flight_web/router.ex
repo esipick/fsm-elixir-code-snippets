@@ -144,6 +144,7 @@ defmodule FlightWeb.Router do
 
     resources("/users", UserController, only: [:index, :show, :edit, :update, :delete]) do
       post("/add_funds", UserController, :add_funds)
+      get("/restore", UserController, :restore)
     end
 
     resources("/transactions", TransactionController, only: []) do
