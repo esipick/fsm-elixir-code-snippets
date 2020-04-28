@@ -88,6 +88,7 @@
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="apptInstructor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
+                    <option value="">None</option>
                     <%= for instructor <- @instructors do %>
                       <option value="<%= instructor.id %>"><%= display_name(instructor) %></option>
                     <% end %>
@@ -100,6 +101,7 @@
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="apptAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Aircraft">
+                    <option value="">None</option>
                     <%= for aircraft <- @aircrafts do %>
                       <option value="<%= aircraft.id %>"><%= aircraft_display_name(aircraft, :short) %></option>
                     <% end %>
