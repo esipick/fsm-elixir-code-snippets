@@ -34,8 +34,8 @@ class Form extends Component {
 
     return {
       default_rate: default_rate.replace(/,/g, '') * 100,
-      description: description,
-      taxable: taxable == "on"
+      description,
+      taxable
     }
   }
 
@@ -124,7 +124,7 @@ class Form extends Component {
               <div className="form-group m-0">
                 <input type="checkbox"
                   className="form-control has-error"
-                  onChange={e => this.setState({ taxable: e.target.value })}
+                  onChange={() => this.setState({ taxable: !taxable })}
                   checked={taxable} />
               </div>
               <label>

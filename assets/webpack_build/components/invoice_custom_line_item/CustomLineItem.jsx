@@ -29,7 +29,7 @@ class CustomLineItem extends Component {
     const { taxable, description, default_rate } = this.state;
 
     return {
-      taxable: taxable == "on",
+      taxable,
       description,
       default_rate: default_rate.replace(/,/g, '') * 100
     }
@@ -87,8 +87,10 @@ class CustomLineItem extends Component {
     this.setState({ default_rate: e.target.value, saving: false })
   }
 
-  onTaxableChange = (e) => {
-    this.setState({ taxable: e.target.value, saving: false });
+  onTaxableChange = () => {
+    const { taxable } = this.state;
+
+    this.setState({ taxable: !taxable, saving: false });
   }
 
   render() {
@@ -143,7 +145,7 @@ class CustomLineItem extends Component {
                 type="submit"
                 value="Save"
                 disabled={saving}
-                onClick={() => { this.submitForm() }} />
+                onClick={this.submitForm} />
             </div>
             <div className="col-md-4">
               <a className="remove-line-item" href="" onClick={this.delete}>&times;</a>

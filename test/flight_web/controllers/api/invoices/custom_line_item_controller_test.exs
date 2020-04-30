@@ -172,7 +172,8 @@ defmodule FlightWeb.API.Invoices.CustomLineItemControllerTest do
       payload = %{
         custom_line_item: %{
           default_rate: 200,
-          description: "Fuel Reimbursement"
+          description: "Fuel Reimbursement",
+          taxable: false
         }
       }
 
@@ -185,6 +186,7 @@ defmodule FlightWeb.API.Invoices.CustomLineItemControllerTest do
       assert custom_line_item = Repo.get(InvoiceCustomLineItem, id)
       assert custom_line_item.default_rate == 100
       assert custom_line_item.description == "Test school"
+      assert custom_line_item.taxable == true
 
       json =
         conn
@@ -205,7 +207,8 @@ defmodule FlightWeb.API.Invoices.CustomLineItemControllerTest do
 
       payload = %{
         custom_line_item: %{
-          description: "Fuel Charge"
+          default_rate: "",
+          description: "Charge"
         }
       }
 
@@ -235,7 +238,8 @@ defmodule FlightWeb.API.Invoices.CustomLineItemControllerTest do
 
       payload = %{
         custom_line_item: %{
-          default_rate: 1_000_000
+          default_rate: 1_000_000,
+          description: ""
         }
       }
 

@@ -50,7 +50,13 @@ defmodule Flight.Billing.InvoiceCustomLineItem do
   end
 
   def update_custom_line_item(params, id, school_id) do
-    %InvoiceCustomLineItem{id: id_from_string(id), school_id: id_from_string(school_id)}
+    custom_line_item =
+      get_by(InvoiceCustomLineItem, %{
+        id: id_from_string(id),
+        school_id: id_from_string(school_id)
+      })
+
+    custom_line_item
     |> changeset(params)
     |> update()
   end

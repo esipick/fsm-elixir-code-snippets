@@ -51,3 +51,4 @@
   </div>
 </div>
 <!-- end content -->
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
