@@ -63,6 +63,7 @@ defmodule Flight.Scheduling.Appointment do
       :school_id,
       :type
     ])
+    |> required_error_message(:user_id, "Renter/Student", "can’t be blank")
     |> validate_start_at_after_current_time(timezone)
     |> validate_end_at_after_start_at()
     |> validate_user_instructor_different()
@@ -161,5 +162,18 @@ defmodule Flight.Scheduling.Appointment do
     else
       changeset
     end
+  end
+
+  defp required_error_message(changeset, field, new_key, new_error_message) do
+    update_in(
+      changeset.errors,
+      &Enum.map(&1, fn
+        {key, {"can't be blank", validations}} when key == field ->
+          {new_key, {new_error_message, validations}}
+
+        {_key, _error} = tuple ->
+          tuple
+      end)
+    )
   end
 end

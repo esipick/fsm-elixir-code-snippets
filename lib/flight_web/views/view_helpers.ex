@@ -93,6 +93,7 @@ defmodule FlightWeb.ViewHelpers do
       :start_at -> :start_time
       :end_at -> :end_time
       :expiration -> :expiration_date
+      :instructor_user_id -> :instructor_id
       other -> other
     end
   end
