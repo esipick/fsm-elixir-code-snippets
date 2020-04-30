@@ -9,12 +9,12 @@
         "aircraft_id": 256,
         "amount": 15000,
         "description": "Instructor Hours",
-        "hobbs_tach_used": 0,
+        "hobbs_tach_used": false,
         "instructor_user_id": 771,
         "quantity": 2,
         "rate": 7500,
         "type": "instructor",
-        "taxable": 0
+        "taxable": false
       },
       {
         "aircraft_id": 256,
@@ -24,12 +24,12 @@
         "hobbs_end": 51,
         "tach_start": 50,
         "tach_end": 51,
-        "hobbs_tach_used": 1,
+        "hobbs_tach_used": true,
         "instructor_user_id": 771,
         "quantity": 2,
         "rate": 120,
         "type": "aircraft",
-        "taxable": 1
+        "taxable": true
       }
     ]
   }
