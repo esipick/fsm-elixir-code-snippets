@@ -1,0 +1,36 @@
+{
+  "invoice": {
+    "payer_name": "Niko Kihn",
+    "payment_option": "cc",
+    "appointment_id": 801,
+    "school_id": 4,
+    "line_items": [
+      {
+        "aircraft_id": 256,
+        "amount": 15000,
+        "description": "Instructor Hours",
+        "hobbs_tach_used": 0,
+        "instructor_user_id": 771,
+        "quantity": 2,
+        "rate": 7500,
+        "type": "instructor",
+        "taxable": 0
+      },
+      {
+        "aircraft_id": 256,
+        "amount": 120,
+        "description": "Flight Hours",
+        "hobbs_start": 50,
+        "hobbs_end": 51,
+        "tach_start": 50,
+        "tach_end": 51,
+        "hobbs_tach_used": 1,
+        "instructor_user_id": 771,
+        "quantity": 2,
+        "rate": 120,
+        "type": "aircraft",
+        "taxable": 1
+      }
+    ]
+  }
+}

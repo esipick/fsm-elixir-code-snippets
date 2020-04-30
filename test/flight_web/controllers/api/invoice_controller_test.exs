@@ -866,7 +866,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
             "tach_start" => aircraft.last_tach_time,
             "tach_end" => aircraft.last_tach_time + 14,
             "rate" => 1,
-            "quantity" => 1,
+            "quantity" => 2,
             "hobbs_start" => aircraft.last_hobbs_time,
             "hobbs_end" => aircraft.last_hobbs_time + 13,
             "hobbs_tach_used" => true,

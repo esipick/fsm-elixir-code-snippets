@@ -16,9 +16,7 @@ defmodule Flight.Billing.CalculateInvoice do
       {:ok, line_items} ->
         total = Enum.map(line_items, fn x -> x["amount"] end) |> Enum.sum() |> round
 
-        total_taxable =
-          Enum.map(line_items, fn x -> if x["taxable"], do: x["amount"], else: 0 end)
-          |> Enum.sum()
+        total_taxable = Enum.map(line_items, &taxable_amount/1) |> Enum.sum()
 
         total_tax = round(total_taxable * tax_rate / 100)
 
@@ -34,6 +32,14 @@ defmodule Flight.Billing.CalculateInvoice do
 
       {:error, errors} ->
         {:error, errors}
+    end
+  end
+
+  defp taxable_amount(line_item) do
+    if Enum.member?(["true", true, 1], line_item["taxable"]) do
+      line_item["amount"]
+    else
+      0
     end
   end
 
@@ -74,8 +80,8 @@ defmodule Flight.Billing.CalculateInvoice do
 
   defp calculate_line_item(line_item, invoice, school_context) do
     case calculate_amount_and_rate(line_item, invoice, school_context) do
-      {:ok, {amount, rate}} ->
-        {:ok, Map.merge(line_item, %{"amount" => amount, "rate" => rate})}
+      {:ok, {amount, rate, qty}} ->
+        {:ok, Map.merge(line_item, %{"amount" => amount, "rate" => rate, "quantity" => qty})}
 
       {:error, errors} ->
         {:error, errors}
@@ -85,14 +91,15 @@ defmodule Flight.Billing.CalculateInvoice do
   defp calculate_amount_and_rate(line_item, invoice, school_context) do
     if line_item_type(line_item) == :aircraft && line_item["hobbs_tach_used"] do
       case calculate_from_hobbs_tach(line_item, invoice, school_context) do
-        {:ok, amount} -> {:ok, {amount, amount}}
+        {:ok, amount} -> {:ok, {amount, amount, 1}}
         {:error, errors} -> {:error, errors}
       end
     else
       rate = line_item["rate"] || 0
-      amount = (line_item["quantity"] || 0) * rate
+      qty = line_item["quantity"] || 0
+      amount = qty * rate
 
-      {:ok, {amount, rate}}
+      {:ok, {amount, rate, qty}}
     end
   end
 
