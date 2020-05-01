@@ -189,8 +189,6 @@ defmodule Flight.Scheduling do
   def get_appointments(options, school_context) do
     school = SchoolScope.get_school(school_context)
 
-    is_walltime = options["walltime"] == "true"
-
     from_value =
       case NaiveDateTime.from_iso8601(options["from"] || "") do
         {:ok, date} -> walltime_to_utc(date, school.timezone)
@@ -372,8 +370,6 @@ defmodule Flight.Scheduling do
 
   def get_unavailabilities(options, school_context) do
     school = SchoolScope.get_school(school_context)
-
-    is_walltime = options["walltime"] == "true"
 
     from_value =
       case NaiveDateTime.from_iso8601(options["from"] || "") do

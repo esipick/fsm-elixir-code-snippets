@@ -76,6 +76,7 @@ defmodule Flight.Mixfile do
       {:ecto_enum, "~> 1.3"},
       {:react_phoenix, "~> 0.6.0"},
       {:fastglobal, "~> 1.0"},
+      {:ecto, "~> 3.4.3", override: true},
 
       # Dev tools
       {:faker, "~> 0.12", only: [:dev, :test]}
