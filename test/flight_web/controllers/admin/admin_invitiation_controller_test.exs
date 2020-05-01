@@ -66,7 +66,7 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
     @tag :integration
     test "show error if user already registered", %{conn: conn} do
       invitation = invitation_fixture(%{email: "onesy@hello.com"}, Accounts.Role.instructor())
-      instructor = instructor_fixture(%{email: "onesy@hello.com"})
+      instructor_fixture(%{email: "onesy@hello.com"})
       Accounts.accept_invitation(invitation)
 
       payload = %{
@@ -115,7 +115,7 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
 
     @tag :integration
     test "show error if invitation exist", %{conn: conn} do
-      invitation = invitation_fixture(%{email: "onesy@hello.com"}, Accounts.Role.student())
+      invitation_fixture(%{email: "onesy@hello.com"}, Accounts.Role.student())
 
       payload = %{
         data: %{

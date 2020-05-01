@@ -67,8 +67,6 @@ defmodule FlightWeb.API.InvoiceView do
         [aircraft: :inspections]
       ])
 
-    appointment = Flight.Scheduling.apply_timezone(appointment, appointment.school.timezone)
-
     render(AppointmentView, "appointment.json", appointment: appointment)
   end
 end

@@ -32,7 +32,7 @@ defmodule FlightWeb.Admin.UserController do
   end
 
   def show(conn, %{"tab" => "appointments"}) do
-    user = conn.assigns.requested_user
+    user = Repo.preload(conn.assigns.requested_user, :school)
 
     options =
       cond do

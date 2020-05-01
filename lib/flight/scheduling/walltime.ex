@@ -1,6 +1,16 @@
 defmodule Flight.Walltime do
   def set_timezone(%NaiveDateTime{} = datetime, timezone) when is_binary(timezone) do
-    set_timezone(datetime, Timex.Timezone.get(timezone, datetime))
+    timezone =
+      case Timex.Timezone.get(timezone, datetime) do
+        {:error, {:could_not_resolve_timezone, name, seconds_from_zeroyear, _utc_or_wall}} ->
+          [period] = Tzdata.periods_for_time(name, seconds_from_zeroyear, :utc)
+          Timex.Timezone.tzdata_to_timezone(period, name)
+
+        timezone ->
+          timezone
+      end
+
+    set_timezone(datetime, timezone)
   end
 
   def set_timezone(%NaiveDateTime{} = datetime, %Timex.TimezoneInfo{} = timezone) do

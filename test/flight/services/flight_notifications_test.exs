@@ -15,7 +15,7 @@ defmodule Flight.PushNotificationsTest do
         appointment
       )
 
-    assert notification.body =~ " 3:00am"
+    assert notification.body =~ " 10:00am"
   end
 
   test "appointment_created_notification" do

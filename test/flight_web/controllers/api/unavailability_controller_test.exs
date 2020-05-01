@@ -43,7 +43,6 @@ defmodule FlightWeb.API.ControllerTest do
           end_at: ~N[2038-03-03 11:00:00]
         })
         |> FlightWeb.API.UnavailabilityView.preload()
-        |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
       json =
         conn
@@ -64,9 +63,7 @@ defmodule FlightWeb.API.ControllerTest do
 
     test "student updates unavailability", %{conn: conn} do
       instructor = user_fixture() |> assign_role("instructor")
-
       school = default_school_fixture()
-
       unavailability = unavailability_fixture(@default_attrs, instructor)
 
       params = %{
@@ -88,7 +85,7 @@ defmodule FlightWeb.API.ControllerTest do
                  id: unavailability.id,
                  start_at:
                    Timex.shift(@default_date, hours: 3)
-                   |> Flight.Walltime.utc_to_walltime(school.timezone),
+                   |> Flight.Walltime.walltime_to_utc(school.timezone),
                  note: "Heyo Timeo"
                )
                |> FlightWeb.API.UnavailabilityView.preload()
@@ -157,7 +154,6 @@ defmodule FlightWeb.API.ControllerTest do
                  instructor_user_id: instructor.id,
                  belongs: "Instructor"
                )
-               |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
       unavailability = FlightWeb.API.UnavailabilityView.preload(unavailability)
 
@@ -190,7 +186,6 @@ defmodule FlightWeb.API.ControllerTest do
                  aircraft_id: aircraft.id,
                  belongs: "Aircraft"
                )
-               |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
       unavailability = FlightWeb.API.UnavailabilityView.preload(unavailability)
 
@@ -302,12 +297,7 @@ defmodule FlightWeb.API.ControllerTest do
     test "show error if unavailability already removed", %{conn: conn} do
       instructor = user_fixture() |> assign_role("instructor")
       unavailability = unavailability_fixture(@default_attrs, instructor)
-
       Flight.Repo.delete!(unavailability)
-
-      params = %{
-        data: %{note: "Heyo Timeo"}
-      }
 
       json =
         conn

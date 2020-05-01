@@ -58,7 +58,6 @@ defmodule Flight.Mixfile do
       {:bcrypt_elixir, "~> 1.0"},
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 4.0"},
-      {:tzdata, "~> 0.1.8"},
       {:timex, "~> 3.6.1"},
       {:hackney, "~> 1.15.2", override: true},
       {:stripity_stripe, "~> 2.1.0"},

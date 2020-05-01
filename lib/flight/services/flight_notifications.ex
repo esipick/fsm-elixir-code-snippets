@@ -1,6 +1,6 @@
 defmodule Flight.PushNotifications do
+  import Flight.Walltime
   alias Mondo.PushNotification
-
   alias Flight.Accounts.{User}
 
   def appointment_in_1_hour_notification(%User{} = user, appointment) do
@@ -8,7 +8,11 @@ defmodule Flight.PushNotifications do
       title: "Appointment Reminder",
       body:
         "Hey #{user.first_name}, you have an appointment coming up at #{
-          Timex.format!(appointment.start_at, "%l:%M%P", :strftime)
+          Timex.format!(
+            utc_to_walltime(appointment.start_at, user.school.timezone),
+            "%l:%M%P",
+            :strftime
+          )
         }.",
       sound: true,
       user_id: user.id,
@@ -23,7 +27,11 @@ defmodule Flight.PushNotifications do
       title: "Appointment Created",
       body:
         "#{creating_user.first_name} #{creating_user.last_name} created an appointment for you on #{
-          FlightWeb.ViewHelpers.display_date(appointment.start_at, :short)
+          FlightWeb.ViewHelpers.display_walltime_date(
+            appointment.start_at,
+            creating_user.school.timezone,
+            :short
+          )
         }.",
       sound: true,
       user_id: destination_user.id,
@@ -38,7 +46,11 @@ defmodule Flight.PushNotifications do
       title: "Appointment Changed",
       body:
         "#{updating_user.first_name} #{updating_user.last_name} updated your appointment on #{
-          FlightWeb.ViewHelpers.display_date(appointment.start_at, :short)
+          FlightWeb.ViewHelpers.display_walltime_date(
+            appointment.start_at,
+            updating_user.school.timezone,
+            :short
+          )
         }.",
       sound: true,
       user_id: destination_user.id,
@@ -53,7 +65,11 @@ defmodule Flight.PushNotifications do
       title: "Appointment Deleted",
       body:
         "#{deleting_user.first_name} #{deleting_user.last_name} deleted your appointment on #{
-          FlightWeb.ViewHelpers.display_date(appointment.start_at, :short)
+          FlightWeb.ViewHelpers.display_walltime_date(
+            appointment.start_at,
+            deleting_user.school.timezone,
+            :short
+          )
         }.",
       sound: true,
       user_id: destination_user.id

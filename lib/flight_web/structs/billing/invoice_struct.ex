@@ -1,6 +1,6 @@
 defmodule FlightWeb.Billing.InvoiceStruct do
   alias __MODULE__
-  alias Flight.{Repo, Accounts.User, Scheduling}
+  alias Flight.{Repo, Accounts.User}
   alias FlightWeb.Billing.TransactionStruct
 
   defstruct ~w(
@@ -38,11 +38,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       total_tax: invoice.total_tax,
       line_items: invoice.line_items,
       transactions: transactions(invoice),
-      appointment:
-        Optional.map(
-          invoice.appointment,
-          &Scheduling.apply_timezone(&1, invoice.school.timezone)
-        )
+      appointment: invoice.appointment
     }
   end
 

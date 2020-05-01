@@ -1,4 +1,6 @@
 defmodule Flight.SchedulingFixtures do
+  import Flight.{AccountsFixtures, Walltime}
+
   alias Flight.Scheduling.{
     Aircraft,
     Appointment,
@@ -9,8 +11,6 @@ defmodule Flight.SchedulingFixtures do
   }
 
   alias Flight.{Repo}
-
-  import Flight.AccountsFixtures
 
   def aircraft_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
     aircraft =
@@ -43,8 +43,13 @@ defmodule Flight.SchedulingFixtures do
         type \\ "lesson"
       ) do
     date = ~N[2038-03-03 10:00:00]
-    start_at = Map.get(attrs, :start_at, Timex.shift(date, hours: 2))
-    end_at = Map.get(attrs, :end_at, Timex.shift(date, hours: 4))
+
+    start_at =
+      Map.get(attrs, :start_at, Timex.shift(date, hours: 2))
+      |> walltime_to_utc(school.timezone)
+
+    end_at =
+      Map.get(attrs, :end_at, Timex.shift(date, hours: 4)) |> walltime_to_utc(school.timezone)
 
     appointment =
       %Appointment{
@@ -57,7 +62,6 @@ defmodule Flight.SchedulingFixtures do
         type: type
       }
       |> Appointment.changeset(attrs, school.timezone)
-      |> Appointment.apply_timezone_changeset(school.timezone)
       |> Repo.insert!()
 
     %{appointment | aircraft: aircraft, instructor_user: instructor, user: user}
@@ -72,8 +76,13 @@ defmodule Flight.SchedulingFixtures do
         type \\ "lesson"
       ) do
     date = ~N[2018-03-03 10:00:00]
-    start_at = Map.get(attrs, :start_at, Timex.shift(date, hours: 2))
-    end_at = Map.get(attrs, :end_at, Timex.shift(date, hours: 4))
+
+    start_at =
+      Map.get(attrs, :start_at, Timex.shift(date, hours: 2))
+      |> walltime_to_utc(school.timezone)
+
+    end_at =
+      Map.get(attrs, :end_at, Timex.shift(date, hours: 4)) |> walltime_to_utc(school.timezone)
 
     appointment =
       %Appointment{
@@ -86,7 +95,6 @@ defmodule Flight.SchedulingFixtures do
         type: type
       }
       |> Appointment.__test_changeset(attrs, school.timezone)
-      |> Appointment.apply_timezone_changeset(school.timezone)
       |> Repo.insert!()
 
     %{appointment | aircraft: aircraft, instructor_user: instructor, user: user}
@@ -100,17 +108,23 @@ defmodule Flight.SchedulingFixtures do
       ) do
     date = ~N[2038-03-03 10:00:00]
 
+    start_at =
+      Map.get(attrs, :start_at, Timex.shift(date, hours: 2))
+      |> walltime_to_utc(school.timezone)
+
+    end_at =
+      Map.get(attrs, :end_at, Timex.shift(date, hours: 4)) |> walltime_to_utc(school.timezone)
+
     unavailability =
       %Unavailability{
-        start_at: Timex.shift(date, hours: 2),
-        end_at: Timex.shift(date, hours: 4),
+        start_at: start_at,
+        end_at: end_at,
         instructor_user_id: if(instructor, do: instructor.id, else: nil),
         aircraft_id: if(aircraft, do: aircraft.id, else: nil),
         belongs: if(instructor, do: "Instructor", else: "Aircraft"),
         school_id: school.id
       }
       |> Unavailability.changeset(attrs, school.timezone)
-      |> Unavailability.apply_timezone_changeset(school.timezone)
       |> Repo.insert!()
 
     %{unavailability | aircraft: aircraft, instructor_user: instructor}

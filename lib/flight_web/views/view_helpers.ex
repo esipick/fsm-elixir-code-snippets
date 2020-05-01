@@ -1,4 +1,5 @@
 defmodule FlightWeb.ViewHelpers do
+  import Flight.Walltime
   alias FlightWeb.ErrorHelpers
   alias Flight.Accounts
 
@@ -145,12 +146,19 @@ defmodule FlightWeb.ViewHelpers do
     Timex.format!(date, "%A %b %-d, %Y", :strftime)
   end
 
-  def display_datetime(date) do
-    Timex.format!(date, "%-d %B %-I:%M%p", :strftime)
+  def display_walltime_time(date, timezone) do
+    utc_to_walltime(date, timezone)
+    |> Timex.format!("%-I:%M%p", :strftime)
   end
 
-  def display_time(date) do
-    Timex.format!(date, "%-I:%M%p", :strftime)
+  def display_walltime_date(date, timezone, format) do
+    utc_to_walltime(date, timezone)
+    |> display_date(format)
+  end
+
+  def display_walltime_datetime(date, timezone) do
+    utc_to_walltime(date, timezone)
+    |> Timex.format!("%-d %B %-I:%M%p", :strftime)
   end
 
   def school_name_with_timezone(school) do

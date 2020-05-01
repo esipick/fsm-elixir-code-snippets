@@ -1,13 +1,12 @@
 defmodule FlightWeb.Admin.UserView do
   use FlightWeb, :view
+
+  import Flight.Auth.Authorization
+  import FlightWeb.Shared.ProfileView
   import FlightWeb.ViewHelpers
   import Scrivener.HTML
-
-  import FlightWeb.Shared.ProfileView
-
   alias Flight.Accounts
   alias Flight.Auth.Permission
-  import Flight.Auth.Authorization
 
   def has_billing?(user) do
     Accounts.has_any_role?(user, ["renter", "instructor", "student"])

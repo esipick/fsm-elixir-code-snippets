@@ -4,9 +4,9 @@ defmodule FlightWeb.API.AppointmentController do
   plug(:get_appointment when action in [:update, :show, :delete])
   plug(:authorize_modify when action in [:create, :update, :delete])
 
-  alias Flight.Scheduling.Availability
-  alias Flight.Scheduling
   import Flight.Auth.Authorization
+  alias Flight.{Scheduling, Repo}
+  alias Scheduling.Availability
   alias Flight.Auth.Permission
 
   def availability(conn, %{"start_at" => start_at_str, "end_at" => end_at_str} = params) do
@@ -62,7 +62,7 @@ defmodule FlightWeb.API.AppointmentController do
     case Flight.Scheduling.insert_or_update_appointment(
            %Scheduling.Appointment{},
            appointment_data,
-           conn.assigns.current_user,
+           Repo.preload(conn.assigns.current_user, :school),
            conn
          ) do
       {:ok, appointment} ->
@@ -83,7 +83,7 @@ defmodule FlightWeb.API.AppointmentController do
     case Flight.Scheduling.insert_or_update_appointment(
            conn.assigns.appointment,
            appointment_data,
-           conn.assigns.current_user,
+           Repo.preload(conn.assigns.current_user, :school),
            conn
          ) do
       {:ok, appointment} ->

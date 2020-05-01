@@ -1,5 +1,6 @@
 defmodule FlightWeb.Billing.InvoiceView do
   use FlightWeb, :view
+
   import FlightWeb.ViewHelpers
   import Scrivener.HTML
   alias Flight.Auth.InvoicePolicy

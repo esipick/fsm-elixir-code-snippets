@@ -1,7 +1,8 @@
 defmodule Flight.Scheduling.Appointment do
   use Ecto.Schema
+
   import Ecto.Changeset
-  import Flight.Walltime
+  alias Flight.Scheduling
 
   schema "appointments" do
     field(:end_at, :naive_datetime)
@@ -38,9 +39,10 @@ defmodule Flight.Scheduling.Appointment do
       :school_id,
       :type
     ])
-    |> validate_end_at_after_start_at()
-    |> validate_user_instructor_different()
-    |> validate_either_instructor_or_aircraft_set()
+    |> apply_utc_timezone_changeset(timezone)
+    |> validate_end_at_after_start_at
+    |> validate_user_instructor_different
+    |> validate_either_instructor_or_aircraft_set
   end
 
   @doc false
@@ -64,59 +66,39 @@ defmodule Flight.Scheduling.Appointment do
       :type
     ])
     |> required_error_message(:user_id, "Renter/Student", "can’t be blank")
-    |> validate_start_at_after_current_time(timezone)
-    |> validate_end_at_after_start_at()
-    |> validate_user_instructor_different()
-    |> validate_either_instructor_or_aircraft_set()
+    |> apply_utc_timezone_changeset(timezone)
+    |> validate_end_at_after_start_at
+    |> validate_user_instructor_different
+    |> validate_either_instructor_or_aircraft_set
   end
 
-  def apply_timezone_changeset(changeset, timezone) do
+  def update_transaction_changeset(appointment, attrs),
+    do: cast(appointment, attrs, [:transaction_id])
+
+  def allowed_for_archive?(appointment, user),
+    do:
+      !(Flight.Accounts.has_role?(user, "student") &&
+          (is_paid?(appointment) ||
+             is_ended?(appointment)))
+
+  def paid(%Flight.Scheduling.Appointment{} = appointment),
+    do: change(appointment, status: :paid) |> Flight.Repo.update()
+
+  def archive(%Flight.Scheduling.Appointment{} = appointment),
+    do: change(appointment, archived: true) |> Flight.Repo.update()
+
+  defp is_paid?(appointment), do: appointment.status == :paid
+
+  defp is_ended?(appointment),
+    do: NaiveDateTime.compare(NaiveDateTime.utc_now(), appointment.end_at) == :gt
+
+  defp apply_utc_timezone_changeset(changeset, timezone) do
     changeset
-    |> apply_timezone(:start_at, timezone)
-    |> apply_timezone(:end_at, timezone)
+    |> Scheduling.apply_utc_timezone(:start_at, timezone)
+    |> Scheduling.apply_utc_timezone(:end_at, timezone)
   end
 
-  def apply_timezone(changeset, key, timezone) do
-    change = get_field(changeset, key)
-
-    if change do
-      put_change(changeset, key, utc_to_walltime(change, timezone))
-    else
-      changeset
-    end
-  end
-
-  def update_transaction_changeset(appointment, attrs) do
-    appointment
-    |> cast(attrs, [:transaction_id])
-  end
-
-  def validate_user_instructor_different(changeset) do
-    user_id = get_field(changeset, :user_id)
-
-    if user_id && user_id == get_field(changeset, :instructor_user_id) do
-      add_error(changeset, :instructor, "cannot be the same person as the renter.")
-    else
-      changeset
-    end
-  end
-
-  def validate_end_at_after_start_at(changeset) do
-    if changeset.valid? do
-      start_at = get_field(changeset, :start_at)
-      end_at = get_field(changeset, :end_at)
-
-      if NaiveDateTime.compare(end_at, start_at) == :gt do
-        changeset
-      else
-        add_error(changeset, :end_at, "must come after start time.")
-      end
-    else
-      changeset
-    end
-  end
-
-  def validate_either_instructor_or_aircraft_set(changeset) do
+  defp validate_either_instructor_or_aircraft_set(changeset) do
     if get_field(changeset, :instructor_user_id) || get_field(changeset, :aircraft_id) do
       changeset
     else
@@ -124,41 +106,20 @@ defmodule Flight.Scheduling.Appointment do
     end
   end
 
-  def allowed_for_archive?(appointment, user) do
-    !(Flight.Accounts.has_role?(user, "student") &&
-        (is_paid?(appointment) ||
-           is_ended?(appointment)))
+  defp validate_user_instructor_different(changeset) do
+    with user_id <- get_field(changeset, :user_id),
+         true <- user_id == get_field(changeset, :instructor_user_id) do
+      add_error(changeset, :instructor, "cannot be the same person as the renter.")
+    else
+      _ -> changeset
+    end
   end
 
-  def paid(%Flight.Scheduling.Appointment{} = appointment) do
-    change(appointment, status: :paid) |> Flight.Repo.update()
-  end
-
-  def archive(%Flight.Scheduling.Appointment{} = appointment) do
-    change(appointment, archived: true) |> Flight.Repo.update()
-  end
-
-  defp is_paid?(appointment) do
-    appointment.status == :paid
-  end
-
-  defp is_ended?(appointment) do
-    %{school: school} = Flight.Repo.preload(appointment, :school)
-    today = Flight.NaiveDateTime.get_school_current_time(school.timezone)
-
-    NaiveDateTime.compare(today, appointment.end_at) == :gt
-  end
-
-  defp validate_start_at_after_current_time(changeset, timezone) do
-    if changeset.valid? do
-      start_at = get_field(changeset, :start_at)
-      today = Flight.NaiveDateTime.get_school_current_time(timezone)
-
-      if NaiveDateTime.compare(start_at, today) == :gt do
-        changeset
-      else
-        add_error(changeset, :start_at, "should be future date")
-      end
+  defp validate_end_at_after_start_at(changeset) do
+    if changeset.valid? and
+         NaiveDateTime.compare(get_field(changeset, :end_at), get_field(changeset, :start_at)) !=
+           :gt do
+      add_error(changeset, :end_at, "must come after start time.")
     else
       changeset
     end

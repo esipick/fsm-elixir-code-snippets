@@ -10,11 +10,8 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       student = user_fixture() |> assign_role("student")
       _aircraft = aircraft_fixture()
 
-      date = ~N[2038-03-03 10:30:00]
-
-      start_at = date
-
-      end_at = Timex.shift(date, hours: 2)
+      start_at = ~N[2038-03-03 10:30:00]
+      end_at = Timex.shift(start_at, hours: 2)
 
       json =
         conn
@@ -149,7 +146,6 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       appointment =
         appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
         |> FlightWeb.API.AppointmentView.preload()
-        |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
       json =
         conn
@@ -172,7 +168,6 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       student = student_fixture()
       instructor = user_fixture() |> assign_role("instructor")
       aircraft = aircraft_fixture()
-
       school = default_school_fixture()
 
       appointment =
@@ -204,7 +199,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                  id: appointment.id,
                  start_at:
                    Timex.shift(@default_date, hours: 3)
-                   |> Flight.Walltime.utc_to_walltime(school.timezone),
+                   |> Flight.Walltime.walltime_to_utc(school.timezone),
                  note: "Heyo Timeo"
                )
                |> FlightWeb.API.AppointmentView.preload()
@@ -287,7 +282,6 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                  aircraft_id: aircraft.id,
                  type: type
                )
-               |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
       appointment = FlightWeb.API.AppointmentView.preload(appointment)
 
@@ -328,7 +322,6 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                  aircraft_id: aircraft.id,
                  type: type
                )
-               |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
       appointment = FlightWeb.API.AppointmentView.preload(appointment)
 
@@ -379,7 +372,6 @@ defmodule FlightWeb.API.AppointmentControllerTest do
                  aircraft_id: aircraft.id,
                  type: type
                )
-               |> Flight.Scheduling.apply_timezone(default_school_fixture().timezone)
 
       appointment = FlightWeb.API.AppointmentView.preload(appointment)
 

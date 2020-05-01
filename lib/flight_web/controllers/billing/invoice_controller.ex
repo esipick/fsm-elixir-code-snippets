@@ -72,7 +72,11 @@ defmodule FlightWeb.Billing.InvoiceController do
   def show(conn, _) do
     invoice = InvoiceStruct.build(conn.assigns.invoice)
 
-    render(conn, "show.html", invoice: invoice, skip_shool_select: true)
+    render(conn, "show.html",
+      invoice: invoice,
+      user: conn.assigns.current_user,
+      skip_shool_select: true
+    )
   end
 
   def delete(conn, _) do

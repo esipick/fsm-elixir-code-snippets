@@ -1,26 +1,23 @@
 defmodule Flight.BackgroundJob do
-  alias Flight.Repo
   require Ecto.Query
+
   import Ecto.Query
+  alias Flight.{PushNotifications, Repo, SchoolScope}
 
   def send_upcoming_appointment_notifications() do
     appointments_count =
       Enum.reduce(Flight.Accounts.get_schools(), 0, fn school, acc ->
-        appointments =
-          Flight.NaiveDateTime.get_school_current_time(school.timezone)
-          |> Timex.shift(hours: 1)
-          |> appointments_around(school)
-          |> Repo.preload([:user, :instructor_user])
+        appointments = appointments_around(school) |> Repo.preload([:user, :instructor_user])
 
         for appointment <- appointments do
-          Flight.PushNotifications.appointment_in_1_hour_notification(
+          PushNotifications.appointment_in_1_hour_notification(
             appointment.user,
             appointment
           )
           |> Mondo.PushService.publish()
 
           if appointment.instructor_user do
-            Flight.PushNotifications.appointment_in_1_hour_notification(
+            PushNotifications.appointment_in_1_hour_notification(
               appointment.instructor_user,
               appointment
             )
@@ -34,9 +31,10 @@ defmodule Flight.BackgroundJob do
     appointments_count
   end
 
-  def appointments_around(date, school_context) do
+  def appointments_around(school_context) do
     date =
-      date
+      NaiveDateTime.utc_now()
+      |> Timex.shift(hours: 1)
       |> normalized_to_interval(30)
 
     lower_bound = Timex.shift(date, minutes: -1)
@@ -46,7 +44,7 @@ defmodule Flight.BackgroundJob do
       a in Flight.Scheduling.Appointment,
       where: a.start_at > ^lower_bound and a.start_at < ^upper_bound and a.archived == false
     )
-    |> Flight.SchoolScope.scope_query(school_context)
+    |> SchoolScope.scope_query(school_context)
     |> Repo.all()
   end
 
@@ -73,7 +71,7 @@ defmodule Flight.BackgroundJob do
     |> Enum.uniq()
     |> Enum.map(fn user_id ->
       user_id
-      |> Flight.PushNotifications.outstanding_payment_request_notification()
+      |> PushNotifications.outstanding_payment_request_notification()
       |> Mondo.PushService.publish()
     end)
     |> Enum.count()

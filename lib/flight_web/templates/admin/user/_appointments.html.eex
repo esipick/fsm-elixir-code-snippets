@@ -2,15 +2,15 @@
   <div class="tab-pane detail-list list-billing" id="link3">
     <%= for appointment <- @appointments do %>
       <dl class="d-flex justify-content-between">
-        <dt><%= display_date(appointment.start_at, :long) %></dt>
+        <dt><%= display_walltime_date(appointment.start_at, @user.school.timezone, :long) %></dt>
         <dd>
           <dl class="d-flex justify-content-between">
             <dt>Start Time</dt>
-            <dd><%= display_datetime(appointment.start_at) %></dd>
+            <dd><%= display_walltime_datetime(appointment.start_at, @user.school.timezone) %></dd>
           </dl>
           <dl class="d-flex justify-content-between">
             <dt>End Time</dt>
-            <dd><%= display_datetime(appointment.end_at) %></dd>
+            <dd><%= display_walltime_datetime(appointment.end_at, @user.school.timezone) %></dd>
           </dl>
           <%= if appointment.aircraft_id do %>
             <dl class="d-flex justify-content-between">

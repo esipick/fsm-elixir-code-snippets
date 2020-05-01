@@ -88,11 +88,7 @@ defmodule Flight.Billing.Invoice do
             add_error(changeset, :appointment_id, "has already been removed")
 
           false ->
-            timezone = appointment.school.timezone
-            now = Flight.Walltime.utc_to_walltime(NaiveDateTime.utc_now(), timezone)
-            end_at = Flight.Walltime.walltime_to_utc(appointment.end_at, timezone)
-
-            case NaiveDateTime.compare(now, end_at) do
+            case NaiveDateTime.compare(NaiveDateTime.utc_now(), appointment.end_at) do
               :lt -> add_error(changeset, :appointment_id, "did not end")
               _ -> changeset
             end

@@ -34,12 +34,9 @@ defmodule FlightWeb.API.InvoiceController do
   end
 
   def appointments(conn, params) do
-    timezone = Flight.SchoolScope.get_school(conn).timezone
-
     appointments =
       Flight.Queries.Appointment.billable(conn, params)
       |> FlightWeb.API.AppointmentView.preload()
-      |> Flight.Scheduling.apply_timezone(timezone)
 
     render(conn, "appointments.json", appointments: appointments)
   end

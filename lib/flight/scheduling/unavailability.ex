@@ -1,6 +1,8 @@
 defmodule Flight.Scheduling.Unavailability do
   use Ecto.Schema
+
   import Ecto.Changeset
+  alias Flight.Scheduling
 
   schema "unavailabilities" do
     field(:available, :boolean, default: false)
@@ -14,6 +16,24 @@ defmodule Flight.Scheduling.Unavailability do
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
 
     timestamps()
+  end
+
+  def __test_changeset(unavailability, attrs, timezone) do
+    unavailability
+    |> cast(attrs, [
+      :start_at,
+      :end_at,
+      :available,
+      :type,
+      :note,
+      :instructor_user_id,
+      :aircraft_id,
+      :belongs
+    ])
+    |> validate_required([:start_at, :end_at, :available, :type, :school_id])
+    |> apply_utc_timezone_changeset(timezone)
+    |> validate_inclusion(:type, ["time_off"])
+    |> validate_resources
   end
 
   @doc false
@@ -30,10 +50,10 @@ defmodule Flight.Scheduling.Unavailability do
       :belongs
     ])
     |> validate_required([:start_at, :end_at, :available, :type, :school_id])
-    |> validate_start_at_after_current_time(timezone)
-    |> validate_end_at_after_start_at()
+    |> apply_utc_timezone_changeset(timezone)
+    |> validate_end_at_after_start_at
     |> validate_inclusion(:type, ["time_off"])
-    |> validate_resources()
+    |> validate_resources
   end
 
   def validate_resources(changeset) do
@@ -51,47 +71,17 @@ defmodule Flight.Scheduling.Unavailability do
     end
   end
 
-  def apply_timezone_changeset(changeset, timezone) do
+  defp apply_utc_timezone_changeset(changeset, timezone) do
     changeset
-    |> apply_timezone(:start_at, timezone)
-    |> apply_timezone(:end_at, timezone)
+    |> Scheduling.apply_utc_timezone(:start_at, timezone)
+    |> Scheduling.apply_utc_timezone(:end_at, timezone)
   end
 
-  def apply_timezone(changeset, key, timezone) do
-    change = get_field(changeset, key)
-
-    if change do
-      put_change(changeset, key, Flight.Walltime.utc_to_walltime(change, timezone))
-    else
-      changeset
-    end
-  end
-
-  def validate_end_at_after_start_at(changeset) do
-    if changeset.valid? do
-      start_at = get_field(changeset, :start_at)
-      end_at = get_field(changeset, :end_at)
-
-      if NaiveDateTime.compare(end_at, start_at) == :gt do
-        changeset
-      else
-        add_error(changeset, :end_at, "must come after start time.")
-      end
-    else
-      changeset
-    end
-  end
-
-  defp validate_start_at_after_current_time(changeset, timezone) do
-    if changeset.valid? do
-      start_at = get_field(changeset, :start_at)
-      today = Flight.NaiveDateTime.get_school_current_time(timezone)
-
-      if NaiveDateTime.compare(start_at, today) == :gt do
-        changeset
-      else
-        add_error(changeset, :start_at, "should be future date")
-      end
+  defp validate_end_at_after_start_at(changeset) do
+    if changeset.valid? and
+         NaiveDateTime.compare(get_field(changeset, :end_at), get_field(changeset, :start_at)) !=
+           :gt do
+      add_error(changeset, :end_at, "must come after start time.")
     else
       changeset
     end

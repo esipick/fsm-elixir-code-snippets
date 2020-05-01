@@ -44,28 +44,28 @@ defmodule Flight.Scheduling.ExpiredInspection do
   end
 
   def inspection_status(inspection, today \\ nil) do
-    time_now =
-      if today do
-        today
-      else
-        %{school: school} = Flight.Repo.preload(inspection.aircraft, :school)
+    now =
+      case today do
+        nil ->
+          %{school: school} = Flight.Repo.preload(inspection.aircraft, :school)
+          Timex.now(school.timezone)
 
-        Flight.NaiveDateTime.get_school_current_time(school.timezone)
+        today ->
+          today
       end
 
     case Inspection.to_specific(inspection) do
       %DateInspection{expiration: expiration} when not is_nil(expiration) ->
-        case Timex.Interval.new(from: time_now, until: expiration) do
+        case Timex.Interval.new(from: now, until: expiration) do
           {:error, :invalid_until} ->
             :expired
 
           interval ->
             duration = Timex.Interval.duration(interval, :hours)
 
-            if duration <= 20 && duration > 0 do
-              :expiring
-            else
-              :good
+            case duration <= 20 && duration > 0 do
+              true -> :expiring
+              false -> :good
             end
         end
 

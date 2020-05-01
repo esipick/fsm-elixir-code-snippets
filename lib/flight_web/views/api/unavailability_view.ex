@@ -20,10 +20,13 @@ defmodule FlightWeb.API.UnavailabilityView do
   end
 
   def render("unavailability.json", %{unavailability: unavailability}) do
+    school = Flight.Accounts.get_school(unavailability.school_id)
+    timezone = school.timezone
+
     %{
       id: unavailability.id,
-      start_at: Flight.NaiveDateTime.to_json(unavailability.start_at),
-      end_at: Flight.NaiveDateTime.to_json(unavailability.end_at),
+      start_at: Flight.NaiveDateTime.to_walltime_json(unavailability.start_at, timezone),
+      end_at: Flight.NaiveDateTime.to_walltime_json(unavailability.end_at, timezone),
       note: unavailability.note,
       type: unavailability.type,
       instructor_user:

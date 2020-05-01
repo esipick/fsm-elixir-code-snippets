@@ -4,7 +4,7 @@ defmodule Flight.SchedulingTest do
   alias Flight.{Repo, Scheduling}
   alias Flight.Scheduling.{Unavailability, Aircraft, Appointment, Inspection}
 
-  import Flight.AccountsFixtures
+  import Flight.{AccountsFixtures, Walltime}
 
   describe "aircrafts" do
     @valid_attrs %{
@@ -185,11 +185,9 @@ defmodule Flight.SchedulingTest do
       instructor = user_fixture() |> assign_role("instructor")
       student = user_fixture() |> assign_role("student")
       aircraft = aircraft_fixture()
-
       school = default_school_fixture()
 
       now = NaiveDateTime.utc_now()
-
       start_at = NaiveDateTime.truncate(Timex.shift(now, hours: 1), :second)
       end_at = NaiveDateTime.truncate(Timex.shift(now, hours: 2), :second)
 
@@ -208,8 +206,8 @@ defmodule Flight.SchedulingTest do
           school
         )
 
-      assert appointment.start_at == start_at
-      assert appointment.end_at == end_at
+      assert appointment.start_at == walltime_to_utc(start_at, student.school.timezone)
+      assert appointment.end_at == walltime_to_utc(end_at, student.school.timezone)
       assert appointment.instructor_user_id == instructor.id
       assert appointment.user_id == student.id
       assert appointment.aircraft_id == aircraft.id
@@ -220,13 +218,19 @@ defmodule Flight.SchedulingTest do
     test "insert_or_update_appointment/1 updates existing appointment" do
       instructor = user_fixture() |> assign_role("instructor")
       student = user_fixture() |> assign_role("student")
+      timezone = student.school.timezone
       aircraft = aircraft_fixture()
       type = "lesson"
 
       now = NaiveDateTime.utc_now()
 
-      start_at = NaiveDateTime.truncate(Timex.shift(now, hours: 1), :second)
-      end_at = NaiveDateTime.truncate(Timex.shift(now, hours: 2), :second)
+      start_at =
+        NaiveDateTime.truncate(Timex.shift(now, hours: 2), :second)
+        |> utc_to_walltime(timezone)
+
+      end_at =
+        NaiveDateTime.truncate(Timex.shift(now, hours: 3), :second)
+        |> utc_to_walltime(timezone)
 
       {:ok, %Appointment{} = appointment} =
         create_appointment(%{
@@ -238,7 +242,9 @@ defmodule Flight.SchedulingTest do
           type: type
         })
 
-      new_start_at = NaiveDateTime.truncate(Timex.shift(now, minutes: 30), :second)
+      new_start_at =
+        NaiveDateTime.truncate(Timex.shift(now, hours: 2, minutes: 30), :second)
+        |> utc_to_walltime(timezone)
 
       {:ok, %Appointment{} = updatedAppointment} =
         Scheduling.insert_or_update_appointment(
@@ -251,8 +257,8 @@ defmodule Flight.SchedulingTest do
         )
 
       assert updatedAppointment.id == appointment.id
-      assert updatedAppointment.start_at == new_start_at
-      assert updatedAppointment.end_at == end_at
+      assert updatedAppointment.start_at == walltime_to_utc(new_start_at, timezone)
+      assert updatedAppointment.end_at == walltime_to_utc(end_at, timezone)
     end
 
     test "insert_or_update_appointment/1 succeeds if instructor scheduled outside other appointment" do
@@ -482,9 +488,7 @@ defmodule Flight.SchedulingTest do
 
     test "insert_or_update_appointment/1 fails if user is not renter/student/instructor" do
       admin = user_fixture() |> assign_role("admin")
-
       now = NaiveDateTime.utc_now()
-
       type = "rental"
 
       {:error, changeset} =
@@ -699,9 +703,10 @@ defmodule Flight.SchedulingTest do
     test "get_appointment/2 returns correct timezone" do
       appointment =
         appointment_fixture(%{start_at: ~N[2038-03-03 10:00:00], end_at: ~N[2038-03-03 11:00:00]})
+        |> Repo.preload(:school)
 
       assert Scheduling.get_appointment(appointment.id, appointment).start_at ==
-               ~N[2038-03-03 10:00:00]
+               appointment.start_at
     end
 
     test "delete_appointment/3 deletes appointment" do
@@ -739,8 +744,8 @@ defmodule Flight.SchedulingTest do
         )
 
       assert unavailability.instructor_user_id == instructor.id
-      assert unavailability.start_at == @start_at
-      assert unavailability.end_at == @end_at
+      assert unavailability.start_at == walltime_to_utc(@start_at, instructor.school.timezone)
+      assert unavailability.end_at == walltime_to_utc(@end_at, instructor.school.timezone)
       assert unavailability.type == "time_off"
       assert unavailability.note == "Something crazy"
     end
@@ -860,7 +865,8 @@ defmodule Flight.SchedulingTest do
           default_school_fixture()
         )
 
-      assert unavailability.start_at == Timex.shift(@start_at, hours: -1)
+      assert unavailability.start_at ==
+               walltime_to_utc(Timex.shift(@start_at, hours: -1), instructor.school.timezone)
     end
 
     test "error if no instructor" do
