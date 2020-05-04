@@ -86,14 +86,15 @@ defmodule Flight.Email do
     |> validate_email(:from)
   end
 
-  def admin_create_communication_email(recipients, params) do
+  def admin_create_communication_email([to | bcc], params) do
     changeset = message_changeset(params)
 
     case Ecto.Changeset.apply_action(changeset, :insert) do
       {:ok, data} ->
         email =
           new_email()
-          |> bcc(recipients)
+          |> to(to)
+          |> bcc(bcc)
           |> from(data.from)
           |> subject(data.subject)
           |> text_body(data.body)
