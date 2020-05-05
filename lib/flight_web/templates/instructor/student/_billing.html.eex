@@ -1,0 +1,115 @@
+<div class="tab-pane detail-list list-billing" id="link2">
+  <div class="d-flex justify-content-center">
+    <div class="text-center mb-2 mt-2">
+      <h7>Account Balance</h7>
+      <h2 class="mb-2"><%= currency @user.balance %></h2>
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" id="addFundsButton">
+        add or remove funds
+      </button>
+      <!-- Modal -->
+      <div class="modal fade" id="addFundsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <%= form_for @conn, "/instructor/students/#{@user.id}/add_funds", [method: "post"], fn _ -> %>
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Add or Remove Funds for <%= @user.first_name %> <%= @user.last_name %></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body detail-list">
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt><%= currency @user.balance %></dt>
+                <dd>
+                  <p>Current Balance</p>
+                </dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt><input type="text" name="amount" id="addFundsAmount" style="text-align:right;" class="form-control"/></dt>
+                <dd>
+                  <p>Amount to add</p>
+                </dd>
+              </dl>
+              <dl class="d-flex justify-content-between flex-row-reverse">
+                <dt>
+                  <textarea class="form-control" name="description" style="border:none;" placeholder="enter description here"></textarea>
+                </dt>
+                <dd>
+                  <p>Description</p>
+                </dd>
+              </dl>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <input type="submit" id="addFundsSubmit" class="btn btn-primary" value="Add Funds" />
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<h7>Transaction History</h7>
+<%= for transaction <- @transactions do %>
+  <dl class="d-flex justify-content-between flex-row-reverse">
+    <dt>
+      <%= for line_item <- transaction.line_items do %>
+        <dl class="d-flex justify-content-between">
+          <dt><small><%= label_for_line_item(line_item) %></small></dt>
+          <dd><%= currency line_item.amount %></dd>
+        </dl>
+      <% end %>
+      <dl class="d-flex justify-content-between">
+        <dt><small>Total</small></dt>
+        <dd><%= currency transaction.total %></dd>
+      </dl>
+      <%= if transaction.state == "pending" do %>
+        <%= form_for @conn, "/admin/transactions/#{transaction.id}/cancel", [method: :post], fn _ -> %>
+        <input type="submit" class="btn btn-primary btn-sm" value="cancel" />
+      <% end %>
+    <% end %>
+  </dt>
+  <dd>
+    <%= if transaction.creator_user_id == transaction.user_id do %>
+      <p>Created by <%= display_name transaction.creator_user %></p>
+    <% else %>
+      <p>Requested by <%= display_name transaction.creator_user %></p>
+    <% end %>
+    <small><%= display_date transaction.inserted_at %></small>
+    <%
+          status =
+            case transaction.state do
+              "pending" -> "pending student approval"
+              "failed" -> "failed"
+              "completed" -> cond do
+                transaction.paid_by_cash ->
+                  "completed - cash"
+                transaction.paid_by_charge ->
+                  "completed - charge"
+                transaction.paid_by_balance ->
+                  "completed - balance"
+                true ->
+                  "completed"
+              end
+            end
+        %>
+    <p class="transaction-status"><%= status %></p>
+  </dd>
+</dl>
+<% end %>
+</div>
+<script>
+  $("#addFundsButton").on("click", function() {
+    $("#addFundsModal").modal()
+  })
+
+  $("#addFundsAmount").on("input", function() {
+    amount = parseInt(this.value)
+    if (amount > 0) {
+      $("#addFundsSubmit")[0].value = "Add Funds"
+    } else if (amount < 0) {
+      $("#addFundsSubmit")[0].value = "Remove Funds"
+    }
+  })
+</script>

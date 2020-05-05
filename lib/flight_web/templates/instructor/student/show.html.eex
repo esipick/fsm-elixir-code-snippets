@@ -1,0 +1,209 @@
+<div class="panel-header"></div>
+<div class="content profile">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header" data-background-color="gray">
+          <div class="user-info">
+            <div class=mobile>
+              <div class="photo">
+                <img src="<%= avatar_url(@conn, @user) %>"/>
+              </div>
+              <h2><%= @user.first_name %> <%= @user.last_name %></h2>
+              <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
+              <p class="enrolled"><small>Enrolled <%= display_date(@user.inserted_at, :student) %></small></p>
+              <a class="btn  btn-primary" href="/instructor/students/<%= @user.id %>/edit">Edit Profile</a>
+              <div class="contacts">
+                <div class="contact">
+                  <img src="<%= static_path(@conn, "/images/phone.svg") %>"/>
+                  <div class="tip">
+                    <a href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a>
+                  </div>
+                </div>
+                <div class="contact">
+                  <img src="<%= static_path(@conn, "/images/email.svg") %>"/>
+                  <div class="tip">
+                    <a href="mailto:<%= @user.email %>"><%= @user.email %></a>
+                  </div>
+                </div>
+                <%= if has_address?(@user) && should_display_address?(@user) do %>
+                  <div class="contact">
+                    <img src="<%= static_path(@conn, "/images/address.svg") %>"/>
+                    <div class="tip"><%= @user.address_1 %> <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <div class=desktop>
+              <div class="photo-container">
+                <div class="photo">
+                  <img src="<%= avatar_url(@conn, @user) %>"/>
+                </div>
+                <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
+              </div>
+              <div class="details">
+                <h2>
+                  <%= @user.first_name %> <%= @user.last_name %>
+                   <a href="/instructor/students/<%= @user.id %>/edit" class="edit">Edit Profile</a>
+                </h2>
+                <div class="contacts">
+                  <a class="contact" href="tel:<%= @user.phone_number %>" title="<%= @user.phone_number %>">
+                    <img src="<%= static_path(@conn, "/images/phone-blue.svg") %>"/>
+                    <%= @user.phone_number %>
+                  </a>
+                  <a class="contact" href="mailto:<%= @user.email %>" title="<%= @user.email %>">
+                    <img src="<%= static_path(@conn, "/images/email-blue.svg") %>"/>
+                    <%= @user.email %>
+                  </a>
+                  <%= if has_address?(@user) && should_display_address?(@user) do %>
+                    <div class="contact" title="<%= @user.address_1 %><%= @user.city %>, <%= @user.state %> <%= @user.zipcode %>">
+                      <img src="<%= static_path(@conn, "/images/address-blue.svg") %>"/>
+                      <%= @user.address_1 %><%= @user.city %>, <%= @user.state %> <%= @user.zipcode %>
+                    </div>
+                  <% end %>
+                </div>
+                <div class="fields">
+                  <%= if has_cirriculum?(@user) do %>
+                    <div class="field">
+                      <h3>Flight Training # (FTN)</h3>
+                      <p><%= @user.flight_training_number  || "-" %></p>
+                    </div>
+                  <% end %>
+                  <%= if has_medical?(@user) do %>
+                    <div class="field">
+                      <h3>Medical</h3>
+                      <p>
+                        <span><%= human_readable_medical_rating(@user.medical_rating) %></span>
+                        <%= if medical_rating_exist?(@user) do %>
+                          <small>expires: <%= format_date(@user.medical_expires_at) %></small>
+                        <% end %>
+                      </p>
+                    </div>
+                  <% end %>
+                  <%= if Accounts.has_role?(@user, "student") do %>
+                    <div class="field">
+                      <h3>Insctructor</h3>
+                      <%= if @user.main_instructor_id do %>
+                        <%= if @user.main_instructor.archived do %>
+                          <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
+                        <% else %>
+                          <p><a href="/instructor/students/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
+                        <% end %>
+                      <% end %>
+                      <%= if Enum.any?(@user.instructors) do %>
+                        <%= for instructor <- @user.instructors do %>
+                          <%= if instructor.archived do %>
+                            <p><%= instructor.first_name %> <%= instructor.last_name %></p>
+                          <% else %>
+                            <p><a href="/instructor/students/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
+                          <% end %>
+                        <% end %>
+                      <% else %>
+                        <p>-</p>
+                      <% end %>
+                    </div>
+                    <div class="field">
+                      <h3>Aircraft Name</h3>
+                      <%= if Enum.any?(@user.aircrafts) do %>
+                        <%= for aircraft <- @user.aircrafts do %>
+                          <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
+                        <% end %>
+                      <% else %>
+                        <p>-</p>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=mobile>
+            <div class="fields-container">
+              <div class="fields top">
+                <%= if has_cirriculum?(@user) do %>
+                  <div class="field ftn">
+                    <h3>Training # (FTN)</h3>
+                    <p><%= @user.flight_training_number  || "-" %></p>
+                  </div>
+                <% end %>
+                <%= if has_medical?(@user) do %>
+                  <div class="field medical">
+                    <span class="title">Medical:</span>
+                    <span><%= human_readable_medical_rating(@user.medical_rating) %></span>
+                    <%= if medical_rating_exist?(@user) do %>
+                      <br>
+                      <span class="title">Expires:</span>
+                      <span><%= format_date(@user.medical_expires_at) %></span>
+                      <% end %>
+                    </span>
+                  </div>
+                <% end %>
+              </div>
+              <div class="fields">
+                <div class="field">
+                  <h3>Insctructor</h3>
+                  <%= if @user.main_instructor_id do %>
+                    <%= if @user.main_instructor.archived do %>
+                      <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
+                    <% else %>
+                      <p><a href="/instructor/students/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
+                    <% end %>
+                  <% end %>
+                  <%= if Enum.any?(@user.instructors) do %>
+                    <%= for instructor <- @user.instructors do %>
+                      <%= if instructor.archived do %>
+                        <p><%= instructor.first_name %> <%= instructor.last_name %></p>
+                      <% else %>
+                        <p><a href="/instructor/students/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
+                      <% end %>
+                    <% end %>
+                  <% else %>
+                    <p>-</p>
+                  <% end %>
+                </div>
+                <div class="field">
+                  <h3>Aircraft Name</h3>
+                  <%= if Enum.any?(@user.aircrafts) do %>
+                    <%= for aircraft <- @user.aircrafts do %>
+                      <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
+                    <% end %>
+                  <% else %>
+                    <p>-</p>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+          <nav class="tabs">
+            <a <%= if @tab == :billing, do: "class=active" %> href="/instructor/students/<%= @user.id %>">Billing</a>
+            <a <%= if @tab == :appointments, do: "class=active" %> href="/instructor/students/<%= @user.id %>?tab=appointments">Appointments</a>
+          </nav>
+        </div>
+        <!-- end card-header -->
+        <div class="card-body profile">
+          <%= case @tab do
+            :appointments -> render "_appointments.html", user: @user, appointments: @appointments
+            :billing -> render "_billing.html", user: @user, transactions: @transactions, conn: @conn
+          end %>
+        </div>
+        <!-- end card-body -->
+      </div>
+      <!-- end card -->
+    </div>
+  </div>
+</div>
+<!-- end content -->
+<%= if get_flash(@conn, :success) do %>
+  <script>
+    $(document).ready(function() {
+      $.notify({message: "<%= get_flash(@conn, :success) %>"}, {type: "success", placement: {align: "center"}})
+    })
+  </script>
+<% end %>
+<%= if get_flash(@conn, :error) do %>
+  <script>
+    $(document).ready(function() {
+      $.notify({message: "<%= get_flash(@conn, :error) %>"}, {type: "danger", placement: {align: "center"}})
+    })
+  </script>
+<% end %>

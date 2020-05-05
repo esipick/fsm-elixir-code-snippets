@@ -116,6 +116,10 @@ defmodule FlightWeb.Router do
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
     resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true)
+
+    resources("/students", StudentController, only: [:index, :show, :edit, :update]) do
+      post("/add_funds", StudentController, :add_funds)
+    end
   end
 
   scope("/billing", FlightWeb.Billing, as: :billing) do

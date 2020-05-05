@@ -116,7 +116,7 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:unavailability_instructor, :modify, :personal),
       permission_slug(:user_protected_info, :view, :all),
       permission_slug(:users, :create, :all),
-      permission_slug(:users, :modify, :personal),
+      permission_slug(:users, :modify, :all),
       permission_slug(:users, :view, :all),
       permission_slug(:web_dashboard, :access, :all)
     ])

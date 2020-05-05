@@ -120,6 +120,12 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
+        path: "/instructor/students",
+        label: "Students",
+        icon_class: "education_hat",
+        active: false
+      },
+      %SidebarItem{
         path: "/billing/invoices",
         label: "Billing",
         icon_class: "business_money-coins",

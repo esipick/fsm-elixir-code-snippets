@@ -1,0 +1,24 @@
+<%= if Enum.any?(@detailed_rows) do %>
+  <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone #</th>
+        <th>Account Balance</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for row <- @detailed_rows do %>
+        <tr>
+          <td class="text-nowrap"><b><%= row.name %></b></td>
+          <td><a href="tel:<%= row.phone_number %>"><%= row.phone_number %></a></td>
+          <td><%= currency(row.account_balance) %></td>
+          <td><a href="/instructor/students/<%= row.user_id %>" class="btn btn-primary btn-sm">view</a></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="card-body">No <%= @role %> found</div>
+<% end %>

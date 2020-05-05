@@ -1,0 +1,33 @@
+<%= if Enum.any?(@appointments) do %>
+  <div class="tab-pane detail-list list-billing" id="link3">
+    <%= for appointment <- @appointments do %>
+      <dl class="d-flex justify-content-between">
+        <dt><%= display_walltime_date(appointment.start_at, @user.school.timezone, :long) %></dt>
+        <dd>
+          <dl class="d-flex justify-content-between">
+            <dt>Start Time</dt>
+            <dd><%= display_walltime_datetime(appointment.start_at, @user.school.timezone) %></dd>
+          </dl>
+          <dl class="d-flex justify-content-between">
+            <dt>End Time</dt>
+            <dd><%= display_walltime_datetime(appointment.end_at, @user.school.timezone) %></dd>
+          </dl>
+          <%= if appointment.aircraft_id do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Aircraft</dt>
+              <dd><%= aircraft_display_name appointment.aircraft %></dd>
+            </dl>
+          <% end %>
+          <%= if appointment.instructor_user_id do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Instructor</dt>
+              <dd><%= display_name appointment.instructor_user %></dd>
+            </dl>
+          <% end %>
+        </dd>
+      </dl>
+    <% end %>
+  </div>
+<% else %>
+  <h5>No appointments</h5>
+<% end %>
