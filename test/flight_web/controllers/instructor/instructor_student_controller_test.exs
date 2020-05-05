@@ -222,5 +222,22 @@ defmodule FlightWeb.Instructor.StudentControllerTest do
       student = Accounts.get_user(student.id, student) |> Repo.preload(:instructors)
       assert Accounts.has_instructor?(student, instructor.id)
     end
+
+    test "does not updates student roles", %{conn: conn} do
+      student = student_fixture() |> Repo.preload(:roles)
+      role_fixture(%{slug: "instructor"})
+      payload = %{user: %{}, role_slugs: %{"instructor" => "on", "student" => "on"}}
+
+      assert Accounts.has_role?(student, "student")
+
+      conn
+      |> web_auth_instructor
+      |> put("/instructor/students/#{student.id}", payload)
+      |> html_response(302)
+
+      student = Accounts.get_user(student.id, student) |> Repo.preload(:roles)
+      assert Accounts.has_role?(student, "student")
+      refute Accounts.has_role?(student, "instructor")
+    end
   end
 end
