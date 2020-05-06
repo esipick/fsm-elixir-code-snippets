@@ -63,6 +63,7 @@ class Main extends Component {
     const filtered = acceptedFiles.filter(file => file.path != path)
 
     this.setState({ acceptedFiles: filtered })
+    this.removeExpiryDate(path)
   }
 
   closeDropzone = () => {
@@ -190,7 +191,14 @@ class Main extends Component {
         if (response.status == 200) {
           response.json().then(() => {
             this.getDocuments({})
-            this.setState({ acceptedFiles: [], dropzone: false, expiryDate: new Date(), hideDatePickerValue: true, saving: false })
+            this.setState({
+              acceptedFiles: [],
+              dropzone: false,
+              expiryDate: new Date(),
+              expiryDates: [],
+              hideDatePickerValue: true,
+              saving: false
+            })
           })
         } else {
           response.json().then(({ errors = {} }) => {
