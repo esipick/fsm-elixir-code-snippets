@@ -3,6 +3,7 @@
 $(document).ready(function () {
 
   var AUTH_HEADERS = { "Authorization": window.fsm_token };
+  var meta_user_id = document.head.querySelector('meta[name="user_id"]');
 
   var fullName = function (user) {
     return user.first_name + " " + user.last_name
@@ -100,11 +101,11 @@ $(document).ready(function () {
   $('#btnSave').click(function () {
     var buttonPos = $(this).offset();
 
-    $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left -170 }).show();
+    $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 170 }).show();
 
     $(this).attr("disabled", true);
-    setTimeout(function() {
-        $('#btnSave').removeAttr("disabled");
+    setTimeout(function () {
+      $('#btnSave').removeAttr("disabled");
     }, 3000);
 
     var promise = null;
@@ -308,7 +309,8 @@ $(document).ready(function () {
 
     $('#apptStart').val(initialData.start_at.format(displayFormat))
     $('#apptEnd').val(initialData.end_at.format(displayFormat))
-    $('#apptStudent').val(initialData.user_id).selectpicker("refresh");
+    var disabledApptStudent = initialData.id && meta_user_id && initialData.user_id == meta_user_id.content;
+    $('#apptStudent').prop("disabled", disabledApptStudent).selectpicker("refresh");
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#apptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
     $('#apptNote').val(initialData.note);
@@ -363,7 +365,7 @@ $(document).ready(function () {
       customButtons: {
         customDate: {
           text: 'Select Date',
-          click: function() {
+          click: function () {
             $('#dateSelectModal').modal();
           }
         }
