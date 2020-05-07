@@ -166,14 +166,30 @@ defmodule FlightWeb.Admin.UserController do
   def update(conn, %{"user" => user_form} = params) do
     aircrafts =
       case Map.get(params["user"], "aircrafts") do
-        params when is_list(params) -> Enum.map(params, &String.to_integer(&1))
-        _ -> nil
+        params when params == [""] ->
+          []
+
+        params when is_list(params) ->
+          params
+          |> Enum.reject(&(&1 == ""))
+          |> Enum.map(&String.to_integer(&1))
+
+        _ ->
+          nil
       end
 
     instructors =
       case Map.get(params["user"], "instructors") do
-        params when is_list(params) -> Enum.map(params, &String.to_integer(&1))
-        _ -> nil
+        params when params == [""] ->
+          []
+
+        params when is_list(params) ->
+          params
+          |> Enum.reject(&(&1 == ""))
+          |> Enum.map(&String.to_integer(&1))
+
+        _ ->
+          nil
       end
 
     role_params = params["role_slugs"]

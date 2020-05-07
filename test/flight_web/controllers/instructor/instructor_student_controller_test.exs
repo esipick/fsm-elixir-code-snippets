@@ -205,6 +205,16 @@ defmodule FlightWeb.Instructor.StudentControllerTest do
 
       student = Accounts.get_user(student.id, student) |> Repo.preload(:aircrafts)
       assert Accounts.has_aircraft?(student, aircraft.id)
+
+      payload = %{user: %{aircrafts: [""]}}
+
+      conn
+      |> web_auth_instructor
+      |> put("/instructor/students/#{student.id}", payload)
+      |> html_response(302)
+
+      student = Accounts.get_user(student.id, student) |> Repo.preload(:aircrafts)
+      refute Accounts.has_aircraft?(student, aircraft.id)
     end
 
     test "updates student instructors", %{conn: conn} do
@@ -221,6 +231,16 @@ defmodule FlightWeb.Instructor.StudentControllerTest do
 
       student = Accounts.get_user(student.id, student) |> Repo.preload(:instructors)
       assert Accounts.has_instructor?(student, instructor.id)
+
+      payload = %{user: %{instructors: [""]}}
+
+      conn
+      |> web_auth_instructor
+      |> put("/instructor/students/#{student.id}", payload)
+      |> html_response(302)
+
+      student = Accounts.get_user(student.id, student) |> Repo.preload(:instructors)
+      refute Accounts.has_instructor?(student, instructor.id)
     end
 
     test "does not updates student roles", %{conn: conn} do

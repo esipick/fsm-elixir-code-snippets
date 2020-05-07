@@ -352,12 +352,9 @@ defmodule FlightWeb.Admin.UserControllerTest do
       school = school_fixture()
       user = user_fixture(%{}, school) |> assign_role("admin")
       aircraft = aircraft_fixture(%{}, school)
-
-      payload = %{
-        user: %{aircrafts: ["#{aircraft.id}"]}
-      }
-
       admin = admin_fixture(%{}, school)
+
+      payload = %{user: %{aircrafts: ["#{aircraft.id}"]}}
 
       conn
       |> web_auth(admin)
@@ -366,18 +363,25 @@ defmodule FlightWeb.Admin.UserControllerTest do
 
       user = Accounts.get_user(user.id, admin) |> Repo.preload(:aircrafts)
       assert Accounts.has_aircraft?(user, aircraft.id)
+
+      payload = %{user: %{aircrafts: [""]}}
+
+      conn
+      |> web_auth(admin)
+      |> put("/admin/users/#{user.id}", payload)
+      |> response_redirected_to("/admin/users/#{user.id}")
+
+      user = Accounts.get_user(user.id, admin) |> Repo.preload(:aircrafts)
+      refute Accounts.has_aircraft?(user, aircraft.id)
     end
 
     test "updates instructors", %{conn: conn} do
       school = school_fixture()
       user = user_fixture(%{}, school) |> assign_role("admin")
       instructor = instructor_fixture(%{}, school)
-
-      payload = %{
-        user: %{instructors: ["#{instructor.id}"]}
-      }
-
       admin = admin_fixture(%{}, school)
+
+      payload = %{user: %{instructors: ["#{instructor.id}"]}}
 
       conn
       |> web_auth(admin)
@@ -386,6 +390,16 @@ defmodule FlightWeb.Admin.UserControllerTest do
 
       user = Accounts.get_user(user.id, admin) |> Repo.preload(:instructors)
       assert Accounts.has_instructor?(user, instructor.id)
+
+      payload = %{user: %{instructors: [""]}}
+
+      conn
+      |> web_auth(admin)
+      |> put("/admin/users/#{user.id}", payload)
+      |> response_redirected_to("/admin/users/#{user.id}")
+
+      user = Accounts.get_user(user.id, admin) |> Repo.preload(:instructors)
+      refute Accounts.has_instructor?(user, instructor.id)
     end
 
     test "updates fields", %{conn: conn} do

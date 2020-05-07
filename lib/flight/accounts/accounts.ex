@@ -23,6 +23,7 @@ defmodule Flight.Accounts do
   def get_aircrafts(school_context) do
     Flight.Scheduling.Aircraft
     |> SchoolScope.scope_query(school_context)
+    |> where([u], u.archived == false)
     |> Repo.all()
   end
 
@@ -196,21 +197,27 @@ defmodule Flight.Accounts do
       end
 
     {valid_aircrafts?, aircrafts, invalid_aircraft_ids} =
-      if aircraft_ids do
-        aircrafts = Repo.all(from(r in Flight.Scheduling.Aircraft, where: r.id in ^aircraft_ids))
+      case aircraft_ids do
+        nil ->
+          {true, nil, []}
 
-        invalid_aircraft_ids =
-          Enum.filter(aircraft_ids, fn id ->
-            aircraft = Enum.find(aircrafts, fn aircraft -> aircraft.id == id end)
-            aircraft.archived
-          end)
+        [] ->
+          {true, [], []}
 
-        valid_aircrafts? =
-          Enum.count(aircraft_ids) == Enum.count(aircrafts) and invalid_aircraft_ids == []
+        aircraft_ids ->
+          aircrafts =
+            Repo.all(from(r in Flight.Scheduling.Aircraft, where: r.id in ^aircraft_ids))
 
-        {valid_aircrafts?, aircrafts, invalid_aircraft_ids}
-      else
-        {true, nil, []}
+          invalid_aircraft_ids =
+            Enum.filter(aircraft_ids, fn id ->
+              aircraft = Enum.find(aircrafts, fn aircraft -> aircraft.id == id end)
+              aircraft.archived
+            end)
+
+          valid_aircrafts? =
+            Enum.count(aircraft_ids) == Enum.count(aircrafts) and invalid_aircraft_ids == []
+
+          {valid_aircrafts?, aircrafts, invalid_aircraft_ids}
       end
 
     {valid_certs?, certs} =
@@ -223,21 +230,26 @@ defmodule Flight.Accounts do
       end
 
     {valid_instructors?, instructors, invalid_instructor_ids} =
-      if instructor_ids do
-        instructors = Repo.all(from(r in User, where: r.id in ^instructor_ids))
+      case instructor_ids do
+        nil ->
+          {true, nil, []}
 
-        invalid_instructor_ids =
-          Enum.filter(instructor_ids, fn id ->
-            instructor = Enum.find(instructors, fn instructor -> instructor.id == id end)
-            instructor.archived
-          end)
+        [] ->
+          {true, [], []}
 
-        valid_instructors? =
-          Enum.count(instructor_ids) == Enum.count(instructors) and invalid_instructor_ids == []
+        instructor_ids ->
+          instructors = Repo.all(from(r in User, where: r.id in ^instructor_ids))
 
-        {valid_instructors?, instructors, invalid_instructor_ids}
-      else
-        {true, nil, []}
+          invalid_instructor_ids =
+            Enum.filter(instructor_ids, fn id ->
+              instructor = Enum.find(instructors, fn instructor -> instructor.id == id end)
+              instructor.archived
+            end)
+
+          valid_instructors? =
+            Enum.count(instructor_ids) == Enum.count(instructors) and invalid_instructor_ids == []
+
+          {valid_instructors?, instructors, invalid_instructor_ids}
       end
 
     valid_main_instructor? =
