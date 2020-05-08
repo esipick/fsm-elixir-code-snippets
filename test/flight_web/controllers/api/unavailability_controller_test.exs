@@ -237,7 +237,7 @@ defmodule FlightWeb.API.ControllerTest do
       conn
       |> auth(student)
       |> post("/api/unavailabilities", params)
-      |> json_response(400)
+      |> json_response(401)
     end
 
     @tag :wip
@@ -256,7 +256,7 @@ defmodule FlightWeb.API.ControllerTest do
       conn
       |> auth(instructor)
       |> post("/api/unavailabilities", params)
-      |> json_response(400)
+      |> json_response(401)
     end
   end
 
@@ -290,7 +290,7 @@ defmodule FlightWeb.API.ControllerTest do
       conn
       |> auth(instructor)
       |> delete("/api/unavailabilities/#{unavailability.id}")
-      |> response(400)
+      |> response(401)
     end
 
     @tag :integration

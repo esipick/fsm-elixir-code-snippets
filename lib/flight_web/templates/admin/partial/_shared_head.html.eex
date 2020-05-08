@@ -1,5 +1,5 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<%= user_id_meta_tag(@conn) %>
+<%= user_roles_meta_tag(@conn) %>
 <link rel="icon" type="image/png" href="/images/fsm-icon.png">
 <%= render FlightWeb.Admin.PartialView, "_css.html", assigns %>
 <%= render FlightWeb.Admin.PartialView, "_js.html", assigns %>

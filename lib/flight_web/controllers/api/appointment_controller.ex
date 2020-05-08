@@ -51,7 +51,6 @@ defmodule FlightWeb.API.AppointmentController do
 
   def show(conn, _) do
     appointment = FlightWeb.API.AppointmentView.preload(conn.assigns.appointment)
-
     render(conn, "show.json", appointment: appointment)
   end
 
@@ -113,9 +112,16 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   defp authorize_modify(conn, _) do
+    current_user = conn.assigns.current_user
+    user_id_param = conn.params["data"] |> Optional.map(& &1["user_id"])
+
     user_id =
-      conn.params["data"] |> Optional.map(& &1["user_id"]) ||
-        if conn.assigns[:appointment], do: conn.assigns[:appointment].user_id
+      with %Scheduling.Appointment{} = appointment <- conn.assigns[:appointment],
+           true <- user_id_param == nil or appointment.user_id != current_user.id do
+        appointment.user_id
+      else
+        _ -> user_id_param
+      end
 
     instructor_user_id_from_appointment =
       case conn.assigns do
@@ -134,7 +140,7 @@ defmodule FlightWeb.API.AppointmentController do
           "You must choose a Renter."
         )
 
-      user_can?(conn.assigns.current_user, [
+      user_can?(current_user, [
         Permission.new(:appointment_user, :modify, {:personal, user_id}),
         Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id}),
         Permission.new(:appointment, :modify, :all)
@@ -151,7 +157,7 @@ defmodule FlightWeb.API.AppointmentController do
          message \\ "You are not authorized to create or change this appointment. Please talk to your school's Admin."
        ) do
     conn
-    |> put_status(400)
+    |> put_status(401)
     |> json(%{human_errors: [message]})
     |> halt()
   end

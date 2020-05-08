@@ -3,7 +3,7 @@
 $(document).ready(function () {
 
   var AUTH_HEADERS = { "Authorization": window.fsm_token };
-  var meta_user_id = document.head.querySelector('meta[name="user_id"]');
+  var meta_roles = document.head.querySelector('meta[name="roles"]');
 
   var fullName = function (user) {
     return user.first_name + " " + user.last_name
@@ -276,10 +276,6 @@ $(document).ready(function () {
     }
   });
 
-
-
-
-
   var openAppointmentModal = function (initialData) {
     appointmentOrUnavailabilityId = initialData.id;
 
@@ -309,8 +305,18 @@ $(document).ready(function () {
 
     $('#apptStart').val(initialData.start_at.format(displayFormat))
     $('#apptEnd').val(initialData.end_at.format(displayFormat))
-    var disabledApptStudent = initialData.id && meta_user_id && initialData.user_id == meta_user_id.content;
-    $('#apptStudent').prop("disabled", disabledApptStudent).selectpicker("refresh");
+
+    if (initialData.user_name && meta_roles.content == "student") {
+      $('#apptStudent').append(new Option(initialData.user_name, initialData.user_id));
+      $('#apptStudent').val(initialData.user_id);
+      $('#apptStudent').prop("disabled", true).selectpicker("refresh");
+      $('#apptStudent').find('option:last').remove();
+    } else {
+      if (meta_roles.content != "student") { $('#apptStudent').val(initialData.user_id); }
+
+      $('#apptStudent').prop("disabled", false).selectpicker("refresh");
+    }
+
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#apptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
     $('#apptNote').val(initialData.note);
@@ -442,24 +448,26 @@ $(document).ready(function () {
           })
           return;
         } else if (calEvent.appointment) {
+          var appointment = calEvent.appointment
           var instructor_user_id = null;
-          if (calEvent.appointment.instructor_user) {
-            instructor_user_id = calEvent.appointment.instructor_user.id
+          if (appointment.instructor_user) {
+            instructor_user_id = appointment.instructor_user.id
           }
 
           var aircraft_id = null;
-          if (calEvent.appointment.aircraft) {
-            aircraft_id = calEvent.appointment.aircraft.id
+          if (appointment.aircraft) {
+            aircraft_id = appointment.aircraft.id
           }
 
           openAppointmentModal({
-            start_at: moment(calEvent.appointment.start_at),
-            end_at: moment(calEvent.appointment.end_at),
+            start_at: moment(appointment.start_at),
+            end_at: moment(appointment.end_at),
             instructor_user_id: instructor_user_id,
             aircraft_id: aircraft_id,
-            note: calEvent.appointment.note,
-            user_id: calEvent.appointment.user.id,
-            id: calEvent.appointment.id
+            note: appointment.note,
+            user_id: appointment.user.id,
+            user_name: `${appointment.user.first_name} ${appointment.user.last_name}`,
+            id: appointment.id
           })
         }
 

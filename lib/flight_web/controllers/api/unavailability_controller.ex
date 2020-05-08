@@ -106,7 +106,7 @@ defmodule FlightWeb.API.UnavailabilityController do
          message \\ "You are not authorized to create or change this unavailability. Please talk to your school's Admin."
        ) do
     conn
-    |> put_status(400)
+    |> put_status(401)
     |> json(%{human_errors: [message]})
     |> halt()
   end
