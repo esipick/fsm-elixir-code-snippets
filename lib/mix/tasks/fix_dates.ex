@@ -31,8 +31,8 @@ defmodule Mix.Tasks.FixDates do
 
       IO.puts("Wrong dates: #{start_at} - #{end_at}")
 
-      new_start_at = utc_to_walltime(start_at, timezone)
-      new_end_at = utc_to_walltime(end_at, timezone)
+      new_start_at = utc_to_walltime(utc_to_walltime(start_at, timezone), timezone)
+      new_end_at = utc_to_walltime(utc_to_walltime(end_at, timezone), timezone)
 
       attrs = %{end_at: new_end_at, start_at: new_start_at}
 
