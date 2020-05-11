@@ -95,6 +95,7 @@ defmodule FlightWeb.ViewHelpers do
       :end_at -> :end_time
       :expiration -> :expiration_date
       :instructor_user_id -> :instructor_id
+      :renter_student -> "The renter/student"
       other -> other
     end
   end
