@@ -58,12 +58,22 @@
           <%= if @data.user_table_data.page.total_pages > 1 do %>
             <div class="row">
               <div class="col-md-10">
-                <%= pagination_links @conn,
-                  @data.user_table_data.page,
-                  role: @data.role.slug,
-                  search: @data.search_term,
-                  page_size: @data.user_table_data.page.page_size
-                %>
+                <%= if String.trim(@data.search_term) == "" do %>
+                  <%= pagination_links @conn,
+                    @data.user_table_data.page,
+                    role: @data.role.slug,
+                    page_size: @data.user_table_data.page.page_size,
+                    tab: @tab
+                  %>
+                <% else %>
+                  <%= pagination_links @conn,
+                    @data.user_table_data.page,
+                    role: @data.role.slug,
+                    search: @data.search_term,
+                    page_size: @data.user_table_data.page.page_size,
+                    tab: @tab
+                  %>
+                <% end %>
               </div>
 
               <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
@@ -86,6 +96,7 @@
 <div style="display:none">
   <%= form_tag "/admin/users/:pending:", method: "delete", id: "delete_form" do %>
     <input type="hidden" name="role" value="<%= @data.role.slug %>" />
+    <input type="hidden" name="page" value="<%= @data.user_table_data.page.page_number %>" />
   <% end %>
 </div>
 <script>

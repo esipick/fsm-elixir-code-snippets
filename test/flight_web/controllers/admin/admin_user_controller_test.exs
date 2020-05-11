@@ -543,6 +543,27 @@ defmodule FlightWeb.Admin.UserControllerTest do
   end
 
   @tag :integration
+  describe "DELETE /admin/users/:id" do
+    test "return to the same page", %{conn: conn} do
+      student = student_fixture(%{first_name: "Bill", last_name: "Murray"})
+
+      admin = admin_fixture()
+
+      conn =
+        conn
+        |> web_auth_admin(admin)
+        |> delete("/admin/users/#{student.id}?role=student&page=2")
+
+      assert redirected_to(conn) == "/admin/users?role=student&page=2"
+      assert get_flash(conn, :success) =~ "Successfully archived #{student.first_name} #{student.last_name}"
+
+      student = Accounts.get_user_by_email(student.email)
+
+      assert student.archived == true
+    end
+  end
+
+  @tag :integration
   describe "GET /admin/users/:id/restore" do
     test "restore", %{conn: conn} do
       student = student_fixture(%{first_name: "Bill", last_name: "Murray"})
