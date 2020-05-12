@@ -22,7 +22,7 @@ defmodule Flight.Queries.Appointment do
       )
       |> Repo.all()
 
-    from(a in Appointment, where: a.end_at <= ^datetime, order_by: [desc: a.end_at])
+    from(a in Appointment, order_by: [desc: a.end_at])
     |> where([a], a.archived == false)
     |> where([a], a.status == "pending")
     |> where([a], a.id not in ^excluded_appointment_ids)
