@@ -88,10 +88,7 @@ defmodule Flight.Billing.Invoice do
             add_error(changeset, :appointment_id, "has already been removed")
 
           false ->
-            case NaiveDateTime.compare(NaiveDateTime.utc_now(), appointment.end_at) do
-              :lt -> add_error(changeset, :appointment_id, "did not end")
-              _ -> changeset
-            end
+            changeset
         end
       else
         add_error(changeset, :appointment_id, "does not exist")
