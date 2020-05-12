@@ -476,7 +476,7 @@ class Form extends Component {
                   <div><Error text={stripe_error} /></div>
                 </div>
 
-                <div className="form-group">
+                <div className="form-group invoice-save-buttons">
                   <input className="btn btn-primary"
                     type="submit"
                     value="Save"
