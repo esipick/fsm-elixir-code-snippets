@@ -79,7 +79,7 @@ defmodule Mix.Tasks.FixTransactions do
               total_tax = Map.get(calculated_params, "total_tax")
 
               attrs = %{
-                created_at: transaction.created_at,
+                created_at: transaction.inserted_at,
                 date: transaction.updated_at,
                 line_items: line_items,
                 payer_name: payer_name,
