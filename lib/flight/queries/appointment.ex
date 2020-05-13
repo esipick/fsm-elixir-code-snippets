@@ -10,8 +10,6 @@ defmodule Flight.Queries.Appointment do
   alias Flight.SchoolScope
 
   def billable(school_context, params = %{}) do
-    datetime = DateTime.utc_now()
-
     excluded_appointment_ids =
       from(
         i in Invoice,

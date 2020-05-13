@@ -1,7 +1,6 @@
 defmodule Flight.Billing.CalculateInvoice do
   alias FlightWeb.API.{DetailedTransactionForm}
   alias Flight.Billing
-  alias FlightWeb.API.DetailedTransactionForm.AircraftDetails
 
   def run(invoice_params, school_context) do
     school = school(school_context)
