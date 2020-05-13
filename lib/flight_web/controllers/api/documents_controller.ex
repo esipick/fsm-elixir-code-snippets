@@ -2,11 +2,13 @@ defmodule FlightWeb.API.DocumentController do
   use FlightWeb, :controller
 
   alias FlightWeb.ViewHelpers
+  alias Flight.Auth.Permission
+
   alias Flight.Accounts
   alias Accounts.Document
 
-  plug(:authorize_student when action in [:index])
-  plug(:authorize_admin when action in [:create, :delete])
+  plug(:authorize_view when action in [:index])
+  plug(:authorize_modify when action in [:create, :delete])
 
   def create(%{assigns: %{current_user: user}} = conn, %{
         "document" => document_params,
@@ -48,25 +50,24 @@ defmodule FlightWeb.API.DocumentController do
     render(conn, "index.json", page: page, timezone: user.school.timezone)
   end
 
-  defp authorize_student(
-         %{assigns: %{current_user: user}, params: %{"user_id" => user_id}} = conn,
-         params
-       ) do
-    cond do
-      Accounts.has_role?(user, "student") and Integer.to_string(user.id) == user_id ->
-        conn
-
-      true ->
-        authorize_admin(conn, params)
-    end
-  end
-
-  defp authorize_admin(%{params: %{"user_id" => user_id}} = conn, _) do
+  defp authorize_modify(%{params: %{"user_id" => user_id}} = conn, _) do
     user = Accounts.get_user(user_id, conn)
 
     conn
     |> halt_unless_user_can?([
       Flight.Auth.Permission.new(:documents, :modify, :all)
+    ])
+    |> halt_unless_right_school(user.school_id)
+  end
+
+  defp authorize_view(
+         %{assigns: %{current_user: user}, params: %{"user_id" => user_id}} = conn,
+         params
+       ) do
+    conn
+    |> halt_unless_user_can?([
+      Permission.new(:documents, :view, :all),
+      Permission.new(:documents, :view, {:personal, user_id})
     ])
     |> halt_unless_right_school(user.school_id)
   end

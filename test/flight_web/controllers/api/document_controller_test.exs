@@ -5,11 +5,10 @@ defmodule FlightWeb.API.DocumentControllerTest do
   alias FlightWeb.API.DocumentView
 
   describe "GET /api/users/:user_id/documents" do
-    @tag :skip
-    test "dispatcher, instructor, renter, student not authorized to GET student documents", %{
+    test "renter and student not authorized to GET other student documents", %{
       conn: conn
     } do
-      for slug <- Accounts.roles_visible_to("dispatcher") do
+      for slug <- [:student, :renter] do
         school = school_fixture()
         student_id = student_fixture(%{}, school).id
         user = user_fixture(%{}, school) |> assign_role(Atom.to_string(slug))
@@ -30,6 +29,50 @@ defmodule FlightWeb.API.DocumentControllerTest do
       json =
         conn
         |> auth(student)
+        |> get("/api/users/#{student_id}/documents")
+        |> json_response(200)
+
+      page = Document.documents_by_page(student_id, %{page_size: 10}, "")
+
+      assert json ==
+               render_json(DocumentView, "index.json",
+                 page: page,
+                 timezone: student.school.timezone
+               )
+    end
+
+    test "return documents to instructor", %{conn: conn} do
+      instructor = instructor_fixture()
+      student = student_fixture()
+      student_id = student.id
+
+      Document.create_document(%{"file" => upload_fixture(), "user_id" => student_id})
+
+      json =
+        conn
+        |> auth(instructor)
+        |> get("/api/users/#{student_id}/documents")
+        |> json_response(200)
+
+      page = Document.documents_by_page(student_id, %{page_size: 10}, "")
+
+      assert json ==
+               render_json(DocumentView, "index.json",
+                 page: page,
+                 timezone: student.school.timezone
+               )
+    end
+
+    test "return documents to dispatcher", %{conn: conn} do
+      dispatcher = dispatcher_fixture()
+      student = student_fixture()
+      student_id = student.id
+
+      Document.create_document(%{"file" => upload_fixture(), "user_id" => student_id})
+
+      json =
+        conn
+        |> auth(dispatcher)
         |> get("/api/users/#{student_id}/documents")
         |> json_response(200)
 
@@ -103,11 +146,10 @@ defmodule FlightWeb.API.DocumentControllerTest do
   end
 
   describe "POST /api/users/:user_id/documents" do
-    @tag :skip
-    test "dispatcher, instructor, renter, student not authorized to POST with student id", %{
+    test "instructor, renter, student not authorized to POST with student id", %{
       conn: conn
     } do
-      for slug <- Accounts.roles_visible_to("dispatcher") do
+      for slug <- [:instructor, :renter, :student] do
         school = school_fixture()
         student_id = student_fixture(%{}, school).id
         user = user_fixture(%{}, school) |> assign_role(Atom.to_string(slug))
@@ -223,7 +265,6 @@ defmodule FlightWeb.API.DocumentControllerTest do
       |> response(401)
     end
 
-    @tag :skip
     test "instructor not authorized to upload documents", %{conn: conn} do
       instructor = instructor_fixture()
       payload = %{"document" => %{"file" => upload_fixture()}}
@@ -234,24 +275,22 @@ defmodule FlightWeb.API.DocumentControllerTest do
       |> response(401)
     end
 
-    @tag :skip
-    test "dispatcher not authorized to upload documents", %{conn: conn} do
+    test "dispatcher authorized to upload documents", %{conn: conn} do
       dispatcher = dispatcher_fixture()
       payload = %{"document" => %{"file" => upload_fixture()}}
 
       conn
       |> auth(dispatcher)
       |> post("/api/users/#{dispatcher.id}/documents", payload)
-      |> response(401)
+      |> response(200)
     end
   end
 
   describe "DELETE /api/users/:user_id/documents/:id" do
-    @tag :skip
-    test "dispatcher, instructor, renter, student not authorized to POST with student id", %{
+    test "instructor, renter, student not authorized to POST with student id", %{
       conn: conn
     } do
-      for slug <- Accounts.roles_visible_to("dispatcher") do
+      for slug <- [:instructor, :renter, :student] do
         school = school_fixture()
         student_id = student_fixture(%{}, school).id
         user = user_fixture(%{}, school) |> assign_role(Atom.to_string(slug))
@@ -310,7 +349,6 @@ defmodule FlightWeb.API.DocumentControllerTest do
       assert Repo.get_by(Document, user_id: student_id)
     end
 
-    @tag :skip
     test "instructor not authorized to delete documents", %{conn: conn} do
       instructor = instructor_fixture()
       instructor_id = instructor.id
@@ -326,8 +364,7 @@ defmodule FlightWeb.API.DocumentControllerTest do
       assert Repo.get_by(Document, user_id: instructor_id)
     end
 
-    @tag :skip
-    test "dispatcher not authorized to delete documents", %{conn: conn} do
+    test "dispatcher authorized to delete documents", %{conn: conn} do
       dispatcher = dispatcher_fixture()
       dispatcher_id = dispatcher.id
 
@@ -337,9 +374,9 @@ defmodule FlightWeb.API.DocumentControllerTest do
       conn
       |> auth(dispatcher)
       |> delete("/api/users/#{dispatcher_id}/documents/#{document.id}")
-      |> response(401)
+      |> response(204)
 
-      assert Repo.get_by(Document, user_id: dispatcher_id)
+      refute Repo.get_by(Document, user_id: dispatcher_id)
     end
   end
 end

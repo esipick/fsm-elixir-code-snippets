@@ -555,7 +555,9 @@ defmodule FlightWeb.Admin.UserControllerTest do
         |> delete("/admin/users/#{student.id}?role=student&page=2")
 
       assert redirected_to(conn) == "/admin/users?role=student&page=2"
-      assert get_flash(conn, :success) =~ "Successfully archived #{student.first_name} #{student.last_name}"
+
+      assert get_flash(conn, :success) =~
+               "Successfully archived #{student.first_name} #{student.last_name}"
 
       student = Accounts.get_user_by_email(student.email)
 
