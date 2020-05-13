@@ -100,10 +100,10 @@ defmodule Mix.Tasks.FixTransactions do
                   IO.puts("Invoice with id #{invoice.id} created")
 
                   transaction
-                  |> Transaction.changeset(%{state: "completed"})
+                  |> Transaction.changeset(%{state: "canceled"})
                   |> Repo.update()
 
-                  IO.puts("Transaction with id #{transaction.id} is completed")
+                  IO.puts("Transaction with id #{transaction.id} is canceled")
 
                 {:error, changeset} ->
                   IO.inspect(changeset)
