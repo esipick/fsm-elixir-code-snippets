@@ -81,7 +81,8 @@ defmodule Flight.Billing.CalculateInvoice do
   defp calculate_line_item(line_item, invoice, school_context) do
     case calculate_amount_and_rate(line_item, invoice, school_context) do
       {:ok, {amount, rate, qty}} ->
-        {:ok, Map.merge(line_item, %{"amount" => amount, "rate" => rate, "quantity" => qty})}
+        {:ok,
+         Map.merge(line_item, %{"amount" => round(amount), "rate" => rate, "quantity" => qty})}
 
       {:error, errors} ->
         {:error, errors}

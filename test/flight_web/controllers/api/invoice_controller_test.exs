@@ -115,7 +115,41 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     test "creates invoice", %{conn: conn} do
       student = student_fixture()
       instructor = instructor_fixture()
-      invoice_params = invoice_attrs(student)
+      aircraft = aircraft_fixture()
+      new_tach_time = aircraft.last_tach_time + 5
+      new_hobbs_time = aircraft.last_hobbs_time + 5
+
+      invoice_params = %{
+        total_tax: 0,
+        total: 1750,
+        total_amount_due: 1750,
+        date: "2020-05-01",
+        user_id: student.id,
+        payment_option: "cash",
+        line_items: [
+          %{
+            type: "aircraft",
+            aircraft_id: aircraft.id,
+            tach_start: aircraft.last_tach_time,
+            tach_end: new_tach_time,
+            hobbs_start: aircraft.last_hobbs_time,
+            hobbs_end: new_hobbs_time,
+            hobbs_tach_used: true,
+            description: "Flight Hours",
+            amount: 850,
+            quantity: 0.5,
+            rate: 1700
+          },
+          %{
+            type: "instructor",
+            instructor_user_id: instructor.id,
+            description: "Instructor Hours",
+            amount: 50,
+            quantity: 0.5,
+            rate: 100
+          }
+        ]
+      }
 
       json =
         conn
@@ -124,6 +158,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> json_response(201)
 
       invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
+
+      assert Enum.map(invoice.line_items, fn i -> i.quantity end) == [0.5, 0.5]
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
@@ -319,9 +355,17 @@ defmodule FlightWeb.API.InvoiceControllerTest do
               hobbs_end: new_hobbs_time,
               hobbs_tach_used: true,
               description: "Flight Hours",
-              amount: 1700,
-              quantity: 1,
+              amount: 850,
+              quantity: 0.5,
               rate: 1700
+            },
+            %{
+              type: "instructor",
+              instructor_user_id: instructor.id,
+              description: "Instructor Hours",
+              amount: 50,
+              quantity: 0.5,
+              rate: 100
             }
           ]
         })
@@ -336,6 +380,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       appointment = Repo.get(Appointment, appointment.id)
       transaction = List.first(invoice.transactions)
       aircraft = Repo.get(Aircraft, aircraft.id)
+
+      assert Enum.map(invoice.line_items, fn i -> i.quantity end) == [0.5, 0.5]
 
       assert aircraft.last_tach_time == new_tach_time
       assert aircraft.last_hobbs_time == new_hobbs_time
@@ -1069,7 +1115,12 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   describe "POST from_appointment" do
     @tag :integration
     test "creates invoice from appointment", %{conn: conn} do
-      appointment = past_appointment_fixture()
+      appointment =
+        past_appointment_fixture(%{
+          start_at: ~N[2020-05-13 06:30:00],
+          end_at: ~N[2020-05-13 07:00:00]
+        })
+
       instructor = instructor_fixture()
 
       json =
@@ -1080,11 +1131,12 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice = Repo.get_by(Invoice, user_id: appointment.user_id) |> preload_invoice
 
-      assert invoice.total == 460
+      assert invoice.total == 115
       assert invoice.tax_rate == 10
-      assert invoice.total_tax == 26
-      assert invoice.total_amount_due == 486
+      assert invoice.total_tax == 7
+      assert invoice.total_amount_due == 122
       assert Enum.count(invoice.line_items) == 2
+      assert Enum.map(invoice.line_items, fn i -> i.quantity end) == [0.5, 0.5]
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end

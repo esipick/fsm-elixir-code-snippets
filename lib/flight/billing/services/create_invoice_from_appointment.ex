@@ -37,7 +37,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
       Repo.get(Appointment, appointment_id) |> Repo.preload([:instructor_user, :aircraft])
 
     school = school(school_context)
-    duration = Timex.diff(appointment.end_at, appointment.start_at, :hours)
+    duration = Timex.diff(appointment.end_at, appointment.start_at, :minutes) / 60.0
     payment_option = Map.get(params, "payment_option", "balance")
 
     line_items =
@@ -47,17 +47,16 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
       ]
       |> Enum.filter(fn x -> x end)
 
-    case CalculateInvoice.run(
-           %{
-             "school_id" => school.id,
-             "appointment_id" => appointment.id,
-             "user_id" => appointment.user_id,
-             "date" => NaiveDateTime.to_date(appointment.end_at),
-             "payment_option" => payment_option,
-             "line_items" => line_items
-           },
-           school_context
-         ) do
+    invoice_payload = %{
+      "school_id" => school.id,
+      "appointment_id" => appointment.id,
+      "user_id" => appointment.user_id,
+      "date" => NaiveDateTime.to_date(appointment.end_at),
+      "payment_option" => payment_option,
+      "line_items" => line_items
+    }
+
+    case CalculateInvoice.run(invoice_payload, school_context) do
       {:ok, invoice_params} ->
         Flight.Billing.CreateInvoice.run(invoice_params, school_context)
 
@@ -76,7 +75,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "description" => "Flight Hours",
         "rate" => rate,
         "quantity" => quantity,
-        "amount" => rate * quantity,
+        "amount" => round(rate * quantity),
         "type" => :aircraft,
         "aircraft_id" => appointment.aircraft.id,
         "taxable" => true,
@@ -97,7 +96,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "description" => "Instructor Hours",
         "rate" => rate,
         "quantity" => quantity,
-        "amount" => rate * quantity,
+        "amount" => round(rate * quantity),
         "type" => :instructor,
         "instructor_user_id" => appointment.instructor_user.id,
         "taxable" => false

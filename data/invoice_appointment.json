@@ -20,12 +20,12 @@
       {
         "type":"aircraft",
         "rate":20000,
-        "quantity":1.0,
+        "quantity":0.5,
         "instructor_user_id":null,
         "instructor_user":null,
         "id":1681,
         "description":"Flight Hours",
-        "amount":20000,
+        "amount":10000,
         "aircraft_id":219,
         "aircraft":{
           "tail_number":"N8750E",
@@ -40,8 +40,8 @@
       },
       {
         "type":"instructor",
-        "rate":7500,
-        "quantity":1.0,
+        "rate":7000,
+        "quantity":0.5,
         "instructor_user_id":769,
         "instructor_user":{
           "last_name":"Schuster",
@@ -53,83 +53,12 @@
         },
         "id":1682,
         "description":"Instructor Hours",
-        "amount":7500,
+        "amount":3500,
         "aircraft_id":null,
         "aircraft":null
       }
     ],
-    "id":901,
-    "date":"2020-02-21",
-    "appointment_id":209,
-    "appointment":{
-      "user":{
-        "last_name":"Kihn",
-        "id":781,
-        "first_name":"Niko",
-        "email":"student-1@example.com",
-        "billing_rate":7500,
-        "balance":213072
-      },
-      "transaction_id":null,
-      "status":"pending",
-      "start_at":"2020-02-21T02:30:00",
-      "note":null,
-      "instructor_user":{
-        "last_name":"Schuster",
-        "id":769,
-        "first_name":"Aiyana",
-        "email":"instructor+5e85bf53892b303@gmail.com",
-        "billing_rate":7500,
-        "balance":75317
-      },
-      "id":209,
-      "end_at":"2020-02-21T03:30:00",
-      "aircraft":{
-        "tail_number":"N8750E",
-        "simulator":true,
-        "serial_number":"17265410",
-        "rate_per_hour":20000,
-        "model":"Jocasta",
-        "make":"Cessna",
-        "last_tach_time":0,
-        "last_hobbs_time":0,
-        "inspections":[
-          {
-            "type":"tach",
-            "number_value":null,
-            "name":"100hr",
-            "date_value":null
-          },
-          {
-            "type":"date",
-            "number_value":null,
-            "name":"ELT",
-            "date_value":null
-          },
-          {
-            "type":"date",
-            "number_value":null,
-            "name":"Altimeter",
-            "date_value":null
-          },
-          {
-            "type":"date",
-            "number_value":null,
-            "name":"Transponder",
-            "date_value":null
-          },
-          {
-            "type":"date",
-            "number_value":null,
-            "name":"Annual",
-            "date_value":null
-          }
-        ],
-        "ifr_certified":false,
-        "id":219,
-        "equipment":"Bendix King GPS"
-      }
-    }
+    "date":"2020-02-22"
   },
-  "pay_off":true
+  "pay_off":false
 }
