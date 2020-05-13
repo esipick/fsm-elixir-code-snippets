@@ -67,7 +67,7 @@ Example response (JSON):
 Available to Admins and Dispatchers only
 
 ```
-POST /api/users/:student_id/documents/:document_id
+PUT /api/users/:student_id/documents/:document_id
 ```
 
 Example request (JSON):
