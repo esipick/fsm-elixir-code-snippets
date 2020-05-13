@@ -28,7 +28,7 @@ defmodule Mix.Tasks.FixTransactions do
           payer_name =
             case transaction.user do
               nil ->
-                "#{String.trim(transaction.first_name)} #{String.trim(transaction.last_name)}"
+                String.trim("#{transaction.first_name} #{transaction.last_name}")
 
               user ->
                 "#{user.first_name} #{user.last_name}"
