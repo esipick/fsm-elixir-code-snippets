@@ -219,7 +219,7 @@ defmodule FlightWeb.Router do
       get("/form_items", UserController, :form_items)
       patch("/change_password", UserController, :change_password)
       put("/change_password", UserController, :change_password)
-      resources("/documents", DocumentController, only: [:create, :delete, :index])
+      resources("/documents", DocumentController, only: [:create, :delete, :index, :update])
       resources("/push_tokens", PushTokenController, only: [:create])
     end
 

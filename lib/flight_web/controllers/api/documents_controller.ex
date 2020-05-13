@@ -6,15 +6,16 @@ defmodule FlightWeb.API.DocumentController do
 
   alias Flight.Accounts
   alias Accounts.Document
+  alias Flight.Repo
 
   plug(:authorize_view when action in [:index])
-  plug(:authorize_modify when action in [:create, :delete])
+  plug(:authorize_modify when action in [:create, :delete, :update])
 
   def create(%{assigns: %{current_user: user}} = conn, %{
         "document" => document_params,
         "user_id" => user_id
       }) do
-    user = Flight.Repo.preload(user, :school)
+    user = Repo.preload(user, :school)
     params = Map.put(document_params, "user_id", user_id)
 
     case Document.create_document(params) do
@@ -25,6 +26,29 @@ defmodule FlightWeb.API.DocumentController do
         conn
         |> put_status(422)
         |> json(%{errors: ViewHelpers.translate_errors(changeset)})
+    end
+  end
+
+  def update(%{assigns: %{current_user: user}} = conn, %{
+        "id" => id,
+        "user_id" => user_id,
+        "document" => document_params
+      }) do
+    document = Repo.get(Document, id)
+    user = Repo.preload(user, :school)
+    params = Map.put(document_params, "user_id", user_id)
+
+    case update_document(document, params) do
+      {:ok, document} ->
+        render(conn, "show.json", document: document, timezone: user.school.timezone)
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(422)
+        |> json(%{
+          error: %{message: "Could not save document. Please correct errors in the form."},
+          errors: ViewHelpers.translate_errors(changeset)
+        })
     end
   end
 
@@ -43,7 +67,7 @@ defmodule FlightWeb.API.DocumentController do
   end
 
   def index(%{assigns: %{current_user: user}} = conn, %{"user_id" => user_id} = params) do
-    user = Flight.Repo.preload(user, :school)
+    user = Repo.preload(user, :school)
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
     page = Document.documents_by_page(user_id, page_params, search_term)
@@ -62,7 +86,7 @@ defmodule FlightWeb.API.DocumentController do
 
   defp authorize_view(
          %{assigns: %{current_user: user}, params: %{"user_id" => user_id}} = conn,
-         params
+         _params
        ) do
     conn
     |> halt_unless_user_can?([
@@ -80,5 +104,11 @@ defmodule FlightWeb.API.DocumentController do
       true ->
         conn
     end
+  end
+
+  defp update_document(document, params) do
+    document
+    |> Document.changeset(params)
+    |> Repo.update()
   end
 end

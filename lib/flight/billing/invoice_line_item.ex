@@ -4,6 +4,8 @@ defmodule Flight.Billing.InvoiceLineItem do
   alias Flight.Repo
   alias Flight.Scheduling.{Aircraft}
   alias Flight.Accounts.User
+  import MapUtil
+  import HobbsTachUtil
 
   alias Flight.Billing.InvoiceLineItem
 
@@ -38,7 +40,9 @@ defmodule Flight.Billing.InvoiceLineItem do
   end)
 
   @doc false
-  def changeset(%InvoiceLineItem{} = invoice_line_item, attrs) do
+  def changeset(%InvoiceLineItem{} = invoice_line_item, raw_attrs) do
+    attrs = symbolize_keys(raw_attrs) |> coerce_hobbs_tach_time()
+
     invoice_line_item
     |> cast(attrs, @required_fields)
     |> cast(attrs, @hobbs_tach_fields)

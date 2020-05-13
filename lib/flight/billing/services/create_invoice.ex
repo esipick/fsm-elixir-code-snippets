@@ -11,6 +11,8 @@ defmodule Flight.Billing.CreateInvoice do
     pay_off = Map.get(school_context.params, "pay_off", false)
     school = school(school_context)
 
+    # line_items = invoice_params["line"]
+
     invoice_attrs =
       Map.merge(
         invoice_params,

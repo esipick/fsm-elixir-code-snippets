@@ -116,7 +116,6 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       student = student_fixture()
       instructor = instructor_fixture()
       aircraft = aircraft_fixture()
-      new_tach_time = aircraft.last_tach_time + 5
       new_hobbs_time = aircraft.last_hobbs_time + 5
 
       invoice_params = %{
@@ -130,8 +129,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
           %{
             type: "aircraft",
             aircraft_id: aircraft.id,
-            tach_start: aircraft.last_tach_time,
-            tach_end: new_tach_time,
+            tach_start: 542.0,
+            tach_end: 555,
             hobbs_start: aircraft.last_hobbs_time,
             hobbs_end: new_hobbs_time,
             hobbs_tach_used: true,
@@ -909,8 +908,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         "line_items" => [
           %{
             "type" => "aircraft",
-            "tach_start" => aircraft.last_tach_time,
-            "tach_end" => aircraft.last_tach_time + 14,
+            "tach_start" => 542.0,
+            "tach_end" => 555,
             "rate" => 1,
             "quantity" => 2,
             "hobbs_start" => aircraft.last_hobbs_time,
@@ -948,8 +947,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
                "line_items" => [
                  %{
                    "type" => "aircraft",
-                   "tach_start" => 400,
-                   "tach_end" => 414,
+                   "tach_start" => 542.0,
+                   "tach_end" => 555,
                    "rate" => 169,
                    "quantity" => 1,
                    "hobbs_start" => 400,

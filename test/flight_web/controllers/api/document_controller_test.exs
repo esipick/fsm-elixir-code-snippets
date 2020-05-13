@@ -1,7 +1,7 @@
 defmodule FlightWeb.API.DocumentControllerTest do
   use FlightWeb.ConnCase
 
-  alias Flight.{Accounts, Accounts.Document, Repo}
+  alias Flight.{Accounts.Document, Repo}
   alias FlightWeb.API.DocumentView
 
   describe "GET /api/users/:user_id/documents" do
@@ -283,6 +283,65 @@ defmodule FlightWeb.API.DocumentControllerTest do
       |> auth(dispatcher)
       |> post("/api/users/#{dispatcher.id}/documents", payload)
       |> response(200)
+    end
+  end
+
+  describe "PUT /api/users/:user_id/documents" do
+    test "updates document", %{conn: conn} do
+      school = school_fixture()
+      student_id = student_fixture(%{}, school).id
+
+      payload = %{"document" => %{"expires_at" => ~D[2040-05-13]}}
+
+      {:ok, %{document_with_file: document}} =
+        Document.create_document(%{"file" => upload_fixture(), "user_id" => student_id})
+
+      json =
+        conn
+        |> auth(admin_fixture(%{}, school))
+        |> put("/api/users/#{student_id}/documents/#{document.id}", payload)
+        |> json_response(200)
+
+      document = Repo.get_by(Document, user_id: student_id)
+      assert document.expires_at == ~D[2040-05-13]
+
+      assert json ==
+               render_json(DocumentView, "show.json",
+                 document: document,
+                 timezone: school.timezone
+               )
+    end
+
+    test "student not authorized to upload documents", %{conn: conn} do
+      school = school_fixture()
+      student = student_fixture(%{}, school)
+      student_id = student_fixture(%{}, school).id
+
+      payload = %{"document" => %{"expires_at" => ~D[2040-05-13]}}
+
+      {:ok, %{document_with_file: document}} =
+        Document.create_document(%{"file" => upload_fixture(), "user_id" => student_id})
+
+      conn
+      |> auth(student)
+      |> put("/api/users/#{student_id}/documents/#{document.id}", payload)
+      |> json_response(401)
+    end
+
+    test "instructor not authorized to upload documents", %{conn: conn} do
+      school = school_fixture()
+      instructor = instructor_fixture(%{}, school)
+      student_id = student_fixture(%{}, school).id
+
+      payload = %{"document" => %{"expires_at" => ~D[2040-05-13]}}
+
+      {:ok, %{document_with_file: document}} =
+        Document.create_document(%{"file" => upload_fixture(), "user_id" => student_id})
+
+      conn
+      |> auth(instructor)
+      |> put("/api/users/#{student_id}/documents/#{document.id}", payload)
+      |> json_response(401)
     end
   end
 
