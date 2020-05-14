@@ -77,7 +77,8 @@ defmodule FlightWeb.API.Invoices.CustomLineItemControllerTest do
                "description" => "Fuel Charge",
                "default_rate" => 200,
                "school_id" => school_id,
-               "taxable" => false
+               "taxable" => false,
+               "deductible" => false
              }
 
       json =
@@ -202,7 +203,8 @@ defmodule FlightWeb.API.Invoices.CustomLineItemControllerTest do
                "description" => "Fuel Reimbursement",
                "default_rate" => 200,
                "school_id" => school_id,
-               "taxable" => false
+               "taxable" => false,
+               "deductible" => false
              }
 
       payload = %{
