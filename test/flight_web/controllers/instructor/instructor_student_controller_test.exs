@@ -77,6 +77,18 @@ defmodule FlightWeb.Instructor.StudentControllerTest do
     end
   end
 
+  test "renders student documents tab", %{conn: conn} do
+    student = student_fixture()
+
+    content =
+      conn
+      |> web_auth_instructor
+      |> get("/instructor/students/#{student.id}")
+      |> html_response(200)
+
+    assert content =~ "<a class=active href=\"/instructor/students/#{student.id}\">Documents</a>"
+  end
+
   describe "GET /instructor/students/:id" do
     test "renders student billing tab", %{conn: conn} do
       student = student_fixture()
@@ -84,7 +96,7 @@ defmodule FlightWeb.Instructor.StudentControllerTest do
       content =
         conn
         |> web_auth_instructor
-        |> get("/instructor/students/#{student.id}")
+        |> get("/instructor/students/#{student.id}?tab=billing")
         |> html_response(200)
 
       assert content =~ "<h7>Account Balance</h7>"

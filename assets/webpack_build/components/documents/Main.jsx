@@ -152,8 +152,16 @@ class Main extends Component {
   removeDocument = (id) => {
     const { user_id } = this.props
 
+    const school_span = document.getElementById("current-school")
+    let url = `/api/users/${user_id}/documents/${id}`
+
+    if (school_span) {
+      url = url + `?school_id=${school_span.dataset['schoolId']}`
+    }
+
+    console.log(url)
     http['delete']({
-      url: `/api/users/${user_id}/documents/${id}`,
+      url: url,
       headers: authHeaders()
     }).then(response => {
       if (response.status == 204) {
@@ -183,7 +191,14 @@ class Main extends Component {
         formData.append('document[expires_at]', expiryDate.date)
       }
 
-      fetch(`/api/users/${user_id}/documents`, {
+      const school_span = document.getElementById("current-school")
+      let url = `/api/users/${user_id}/documents`
+
+      if (school_span) {
+        url = url + `?school_id=${school_span.dataset['schoolId']}`
+      }
+
+      fetch(url, {
         body: formData,
         headers: authHeaders(),
         method: 'POST'

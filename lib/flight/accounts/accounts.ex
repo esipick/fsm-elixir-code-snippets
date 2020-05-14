@@ -34,13 +34,6 @@ defmodule Flight.Accounts do
     |> Repo.one()
   end
 
-  def get_user(id, school_context) do
-    User
-    |> default_users_query(school_context)
-    |> where([u], u.id == ^id)
-    |> Repo.one()
-  end
-
   def dangerous_get_user(id), do: Repo.get(User, id)
 
   def dangerous_get_active_user(id) do
@@ -48,12 +41,6 @@ defmodule Flight.Accounts do
     |> where([u], u.id == ^id)
     |> where([u], u.archived == false)
     |> Repo.one()
-  end
-
-  def get_users(school_context) do
-    User
-    |> default_users_query(school_context)
-    |> Repo.all()
   end
 
   def get_directory_users_visible_to_user(%{assigns: %{current_user: user}} = conn) do
@@ -104,6 +91,12 @@ defmodule Flight.Accounts do
     [:student, :renter, :instructor, :dispatcher]
   end
 
+  def get_users(school_context) do
+    User
+    |> default_users_query(school_context)
+    |> Repo.all()
+  end
+
   def get_user_count(role, school_context) do
     from(
       u in User,
@@ -113,6 +106,13 @@ defmodule Flight.Accounts do
     )
     |> SchoolScope.scope_query(school_context)
     |> Repo.aggregate(:count, :id)
+  end
+
+  def get_user(id, school_context) do
+    User
+    |> default_users_query(school_context)
+    |> where([u], u.id == ^id)
+    |> Repo.one()
   end
 
   def get_user(id, roles, school_context) do

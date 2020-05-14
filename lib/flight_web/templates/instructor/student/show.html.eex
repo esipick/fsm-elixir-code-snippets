@@ -175,8 +175,9 @@
             </div>
           </div>
           <nav class="tabs">
-            <a <%= if @tab == :billing, do: "class=active" %> href="/instructor/students/<%= @user.id %>">Billing</a>
+            <a <%= if @tab == :billing, do: "class=active" %> href="/instructor/students/<%= @user.id %>?tab=billing">Billing</a>
             <a <%= if @tab == :appointments, do: "class=active" %> href="/instructor/students/<%= @user.id %>?tab=appointments">Appointments</a>
+            <a <%= if @tab == :documents, do: "class=active" %> href="/instructor/students/<%= @user.id %>">Documents</a>
           </nav>
         </div>
         <!-- end card-header -->
@@ -184,6 +185,7 @@
           <%= case @tab do
             :appointments -> render "_appointments.html", user: @user, appointments: @appointments
             :billing -> render "_billing.html", user: @user, transactions: @transactions, conn: @conn
+            :documents -> render "_documents.html", user: @user, props: @props
           end %>
         </div>
         <!-- end card-body -->
