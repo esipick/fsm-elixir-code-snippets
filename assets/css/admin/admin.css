@@ -23,8 +23,6 @@ h7 {
   margin-bottom: 24px;
 }
 
-
-
 .navbar .navbar-brand {
   color: #BBBCCD;
   font-size: 10px;
@@ -1336,4 +1334,10 @@ fieldset[disabled] .fc button:hover {
 
 .dropzone-description {
   font-size: small !important;
+}
+
+.deductible,
+.deductible input,
+.deductible label {
+  color: red;
 }

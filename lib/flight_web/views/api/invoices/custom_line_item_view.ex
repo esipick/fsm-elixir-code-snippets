@@ -7,7 +7,8 @@ defmodule FlightWeb.API.Invoices.CustomLineItemView do
       description: custom_line_item.description,
       id: custom_line_item.id,
       school_id: custom_line_item.school_id,
-      taxable: custom_line_item.taxable
+      taxable: custom_line_item.taxable,
+      deductible: custom_line_item.deductible
     }
   end
 end

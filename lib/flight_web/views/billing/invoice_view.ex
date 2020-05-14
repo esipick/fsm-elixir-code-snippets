@@ -27,4 +27,12 @@ defmodule FlightWeb.Billing.InvoiceView do
         ""
     end
   end
+
+  def deductible_class(line_item) do
+    if line_item.deductible do
+      "deductible"
+    else
+      ""
+    end
+  end
 end

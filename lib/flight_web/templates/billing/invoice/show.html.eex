@@ -136,9 +136,13 @@
                         <td><%= i %></td>
                         <td><%= line_item.description %></td>
                         <td><%= line_item_notes(line_item) %></td>
-                        <td><%= currency(line_item.rate) %></td>
+                        <td class="<%= deductible_class(line_item) %>">
+                          <%= currency(line_item.rate) %>
+                        </td>
                         <td><%= line_item.quantity %></td>
-                        <td><%= currency(line_item.amount) %></td>
+                        <td class="<%= deductible_class(line_item) %>">
+                          <%= currency(line_item.amount) %>
+                        </td>
                       </tr>
                     <% end %>
                   </tbody>

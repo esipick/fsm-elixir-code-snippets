@@ -32,7 +32,8 @@ class InvoiceLineItem extends Component {
       description: option.value,
       rate: option.rate || DEFAULT_RATE,
       type: TYPES[option.value] || DEFAULT_TYPE,
-      taxable: option.taxable
+      taxable: option.taxable,
+      deductible: option.deductible
     });
 
     this.setState({ line_item });
@@ -153,7 +154,8 @@ class InvoiceLineItem extends Component {
       label: o.description,
       rate: o.default_rate,
       value: o.description,
-      taxable: o.taxable
+      taxable: o.taxable,
+      deductible: o.deductible
     })))
 
     const additionalOptions = this.props.line_items.filter(line_item => (
@@ -162,7 +164,8 @@ class InvoiceLineItem extends Component {
       label: line_item.description,
       rate: line_item.rate,
       value: line_item.description,
-      taxable: line_item.taxable
+      taxable: line_item.taxable,
+      deductible: line_item.deductible
     }));
 
     return [...options, ...additionalOptions];
@@ -220,15 +223,19 @@ class InvoiceLineItem extends Component {
   }
 
   standardFields = () => {
-    const { line_item: { rate, quantity } } = this.state;
+    const { line_item: { rate, quantity, deductible } } = this.state;
     const { errors } = this.props;
-    const rateClass = classnames('form-control inherit-font-size', this.isFlightHours() ? 'aircraft-rate-control' : '');
+    const rateClass = classnames(
+      'form-control inherit-font-size',
+      this.isFlightHours() ? 'aircraft-rate-control' : '',
+      deductible ? 'deductible' : ''
+    );
 
     return (
       <React.Fragment>
         <td className="lc-column">
           { this.isFlightHours() && this.flightModeToggler() }
-          <NumberFormat allowNegative={true}
+          <NumberFormat allowNegative={false}
             className={rateClass}
             decimalScale={2}
             fixedDecimalScale={2}
@@ -289,11 +296,12 @@ class InvoiceLineItem extends Component {
   }
 
   render() {
-    const { aircraft, line_item: { hobbs_tach_used, id, description, amount } } = this.state;
+    const { aircraft, line_item: { hobbs_tach_used, id, description, amount, deductible } } = this.state;
     const { number, canRemove, errors } = this.props;
     const options = this.selectOptions()
     const descriptionOpt = options.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
+    const amountCss = classnames('lc-column', deductible ? 'deductible' : '');
 
     return (
       <tr key={id} className={wrapperClass}>
@@ -316,7 +324,7 @@ class InvoiceLineItem extends Component {
         { this.isFlightHours() && this.hobbsAndTachModal() }
         { !hobbs_tach_used && this.standardFields() }
         { hobbs_tach_used && this.hobbsAndTachFields() }
-        <td className="lc-column">${(amount / 100).toFixed(2)}</td>
+        <td className={amountCss}>${(amount / 100).toFixed(2)}</td>
         <td className="lc-column remove-line-item-wrapper">
           {canRemove && <a className="remove-line-item" href="" onClick={this.remove}>&times;</a>}
         </td>

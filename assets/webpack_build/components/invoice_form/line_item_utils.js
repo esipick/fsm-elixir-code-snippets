@@ -10,8 +10,8 @@ export const TYPES = {
 }
 
 export const DESCRIPTION_OPTS = [
-  {label: FLIGHT_HOURS, value: FLIGHT_HOURS, taxable: true},
-  {label: INSTRUCTOR_HOURS, value: INSTRUCTOR_HOURS, taxable: false}
+  {label: FLIGHT_HOURS, value: FLIGHT_HOURS, taxable: true, deductible: false},
+  {label: INSTRUCTOR_HOURS, value: INSTRUCTOR_HOURS, taxable: false, deductible: false}
 ];
 
 export const DEFAULT_RATE = 100;
@@ -29,6 +29,7 @@ export class LineItemRecord {
     this.aircraft = params.aircraft;
     this.aircraft_id = params.aircraft && params.aircraft.id;
     this.taxable = params.taxable;
+    this.deductible = params.deductible;
   }
 };
 
@@ -48,7 +49,7 @@ export const itemsFromAppointment = (appointment) => {
     return items;
   } else {
     return [
-      new LineItemRecord({ description: DESCRIPTION_OPTS[0].value, taxable: true })
+      new LineItemRecord({ description: DESCRIPTION_OPTS[0].value, taxable: true, deductible: false })
     ]
   }
 }
@@ -59,7 +60,8 @@ const instructorItem = (instructor_user, duration) => {
     rate: instructor_user.billing_rate,
     description: INSTRUCTOR_HOURS,
     instructor_user: instructor_user,
-    taxable: false
+    taxable: false,
+    deductible: false
   });
 }
 
@@ -69,6 +71,7 @@ const fromAircraft = (aircraft, duration) => {
     rate: aircraft.rate_per_hour,
     description: FLIGHT_HOURS,
     aircraft,
-    taxable: true
+    taxable: true,
+    deductible: false
   });
 }

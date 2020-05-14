@@ -928,6 +928,15 @@ defmodule FlightWeb.API.InvoiceControllerTest do
             "description" => "Fuel",
             "taxable" => false,
             "amount" => 999
+          },
+          %{
+            "type" => "other",
+            "rate" => 100,
+            "quantity" => 1,
+            "description" => "Discount",
+            "deductible" => true,
+            "taxable" => false,
+            "amount" => 100
           }
         ],
         "user_id" => student.id
@@ -940,9 +949,9 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> json_response(200)
 
       assert json == %{
-               "total" => 5369,
+               "total" => 5269,
                "total_tax" => 17,
-               "total_amount_due" => 5386,
+               "total_amount_due" => 5286,
                "tax_rate" => 10.0,
                "school_id" => default_school_fixture().id,
                "line_items" => [
@@ -967,6 +976,15 @@ defmodule FlightWeb.API.InvoiceControllerTest do
                    "description" => "Fuel",
                    "amount" => 5200,
                    "taxable" => false
+                 },
+                 %{
+                   "type" => "other",
+                   "rate" => 100,
+                   "quantity" => 1,
+                   "description" => "Discount",
+                   "deductible" => true,
+                   "taxable" => false,
+                   "amount" => 100
                  }
                ],
                "user_id" => student.id

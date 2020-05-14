@@ -9,12 +9,13 @@ defmodule Flight.Billing.InvoiceCustomLineItem do
   alias __MODULE__
 
   @reserved_descriptions ["Flight Hours", "Instructor Hours"]
-  @required_fields ~w(default_rate description taxable school_id)a
+  @required_fields ~w(default_rate description taxable deductible school_id)a
 
   schema "invoice_custom_line_items" do
     field(:default_rate, :integer)
     field(:description, :string)
     field(:taxable, :boolean, default: false)
+    field(:deductible, :boolean, default: false)
 
     belongs_to(:school, Flight.Accounts.School)
 

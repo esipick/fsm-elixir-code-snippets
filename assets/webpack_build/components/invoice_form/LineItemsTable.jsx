@@ -1,7 +1,9 @@
+import classnames from 'classnames';
 import React, { Component } from 'react';
 import http from 'j-fetch';
 import debounce from 'lodash.debounce';
 
+import Error from '../common/Error';
 import LineItem from './LineItem';
 
 import { itemsFromAppointment, LineItemRecord } from './line_item_utils';
@@ -122,6 +124,7 @@ class LineItemsTable extends Component {
     const { total, total_tax, total_amount_due } = this.state;
     const { aircrafts, custom_line_items, errors, instructors, sales_tax } = this.props;
     const line_items = this.lineItems();
+    const line_items_errors = errors.line_items || [];
 
     return (
       <table className="table table-striped line-items-table">
@@ -144,7 +147,7 @@ class LineItemsTable extends Component {
                 custom_line_items={custom_line_items}
                 student={this.props.student}
                 creator={this.props.creator}
-                errors={errors[i] || {}}
+                errors={line_items_errors[i] || {}}
                 instructors={instructors}
                 key={line_item.id || i}
                 line_item={line_item}
@@ -160,10 +163,15 @@ class LineItemsTable extends Component {
             </td>
           </tr>
           <tr>
-            <td colSpan="5" className="text-right">
+            <td colSpan="4" className="text-right">
+              <Error text={errors.total} />
+            </td>
+            <td className="text-right">
               Total excl. taxes:
             </td>
-            <td colSpan="2">${(total / 100).toFixed(2)}</td>
+            <td colSpan="2" className={total < 0 ? 'deductible' : ''}>
+              ${(total / 100).toFixed(2)}
+            </td>
           </tr>
           <tr>
             <td colSpan="5" className="text-right">
@@ -172,16 +180,26 @@ class LineItemsTable extends Component {
             <td colSpan="2">{sales_tax}</td>
           </tr>
           <tr>
-            <td colSpan="5" className="text-right">
+            <td colSpan="4" className="text-right">
+              <Error text={errors.total_tax} />
+            </td>
+            <td className="text-right">
               Total tax:
             </td>
-            <td colSpan="2">${(total_tax / 100).toFixed(2)}</td>
+            <td colSpan="2" className={total_tax < 0 ? 'deductible' : ''}>
+              ${(total_tax / 100).toFixed(2)}
+            </td>
           </tr>
           <tr>
-            <td colSpan="5" className="text-right">
+            <td colSpan="4" className="text-right">
+              <Error text={errors.total_amount_due} />
+            </td>
+            <td className="text-right">
               Total with Tax:
             </td>
-            <td colSpan="2">${(total_amount_due / 100).toFixed(2)}</td>
+            <td colSpan="2" className={total_amount_due < 0 ? 'deductible' : ''}>
+              ${(total_amount_due / 100).toFixed(2)}
+            </td>
           </tr>
         </tbody>
       </table>

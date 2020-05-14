@@ -79,6 +79,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "type" => :aircraft,
         "aircraft_id" => appointment.aircraft.id,
         "taxable" => true,
+        "deductible" => false,
         "hobbs_tach_used" => !!(hobbs_end || tach_end),
         "hobbs_start" => appointment.aircraft.last_hobbs_time,
         "tach_start" => appointment.aircraft.last_tach_time,
@@ -99,7 +100,8 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "amount" => round(rate * quantity),
         "type" => :instructor,
         "instructor_user_id" => appointment.instructor_user.id,
-        "taxable" => false
+        "taxable" => false,
+        "deductible" => false
       }
     end
   end

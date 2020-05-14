@@ -1,3 +1,4 @@
+import classnames from 'classnames';
 import http from 'j-fetch';
 import NumberFormat from 'react-number-format';
 import React, { Component } from 'react';
@@ -10,14 +11,15 @@ class CustomLineItem extends Component {
 
     this.formRef = null;
 
-    const { default_rate, description, taxable } = this.props.custom_line_item
+    const { default_rate, description, taxable, deductible } = this.props.custom_line_item
 
     this.state = {
       default_rate: `${default_rate / 100}`,
       description,
       errors: {},
       saving: true,
-      taxable
+      taxable,
+      deductible
     }
   }
 
@@ -26,9 +28,10 @@ class CustomLineItem extends Component {
   };
 
   payload = () => {
-    const { taxable, description, default_rate } = this.state;
+    const { taxable, description, default_rate, deductible } = this.state;
 
     return {
+      deductible,
       taxable,
       description,
       default_rate: default_rate.replace(/,/g, '') * 100
@@ -93,12 +96,19 @@ class CustomLineItem extends Component {
     this.setState({ taxable: !taxable, saving: false });
   }
 
+  onDeductibleChange = () => {
+    const { deductible } = this.state;
+
+    this.setState({ deductible: !deductible, saving: false });
+  }
+
   render() {
-    const { default_rate, description, errors, saving, taxable } = this.state;
+    const { default_rate, description, errors, saving, taxable, deductible } = this.state;
+    const deductibleCss = '';
 
     return (
       <form className="row" ref={this.setFormRef}>
-        <div className="col-md-4 pr-1">
+        <div className={`col-md-3 pr-1 ${deductibleCss}`}>
           <div className="form-group m-0">
             <input className="form-control"
               onChange={this.onDescriptionChange}
@@ -110,9 +120,9 @@ class CustomLineItem extends Component {
             <Error text={errors.description} />
           </label>
         </div>
-        <div className="col-md-3 pr-1">
+        <div className={`col-md-2 pr-1 ${deductibleCss}`}>
           <div className="form-group m-0">
-            <NumberFormat allowNegative={true}
+            <NumberFormat allowNegative={false}
               className="form-control has-error"
               decimalScale={2}
               fixedDecimalScale={2}
@@ -126,7 +136,7 @@ class CustomLineItem extends Component {
             <Error text={errors.default_rate} />
           </label>
         </div>
-        <div className="col-md-2 pr-1">
+        <div className={`col-md-2 pr-1 ${deductibleCss}`}>
           <div className="form-group m-0">
             <input type="checkbox"
               className="form-control has-error"
@@ -136,6 +146,18 @@ class CustomLineItem extends Component {
           <label>
             Taxable
             <Error text={errors.taxable} />
+          </label>
+        </div>
+        <div className={`col-md-2 pr-1 ${deductibleCss}`}>
+          <div className="form-group m-0">
+            <input type="checkbox"
+              className="form-control has-error"
+              onChange={this.onDeductibleChange}
+              checked={deductible} />
+          </div>
+          <label>
+            Deductible
+            <Error text={errors.deductible} />
           </label>
         </div>
         <div className="col-md-3">

@@ -14,7 +14,7 @@ defmodule Flight.Billing.CalculateInvoice do
 
     case calculate_line_items(invoice_attrs, school_context) do
       {:ok, line_items} ->
-        total = Enum.map(line_items, fn x -> x["amount"] end) |> Enum.sum() |> round
+        total = Enum.map(line_items, &chargeable_amount/1) |> Enum.sum() |> round
 
         total_taxable = Enum.map(line_items, &taxable_amount/1) |> Enum.sum()
 
@@ -40,6 +40,14 @@ defmodule Flight.Billing.CalculateInvoice do
       line_item["amount"]
     else
       0
+    end
+  end
+
+  def chargeable_amount(line_item) do
+    if Enum.member?(["true", true, 1], line_item["deductible"]) do
+      -line_item["amount"]
+    else
+      line_item["amount"]
     end
   end
 

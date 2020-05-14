@@ -303,7 +303,9 @@ class Form extends Component {
         window.location = `/billing/invoices/${data.id}`;
       });
     }).catch(response => {
-      response.json().then(({ id = this.state.id, stripe_error = '', error = '', errors = {} }) => {
+      response.json().then((error_body) => {
+        console.warn(error_body);
+        const { id = this.state.id, stripe_error = '', error = '', errors = {} } = error_body;
         const action = id ? 'edit' : 'create';
         this.setState({ saving: false, id, action, stripe_error, error, errors });
       });
@@ -450,7 +452,7 @@ class Form extends Component {
                       student={student}
                       creator={this.props.creator}
                       custom_line_items={custom_line_items}
-                      errors={errors.line_items || []}
+                      errors={errors}
                       instructors={instructors}
                       line_items={line_items}
                       onChange={this.onLineItemsTableChange}

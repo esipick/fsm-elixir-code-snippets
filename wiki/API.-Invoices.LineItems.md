@@ -12,9 +12,9 @@ Example response (JSON, `default_rate` is in cents):
 ```json
 {
   "data":[
-    {"default_rate": 100, "description": "Fuel Charge", "taxable": false},
-    {"default_rate": 100, "description": "Fuel Reimbursement", "taxable": false},
-    {"default_rate": 100, "description": "Equipment Rental", "taxable": true}
+    {"default_rate": 100, "description": "Fuel Charge", "taxable": false, "deductible": false},
+    {"default_rate": 100, "description": "Fuel Reimbursement", "taxable": false, "deductible": true},
+    {"default_rate": 100, "description": "Equipment Rental", "taxable": true, "deductible": false}
   ]
 }
 ```
