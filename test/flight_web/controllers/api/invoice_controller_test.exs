@@ -232,7 +232,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         conn
         |> auth(instructor)
         |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
-        |> json_response(400)
+        |> json_response(404)
 
       invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
 
@@ -714,7 +714,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     test "renders stripe error", %{conn: conn} do
       invoice = invoice_fixture(%{payment_option: "cc"})
       instructor = instructor_fixture()
-      invoice_params = %{total_amount_due: 25000}
+      student = student_fixture(%{stripe_customer_id: "cus_HHC1Zeg4E4krgL"})
+      invoice_params = %{total_amount_due: 25000, user_id: student.id}
 
       json =
         conn
@@ -735,7 +736,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.payment_option == :cc
       assert transaction.paid_by_charge == nil
 
-      assert String.starts_with?(json["stripe_error"], "No such customer: cus_")
+      assert String.starts_with?(json["stripe_error"], "no_stripe_account")
     end
 
     @tag :integration

@@ -13,7 +13,8 @@ defmodule FlightWeb.API.InvoiceController do
     CreateInvoice,
     UpdateInvoice,
     CreateInvoiceFromAppointment,
-    CalculateInvoice
+    CalculateInvoice,
+    PaymentError
   }
 
   plug(:get_invoice when action in [:update, :show, :delete])
@@ -85,6 +86,11 @@ defmodule FlightWeb.API.InvoiceController do
         conn
         |> put_status(error.extra.http_status)
         |> json(%{id: id, stripe_error: error.message})
+
+      {:error, %PaymentError{} = error} ->
+        conn
+        |> put_status(400)
+        |> json(%{stripe_error: error.message})
     end
   end
 
@@ -117,6 +123,11 @@ defmodule FlightWeb.API.InvoiceController do
       {:error, %Stripe.Error{} = error} ->
         conn
         |> put_status(error.extra.http_status)
+        |> json(%{stripe_error: error.message})
+
+      {:error, %PaymentError{} = error} ->
+        conn
+        |> put_status(400)
         |> json(%{stripe_error: error.message})
     end
   end
