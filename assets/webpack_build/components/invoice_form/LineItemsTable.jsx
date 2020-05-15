@@ -1,7 +1,5 @@
 import classnames from 'classnames';
 import React, { Component } from 'react';
-import http from 'j-fetch';
-import debounce from 'lodash.debounce';
 
 import Error from '../common/Error';
 import LineItem from './LineItem';
@@ -11,8 +9,6 @@ import { itemsFromAppointment, LineItemRecord } from './line_item_utils';
 import { authHeaders, addSchoolIdParam } from '../utils';
 
 const lineItemsKey = (appointment) => appointment && appointment.id || 'none';
-
-let calculateRequest = () => {};
 
 class LineItemsTable extends Component {
   constructor(props) {
@@ -33,12 +29,12 @@ class LineItemsTable extends Component {
     this.updateTotal(this.lineItems());
   }
 
-  componentDidUpdate = () => {
-    this.calculateTotal(this.lineItems(), ({ total_amount_due }) => {
-      if (total_amount_due !== this.state.total_amount_due) {
-        this.updateTotal(this.lineItems());
-      }
-    });
+  componentDidUpdate = (prevProps, prevState) => {
+    // this.props.calculateTotal(this.lineItems(), ({ total_amount_due }) => {
+    //   if (total_amount_due !== this.state.total_amount_due) {
+    //     this.updateTotal(this.lineItems());
+    //   }
+    // });
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -79,38 +75,8 @@ class LineItemsTable extends Component {
     this.updateTotal(line_items);
   };
 
-  calculateTotal = (line_items, callback) => {
-    if (calculateRequest.hasOwnProperty('cancel')) {
-      calculateRequest.cancel();
-    }
-
-    const { student, appointment } = this.props;
-
-    const payload = {
-      line_items,
-      user_id: student && student.id,
-      appointment_id: appointment && appointment.id
-    }
-
-    calculateRequest = debounce(payloadParams => {
-      http.post({
-        url: '/api/invoices/calculate?' + addSchoolIdParam(),
-        body: { invoice: payloadParams },
-        headers: authHeaders()
-      }).then(response => {
-        response.json().then(callback);
-      }).catch(response => {
-        response.json().then((err) => {
-          console.warn(err);
-        });
-      });
-    }, 500);
-
-    calculateRequest(payload);
-  }
-
   updateTotal = (line_items) => {
-    this.calculateTotal(line_items, (values) => {
+    this.props.calculateTotal(line_items, (values) => {
       const { memo } = this.state;
 
       memo[lineItemsKey(this.state.appointment)] = values.line_items;

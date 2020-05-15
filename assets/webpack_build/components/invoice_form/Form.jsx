@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
+import debounce from 'lodash.debounce';
 
 import { authHeaders, addSchoolIdParam } from '../utils';
 import Error from '../common/Error';
@@ -11,26 +12,12 @@ import Error from '../common/Error';
 import LineItemsTable from './LineItemsTable';
 import LowBalanceAlert from './LowBalanceAlert';
 
-const BALANCE = 'balance';
-const CREDIT_CARD = 'cc';
-const CASH = 'cash';
-const CHECK = 'check';
-const VENMO = 'venmo';
+import {
+  BALANCE, CREDIT_CARD, CASH, CHECK, VENMO, MARK_AS_PAID, PAY,
+  GUEST_PAYMENT_OPTIONS, DEFAULT_PAYMENT_OPTION, PAYMENT_OPTIONS
+} from './constants';
 
-const MARK_AS_PAID = 'Save and Mark as paid';
-const PAY = 'Save and Pay';
-
-const GUEST_PAYMENT_OPTIONS = [
-  { value: CASH, label: 'Cash' },
-  { value: CHECK, label: 'Check' },
-  { value: VENMO, label: 'Venmo' }
-];
-const DEFAULT_PAYMENT_OPTION = { value: BALANCE, label: 'Balance' };
-const PAYMENT_OPTIONS = [
-  DEFAULT_PAYMENT_OPTION,
-  { value: CREDIT_CARD, label: 'Credit Card' },
-  ...GUEST_PAYMENT_OPTIONS
-];
+let calculateRequest = () => {};
 
 class Form extends Component {
   constructor(props) {
@@ -312,6 +299,40 @@ class Form extends Component {
     });
   }
 
+  calculateTotal = (line_items, callback) => {
+    if (calculateRequest.hasOwnProperty('cancel')) {
+      calculateRequest.cancel();
+    }
+
+    const { student, appointment } = this.state;
+
+    const payload = {
+      line_items,
+      user_id: student && student.id,
+      appointment_id: appointment && appointment.id
+    }
+
+    if (!this.state.saving) this.setState({saving: true});
+
+    calculateRequest = debounce(payloadParams => {
+      http.post({
+        url: '/api/invoices/calculate?' + addSchoolIdParam(),
+        body: { invoice: payloadParams },
+        headers: authHeaders()
+      }).then(response => {
+        this.setState({saving: false});
+        response.json().then(callback);
+      }).catch(response => {
+        this.setState({saving: false});
+        response.json().then((err) => {
+          console.warn(err);
+        });
+      });
+    }, 500);
+
+    calculateRequest(payload);
+  }
+
   submitForm = ({ pay_off }) => {
     if (this.state.saving) return;
 
@@ -374,6 +395,8 @@ class Form extends Component {
       instructors, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
       saving, stripe_error, student, students, total, total_amount_due, total_tax
     } = this.state;
+
+    console.log(saving);
 
     return (
       <div className="card">
@@ -456,6 +479,7 @@ class Form extends Component {
                       instructors={instructors}
                       line_items={line_items}
                       onChange={this.onLineItemsTableChange}
+                      calculateTotal={this.calculateTotal}
                       sales_tax={sales_tax}
                       total={total}
                       total_amount_due={total_amount_due}
