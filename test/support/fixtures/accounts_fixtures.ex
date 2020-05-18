@@ -48,7 +48,12 @@ defmodule Flight.AccountsFixtures do
     school || school_fixture(%{name: "default"})
   end
 
-  def user_fixture(attrs \\ %{}, %School{} = school \\ default_school_fixture()) do
+  def user_fixture(
+        attrs \\ %{},
+        %School{} = school \\ default_school_fixture(),
+        instructors \\ nil,
+        aircrafts \\ nil
+      ) do
     user =
       %User{
         email: "user-#{Flight.Random.string(20)}@email.com",
@@ -59,14 +64,23 @@ defmodule Flight.AccountsFixtures do
         school_id: school.id,
         billing_rate: 100
       }
-      |> User.__test_changeset(%{password: "some password"} |> Map.merge(attrs))
+      |> User.__test_changeset(
+        %{password: "some password"} |> Map.merge(attrs),
+        instructors,
+        aircrafts
+      )
       |> Repo.insert!()
 
     %{user | password: nil, school: school}
   end
 
-  def student_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
-    user_fixture(attrs, school) |> assign_role("student")
+  def student_fixture(
+        attrs \\ %{},
+        school \\ default_school_fixture(),
+        instructors \\ nil,
+        aircrafts \\ nil
+      ) do
+    user_fixture(attrs, school, instructors, aircrafts) |> assign_role("student")
   end
 
   def instructor_fixture(attrs \\ %{}, school \\ default_school_fixture()) do

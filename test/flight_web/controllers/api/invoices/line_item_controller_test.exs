@@ -43,7 +43,7 @@ defmodule FlightWeb.API.Invoices.LineItemControllerTest do
                  "description" => "Equipment Rental",
                  "taxable" => true,
                  "deductible" => false
-                },
+               },
                %{
                  "default_rate" => 1000,
                  "description" => "Fuel Reimbursement",

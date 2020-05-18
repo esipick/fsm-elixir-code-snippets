@@ -18,14 +18,14 @@ defmodule Flight.Accounts.Search.User do
           fragment(
             "to_tsvector(
               'english',
-              email || ' ' ||
-              first_name || ' ' ||
-              last_name || ' ' ||
-              replace(phone_number, '-', '') || ' ' ||
-              coalesce(address_1, ' ') || ' ' ||
-              coalesce(city, ' ') || ' ' ||
-              coalesce(zipcode, ' ') || ' ' ||
-              coalesce(state, ' ')
+              u0.email || ' ' ||
+              u0.first_name || ' ' ||
+              u0.last_name || ' ' ||
+              replace(u0.phone_number, '-', '') || ' ' ||
+              coalesce(u0.address_1, ' ') || ' ' ||
+              coalesce(u0.city, ' ') || ' ' ||
+              coalesce(u0.zipcode, ' ') || ' ' ||
+              coalesce(u0.state, ' ')
             ) @@
             to_tsquery(?)",
             ^Utils.prefix_search(normalized_term)

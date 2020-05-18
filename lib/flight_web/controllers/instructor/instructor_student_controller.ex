@@ -9,10 +9,21 @@ defmodule FlightWeb.Instructor.StudentController do
   def index(conn, params) do
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
+    only_assgined_students = conn.req_cookies["only_assgined_students"] == "true"
+
+    page_params =
+      if only_assgined_students,
+        do: Map.put(page_params, :instructor_id, conn.assigns.current_user.id),
+        else: page_params
+
     data = FlightWeb.Admin.UserListData.build(conn, "student", page_params, search_term, nil)
     message = params["search"] && set_message(params["search"])
 
-    render(conn, "index.html", data: data, message: message)
+    render(conn, "index.html",
+      data: data,
+      only_assgined_students: only_assgined_students,
+      message: message
+    )
   end
 
   def show(conn, %{"tab" => "appointments"}) do

@@ -599,6 +599,13 @@ defmodule Flight.Accounts do
     |> default_users_query(school_context)
   end
 
+  def instructor_students_query(query, instructor_id) do
+    from(u in query,
+      join: i in assoc(u, :instructors),
+      where: i.id == ^instructor_id
+    )
+  end
+
   def archived_users_with_role_query(role, search_term, school_context) do
     role
     |> Ecto.assoc(:users)

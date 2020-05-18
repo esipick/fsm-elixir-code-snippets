@@ -179,7 +179,7 @@ defmodule Flight.Accounts.User do
     |> cast(attrs, [:password_token])
   end
 
-  def __test_changeset(user, attrs) do
+  def __test_changeset(user, attrs, instructors \\ nil, aircrafts \\ nil) do
     user
     |> cast(attrs, [
       :email,
@@ -201,7 +201,7 @@ defmodule Flight.Accounts.User do
       :balance,
       :school_id
     ])
-    |> base_validations()
+    |> base_validations(nil, aircrafts, nil, instructors)
     |> put_pass_hash()
   end
 

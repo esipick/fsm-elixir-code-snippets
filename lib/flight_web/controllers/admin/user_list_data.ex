@@ -13,10 +13,11 @@ end
 defmodule FlightWeb.Admin.UserListData do
   defstruct [:role_label, :role, :user_table_data, :invitations, :search_term]
 
+  alias Flight.{Accounts, Format}
   alias FlightWeb.Admin.UserListData
 
   def build(school_context, role_slug, page_params, search_term, archived) do
-    role = Flight.Accounts.role_for_slug(role_slug)
+    role = Accounts.role_for_slug(role_slug)
 
     if role do
       %UserListData{
@@ -66,7 +67,7 @@ defmodule FlightWeb.Admin.UserListData do
         user_id: user.id,
         school: user.school,
         name: "#{user.first_name} #{user.last_name}",
-        phone_number: Flight.Format.display_phone_number(user.phone_number),
+        phone_number: Format.display_phone_number(user.phone_number),
         next_appointment: "Unknown",
         account_balance: user.balance,
         owes: 500
@@ -80,17 +81,22 @@ defmodule FlightWeb.Admin.UserListData do
         user_id: user.id,
         school: user.school,
         name: "#{user.first_name} #{user.last_name}",
-        phone_number: Flight.Format.display_phone_number(user.phone_number)
+        phone_number: Format.display_phone_number(user.phone_number)
       }
     end
   end
 
   def users_page(role, search_term, school_context, page_params, archived) do
     if archived == :archived do
-      Flight.Accounts.archived_users_with_role_query(role, search_term, school_context)
+      Accounts.archived_users_with_role_query(role, search_term, school_context)
       |> Flight.Repo.paginate(page_params)
     else
-      Flight.Accounts.users_with_role_query(role, search_term, school_context)
+      query = Accounts.users_with_role_query(role, search_term, school_context)
+
+      case school_context.req_cookies["only_assgined_students"] do
+        "true" -> Accounts.instructor_students_query(query, Map.get(page_params, :instructor_id))
+        _ -> query
+      end
       |> Flight.Repo.paginate(page_params)
     end
   end

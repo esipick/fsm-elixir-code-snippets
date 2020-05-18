@@ -75,6 +75,29 @@ defmodule FlightWeb.Instructor.StudentControllerTest do
 
       assert content =~ "Please fill out search field"
     end
+
+    test "renders students assigned to instructor", %{conn: conn} do
+      instructor = instructor_fixture() |> Repo.preload(:school)
+      student = student_fixture()
+
+      assigned_student =
+        student_fixture(%{first_name: "assigned", last_name: "student"}, instructor.school, [
+          instructor
+        ])
+
+      refute Accounts.has_instructor?(student, instructor.id)
+      assert Accounts.has_instructor?(assigned_student, instructor.id)
+
+      content =
+        conn
+        |> web_auth(instructor)
+        |> put_req_cookie("only_assgined_students", "true")
+        |> get("/instructor/students")
+        |> html_response(200)
+
+      refute content =~ "<b>#{student.first_name} #{student.last_name}</b>"
+      assert content =~ "<b>#{assigned_student.first_name} #{assigned_student.last_name}</b>"
+    end
   end
 
   test "renders student documents tab", %{conn: conn} do
