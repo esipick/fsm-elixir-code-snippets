@@ -207,6 +207,35 @@ defmodule FlightWeb.API.ControllerTest do
       |> json_response(400)
     end
 
+    test "can't create unavailability if exists appointment in same period", %{conn: conn} do
+      aircraft = aircraft_fixture()
+      instructor = instructor_fixture()
+      student = student_fixture()
+
+      appointment_fixture(
+        @default_attrs
+        |> Map.merge(%{
+          user_id: student.id,
+          instructor_user_id: instructor.id,
+          aircraft_id: aircraft.id
+        })
+      )
+
+      params = %{
+        data:
+          @default_attrs
+          |> Map.merge(%{
+            instructor_id: instructor.id,
+            belongs: "Aircraft"
+          })
+      }
+
+      conn
+      |> auth(instructor)
+      |> post("/api/unavailabilities", params)
+      |> json_response(400)
+    end
+
     test "can't create unavailability without aircraft", %{conn: conn} do
       instructor = instructor_fixture()
 

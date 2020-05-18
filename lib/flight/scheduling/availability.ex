@@ -119,7 +119,7 @@ defmodule Flight.Scheduling.Availability do
         from(a in Appointment, where: a.archived == false)
         |> SchoolScope.scope_query(school_context)
         |> select_for_permission_slug(permission_slug)
-        |> exclude_appointment_query(excluded_appointment_ids)
+        |> exclude_appointment_or_unavailability_query(excluded_appointment_ids)
         |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
         |> overlap_query(
           walltime_to_utc(start_at, timezone),
@@ -133,16 +133,47 @@ defmodule Flight.Scheduling.Availability do
 
     unavailability_instructor_ids =
       if scope in [:all, :unavailability] do
-        Unavailability
-        |> SchoolScope.scope_query(school_context)
-        |> select([a], a.instructor_user_id)
-        |> overlap_query(
-          walltime_to_utc(start_at, timezone),
-          walltime_to_utc(end_at, timezone)
-        )
-        |> exclude_unavailability_query(excluded_unavailability_ids)
-        |> Repo.all()
-        |> MapSet.new()
+        instructor_ids_from_unavailabilities =
+          Unavailability
+          |> SchoolScope.scope_query(school_context)
+          |> select([a], a.instructor_user_id)
+          |> exclude_appointment_or_unavailability_query(excluded_unavailability_ids)
+          |> overlap_query(
+            walltime_to_utc(start_at, timezone),
+            walltime_to_utc(end_at, timezone)
+          )
+          |> Repo.all()
+          |> MapSet.new()
+
+        instuctor_id =
+          school_context
+          |> Map.get(:params, %{})
+          |> Map.get("data", %{})
+          |> Map.get("instructor_user_id")
+
+        instructor_ids_from_appointments =
+          case instuctor_id do
+            nil ->
+              MapSet.new()
+
+            _ ->
+              Appointment
+              |> SchoolScope.scope_query(school_context)
+              |> where([a], a.archived == false)
+              |> where(
+                [a],
+                a.instructor_user_id == ^instuctor_id
+              )
+              |> overlap_query(
+                walltime_to_utc(start_at, timezone),
+                walltime_to_utc(end_at, timezone)
+              )
+              |> Repo.all()
+              |> Enum.map(& &1.instructor_user_id)
+              |> MapSet.new()
+          end
+
+        MapSet.union(instructor_ids_from_unavailabilities, instructor_ids_from_appointments)
       else
         MapSet.new()
       end
@@ -233,7 +264,7 @@ defmodule Flight.Scheduling.Availability do
           walltime_to_utc(start_at, timezone),
           walltime_to_utc(end_at, timezone)
         )
-        |> exclude_appointment_query(excluded_appointment_ids)
+        |> exclude_appointment_or_unavailability_query(excluded_appointment_ids)
         |> Repo.all()
         |> MapSet.new()
       else
@@ -249,7 +280,7 @@ defmodule Flight.Scheduling.Availability do
           walltime_to_utc(start_at, timezone),
           walltime_to_utc(end_at, timezone)
         )
-        |> exclude_unavailability_query(excluded_unavailability_ids)
+        |> exclude_appointment_or_unavailability_query(excluded_unavailability_ids)
         |> Repo.all()
         |> MapSet.new()
       else
@@ -288,11 +319,7 @@ defmodule Flight.Scheduling.Availability do
     )
   end
 
-  def exclude_appointment_query(query, ids) do
-    from(a in query, where: a.id not in ^Enum.filter(ids, & &1))
-  end
-
-  def exclude_unavailability_query(query, ids) do
+  defp exclude_appointment_or_unavailability_query(query, ids) do
     from(a in query, where: a.id not in ^Enum.filter(ids, & &1))
   end
 end

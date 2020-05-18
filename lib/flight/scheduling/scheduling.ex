@@ -429,12 +429,7 @@ defmodule Flight.Scheduling do
       instructor_user_id = get_field(changeset, :instructor_user_id)
       aircraft_id = get_field(changeset, :aircraft_id)
 
-      excluded_unavailability_ids =
-        if unavailability.id do
-          [unavailability.id]
-        else
-          []
-        end
+      excluded_unavailability_ids = if unavailability.id, do: [unavailability.id], else: []
 
       changeset =
         if instructor_user_id do
