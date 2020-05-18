@@ -280,7 +280,7 @@ class Main extends Component {
               </div >
             ) : (
                 <Dropzone maxFiles={1}
-                  accept=".jpg,.png,.pdf"
+                  accept=".jpeg,.jpg,.png,.pdf"
                   maxSize={5000000}
                   onDrop={this.acceptFiles}>
                   {({ getRootProps, getInputProps }) => (
@@ -289,7 +289,7 @@ class Main extends Component {
                       <input {...getInputProps()} />
                       <div className="button">
                         <p>Drag & Drop a file to upload it.</p>
-                        <p className="dropzone-description">Allowed file types: .jpg, .png, .pdf.</p>
+                        <p className="dropzone-description">Allowed file types: .jpeg, .jpg, .png, .pdf.</p>
                         <p className="dropzone-description">Max size: 5MB</p>
                         <p>
                           <button className="btn btn-primary">
