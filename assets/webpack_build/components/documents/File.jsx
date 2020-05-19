@@ -3,6 +3,10 @@ import React, { Component } from 'react'
 class File extends Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      showImg: false
+    }
   }
 
   handleChange = () => {
@@ -24,8 +28,24 @@ class File extends Component {
     }
   }
 
+  showDocument = () => {
+    const { file_name, file_url } = this.props
+    const type = file_name.split(".").slice(-1)[0].toLowerCase()
+
+    if (type == "pdf") {
+      window.open(file_url)
+    } else {
+      this.setState({ showImg: true })
+    }
+  }
+
+  closeImg = () => {
+    this.setState({ showImg: false })
+  }
+
   render() {
     const { admin, checked, expires_date, expired, file_name, file_url, id } = this.props
+    const { showImg } = this.state
     const htmlId = 'checkbox-' + id
     const message = this.rowMessage(expired)
 
@@ -44,11 +64,10 @@ class File extends Component {
           </div>
         }
         <div className="th file-col full-width">
-          <a href={file_url}
-            rel='noopener noreferrer'
-            target='_blank'
-            title={file_name}>
-            <i className="icon now-ui-icons arrows-1_cloud-download-93"></i>
+          <div className="icon">
+            <i className="now-ui-icons arrows-1_cloud-download-93"></i>
+          </div>
+          <div onClick={this.showDocument} title={file_name}>
             <div className="link-content">
               <h3>{file_name}</h3>
               {expires_date &&
@@ -56,7 +75,7 @@ class File extends Component {
               }
               <p className="message mobile">{message}</p>
             </div>
-          </a>
+          </div>
         </div>
         <div className="th expiry-col full-width desktop">
           <p>{expires_date}</p>
@@ -74,6 +93,15 @@ class File extends Component {
             <img src="/images/warning.svg" />
           }
         </div>
+        {showImg &&
+          <div className="modal-image">
+            <div id="close-img-popup" onClick={this.closeImg}>&times;</div>
+            <div className="image-wrapper">
+              <div id="caption">{file_name}</div>
+              <img className="modal-content-img" src={file_url}/>
+            </div>
+          </div>
+        }
       </div>
     )
   }
