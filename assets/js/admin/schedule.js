@@ -44,6 +44,7 @@ $(document).ready(function () {
   });
 
   var eventType = "appt";
+  var appointmentId = null;
   var appointmentOrUnavailabilityId = null;
 
   // change event type based on user choice
@@ -220,13 +221,35 @@ $(document).ready(function () {
     }
   });
 
+  $('#btnInvoice').click(function () {
+    if (appointmentId) {
+      var promise = null;
+      var buttonPos = $(this).offset();
+
+      $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 160 }).show();
+
+      promise = $.ajax({
+        method: "post",
+        url: "/api/invoices/from_appointment/" + appointmentId,
+        headers: AUTH_HEADERS
+      }).catch(function () {
+        window.location.href = `/billing/invoices/new`
+      })
+
+      promise.then(function (response) {
+        window.location.href = `/billing/invoices/${response.data.id}/edit`
+      })
+      $('#loader').hide();
+    }
+  });
+
 
   $('#btnDelete').click(function () {
     if (appointmentOrUnavailabilityId) {
       var promise = null;
       var buttonPos = $(this).offset();
 
-      $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 170 }).show();
+      $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
 
       if (eventType == "appt") {
         promise = $.ajax({
@@ -287,7 +310,9 @@ $(document).ready(function () {
       $('#btnDelete').hide()
     }
 
+
     if (initialData.type == "unavailability") {
+      $('#btnInvoice').hide()
       $('#navUnavail').tab("show")
       if (appointmentOrUnavailabilityId) {
         $('#apptTitle').text("Edit Unavailability")
@@ -295,6 +320,13 @@ $(document).ready(function () {
         $('#apptTitle').text("Create New")
       }
     } else {
+      appointmentId = initialData.id;
+      if (appointmentId) {
+        $('#btnInvoice').show()
+      } else {
+        $('#btnInvoice').hide()
+      }
+
       $('#navAppt').tab("show")
       if (appointmentOrUnavailabilityId) {
         $('#apptTitle').text("Edit Appointment")
