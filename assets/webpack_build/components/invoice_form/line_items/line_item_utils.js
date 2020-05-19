@@ -14,7 +14,34 @@ export const DESCRIPTION_OPTS = [
   {label: INSTRUCTOR_HOURS, value: INSTRUCTOR_HOURS, taxable: false, deductible: false}
 ];
 
-export const DEFAULT_RATE = 100;
+export const DEFAULT_RATE = 0;
+
+export const NUMBER_INPUT_OPTS = {
+  allowNegative: false,
+  decimalScale: 2,
+  fixedDecimalScale: 2,
+  required: true,
+  placeholder: "0.00",
+  thousandSeparator: true,
+  className: "form-control inherit-font-size"
+};
+export const DESCRIPTION_SELECT_OPTS = {
+  classNamePrefix: "react-select",
+  isClearable: false,
+  isRtl: false,
+  isSearchable: false,
+  name: "description",
+  required: true
+};
+
+export const populateHobbsTach = (aircraft) => {
+  const hobbs_start = aircraft && aircraft.last_hobbs_time || 0;
+  const hobbs_end = hobbs_start + 10;
+  const tach_start = aircraft && aircraft.last_tach_time || 0;
+  const tach_end = tach_start + 10;
+
+  return { hobbs_start, hobbs_end, tach_start, tach_end };
+}
 
 export class LineItemRecord {
   constructor(params = {}) {
@@ -30,6 +57,15 @@ export class LineItemRecord {
     this.aircraft_id = params.aircraft && params.aircraft.id;
     this.taxable = params.taxable;
     this.deductible = params.deductible;
+
+    if (this.type == "aircraft") {
+      const { hobbs_start, hobbs_end, tach_start, tach_end } = populateHobbsTach(this.aircraft);
+      this.hobbs_tach_used = true;
+      this.hobbs_start = hobbs_start;
+      this.hobbs_end = hobbs_end;
+      this.tach_start = tach_start;
+      this.tach_end = tach_end;
+    }
   }
 };
 

@@ -1,6 +1,9 @@
 defmodule Flight.Billing.CalculateInvoice do
   alias FlightWeb.API.{DetailedTransactionForm}
   alias Flight.Billing
+  alias Flight.Repo
+  alias Flight.Scheduling.Aircraft
+  alias FlightWeb.ViewHelpers
 
   def run(invoice_params, school_context) do
     school = school(school_context)
@@ -61,46 +64,23 @@ defmodule Flight.Billing.CalculateInvoice do
         calculate_line_item(x, invoice_attrs, school_context)
       end)
 
-    errors =
-      Enum.map(calculated_items, fn x ->
-        case x do
-          {:error, errors} -> errors
-          _ -> nil
-        end
-      end)
-      |> Enum.filter(fn x -> x end)
-
-    if Enum.any?(errors) do
-      {:error, Enum.at(errors, 0)}
-    else
-      line_items =
-        Enum.map(calculated_items, fn x ->
-          case x do
-            {:ok, li} -> li
-            _ -> nil
-          end
-        end)
-        |> Enum.filter(fn x -> x end)
-
-      {:ok, line_items}
-    end
+    {:ok, calculated_items}
   end
 
   defp calculate_line_item(line_item, invoice, school_context) do
     case calculate_amount_and_rate(line_item, invoice, school_context) do
       {:ok, {amount, rate, qty}} ->
-        {:ok,
-         Map.merge(line_item, %{"amount" => round(amount), "rate" => rate, "quantity" => qty})}
+        Map.merge(line_item, %{"amount" => round(amount), "rate" => rate, "quantity" => qty})
 
       {:error, errors} ->
-        {:error, errors}
+        Map.merge(line_item, %{"errors" => ViewHelpers.translate_errors(errors)})
     end
   end
 
   defp calculate_amount_and_rate(line_item, invoice, school_context) do
     if line_item_type(line_item) == :aircraft && line_item["hobbs_tach_used"] do
       case calculate_from_hobbs_tach(line_item, invoice, school_context) do
-        {:ok, amount} -> {:ok, {amount, amount, 1}}
+        {:ok, amount, rate, qty} -> {:ok, {amount, rate, qty}}
         {:error, errors} -> {:error, errors}
       end
     else
@@ -132,14 +112,22 @@ defmodule Flight.Billing.CalculateInvoice do
 
     case Ecto.Changeset.apply_action(changeset, :insert) do
       {:ok, form} ->
-        {transaction, _instructor_line_item, _, _aircraft_line_item, _} =
-          FlightWeb.API.DetailedTransactionForm.to_transaction(
-            form,
-            Billing.rate_type_for_form(form, school_context),
-            school_context
-          )
+        rate_type = Billing.rate_type_for_form(form, school_context)
 
-        {:ok, transaction.total}
+        {transaction, _instructor_line_item, _, aircraft_line_item, _} =
+          DetailedTransactionForm.to_transaction(form, rate_type, school_context)
+
+        aircraft = Repo.get(Aircraft, aircraft_line_item.aircraft_id)
+
+        rate =
+          case rate_type do
+            :normal -> aircraft.rate_per_hour
+            :block -> aircraft.block_rate_per_hour
+          end
+
+        qty = (form.aircraft_details.hobbs_end - form.aircraft_details.hobbs_start) / 10.0
+
+        {:ok, transaction.total, rate, qty}
 
       {:error, changeset} ->
         {:error, changeset}

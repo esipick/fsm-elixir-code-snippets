@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 
 import Error from '../common/Error';
-import LineItem from './LineItem';
+import LineItem from './line_items/LineItem';
 
-import { itemsFromAppointment, LineItemRecord } from './line_item_utils';
+import { itemsFromAppointment, LineItemRecord } from './line_items/line_item_utils';
 
 import { authHeaders, addSchoolIdParam } from '../utils';
 
@@ -17,50 +17,22 @@ class LineItemsTable extends Component {
     const line_items =
       props.line_items.length > 0 ? props.line_items : itemsFromAppointment(appointment);
 
-    const memo = {
-      [lineItemsKey(appointment)]: line_items
-    }
-
-    this.state = { memo, appointment };
+    this.state = { line_items, appointment };
   }
 
   componentDidMount = () => {
     this.updateTotal(this.lineItems());
   }
 
-  componentDidUpdate = (prevProps, prevState) => {
-    // this.props.calculateTotal(this.lineItems(), ({ total_amount_due }) => {
-    //   if (total_amount_due !== this.state.total_amount_due) {
-    //     this.updateTotal(this.lineItems());
-    //   }
-    // });
-  }
-
-  static getDerivedStateFromProps(props, state) {
-    const prevAppointmentId = state.appointment && state.appointment.id;
-    const appointmentId = props.appointment && props.appointment.id;
-
-    if (prevAppointmentId !== appointmentId) {
-      const { memo } = state;
-      const { appointment } = props;
-      const key = lineItemsKey(appointment);
-
-      if (!memo[key]) { memo[key] = itemsFromAppointment(appointment); };
-
-      return { ...state, memo, appointment };
-    }
-
-    return null;
-  }
-
   lineItems = () => {
-    const key = lineItemsKey(this.state.appointment);
-
-    return this.state.memo[key];
+    return this.state.line_items;
   }
 
   addLineItem = () => {
     const line_items = [...this.lineItems(), new LineItemRecord()];
+
+    this.setState({ line_items });
+    this.props.onChange({ line_items });
     this.updateTotal(line_items);
   }
 
@@ -75,12 +47,10 @@ class LineItemsTable extends Component {
   };
 
   updateTotal = (line_items) => {
+    this.setState({ line_items });
     this.props.calculateTotal(line_items, (values) => {
-      const { memo } = this.state;
-
-      memo[lineItemsKey(this.state.appointment)] = values.line_items;
-
-      this.setState({ ...values, memo });
+      console.log(values);
+      this.setState({ ...values });
       this.props.onChange(values);
     });
   }

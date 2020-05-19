@@ -995,8 +995,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
                    "type" => "aircraft",
                    "tach_start" => 542.0,
                    "tach_end" => 555,
-                   "rate" => 169,
-                   "quantity" => 1,
+                   "rate" => 130,
+                   "quantity" => 1.3,
                    "hobbs_start" => 400,
                    "hobbs_end" => 413,
                    "description" => "Flight Hours",
@@ -1064,13 +1064,13 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         conn
         |> auth(instructor)
         |> post("/api/invoices/calculate", %{"invoice" => payload})
-        |> json_response(422)
+        |> json_response(200)
 
-      assert json == %{
-               "errors" => %{
-                 "aircraft_details" => %{
-                   "hobbs_end" => ["must be greater than hobbs start"]
-                 }
+      item = Enum.at(json["line_items"], 0)
+
+      assert item["errors"] == %{
+               "aircraft_details" => %{
+                 "hobbs_end" => ["must be greater than hobbs start"]
                }
              }
     end

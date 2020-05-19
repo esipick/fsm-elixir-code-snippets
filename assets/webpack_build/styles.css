@@ -34,16 +34,6 @@
   vertical-align: top;
 }
 
-.invoice-form .aircraft-rate-control {
-  width: 80%;
-  display: inline-block;
-  margin-left: 5px;
-}
-.invoice-form .hobbs-tach-icon-disabled {
-  color: gray;
-  cursor: not-allowed;
-}
-
 .invoice-save-buttons {
   width: 450px;
   display: flex;
@@ -93,9 +83,10 @@
   justify-content: space-evenly;
   margin-top: 10px;
 }
-.hobbs-and-tach-dialog__error {
+.hobbs-and-tach__error {
   font-size: small;
   text-align: left;
+  position: absolute;
 }
 
 

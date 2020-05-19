@@ -396,8 +396,6 @@ class Form extends Component {
       saving, stripe_error, student, students, total, total_amount_due, total_tax
     } = this.state;
 
-    console.log(saving);
-
     return (
       <div className="card">
         <div className="card-header text-left">
