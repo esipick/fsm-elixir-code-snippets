@@ -2,16 +2,8 @@ defmodule FlightWeb.API.Invoices.LineItemControllerTest do
   use FlightWeb.ConnCase
 
   describe "POST /api/invoices" do
-    test "renders unauthorized", %{conn: conn} do
-      student = student_fixture()
-
-      conn
-      |> auth(student)
-      |> get("/api/invoices/line_items/extra_options")
-      |> json_response(401)
-    end
-
     test "renders available items", %{conn: conn} do
+      student = student_fixture()
       instructor = instructor_fixture()
 
       invoice_custom_line_item_fixture(%{
@@ -33,7 +25,7 @@ defmodule FlightWeb.API.Invoices.LineItemControllerTest do
 
       json =
         conn
-        |> auth(instructor)
+        |> auth(student)
         |> get("/api/invoices/line_items/extra_options")
         |> json_response(200)
 
