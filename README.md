@@ -38,27 +38,24 @@ mix run priv/repo/seeds.exs # is also running automatically with mix ecto.setup
 
 This will create sample schools, users and aircrafts. Check `priv/repo/seeds.ex` for the login details.
 
-## Cloud 9 Instructions
+# Deployment
 
-#### Start FSM Server
+## Staging application
 
-Run -> Run Configurations -> Start FSM Server
-
-
-#### Pull latest changes from git
+Staging application is being deployed automatically from master branch to https://randon-aviation-staging.herokuapp.com. But if for some reason you need to deploy to staging manually:
 
 ```
-git pull origin master
+git remote add staging https://git.heroku.com/randon-aviation-staging.git
+git push staging master
 ```
 
-#### Commit latest changes to git
+## Production application
 
 ```
-git commit -am "Your commit message."
+git remote add prod https://git.heroku.com/randon-aviation.git
+git push prod master
 ```
 
-#### Push new commits to GitHub
+# CI
 
-```
-git push origin master
-```
+We use [SemaphoreCI](https://russellaviation.semaphoreci.com/dashboards/my-work) for running tests suite.
