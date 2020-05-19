@@ -18,7 +18,8 @@ defmodule FlightWeb.API.InvoiceController do
   }
 
   plug(:get_invoice when action in [:update, :show, :delete])
-  plug(:authorize_modify when action in [:create, :show, :index, :delete])
+  plug(:authorize_view when action in [:show])
+  plug(:authorize_modify when action in [:create, :index, :delete])
   plug(:authorize_update when action in [:update])
   plug(:check_paid_invoice when action in [:update, :delete])
   plug(:check_archived_invoice when action in [:update, :delete])
@@ -96,7 +97,7 @@ defmodule FlightWeb.API.InvoiceController do
 
   def update(conn, %{"invoice" => params}) do
     invoice_params =
-      if user_can?(conn.assigns.current_user, [Permission.new(:invoice, :modify, :all)]) do
+      if staff_member?(conn) do
         params
       else
         %{"payment_option" => params["payment_option"]}
@@ -199,13 +200,32 @@ defmodule FlightWeb.API.InvoiceController do
   end
 
   defp authorize_modify(conn, _) do
-    halt_unless_user_can?(conn, [Permission.new(:invoice, :modify, :all)])
+    if staff_member?(conn) do
+      conn
+    else
+      halt_unauthorized_response(conn)
+    end
+  end
+
+  defp staff_member?(conn) do
+    user_can?(conn.assigns.current_user, [Permission.new(:invoice, :modify, :all)])
+  end
+
+  defp authorize_view(conn, _) do
+    user = conn.assigns.current_user
+
+    if user_can?(user, [Permission.new(:invoice, :view, :all)]) ||
+         user_can?(user, [Permission.new(:invoice, :view, {:personal, conn.assigns.invoice})]) do
+      conn
+    else
+      halt_unauthorized_response(conn)
+    end
   end
 
   defp authorize_update(conn, _) do
     user = conn.assigns.current_user
 
-    if user_can?(user, [Permission.new(:invoice, :modify, :all)]) ||
+    if staff_member?(conn) ||
          user_can?(user, [Permission.new(:invoice, :modify, {:personal, conn.assigns.invoice})]) do
       conn
     else

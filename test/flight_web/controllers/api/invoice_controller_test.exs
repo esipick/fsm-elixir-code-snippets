@@ -572,6 +572,24 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
 
     @tag :integration
+    test "renders own invoice to student", %{conn: conn} do
+      student = student_fixture()
+      invoice = invoice_fixture(%{}, student)
+
+      json =
+        conn
+        |> auth(student)
+        |> get("/api/invoices/#{invoice.id}")
+        |> json_response(200)
+
+      invoice =
+        Repo.get(Invoice, invoice.id)
+        |> preload_invoice
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
     test "renders invoice", %{conn: conn} do
       student = student_fixture(%{avatar: avatar_base64_fixture()})
       invoice = invoice_fixture(%{}, student)
@@ -610,7 +628,20 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
   describe "PUT /api/invoices/:id" do
     @tag :integration
-    test "renders unauthorized for student", %{conn: conn} do
+    test "renders unauthorized to student when updating other invoices", %{conn: conn} do
+      student = student_fixture()
+      other_student = student_fixture()
+      invoice = invoice_fixture(%{}, other_student)
+      invoice_params = %{payment_option: "venmo", total_amount_due: 100}
+
+      conn
+      |> auth(student)
+      |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params, pay_off: true})
+      |> json_response(401)
+    end
+
+    @tag :integration
+    test "allows student to update own invoice", %{conn: conn} do
       student = student_fixture()
       invoice = invoice_fixture(%{user_id: student.id})
       invoice_params = %{payment_option: "venmo", total_amount_due: 100}
