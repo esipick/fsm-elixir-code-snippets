@@ -39,11 +39,12 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     school = school(school_context)
     duration = Timex.diff(appointment.end_at, appointment.start_at, :minutes) / 60.0
     payment_option = Map.get(params, "payment_option", "balance")
+    current_user = school_context.assigns.current_user
 
     line_items =
       [
-        aircraft_item(appointment, duration, params),
-        instructor_item(appointment, duration)
+        aircraft_item(appointment, duration, params, current_user),
+        instructor_item(appointment, duration, current_user)
       ]
       |> Enum.filter(fn x -> x end)
 
@@ -65,7 +66,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     end
   end
 
-  def aircraft_item(appointment, quantity, params \\ %{}) do
+  def aircraft_item(appointment, quantity, params \\ %{}, current_user) do
     if appointment.aircraft do
       rate = appointment.aircraft.rate_per_hour
       hobbs_end = Map.get(params, "hobbs_time", nil)
@@ -84,12 +85,13 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "hobbs_start" => appointment.aircraft.last_hobbs_time,
         "tach_start" => appointment.aircraft.last_tach_time,
         "hobbs_end" => hobbs_end,
-        "tach_end" => tach_end
+        "tach_end" => tach_end,
+        "creator_id" => current_user.id
       }
     end
   end
 
-  def instructor_item(appointment, quantity) do
+  def instructor_item(appointment, quantity, current_user) do
     if appointment.instructor_user do
       rate = appointment.instructor_user.billing_rate
 
@@ -101,7 +103,8 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "type" => :instructor,
         "instructor_user_id" => appointment.instructor_user.id,
         "taxable" => false,
-        "deductible" => false
+        "deductible" => false,
+        "creator_id" => current_user.id
       }
     end
   end

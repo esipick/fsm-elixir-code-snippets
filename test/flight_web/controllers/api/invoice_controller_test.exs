@@ -160,6 +160,11 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       assert Enum.map(invoice.line_items, fn i -> i.quantity end) == [0.5, 0.5]
 
+      assert Enum.map(invoice.line_items, fn i -> i.creator_id end) == [
+               instructor.id,
+               instructor.id
+             ]
+
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
