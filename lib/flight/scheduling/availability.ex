@@ -159,6 +159,7 @@ defmodule Flight.Scheduling.Availability do
             _ ->
               Appointment
               |> SchoolScope.scope_query(school_context)
+              |> exclude_appointment_or_unavailability_query(excluded_appointment_ids)
               |> where([a], a.archived == false)
               |> where(
                 [a],

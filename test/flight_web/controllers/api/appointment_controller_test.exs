@@ -246,6 +246,31 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
     end
 
+    test "student updates appointment for the same time", %{conn: conn} do
+      student = student_fixture()
+      instructor = user_fixture() |> assign_role("instructor")
+      aircraft = aircraft_fixture()
+      school = default_school_fixture()
+
+      appointment =
+        appointment_fixture(
+          @default_attrs
+          |> Map.merge(%{
+            user_id: student.id,
+            instructor_user_id: instructor.id,
+            aircraft_id: aircraft.id
+          })
+        )
+
+      params = %{data: %{note: "Heyo Timeo"}}
+
+      json =
+        conn
+        |> auth(student)
+        |> put("/api/appointments/#{appointment.id}", params)
+        |> json_response(200)
+    end
+
     @tag :integration
     test "show error if appointment already removed", %{conn: conn} do
       appointment = appointment_fixture()

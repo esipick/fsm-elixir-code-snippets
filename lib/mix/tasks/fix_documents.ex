@@ -25,12 +25,14 @@ defmodule Mix.Tasks.FixDocuments do
 
       IO.puts("download #{file_name}")
       File.mkdir_p(path)
+
       ExAws.S3.download_file(bucket, file, file)
-      |> ExAws.request
+      |> ExAws.request()
 
       IO.puts("upload #{file_name}")
       local_image = File.read!(file)
-      ExAws.S3.put_object(bucket, file, local_image, [content_type: content_type])
+
+      ExAws.S3.put_object(bucket, file, local_image, content_type: content_type)
       |> ExAws.request()
 
       File.rm_rf(file)

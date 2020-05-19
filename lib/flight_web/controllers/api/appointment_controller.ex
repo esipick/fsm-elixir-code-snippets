@@ -55,9 +55,6 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def create(conn, %{"data" => appointment_data}) do
-    {:ok, log_data} = Poison.encode(appointment_data)
-    IO.puts(log_data)
-
     case Flight.Scheduling.insert_or_update_appointment(
            %Scheduling.Appointment{},
            appointment_data,
@@ -76,9 +73,6 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def update(conn, %{"data" => appointment_data}) do
-    {:ok, log_data} = Poison.encode(appointment_data)
-    IO.puts(log_data)
-
     case Flight.Scheduling.insert_or_update_appointment(
            conn.assigns.appointment,
            appointment_data,
