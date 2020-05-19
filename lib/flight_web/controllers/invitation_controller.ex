@@ -48,7 +48,7 @@ defmodule FlightWeb.InvitationController do
             Accounts.user_changeset(%Accounts.User{}, user_data, conn.assigns.invitation),
           stripe_error:
             error.user_message || error.message ||
-              "There was a problem charging your card. Please try again."
+              "There was a problem validating your card. Please try again or use another card."
         )
     end
   end

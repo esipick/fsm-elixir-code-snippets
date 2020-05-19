@@ -394,29 +394,18 @@ defmodule Flight.Accounts.AccountsTest do
 
       invitation = invitation_fixture(%{}, Flight.Accounts.Role.student(), school)
 
-      {:ok, user} =
-        Accounts.create_user_from_invitation(
-          %{
-            first_name: "Alex",
-            last_name: "Jones",
-            phone_number: "801-555-5555",
-            email: "foo@bar.com",
-            password: "foobargo"
-          },
-          "tok_visa",
-          invitation
-        )
-
-      {:ok, list} = Stripe.Charge.list(%{customer: user.stripe_customer_id})
-
-      charge = List.first(list.data)
-
-      assert charge.amount == 5000
-
-      assert platform_charge = Flight.Repo.get_by(Flight.Billing.PlatformCharge, amount: 5000)
-      assert platform_charge.user_id == user.id
-      assert platform_charge.type == "platform_fee"
-      assert platform_charge.stripe_charge_id == charge.id
+      assert {:ok, _user} =
+               Accounts.create_user_from_invitation(
+                 %{
+                   first_name: "Alex",
+                   last_name: "Jones",
+                   phone_number: "801-555-5555",
+                   email: "foo@bar.com",
+                   password: "foobargo"
+                 },
+                 "tok_visa",
+                 invitation
+               )
     end
 
     @tag :integration
@@ -425,26 +414,18 @@ defmodule Flight.Accounts.AccountsTest do
 
       invitation = invitation_fixture(%{}, Flight.Accounts.Role.renter(), school)
 
-      {:ok, user} =
-        Accounts.create_user_from_invitation(
-          %{
-            first_name: "Alex",
-            last_name: "Jones",
-            phone_number: "801-555-5555",
-            email: "foo@bar.com",
-            password: "foobargo"
-          },
-          "tok_visa",
-          invitation
-        )
-
-      {:ok, customer} = Stripe.Customer.retrieve(user.stripe_customer_id)
-
-      assert customer.default_source
-
-      {:ok, list} = Stripe.Charge.list(%{customer: user.stripe_customer_id})
-
-      refute List.first(list.data)
+      assert {:ok, _user} =
+               Accounts.create_user_from_invitation(
+                 %{
+                   first_name: "Alex",
+                   last_name: "Jones",
+                   phone_number: "801-555-5555",
+                   email: "foo@bar.com",
+                   password: "foobargo"
+                 },
+                 "tok_visa",
+                 invitation
+               )
     end
   end
 
