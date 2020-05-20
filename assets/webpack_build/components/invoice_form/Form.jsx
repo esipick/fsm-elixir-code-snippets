@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
-import debounce from 'lodash.debounce';
+import { debounce } from 'lodash';
 
 import { authHeaders, addSchoolIdParam } from '../utils';
 import Error from '../common/Error';
@@ -13,11 +13,11 @@ import LineItemsTable from './LineItemsTable';
 import LowBalanceAlert from './LowBalanceAlert';
 
 import {
-  BALANCE, CREDIT_CARD, CASH, CHECK, VENMO, MARK_AS_PAID, PAY,
+  BALANCE, CASH, CHECK, VENMO, MARK_AS_PAID, PAY,
   GUEST_PAYMENT_OPTIONS, DEFAULT_PAYMENT_OPTION, PAYMENT_OPTIONS
 } from './constants';
 
-let calculateRequest = () => {};
+let calculateRequest = () => { };
 
 class Form extends Component {
   constructor(props) {
@@ -312,7 +312,7 @@ class Form extends Component {
       appointment_id: appointment && appointment.id
     }
 
-    if (!this.state.saving) this.setState({saving: true});
+    if (!this.state.saving) this.setState({ saving: true });
 
     calculateRequest = debounce(payloadParams => {
       http.post({
@@ -320,10 +320,10 @@ class Form extends Component {
         body: { invoice: payloadParams },
         headers: authHeaders()
       }).then(response => {
-        this.setState({saving: false});
+        this.setState({ saving: false });
         response.json().then(callback);
       }).catch(response => {
-        this.setState({saving: false});
+        this.setState({ saving: false });
         response.json().then((err) => {
           console.warn(err);
         });

@@ -1,5 +1,5 @@
-$(document).ready(function() {
-  function initDataTable(){
+$(document).ready(function () {
+  function initDataTable() {
     $('#datatable').DataTable({
       "paging": false,
       "lengthMenu": [

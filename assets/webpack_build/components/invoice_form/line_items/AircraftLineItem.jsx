@@ -1,9 +1,6 @@
-import classnames from 'classnames';
 import NumberFormat from 'react-number-format';
 import React, { Component } from 'react';
 import Select from 'react-select';
-
-import HobbsTachModal from '../HobbsTachModal';
 
 import Error from '../../common/Error';
 
@@ -11,7 +8,6 @@ import {
   DESCRIPTION_SELECT_OPTS, DEFAULT_TYPE, TYPES,
   NUMBER_INPUT_OPTS, DEFAULT_RATE, populateHobbsTach
 } from './line_item_utils';
-import { authHeaders } from '../../utils';
 
 const MAX_INT = 2147483647;
 const NUMBER_PROPS = {
@@ -134,7 +130,7 @@ class AircraftLineItem extends Component {
     const { rate, quantity, amount } = this.props.line_item;
     const descriptionOpt = lineItemTypeOptions.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
-    const hobbsTachInputProps = Object.assign({}, NUMBER_PROPS, {disabled: !aircraft});
+    const hobbsTachInputProps = Object.assign({}, NUMBER_PROPS, { disabled: !aircraft });
     const hobbsErr = (this.props.line_item.errors || {}).aircraft_details || {};
     delete hobbsErr.aircraft_id;
     const hobbsWrapperClass = Object.keys(hobbsErr).length ? 'lc-row-with-error' : '';
@@ -153,8 +149,8 @@ class AircraftLineItem extends Component {
             {this.aircraftSelect()}
           </td>
           <td className="lc-column">
-            <NumberFormat disabled={true} value={rate == null ? null : rate / 100 } {...NUMBER_INPUT_OPTS} />
-            { errors.rate && <br /> }
+            <NumberFormat disabled={true} value={rate == null ? null : rate / 100} {...NUMBER_INPUT_OPTS} />
+            {errors.rate && <br />}
             <Error text={errors.rate} />
           </td>
           <td className="lc-column">

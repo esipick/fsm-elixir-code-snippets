@@ -98,7 +98,7 @@ class File extends Component {
             <div id="close-img-popup" onClick={this.closeImg}>&times;</div>
             <div className="image-wrapper">
               <div id="caption">{file_name}</div>
-              <img className="modal-content-img" src={file_url}/>
+              <img className="modal-content-img" src={file_url} />
             </div>
           </div>
         }

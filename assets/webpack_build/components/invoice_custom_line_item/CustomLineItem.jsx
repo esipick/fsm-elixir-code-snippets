@@ -1,4 +1,3 @@
-import classnames from 'classnames';
 import http from 'j-fetch';
 import NumberFormat from 'react-number-format';
 import React, { Component } from 'react';

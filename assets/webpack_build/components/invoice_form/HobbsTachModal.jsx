@@ -1,4 +1,3 @@
-import classnames from 'classnames';
 import http from 'j-fetch';
 import Modal from 'react-modal';
 import NumberFormat from 'react-number-format';
