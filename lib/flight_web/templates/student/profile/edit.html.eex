@@ -117,6 +117,17 @@
       <!-- end card -->
     </div>
   </div>
+
+  <%=
+    render(
+      FlightWeb.SharedView,
+      "card_form.html",
+      conn: @conn,
+      user: @user,
+      update_url: "/student/profile/update_card",
+      stripe_error: @stripe_error
+    )
+  %>
 </div>
 <!-- end content -->
 <%= if @user.avatar do %>

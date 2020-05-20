@@ -181,8 +181,8 @@
             </div>
           </div>
           <nav class="tabs">
-            <a <%= if @tab == :billing, do: "class=active" %> href="/student/profile">Billing</a>
-            <a <%= if @tab == :appointments, do: "class=active" %> href="/student/profile">Appointments</a>
+            <!-- <a <%= if @tab == :billing, do: "class=active" %> href="/student/profile">Billing</a> -->
+            <!-- <a <%= if @tab == :appointments, do: "class=active" %> href="/student/profile">Appointments</a> -->
             <a <%= if @tab == :documents, do: "class=active" %> href="/student/profile">Documents</a>
           </nav>
         </div>

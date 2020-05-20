@@ -108,7 +108,9 @@ defmodule FlightWeb.Router do
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
 
-    resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true)
+    resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true) do
+      put("/update_card", ProfileController, :update_card)
+    end
   end
 
   scope "/instructor", FlightWeb.Instructor do
@@ -149,6 +151,7 @@ defmodule FlightWeb.Router do
     resources("/users", UserController, only: [:index, :show, :edit, :update, :delete]) do
       post("/add_funds", UserController, :add_funds)
       get("/restore", UserController, :restore)
+      put("/update_card", UserController, :update_card)
     end
 
     resources("/transactions", TransactionController, only: []) do
@@ -221,6 +224,7 @@ defmodule FlightWeb.Router do
       put("/change_password", UserController, :change_password)
       resources("/documents", DocumentController, only: [:create, :delete, :index, :update])
       resources("/push_tokens", PushTokenController, only: [:create])
+      put("/update_card", UserController, :update_card)
     end
 
     get("/aircrafts/autocomplete", AircraftController, :autocomplete, as: :autocomplete)

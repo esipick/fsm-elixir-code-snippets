@@ -5,7 +5,7 @@ defmodule FlightWeb.Admin.UserController do
   alias Flight.Auth.Permission
   import Flight.Auth.Authorization
 
-  plug(:get_user when action in [:show, :edit, :update, :add_funds, :delete])
+  plug(:get_user when action in [:show, :edit, :update, :update_card, :add_funds, :delete])
   plug(:check_user when action in [:restore])
   plug(:authorize_admin when action in [:index])
   plug(:protect_admin_users when action in [:show, :edit, :update])
@@ -121,7 +121,8 @@ defmodule FlightWeb.Admin.UserController do
       changeset: Accounts.User.create_changeset(user, %{}),
       instructors: instructors,
       skip_shool_select: true,
-      user: user
+      user: user,
+      stripe_error: nil
     )
   end
 
@@ -239,7 +240,34 @@ defmodule FlightWeb.Admin.UserController do
           changeset: changeset,
           instructors: instructors,
           skip_shool_select: true,
-          user: user
+          user: user,
+          stripe_error: nil
+        )
+    end
+  end
+
+  def update_card(conn, params) do
+    user = conn.assigns.requested_user
+
+    case Flight.Billing.update_customer_card(user, params["stripe_token"]) do
+      {:ok, _} ->
+        redirect(conn, to: "/admin/users/#{user.id}")
+
+      {:error, %Stripe.Error{} = error} ->
+        user = conn.assigns.requested_user
+        aircrafts = Accounts.get_aircrafts(conn)
+        role = Accounts.role_for_slug("instructor")
+        instructors = Queries.User.get_users_by_role(role, conn)
+
+        render(
+          conn,
+          "edit.html",
+          aircrafts: aircrafts,
+          changeset: Accounts.user_changeset(%Accounts.User{}, %{}, user),
+          instructors: instructors,
+          skip_shool_select: true,
+          user: user,
+          stripe_error: StripeHelper.error_message(error)
         )
     end
   end

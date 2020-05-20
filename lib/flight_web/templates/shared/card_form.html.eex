@@ -1,0 +1,46 @@
+<div class="row">
+  <%= render(FlightWeb.SharedView, "stripe.html", conn: @conn) %>
+  <div class="col-md-8 col-xs-12">
+    <div class="card">
+      <%= form_for nil, @update_url, [id: "stripe-form", method: "put", class: "form-horizontal"], fn _f -> %>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <div class="user-card mb-4">
+                  <% card = fetch_card(@user) %>
+                  <div class="mb-2">Current card:</div>
+                  <%= if card do %>
+                    <span class="mr-1"><%= card.brand %></span>
+                    <span class="mr-3">**** ***** ***** <%= card.last4 %></span>
+                    Valid until:
+                    <span class="ml-1 <%= card_date_class(card) %>"><%= card.exp_month %>/<%= card.exp_year %></span>
+                  <% else %>
+                    <span class="">No card attached.</span>
+                  <% end %>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="mb-2">Update card:</div>
+                <div id="card-element">
+                </div>
+                <div id="card-errors" role="alert">
+                  <%= if @stripe_error do %>
+                    <%= @stripe_error %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-md-12">
+              <input type="submit" class="btn btn-fill btn-primary" value="Update">
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

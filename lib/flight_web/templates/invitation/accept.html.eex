@@ -3,7 +3,6 @@
   <head>
     <title>Flight School Manager</title>
     <%= render FlightWeb.Admin.PartialView, "_shared_head.html", assigns %>
-    <script src="https://js.stripe.com/v3/"></script>
   </head>
   <body class="sidebar-none">
     <div class="wrapper">
@@ -21,164 +20,94 @@
         <div class="panel-header">
           <div class="header text-center">
             <h2 class="title">Welcome to <%= @invitation.school.name %></h2>
-            <p class="category">You've been invited to download the Flight School Manager app. Lets create your account below. Once your account is created, download the app using the link and log in to get started!</a>
-          </p>
+            <p class="category">
+              You've been invited to download the Flight School Manager app. Lets create your account below. Once your account is created, download the app using the link and log in to get started!</a>
+            </p>
+          </div>
+        </div>
+        <div class="content">
+          <div class="row">
+            <div class="col-md-7 col-lg-5 ml-auto mr-auto">
+              <div class="card text-center">
+                <div class="card-header ">
+                  <h4 class="card-title"><%= singular_label_for_role(@invitation.role) %> Registration</h4>
+                </div>
+                <%= render(FlightWeb.SharedView, "stripe.html", conn: @conn) %>
+                <%= form_for @changeset, "/invitations/#{@invitation.token}", [as: :user, method: "post", id: "stripe-form"], fn f -> %>
+                  <div class="card-body">
+                    <%= if @stripe_error do %>
+                      <div class="alert alert-danger">
+                        <span><%= @stripe_error %></span></br>
+                      </div>
+                    <% end %>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group text-left">
+                          <label class="sr-only">First Name</label>
+                          <%= text_input f, :first_name, class: "form-control", placeholder: "First Name" %>
+                          <%= full_error_tag f, :first_name %>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group text-left">
+                          <label class="sr-only">Last Name</label>
+                          <%= text_input f, :last_name, class: "form-control", placeholder: "Last Name" %>
+                          <%= full_error_tag f, :last_name %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group text-left">
+                          <label class="sr-only">Phone Number</label>
+                          <%= telephone_input f, :phone_number, class: "form-control", placeholder: "Phone #" %>
+                          <%= full_error_tag f, :phone_number %>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group text-left">
+                          <label class="sr-only">Email address</label>
+                          <%= email_input f, :email, class: "form-control", placeholder: "Email" %>
+                          <%= full_error_tag f, :email %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group text-left">
+                          <label class="sr-only">Create Password</label>
+                          <%= password_input f, :password, class: "form-control", value: "", placeholder: "Password" %>
+                          <%= full_error_tag f, :password %>
+                        </div>
+                      </div>
+                    </div>
+                    <%= if needs_card?(@invitation) do %>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label for="card-element">Credit or debit card</label>
+                            <div id="card-element">
+                            </div>
+                            <div id="card-errors" role="alert"></div>
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                  <!-- end card body -->
+                  <div class="card-footer mb-3">
+                    <input type="submit" class="btn btn-primary btn-round btn-lg" value="Sign Up" />
+                    <div class="col-md-8 ml-auto mr-auto">
+                      <p class="text-muted mt-4"><small>By signing up, you are agreeing to the Flight School Manager <a target="_blank" href="https://flightschoolmanager.co/terms/">Terms and Conditions</a> .</small></p>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <!-- right column -->
+          </div>
         </div>
       </div>
-      <div class="content">
-        <div class="row">
-          <div class="col-md-7 col-lg-5 ml-auto mr-auto">
-            <div class="card text-center">
-              <div class="card-header ">
-                <h4 class="card-title"><%= singular_label_for_role(@invitation.role) %> Registration</h4>
-              </div>
-              <%= form_for @changeset, "/invitations/#{@invitation.token}", [as: :user, method: "post", id: "signup-form"], fn f -> %>
-              <div class="card-body">
-              <%= if @stripe_error do %>
-                <div class="alert alert-danger">
-                  <span><%= @stripe_error %></span></br>
-              </div>
-            <% end %>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group text-left">
-                  <label class="sr-only">First Name</label>
-                  <%= text_input f, :first_name, class: "form-control", placeholder: "First Name" %>
-                  <%= full_error_tag f, :first_name %>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group text-left">
-                  <label class="sr-only">Last Name</label>
-                  <%= text_input f, :last_name, class: "form-control", placeholder: "Last Name" %>
-                  <%= full_error_tag f, :last_name %>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group text-left">
-                  <label class="sr-only">Phone Number</label>
-                  <%= telephone_input f, :phone_number, class: "form-control", placeholder: "Phone #" %>
-                  <%= full_error_tag f, :phone_number %>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group text-left">
-                  <label class="sr-only">Email address</label>
-                  <%= email_input f, :email, class: "form-control", placeholder: "Email" %>
-                  <%= full_error_tag f, :email %>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-group text-left">
-                  <label class="sr-only">Create Password</label>
-                  <%= password_input f, :password, class: "form-control", value: "", placeholder: "Password" %>
-                  <%= full_error_tag f, :password %>
-                </div>
-              </div>
-            </div>
-            <%= if needs_card?(@invitation) do %>
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="card-element">Credit or debit card</label>
-                    <div id="card-element">
-                    </div>
-                    <div id="card-errors" role="alert"></div>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-          </div>
-          <!-- end card body -->
-          <div class="card-footer mb-3">
-            <input type="submit" class="btn btn-primary btn-round btn-lg" value="Sign Up" />
-            <div class="col-md-8 ml-auto mr-auto">
-              <p class="text-muted mt-4"><small>By signing up, you are agreeing to the Flight School Manager <a target="_blank" href="https://flightschoolmanager.co/terms/">Terms and Conditions</a> .</small></p>
-            </div>
-          </div>
-        <% end %>
-      </div>
     </div>
-    <!-- right column -->
-  </div>
-</div>
-</div>
-</div>
-<script>
-  var stripe = Stripe('<%= stripe_key() %>')
-  var elements = stripe.elements({
-    fonts: [
-      {
-        cssSrc: "https://fonts.googleapis.com/css?family=Lato:300,400,700,900",
-      }
-    ]
-  });
-  var style = {
-    base: {
-      fontSize: '12px',
-      fontFamily: "'Lato',Helvetica,Arial,sans-serif",
-      color: "#2c2c2c",
-      fontWeight: 'normal',
-      '::placeholder': {
-        color: '#BBBCCD',
-        fontWeight: '300',
-      }
-    }
-  };
-
-  var card = elements.create('card', {style: style});
-
-  card.mount('#card-element');
-
-  card.addEventListener('change', function(event) {
-    var displayError = document.getElementById('card-errors');
-    if (event.error) {
-      displayError.textContent = event.error.message;
-    } else {
-      displayError.textContent = '';
-    }
-  });
-
-  var isSubmitting = false;
-
-  var stripeTokenHandler = function(token) {
-    var form = document.getElementById('signup-form');
-
-    var hiddenInput = document.createElement('input');
-    hiddenInput.setAttribute('type', 'hidden');
-    hiddenInput.setAttribute('name', 'stripe_token');
-    hiddenInput.setAttribute('value', token.id);
-
-    form.appendChild(hiddenInput);
-
-    form.submit();
-  };
-
-  window.stripeTokenHandler = stripeTokenHandler
-
-  var form = document.getElementById('signup-form');
-  form.addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    if (isSubmitting) {
-      return;
-    }
-    isSubmitting = true;
-
-    stripe.createToken(card).then(function(result) {
-      if (result.error) {
-        isSubmitting = false;
-        var errorElement = document.getElementById('card-errors');
-        errorElement.textContent = result.error.message;
-      } else {
-        stripeTokenHandler(result.token);
-      }
-    });
-  });
-</script>
-</body>
+  </body>
 </html>

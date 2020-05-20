@@ -250,7 +250,6 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       student = student_fixture()
       instructor = user_fixture() |> assign_role("instructor")
       aircraft = aircraft_fixture()
-      school = default_school_fixture()
 
       appointment =
         appointment_fixture(
@@ -264,11 +263,10 @@ defmodule FlightWeb.API.AppointmentControllerTest do
 
       params = %{data: %{note: "Heyo Timeo"}}
 
-      json =
-        conn
-        |> auth(student)
-        |> put("/api/appointments/#{appointment.id}", params)
-        |> json_response(200)
+      conn
+      |> auth(student)
+      |> put("/api/appointments/#{appointment.id}", params)
+      |> json_response(200)
     end
 
     @tag :integration

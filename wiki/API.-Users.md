@@ -3,7 +3,7 @@
 * [Change User password](#change_password)
 * [Get Users](#index)
 * [Upload avatar example](#upload_avatar)
-
+* [Update user card](#update_card)
 
 <a name="create"/>
 
@@ -194,5 +194,20 @@ data: {
     "original":"https://avatars-randon-aviation-staging.s3.amazonaws.com/uploads/prod/user/avatars/original/eae7859d-734f-4be5-b274-32752f372a36.jpeg?v=63750017399"
   },
   ...
+}
+```
+
+---
+
+<a name="update_card" />
+
+# Update user card
+
+```
+POST /api/users/:user_id/update_card
+
+Body (JSON):
+{
+  stripe_token: "stripe_token"
 }
 ```

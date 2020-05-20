@@ -1,0 +1,5 @@
+<div id="stripe-key" data-key="<%= StripeHelper.stripe_key() %>" style="display: none;"></div>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  require("js/admin/stripe.js")
+</script>

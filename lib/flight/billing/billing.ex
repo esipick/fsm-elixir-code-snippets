@@ -662,6 +662,24 @@ defmodule Flight.Billing do
     Stripe.Customer.retrieve(user.stripe_customer_id)
   end
 
+  def update_customer_card(user, stripe_token) do
+    case user.stripe_customer_id do
+      nil ->
+        case create_stripe_customer(user.email, stripe_token) do
+          {:ok, customer} ->
+            user
+            |> User.stripe_customer_changeset(%{stripe_customer_id: customer.id})
+            |> Repo.update()
+
+          error ->
+            error
+        end
+
+      customer_id ->
+        Stripe.Customer.update(customer_id, %{source: stripe_token})
+    end
+  end
+
   def create_deferred_stripe_account(email, business_name) do
     Stripe.Account.create(%{
       country: "US",

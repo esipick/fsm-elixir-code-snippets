@@ -263,6 +263,17 @@
       <!-- end card -->
     </div>
   </div>
+
+  <%=
+    render(
+      FlightWeb.SharedView,
+      "card_form.html",
+      conn: @conn,
+      user: @user,
+      update_url: "/admin/users/#{@user.id}/update_card",
+      stripe_error: @stripe_error
+    )
+  %>
 </div>
 <!-- end content -->
 <div style="display:none">

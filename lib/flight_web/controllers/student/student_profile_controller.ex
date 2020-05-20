@@ -47,7 +47,8 @@ defmodule FlightWeb.Student.ProfileController do
       conn,
       "edit.html",
       user: user,
-      changeset: Accounts.User.create_changeset(user, %{})
+      changeset: Accounts.User.create_changeset(user, %{}),
+      stripe_error: nil
     )
   end
 
@@ -72,7 +73,26 @@ defmodule FlightWeb.Student.ProfileController do
           conn,
           "edit.html",
           user: user,
-          changeset: changeset
+          changeset: changeset,
+          stripe_error: nil
+        )
+    end
+  end
+
+  def update_card(conn, params) do
+    user = conn.assigns.current_user
+
+    case Flight.Billing.update_customer_card(user, params["stripe_token"]) do
+      {:ok, _} ->
+        redirect(conn, to: "/student/profile")
+
+      {:error, %Stripe.Error{} = error} ->
+        render(
+          conn,
+          "edit.html",
+          user: user,
+          changeset: Accounts.user_changeset(%Accounts.User{}, %{}, user),
+          stripe_error: StripeHelper.error_message(error)
         )
     end
   end

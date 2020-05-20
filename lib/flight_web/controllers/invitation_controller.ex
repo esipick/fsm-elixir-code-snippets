@@ -46,9 +46,7 @@ defmodule FlightWeb.InvitationController do
           invitation: conn.assigns.invitation,
           changeset:
             Accounts.user_changeset(%Accounts.User{}, user_data, conn.assigns.invitation),
-          stripe_error:
-            error.user_message || error.message ||
-              "There was a problem validating your card. Please try again or use another card."
+          stripe_error: StripeHelper.error_message(error)
         )
     end
   end
