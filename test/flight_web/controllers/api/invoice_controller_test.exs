@@ -158,6 +158,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
 
+      assert invoice.payment_option == :cash
       assert Enum.map(invoice.line_items, fn i -> i.quantity end) == [0.5, 0.5]
 
       assert Enum.map(invoice.line_items, fn i -> i.creator_id end) == [
@@ -348,7 +349,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       invoice =
         invoice_fixture(%{
           appointment_id: appointment.id,
-          payment_option: "cash",
+          payment_option: "venmo",
           line_items: [
             %{
               type: "aircraft",
@@ -385,6 +386,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       transaction = List.first(invoice.transactions)
       aircraft = Repo.get(Aircraft, aircraft.id)
 
+      assert invoice.payment_option == :venmo
       assert Enum.map(invoice.line_items, fn i -> i.quantity end) == [0.5, 0.5]
 
       assert aircraft.last_tach_time == new_tach_time
@@ -942,6 +944,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       student = student_fixture()
 
       payload = %{
+        "payment_option" => "cash",
         "line_items" => [
           %{
             "type" => "aircraft",
@@ -985,6 +988,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> json_response(200)
 
       assert json == %{
+               "payment_option" => "cash",
                "total" => 5269,
                "total_tax" => 17,
                "total_amount_due" => 5286,
