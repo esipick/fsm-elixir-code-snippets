@@ -204,7 +204,7 @@ data: {
 # Update user card
 
 ```
-POST /api/users/:user_id/update_card
+PUT /api/users/:user_id/update_card
 
 Body (JSON):
 {
