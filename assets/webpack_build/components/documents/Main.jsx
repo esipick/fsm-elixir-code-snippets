@@ -1,6 +1,6 @@
 import http from 'j-fetch'
 import React, { Component } from 'react'
-import Pagination from "react-js-pagination";
+import Pagination from "react-js-pagination"
 import Dropzone from 'react-dropzone'
 import File from './File'
 import SelectedFile from './SelectedFile'
@@ -62,7 +62,7 @@ class Main extends Component {
     const { acceptedFiles } = this.state
     const filtered = acceptedFiles.filter(file => file.path != path)
 
-    this.setState({ acceptedFiles: filtered })
+    this.setState({ acceptedFiles: filtered, dropzone: filtered.length > 0 })
     this.removeExpiryDate(path)
   }
 
@@ -151,7 +151,6 @@ class Main extends Component {
 
   removeDocument = (id) => {
     const { user_id } = this.props
-
     const school_span = document.getElementById("current-school")
     let url = `/api/users/${user_id}/documents/${id}`
 
@@ -159,7 +158,6 @@ class Main extends Component {
       url = url + `?school_id=${school_span.dataset['schoolId']}`
     }
 
-    console.log(url)
     http['delete']({
       url: url,
       headers: authHeaders()
@@ -167,6 +165,46 @@ class Main extends Component {
       if (response.status == 204) {
         this.getDocuments({})
       }
+    })
+  }
+
+  updateExpiryDate = (id, date) => {
+    const { user_id } = this.props
+    const school_span = document.getElementById("current-school")
+    let url = `/api/users/${user_id}/documents/${id}`
+
+    if (school_span) {
+      url = url + `?school_id=${school_span.dataset['schoolId']}`
+    }
+
+    http['patch']({
+      body: { document: { expires_at: date } },
+      url: url,
+      headers: authHeaders()
+    }).then(response => {
+      if (response.status == 200) {
+        response.json().then((document) => {
+          const { documents } = this.state
+          let changed_document = documents.find(d => d.id == document.id)
+
+          if (changed_document) {
+            changed_document.expires_at = document.expires_at
+            changed_document.expired = document.expired
+          }
+
+          this.setState({ documents })
+        })
+      } else {
+        response.json().then(({ errors = {} }) => {
+          let stateErrors = this.state.errors
+          stateErrors.push({ path: file.path, messages: errors })
+          this.setState({ saving: false, errors: stateErrors })
+        })
+      }
+    }).catch(response => {
+      response.json().then(({ errors = {} }) => {
+        this.setState({ saving: false, errors })
+      })
     })
   }
 
@@ -184,15 +222,14 @@ class Main extends Component {
     for (let file of acceptedFiles) {
       const formData = new FormData()
       const expiryDate = expiryDates.find(date => date.path == file.path)
+      const school_span = document.getElementById("current-school")
+      let url = `/api/users/${user_id}/documents`
 
       formData.append('document[file]', file, file.name)
 
       if (expiryDate) {
         formData.append('document[expires_at]', expiryDate.date)
       }
-
-      const school_span = document.getElementById("current-school")
-      let url = `/api/users/${user_id}/documents`
 
       if (school_span) {
         url = url + `?school_id=${school_span.dataset['schoolId']}`
@@ -253,6 +290,7 @@ class Main extends Component {
     const { acceptedFiles, allCheckboxSelected, checkboxes, documents, dropzone, errors,
       search, page_number, page_size, total_entries, total_pages, saving } = this.state
     const { admin } = this.props
+    console.log(documents)
 
     return (
       <div className="documents">
@@ -361,14 +399,17 @@ class Main extends Component {
                     {documents.map((document) => (
                       <File admin={admin}
                         checked={checkboxes.includes(document.id)}
+                        dispalyExpiryDate={this.dispalyExpiryDate}
+                        errors={errors}
                         expired={document.expired}
-                        expires_date={this.dispalyExpiryDate(document.expires_at)}
+                        expires_date={document.expires_at}
                         id={document.id}
                         file_name={document.file_name}
                         file_url={document.file_url}
                         key={document.id}
                         onRemove={(e) => { if (window.confirm('Are you sure you wish to delete this document?')) this.removeDocument(e) }}
-                        updateCheckboxes={this.updateCheckboxes}>
+                        updateCheckboxes={this.updateCheckboxes}
+                        updateExpiryDate={this.updateExpiryDate}>
                       </File>
                     ))}
                     {total_pages > 1 &&

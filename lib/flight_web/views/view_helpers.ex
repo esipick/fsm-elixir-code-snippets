@@ -164,7 +164,6 @@ defmodule FlightWeb.ViewHelpers do
 
   def school_name_with_timezone(school) do
     timezone_info = Timex.Timezone.get(school.timezone)
-    timezone_info.full_name
 
     "<span class=\"navbar-brand\" id=\"current-school\" data-school-id=#{school.id}>#{school.name} (#{
       timezone_info.full_name

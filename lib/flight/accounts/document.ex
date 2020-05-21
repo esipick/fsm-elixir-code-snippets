@@ -62,7 +62,7 @@ defmodule Flight.Accounts.Document do
   def get_documents(user_id) do
     Document
     |> where([d], d.user_id == ^user_id)
-    |> order_by([d], desc: d.inserted_at)
+    |> order_by([d], desc: d.id)
   end
 
   def file_url(document) do

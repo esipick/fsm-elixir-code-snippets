@@ -1,6 +1,6 @@
 import React, { Component, forwardRef } from 'react'
 import DatePicker from 'react-datepicker'
-import Error from '../common/Error';
+import Error from '../common/Error'
 
 class SelectedFile extends Component {
   constructor(props) {
@@ -64,9 +64,9 @@ class SelectedFile extends Component {
             onClick={this.cancel} />
         </div >
         <DatePicker onChange={this.addExpiryDate}
-          selected={date}
           minDate={new Date()}
-          customInput={<CustomExpiryDateInput hidden={hideDatePickerValue} />} />
+          customInput={<CustomExpiryDateInput hidden={hideDatePickerValue} />}
+          selected={date} />
         <div className="errors">
           <Error text={error.messages.file} />
         </div>

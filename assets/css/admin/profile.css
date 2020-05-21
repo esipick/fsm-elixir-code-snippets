@@ -384,7 +384,7 @@
 }
 .profile .documents .files .expiry-col {
   padding-left: 5px;
-  min-width: 15%;
+  min-width: 20%;
   flex: 0 0 auto;
   align-items: center;
 }
@@ -433,6 +433,21 @@
   color: #444;
   user-select: none;
 }
+.profile .documents .file .expiry-date-container,
+.profile .documents .file .expiry-date-input {
+  align-items: center;
+  display: flex;
+}
+.profile .documents .file .expiry-date-container i {
+  color: #0db9f7;
+  font-size: 22px;
+  margin: 0 10px 0 0;
+}
+.profile .documents .file .expiry-date-container .clear {
+  color: #e02459;
+  font-size: 20px;
+  margin: 0 0 0 10px;
+}
 .profile .documents .delete {
   align-items: center;
   border-radius: 50%;
@@ -469,6 +484,7 @@
   text-align: center;
 }
 .profile .documents .react-datepicker-wrapper {
+  display: flex;
   width: 100%;
 }
 .profile .documents .form .expiry-date-container {
