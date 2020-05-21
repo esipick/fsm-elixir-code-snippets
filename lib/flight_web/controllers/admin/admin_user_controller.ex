@@ -3,6 +3,7 @@ defmodule FlightWeb.Admin.UserController do
 
   alias Flight.{Accounts, Billing, Repo, Scheduling, Queries}
   alias Flight.Auth.Permission
+  alias FlightWeb.StripeHelper
   import Flight.Auth.Authorization
 
   plug(:get_user when action in [:show, :edit, :update, :update_card, :add_funds, :delete])

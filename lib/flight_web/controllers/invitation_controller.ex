@@ -3,6 +3,7 @@ defmodule FlightWeb.InvitationController do
 
   alias Flight.Accounts
   alias Flight.Repo
+  alias FlightWeb.StripeHelper
 
   plug(:get_invitation when action in [:accept, :accept_submit, :accept_success])
   plug(:forward_to_success_if_accepted when action in [:accept, :accept_submit])

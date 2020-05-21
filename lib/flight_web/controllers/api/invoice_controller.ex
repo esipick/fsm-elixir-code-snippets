@@ -6,7 +6,7 @@ defmodule FlightWeb.API.InvoiceController do
   alias Flight.Repo
   alias Flight.Auth.Permission
   import Flight.Auth.Authorization
-  alias FlightWeb.{ViewHelpers, Pagination}
+  alias FlightWeb.{ViewHelpers, Pagination, StripeHelper}
 
   alias Flight.Billing.{
     Invoice,
@@ -86,12 +86,12 @@ defmodule FlightWeb.API.InvoiceController do
       {:error, id, %Stripe.Error{} = error} ->
         conn
         |> put_status(error.extra.http_status)
-        |> json(%{id: id, stripe_error: error.message})
+        |> json(%{id: id, stripe_error: StripeHelper.human_error(error.message)})
 
-      {:error, %PaymentError{} = error} ->
+      {:error, id, %PaymentError{} = error} ->
         conn
         |> put_status(400)
-        |> json(%{stripe_error: error.message})
+        |> json(%{id: id, stripe_error: StripeHelper.human_error(error.message)})
     end
   end
 
@@ -124,12 +124,12 @@ defmodule FlightWeb.API.InvoiceController do
       {:error, %Stripe.Error{} = error} ->
         conn
         |> put_status(error.extra.http_status)
-        |> json(%{stripe_error: error.message})
+        |> json(%{stripe_error: StripeHelper.human_error(error.message)})
 
       {:error, %PaymentError{} = error} ->
         conn
         |> put_status(400)
-        |> json(%{stripe_error: error.message})
+        |> json(%{stripe_error: StripeHelper.human_error(error.message)})
     end
   end
 

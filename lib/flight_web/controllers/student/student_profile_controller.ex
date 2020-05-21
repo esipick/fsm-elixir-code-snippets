@@ -2,6 +2,7 @@ defmodule FlightWeb.Student.ProfileController do
   use FlightWeb, :controller
 
   alias Flight.Accounts
+  alias FlightWeb.StripeHelper
 
   def show(%{assigns: %{current_user: current_user}} = conn, params) do
     user = Flight.Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
