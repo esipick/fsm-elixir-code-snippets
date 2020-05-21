@@ -24,6 +24,20 @@ class LineItemsTable extends Component {
     this.updateTotal(this.lineItems());
   }
 
+    static getDerivedStateFromProps(props, state) {
+      const prevAppointmentId = state.appointment && state.appointment.id;
+      const appointmentId = props.appointment && props.appointment.id;
+
+      if (prevAppointmentId !== appointmentId) {
+        const { appointment } = props;
+        const line_items = itemsFromAppointment(appointment);
+
+        return { ...state, line_items, appointment };
+      }
+
+      return null;
+    }
+
   lineItems = () => {
     return this.state.line_items;
   }
