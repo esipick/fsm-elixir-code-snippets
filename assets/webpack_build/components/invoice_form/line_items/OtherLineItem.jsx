@@ -117,10 +117,10 @@ class OtherLineItem extends Component {
   render() {
     const {
       line_item: {
-        id, description, amount, rate, quantity, deductible
+        id, description, rate, quantity, deductible
       }
     } = this.state;
-    const { number, canRemove, errors, lineItemTypeOptions } = this.props;
+    const { number, canRemove, errors, lineItemTypeOptions, line_item: { amount } } = this.props;
     const descriptionOpt = lineItemTypeOptions.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
     const amountCss = classnames('lc-column', deductible ? 'deductible' : '');
