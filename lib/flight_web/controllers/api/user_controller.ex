@@ -4,13 +4,12 @@ defmodule FlightWeb.API.UserController do
   alias Flight.Accounts
   alias Flight.Accounts.Role
   alias Flight.Auth.Permission
-  alias FlightWeb.StripeHelper
   import Flight.Auth.Authorization
 
   require ExImageInfo
 
   plug(FlightWeb.AuthenticateApiUser)
-  plug(:get_user when action in [:show, :update, :update_card, :form_items])
+  plug(:get_user when action in [:show, :update, :form_items])
   plug(:authorize_modify when action in [:update, :form_items])
   plug(:authorize_view when action in [:show])
   plug(:authorize_create when action in [:create])
@@ -117,24 +116,6 @@ defmodule FlightWeb.API.UserController do
         conn
         |> put_status(400)
         |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
-    end
-  end
-
-  def update_card(conn, params) do
-    user = conn.assigns.user
-
-    case Flight.Billing.update_customer_card(user, params["stripe_token"]) do
-      {:ok, _} ->
-        user =
-          user
-          |> FlightWeb.API.UserView.show_preload(force: true)
-
-        render(conn, "show.json", user: user)
-
-      {:error, error} ->
-        conn
-        |> put_status(400)
-        |> json(%{human_errors: %{stripe_error: StripeHelper.error_message(error)}})
     end
   end
 

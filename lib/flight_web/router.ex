@@ -224,7 +224,7 @@ defmodule FlightWeb.Router do
       put("/change_password", UserController, :change_password)
       resources("/documents", DocumentController, only: [:create, :delete, :index, :update])
       resources("/push_tokens", PushTokenController, only: [:create])
-      put("/update_card", UserController, :update_card)
+      resources("/cards", CardController, only: [:create, :update, :delete])
     end
 
     get("/aircrafts/autocomplete", AircraftController, :autocomplete, as: :autocomplete)
