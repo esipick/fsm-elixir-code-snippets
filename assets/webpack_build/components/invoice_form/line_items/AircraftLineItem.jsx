@@ -183,10 +183,11 @@ class AircraftLineItem extends Component {
             <NumberFormat disabled={true} value={quantity} {...NUMBER_INPUT_OPTS} />
             <Error text={errors.quantity} />
           </td>
-          <td>
+          <td className="lc-column">
             <label style={{visibility: 'hidden'}}>Amount</label>
             <div style={{padding: '10px 18px'}}>${(amount / 100).toFixed(2)}</div>
           </td>
+          <td></td>
         </tr>
         <tr key={id + "_tach_time"} className={tachWrapperClass}>
           <td></td>
@@ -204,6 +205,7 @@ class AircraftLineItem extends Component {
               value={tach_end / 10} />
             <Error text={hobbsErr.tach_end} className="hobbs-and-tach__error" />
           </td>
+          <td></td>
           <td></td>
           <td></td>
           <td></td>

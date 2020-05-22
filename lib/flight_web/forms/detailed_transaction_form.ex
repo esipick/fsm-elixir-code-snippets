@@ -17,7 +17,7 @@ defmodule FlightWeb.API.DetailedTransactionForm.AircraftDetails do
   end
 
   def changeset(struct, raw_attrs) do
-    attrs = symbolize_keys(raw_attrs) |> coerce_hobbs_tach_time()
+    attrs = atomize_shallow(raw_attrs) |> coerce_hobbs_tach_time()
 
     struct
     |> cast(attrs, [:aircraft_id, :hobbs_start, :hobbs_end, :tach_start, :tach_end])

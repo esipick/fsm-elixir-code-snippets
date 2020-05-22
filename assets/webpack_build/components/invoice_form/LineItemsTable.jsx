@@ -28,6 +28,8 @@ class LineItemsTable extends Component {
       const prevAppointmentId = state.appointment && state.appointment.id;
       const appointmentId = props.appointment && props.appointment.id;
 
+      if (!prevAppointmentId && !appointmentId) return null;
+
       if (prevAppointmentId !== appointmentId) {
         const { appointment } = props;
         const line_items = itemsFromAppointment(appointment);
@@ -84,7 +86,7 @@ class LineItemsTable extends Component {
             <th></th>
             <th>Rate</th>
             <th>Qty/Hours</th>
-            <th>Amount $</th>
+            <th style={{minWidth: "125px"}}>Amount $</th>
             <th></th>
           </tr>
         </thead>

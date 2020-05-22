@@ -3,8 +3,6 @@ import NumberFormat from 'react-number-format';
 import React, { Component } from 'react';
 import Select from 'react-select';
 
-import HobbsTachModal from '../HobbsTachModal';
-
 import Error from '../../common/Error';
 
 import {
@@ -151,7 +149,7 @@ class OtherLineItem extends Component {
         </td>
         <td className="lc-column">
           <NumberFormat onValueChange={this.setQty}
-            value={quantity}
+            value={quantity || 1}
             {...NUMBER_INPUT_OPTS} />
           <Error text={errors.quantity} />
         </td>

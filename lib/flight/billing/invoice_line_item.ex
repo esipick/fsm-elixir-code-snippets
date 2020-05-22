@@ -43,7 +43,7 @@ defmodule Flight.Billing.InvoiceLineItem do
 
   @doc false
   def changeset(%InvoiceLineItem{} = invoice_line_item, raw_attrs) do
-    attrs = symbolize_keys(raw_attrs) |> coerce_hobbs_tach_time()
+    attrs = atomize_shallow(raw_attrs) |> coerce_hobbs_tach_time()
 
     invoice_line_item
     |> cast(attrs, @required_fields)

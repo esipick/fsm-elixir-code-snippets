@@ -15,27 +15,23 @@ defmodule Flight.Billing.CalculateInvoice do
         %{"school_id" => school.id, "tax_rate" => tax_rate}
       )
 
-    case calculate_line_items(invoice_attrs, school_context) do
-      {:ok, line_items} ->
-        total = Enum.map(line_items, &chargeable_amount/1) |> Enum.sum() |> round
+    line_items = calculate_line_items(invoice_attrs, school_context)
 
-        total_taxable = Enum.map(line_items, &taxable_amount/1) |> Enum.sum()
+    total = Enum.map(line_items, &chargeable_amount/1) |> Enum.sum() |> round
 
-        total_tax = round(total_taxable * tax_rate / 100)
+    total_taxable = Enum.map(line_items, &taxable_amount/1) |> Enum.sum()
 
-        invoice_attrs =
-          Map.merge(invoice_attrs, %{
-            "line_items" => line_items,
-            "total_tax" => total_tax,
-            "total" => total,
-            "total_amount_due" => total + total_tax
-          })
+    total_tax = round(total_taxable * tax_rate / 100)
 
-        {:ok, invoice_attrs}
+    invoice_attrs =
+      Map.merge(invoice_attrs, %{
+        "line_items" => line_items,
+        "total_tax" => total_tax,
+        "total" => total,
+        "total_amount_due" => total + total_tax
+      })
 
-      {:error, errors} ->
-        {:error, errors}
-    end
+    {:ok, invoice_attrs}
   end
 
   defp taxable_amount(line_item) do
@@ -59,36 +55,24 @@ defmodule Flight.Billing.CalculateInvoice do
   end
 
   defp calculate_line_items(invoice_attrs, school_context) do
-    calculated_items =
-      Enum.map(invoice_attrs["line_items"], fn x ->
-        calculate_line_item(x, invoice_attrs, school_context)
-      end)
-
-    {:ok, calculated_items}
+    Enum.map(invoice_attrs["line_items"], fn x ->
+      calculate_line_item(x, invoice_attrs, school_context)
+    end)
   end
 
   defp calculate_line_item(line_item, invoice, school_context) do
-    case calculate_amount_and_rate(line_item, invoice, school_context) do
-      {:ok, {amount, rate, qty}} ->
-        Map.merge(line_item, %{"amount" => round(amount), "rate" => rate, "quantity" => qty})
-
-      {:error, errors} ->
-        Map.merge(line_item, %{"errors" => ViewHelpers.translate_errors(errors)})
-    end
-  end
-
-  defp calculate_amount_and_rate(line_item, invoice, school_context) do
     if line_item_type(line_item) == :aircraft do
-      case calculate_from_hobbs_tach(line_item, invoice, school_context) do
-        {:ok, amount, rate, qty} -> {:ok, {amount, rate, qty}}
-        {:error, errors} -> {:error, errors}
+      if line_item["aircraft_id"] do
+        calculate_aircraft_item(line_item, invoice, school_context)
+      else
+        line_item
       end
     else
       rate = line_item["rate"] || 0
       qty = line_item["quantity"] || 0
       amount = qty * rate
 
-      {:ok, {amount, rate, qty}}
+      Map.merge(line_item, %{"amount" => round(amount), "rate" => rate, "quantity" => qty})
     end
   end
 
@@ -98,39 +82,57 @@ defmodule Flight.Billing.CalculateInvoice do
     ArgumentError -> line_item["type"]
   end
 
-  defp calculate_from_hobbs_tach(line_item, invoice, school_context) do
+  defp calculate_aircraft_item(line_item, invoice, school_context) do
     current_user = school_context.assigns.current_user
 
     detailed_params = %{
-      "aircraft_details" => line_item,
-      "appointment_id" => invoice["appointment_id"],
-      "creator_user_id" => current_user.id,
-      "user_id" => invoice["user_id"] || current_user.id
+      aircraft_details: MapUtil.atomize_shallow(line_item),
+      appointment_id: invoice["appointment_id"],
+      creator_user_id: current_user.id,
+      user_id: invoice["user_id"] || current_user.id
     }
 
+    line_item
+    |> calculate_from_hobbs_tach(detailed_params, school_context)
+    |> validate_aircraft_item(detailed_params)
+  end
+
+  defp calculate_from_hobbs_tach(line_item, detailed_params, school_context) do
+    form = struct(DetailedTransactionForm, detailed_params)
+
+    rate_type = Billing.rate_type_for_form(form, school_context)
+
+    qty = (form.aircraft_details.hobbs_end - form.aircraft_details.hobbs_start) / 10.0
+
+    {transaction, _, _, _, _} =
+      DetailedTransactionForm.to_transaction(form, rate_type, school_context)
+
+    aircraft = Repo.get(Aircraft, form.aircraft_details.aircraft_id)
+
+    rate =
+      case rate_type do
+        :normal -> aircraft.rate_per_hour
+        :block -> aircraft.block_rate_per_hour
+      end
+
+    Map.merge(line_item, %{
+      "amount" => round(transaction.total),
+      "rate" => rate,
+      "quantity" => qty
+    })
+  rescue
+    e -> line_item
+  end
+
+  defp validate_aircraft_item(line_item, detailed_params) do
     changeset = DetailedTransactionForm.changeset(%DetailedTransactionForm{}, detailed_params)
 
     case Ecto.Changeset.apply_action(changeset, :insert) do
-      {:ok, form} ->
-        rate_type = Billing.rate_type_for_form(form, school_context)
+      {:ok, _} ->
+        line_item
 
-        {transaction, _instructor_line_item, _, aircraft_line_item, _} =
-          DetailedTransactionForm.to_transaction(form, rate_type, school_context)
-
-        aircraft = Repo.get(Aircraft, aircraft_line_item.aircraft_id)
-
-        rate =
-          case rate_type do
-            :normal -> aircraft.rate_per_hour
-            :block -> aircraft.block_rate_per_hour
-          end
-
-        qty = (form.aircraft_details.hobbs_end - form.aircraft_details.hobbs_start) / 10.0
-
-        {:ok, transaction.total, rate, qty}
-
-      {:error, changeset} ->
-        {:error, changeset}
+      {:error, errors} ->
+        Map.merge(line_item, %{"errors" => ViewHelpers.translate_errors(errors)})
     end
   end
 end

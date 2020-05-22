@@ -203,7 +203,7 @@ class Form extends Component {
         appointment = null;
       }
 
-      this.setState({ student, appointment, }, () => { this.loadAppointments(); });
+      this.setState({ student, appointment }, () => { this.loadAppointments(); });
     } else {
       this.setState({ student, appointment: null, appointments: [] });
     }
