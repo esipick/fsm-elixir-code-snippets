@@ -151,7 +151,7 @@ class Form extends Component {
         const { student, default_user, default_appointment } = this.state;
 
         if ((student && student.id) == (default_user && default_user.id)) {
-          appointments = [default_appointment, ...r.data];
+          appointments = [default_appointment, ...r.data].filter(e => e);
         } else {
           appointments = r.data;
         }
@@ -432,6 +432,7 @@ class Form extends Component {
                   </label>
                   <div className={classnames('invoice-select-wrapper', errors.appointment_id ? 'with-error' : '')}>
                     <Select placeholder="Appointment"
+                      isClearable
                       classNamePrefix="react-select"
                       options={appointments}
                       onChange={this.setAppointment}
