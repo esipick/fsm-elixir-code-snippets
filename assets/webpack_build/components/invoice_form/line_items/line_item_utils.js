@@ -60,7 +60,6 @@ export class LineItemRecord {
 
     if (this.type == "aircraft") {
       const { hobbs_start, hobbs_end, tach_start, tach_end } = populateHobbsTach(this.aircraft);
-      this.hobbs_tach_used = true;
       this.hobbs_start = hobbs_start;
       this.hobbs_end = hobbs_end;
       this.tach_start = tach_start;

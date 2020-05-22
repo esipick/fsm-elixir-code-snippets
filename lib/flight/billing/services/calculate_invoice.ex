@@ -78,7 +78,7 @@ defmodule Flight.Billing.CalculateInvoice do
   end
 
   defp calculate_amount_and_rate(line_item, invoice, school_context) do
-    if line_item_type(line_item) == :aircraft && line_item["hobbs_tach_used"] do
+    if line_item_type(line_item) == :aircraft do
       case calculate_from_hobbs_tach(line_item, invoice, school_context) do
         {:ok, amount, rate, qty} -> {:ok, {amount, rate, qty}}
         {:error, errors} -> {:error, errors}

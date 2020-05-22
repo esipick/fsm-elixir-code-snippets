@@ -23,7 +23,7 @@ class AircraftLineItem extends Component {
   constructor(props) {
     super(props);
 
-    const line_item = Object.assign({}, props.line_item, { hobbs_tach_used: true });
+    const { line_item } = props;
     const { aircraft } = line_item;
 
     this.state = {
