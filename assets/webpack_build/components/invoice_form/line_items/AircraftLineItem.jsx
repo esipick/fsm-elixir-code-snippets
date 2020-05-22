@@ -132,8 +132,8 @@ class AircraftLineItem extends Component {
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
     const hobbsTachInputProps = Object.assign({}, NUMBER_PROPS, { disabled: !aircraft });
     const hobbsErr = (this.props.line_item.errors || {}).aircraft_details || {};
-    delete hobbsErr.aircraft_id;
-    const hobbsWrapperClass = Object.keys(hobbsErr).length ? 'lc-row-with-error' : '';
+    const hobbsWrapperClass = (hobbsErr.hobbs_start || hobbsErr.hobbs_end) ? 'lc-row-with-error' : '';
+    const tachWrapperClass = (hobbsErr.tach_start || hobbsErr.tach_end) ? 'lc-row-with-error' : '';
 
     return (
       <React.Fragment>
@@ -144,25 +144,19 @@ class AircraftLineItem extends Component {
               onChange={this.setDesc}
               options={lineItemTypeOptions}
               {...DESCRIPTION_SELECT_OPTS} />
+            <Error text={errors.description} />
           </td>
           <td className="lc-desc-column">
             {this.aircraftSelect()}
           </td>
-          <td className="lc-column">
-            <NumberFormat disabled={true} value={rate == null ? null : rate / 100} {...NUMBER_INPUT_OPTS} />
-            {errors.rate && <br />}
-            <Error text={errors.rate} />
-          </td>
-          <td className="lc-column">
-            <NumberFormat disabled={true} value={quantity} {...NUMBER_INPUT_OPTS} />
-            <Error text={errors.quantity} />
-          </td>
-          <td className="lc-column">${(amount / 100).toFixed(2)}</td>
+          <td className="lc-column"></td>
+          <td className="lc-column"></td>
+          <td className="lc-column"></td>
           <td className="lc-column remove-line-item-wrapper">
             {canRemove && <a className="remove-line-item" href="" onClick={this.remove}>&times;</a>}
           </td>
         </tr>
-        <tr key={id + "hobbs_tach"} className={hobbsWrapperClass}>
+        <tr key={id + "_hobbs_time"} className={hobbsWrapperClass}>
           <td></td>
           <td>
             <label>Hobbs Start *</label>
@@ -179,6 +173,24 @@ class AircraftLineItem extends Component {
             <Error text={hobbsErr.hobbs_end} className="hobbs-and-tach__error" />
           </td>
           <td>
+            <label>Rate</label>
+            <NumberFormat disabled={true} value={rate == null ? null : rate / 100} {...NUMBER_INPUT_OPTS} />
+            {errors.rate && <br />}
+            <Error text={errors.rate} />
+          </td>
+          <td>
+            <label>Duration</label>
+            <NumberFormat disabled={true} value={quantity} {...NUMBER_INPUT_OPTS} />
+            <Error text={errors.quantity} />
+          </td>
+          <td>
+            <label style={{visibility: 'hidden'}}>Amount</label>
+            <div style={{padding: '10px 18px'}}>${(amount / 100).toFixed(2)}</div>
+          </td>
+        </tr>
+        <tr key={id + "_tach_time"} className={tachWrapperClass}>
+          <td></td>
+          <td>
             <label>Tach Start *</label>
             <NumberFormat {...hobbsTachInputProps}
               onValueChange={this.setTachStart}
@@ -192,6 +204,8 @@ class AircraftLineItem extends Component {
               value={tach_end / 10} />
             <Error text={hobbsErr.tach_end} className="hobbs-and-tach__error" />
           </td>
+          <td></td>
+          <td></td>
           <td></td>
         </tr>
       </React.Fragment>

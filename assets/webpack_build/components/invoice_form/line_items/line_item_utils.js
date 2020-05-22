@@ -36,9 +36,9 @@ export const DESCRIPTION_SELECT_OPTS = {
 
 export const populateHobbsTach = (aircraft) => {
   const hobbs_start = aircraft && aircraft.last_hobbs_time || 0;
-  const hobbs_end = hobbs_start + 10;
+  const hobbs_end = null;
   const tach_start = aircraft && aircraft.last_tach_time || 0;
-  const tach_end = tach_start + 10;
+  const tach_end = null;
 
   return { hobbs_start, hobbs_end, tach_start, tach_end };
 }
@@ -46,9 +46,9 @@ export const populateHobbsTach = (aircraft) => {
 export class LineItemRecord {
   constructor(params = {}) {
     this.id = shortid.generate();
-    this.description = params.description || DESCRIPTION_OPTS[0].value;
+    this.description = params.description;
     this.rate = params.rate || DEFAULT_RATE;
-    this.quantity = params.quantity || 1;
+    this.quantity = params.quantity || 0;
     this.amount = this.rate * this.quantity;
     this.type = TYPES[this.description] || DEFAULT_TYPE;
     this.instructor_user = params.instructor_user;
@@ -64,6 +64,7 @@ export class LineItemRecord {
       this.hobbs_end = hobbs_end;
       this.tach_start = tach_start;
       this.tach_end = tach_end;
+      this.quantity = 0;
     }
   }
 };
@@ -84,7 +85,7 @@ export const itemsFromAppointment = (appointment) => {
     return items;
   } else {
     return [
-      new LineItemRecord({ description: DESCRIPTION_OPTS[0].value, taxable: true, deductible: false })
+      new LineItemRecord({ description: '' })
     ]
   }
 }

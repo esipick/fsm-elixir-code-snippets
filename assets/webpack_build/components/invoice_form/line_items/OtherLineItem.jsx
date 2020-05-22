@@ -137,6 +137,7 @@ class OtherLineItem extends Component {
             onChange={this.setDesc}
             options={lineItemTypeOptions}
             {...DESCRIPTION_SELECT_OPTS} />
+          <Error text={errors.description} />
         </td>
         <td className="lc-desc-column">
           {this.isInstructorHours() && this.instructorSelect()}
