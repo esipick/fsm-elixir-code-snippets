@@ -6,6 +6,8 @@ defmodule Flight.Application do
   use Application
 
   def start(_type, _args) do
+    :ets.new(:locked_users, [:set, :public, :named_table])
+
     children = [
       # Start the Ecto repository
       Flight.Repo,

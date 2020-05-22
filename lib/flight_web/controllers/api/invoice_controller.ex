@@ -66,11 +66,25 @@ defmodule FlightWeb.API.InvoiceController do
         |> put_status(201)
         |> render("show.json", invoice: invoice)
 
+      {:error, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{error: %{message: message}, errors: ViewHelpers.translate_errors(changeset)})
+
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(422)
         |> json(%{
           error: %{message: "Could not save invoice. Please correct errors in the form."},
+          errors: ViewHelpers.translate_errors(changeset)
+        })
+
+      {:error, id, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{
+          id: id,
+          error: %{message: message},
           errors: ViewHelpers.translate_errors(changeset)
         })
 
@@ -95,12 +109,12 @@ defmodule FlightWeb.API.InvoiceController do
     end
   end
 
-  def update(conn, %{"invoice" => params}) do
+  def update(conn, %{"invoice" => invoice_params}) do
     invoice_params =
       if staff_member?(conn) do
-        params
+        invoice_params
       else
-        %{"payment_option" => params["payment_option"]}
+        %{"payment_option" => invoice_params["payment_option"]}
       end
 
     case UpdateInvoice.run(conn.assigns.invoice, invoice_params, conn) do
@@ -112,6 +126,11 @@ defmodule FlightWeb.API.InvoiceController do
         conn
         |> put_status(200)
         |> render("show.json", invoice: invoice)
+
+      {:error, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{error: %{message: message}, errors: ViewHelpers.translate_errors(changeset)})
 
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
@@ -175,9 +194,19 @@ defmodule FlightWeb.API.InvoiceController do
         |> put_status(201)
         |> render("show.json", invoice: invoice)
 
+      {:error, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{error: %{message: message}, errors: ViewHelpers.translate_errors(changeset)})
+
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(422)
+        |> json(%{errors: ViewHelpers.translate_errors(changeset)})
+
+      {:error, _invoice_id, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(400)
         |> json(%{errors: ViewHelpers.translate_errors(changeset)})
     end
   end

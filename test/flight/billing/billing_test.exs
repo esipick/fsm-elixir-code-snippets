@@ -2,11 +2,11 @@ defmodule Flight.BillingTest do
   use Flight.DataCase
 
   import Flight.AccountsFixtures
-  import Flight.SchedulingFixtures
   import Flight.BillingFixtures
+  import Flight.SchedulingFixtures
 
-  alias Flight.Billing
-  alias Flight.Billing.{Transaction}
+  alias Flight.{Accounts.User, Billing, Repo}
+  alias Billing.Transaction
   alias Flight.Scheduling.{Aircraft, Appointment}
 
   describe "create_transaction_from_detailed_form/1" do
@@ -37,40 +37,40 @@ defmodule Flight.BillingTest do
       assert transaction.school_id == instructor.school_id
 
       assert aircraft_line_item =
-               Flight.Repo.get_by(
+               Repo.get_by(
                  Flight.Billing.TransactionLineItem,
                  transaction_id: transaction.id,
                  aircraft_id: aircraft.id
                )
 
       assert instructor_line_item =
-               Flight.Repo.get_by(
+               Repo.get_by(
                  Flight.Billing.TransactionLineItem,
                  transaction_id: transaction.id,
                  instructor_user_id: instructor.id
                )
 
-      assert Flight.Repo.get_by(
+      assert Repo.get_by(
                Flight.Billing.TransactionLineItem,
                transaction_id: transaction.id,
                instructor_user_id: instructor.id
              )
 
-      assert Flight.Repo.get_by(
+      assert Repo.get_by(
                Flight.Billing.AircraftLineItemDetail,
                transaction_line_item_id: aircraft_line_item.id
              )
 
-      assert Flight.Repo.get_by(
+      assert Repo.get_by(
                Flight.Billing.InstructorLineItemDetail,
                transaction_line_item_id: instructor_line_item.id
              )
 
-      assert aircraft = Flight.Repo.get!(Aircraft, form.aircraft_details.aircraft_id)
+      assert aircraft = Repo.get!(Aircraft, form.aircraft_details.aircraft_id)
       assert aircraft.last_hobbs_time == 2011
       assert aircraft.last_tach_time == 3019
 
-      assert appointment = Flight.Repo.get!(Flight.Scheduling.Appointment, form.appointment_id)
+      assert appointment = Repo.get!(Flight.Scheduling.Appointment, form.appointment_id)
       assert appointment.transaction_id == transaction.id
     end
 
@@ -123,7 +123,7 @@ defmodule Flight.BillingTest do
       assert transaction.school_id == student.school_id
 
       assert line_item =
-               Flight.Repo.get_by(
+               Repo.get_by(
                  Flight.Billing.TransactionLineItem,
                  transaction_id: transaction.id
                )
@@ -279,7 +279,7 @@ defmodule Flight.BillingTest do
       assert transaction.completed_at
       assert transaction.type == "debit"
 
-      user = Flight.Repo.get(Flight.Accounts.User, transaction.user.id)
+      user = Repo.get(User, transaction.user.id)
 
       assert user.balance == 2000
     end
@@ -425,7 +425,7 @@ defmodule Flight.BillingTest do
 
       assert Enum.count(transaction.line_items) == 1
 
-      user = Flight.Repo.get(Flight.Accounts.User, user.id)
+      user = Repo.get(User, user.id)
       line_item = List.first(transaction.line_items)
 
       assert user.balance == 3000
@@ -453,7 +453,7 @@ defmodule Flight.BillingTest do
 
       assert Enum.count(transaction.line_items) == 1
 
-      user = Flight.Repo.get(Flight.Accounts.User, user.id)
+      user = Repo.get(User, user.id)
       line_item = List.first(transaction.line_items)
 
       assert user.balance == 100
@@ -480,7 +480,7 @@ defmodule Flight.BillingTest do
         |> Appointment.update_transaction_changeset(%{
           transaction_id: transaction.id
         })
-        |> Flight.Repo.update!()
+        |> Repo.update!()
 
       assert appointment.transaction_id
 

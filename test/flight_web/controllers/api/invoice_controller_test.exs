@@ -318,85 +318,6 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
 
     @tag :integration
-    test "pays invoice created from appointment", %{conn: conn} do
-      appointment = past_appointment_fixture()
-      instructor = instructor_fixture()
-      invoice = invoice_fixture(%{appointment_id: appointment.id, payment_option: "cash"})
-
-      json =
-        conn
-        |> auth(instructor)
-        |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: %{}})
-        |> json_response(200)
-
-      invoice = Repo.get(Invoice, invoice.id) |> preload_invoice
-      appointment = Repo.get(Appointment, appointment.id)
-      transaction = List.first(invoice.transactions)
-
-      assert transaction.state == "completed"
-      assert appointment.status == :paid
-      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
-    end
-
-    @tag :integration
-    test "updates aircraft hobbs and tach time after payment", %{conn: conn} do
-      appointment = past_appointment_fixture()
-      instructor = instructor_fixture()
-      aircraft = aircraft_fixture()
-      new_tach_time = aircraft.last_tach_time + 5
-      new_hobbs_time = aircraft.last_hobbs_time + 5
-
-      invoice =
-        invoice_fixture(%{
-          appointment_id: appointment.id,
-          payment_option: "venmo",
-          line_items: [
-            %{
-              type: "aircraft",
-              aircraft_id: aircraft.id,
-              tach_start: aircraft.last_tach_time,
-              tach_end: new_tach_time,
-              hobbs_start: aircraft.last_hobbs_time,
-              hobbs_end: new_hobbs_time,
-              hobbs_tach_used: true,
-              description: "Flight Hours",
-              amount: 850,
-              quantity: 0.5,
-              rate: 1700
-            },
-            %{
-              type: "instructor",
-              instructor_user_id: instructor.id,
-              description: "Instructor Hours",
-              amount: 50,
-              quantity: 0.5,
-              rate: 100
-            }
-          ]
-        })
-
-      json =
-        conn
-        |> auth(instructor)
-        |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: %{}})
-        |> json_response(200)
-
-      invoice = Repo.get(Invoice, invoice.id) |> preload_invoice
-      appointment = Repo.get(Appointment, appointment.id)
-      transaction = List.first(invoice.transactions)
-      aircraft = Repo.get(Aircraft, aircraft.id)
-
-      assert invoice.payment_option == :venmo
-      assert Enum.map(invoice.line_items, fn i -> i.quantity end) == [0.5, 0.5]
-
-      assert aircraft.last_tach_time == new_tach_time
-      assert aircraft.last_hobbs_time == new_hobbs_time
-      assert transaction.state == "completed"
-      assert appointment.status == :paid
-      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
-    end
-
-    @tag :integration
     test "creates invoice when payment option is balance (enough)", %{conn: conn} do
       student = student_fixture(%{balance: 30000})
       instructor = instructor_fixture()
@@ -493,6 +414,27 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.paid_by_charge == 24000
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
+    test "renders error when card transaction is already in progress", %{conn: conn} do
+      student = student_fixture()
+      instructor = instructor_fixture()
+      invoice_params = invoice_attrs(student)
+
+      :ets.insert_new(:locked_users, {student.id})
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
+        |> json_response(400)
+
+      assert json["errors"]["invoice"] == [
+               "Another payment for this user is already in progress."
+             ]
+
+      :ets.delete(:locked_users, student.id)
     end
 
     @tag :integration
@@ -634,6 +576,110 @@ defmodule FlightWeb.API.InvoiceControllerTest do
   end
 
   describe "PUT /api/invoices/:id" do
+    @tag :integration
+    test "pays invoice created from appointment", %{conn: conn} do
+      appointment = past_appointment_fixture()
+      instructor = instructor_fixture()
+      invoice = invoice_fixture(%{appointment_id: appointment.id, payment_option: "cash"})
+      another_student = student_fixture()
+
+      :ets.insert_new(:locked_users, {another_student.id})
+
+      json =
+        conn
+        |> auth(instructor)
+        |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: %{}})
+        |> json_response(200)
+
+      invoice = Repo.get(Invoice, invoice.id) |> preload_invoice
+      appointment = Repo.get(Appointment, appointment.id)
+      transaction = List.first(invoice.transactions)
+
+      assert transaction.state == "completed"
+      assert appointment.status == :paid
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+
+      :ets.delete(:locked_users, another_student.id)
+    end
+
+    @tag :integration
+    test "renders error when transaction is already in progress", %{conn: conn} do
+      appointment = past_appointment_fixture()
+      instructor = instructor_fixture()
+      invoice = invoice_fixture(%{appointment_id: appointment.id, payment_option: "cash"})
+
+      :ets.insert_new(:locked_users, {invoice.user_id})
+
+      json =
+        conn
+        |> auth(instructor)
+        |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: %{}})
+        |> json_response(400)
+
+      assert json["errors"]["invoice"] == [
+               "Another payment for this user is already in progress."
+             ]
+
+      :ets.delete(:locked_users, invoice.user_id)
+    end
+
+    @tag :integration
+    test "updates aircraft hobbs and tach time after payment", %{conn: conn} do
+      appointment = past_appointment_fixture()
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+      new_tach_time = aircraft.last_tach_time + 5
+      new_hobbs_time = aircraft.last_hobbs_time + 5
+
+      invoice =
+        invoice_fixture(%{
+          appointment_id: appointment.id,
+          payment_option: "cash",
+          line_items: [
+            %{
+              type: "aircraft",
+              aircraft_id: aircraft.id,
+              tach_start: aircraft.last_tach_time,
+              tach_end: new_tach_time,
+              hobbs_start: aircraft.last_hobbs_time,
+              hobbs_end: new_hobbs_time,
+              hobbs_tach_used: true,
+              description: "Flight Hours",
+              amount: 850,
+              quantity: 0.5,
+              rate: 1700
+            },
+            %{
+              type: "instructor",
+              instructor_user_id: instructor.id,
+              description: "Instructor Hours",
+              amount: 50,
+              quantity: 0.5,
+              rate: 100
+            }
+          ]
+        })
+
+      json =
+        conn
+        |> auth(instructor)
+        |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: %{}})
+        |> json_response(200)
+
+      invoice = Repo.get(Invoice, invoice.id) |> preload_invoice
+      appointment = Repo.get(Appointment, appointment.id)
+      transaction = List.first(invoice.transactions)
+      aircraft = Repo.get(Aircraft, aircraft.id)
+
+      assert Enum.map(invoice.line_items, fn i -> i.quantity end) == [0.5, 0.5]
+
+      assert aircraft.last_tach_time == new_tach_time
+      assert aircraft.last_hobbs_time == new_hobbs_time
+      assert transaction.state == "completed"
+      assert appointment.status == :paid
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
     @tag :integration
     test "renders unauthorized to student when updating other invoices", %{conn: conn} do
       student = student_fixture()
@@ -1267,6 +1313,27 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.paid_by_balance == 486
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
+    test "renders error when creating another paid invoice from appointment", %{conn: conn} do
+      student = student_fixture(%{balance: 999_999})
+      appointment = past_appointment_fixture(%{}, student)
+      instructor = instructor_fixture()
+
+      :ets.insert_new(:locked_users, {student.id})
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices/from_appointment/#{appointment.id}", %{"pay_off" => true})
+        |> json_response(400)
+
+      assert json["errors"]["invoice"] == [
+               "Another payment for this user is already in progress."
+             ]
+
+      :ets.delete(:locked_users, student.id)
     end
 
     @tag :integration
