@@ -709,7 +709,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
 
       assert invoice.status == :paid
       assert invoice.payment_option == :venmo
-      assert invoice.total_amount_due == 24000
+      assert invoice.total_amount_due == 100
     end
 
     @tag :integration
