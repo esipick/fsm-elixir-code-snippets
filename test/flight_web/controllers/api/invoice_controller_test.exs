@@ -137,7 +137,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
             description: "Flight Hours",
             amount: 850,
             quantity: 0.5,
-            rate: 1700
+            rate: 1700,
+            creator_id: 0
           },
           %{
             type: "instructor",
