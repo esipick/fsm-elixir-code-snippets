@@ -110,13 +110,6 @@ defmodule FlightWeb.API.InvoiceController do
   end
 
   def update(conn, %{"invoice" => invoice_params}) do
-    invoice_params =
-      if staff_member?(conn) do
-        invoice_params
-      else
-        %{"payment_option" => invoice_params["payment_option"]}
-      end
-
     case UpdateInvoice.run(conn.assigns.invoice, invoice_params, conn) do
       {:ok, invoice} ->
         invoice =
