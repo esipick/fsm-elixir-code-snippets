@@ -48,7 +48,7 @@ export class LineItemRecord {
     this.id = shortid.generate();
     this.description = params.description;
     this.rate = params.rate || DEFAULT_RATE;
-    this.quantity = params.quantity || 0;
+    this.quantity = params.quantity || 1;
     this.amount = this.rate * this.quantity;
     this.type = TYPES[this.description] || DEFAULT_TYPE;
     this.instructor_user = params.instructor_user;

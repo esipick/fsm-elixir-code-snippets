@@ -30,16 +30,9 @@ class OtherLineItem extends Component {
   }
 
   setDesc = (option) => {
-    const line_item = Object.assign({}, this.state.line_item, {
-      description: option.value,
-      rate: option.rate || DEFAULT_RATE,
-      type: TYPES[option.value] || DEFAULT_TYPE,
-      taxable: option.taxable,
-      deductible: option.deductible
-    });
+    const line_item = this.props.itemFromOption(this.state.line_item, option);
 
-    this.setState({ line_item });
-    this.props.onChange(line_item);
+    this.updateLineItem(line_item);
   }
 
   setRate = ({ floatValue }) => {
@@ -131,7 +124,7 @@ class OtherLineItem extends Component {
       <tr key={id} className={wrapperClass}>
         <td>{number}.</td>
         <td className="lc-desc-column">
-          <Select defaultValue={descriptionOpt}
+          <Select defaultValue={descriptionOpt ? descriptionOpt : null}
             onChange={this.setDesc}
             options={lineItemTypeOptions}
             {...DESCRIPTION_SELECT_OPTS} />
@@ -149,7 +142,7 @@ class OtherLineItem extends Component {
         </td>
         <td className="lc-column">
           <NumberFormat onValueChange={this.setQty}
-            value={quantity || 1}
+            value={quantity}
             {...NUMBER_INPUT_OPTS} />
           <Error text={errors.quantity} />
         </td>

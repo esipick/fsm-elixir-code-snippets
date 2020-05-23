@@ -38,13 +38,7 @@ class AircraftLineItem extends Component {
   }
 
   setDesc = (option) => {
-    const line_item = Object.assign({}, this.state.line_item, {
-      description: option.value,
-      rate: option.rate || DEFAULT_RATE,
-      type: TYPES[option.value] || DEFAULT_TYPE,
-      taxable: option.taxable,
-      deductible: option.deductible
-    });
+    const line_item = this.props.itemFromOption(this.state.line_item, option);
 
     this.updateLineItem(line_item);
   }
@@ -140,7 +134,7 @@ class AircraftLineItem extends Component {
         <tr key={id} className={wrapperClass}>
           <td>{number}.</td>
           <td className="lc-desc-column">
-            <Select defaultValue={descriptionOpt}
+            <Select defaultValue={descriptionOpt.label ? descriptionOpt : null}
               onChange={this.setDesc}
               options={lineItemTypeOptions}
               {...DESCRIPTION_SELECT_OPTS} />
