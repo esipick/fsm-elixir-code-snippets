@@ -157,7 +157,7 @@ defmodule Flight.Scheduling.Availability do
               MapSet.new()
 
             _ ->
-              Appointment
+              from(a in Appointment, where: a.archived == false)
               |> SchoolScope.scope_query(school_context)
               |> exclude_appointment_or_unavailability_query(excluded_appointment_ids)
               |> where([a], a.archived == false)

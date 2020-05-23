@@ -127,8 +127,7 @@ $(document).ready(function () {
         instructor_user_id: eventInstructor,
         aircraft_id: eventAircraft,
         note: eventNote,
-        type: "lesson",
-        in_school_tz: true
+        type: "lesson"
       };
 
       if (appointmentOrUnavailabilityId) {
@@ -160,8 +159,7 @@ $(document).ready(function () {
         instructor_user_id: eventInstructor,
         aircraft_id: eventAircraft,
         note: eventNote,
-        belongs: eventFor,
-        in_school_tz: true
+        belongs: eventFor
       };
 
       var promise;
@@ -513,7 +511,7 @@ $(document).ready(function () {
         var startStr = moment(start).toISOString()
         var endStr = moment(end).toISOString()
 
-        var paramStr = addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr + "&in_school_tz=true";
+        var paramStr = addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr;
 
         var appointmentsPromise = $.get({
           url: "/api/appointments?" + paramStr,

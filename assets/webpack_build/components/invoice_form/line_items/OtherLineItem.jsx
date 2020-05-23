@@ -49,7 +49,7 @@ class OtherLineItem extends Component {
 
   setQty = ({ floatValue }) => {
     const quantity = floatValue == null ? 0 : floatValue;
-    let line_item = Object.assign({}, this.state.line_item, { quantity: quantity });
+    let line_item = Object.assign({}, this.state.line_item, { quantity });
 
     this.calculateAmount(line_item);
 
