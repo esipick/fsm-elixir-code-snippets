@@ -18,3 +18,14 @@ export const PAYMENT_OPTIONS = [
   { value: CREDIT_CARD, label: 'Credit Card' },
   ...GUEST_PAYMENT_OPTIONS
 ];
+
+export const modalStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)'
+  }
+};

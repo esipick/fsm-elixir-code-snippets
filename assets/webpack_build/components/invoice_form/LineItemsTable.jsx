@@ -116,7 +116,6 @@ class LineItemsTable extends Component {
           <tr>
             <td colSpan="5" className="text-right">
               Total excl. taxes:
-              <div><Error text={errors.total} /></div>
             </td>
             <td colSpan="2" className={total < 0 ? 'deductible' : ''}>
               ${(total / 100).toFixed(2)}
@@ -129,10 +128,7 @@ class LineItemsTable extends Component {
             <td colSpan="2">{sales_tax}</td>
           </tr>
           <tr>
-            <td colSpan="4" className="text-right">
-              <Error text={errors.total_tax} />
-            </td>
-            <td className="text-right">
+            <td colSpan="5" className="text-right">
               Total tax:
             </td>
             <td colSpan="2" className={total_tax < 0 ? 'deductible' : ''}>
@@ -142,7 +138,6 @@ class LineItemsTable extends Component {
           <tr>
             <td colSpan="5" className="text-right">
               Total with Tax:
-              <div><Error text={errors.total_amount_due} /></div>
             </td>
             <td colSpan="2" className={total_amount_due < 0 ? 'deductible' : ''}>
               ${(total_amount_due / 100).toFixed(2)}

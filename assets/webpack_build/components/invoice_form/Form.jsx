@@ -11,6 +11,7 @@ import Error from '../common/Error';
 
 import LineItemsTable from './LineItemsTable';
 import LowBalanceAlert from './LowBalanceAlert';
+import ErrorAlert from './ErrorAlert';
 
 import {
   BALANCE, CASH, CHECK, VENMO, MARK_AS_PAID, PAY,
@@ -32,6 +33,7 @@ class Form extends Component {
       error: props.error || '',
       errors: props.errors || {},
       stripe_error: props.stripe_error || '',
+      error_alert_open: false,
       balance_warning_open: false,
       balance_warning_accepted: false,
       payment_method: {},
@@ -252,8 +254,8 @@ class Form extends Component {
       payer_name: student && student.guest ? student.label : '',
       date: date.toISOString(),
       tax_rate: sales_tax,
-      total: total,
-      total_tax: total_tax,
+      total,
+      total_tax,
       total_amount_due: total_amount_due,
       payment_option: payment_method.value,
       appointment_id: appointment && appointment.id
@@ -294,7 +296,11 @@ class Form extends Component {
         console.warn(error_body);
         const { id = this.state.id, stripe_error = '', error = '', errors = {} } = error_body;
         const action = id ? 'edit' : 'create';
-        this.setState({ saving: false, id, action, stripe_error, error, errors });
+        this.setState({
+          saving: false, id, action,
+          stripe_error, error, errors,
+          error_alert_open: this.state.total <= 0
+        });
       });
     });
   }
@@ -367,12 +373,12 @@ class Form extends Component {
     return header;
   }
 
-  openBalanceWarning = () => {
-    this.setState({ balance_warning_open: true });
-  }
-
   closeBalanceWarning = () => {
     this.setState({ balance_warning_open: false });
+  }
+
+  closeErrorAlert = () => {
+    this.setState({ error_alert_open: false });
   }
 
   acceptBalanceWarning = () => {
@@ -391,7 +397,7 @@ class Form extends Component {
 
   render() {
     const { custom_line_items } = this.props
-    const { aircrafts, appointment, appointment_loading, appointments, balance_warning_open,
+    const { aircrafts, appointment, appointment_loading, appointments,
       instructors, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
       saving, stripe_error, student, students, total, total_amount_due, total_tax
     } = this.state;
@@ -519,12 +525,16 @@ class Form extends Component {
           </div>
         </div>
 
-        <LowBalanceAlert open={balance_warning_open}
+        <LowBalanceAlert open={this.state.balance_warning_open}
           onClose={this.closeBalanceWarning}
           onAccept={this.acceptBalanceWarning}
           balance={student ? student.balance : 0}
           total={total_amount_due}
         />
+
+      <ErrorAlert open={this.state.error_alert_open}
+          onAccept={this.closeErrorAlert}
+          text="Invoices cannot be saved with a total amount below or equal to zero." />
       </div>
     );
   }
