@@ -4,7 +4,7 @@ use Mix.Config
 # you can enable the server option below.
 config :flight, FlightWeb.Endpoint,
   http: [port: 4001],
-  server: false
+  server: true
 
 # Print only warnings and errors during test
 config :logger, level: :warn
@@ -38,3 +38,15 @@ config :stripity_stripe, :pool_options,
   max_connections: 10
 
 config :appsignal, :config, active: false
+
+config :wallaby, driver: Wallaby.Experimental.Chrome
+
+# Visual testing: on - false, off - true
+config :wallaby,
+  chromedriver: [
+    headless: true
+  ]
+
+config :wallaby, screenshot_on_failure: true, js_errors: false
+
+config :flight, :sql_sandbox, true

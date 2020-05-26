@@ -2,6 +2,10 @@ defmodule FlightWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :flight
   use Appsignal.Phoenix
 
+  if Application.get_env(:flight, :sql_sandbox) do
+    plug(Phoenix.Ecto.SQL.Sandbox)
+  end
+
   socket("/socket", FlightWeb.UserSocket,
     websocket: true,
     longpoll: false
