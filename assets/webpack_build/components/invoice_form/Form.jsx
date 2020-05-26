@@ -242,13 +242,15 @@ class Form extends Component {
       appointment, student, sales_tax, total, total_tax, total_amount_due, date,
       payment_method, action
     } = this.state;
+    const is_edit = action == 'edit';
 
-    const line_items = action == 'edit' ? this.state.line_items : this.state.line_items.map(i => {
+    const line_items = is_edit ? this.state.line_items : this.state.line_items.map(i => {
       delete Object.assign({}, i).id;
       return i;
     });
 
     return {
+      ignore_last_time: is_edit,
       line_items,
       user_id: student && student.id,
       payer_name: student && student.guest ? student.label : '',
@@ -310,9 +312,10 @@ class Form extends Component {
       calculateRequest.cancel();
     }
 
-    const { student, appointment } = this.state;
+    const { student, appointment, action } = this.state;
 
     const payload = {
+      ignore_last_time: action == 'edit',
       line_items,
       user_id: student && student.id,
       appointment_id: appointment && appointment.id

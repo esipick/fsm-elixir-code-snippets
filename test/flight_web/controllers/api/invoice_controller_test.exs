@@ -157,7 +157,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{invoice: invoice_params})
         |> json_response(201)
 
-      invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
+      invoice = Repo.get(Invoice, json["data"]["id"]) |> preload_invoice
 
       assert invoice.payment_option == :cash
       assert Enum.map(invoice.line_items, fn i -> i.quantity end) == [0.5, 0.5]
@@ -224,7 +224,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{invoice: invoice_params})
         |> json_response(201)
 
-      invoice = Repo.get_by(Invoice, payer_name: "Foo Bar") |> preload_invoice
+      invoice = Repo.get(Invoice, json["data"]["id"]) |> preload_invoice
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
@@ -269,7 +269,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
         |> json_response(201)
 
-      invoice = Repo.get_by(Invoice, user_id: student.id) |> preload_invoice
+      invoice = Repo.get(Invoice, json["data"]["id"]) |> preload_invoice
 
       transaction = List.first(invoice.transactions)
 
@@ -281,6 +281,61 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert transaction.type == "debit"
       assert transaction.payment_option == :cash
       assert transaction.paid_by_cash == 24000
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
+    test "updates aircraft hobbs and tach time after creating invoice", %{conn: conn} do
+      appointment = past_appointment_fixture()
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+      new_tach_time = aircraft.last_tach_time + 5
+      new_hobbs_time = aircraft.last_hobbs_time + 5
+
+      invoice_params =
+        invoice_attrs(student_fixture(), %{
+          appointment_id: appointment.id,
+          payment_option: "cash",
+          line_items: [
+            %{
+              type: "aircraft",
+              aircraft_id: aircraft.id,
+              tach_start: aircraft.last_tach_time,
+              tach_end: new_tach_time,
+              hobbs_start: aircraft.last_hobbs_time,
+              hobbs_end: new_hobbs_time,
+              hobbs_tach_used: true,
+              description: "Flight Hours",
+              amount: 850,
+              quantity: 0.5,
+              rate: 1700
+            },
+            %{
+              type: "instructor",
+              instructor_user_id: instructor.id,
+              description: "Instructor Hours",
+              amount: 50,
+              quantity: 0.5,
+              rate: 100
+            }
+          ]
+        })
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices", %{invoice: invoice_params})
+        |> json_response(201)
+
+      invoice = Repo.get(Invoice, json["data"]["id"]) |> preload_invoice
+
+      assert Enum.map(invoice.line_items, fn i -> i.quantity end) == [0.5, 0.5]
+
+      aircraft = Repo.get(Aircraft, aircraft.id)
+
+      assert aircraft.last_tach_time == new_tach_time
+      assert aircraft.last_hobbs_time == new_hobbs_time
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
@@ -301,7 +356,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices", %{pay_off: true, invoice: invoice_params})
         |> json_response(201)
 
-      invoice = Repo.get_by(Invoice, payer_name: "Foo Bar") |> preload_invoice
+      invoice = Repo.get(Invoice, json["data"]["id"]) |> preload_invoice
 
       transaction = List.first(invoice.transactions)
 
@@ -622,63 +677,6 @@ defmodule FlightWeb.API.InvoiceControllerTest do
              ]
 
       :ets.delete(:locked_users, invoice.user_id)
-    end
-
-    @tag :integration
-    test "updates aircraft hobbs and tach time after payment", %{conn: conn} do
-      appointment = past_appointment_fixture()
-      instructor = instructor_fixture()
-      aircraft = aircraft_fixture()
-      new_tach_time = aircraft.last_tach_time + 5
-      new_hobbs_time = aircraft.last_hobbs_time + 5
-
-      invoice =
-        invoice_fixture(%{
-          appointment_id: appointment.id,
-          payment_option: "cash",
-          line_items: [
-            %{
-              type: "aircraft",
-              aircraft_id: aircraft.id,
-              tach_start: aircraft.last_tach_time,
-              tach_end: new_tach_time,
-              hobbs_start: aircraft.last_hobbs_time,
-              hobbs_end: new_hobbs_time,
-              hobbs_tach_used: true,
-              description: "Flight Hours",
-              amount: 850,
-              quantity: 0.5,
-              rate: 1700
-            },
-            %{
-              type: "instructor",
-              instructor_user_id: instructor.id,
-              description: "Instructor Hours",
-              amount: 50,
-              quantity: 0.5,
-              rate: 100
-            }
-          ]
-        })
-
-      json =
-        conn
-        |> auth(instructor)
-        |> put("/api/invoices/#{invoice.id}", %{pay_off: true, invoice: %{}})
-        |> json_response(200)
-
-      invoice = Repo.get(Invoice, invoice.id) |> preload_invoice
-      appointment = Repo.get(Appointment, appointment.id)
-      transaction = List.first(invoice.transactions)
-      aircraft = Repo.get(Aircraft, aircraft.id)
-
-      assert Enum.map(invoice.line_items, fn i -> i.quantity end) == [0.5, 0.5]
-
-      assert aircraft.last_tach_time == new_tach_time
-      assert aircraft.last_hobbs_time == new_hobbs_time
-      assert transaction.state == "completed"
-      assert appointment.status == :paid
-      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
     @tag :integration

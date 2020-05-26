@@ -14,13 +14,21 @@ defmodule FlightWeb.API.DetailedTransactionForm.AircraftDetails do
     field(:hobbs_end, :integer)
     field(:tach_start, :integer)
     field(:tach_end, :integer)
+    field(:ignore_last_time, :boolean, virtual: true, default: false)
   end
 
   def changeset(struct, raw_attrs) do
     attrs = atomize_shallow(raw_attrs) |> coerce_hobbs_tach_time()
 
     struct
-    |> cast(attrs, [:aircraft_id, :hobbs_start, :hobbs_end, :tach_start, :tach_end])
+    |> cast(attrs, [
+      :aircraft_id,
+      :hobbs_start,
+      :hobbs_end,
+      :tach_start,
+      :tach_end,
+      :ignore_last_time
+    ])
     |> validate_required([:aircraft_id, :hobbs_start, :hobbs_end, :tach_start, :tach_end])
     |> validate_hobbs_duration()
     |> validate_tach_duration()
@@ -28,14 +36,16 @@ defmodule FlightWeb.API.DetailedTransactionForm.AircraftDetails do
 
   def validate_hobbs_duration(changeset) do
     if changeset.valid? do
-      if get_field(changeset, :hobbs_end) <= get_field(changeset, :hobbs_start) do
+      hobbs_start = get_field(changeset, :hobbs_start)
+
+      if get_field(changeset, :hobbs_end) <= hobbs_start do
         add_error(changeset, :hobbs_end, "must be greater than hobbs start")
       else
         aircraft = Repo.get(Aircraft, get_field(changeset, :aircraft_id))
 
-        if aircraft.last_hobbs_time > get_field(changeset, :hobbs_start) do
+        if !get_field(changeset, :ignore_last_time) && aircraft.last_hobbs_time > hobbs_start do
           message =
-            "must be greater than current aircraft hobbs start (#{aircraft.last_hobbs_time})"
+            "must be greater than current aircraft hobbs start (#{aircraft.last_hobbs_time / 10.0})"
 
           add_error(changeset, :hobbs_start, message)
         else
@@ -49,14 +59,16 @@ defmodule FlightWeb.API.DetailedTransactionForm.AircraftDetails do
 
   def validate_tach_duration(changeset) do
     if changeset.valid? do
-      if get_field(changeset, :tach_end) <= get_field(changeset, :tach_start) do
+      tach_start = get_field(changeset, :tach_start)
+
+      if get_field(changeset, :tach_end) <= tach_start do
         add_error(changeset, :tach_end, "must be greater than tach start")
       else
         aircraft = Repo.get(Aircraft, get_field(changeset, :aircraft_id))
 
-        if aircraft.last_tach_time > get_field(changeset, :tach_start) do
+        if !get_field(changeset, :ignore_last_time) && aircraft.last_tach_time > tach_start do
           message =
-            "must be greater than current aircraft tach start (#{aircraft.last_tach_time})"
+            "must be greater than current aircraft tach start (#{aircraft.last_tach_time / 10.0})"
 
           add_error(changeset, :tach_start, message)
         else

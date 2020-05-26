@@ -74,7 +74,64 @@ defmodule Flight.Billing.CalculateInvoiceTest do
     assert attrs["total_amount_due"] == 5700
   end
 
-  defp aircraft_item_fixture(attrs \\ %{}) do
+  test "run/2 returns error when time is greater than aircraft last time" do
+    instructor = instructor_fixture()
+    student = student_fixture()
+    school_context = %Plug.Conn{assigns: %{current_user: instructor}}
+    aircraft = aircraft_fixture(%{last_hobbs_time: 100, last_tach_time: 100})
+
+    invoice_attrs = %{
+      "line_items" => [
+        aircraft_item_fixture(%{}, aircraft),
+        instructor_item_fixture(%{}, instructor),
+        other_item_fixture(),
+        discount_item_fixture()
+      ],
+      "user_id" => student.id
+    }
+
+    {:ok, attrs} = Flight.Billing.CalculateInvoice.run(invoice_attrs, school_context)
+
+    aircraft_item = Enum.find(attrs["line_items"], fn x -> x["type"] == "aircraft" end)
+
+    assert aircraft_item["errors"][:aircraft_details] == %{
+             hobbs_start: ["must be greater than current aircraft hobbs start (10.0)"]
+           }
+
+    assert attrs["total_tax"] == 53
+    assert attrs["total"] == 5680
+    assert attrs["total_amount_due"] == 5733
+  end
+
+  test "run/2 does not return error when aircraft last time validation disabled" do
+    instructor = instructor_fixture()
+    student = student_fixture()
+    school_context = %Plug.Conn{assigns: %{current_user: instructor}}
+    aircraft = aircraft_fixture(%{last_hobbs_time: 100, last_tach_time: 100})
+
+    invoice_attrs = %{
+      "ignore_last_time" => true,
+      "line_items" => [
+        aircraft_item_fixture(%{}, aircraft),
+        instructor_item_fixture(%{}, instructor),
+        other_item_fixture(),
+        discount_item_fixture()
+      ],
+      "user_id" => student.id
+    }
+
+    {:ok, attrs} = Flight.Billing.CalculateInvoice.run(invoice_attrs, school_context)
+
+    aircraft_item = Enum.find(attrs["line_items"], fn x -> x["type"] == "aircraft" end)
+
+    refute aircraft_item["errors"]
+
+    assert attrs["total_tax"] == 53
+    assert attrs["total"] == 5680
+    assert attrs["total_amount_due"] == 5733
+  end
+
+  defp aircraft_item_fixture(attrs \\ %{}, aircraft \\ aircraft_fixture()) do
     %{
       "type" => "aircraft",
       "tach_start" => 40,
@@ -85,14 +142,14 @@ defmodule Flight.Billing.CalculateInvoiceTest do
       "hobbs_end" => 60,
       "hobbs_tach_used" => true,
       "description" => "Flight Hours",
-      "aircraft_id" => aircraft_fixture().id,
+      "aircraft_id" => aircraft.id,
       "taxable" => true,
       "amount" => 100
     }
     |> Map.merge(attrs)
   end
 
-  defp instructor_item_fixture(attrs \\ %{}, instructor \\ instructor_fixture()) do
+  defp instructor_item_fixture(attrs, instructor) do
     %{
       "type" => "instructor",
       "rate" => 200,

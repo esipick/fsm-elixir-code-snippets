@@ -26,6 +26,8 @@ defmodule Flight.Billing.CreateInvoice do
 
     case Invoice.create(invoice_attrs) do
       {:ok, invoice} ->
+        update_aircraft(invoice)
+
         if pay_off == true do
           case pay(invoice, school_context) do
             {:ok, invoice} -> {:ok, invoice}
@@ -51,24 +53,26 @@ defmodule Flight.Billing.CreateInvoice do
           Appointment.paid(invoice.appointment)
         end
 
-        line_item = Enum.find(invoice.line_items, fn i -> i.hobbs_tach_used end)
-
-        if line_item do
-          aircraft = Repo.get(Aircraft, line_item.aircraft_id)
-
-          {:ok, _} =
-            aircraft
-            |> Aircraft.changeset(%{
-              last_tach_time: line_item.tach_end,
-              last_hobbs_time: line_item.hobbs_end
-            })
-            |> Flight.Repo.update()
-        end
-
         {:ok, invoice}
 
       {:error, changeset} ->
         {:error, changeset}
+    end
+  end
+
+  defp update_aircraft(invoice) do
+    line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
+
+    if line_item && line_item.hobbs_end && line_item.tach_end do
+      aircraft = Repo.get(Aircraft, line_item.aircraft_id)
+
+      {:ok, _} =
+        aircraft
+        |> Aircraft.changeset(%{
+          last_tach_time: line_item.tach_end,
+          last_hobbs_time: line_item.hobbs_end
+        })
+        |> Flight.Repo.update()
     end
   end
 

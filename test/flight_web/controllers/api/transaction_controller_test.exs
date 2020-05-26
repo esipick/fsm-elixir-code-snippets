@@ -60,7 +60,7 @@ defmodule FlightWeb.API.TransactionControllerTest do
 
       assert json == %{
                "human_errors" => [
-                 "Aircraft details Hobbs start must be greater than current aircraft hobbs start (400)"
+                 "Aircraft details Hobbs start must be greater than current aircraft hobbs start (40.0)"
                ]
              }
     end

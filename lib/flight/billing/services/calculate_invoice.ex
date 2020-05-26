@@ -85,8 +85,13 @@ defmodule Flight.Billing.CalculateInvoice do
   defp calculate_aircraft_item(line_item, invoice, school_context) do
     current_user = school_context.assigns.current_user
 
+    aircraft_details =
+      line_item
+      |> MapUtil.atomize_shallow()
+      |> Map.merge(%{ignore_last_time: invoice["ignore_last_time"]})
+
     detailed_params = %{
-      aircraft_details: MapUtil.atomize_shallow(line_item),
+      aircraft_details: aircraft_details,
       appointment_id: invoice["appointment_id"],
       creator_user_id: current_user.id,
       user_id: invoice["user_id"] || current_user.id
@@ -121,7 +126,7 @@ defmodule Flight.Billing.CalculateInvoice do
       "quantity" => qty
     })
   rescue
-    e -> line_item
+    _e -> line_item
   end
 
   defp validate_aircraft_item(line_item, detailed_params) do

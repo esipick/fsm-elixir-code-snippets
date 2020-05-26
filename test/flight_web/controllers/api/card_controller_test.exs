@@ -1,4 +1,4 @@
-defmodule FlightWeb.API.UserControllerTest do
+defmodule FlightWeb.API.CardControllerTest do
   use FlightWeb.ConnCase
 
   test "401 if student creating card for other student", %{conn: conn} do
