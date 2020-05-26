@@ -553,6 +553,7 @@ Example request:
 ```json
 {
   "invoice":{
+    "ignore_last_time": false,
     "line_items":[
       {
         "type":"aircraft",
