@@ -43,12 +43,7 @@ defmodule FlightWeb.Billing.TransactionControllerTest do
 
         refute content =~ "<th>School</th>"
 
-        button_shown = content =~ "New Invoice"
-
-        case role_slug do
-          "student" -> refute button_shown
-          _ -> assert button_shown
-        end
+        assert content =~ "New Invoice"
       end
     end
 
@@ -118,7 +113,7 @@ defmodule FlightWeb.Billing.TransactionControllerTest do
         |> get("/billing/transactions")
         |> html_response(200)
 
-      refute content =~ "New Invoice"
+      assert content =~ "New Invoice"
       assert content =~ "Correct User"
       refute content =~ "Another Student"
     end

@@ -41,7 +41,8 @@ defmodule Flight.Auth.Permission do
     :unavailability_instructor,
     :user_protected_info,
     :users,
-    :web_dashboard
+    :web_dashboard,
+    :staff
   ]
   @verbs [:view, :modify, :create, :be, :request, :access]
   @scopes [:all, :personal]

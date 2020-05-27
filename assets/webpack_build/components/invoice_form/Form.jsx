@@ -25,9 +25,10 @@ class Form extends Component {
     super(props);
 
     this.formRef = null;
+    const { creator, staff_member } = props;
 
     this.state = {
-      id: this.props.id || '',
+      id: props.id || '',
       sales_tax: props.tax_rate || 0,
       action: props.action || 'create',
       error: props.error || '',
@@ -38,6 +39,7 @@ class Form extends Component {
       balance_warning_accepted: false,
       payment_method: {},
       line_items: [],
+      student: staff_member ? undefined : creator,
       date: new Date()
     }
   }
@@ -128,6 +130,8 @@ class Form extends Component {
   };
 
   loadStudents = () => {
+    if (!this.props.staff_member) return;
+
     return http.get({ url: '/api/users/by_role?role=student', headers: authHeaders() })
       .then(r => r.json())
       .then(r => { this.setState({ students: r.data }); })
@@ -398,11 +402,30 @@ class Form extends Component {
     }
   }
 
+  studentSelect = () => {
+    const { errors, student, students } = this.state;
+
+    return (
+      <div className={classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '')}>
+        <CreatableSelect placeholder="Student name"
+          isClearable
+          isValidNewOption={this.isGuestNameValid}
+          onCreateOption={this.createGuestPayer}
+          classNamePrefix="react-select"
+          options={students}
+          onChange={this.setStudent}
+          getOptionLabel={(o) => (o.label || o.first_name + ' ' + o.last_name)}
+          getOptionValue={(o) => o.id}
+          value={student} />
+      </div>
+    )
+  }
+
   render() {
-    const { custom_line_items } = this.props
+    const { custom_line_items, staff_member } = this.props;
     const { aircrafts, appointment, appointment_loading, appointments,
       instructors, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
-      saving, stripe_error, student, students, total, total_amount_due, total_tax
+      saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
 
     return (
@@ -420,18 +443,8 @@ class Form extends Component {
                     Student name
                     <Error text={this.userErrors(errors.user_id)} />
                   </label>
-                  <div className={classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '')}>
-                    <CreatableSelect placeholder="Student name"
-                      isClearable
-                      isValidNewOption={this.isGuestNameValid}
-                      onCreateOption={this.createGuestPayer}
-                      classNamePrefix="react-select"
-                      options={students}
-                      onChange={this.setStudent}
-                      getOptionLabel={(o) => (o.label || o.first_name + ' ' + o.last_name)}
-                      getOptionValue={(o) => o.id}
-                      value={student} />
-                  </div>
+                  { staff_member && this.studentSelect() }
+                  { !staff_member && <div>{student.first_name + ' ' + student.last_name}</div> }
                 </div>
 
                 <div className="form-group">
@@ -482,6 +495,7 @@ class Form extends Component {
                       appointment={appointment}
                       student={student}
                       creator={this.props.creator}
+                      staff_member={staff_member}
                       custom_line_items={custom_line_items}
                       errors={errors}
                       instructors={instructors}

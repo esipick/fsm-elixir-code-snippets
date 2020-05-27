@@ -8,18 +8,21 @@
   <div class="row">
     <div class="col-md-8 col-xs-12">
       <div class="card">
-        <%= if can_modify_invoice?(@conn, @invoice) do %>
-          <div class="card-header">
-            <div class="text-right">
+        <div class="card-header">
+          <div class="text-right">
+            <%= if can_modify_invoice?(@conn, @invoice) do %>
               <a href="/billing/invoices/<%= @invoice.id %>/edit" class="btn btn-primary">
                 Edit
               </a>
+            <% end %>
+
+            <%= if can_delete_invoice?(@conn) do %>
               <button stype="button" class="btn btn-danger _delete_button" data-invoice-id="<%= @invoice.id %>">
                 Delete
               </button>
-            </div>
+            <% end %>
           </div>
-        <% end %>
+        </div>
 
         <div class="card-body">
           <div class="tab-content">

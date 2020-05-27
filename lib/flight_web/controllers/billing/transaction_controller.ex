@@ -4,12 +4,14 @@ defmodule FlightWeb.Billing.TransactionController do
   alias FlightWeb.{Pagination, Billing.TransactionStruct}
   alias Flight.Auth.InvoicePolicy
 
+  import Flight.Auth.Authorization
+
   def index(conn, params) do
     page_params = Pagination.params(params)
     user = conn.assigns.current_user
 
     page =
-      if InvoicePolicy.create?(user) do
+      if staff_member?(user) do
         Flight.Queries.Transaction.page(conn, page_params, params)
       else
         options = %{user_id: user.id}

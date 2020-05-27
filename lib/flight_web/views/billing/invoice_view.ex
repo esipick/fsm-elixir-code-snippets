@@ -9,8 +9,8 @@ defmodule FlightWeb.Billing.InvoiceView do
     InvoicePolicy.modify?(conn.assigns.current_user, invoice)
   end
 
-  def can_create_invoice?(conn) do
-    InvoicePolicy.create?(conn.assigns.current_user)
+  def can_delete_invoice?(conn) do
+    Flight.Auth.Authorization.staff_member?(conn.assigns.current_user)
   end
 
   def line_item_notes(line_item) do

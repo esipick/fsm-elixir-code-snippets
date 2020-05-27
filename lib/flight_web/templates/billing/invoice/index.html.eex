@@ -23,11 +23,9 @@
             </li>
           </ul>
 
-          <%= if can_create_invoice?(@conn) do %>
-            <div class="text-right">
-              <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
-            </div>
-          <% end %>
+          <div class="text-right">
+            <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
+          </div>
         </div>
 
         <div>
@@ -102,7 +100,7 @@
                         <a href="/billing/invoices/<%= invoice.id %>/edit" class="btn btn-primary btn-sm ml-1">
                           Edit
                         </a>
-                        <%= if invoice.status != :archived do %>
+                        <%= if invoice.status != :archived && can_delete_invoice?(@conn) do %>
                           <button stype="button" class="btn btn-danger btn-sm ml-1 _delete_button" data-invoice-id="<%= invoice.id %>">
                             Delete
                           </button>

@@ -2,10 +2,10 @@ defmodule FlightWeb.API.InvoiceController do
   use FlightWeb, :controller
 
   import Ecto.Query
+  import Flight.Auth.Authorization
 
   alias Flight.Repo
   alias Flight.Auth.Permission
-  import Flight.Auth.Authorization
   alias FlightWeb.{ViewHelpers, Pagination, StripeHelper}
 
   alias Flight.Billing.{
@@ -19,7 +19,8 @@ defmodule FlightWeb.API.InvoiceController do
 
   plug(:get_invoice when action in [:update, :show, :delete])
   plug(:authorize_view when action in [:show])
-  plug(:authorize_modify when action in [:create, :index, :delete])
+  plug(:authorize_create when action in [:create])
+  plug(:authorize_staff_member when action in [:index, :delete])
   plug(:authorize_update when action in [:update])
   plug(:check_paid_invoice when action in [:update, :delete])
   plug(:check_archived_invoice when action in [:update, :delete])
@@ -221,16 +222,23 @@ defmodule FlightWeb.API.InvoiceController do
     end
   end
 
-  defp authorize_modify(conn, _) do
-    if staff_member?(conn) do
+  defp authorize_create(conn, _) do
+    user = conn.assigns.current_user
+    own_invoice = conn.params["invoice"]["user_id"] == user.id
+
+    if staff_member?(user) || own_invoice do
       conn
     else
       halt_unauthorized_response(conn)
     end
   end
 
-  defp staff_member?(conn) do
-    user_can?(conn.assigns.current_user, [Permission.new(:invoice, :modify, :all)])
+  defp authorize_staff_member(conn, _) do
+    if staff_member?(conn.assigns.current_user) do
+      conn
+    else
+      halt_unauthorized_response(conn)
+    end
   end
 
   defp authorize_view(conn, _) do
@@ -247,7 +255,7 @@ defmodule FlightWeb.API.InvoiceController do
   defp authorize_update(conn, _) do
     user = conn.assigns.current_user
 
-    if staff_member?(conn) ||
+    if staff_member?(conn.assigns.current_user) ||
          user_can?(user, [Permission.new(:invoice, :modify, {:personal, conn.assigns.invoice})]) do
       conn
     else

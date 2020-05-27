@@ -69,7 +69,7 @@ class AircraftLineItem extends Component {
   }
 
   aircraftSelect = () => {
-    const { errors } = this.props;
+    const { errors, editable } = this.props;
     const { aircrafts_loading, aircraft } = this.state;
 
     return (
@@ -78,6 +78,7 @@ class AircraftLineItem extends Component {
           getOptionLabel={(o) => o.tail_number}
           getOptionValue={(o) => o.id}
           isClearable={true}
+          isDisabled={!editable}
           onChange={this.setAircraft}
           options={this.props.aircrafts}
           placeholder="Tail #"
@@ -120,11 +121,11 @@ class AircraftLineItem extends Component {
     const {
       hobbs_start, hobbs_end, tach_start, tach_end, id, description
     } = line_item;
-    const { number, canRemove, errors, lineItemTypeOptions } = this.props;
+    const { number, canRemove, errors, lineItemTypeOptions, editable } = this.props;
     const { rate, quantity, amount } = this.props.line_item;
     const descriptionOpt = lineItemTypeOptions.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
-    const hobbsTachInputProps = Object.assign({}, NUMBER_PROPS, { disabled: !aircraft });
+    const hobbsTachInputProps = Object.assign({}, NUMBER_PROPS, { disabled: !aircraft || !editable });
     const hobbsErr = (this.props.line_item.errors || {}).aircraft_details || {};
     const hobbsWrapperClass = (hobbsErr.hobbs_start || hobbsErr.hobbs_end) ? 'lc-row-with-error' : '';
     const tachWrapperClass = (hobbsErr.tach_start || hobbsErr.tach_end) ? 'lc-row-with-error' : '';
@@ -136,6 +137,7 @@ class AircraftLineItem extends Component {
           <td className="lc-desc-column">
             <Select defaultValue={descriptionOpt.label ? descriptionOpt : null}
               onChange={this.setDesc}
+              isDisabled={!editable}
               options={lineItemTypeOptions}
               {...DESCRIPTION_SELECT_OPTS} />
             <Error text={errors.description} />
@@ -147,7 +149,8 @@ class AircraftLineItem extends Component {
           <td className="lc-column"></td>
           <td className="lc-column"></td>
           <td className="lc-column remove-line-item-wrapper">
-            {canRemove && <a className="remove-line-item" href="" onClick={this.remove}>&times;</a>}
+            {canRemove && editable &&
+              <a className="remove-line-item" href="" onClick={this.remove}>&times;</a>}
           </td>
         </tr>
         <tr key={id + "_hobbs_time"} className={hobbsWrapperClass}>

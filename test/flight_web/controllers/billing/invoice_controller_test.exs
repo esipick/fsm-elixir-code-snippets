@@ -47,12 +47,7 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
         assert content =~ user.first_name
         refute content =~ "<th>School</th>"
 
-        button_shown = content =~ "New Invoice"
-
-        case role_slug do
-          "student" -> refute button_shown
-          _ -> assert button_shown
-        end
+        assert content =~ "New Invoice"
       end
     end
 
@@ -250,7 +245,7 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
         |> get("/billing/invoices")
         |> html_response(200)
 
-      refute content =~ "New Invoice"
+      assert content =~ "New Invoice"
       assert content =~ "Correct User"
       refute content =~ "Another Student"
     end
@@ -281,7 +276,7 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
         |> get("/billing/invoices/#{invoice.id}")
         |> html_response(200)
 
-      refute content =~ "Edit"
+      assert content =~ "Edit"
       assert content =~ "Invoice ##{invoice.id} (pending)"
     end
 

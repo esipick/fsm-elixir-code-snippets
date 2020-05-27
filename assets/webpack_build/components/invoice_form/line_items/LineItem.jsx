@@ -48,11 +48,14 @@ class InvoiceLineItem extends PureComponent {
   }
 
   render() {
-    const { line_item } = this.props;
+    const { line_item, creator, staff_member } = this.props;
+
+    const editable = staff_member || !line_item.creator_id || line_item.creator_id == creator.id;
 
     const props = Object.assign({}, this.props, {
       lineItemTypeOptions: this.lineItemTypeOptions(),
-      itemFromOption: this.itemFromOption
+      itemFromOption: this.itemFromOption,
+      editable
     });
 
     if (line_item.type == 'aircraft') {

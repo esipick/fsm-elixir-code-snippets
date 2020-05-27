@@ -98,6 +98,7 @@ class LineItemsTable extends Component {
                 custom_line_items={custom_line_items}
                 student={this.props.student}
                 creator={this.props.creator}
+                staff_member={this.props.staff_member}
                 errors={line_items_errors[i] || {}}
                 instructors={instructors}
                 key={line_item.id || i}

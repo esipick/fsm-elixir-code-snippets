@@ -23,11 +23,9 @@
             </li>
           </ul>
 
-          <%= if can_create_invoice?(@conn) do %>
-            <div class="text-right">
-              <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
-            </div>
-          <% end %>
+          <div class="text-right">
+            <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
+          </div>
         </div>
 
         <div>

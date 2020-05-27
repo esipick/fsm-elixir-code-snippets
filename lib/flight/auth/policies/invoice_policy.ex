@@ -8,16 +8,16 @@ defmodule Flight.Auth.InvoicePolicy do
         create?(user)
 
       _ ->
-        invoice.status == :pending && create?(user)
+        invoice.status == :pending && view?(user, invoice)
     end
   end
 
-  def create?(user) do
-    user_can?(user, [Permission.new(:invoice, :modify, :all)])
+  def create?(_user) do
+    true
   end
 
   def view?(user, invoice) do
-    user.id == invoice.user_id || create?(user)
+    user.id == invoice.user_id || staff_member?(user)
   end
 
   def can_see_link_to_profile?(user) do

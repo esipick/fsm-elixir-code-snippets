@@ -1,12 +1,15 @@
 defmodule FlightWeb.Billing.InvoiceController do
   use FlightWeb, :controller
 
+  import Flight.Auth.Authorization
+
   alias Flight.{Auth.InvoicePolicy, Repo}
   alias Flight.Billing.{Invoice, InvoiceCustomLineItem}
   alias FlightWeb.{Pagination, Billing.InvoiceStruct}
 
   plug(:get_invoice when action in [:edit, :show, :delete])
-  plug(:authorize_modify when action in [:new, :edit, :delete])
+  plug(:authorize_delete when action in [:delete])
+  plug(:authorize_modify when action in [:new, :edit])
   plug(:authorize_view when action in [:show])
   plug(:check_paid_invoice when action in [:update, :edit, :delete])
   plug(:check_archived_invoice when action in [:show, :edit, :update, :delete])
@@ -16,7 +19,7 @@ defmodule FlightWeb.Billing.InvoiceController do
     user = conn.assigns.current_user
 
     page =
-      if InvoicePolicy.create?(user) do
+      if staff_member?(user) do
         Flight.Queries.Invoice.page(conn, page_params, params)
       else
         options = %{user_id: user.id}
@@ -29,45 +32,18 @@ defmodule FlightWeb.Billing.InvoiceController do
   end
 
   def new(conn, _) do
-    custom_line_items =
-      InvoiceCustomLineItem.get_custom_line_items(conn)
-      |> Enum.map(fn custom_line_item ->
-        %{
-          default_rate: custom_line_item.default_rate,
-          description: custom_line_item.description,
-          taxable: custom_line_item.taxable,
-          deductible: custom_line_item.deductible
-        }
-      end)
-
-    props = %{
-      custom_line_items: custom_line_items,
-      tax_rate: conn.assigns.current_user.school.sales_tax || 0,
-      action: "create",
-      creator: %{id: conn.assigns.current_user.id}
-    }
+    props =
+      base_invoice_props(conn)
+      |> Map.put(:action, "create")
 
     render(conn, "new.html", props: props)
   end
 
   def edit(conn, _) do
-    custom_line_items =
-      InvoiceCustomLineItem.get_custom_line_items(conn)
-      |> Enum.map(fn custom_line_item ->
-        %{
-          default_rate: custom_line_item.default_rate,
-          description: custom_line_item.description,
-          taxable: custom_line_item.taxable,
-          deductible: custom_line_item.deductible
-        }
-      end)
-
-    props = %{
-      action: "edit",
-      custom_line_items: custom_line_items,
-      id: conn.assigns.invoice.id,
-      creator: %{id: conn.assigns.current_user.id}
-    }
+    props =
+      base_invoice_props(conn)
+      |> Map.put(:action, "edit")
+      |> Map.put(:id, conn.assigns.invoice.id)
 
     render(conn, "edit.html", props: props, skip_shool_select: true)
   end
@@ -110,10 +86,11 @@ defmodule FlightWeb.Billing.InvoiceController do
       InvoicePolicy.modify?(user, invoice) ->
         conn
 
-      InvoicePolicy.create?(conn.assigns.current_user) ->
+      staff_member?(conn.assigns.current_user) ->
         conn
         |> put_flash(:error, "Can't modify invoice that is already paid.")
         |> redirect(to: "/billing/invoices/#{conn.assigns.invoice.id}")
+        |> halt()
 
       true ->
         redirect_unathorized_user(conn)
@@ -127,7 +104,15 @@ defmodule FlightWeb.Billing.InvoiceController do
     if InvoicePolicy.view?(user, invoice) do
       conn
     else
-      authorize_modify(conn, nil)
+      redirect_unathorized_user(conn)
+    end
+  end
+
+  defp authorize_delete(conn, _) do
+    if staff_member?(conn.assigns.current_user) do
+      conn
+    else
+      redirect_unathorized_user(conn)
     end
   end
 
@@ -149,5 +134,28 @@ defmodule FlightWeb.Billing.InvoiceController do
 
   defp check_archived_invoice(conn, _) do
     conn
+  end
+
+  defp base_invoice_props(conn) do
+    current_user = conn.assigns.current_user
+
+    %{
+      custom_line_items: custom_line_items_props(conn),
+      creator: FlightWeb.API.UserView.render("skinny_user.json", user: current_user),
+      tax_rate: current_user.school.sales_tax || 0,
+      staff_member: staff_member?(current_user)
+    }
+  end
+
+  defp custom_line_items_props(conn) do
+    InvoiceCustomLineItem.get_custom_line_items(conn)
+    |> Enum.map(fn custom_line_item ->
+      %{
+        default_rate: custom_line_item.default_rate,
+        description: custom_line_item.description,
+        taxable: custom_line_item.taxable,
+        deductible: custom_line_item.deductible
+      }
+    end)
   end
 end

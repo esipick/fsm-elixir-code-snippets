@@ -1,6 +1,10 @@
 defmodule Flight.Auth.Authorization do
   import Flight.Auth.Permission
 
+  def staff_member?(user) do
+    user_can?(user, [Flight.Auth.Permission.new(:staff, :access, :all)])
+  end
+
   def user_can?(user, permissions) do
     for permission <- permissions do
       has_permission_slug?(user, permission_slug(permission)) && scope_checker(permission, user)
@@ -76,7 +80,8 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:users, :create, :all),
       permission_slug(:users, :modify, :all),
       permission_slug(:users, :view, :all),
-      permission_slug(:web_dashboard, :access, :all)
+      permission_slug(:web_dashboard, :access, :all),
+      permission_slug(:staff, :access, :all)
     ])
   end
 
@@ -86,7 +91,8 @@ defmodule Flight.Auth.Authorization do
       MapSet.new([
         permission_slug(:admins, :modify, :all),
         permission_slug(:invoice_custom_line_items, :modify, :all),
-        permission_slug(:payment_settings, :modify, :all)
+        permission_slug(:payment_settings, :modify, :all),
+        permission_slug(:staff, :access, :all)
       ])
     )
   end
@@ -119,7 +125,8 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:users, :create, :all),
       permission_slug(:users, :modify, :all),
       permission_slug(:users, :view, :all),
-      permission_slug(:web_dashboard, :access, :all)
+      permission_slug(:web_dashboard, :access, :all),
+      permission_slug(:staff, :access, :all)
     ])
   end
 

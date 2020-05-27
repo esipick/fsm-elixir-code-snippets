@@ -87,7 +87,7 @@ class OtherLineItem extends Component {
   }
 
   instructorSelect = () => {
-    const { errors } = this.props;
+    const { errors, editable } = this.props;
     const { instructors_loading, instructor_user } = this.state;
 
     return (
@@ -96,6 +96,7 @@ class OtherLineItem extends Component {
           getOptionLabel={(o) => o.first_name + ' ' + o.last_name}
           getOptionValue={(o) => o.id}
           isClearable={true}
+          isDisabled={!editable}
           onChange={this.setInstructor}
           options={this.props.instructors}
           value={instructor_user}
@@ -111,7 +112,7 @@ class OtherLineItem extends Component {
         id, description, rate, quantity, deductible
       }
     } = this.state;
-    const { number, canRemove, errors, lineItemTypeOptions, line_item: { amount } } = this.props;
+    const { number, canRemove, errors, lineItemTypeOptions, editable, line_item: { amount } } = this.props;
     const descriptionOpt = lineItemTypeOptions.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
     const amountCss = classnames('lc-column', deductible ? 'deductible' : '');
@@ -127,6 +128,7 @@ class OtherLineItem extends Component {
           <Select defaultValue={descriptionOpt ? descriptionOpt : null}
             onChange={this.setDesc}
             options={lineItemTypeOptions}
+            isDisabled={!editable}
             {...DESCRIPTION_SELECT_OPTS} />
           <Error text={errors.description} />
         </td>
@@ -136,6 +138,7 @@ class OtherLineItem extends Component {
         <td className="lc-column">
           <NumberFormat onValueChange={this.setRate}
             value={rate == null ? null : rate / 100 }
+            disabled={!editable}
             {...rateOpts} />
           { errors.rate && <br /> }
           <Error text={errors.rate} />
@@ -143,12 +146,14 @@ class OtherLineItem extends Component {
         <td className="lc-column">
           <NumberFormat onValueChange={this.setQty}
             value={quantity}
+            disabled={!editable}
             {...NUMBER_INPUT_OPTS} />
           <Error text={errors.quantity} />
         </td>
         <td className={amountCss}>${(amount / 100).toFixed(2)}</td>
         <td className="lc-column remove-line-item-wrapper">
-          {canRemove && <a className="remove-line-item" href="" onClick={this.remove}>&times;</a>}
+          {canRemove && editable &&
+            <a className="remove-line-item" href="" onClick={this.remove}>&times;</a>}
         </td>
       </tr>
     )
