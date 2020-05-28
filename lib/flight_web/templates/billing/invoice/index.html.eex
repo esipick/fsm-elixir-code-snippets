@@ -24,6 +24,10 @@
           </ul>
 
           <div class="text-right">
+            <%= if can_create_bulk_invoice?(@conn) do %>
+              <a href="/billing/bulk_invoices/new" class="btn btn-primary">Bulk Payment</a>
+            <% end %>
+
             <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
           </div>
         </div>

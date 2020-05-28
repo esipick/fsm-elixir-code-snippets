@@ -11,7 +11,7 @@ defmodule Flight.Queries.Invoice do
 
   @format_str "{0M}-{0D}-{YYYY}"
 
-  def page(%{assigns: %{current_user: _current_user}} = school_context, page_params, params = %{}) do
+  def all(%{assigns: %{current_user: _current_user}} = school_context, params = %{}) do
     search_term = Map.get(params, "search", nil)
     user_ids = users_search(search_term, school_context)
     invoice_ids = line_items_search(search_term)
@@ -39,15 +39,14 @@ defmodule Flight.Queries.Invoice do
     |> pass_unless(start_date, &where(&1, [t], t.inserted_at >= ^start_date))
     |> pass_unless(end_date, &where(&1, [t], t.inserted_at <= ^end_date))
     |> pass_unless(status, &where(&1, [t], t.status == ^status))
-    |> Repo.paginate(page_params)
+    |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
   end
 
-  def own_invoices(school_context, page_params, params) do
+  def own_invoices(school_context, params) do
     from(i in Invoice, where: i.archived == false, order_by: [desc: i.inserted_at])
     |> SchoolScope.scope_query(school_context)
     |> where([i], i.user_id == ^params[:user_id])
     |> where([i], i.archived == false)
-    |> Repo.paginate(page_params)
   end
 
   defp parse_date(date, shift_days) do

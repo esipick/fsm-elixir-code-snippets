@@ -128,6 +128,7 @@ defmodule FlightWeb.Router do
     pipe_through([:browser, :admin_layout, :web_user_authenticate, :admin_metrics_namespace])
 
     resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show, :delete])
+    resources("/bulk_invoices", BulkInvoiceController, only: [:new])
     resources("/transactions", TransactionController, only: [:index])
   end
 

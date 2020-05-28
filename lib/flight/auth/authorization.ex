@@ -60,6 +60,7 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:documents, :modify, :all),
       permission_slug(:documents, :view, :all),
       permission_slug(:invoice, :modify, :all),
+      permission_slug(:bulk_invoice, :modify, :all),
       permission_slug(:invoice, :view, :all),
       permission_slug(:objective_score, :modify, :all),
       permission_slug(:objective_score, :view, :all),

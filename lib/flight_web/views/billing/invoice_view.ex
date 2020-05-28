@@ -3,7 +3,10 @@ defmodule FlightWeb.Billing.InvoiceView do
 
   import FlightWeb.ViewHelpers
   import Scrivener.HTML
+  import Flight.Auth.Authorization
+
   alias Flight.Auth.InvoicePolicy
+  alias Flight.Auth.Permission
 
   def can_modify_invoice?(conn, invoice) do
     InvoicePolicy.modify?(conn.assigns.current_user, invoice)
@@ -11,6 +14,11 @@ defmodule FlightWeb.Billing.InvoiceView do
 
   def can_delete_invoice?(conn) do
     Flight.Auth.Authorization.staff_member?(conn.assigns.current_user)
+  end
+
+  def can_create_bulk_invoice?(conn) do
+    false
+    # user_can?(conn.assigns.current_user, [Permission.new(:bulk_invoice, :modify, :all)])
   end
 
   def line_item_notes(line_item) do

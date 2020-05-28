@@ -1,20 +1,21 @@
 defmodule FlightWeb.API.InvoiceController do
   use FlightWeb, :controller
 
-  import Ecto.Query
   import Flight.Auth.Authorization
+  import Ecto.Query
+  import Pipe
 
-  alias Flight.Repo
   alias Flight.Auth.Permission
+  alias Flight.{Auth.InvoicePolicy, Repo}
   alias FlightWeb.{ViewHelpers, Pagination, StripeHelper}
 
   alias Flight.Billing.{
-    Invoice,
-    CreateInvoice,
-    UpdateInvoice,
-    CreateInvoiceFromAppointment,
     CalculateInvoice,
-    PaymentError
+    CreateInvoice,
+    CreateInvoiceFromAppointment,
+    Invoice,
+    PaymentError,
+    UpdateInvoice
   }
 
   plug(:get_invoice when action in [:update, :show, :delete])
@@ -27,7 +28,17 @@ defmodule FlightWeb.API.InvoiceController do
 
   def index(conn, params) do
     page_params = Pagination.params(params)
-    page = from(i in Invoice, where: i.archived == false) |> Repo.paginate(page_params)
+    user = conn.assigns.current_user
+
+    result =
+      if staff_member?(user) do
+        Flight.Queries.Invoice.all(conn, params)
+      else
+        options = %{user_id: user.id}
+        Flight.Queries.Invoice.own_invoices(conn, options)
+      end
+
+    page = result |> Repo.paginate(page_params)
     invoices = Repo.preload(page.entries, [:user, :line_items, :appointment])
 
     conn
