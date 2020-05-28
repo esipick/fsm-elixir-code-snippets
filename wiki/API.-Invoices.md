@@ -227,6 +227,16 @@ Request Example:
 GET /api/invoices?page=:number
 ```
 
+Optional params:
+
+|Parameter|Type|Example|Description|
+|---|---|---|---|
+|user_id|number|781|id of student|
+|search|string|"niko"|search string, Search by student name or aircraft tail number|
+|start_date|date|05-30-2020|return invoices with invoice date >= start_date|
+|end_date|date|05-30-2020|return invoices with invoice date <= end_date|
+|status|number|0|invoice status: 0 - pending, 1 - paid|
+
 List of invoices, paginated by 50 per page
 
 Pagination info will be available in the response headers:
