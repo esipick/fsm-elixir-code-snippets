@@ -28,12 +28,13 @@ class CustomLineItem extends Component {
 
   payload = () => {
     const { taxable, description, default_rate, deductible } = this.state;
+    const default_rate_to_cents = Math.round(default_rate.replace(/,/g, '') * 100)
 
     return {
       deductible,
       taxable,
       description,
-      default_rate: default_rate.replace(/,/g, '') * 100
+      default_rate: default_rate_to_cents
     }
   }
 
