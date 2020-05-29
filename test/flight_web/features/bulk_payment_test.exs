@@ -42,5 +42,6 @@ defmodule FlightWeb.Features.BulkPaymentTest do
     |> dismiss_modal()
     |> react_select("#payment-method", "Cash")
     |> pay_ivoice()
+    |> assert_has(css(".title", text: "Invoice ##{invoice1.id} (paid)"))
   end
 end
