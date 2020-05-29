@@ -192,10 +192,10 @@ class BulkInvoiceForm extends Component {
         <div className="col-md-3 col-xs-3 bulk-invoice__invoice-item">
           <div className="checkbox">
             <input checked={this.state.all_invoices_selected}
-              id="allCheckbox"
+              id="all-invoices-selected"
               onChange={this.toggleAllInvoicesSelected}
               type="checkbox" />
-            <label htmlFor="allCheckbox" />
+            <label htmlFor="all-invoices-selected" />
           </div>
         </div>
         <div className="col-md-3 col-xs-3 bulk-invoice__invoice-item">ID</div>
@@ -229,7 +229,8 @@ class BulkInvoiceForm extends Component {
                     <Error text={errors.user_id} />
                   </label>
                   <div className={classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '')}>
-                    <Select placeholder="Student name"
+                    <Select id="student-name"
+                      placeholder="Student name"
                       classNamePrefix="react-select"
                       options={students}
                       onChange={this.setStudent}
@@ -241,7 +242,7 @@ class BulkInvoiceForm extends Component {
 
                 <div className="form-group">
                   <label>Acct Balance</label>
-                  <div>${this.accountBalance()}</div>
+                  <div className="account-balance">${this.accountBalance()}</div>
                 </div>
 
                 <div className="form-group">
@@ -261,7 +262,7 @@ class BulkInvoiceForm extends Component {
                   <label>
                     Total Amount
                   </label>
-                  <div>
+                  <div id="total-amount-due">
                     ${ (total_amount_due / 100.0).toFixed(2) }
                   </div>
                 </div>
@@ -272,7 +273,8 @@ class BulkInvoiceForm extends Component {
                     <Error text={errors.payment_option} />
                   </label>
                   <div className="invoice-select-wrapper">
-                    <Select placeholder="Payment method"
+                    <Select id="payment-method"
+                      placeholder="Payment method"
                       value={payment_method}
                       classNamePrefix="react-select"
                       options={PAYMENT_OPTIONS}
@@ -283,7 +285,8 @@ class BulkInvoiceForm extends Component {
                 </div>
 
                 <div className="form-group invoice-save-buttons">
-                  <input className="btn btn-primary"
+                  <input id="pay"
+                    className="btn btn-primary"
                     type="submit"
                     value="Pay"
                     disabled={payBtnDisabled}

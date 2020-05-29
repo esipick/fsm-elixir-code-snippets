@@ -14,6 +14,8 @@ defmodule FlightWeb.FeatureCase do
 
       import FlightWeb.Router.Helpers
       import Flight.AccountsFixtures
+      import Flight.SchedulingFixtures
+      import Flight.BillingFixtures
       import FlightWeb.FeatureHelpers
     end
   end
