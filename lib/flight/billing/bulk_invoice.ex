@@ -14,13 +14,15 @@ defmodule Flight.Billing.BulkInvoice do
     user_id
   )a
 
-  schema "bulk_bulk_invoices" do
+  schema "bulk_invoices" do
     field(:payment_option, InvoicePaymentOptionEnum)
+    field(:total_amount_due, :integer)
+    field(:status, InvoiceStatusEnum, default: :pending)
 
     belongs_to(:user, User)
     belongs_to(:school, School)
     has_many(:bulk_invoices, Invoice, on_delete: :nilify_all)
-    has_one(:transactions, Transaction, on_delete: :nilify_all)
+    has_one(:bulk_transaction, Transaction, on_delete: :nilify_all)
 
     timestamps()
   end

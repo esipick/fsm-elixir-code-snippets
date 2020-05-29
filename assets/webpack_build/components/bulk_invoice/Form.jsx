@@ -101,9 +101,35 @@ class BulkInvoiceForm extends Component {
 
     this.setState({ saving: true });
 
-    setTimeout(() => {
-      this.setState({ saving: false });
-    }, 3000)
+    const { student, invoices, total_amount_due, payment_method } = this.state;
+
+    const bulk_invoice = {
+      user_id: student.id,
+      total_amount_due,
+      payment_option: payment_method.value,
+      invoice_ids: invoices.map(i => i.id)
+    }
+
+    http.post({
+      url: `/api/bulk_invoices`,
+      body: { bulk_invoice },
+      headers: authHeaders()
+    }).then(response => {
+      response.json().then(({ data }) => {
+        window.location = `/billing/invoices/${invoices[0].id}`;
+      });
+    }).catch(response => {
+      response.json().then((error_body) => {
+        console.warn(error_body);
+        const { id = this.state.id, stripe_error = '', error = '', errors = {} } = error_body;
+        const action = id ? 'edit' : 'create';
+        this.setState({
+          saving: false, id, action,
+          stripe_error, error, errors,
+          error_alert_open: this.state.total <= 0
+        });
+      });
+    });
   }
 
   submitForm = () => {

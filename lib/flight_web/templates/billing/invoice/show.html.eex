@@ -16,7 +16,7 @@
               </a>
             <% end %>
 
-            <%= if can_delete_invoice?(@conn) do %>
+            <%= if can_delete_invoice?(@conn, @invoice) do %>
               <button stype="button" class="btn btn-danger _delete_button" data-invoice-id="<%= @invoice.id %>">
                 Delete
               </button>
@@ -188,6 +188,18 @@
                     <td><%= transaction.state %></td>
                     <td><%= transaction.completed_at %></td>
                     <td><%= transaction.payment_method %></td>
+                  </tr>
+                <% end %>
+
+                <%= if @invoice.bulk_transaction do %>
+                  <tr>
+                    <td><%= @invoice.bulk_transaction.id %></td>
+                    <td><%= @invoice.bulk_transaction.created %></td>
+                    <td><%= currency(@invoice.bulk_transaction.amount_due) %></td>
+                    <td><%= currency(@invoice.bulk_transaction.amount_paid) %></td>
+                    <td><%= @invoice.bulk_transaction.state %></td>
+                    <td><%= @invoice.bulk_transaction.completed_at %></td>
+                    <td><%= @invoice.bulk_transaction.payment_method %></td>
                   </tr>
                 <% end %>
               </tbody>

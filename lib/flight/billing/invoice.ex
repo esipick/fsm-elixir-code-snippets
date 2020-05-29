@@ -37,6 +37,7 @@ defmodule Flight.Billing.Invoice do
     belongs_to(:bulk_invoice, Flight.Billing.BulkInvoice)
     has_many(:line_items, InvoiceLineItem, on_replace: :delete, on_delete: :delete_all)
     has_many(:transactions, Transaction, on_delete: :nilify_all)
+    has_one(:bulk_transaction, through: [:bulk_invoice, :bulk_transaction])
 
     timestamps()
   end

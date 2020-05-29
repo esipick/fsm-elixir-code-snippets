@@ -1,14 +1,24 @@
 defmodule Flight.Billing.CreateBulkInvoice do
+  import Ecto.Query, warn: false
+
   alias Flight.Accounts.User
-  alias Flight.Billing.{BulkInvoice, PayOff}
+  alias Flight.Billing.{Invoice, BulkInvoice, PayOff}
+  alias Flight.Repo
 
   def run(invoice_params, school_context) do
     school = school(school_context)
     invoice_attrs = Map.merge(invoice_params, %{"school_id" => school.id})
+    invoice_ids = invoice_params["invoice_ids"]
+
+    # IO.puts(Poison.encode!(invoice_attrs))
 
     case BulkInvoice.create(invoice_attrs) do
       {:ok, bulk_invoice} ->
-        case pay(bulk_invoice, school_context) do
+        update_invoices(invoice_ids, bulk_invoice_id: bulk_invoice.id)
+
+        bulk_invoice = Repo.preload(bulk_invoice, :user)
+
+        case pay(bulk_invoice, school_context, invoice_ids) do
           {:ok, bulk_invoice} -> {:ok, bulk_invoice}
           {:error, error} -> {:error, error}
         end
@@ -18,10 +28,10 @@ defmodule Flight.Billing.CreateBulkInvoice do
     end
   end
 
-  def pay(bulk_invoice, school_context) do
+  def pay(bulk_invoice, school_context, invoice_ids) do
     case process_payment(bulk_invoice, school_context) do
       {:ok, bulk_invoice} ->
-        # TODO: mark all invoices paid
+        update_invoices(invoice_ids, status: 1)
 
         {:ok, bulk_invoice}
 
@@ -93,5 +103,10 @@ defmodule Flight.Billing.CreateBulkInvoice do
 
   defp school(school_context) do
     Flight.SchoolScope.get_school(school_context)
+  end
+
+  defp update_invoices(ids, update) do
+    from(i in Invoice, where: i.id in ^ids)
+    |> Repo.update_all(set: update)
   end
 end

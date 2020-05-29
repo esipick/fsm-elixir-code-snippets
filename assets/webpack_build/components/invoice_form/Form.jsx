@@ -262,7 +262,7 @@ class Form extends Component {
       tax_rate: sales_tax,
       total,
       total_tax,
-      total_amount_due: total_amount_due,
+      total_amount_due,
       payment_option: payment_method.value,
       appointment_id: appointment && appointment.id
     }

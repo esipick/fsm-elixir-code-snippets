@@ -281,6 +281,7 @@ defmodule FlightWeb.Router do
     post("/invoices/calculate", InvoiceController, :calculate, as: :calculate_invoice)
 
     resources("/invoices", InvoiceController, only: [:index, :show, :create, :update, :delete])
+    resources("/bulk_invoices", BulkInvoiceController, only: [:create])
 
     resources("/courses", CourseController, only: [:index])
 
