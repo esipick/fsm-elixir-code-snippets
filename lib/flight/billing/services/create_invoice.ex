@@ -3,13 +3,13 @@ defmodule Flight.Billing.CreateInvoice do
 
   alias Flight.Repo
   alias Flight.Accounts.User
-  alias Flight.Billing.{Invoice, Transaction, PayTransaction, LineItemCreator}
+  alias Flight.Billing.{Invoice, LineItemCreator, PayOff}
   alias FlightWeb.Billing.InvoiceStruct
   alias Flight.Scheduling.{Appointment, Aircraft}
 
   def run(invoice_params, school_context) do
     pay_off = Map.get(school_context.params, "pay_off", false)
-    school = school(school_context)
+    school = Flight.SchoolScope.get_school(school_context)
     current_user = school_context.assigns.current_user
 
     line_items = LineItemCreator.populate_creator(invoice_params["line_items"], current_user)
@@ -85,106 +85,55 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   defp pay_off_balance(invoice, school_context) do
-    user_balance = invoice.user.balance
     total_amount_due = InvoiceStruct.build(invoice).amount_remainder
 
-    if user_balance > 0 do
-      remainder = user_balance - total_amount_due
-      balance_enough = remainder >= 0
-      total = if balance_enough, do: total_amount_due, else: user_balance
+    transaction_attrs =
+      transaction_attributes(invoice)
+      |> Map.merge(%{total: total_amount_due})
 
-      case create_transaction(invoice, school_context, %{total: total, payment_option: :balance}) do
-        {:ok, transaction} ->
-          case PayTransaction.run(transaction) do
-            {:ok, _} ->
-              if balance_enough do
-                Invoice.paid(invoice)
-              else
-                pay_off_cc(invoice, school_context, abs(remainder))
-              end
+    case PayOff.balance(invoice.user, transaction_attrs, school_context) do
+      {:ok, :balance_enough, _} ->
+        Invoice.paid(invoice)
 
-            {:error, changeset} ->
-              {:error, changeset}
-          end
+      {:ok, :balance_not_enough, remainder, _} ->
+        pay_off_cc(invoice, school_context, remainder)
 
-        {:error, changeset} ->
-          {:error, changeset}
-      end
-    else
-      pay_off_cc(invoice, school_context, total_amount_due)
+      {:error, :balance_is_empty} ->
+        pay_off_cc(invoice, school_context, total_amount_due)
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 
   defp pay_off_cc(invoice, school_context, amount \\ nil) do
     amount = amount || invoice.total_amount_due
-    transaction_attrs = %{type: "credit", total: amount, payment_option: :cc}
 
-    case create_transaction(invoice, school_context, transaction_attrs) do
-      {:ok, transaction} ->
-        case PayTransaction.run(transaction) do
-          {:ok, _} -> Invoice.paid_by_cc(invoice)
-          {:error, changeset} -> {:error, changeset}
-        end
+    transaction_attrs =
+      transaction_attributes(invoice)
+      |> Map.merge(%{type: "credit", total: amount, payment_option: :cc})
 
-      {:error, changeset} ->
-        {:error, changeset}
+    case PayOff.credit_card(invoice.user, transaction_attrs, school_context) do
+      {:ok, _} -> Invoice.paid_by_cc(invoice)
+      {:error, changeset} -> {:error, changeset}
     end
   end
 
   defp pay_off_manually(invoice, school_context) do
-    transaction_attrs = %{total: invoice.total_amount_due, payment_option: invoice.payment_option}
+    transaction_attrs = transaction_attributes(invoice)
 
-    case create_transaction(invoice, school_context, transaction_attrs) do
-      {:ok, transaction} ->
-        case PayTransaction.run(transaction) do
-          {:ok, _} -> Invoice.paid(invoice)
-          {:error, changeset} -> {:error, changeset}
-        end
-
-      {:error, changeset} ->
-        {:error, changeset}
+    case PayOff.manually(invoice.user, transaction_attrs, school_context) do
+      {:ok, _} -> Invoice.paid(invoice)
+      {:error, changeset} -> {:error, changeset}
     end
   end
 
-  defp create_transaction(invoice, school_context, attrs) do
-    user = invoice.user
-    first_name = if user, do: user.first_name, else: invoice.payer_name
-
-    transaction =
-      %Transaction{
-        state: "pending",
-        type: "debit",
-        user_id: user && user.id,
-        invoice_id: invoice.id,
-        email: user && user.email,
-        first_name: first_name,
-        last_name: user && user.last_name,
-        creator_user_id: school_context.assigns.current_user.id,
-        school_id: school(school_context).id
-      }
-      |> Transaction.changeset(attrs)
-
-    transaction =
-      with %User{} = user <- user, false <- :ets.insert_new(:locked_users, {user.id}) do
-        transaction
-        |> Ecto.Changeset.add_error(
-          :invoice,
-          "Another payment for this user is already in progress."
-        )
-      else
-        _ ->
-          transaction
-      end
-
-    transaction =
-      transaction
-      |> Repo.insert()
-
-    if user, do: :ets.delete(:locked_users, user.id)
-    transaction
-  end
-
-  defp school(school_context) do
-    Flight.SchoolScope.get_school(school_context)
+  defp transaction_attributes(invoice) do
+    %{
+      total: invoice.total_amount_due,
+      payment_option: invoice.payment_option,
+      payer_name: invoice.payer_name,
+      invoice_id: invoice.id
+    }
   end
 end

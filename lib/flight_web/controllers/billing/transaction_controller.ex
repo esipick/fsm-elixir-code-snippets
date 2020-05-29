@@ -2,7 +2,6 @@ defmodule FlightWeb.Billing.TransactionController do
   use FlightWeb, :controller
 
   alias FlightWeb.{Pagination, Billing.TransactionStruct}
-  alias Flight.Auth.InvoicePolicy
 
   import Flight.Auth.Authorization
 

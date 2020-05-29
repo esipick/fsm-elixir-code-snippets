@@ -3,8 +3,6 @@ defmodule FlightWeb.Billing.BulkInvoiceController do
 
   import Flight.Auth.Authorization
 
-  alias Flight.Repo
-  alias Flight.Billing.{Invoice}
   alias Flight.Auth.Permission
 
   plug(:authorize_modify when action in [:new])

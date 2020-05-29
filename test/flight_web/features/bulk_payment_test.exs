@@ -1,5 +1,5 @@
 defmodule FlightWeb.Features.BulkPaymentTest do
-  use FlightWeb.FeatureCase, async: true
+  use FlightWeb.FeatureCase, async: false
 
   def modal_box(msg), do: css(".balance-warning-dialog__content", text: msg)
 
