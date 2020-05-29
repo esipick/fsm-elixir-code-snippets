@@ -69,10 +69,15 @@ defmodule FlightWeb.API.UserController do
 
         render(conn, "show.json", user: user)
 
-      {:error, changeset} ->
+      {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(400)
         |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
+
+      {:error, %Stripe.Error{} = error} ->
+        conn
+        |> put_status(error.extra.http_status)
+        |> json(%{stripe_error: StripeHelper.human_error(error.message)})
     end
   end
 
