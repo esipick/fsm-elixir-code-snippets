@@ -82,7 +82,7 @@
                   <% end %>
                   <%= if Accounts.has_role?(@user, "student") do %>
                     <div class="field">
-                      <h3>Insctructor</h3>
+                      <h3>Instructor</h3>
                       <%= if @user.main_instructor_id do %>
                         <%= if @user.main_instructor.archived do %>
                           <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
@@ -145,7 +145,7 @@
               </div>
               <div class="fields">
                 <div class="field">
-                  <h3>Insctructor</h3>
+                  <h3>Instructor</h3>
                   <%= if @user.main_instructor_id do %>
                     <%= if @user.main_instructor.archived do %>
                       <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>

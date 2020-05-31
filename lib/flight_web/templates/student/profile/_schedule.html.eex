@@ -1,0 +1,49 @@
+
+<div class="d-flex justify-content-center">
+  <div class="text-center mb-2 mt-2">
+    <h7>Flight Hours</h7>
+    <h2 class="mb-2"><%= @total_hrs_spent %></h2>
+  </div>
+</div>
+
+<%= if Enum.any?(@appointments) do %>
+  <div class="tab-pane detail-list list-billing" id="link3">
+    <%= for appointment <- @appointments do %>
+      <dl class="d-flex justify-content-between">
+        <dt><%= display_walltime_date(appointment.start_at, @user.school.timezone, :long) %></dt>
+        <dd>
+          <dl class="d-flex justify-content-between">
+            <dt>Start Time</dt>
+            <dd><%= display_walltime_datetime(appointment.start_at, @user.school.timezone) %></dd>
+          </dl>
+          <dl class="d-flex justify-content-between">
+            <dt>End Time</dt>
+            <dd><%= display_walltime_datetime(appointment.end_at, @user.school.timezone) %></dd>
+          </dl>
+          <%= if appointment.aircraft_id do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Aircraft</dt>
+              <%= if appointment.aircraft.archived do %>
+                <dd><%= aircraft_display_name appointment.aircraft %></dd>
+              <% else %>
+                <dd><a href="/admin/aircrafts/<%= appointment.aircraft_id %>"><%= aircraft_display_name appointment.aircraft %></a></dd>
+              <% end %>
+            </dl>
+          <% end %>
+          <%= if appointment.instructor_user_id do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Instructor</dt>
+              <%= if appointment.instructor_user.archived do %>
+                <dd><%= display_name appointment.instructor_user %></dd>
+              <% else %>
+                <dd><a href="/admin/users/<%= appointment.instructor_user_id %>"><%= display_name appointment.instructor_user %></a></dd>
+              <% end %>
+            </dl>
+          <% end %>
+        </dd>
+      </dl>
+    <% end %>
+  </div>
+<% else %>
+  <h5>No appointments</h5>
+<% end %>
