@@ -8,62 +8,56 @@
 </div>
 
 <div class="content">
-
-
-<div class="row">
-
-  <div class="col-md-8">
-    <div class="card ">
-      <div class="card-header">
-        <div class="d-flex justify-content-between mb-3">
-          <ul class="nav nav-pills nav-pills-primary" role="tablist">
-            <li class="nav-item">
-              <a class="nav-link <%= if @tab == :school, do: "active", else: "" %>" href=<%= @conn.request_path %>>School Details</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link <%= if @tab == :contact, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=contact" %>>Contact Details</a>
-            </li>
-            <%= if can_access_billing?(@conn) do %>
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card ">
+        <div class="card-header">
+          <div class="d-flex justify-content-between mb-3">
+            <ul class="nav nav-pills nav-pills-primary" role="tablist">
               <li class="nav-item">
-                <a class="nav-link <%= if @tab == :payment, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=payment" %>>Payment Setup</a>
+                <a class="nav-link <%= if @tab == :school, do: "active", else: "" %>" href=<%= @conn.request_path %>>School Details</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=billing" %>>Billing Settings</a>
+                <a class="nav-link <%= if @tab == :contact, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=contact" %>>Contact Details</a>
               </li>
-            <% end %>
-          </ul>
+              <%= if can_access_billing?(@conn) do %>
+                <li class="nav-item">
+                  <a class="nav-link <%= if @tab == :payment, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=payment" %>>Payment Setup</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=billing" %>>Billing Settings</a>
+                </li>
+              <% end %>
+            </ul>
+          </div>
         </div>
-      </div>
-      <div class="card-body">
-        <%=
-          case @tab do
-            :school -> render "_school.html", school: @school, changeset: @changeset, request_path: @conn.request_path
-            :contact -> render "_contact.html", school: @school, changeset: @changeset, request_path: @conn.request_path
-            :payment -> render "_payment.html", school: @school
-            :billing -> render "_billing.html", school: @school, props: @props
-          end
-          %>
-      </div>
-    </div> <!-- end card -->
-  </div>
+        <div class="card-body">
+          <%=
+            case @tab do
+              :school -> render "_school.html", school: @school, changeset: @changeset, request_path: @conn.request_path
+              :contact -> render "_contact.html", school: @school, changeset: @changeset, request_path: @conn.request_path
+              :payment -> render "_payment.html", school: @school
+              :billing -> render "_billing.html", school: @school, changeset: @changeset, request_path: @conn.request_path, props: @props
+            end
+            %>
+        </div>
+      </div> <!-- end card -->
+    </div>
 
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-body detail-list">
-        <dl class="d-flex justify-content-between">
-          <dt>Account Created</dt>
-          <dd><%= display_date @school.inserted_at, :short %></dd>
-        </dl>
-        <dl class="d-flex justify-content-between">
-          <dt>Billing Status</dt>
-          <dd><%= stripe_status_html(@school.stripe_account) %></dd>
-        </dl>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body detail-list">
+          <dl class="d-flex justify-content-between">
+            <dt>Account Created</dt>
+            <dd><%= display_date @school.inserted_at, :short %></dd>
+          </dl>
+          <dl class="d-flex justify-content-between">
+            <dt>Billing Status</dt>
+            <dd><%= stripe_status_html(@school.stripe_account) %></dd>
+          </dl>
+        </div>
       </div>
     </div>
   </div>
-
-
-
 </div>
-
-</div> <!-- end content -->
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>

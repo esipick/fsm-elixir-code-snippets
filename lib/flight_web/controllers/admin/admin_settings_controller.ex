@@ -23,6 +23,8 @@ defmodule FlightWeb.Admin.SettingsController do
   end
 
   def show(%{assigns: %{school: school}} = conn, %{"tab" => "billing"}) do
+    changeset = Accounts.School.admin_changeset(school, %{})
+
     custom_line_items =
       InvoiceCustomLineItem.get_custom_line_items(school)
       |> Enum.map(fn custom_line_item ->
@@ -38,6 +40,7 @@ defmodule FlightWeb.Admin.SettingsController do
     props = %{custom_line_items: custom_line_items, school_id: school.id}
 
     render(conn, "show.html",
+      changeset: changeset,
       hide_school_info: true,
       props: props,
       school: conn.assigns.school,
@@ -63,6 +66,7 @@ defmodule FlightWeb.Admin.SettingsController do
           case redirect_tab do
             "school" -> ""
             "contact" -> "?tab=contact"
+            "billing" -> "?tab=billing"
           end
 
         conn
@@ -74,6 +78,7 @@ defmodule FlightWeb.Admin.SettingsController do
           case redirect_tab do
             "school" -> :school
             "contact" -> :contact
+            "billing" -> :billing
           end
 
         render(conn, "show.html",

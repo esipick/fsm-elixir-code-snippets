@@ -1,1 +1,18 @@
+<h6>Set Sales Tax Rate</h6>
+<%= form_for @changeset, @request_path, [as: :data, method: "put"], fn f -> %>
+  <div class="row mb-4">
+    <div class="col-md-10">
+      <div class="form-group">
+        <label>Sales Tax Rate %</label>
+        <%= number_input f, :sales_tax, class: "form-control", step: "0.01", min: "0.0", max: 100 %>
+      </div>
+    </div>
+    <input type="hidden" name="redirect_tab" value="billing" />
+    <div class="col-md-2">
+      <div class="form-group">
+        <input type="submit" class="btn mt-4 btn-primary" value="Save">
+      </div>
+    </div>
+  </div>
+<% end %>
 <%= ReactPhoenix.ClientSide.react_component("Components.InvoiceCustomLineItem", @props) %>
