@@ -36,12 +36,19 @@ defmodule FlightWeb.API.InvoiceController do
         Flight.Queries.Invoice.own_invoices(conn, options)
       end
 
-    page = result |> Repo.paginate(page_params)
-    invoices = Repo.preload(page.entries, [:user, :line_items, :appointment])
+    {page, invoices} =
+      if params["skip_pagination"] do
+        {nil, Repo.all(result)}
+      else
+        page = Repo.paginate(result, page_params)
+        {page, page.entries}
+      end
+
+    invoices = Repo.preload(invoices, [:user, :line_items, :appointment])
 
     conn
     |> put_status(200)
-    |> Scrivener.Headers.paginate(page)
+    |> Pagination.apply_headers(page)
     |> render("index.json", invoices: invoices)
   end
 

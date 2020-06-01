@@ -14,10 +14,6 @@ defmodule FlightWeb.Billing.InvoiceController do
   plug(:check_paid_invoice when action in [:update, :edit, :delete])
   plug(:check_archived_invoice when action in [:show, :edit, :update, :delete])
 
-  # TODO:
-  # 1 - allow to skip pagination
-  # 2 - Table with chekboxes for invoices instead of select
-  # 3 - Mass payment for anonymous users
   def index(conn, params) do
     page_params = Pagination.params(params)
     user = conn.assigns.current_user

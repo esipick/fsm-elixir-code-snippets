@@ -66,7 +66,7 @@ class BulkInvoiceForm extends Component {
     this.setState({ invoices_loading: true });
 
     http.get({
-      url: '/api/invoices?status=0&user_id=' + student.id + addSchoolIdParam('&'),
+      url: '/api/invoices?skip_pagination=true&status=0&user_id=' + student.id + addSchoolIdParam('&'),
       headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
@@ -117,8 +117,7 @@ class BulkInvoiceForm extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
-        const invoice_id = Math.min(...invoice_ids);
-        window.location = `/billing/invoices/${invoice_id}`;
+        window.location = `/billing/transactions/${data.transaction_id}`;
       });
     }).catch(response => {
       response.json().then((error_body) => {

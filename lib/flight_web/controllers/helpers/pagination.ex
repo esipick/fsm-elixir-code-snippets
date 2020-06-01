@@ -5,4 +5,12 @@ defmodule FlightWeb.Pagination do
       page_size: Map.get(params, "page_size", 50)
     }
   end
+
+  def apply_headers(conn, page) do
+    if page do
+      Scrivener.Headers.paginate(conn, page)
+    else
+      conn
+    end
+  end
 end

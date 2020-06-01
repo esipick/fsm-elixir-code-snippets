@@ -181,7 +181,11 @@
               <tbody>
                 <%= for transaction <- @invoice.transactions do %>
                   <tr>
-                    <td><%= transaction.id %></td>
+                    <td>
+                      <a href="/billing/transactions/<%= transaction.id %>">
+                        <%= transaction.id %>
+                      </a>
+                    </td>
                     <td><%= transaction.created %></td>
                     <td><%= currency(transaction.amount_due) %></td>
                     <td><%= currency(transaction.amount_paid) %></td>
@@ -193,7 +197,11 @@
 
                 <%= if @invoice.bulk_transaction do %>
                   <tr>
-                    <td><%= @invoice.bulk_transaction.id %></td>
+                    <td>
+                      <a href="/billing/transactions/<%= @invoice.bulk_transaction.id %>">
+                        <%= @invoice.bulk_transaction.id %>
+                      </a>
+                    </td>
                     <td><%= @invoice.bulk_transaction.created %></td>
                     <td><%= currency(@invoice.bulk_transaction.amount_due) %></td>
                     <td><%= currency(@invoice.bulk_transaction.amount_paid) %></td>

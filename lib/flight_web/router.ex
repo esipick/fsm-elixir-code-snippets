@@ -129,7 +129,7 @@ defmodule FlightWeb.Router do
 
     resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show, :delete])
     resources("/bulk_invoices", BulkInvoiceController, only: [:new])
-    resources("/transactions", TransactionController, only: [:index])
+    resources("/transactions", TransactionController, only: [:index, :show])
   end
 
   scope "/admin", FlightWeb.Admin do

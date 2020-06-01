@@ -7,6 +7,8 @@ defmodule FlightWeb.Billing.BulkInvoiceController do
 
   plug(:authorize_modify when action in [:new])
 
+  # TODO:
+  # 1 - Mass payment for anonymous users
   def new(conn, _) do
     props = %{}
 

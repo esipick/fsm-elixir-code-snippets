@@ -1,0 +1,95 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @transaction.title %></h2>
+  </div>
+</div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-8 col-xs-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="tab-content">
+            <div class="tab-pane active detail-list" id="link1">
+              <dl class="d-flex justify-content-between">
+                <dt>State</dt>
+                <dd><%= @transaction.state %></dd>
+              </dl>
+
+              <dl class="d-flex justify-content-between">
+                <dt>Payer name</dt>
+                <dd><%= @transaction.student_name %></dd>
+              </dl>
+
+              <dl class="d-flex justify-content-between">
+                <dt>Payment date</dt>
+                <dd><%= @transaction.completed_at %></dd>
+              </dl>
+
+              <dl class="d-flex justify-content-between">
+                <dt>Payment method</dt>
+                <dd><%= @transaction.payment_method %></dd>
+              </dl>
+
+              <dl class="d-flex justify-content-between">
+                <dt>Amount</dt>
+                <dd><%= currency(@transaction.amount_due) %></dd>
+              </dl>
+
+              <%= if @transaction.invoice_id do %>
+                <dl class="d-flex justify-content-between">
+                  <dt>Invoice ID</dt>
+                  <dd>
+                    <a href="/billing/invoices/<%= @transaction.invoice_id %>">
+                      <%= @transaction.invoice_id %>
+                    </a>
+                  </dd>
+                </dl>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= if Enum.any?(@transaction.bulk_invoices) do %>
+    <div class="row">
+      <div class="col-md-8 col-xs-12">
+        <div class="card">
+          <div class="card-header">
+            <h3>Invoices</h3>
+
+            <div class="table-responsive">
+              <table class="table text-left">
+                <thead class="text-primary">
+                  <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <%= for invoice <- @transaction.bulk_invoices do %>
+                    <tr>
+                      <td>
+                        <a href="/billing/invoices/<%= invoice.id %>"><%= invoice.id %></a>
+                      </td>
+                      <td><%= invoice.date %></td>
+                      <td><%= currency(invoice.total_amount_due) %></td>
+                      <td><%= invoice.status %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
