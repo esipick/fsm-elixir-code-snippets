@@ -2,11 +2,9 @@ defmodule FlightWeb.API.InvoiceController do
   use FlightWeb, :controller
 
   import Flight.Auth.Authorization
-  import Ecto.Query
-  import Pipe
 
   alias Flight.Auth.Permission
-  alias Flight.{Auth.InvoicePolicy, Repo}
+  alias Flight.Repo
   alias FlightWeb.{ViewHelpers, Pagination, StripeHelper}
 
   alias Flight.Billing.{

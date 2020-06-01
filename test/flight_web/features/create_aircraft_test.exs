@@ -1,5 +1,5 @@
 defmodule FlightWeb.Features.CreateAircraftTest do
-  use FlightWeb.FeatureCase, async: true
+  use FlightWeb.FeatureCase, async: false
 
   @tag :integration
   test "admin can create aircraft", %{session: session} do

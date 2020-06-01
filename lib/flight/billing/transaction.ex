@@ -22,6 +22,7 @@ defmodule Flight.Billing.Transaction do
     belongs_to(:user, Flight.Accounts.User)
     belongs_to(:creator_user, Flight.Accounts.User)
     belongs_to(:invoice, Flight.Billing.Invoice)
+    belongs_to(:bulk_invoice, Flight.Billing.BulkInvoice)
     has_many(:line_items, Flight.Billing.TransactionLineItem)
 
     timestamps()
@@ -46,7 +47,9 @@ defmodule Flight.Billing.Transaction do
       :first_name,
       :last_name,
       :email,
-      :payment_option
+      :payment_option,
+      :invoice_id,
+      :bulk_invoice_id
     ])
     |> cast_assoc(:line_items)
     |> validate_required([

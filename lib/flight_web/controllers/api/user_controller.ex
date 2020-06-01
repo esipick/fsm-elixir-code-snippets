@@ -4,6 +4,8 @@ defmodule FlightWeb.API.UserController do
   alias Flight.Accounts
   alias Flight.Accounts.Role
   alias Flight.Auth.Permission
+  alias FlightWeb.StripeHelper
+
   import Flight.Auth.Authorization
 
   require ExImageInfo

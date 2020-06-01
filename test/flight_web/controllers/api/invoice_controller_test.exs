@@ -552,8 +552,8 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json ==
                render_json(InvoiceView, "index.json",
                  invoices: [
-                   preload_invoice(invoice1),
-                   preload_invoice(invoice2)
+                   preload_invoice(invoice2),
+                   preload_invoice(invoice1)
                  ]
                )
 

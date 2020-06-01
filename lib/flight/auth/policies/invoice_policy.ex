@@ -20,6 +20,10 @@ defmodule Flight.Auth.InvoicePolicy do
     user.id == invoice.user_id || staff_member?(user)
   end
 
+  def delete?(user, invoice) do
+    invoice.status != :archived && invoice.status == :pending && staff_member?(user)
+  end
+
   def can_see_link_to_profile?(user) do
     user_can?(user, [
       Permission.new(:users, :modify, :all),

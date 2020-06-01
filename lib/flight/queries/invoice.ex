@@ -22,7 +22,7 @@ defmodule Flight.Queries.Invoice do
     end_date = parse_date(params["end_date"], 1)
     status = params["status"] && parse_status(params["status"])
 
-    from(i in Invoice, where: i.archived == false, order_by: [desc: i.inserted_at])
+    from(i in Invoice, where: i.archived == false, order_by: [desc: i.id])
     |> SchoolScope.scope_query(school_context)
     |> pass_unless(
       search_term,

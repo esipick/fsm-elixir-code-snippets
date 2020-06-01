@@ -12,10 +12,10 @@ export const GUEST_PAYMENT_OPTIONS = [
   { value: CHECK, label: 'Check' },
   { value: VENMO, label: 'Venmo' }
 ];
-export const DEFAULT_PAYMENT_OPTION = { value: BALANCE, label: 'Balance' };
+export const DEFAULT_PAYMENT_OPTION = { value: CREDIT_CARD, label: 'Credit Card' };
 export const PAYMENT_OPTIONS = [
   DEFAULT_PAYMENT_OPTION,
-  { value: CREDIT_CARD, label: 'Credit Card' },
+  { value: BALANCE, label: 'Balance' },
   ...GUEST_PAYMENT_OPTIONS
 ];
 

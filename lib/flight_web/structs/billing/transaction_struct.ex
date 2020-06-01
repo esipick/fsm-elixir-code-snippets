@@ -6,13 +6,17 @@ defmodule FlightWeb.Billing.TransactionStruct do
 
   defstruct ~w(
     id invoice_id school student_name amount_due amount_paid state completed_at
-    payment_method error_message created
+    payment_method error_message created title
   )a
 
   def build(transaction) do
     transaction = Repo.preload(transaction, [:user])
 
-    %TransactionStruct{
+    struct(TransactionStruct, base_params(transaction))
+  end
+
+  defp base_params(transaction) do
+    %{
       id: transaction.id,
       created: NaiveDateTime.to_date(transaction.inserted_at),
       school: transaction.school,
@@ -23,7 +27,8 @@ defmodule FlightWeb.Billing.TransactionStruct do
       state: transaction.state,
       completed_at: completed_at(transaction),
       payment_method: transaction.payment_option,
-      error_message: transaction.error_message
+      error_message: transaction.error_message,
+      title: title(transaction)
     }
   end
 
@@ -37,6 +42,10 @@ defmodule FlightWeb.Billing.TransactionStruct do
 
   defp amount_paid(transaction) do
     Map.get(transaction, Transaction.get_paid_by_column(transaction)) || 0
+  end
+
+  defp title(transaction) do
+    "Transaction ##{transaction.id} (#{transaction.state})"
   end
 
   defp completed_at(transaction) do
