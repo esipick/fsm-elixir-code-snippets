@@ -102,12 +102,13 @@ class BulkInvoiceForm extends Component {
     this.setState({ saving: true });
 
     const { student, invoices, total_amount_due, payment_method } = this.state;
+    const invoice_ids = invoices.map(i => i.id);
 
     const bulk_invoice = {
       user_id: student.id,
       total_amount_due,
       payment_option: payment_method.value,
-      invoice_ids: invoices.map(i => i.id)
+      invoice_ids
     }
 
     http.post({
@@ -116,7 +117,8 @@ class BulkInvoiceForm extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
-        window.location = `/billing/invoices/${invoices[0].id}`;
+        const invoice_id = Math.min(...invoice_ids);
+        window.location = `/billing/invoices/${invoice_id}`;
       });
     }).catch(response => {
       response.json().then((error_body) => {
