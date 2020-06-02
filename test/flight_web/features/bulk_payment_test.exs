@@ -6,7 +6,7 @@ defmodule FlightWeb.Features.BulkPaymentTest do
 
   def pay_ivoice(session), do: session |> click(css("#pay"))
 
-  @tag :integration
+  @tag :skip
   test "admin can make bulk payment", %{session: session} do
     student = student_fixture(%{first_name: "John", last_name: "Doe", balance: 15000})
     invoice1 = invoice_fixture(%{total_amount_due: 10000}, student)
