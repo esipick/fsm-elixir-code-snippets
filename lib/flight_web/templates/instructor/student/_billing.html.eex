@@ -25,17 +25,17 @@
                   <p>Current Balance</p>
                 </dd>
               </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt><input type="text" name="amount" id="addFundsAmount" style="text-align:right;" class="form-control"/></dt>
-                <dd>
+              <dl class="form-group d-flex flex-row-reverse">
+                <dt class="col-md-9"><input type="text" name="amount" id="addFundsAmount" style="text-align:right;" class="form-control"/></dt>
+                <dd class="col-md-3">
                   <p>Amount to add</p>
                 </dd>
               </dl>
-              <dl class="d-flex justify-content-between flex-row-reverse">
-                <dt>
+              <dl class="form-group d-flex flex-row-reverse">
+                <dt class="col-md-9">
                   <textarea class="form-control" name="description" style="border:none;" placeholder="enter description here"></textarea>
                 </dt>
-                <dd>
+                <dd class="col-md-3">
                   <p>Description</p>
                 </dd>
               </dl>
