@@ -1,11 +1,63 @@
 defmodule FlightWeb.Student.ProfileController do
   use FlightWeb, :controller
 
-  alias Flight.Accounts
+  alias Flight.{Accounts, Billing, Repo, Scheduling}
   alias FlightWeb.StripeHelper
 
+  require Logger
+
+  def show(%{assigns: %{current_user: current_user}} = conn, %{"tab" => "schedule"}) do
+    user = Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
+
+    options =
+      cond do
+        Accounts.has_role?(user, "instructor") ->
+          %{"instructor_user_id" => user.id}
+
+        true ->
+          %{"user_id" => user.id}
+      end
+
+    appointments =
+      Scheduling.get_appointments(options, conn)
+      |> Repo.preload([:aircraft, :instructor_user])
+    total_hrs_spent = Scheduling.calculate_appointments_duration(appointments)
+
+    render(
+      conn,
+      "show.html",
+      user: user,
+      tab: :schedule,
+      total_hrs_spent: total_hrs_spent,
+      show_student_flight_hours: current_user.school.show_student_flight_hours,
+      appointments: appointments,
+      skip_shool_select: true
+    )
+  end
+
+  def show(%{assigns: %{current_user: current_user}} = conn, %{"tab" => "billing"}) do
+    user = Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
+
+    transactions =
+      Billing.get_filtered_transactions(%{"user_id" => current_user.id}, conn)
+      |> Repo.preload([:line_items, :user, :creator_user])
+
+    total_amount_spent = Billing.calculate_amount_spent_in_transactions(transactions)
+
+    render(
+      conn,
+      "show.html",
+      user: user,
+      tab: :billing,
+      transactions: transactions,
+      total_amount_spent: total_amount_spent,
+      show_student_accounts_summary: current_user.school.show_student_accounts_summary,
+      skip_shool_select: true
+    )
+  end
+
   def show(%{assigns: %{current_user: current_user}} = conn, params) do
-    user = Flight.Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
+    user = Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
     page = Accounts.Document.documents_by_page(user.id, page_params, search_term)
@@ -42,7 +94,7 @@ defmodule FlightWeb.Student.ProfileController do
 
   def edit(conn, _) do
     user =
-      Flight.Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :flyer_certificates])
+      Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :flyer_certificates])
 
     render(
       conn,
@@ -63,7 +115,7 @@ defmodule FlightWeb.Student.ProfileController do
       end
 
     user =
-      Flight.Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :flyer_certificates])
+      Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :flyer_certificates])
 
     case Accounts.regular_user_update_profile(user, user_form) do
       {:ok, _} ->
@@ -83,7 +135,7 @@ defmodule FlightWeb.Student.ProfileController do
   def update_card(conn, params) do
     user = conn.assigns.current_user
 
-    case Flight.Billing.update_customer_card(user, params["stripe_token"]) do
+    case Billing.update_customer_card(user, params["stripe_token"]) do
       {:ok, _} ->
         redirect(conn, to: "/student/profile")
 

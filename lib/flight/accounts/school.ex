@@ -18,6 +18,8 @@ defmodule Flight.Accounts.School do
     field(:timezone, :string)
     field(:sales_tax, :float)
     field(:archived, :boolean, default: false)
+    field(:show_student_accounts_summary, :boolean, default: false)
+    field(:show_student_flight_hours, :boolean, default: true)
     has_one(:stripe_account, Flight.Accounts.StripeAccount)
 
     has_many(:custom_line_items, Flight.Billing.InvoiceCustomLineItem,
@@ -63,7 +65,9 @@ defmodule Flight.Accounts.School do
       :contact_phone_number,
       :timezone,
       :contact_email,
-      :sales_tax
+      :sales_tax,
+      :show_student_accounts_summary,
+      :show_student_flight_hours
     ])
     |> base_validations()
   end

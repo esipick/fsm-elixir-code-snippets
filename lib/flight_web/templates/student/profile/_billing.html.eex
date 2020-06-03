@@ -1,0 +1,63 @@
+<div class="tab-pane detail-list list-billing" id="link2">
+<%= if @show_student_accounts_summary do%>
+  <div class="text-center mb-2 mt-2 d-flex justify-content-center">
+      <span class="col-md-3 d-flex flex-column">
+        <h7>Account Balance</h7>
+        <h2 class="mb-2"><%= currency @user.balance %></h2>
+      </span>
+      <span class="col-md-3 d-flex flex-column">
+        <h7>Amount Spent</h7>
+        <h2 class="mb-2"><%= currency @total_amount_spent %></h2>
+      </span>
+  </div>
+<% end %>
+
+  <h7>Transaction History</h7>
+  <%= for transaction <- @transactions do %>
+    <dl class="d-flex justify-content-between flex-row-reverse">
+      <dt>
+        <%= for line_item <- transaction.line_items do %>
+          <dl class="d-flex justify-content-between">
+            <dt><small><%= label_for_line_item(line_item) %></small></dt>
+            <dd><%= currency line_item.amount %></dd>
+          </dl>
+        <% end %>
+        <dl class="d-flex justify-content-between">
+          <dt><small>Total</small></dt>
+          <dd><%= currency transaction.total %></dd>
+        </dl>
+        <%= if transaction.state == "pending" do %>
+          <%= form_for @conn, "/admin/transactions/#{transaction.id}/cancel", [method: :post], fn _ -> %>
+            <input type="submit" class="btn btn-primary btn-sm" value="cancel" />
+          <% end %>
+        <% end %>
+      </dt>
+      <dd>
+        <%= if transaction.creator_user_id == transaction.user_id do %>
+          <p>Created by <%= display_name transaction.creator_user %></p>
+        <% else %>
+          <p>Requested by <%= display_name transaction.creator_user %></p>
+        <% end %>
+        <small><%= display_date transaction.inserted_at %></small>
+        <%
+          status =
+            case transaction.state do
+              "pending" -> "pending student approval"
+              "failed" -> "failed"
+              "completed" -> cond do
+                transaction.paid_by_cash ->
+                  "completed - cash"
+                transaction.paid_by_charge ->
+                  "completed - charge"
+                transaction.paid_by_balance ->
+                  "completed - balance"
+                true ->
+                  "completed"
+              end
+            end
+        %>
+        <p class="transaction-status"><%= status %></p>
+      </dd>
+    </dl>
+  <% end %>
+</div>

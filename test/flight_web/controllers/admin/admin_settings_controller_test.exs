@@ -70,6 +70,13 @@ defmodule FlightWeb.Admin.SettingsControllerTest do
       |> html_response(200)
     end
 
+    test "renders profile settings", %{conn: conn} do
+      conn
+      |> web_auth_admin()
+      |> get("/admin/settings?tab=profile")
+      |> html_response(200)
+    end
+
     test "redirects dispatcher", %{conn: conn} do
       conn =
         conn

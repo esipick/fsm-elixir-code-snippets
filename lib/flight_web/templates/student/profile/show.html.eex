@@ -81,7 +81,7 @@
                     </div>
                   <% end %>
                   <div class="field">
-                    <h3>Insctructor</h3>
+                    <h3>Instructor</h3>
                     <%= if @user.main_instructor_id do %>
                       <%= if @user.main_instructor.archived do %>
                         <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
@@ -143,7 +143,7 @@
               </div>
               <div class="fields">
                 <div class="field">
-                  <h3>Insctructor</h3>
+                  <h3>Instructor</h3>
                   <%= if @user.main_instructor_id do %>
                     <%= if @user.main_instructor.archived do %>
                       <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
@@ -181,14 +181,24 @@
             </div>
           </div>
           <nav class="tabs">
-            <!-- <a <%= if @tab == :billing, do: "class=active" %> href="/student/profile">Billing</a> -->
-            <!-- <a <%= if @tab == :appointments, do: "class=active" %> href="/student/profile">Appointments</a> -->
-            <a <%= if @tab == :documents, do: "class=active" %> href="/student/profile">Documents</a>
+            <a <%= if @tab == :billing, do: "class=active" %> href="/student/profile?tab=billing">Billing</a>
+            <a <%= if @tab == :schedule, do: "class=active" %> href="/student/profile?tab=schedule">Schedule</a>
+            <a <%= if @tab == :documents, do: "class=active" %> href="/student/profile?tab=documents">Documents</a>
           </nav>
         </div>
         <!-- end card-header -->
+
         <div class="card-body profile">
-          <%= ReactPhoenix.ClientSide.react_component("Components.Documents", @props) %>
+          <%= case @tab do
+            :schedule ->
+              render "_schedule.html", user: @user, total_hrs_spent: @total_hrs_spent, show_student_flight_hours: @show_student_flight_hours, appointments: @appointments
+
+            :billing ->
+              render "_billing.html", user: @user, transactions: @transactions, total_amount_spent: @total_amount_spent, show_student_accounts_summary: @show_student_accounts_summary, conn: @conn
+
+            :documents ->
+            ReactPhoenix.ClientSide.react_component("Components.Documents", @props)
+          end %>
         </div>
         <!-- end card-body -->
       </div>

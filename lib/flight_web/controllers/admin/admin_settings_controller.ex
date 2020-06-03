@@ -48,6 +48,17 @@ defmodule FlightWeb.Admin.SettingsController do
     )
   end
 
+  def show(conn, %{"tab" => "profile"}) do
+    changeset = Accounts.School.admin_changeset(conn.assigns.school, %{})
+
+    render(conn, "show.html",
+      changeset: changeset,
+      hide_school_info: true,
+      school: conn.assigns.school,
+      tab: :profile
+    )
+  end
+
   def show(%{assigns: %{school: school}} = conn, _) do
     changeset = Accounts.School.admin_changeset(school, %{})
 
@@ -67,6 +78,7 @@ defmodule FlightWeb.Admin.SettingsController do
             "school" -> ""
             "contact" -> "?tab=contact"
             "billing" -> "?tab=billing"
+            "profile" -> "?tab=profile"
           end
 
         conn
@@ -79,6 +91,7 @@ defmodule FlightWeb.Admin.SettingsController do
             "school" -> :school
             "contact" -> :contact
             "billing" -> :billing
+            "profile" -> :profile
           end
 
         render(conn, "show.html",

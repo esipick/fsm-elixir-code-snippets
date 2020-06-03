@@ -230,6 +230,17 @@ defmodule Flight.Scheduling do
     |> Repo.all()
   end
 
+  def calculate_appointments_duration(appointments) do
+    seconds =
+      Enum.reduce(appointments, 0, fn appointment, acc ->
+        seconds= NaiveDateTime.diff(appointment.end_at, appointment.start_at, :second)
+        seconds + acc
+      end)
+    hours = Integer.floor_div(seconds, 3600)|> to_string
+    minutes = Time.add(~T[00:00:00], seconds).minute |> to_string
+    hours<>"h"<>"  "<>minutes<>"m"
+  end
+
   def apply_utc_timezone(changeset, key, timezone) do
     case get_change(changeset, key) do
       nil -> changeset
