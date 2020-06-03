@@ -61,18 +61,3 @@
     </dl>
   <% end %>
 </div>
-
-<script>
-  $("#addFundsButton").on("click", function() {
-    $("#addFundsModal").modal()
-  })
-
-  $("#addFundsAmount").on("input", function() {
-    amount = parseInt(this.value)
-    if (amount > 0) {
-      $("#addFundsSubmit")[0].value = "Add Funds"
-    } else if (amount < 0) {
-      $("#addFundsSubmit")[0].value = "Remove Funds"
-    }
-  })
-</script>

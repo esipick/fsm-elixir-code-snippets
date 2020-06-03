@@ -8,7 +8,6 @@ defmodule FlightWeb.Student.ProfileController do
 
   def show(%{assigns: %{current_user: current_user}} = conn, %{"tab" => "schedule"}) do
     user = Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
-#    Repo.preload(conn.assigns.current_user, :school)
 
     options =
       cond do
