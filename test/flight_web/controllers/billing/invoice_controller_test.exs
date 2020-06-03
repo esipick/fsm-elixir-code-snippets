@@ -52,38 +52,6 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
     end
 
     @tag :integration
-    test "student shouldn't to be able to delete invoices", %{conn: conn} do
-      student = student_fixture()
-      invoice = invoice_fixture(%{}, student)
-
-      content =
-        conn
-        |> web_auth(student)
-        |> get("/billing/invoices")
-        |> html_response(200)
-
-      refute content =~ "btn btn-danger btn-sm _delete_button"
-
-      content =
-        conn
-        |> web_auth(student)
-        |> get("/billing/invoices/#{invoice.id}")
-        |> html_response(200)
-
-      refute content =~ "btn btn-danger _delete_button"
-
-      content =
-        conn
-        |> web_auth(student)
-        |> delete("/billing/invoices/#{invoice.id}")
-
-      invoice = Repo.get(Invoice, invoice.id)
-
-      refute invoice.archived
-      assert redirected_to(content) == "/student/profile"
-    end
-
-    @tag :integration
     test "should render correct appointment time", %{conn: conn} do
       student = student_fixture()
 
@@ -103,40 +71,6 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
 
       assert content =~ "Mar 3, 2018"
       assert content =~ "10:00AM - 11:00AM"
-    end
-
-    @tag :integration
-    test "admin, instructor and dispatcher able to delete any pending invoices", %{conn: conn} do
-      for role_slug <- ["admin", "dispatcher", "instructor"] do
-        user = user_fixture() |> assign_role(role_slug)
-        invoice = invoice_fixture()
-
-        content =
-          conn
-          |> web_auth(user)
-          |> get("/billing/invoices")
-          |> html_response(200)
-
-        assert content =~ "btn btn-danger btn-sm ml-1 _delete_button"
-
-        content =
-          conn
-          |> web_auth(user)
-          |> get("/billing/invoices/#{invoice.id}")
-          |> html_response(200)
-
-        assert content =~ "btn btn-danger _delete_button"
-
-        content =
-          conn
-          |> web_auth(user)
-          |> delete("/billing/invoices/#{invoice.id}")
-
-        invoice = Repo.get(Invoice, invoice.id)
-
-        assert invoice.archived
-        assert redirected_to(content) == "/billing/invoices"
-      end
     end
 
     @tag :integration
@@ -326,6 +260,105 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
         |> get("/billing/invoices/#{invoice.id}/edit")
 
       assert redirected_to(conn) == "/student/profile"
+    end
+
+    @tag :integration
+    test "redirects student when own invoice is paid", %{conn: conn} do
+      user = student_fixture()
+
+      invoice = invoice_fixture(%{status: :paid}, user)
+
+      conn =
+        conn
+        |> web_auth(user)
+        |> get("/billing/invoices/#{invoice.id}/edit")
+
+      assert redirected_to(conn) == "/billing/invoices/#{invoice.id}"
+    end
+  end
+
+  describe "DELETE /billing/invoices/:id" do
+    @tag :integration
+    test "admin, instructor and dispatcher able to delete any pending invoices", %{conn: conn} do
+      for role_slug <- ["admin", "dispatcher", "instructor"] do
+        user = user_fixture() |> assign_role(role_slug)
+        invoice = invoice_fixture()
+
+        content =
+          conn
+          |> web_auth(user)
+          |> get("/billing/invoices")
+          |> html_response(200)
+
+        assert content =~ "btn btn-danger btn-sm ml-1 _delete_button"
+
+        content =
+          conn
+          |> web_auth(user)
+          |> get("/billing/invoices/#{invoice.id}")
+          |> html_response(200)
+
+        assert content =~ "btn btn-danger _delete_button"
+
+        content =
+          conn
+          |> web_auth(user)
+          |> delete("/billing/invoices/#{invoice.id}")
+
+        invoice = Repo.get(Invoice, invoice.id)
+
+        assert invoice.archived
+        assert redirected_to(content) == "/billing/invoices"
+      end
+    end
+
+    @tag :integration
+    test "admin, instructor and dispatcher cannot delete paid invoices", %{conn: conn} do
+      for role_slug <- ["admin", "dispatcher", "instructor"] do
+        user = user_fixture() |> assign_role(role_slug)
+        invoice = invoice_fixture(%{status: :paid})
+
+        content =
+          conn
+          |> web_auth(user)
+          |> delete("/billing/invoices/#{invoice.id}")
+
+        invoice = Repo.get(Invoice, invoice.id)
+
+        refute invoice.archived
+      end
+    end
+
+    @tag :integration
+    test "student shouldn't to be able to delete invoices", %{conn: conn} do
+      student = student_fixture()
+      invoice = invoice_fixture(%{}, student)
+
+      content =
+        conn
+        |> web_auth(student)
+        |> get("/billing/invoices")
+        |> html_response(200)
+
+      refute content =~ "btn btn-danger btn-sm _delete_button"
+
+      content =
+        conn
+        |> web_auth(student)
+        |> get("/billing/invoices/#{invoice.id}")
+        |> html_response(200)
+
+      refute content =~ "btn btn-danger _delete_button"
+
+      content =
+        conn
+        |> web_auth(student)
+        |> delete("/billing/invoices/#{invoice.id}")
+
+      invoice = Repo.get(Invoice, invoice.id)
+
+      refute invoice.archived
+      assert redirected_to(content) == "/student/profile"
     end
   end
 end

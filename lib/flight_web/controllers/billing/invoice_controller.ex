@@ -93,6 +93,11 @@ defmodule FlightWeb.Billing.InvoiceController do
         |> redirect(to: "/billing/invoices/#{conn.assigns.invoice.id}")
         |> halt()
 
+      invoice.user_id == user.id ->
+        conn
+        |> redirect(to: "/billing/invoices/#{invoice.id}")
+        |> halt()
+
       true ->
         redirect_unathorized_user(conn)
     end
@@ -110,7 +115,10 @@ defmodule FlightWeb.Billing.InvoiceController do
   end
 
   defp authorize_delete(conn, _) do
-    if staff_member?(conn.assigns.current_user) do
+    invoice = conn.assigns.invoice
+    user = conn.assigns.current_user
+
+    if InvoicePolicy.delete?(user, invoice) do
       conn
     else
       redirect_unathorized_user(conn)
