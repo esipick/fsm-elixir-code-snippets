@@ -722,6 +722,35 @@ defmodule Flight.SchedulingTest do
     end
   end
 
+  describe "calculate_appointments_duration/2 that returns string time duration" do
+    test "by passing appointments having no time difference to validate zero value difference" do
+      appointment = appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-03 10:00:01]})
+
+      assert Scheduling.calculate_appointments_duration([appointment]) == "0h  0m"
+    end
+
+    test "by passing appointments having valid time difference" do
+      appointment = appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-03 11:30:00]})
+
+      assert Scheduling.calculate_appointments_duration([appointment]) == "1h  30m"
+    end
+
+    test "by passing appointments having more than 2 days time difference" do
+      appointment1 = appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-04 10:43:00]})
+      appointment2 = appointment_fixture(%{start_at: ~N[2030-06-07 10:43:00], end_at: ~N[2030-06-08 13:40:00]})
+
+      assert Scheduling.calculate_appointments_duration([appointment1, appointment2]) == "51h  40m"
+    end
+
+    test "by passing appointments having more than 30 days time difference" do
+      appointment1 = appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-23 10:43:00]})
+      appointment2 = appointment_fixture(%{start_at: ~N[2030-06-23 10:43:00], end_at: ~N[2030-06-29 11:40:00]})
+      appointment3 = appointment_fixture(%{start_at: ~N[2030-06-29 11:40:00], end_at: ~N[2030-07-03 13:51:00]})
+
+      assert Scheduling.calculate_appointments_duration([appointment1, appointment2, appointment3]) == "723h  51m"
+    end
+  end
+
   describe "insert_or_update_unavailability/3" do
     @start_at ~N[2038-03-03 10:00:00]
     @end_at ~N[2038-03-03 12:00:00]

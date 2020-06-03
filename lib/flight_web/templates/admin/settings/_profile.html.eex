@@ -1,0 +1,31 @@
+<%= form_for @changeset, @request_path, [as: :data, method: "put"], fn f -> %>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-check">
+        <label class="form-check-label">
+          <%= checkbox f, :show_student_accounts_summary %>
+          <span class="form-check-sign"></span>
+          Show Accounts Summary in Student Profile
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-check">
+        <label class="form-check-label">
+          <%= checkbox f, :show_student_flight_hours %>
+          <span class="form-check-sign"></span>
+          Show Flight Hours in Student Profile
+        </label>
+      </div>
+    </div>
+  </div>
+    <input type="hidden" name="redirect_tab" value="profile" />
+  <div class="card-footer mt-3">
+    <div class="form-check">
+      <a href="/admin/settings" class="btn btn-fill btn-default mr-2">Cancel</a>
+      <input type="submit" class="btn btn-fill btn-primary" value="Save">
+    </div>
+  </div>
+<% end %>

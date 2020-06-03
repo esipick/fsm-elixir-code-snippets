@@ -407,6 +407,40 @@ defmodule Flight.BillingTest do
     end
   end
 
+  describe "calculate_amount_spent_in_transactions/1" do
+    test "passes to exclude add funds transactions" do
+      line_items = transaction_line_item_attrs(%{type: "add_funds"})
+      transactions = transaction_attrs(%{total: 10000}, line_items)
+
+      assert Billing.calculate_amount_spent_in_transactions(transactions) == 0
+    end
+
+    test "passes to exclude remove funds transactions" do
+      line_items = transaction_line_item_attrs(%{type: "remove_funds"}) ++ transaction_line_item_attrs(%{type: "remove_funds"})
+      transactions = transaction_attrs(%{total: 10000}, line_items)
+
+      assert Billing.calculate_amount_spent_in_transactions(transactions) == 0
+    end
+
+    test "passes to validate empty line item transactions" do
+      transactions = transaction_attrs(%{total: 10000}, [])
+
+      assert Billing.calculate_amount_spent_in_transactions(transactions) == 10000
+    end
+
+    test "passes for valid debit state transactions" do
+      line_items1 = transaction_line_item_attrs(%{type: "debit"})
+      transaction1 = transaction_attrs(%{total: 10000}, line_items1)
+
+      line_items2 = transaction_line_item_attrs(%{type: "credit"})
+      transaction2 = transaction_attrs(%{total: -5000}, line_items2)
+
+      transactions = transaction1 ++ transaction2
+
+      assert Billing.calculate_amount_spent_in_transactions(transactions) == 5000
+    end
+  end
+
   describe "application_fee_for_total/1" do
     test "is the right percentage" do
       assert Billing.application_fee_for_total(10000) == 100

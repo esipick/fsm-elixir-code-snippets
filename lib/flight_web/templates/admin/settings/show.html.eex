@@ -27,6 +27,9 @@
                 <li class="nav-item">
                   <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=billing" %>>Billing Settings</a>
                 </li>
+                <li class="nav-item">
+                  <a class="nav-link <%= if @tab == :profile, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=profile" %>>Profile Settings</a>
+                </li>
               <% end %>
             </ul>
           </div>
@@ -38,6 +41,7 @@
               :contact -> render "_contact.html", school: @school, changeset: @changeset, request_path: @conn.request_path
               :payment -> render "_payment.html", school: @school
               :billing -> render "_billing.html", school: @school, changeset: @changeset, request_path: @conn.request_path, props: @props
+              :profile -> render "_profile.html", school: @school, changeset: @changeset, request_path: @conn.request_path
             end
             %>
         </div>

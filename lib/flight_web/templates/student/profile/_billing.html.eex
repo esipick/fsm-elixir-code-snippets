@@ -1,4 +1,5 @@
 <div class="tab-pane detail-list list-billing" id="link2">
+<%= if @show_student_accounts_summary do%>
   <div class="text-center mb-2 mt-2 d-flex justify-content-center">
       <span class="col-md-3 d-flex flex-column">
         <h7>Account Balance</h7>
@@ -9,6 +10,7 @@
         <h2 class="mb-2"><%= currency @total_amount_spent %></h2>
       </span>
   </div>
+<% end %>
 
   <h7>Transaction History</h7>
   <%= for transaction <- @transactions do %>

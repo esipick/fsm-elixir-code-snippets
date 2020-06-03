@@ -188,24 +188,16 @@
         </div>
         <!-- end card-header -->
 
-        <!--<div class="card-body profile">
-          <%= # ReactPhoenix.ClientSide.react_component("Components.Documents", @props) %>
-        </div>
-        -->
-
         <div class="card-body profile">
           <%= case @tab do
             :schedule ->
-                render "_schedule.html", user: @user, total_hrs_spent: @total_hrs_spent, appointments: @appointments
-#              ReactPhoenix.ClientSide.react_component("Components.Billing", @props)
+              render "_schedule.html", user: @user, total_hrs_spent: @total_hrs_spent, show_student_flight_hours: @show_student_flight_hours, appointments: @appointments
 
             :billing ->
-            render "_billing.html", user: @user, transactions: @transactions, total_amount_spent: @total_amount_spent, conn: @conn
-#            ReactPhoenix.ClientSide.react_component("Components.Billing", @props)
+              render "_billing.html", user: @user, transactions: @transactions, total_amount_spent: @total_amount_spent, show_student_accounts_summary: @show_student_accounts_summary, conn: @conn
 
             :documents ->
             ReactPhoenix.ClientSide.react_component("Components.Documents", @props)
-#            render "_documents.html", user: @user, props: @props
           end %>
         </div>
         <!-- end card-body -->

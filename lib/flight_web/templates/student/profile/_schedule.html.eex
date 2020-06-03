@@ -1,10 +1,11 @@
-
-<div class="d-flex justify-content-center">
-  <div class="text-center mb-2 mt-2">
-    <h7>Flight Hours</h7>
-    <h2 class="mb-2"><%= @total_hrs_spent %></h2>
+<%= if @show_student_flight_hours do %>
+  <div class="d-flex justify-content-center">
+    <div class="text-center mb-2 mt-2">
+      <h7>Flight Hours</h7>
+      <h2 class="mb-2"><%= @total_hrs_spent %></h2>
+    </div>
   </div>
-</div>
+<% end %>
 
 <%= if Enum.any?(@appointments) do %>
   <div class="tab-pane detail-list list-billing" id="link3">

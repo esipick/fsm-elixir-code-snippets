@@ -230,13 +230,15 @@ defmodule Flight.Scheduling do
     |> Repo.all()
   end
 
-  def total_appointments_duration(appointments, timezone) do
-    Enum.reduce(appointments, 0, fn appointment, acc ->
-      seconds= diff_time(appointment.end_at, appointment.start_at, timezone)
-      seconds + acc
-    end)
-    |> Timex.Duration.from_seconds
-    |> Timex.format_duration(:humanized)
+  def calculate_appointments_duration(appointments) do
+    seconds =
+      Enum.reduce(appointments, 0, fn appointment, acc ->
+        seconds= NaiveDateTime.diff(appointment.end_at, appointment.start_at, :second)
+        seconds + acc
+      end)
+    hours = Integer.floor_div(seconds, 3600)|> to_string
+    minutes = Time.add(~T[00:00:00], seconds).minute |> to_string
+    hours<>"h"<>"  "<>minutes<>"m"
   end
 
   def apply_utc_timezone(changeset, key, timezone) do
@@ -566,11 +568,5 @@ defmodule Flight.Scheduling do
         |> Mondo.PushService.publish()
       end
     end)
-  end
-
-  defp diff_time(end_time, start_time, timezone) do
-    end_dt = utc_to_walltime(end_time, timezone)
-    start_dt = utc_to_walltime(start_time, timezone)
-    NaiveDateTime.diff(end_dt, start_dt, :second)
   end
 end

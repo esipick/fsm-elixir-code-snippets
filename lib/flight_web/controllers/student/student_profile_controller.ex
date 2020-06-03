@@ -22,7 +22,7 @@ defmodule FlightWeb.Student.ProfileController do
     appointments =
       Scheduling.get_appointments(options, conn)
       |> Repo.preload([:aircraft, :instructor_user])
-    total_hrs_spent = Scheduling.total_appointments_duration(appointments, user.school.timezone)
+    total_hrs_spent = Scheduling.calculate_appointments_duration(appointments)
 
     render(
       conn,
@@ -30,6 +30,7 @@ defmodule FlightWeb.Student.ProfileController do
       user: user,
       tab: :schedule,
       total_hrs_spent: total_hrs_spent,
+      show_student_flight_hours: current_user.school.show_student_flight_hours,
       appointments: appointments,
       skip_shool_select: true
     )
@@ -42,17 +43,7 @@ defmodule FlightWeb.Student.ProfileController do
       Billing.get_filtered_transactions(%{"user_id" => current_user.id}, conn)
       |> Repo.preload([:line_items, :user, :creator_user])
 
-    total_amount_spent =
-      Enum.reduce(transactions, 0, fn m, acc ->
-          line_items = Map.get(m, :line_items) || []
-          if (List.first(line_items) != nil &&
-                Map.get(List.first(line_items), :type) not in ["add_funds", "remove_funds"]
-              ) || List.first(line_items) == nil do
-            (Map.get(m, :total) || 0) + acc
-          else
-            0 + acc
-          end
-      end)
+    total_amount_spent = Billing.calculate_amount_spent_in_transactions(transactions)
 
     render(
       conn,
@@ -61,6 +52,7 @@ defmodule FlightWeb.Student.ProfileController do
       tab: :billing,
       transactions: transactions,
       total_amount_spent: total_amount_spent,
+      show_student_accounts_summary: current_user.school.show_student_accounts_summary,
       skip_shool_select: true
     )
   end
