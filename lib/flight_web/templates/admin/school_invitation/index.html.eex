@@ -82,9 +82,15 @@
                       <!-- <td>No</td>
                             <td>No</td>
                             <td class="text-muted">sent 4/11/18</td> -->
-                      <td class="text-right">
+                      <td class="button-wrapper text-right">
+                        <%= ReactPhoenix.ClientSide.react_component("Components.CopyLink",
+                          %{
+                            copy_link: Flight.Email.school_invitation_link(invitation),
+                            button_text: "Copy Invitation Url",
+                            message: "Invitation URL copied!"
+                          }
+                        ) %>
                         <button
-                                style="margin-left: 4px;"
                                 type="button"
                                 class="btn btn-danger btn-sm _delete_button"
                                 data-invitation-id="<%= invitation.id %>">
