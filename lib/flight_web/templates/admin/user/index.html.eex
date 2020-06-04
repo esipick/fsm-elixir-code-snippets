@@ -7,7 +7,8 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header">
-          <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between <%= if @tab == :main do %> text-right">
+            <button type="button" id="add_button" class="btn-success round-button">+</button> <% else %> "> <% end %>
             <ul class="nav nav-pills nav-pills-primary" role="tablist">
               <li class="nav-item">
                 <a class="nav-link <%= if @tab == :main, do: "active" %>"
@@ -25,20 +26,61 @@
             </ul>
           </div>
 
+          <%= if @tab == :main do %>
+            <div id="show_hide" style="display:none">
+              <h6><%= add_user_label_for_role(@role) %></h6>
+              <%= form_for @changeset, @request_path, [as: :data, method: "post"], fn f -> %>
+                <%= if Keyword.has_key?(f.errors, :user) do %>
+                  <div class="alert alert-danger">
+                    <%= for error <- human_error_messages_for_user_without_key(@changeset) do %>
+                      <span><%= error %></span></br>
+                    <% end %>
+                  </div>
+                <% end %>
+                <%= hidden_input f, :role_id, value: @role.id %>
+                <div class="row mb-4">
+                  <div class="col-md-3 pr-1">
+                    <div class="form-group">
+                      <label class="sr-only" >Student First Name</label>
+                      <%= text_input f, :first_name, class: "form-control", placeholder: "First Name" %>
+                      <%= full_error_tag f, :first_name %>
+                    </div>
+                  </div>
+                  <div class="col-md-3 pr-1 pl-1">
+                    <div class="form-group">
+                      <label class="sr-only" >Student Last Name</label>
+                      <%= text_input f, :last_name, class: "form-control", placeholder: "Last Name" %>
+                      <%= full_error_tag f, :last_name %>
+                    </div>
+                  </div>
+                  <div class="col-md-3 pl-1">
+                    <div class="form-group">
+                      <label class="sr-only" for="exampleInputEmail1">Student Email</label>
+                      <%= email_input f, :email, class: "form-control", placeholder: "Email" %>
+                      <%= full_error_tag f, :email %>
+                    </div>
+                  </div>
+                  <div class="col-md-3 pl-1">
+                    <input type="submit" class="btn btn-primary m-1 w-50 p-2" value="Send Invite" />
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
           <%= if @data.role.slug != "admin" do %>
             <div>
               <%= form_for @conn, "/admin/users", [method: "get"], fn f -> %>
                 <%= hidden_input f, :role, value: @data.role.slug %>
                 <%= hidden_input f, :tab, value: @tab %>
                 <div class="row mb-4">
-                  <div class="col-md-10 col-xs-12">
+                  <div class="col-md-9 col-xs-12">
                     <div class="form-group">
                       <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Search" %>
                       <span class="text-danger"><%= @message %></span>
                     </div>
                   </div>
-                  <div class="col-md-2 pl-1">
-                    <input type="submit" class="btn btn-primary m-0" value="Search" />
+                  <div class="col-md-3 pl-1">
+                    <input type="submit" class="btn btn-primary m-1 w-50 p-2" value="Search" />
                   </div>
                 </div>
               <% end %>
@@ -109,6 +151,9 @@
         form.action = "/admin/users/" + id
         form.submit()
       }
+    });
+    $("#add_button").click(function(){
+      $("#show_hide").toggle();
     });
   });
 </script>

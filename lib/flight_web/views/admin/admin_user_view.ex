@@ -69,4 +69,11 @@ defmodule FlightWeb.Admin.UserView do
 
   def instructors_for_select(instructors),
     do: instructors |> Enum.map(&{"#{&1.first_name} #{&1.last_name}", &1.id})
+
+  def add_user_label_for_role(role) do
+    case role.slug do
+      "admin" -> "Add an #{singular_label_for_role(role)}"
+      _ -> "Add a #{singular_label_for_role(role)}"
+    end
+  end
 end

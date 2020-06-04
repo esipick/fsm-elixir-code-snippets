@@ -4,6 +4,8 @@ defmodule FlightWeb.Admin.UserController do
   alias Flight.{Accounts, Billing, Repo, Scheduling, Queries}
   alias Flight.Auth.Permission
   alias FlightWeb.StripeHelper
+  alias FlightWeb.Admin.InvitationController
+
   import Flight.Auth.Authorization
 
   plug(:get_user when action in [:show, :edit, :update, :update_card, :add_funds, :delete])
@@ -29,7 +31,16 @@ defmodule FlightWeb.Admin.UserController do
     data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, nil)
     message = params["search"] && set_message(params["search"])
 
-    render(conn, "index.html", data: data, message: message, tab: :main)
+    render(
+      conn,
+      "index.html",
+      data: data,
+      message: message,
+      tab: :main,
+      changeset: Accounts.Invitation.create_changeset(%Accounts.Invitation{}, %{}),
+      request_path: InvitationController.invite_request_path(conn),
+      role: Accounts.role_for_slug(role_slug)
+    )
   end
 
   def show(conn, %{"tab" => "appointments"}) do
