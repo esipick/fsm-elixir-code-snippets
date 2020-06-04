@@ -16,8 +16,7 @@ class ErrorAlert extends PureComponent {
         isOpen={this.props.open}
         onRequestClose={this.props.onClose}
         style={modalStyles}
-        contentLabel="Error"
-      >
+        contentLabel="Error">
         <div className="balance-warning-dialog">
           <div className="balance-warning-dialog__content">
             <h5 className="balance-warning-dialog__content-disclaimer">

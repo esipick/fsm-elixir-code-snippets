@@ -214,26 +214,6 @@ defmodule FlightWeb.API.DocumentControllerTest do
       assert json == %{"errors" => %{"file" => ["Should be \".jpg .pdf .png\" type."]}}
     end
 
-    test "can't create a document with same file name", %{conn: conn} do
-      school = school_fixture()
-      student_id = student_fixture(%{}, school).id
-      payload = %{"document" => %{"file" => upload_fixture()}}
-      payload_same = %{"document" => %{"file" => upload_fixture()}}
-
-      conn
-      |> auth(admin_fixture(%{}, school))
-      |> post("/api/users/#{student_id}/documents", payload)
-      |> json_response(200)
-
-      json =
-        conn
-        |> auth(admin_fixture(%{}, school))
-        |> post("/api/users/#{student_id}/documents", payload_same)
-        |> json_response(422)
-
-      assert json == %{"errors" => %{"file" => ["Already uploaded file with this name"]}}
-    end
-
     test "superadmin can upload documents to students from any school", %{conn: conn} do
       student = student_fixture()
       student_id = student.id

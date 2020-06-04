@@ -59,7 +59,7 @@ defmodule Flight.Mixfile do
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 4.0"},
       {:timex, "~> 3.6.1"},
-      {:hackney, "~> 1.15.2", override: true},
+      {:hackney, "~> 1.16", override: true},
       {:stripity_stripe, "~> 2.1.0"},
       {:currency_formatter, "~> 0.4"},
       {:appsignal, "~> 1.8.0"},

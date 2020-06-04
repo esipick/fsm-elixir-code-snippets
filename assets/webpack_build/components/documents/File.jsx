@@ -1,6 +1,4 @@
-import React, { Component, forwardRef } from 'react'
-import DatePicker from 'react-datepicker'
-import Error from '../common/Error'
+import React, { Component } from 'react'
 
 class File extends Component {
   constructor(props) {
@@ -17,9 +15,15 @@ class File extends Component {
   }
 
   delete = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     const { id, onRemove } = this.props
     onRemove(id)
+  }
+
+  edit = (e) => {
+    e.preventDefault()
+    const { editDocument, id } = this.props
+    editDocument(id)
   }
 
   rowMessage = (className) => {
@@ -31,11 +35,11 @@ class File extends Component {
   }
 
   showDocument = () => {
-    const { file_name, file_url } = this.props
-    const type = file_name.split(".").slice(-1)[0].toLowerCase()
+    const { file: { name, url } } = this.props
+    const type = name.split(".").slice(-1)[0].toLowerCase()
 
     if (type == "pdf") {
-      window.open(file_url)
+      window.open(url)
     } else {
       this.setState({ showImg: true })
     }
@@ -56,23 +60,10 @@ class File extends Component {
   }
 
   render() {
-    const { admin, checked, errors, expires_date, dispalyExpiryDate, expired, file_name, file_url, id } = this.props
+    const { admin, checked, expires_at, expired, file: { name, url }, id, title } = this.props
     const { showImg } = this.state
     const htmlId = 'checkbox-' + id
     const message = this.rowMessage(expired)
-    const error = errors.find(error => error.path == path) || { messages: {} }
-    const today = new Date
-    const date = expires_date ? (new Date(expires_date)) : (today)
-    const CustomExpiryDateInput = forwardRef(({ onClick, value, expires_date }, ref) => (
-      <div className="expiry-date-container" ref={ref}>
-        <div className="expiry-date-input" onClick={onClick}>
-          <i className="now-ui-icons ui-1_calendar-60"></i>
-          {expires_date ? (dispalyExpiryDate(value)) : ('Not set')}
-        </div>
-        {expires_date &&
-          <span className="clear now-ui-icons ui-1_simple-remove" onClick={this.deleteExpiryDate}></span>}
-      </div>
-    ))
 
     return (
       <div className={"row file" + ` ${expired}`}>
@@ -89,38 +80,37 @@ class File extends Component {
           </div>
         }
         <div className="th file-col full-width">
-          <div className="icon">
-            <i className="now-ui-icons arrows-1_cloud-download-93"></i>
+          <div className="icon" onClick={this.showDocument}>
+            {name.endsWith('.pdf') &&
+              <img src="/images/pdf.svg" />
+            }
+            {!name.endsWith('.pdf') &&
+              <img src={url} />
+            }
           </div>
-          <div onClick={this.showDocument} title={file_name}>
+          <div title={title}>
             <div className="link-content">
-              <h3>{file_name}</h3>
-              {expires_date &&
-                <p className="mobile">Expires: {expires_date}</p>
+              <h3>{title}</h3>
+              {expires_at &&
+                <p className="mobile">Expires: {expires_at}</p>
               }
               <p className="message mobile">{message}</p>
             </div>
           </div>
         </div>
-        {admin ? (
-          <div className="th expiry-col full-width desktop">
-            <DatePicker onChange={this.setExpiryDate}
-              customInput={<CustomExpiryDateInput expires_date={expires_date} />}
-              minDate={today}
-              selected={date} />
-            <div className="errors">
-              <Error text={error.messages.file} />
-            </div>
-          </div>
-        ) : (
-            <div className="th expiry-col full-width desktop">
-              <p>{expires_date}</p>
-            </div>
-          )
-        }
+        <div className="th expiry-col full-width desktop">
+          <p>{expires_at}</p>
+        </div>
         {admin &&
           <div className="th action-col desktop">
-            <a className="delete now-ui-icons ui-1_simple-remove" href="" onClick={this.delete} title="delete" />
+            <div className="buttons">
+              <a className="action" href="" onClick={this.edit} title="edit">
+                <img src="/images/pencil.svg" />
+              </a>
+              <a className="action" href="" onClick={this.delete} title="delete">
+                <img src="/images/trash.svg" />
+              </a>
+            </div>
           </div>
         }
         <div className="th warning-col">
@@ -131,12 +121,13 @@ class File extends Component {
             <img src="/images/warning.svg" />
           }
         </div>
-        {showImg &&
+        {
+          showImg &&
           <div className="modal-image">
             <div id="close-img-popup" onClick={this.closeImg}>&times;</div>
             <div className="image-wrapper">
-              <div id="caption">{file_name}</div>
-              <img className="modal-content-img" src={file_url} />
+              <div id="caption">{title}</div>
+              <img className="modal-content-img" src={url} />
             </div>
           </div>
         }

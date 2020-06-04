@@ -162,7 +162,7 @@ class Form extends Component {
           onRemove={this.removeCustomLineItem}
           school_id={this.props.school_id}>
         </CustomLineItemsTable>
-      </div >
+      </div>
     );
   }
 }

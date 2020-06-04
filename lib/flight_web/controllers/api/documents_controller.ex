@@ -38,7 +38,7 @@ defmodule FlightWeb.API.DocumentController do
     user = Repo.preload(user, :school)
     params = Map.put(document_params, "user_id", user_id)
 
-    case update_document(document, params) do
+    case Document.update_document(document, params) do
       {:ok, document} ->
         render(conn, "show.json", document: document, timezone: user.school.timezone)
 
@@ -104,11 +104,5 @@ defmodule FlightWeb.API.DocumentController do
       true ->
         conn
     end
-  end
-
-  defp update_document(document, params) do
-    document
-    |> Document.changeset(params)
-    |> Repo.update()
   end
 end
