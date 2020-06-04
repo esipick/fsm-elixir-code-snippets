@@ -1346,3 +1346,7 @@ fieldset[disabled] .fc button:hover {
 .expiry-date-input {
   cursor: pointer;
 }
+
+.button-wrapper > div {
+  display: inline;
+}
