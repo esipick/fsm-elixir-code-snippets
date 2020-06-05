@@ -1,0 +1,81 @@
+<% form_url = if @is_edit, do: "/admin/rooms/#{@room.id}", else: "/admin/rooms" %>
+<%= form_for @changeset, form_url, [as: :data, method: (if @is_edit, do: "put", else: "post"), class: ""], fn f -> %>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Location *</label>
+          <%= text_input f, :location, class: "form-control" %>
+          <%= full_error_tag f, :location %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Resources</label>
+          <%= text_input f, :resources, class: "form-control" %>
+          <%= full_error_tag f, :resources %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Rate Per Hour *</label>
+          <%= number_input f, :rate_per_hour, class: "form-control", value: Optional.map(@changeset.data.rate_per_hour, &Flight.Format.dollars_from_cents/1), step: "0.01" %>
+          <%= full_error_tag f, :rate_per_hour %>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Block Rate Per Hour *</label>
+          <%= number_input f, :block_rate_per_hour, class: "form-control", value: Optional.map(@changeset.data.block_rate_per_hour, &Flight.Format.dollars_from_cents/1), step: "0.01" %>
+          <%= full_error_tag f, :block_rate_per_hour %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Capacity *</label>
+          <%= select f, :capacity, 1..20, class: "form-control selectpicker" %>
+          <%= full_error_tag f, :capacity %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end card-body -->
+  <div class="card-footer ">
+    <%= if @is_edit do %>
+      <a href="/admin/rooms/<%= @room.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+    <% else %>
+      <a href="/admin/rooms" class="btn btn-fill btn-default mr-2">Cancel</a>
+    <% end %>
+    <input type="submit" class="btn btn-fill btn-primary" value="Save">
+    <%= if @is_edit do %>
+      <!-- Button trigger modal -->
+      <button type="button" id="delete_button" class="btn btn-danger float-right">
+        Delete room
+      </button>
+    <% end %>
+  </div>
+<% end %>
+<%= if @is_edit do %>
+<div style="display:none">
+<%= form_tag "/admin/rooms/#{@room.id}", method: "delete", id: "delete_form" do %>
+<% end %>
+</div>
+
+
+<script>
+$(document).ready(function() {
+  $('#delete_button').on('click', function() {
+    var shouldDelete = confirm("This room and all of its information will be archived and removed from the system.")
+    if (shouldDelete) {
+      $('#delete_form')[0].submit()
+    }
+  });
+});
+</script>
+<% end %>

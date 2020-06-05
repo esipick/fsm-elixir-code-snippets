@@ -219,7 +219,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
         aircraft_details = form.aircraft_details
 
         aircraft =
-          Flight.Scheduling.get_visible_aircraft(aircraft_details.aircraft_id, school_context)
+          Flight.Scheduling.get_visible_air_asset(aircraft_details.aircraft_id, school_context)
 
         if !aircraft do
           raise "Unknown aircraft (#{form.aircraft_details.aircraft_id}) for school (#{

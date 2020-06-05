@@ -14,7 +14,7 @@ defmodule Flight.SchedulingTest do
       serial_number: "54-58423",
       equipment: "equipment",
       ifr_certified: true,
-      simulator: true,
+      simulator: false,
       last_tach_time: 8010,
       last_hobbs_time: 8000,
       rate_per_hour: 130,
@@ -30,7 +30,7 @@ defmodule Flight.SchedulingTest do
       assert aircraft.tail_number == "N876"
       assert aircraft.serial_number == "54-58423"
       assert aircraft.ifr_certified == true
-      assert aircraft.simulator == true
+      assert aircraft.simulator == false
       assert aircraft.last_tach_time == 8010
       assert aircraft.last_hobbs_time == 8000
       assert aircraft.rate_per_hour == 130
@@ -82,16 +82,19 @@ defmodule Flight.SchedulingTest do
       assert {:error, _} = Scheduling.admin_create_aircraft(%{}, default_school_fixture())
     end
 
-    test "get_visible_aircraft/1 gets aircraft" do
+    test "get_visible_air_asset/1 gets aircraft" do
       aircraft = aircraft_fixture()
 
-      assert %Aircraft{} = Scheduling.get_visible_aircraft(aircraft.id, aircraft)
+      assert %Aircraft{} = Scheduling.get_visible_air_asset(aircraft.id, aircraft)
     end
 
-    test "visible_aircrafts/0 gets aircrafts" do
+    test "visible_air_assets/0 gets aircrafts" do
       aircraft_fixture()
       aircraft_fixture()
-      assert [%Aircraft{}, %Aircraft{}] = Scheduling.visible_aircrafts(default_school_fixture())
+      simulator_fixture()
+
+      assert [%Aircraft{}, %Aircraft{}, %Aircraft{}] =
+               Scheduling.visible_air_assets(default_school_fixture())
     end
 
     test "update_aircraft/2 updates" do

@@ -1,11 +1,13 @@
 defmodule Flight.Scheduling.Aircraft do
   use Ecto.Schema
   import Ecto.Changeset
+  import ValidationUtil
 
   schema "aircrafts" do
     field(:ifr_certified, :boolean, default: false)
     field(:last_tach_time, Flight.HourTenth, default: 0)
     field(:last_hobbs_time, Flight.HourTenth, default: 0)
+    field(:name, :string)
     field(:make, :string)
     field(:model, :string)
     field(:block_rate_per_hour, Flight.DollarCents)
@@ -35,24 +37,24 @@ defmodule Flight.Scheduling.Aircraft do
       :last_tach_time,
       :last_hobbs_time,
       :rate_per_hour,
-      :block_rate_per_hour
+      :block_rate_per_hour,
+      :name
     ])
     |> validate_required([
       :ifr_certified,
       :simulator,
       :last_tach_time,
       :last_hobbs_time,
-      :school_id
-    ])
-    |> validate_required([
+      :school_id,
       :make,
       :model,
-      :tail_number,
       :serial_number,
       :equipment,
       :rate_per_hour,
       :block_rate_per_hour
     ])
+    |> validate_required_if(:name, :simulator)
+    |> validate_required_unless(:tail_number, :simulator)
     |> validate_number(:rate_per_hour, greater_than_or_equal_to: 0)
     |> validate_number(:block_rate_per_hour, greater_than_or_equal_to: 0)
     |> validate_format(
@@ -80,5 +82,13 @@ defmodule Flight.Scheduling.Aircraft do
     aircraft
     |> change(archived: true)
     |> Flight.Repo.update()
+  end
+
+  def display_name(aircraft \\ nil) do
+    if aircraft && aircraft.simulator do
+      "Simulator"
+    else
+      "Aircraft"
+    end
   end
 end

@@ -1,6 +1,22 @@
-<% form_url = if @is_edit, do: "/admin/aircrafts/#{@aircraft.id}", else: "/admin/aircrafts" %>
+<% form_url = if @is_edit, do: "/admin/simulators/#{@simulator.id}", else: "/admin/simulators" %>
 <%= form_for @changeset, form_url, [as: :data, method: (if @is_edit, do: "put", else: "post"), class: ""], fn f -> %>
   <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Name *</label>
+          <%= text_input f, :name, class: "form-control" %>
+          <%= full_error_tag f, :name %>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Serial # *</label>
+          <%= text_input f, :serial_number, class: "form-control" %>
+          <%= full_error_tag f, :serial_number %>
+        </div>
+      </div>
+    </div>
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
@@ -14,22 +30,6 @@
           <label>Model *</label>
           <%= text_input f, :model, class: "form-control" %>
           <%= full_error_tag f, :model %>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="form-group">
-          <label>Tail # *</label>
-          <%= text_input f, :tail_number, class: "form-control" %>
-          <%= full_error_tag f, :tail_number %>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="form-group">
-          <label>Serial # *</label>
-          <%= text_input f, :serial_number, class: "form-control" %>
-          <%= full_error_tag f, :serial_number %>
         </div>
       </div>
     </div>
@@ -50,25 +50,11 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-12">
         <div class="form-group">
           <label>Equipment *</label>
           <%= text_input f, :equipment, class: "form-control" %>
           <%= full_error_tag f, :equipment %>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="form-group">
-          <label>Last Recorded Tach Time</label>
-          <%= number_input f, :last_tach_time, class: "form-control", value: display_hour_tenths(@changeset.data.last_tach_time), step: "0.1" %>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="form-group">
-          <label>Last Recorded Hobbs Time</label>
-          <%= number_input f, :last_hobbs_time, class: "form-control", value: display_hour_tenths(@changeset.data.last_hobbs_time), step: "0.1" %>
         </div>
       </div>
     </div>
@@ -89,22 +75,22 @@
   <!-- end card-body -->
   <div class="card-footer ">
     <%= if @is_edit do %>
-      <a href="/admin/aircrafts/<%= @aircraft.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+      <a href="/admin/simulators/<%= @simulator.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
     <% else %>
-      <a href="/admin/aircrafts" class="btn btn-fill btn-default mr-2">Cancel</a>
+      <a href="/admin/simulators" class="btn btn-fill btn-default mr-2">Cancel</a>
     <% end %>
     <input type="submit" class="btn btn-fill btn-primary" value="Save">
     <%= if @is_edit do %>
       <!-- Button trigger modal -->
       <button type="button" id="delete_button" class="btn btn-danger float-right">
-        Delete aircraft
+        Delete simulator
       </button>
     <% end %>
   </div>
 <% end %>
 <%= if @is_edit do %>
 <div style="display:none">
-<%= form_tag "/admin/aircrafts/#{@aircraft.id}", method: "delete", id: "delete_form" do %>
+<%= form_tag "/admin/simulators/#{@simulator.id}", method: "delete", id: "delete_form" do %>
 <% end %>
 </div>
 
@@ -112,7 +98,7 @@
 <script>
 $(document).ready(function() {
   $('#delete_button').on('click', function() {
-    var shouldDelete = confirm("This aircraft and all of its information will be archived and removed from the system.")
+    var shouldDelete = confirm("This simulator and all of its information will be archived and removed from the system.")
     if (shouldDelete) {
       $('#delete_form')[0].submit()
     }

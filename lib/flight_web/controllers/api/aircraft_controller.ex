@@ -8,7 +8,7 @@ defmodule FlightWeb.API.AircraftController do
 
   def index(conn, _) do
     aircrafts =
-      Scheduling.visible_aircrafts(conn)
+      Scheduling.visible_air_assets(conn)
       |> Flight.Repo.preload(:inspections)
 
     render(conn, "index.json", aircrafts: aircrafts)
@@ -16,14 +16,16 @@ defmodule FlightWeb.API.AircraftController do
 
   def show(conn, %{"id" => id}) do
     aircraft =
-      Scheduling.get_visible_aircraft(id, conn)
+      Scheduling.get_visible_air_asset(id, conn)
       |> Flight.Repo.preload(:inspections)
 
     render(conn, "show.json", aircraft: aircraft)
   end
 
   def autocomplete(conn, %{"search" => search_term} = _params) do
-    aircrafts = Flight.Scheduling.visible_aircraft_query(conn, search_term) |> Flight.Repo.all()
+    aircrafts =
+      Scheduling.visible_air_assets_query(conn, search_term)
+      |> Flight.Repo.all()
 
     render(conn, "autocomplete.json", aircrafts: aircrafts)
   end

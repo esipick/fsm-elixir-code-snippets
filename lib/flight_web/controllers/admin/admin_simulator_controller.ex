@@ -1,4 +1,4 @@
-defmodule FlightWeb.Admin.AircraftController do
+defmodule FlightWeb.Admin.SimulatorController do
   use FlightWeb, :controller
 
   alias Flight.Scheduling
@@ -8,11 +8,11 @@ defmodule FlightWeb.Admin.AircraftController do
   plug(:get_aircraft when action in [:show, :edit, :update, :delete])
 
   def create(conn, %{"data" => aircraft_data}) do
-    case Scheduling.admin_create_aircraft(aircraft_data, conn) do
+    case Scheduling.admin_create_simulator(aircraft_data, conn) do
       {:ok, aircraft} ->
         conn
-        |> put_flash(:success, "Successfully created aircraft.")
-        |> redirect(to: "/admin/aircrafts/#{aircraft.id}")
+        |> put_flash(:success, "Successfully created simulator.")
+        |> redirect(to: "/admin/simulators/#{aircraft.id}")
 
       {:error, changeset} ->
         conn
@@ -32,23 +32,24 @@ defmodule FlightWeb.Admin.AircraftController do
     aircraft = Repo.preload(conn.assigns.aircraft, :inspections)
 
     conn
-    |> render("show.html", aircraft: aircraft, skip_shool_select: true)
+    |> render("show.html", simulator: aircraft, skip_shool_select: true)
   end
 
   def index(conn, params) do
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
-    data = FlightWeb.Admin.AircraftListData.build(conn, page_params, search_term)
+    data = FlightWeb.Admin.SimulatorListData.build(conn, page_params, search_term)
     message = params["search"] && set_message(params["search"])
 
     conn
-    |> render("index.html", data: data, message: message, tab: :aircraft)
+    |> render("index.html", data: data, message: message, tab: :simulator)
   end
 
   def edit(conn, _params) do
     conn
     |> render(
       "edit.html",
+      simulator: conn.assigns.aircraft,
       changeset: Aircraft.admin_changeset(conn.assigns.aircraft, %{}),
       skip_shool_select: true
     )
@@ -59,7 +60,7 @@ defmodule FlightWeb.Admin.AircraftController do
       {:ok, aircraft} ->
         conn
         |> put_flash(:success, "Successfully updated aircraft.")
-        |> redirect(to: "/admin/aircrafts/#{aircraft.id}")
+        |> redirect(to: "/admin/simulators/#{aircraft.id}")
 
       {:error, changeset} ->
         conn
@@ -71,12 +72,13 @@ defmodule FlightWeb.Admin.AircraftController do
     Scheduling.archive_aircraft(conn.assigns.aircraft)
 
     conn
-    |> put_flash(:success, "Aircraft successfully archived.")
-    |> redirect(to: "/admin/aircrafts")
+    |> put_flash(:success, "Simulator successfully archived.")
+    |> redirect(to: "/admin/simulators")
   end
 
   defp get_aircraft(conn, _) do
-    aircraft = Scheduling.get_aircraft(conn.params["id"] || conn.params["aircraft_id"], conn)
+    id = conn.params["id"] || conn.params["simulator_id"] || conn.params["aircraft_id"]
+    aircraft = Scheduling.get_aircraft(id, conn)
 
     cond do
       aircraft && !aircraft.archived ->
@@ -84,14 +86,14 @@ defmodule FlightWeb.Admin.AircraftController do
 
       aircraft && aircraft.archived ->
         conn
-        |> put_flash(:error, "Aircraft already removed.")
-        |> redirect(to: "/admin/aircrafts")
+        |> put_flash(:error, "Simulator already removed.")
+        |> redirect(to: "/admin/simulators")
         |> halt()
 
       true ->
         conn
-        |> put_flash(:error, "Unknown aircraft.")
-        |> redirect(to: "/admin/aircrafts")
+        |> put_flash(:error, "Unknown simulator.")
+        |> redirect(to: "/admin/simulators")
         |> halt()
     end
   end

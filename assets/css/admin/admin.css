@@ -1351,12 +1351,17 @@ fieldset[disabled] .fc button:hover {
   display: inline;
 }
 
+a.round-button {
+  text-decoration: none;
+  line-height: 36.5px;
+}
+
 .round-button{
   width: 39px;
   height: 38px;
   border-radius: 19px;
   border: transparent;
-  font-size: 13px;
+  font-size: 1.5em;
   text-align: center;
   color: white;
   font-weight: bolder;

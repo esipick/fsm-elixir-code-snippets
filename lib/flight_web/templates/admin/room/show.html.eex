@@ -1,0 +1,40 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @room.location %></h2>
+    <p class="category"><a href="/admin/rooms/<%= @room.id %>/edit" class="btn btn-primary">Edit room</a></p>
+  </div>
+</div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-10 col-lg-8">
+      <div class="card ">
+        <div class="card-body">
+            <div class="detail-list">
+              <dl class="d-flex justify-content-between">
+                <dt>Capacity</dt>
+                <dd><%= @room.capacity %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Location</dt>
+                <dd><%= @room.location %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Resources</dt>
+                <dd><%= @room.resources %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Rate Per Hour</dt>
+                <dd><%= currency @room.rate_per_hour %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Block Rate Per Hour</dt>
+                <dd><%= currency @room.block_rate_per_hour %></dd>
+              </dl>
+            </div>
+        </div>
+      </div> <!-- end card -->
+    </div>
+  </div>
+</div> <!-- end content -->
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>

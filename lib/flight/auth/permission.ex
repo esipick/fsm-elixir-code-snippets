@@ -43,7 +43,8 @@ defmodule Flight.Auth.Permission do
     :user_protected_info,
     :users,
     :web_dashboard,
-    :staff
+    :staff,
+    :room
   ]
   @verbs [:view, :modify, :create, :be, :request, :access]
   @scopes [:all, :personal]

@@ -82,7 +82,9 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:users, :modify, :all),
       permission_slug(:users, :view, :all),
       permission_slug(:web_dashboard, :access, :all),
-      permission_slug(:staff, :access, :all)
+      permission_slug(:staff, :access, :all),
+      permission_slug(:room, :modify, :all),
+      permission_slug(:room, :view, :all)
     ])
   end
 
@@ -127,7 +129,8 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:users, :modify, :all),
       permission_slug(:users, :view, :all),
       permission_slug(:web_dashboard, :access, :all),
-      permission_slug(:staff, :access, :all)
+      permission_slug(:staff, :access, :all),
+      permission_slug(:room, :view, :all)
     ])
   end
 

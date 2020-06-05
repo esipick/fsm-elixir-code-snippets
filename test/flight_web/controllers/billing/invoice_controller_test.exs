@@ -128,8 +128,8 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
         |> get("/billing/invoices?search=N46")
         |> html_response(200)
 
-      assert content =~ student.first_name
       refute content =~ another_student.first_name
+      assert content =~ student.first_name
     end
 
     @tag :integration
@@ -318,10 +318,9 @@ defmodule FlightWeb.Billing.InvoiceControllerTest do
         user = user_fixture() |> assign_role(role_slug)
         invoice = invoice_fixture(%{status: :paid})
 
-        content =
-          conn
-          |> web_auth(user)
-          |> delete("/billing/invoices/#{invoice.id}")
+        conn
+        |> web_auth(user)
+        |> delete("/billing/invoices/#{invoice.id}")
 
         invoice = Repo.get(Invoice, invoice.id)
 

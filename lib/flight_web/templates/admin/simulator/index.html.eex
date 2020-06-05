@@ -10,7 +10,7 @@
           </div>
 
           <div class="d-flex justify-content-between">
-            <a href="/admin/aircrafts/new" class="btn-success round-button">+</a>
+            <a href="/admin/simulators/new" class="btn-success round-button">+</a>
             <ul class="nav nav-pills nav-pills-primary" role="tablist">
               <li class="nav-item">
                 <a class="nav-link <%= if @tab == :aircraft, do: "active" %>"
@@ -30,11 +30,11 @@
             </ul>
           </div>
           <div>
-            <%= form_for @conn, "/admin/aircrafts", [method: "get"], fn f -> %>
+            <%= form_for @conn, "/admin/simulators", [method: "get"], fn f -> %>
               <div class="row mb-4">
                 <div class="col-md-10 col-xs-12">
                   <div class="form-group">
-                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Tail #" %>
+                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Search by name" %>
                     <span class="text-danger"><%= @message %></span>
                   </div>
                 </div>
@@ -50,7 +50,7 @@
             <div class="table-responsive">
               <table class="table">
                 <thead>
-                  <th>Aircraft</th>
+                  <th>Name</th>
                   <%= if show_to_superadmin?(@conn) do %>
                     <th>School</th>
                   <% end %>
@@ -59,28 +59,24 @@
                   <th data-toggle="tooltip" data-placement="top" title="Has Simulator">Sim</th>
                   <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
                   <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
-                  <th data-toggle="tooltip" data-placement="top" title="Last Recorded Tach Time">Tach Time</th>
-                  <th data-toggle="tooltip" data-placement="top" title="Last Recorded Hobbs Time">Hobbs Time</th>
                 </thead>
                 <tbody>
-                  <%= for aircraft <- @data.table_data.rows do %>
+                  <%= for simulator <- @data.table_data.rows do %>
                     <tr>
-                      <td><span class="text-nowrap"><b><%= aircraft.make %> <%= aircraft.model %></b></span></br>
-                        <small><%= aircraft.tail_number %></small>
+                      <td><span class="text-nowrap"><b><%= simulator.name %></b></span></br>
+                        <small><%= simulator.make %> <%= simulator.model %></small>
                       </td>
                       <%= if show_to_superadmin?(@conn) do %>
-                        <td><a href="/admin/schools/<%= aircraft.school.id %>"><%= aircraft.school.name %></a></td>
+                        <td><a href="/admin/schools/<%= simulator.school.id %>"><%= simulator.school.name %></a></td>
                       <% end %>
-                      <td><%= aircraft.equipment %></td>
-                      <td><%= display_boolean(aircraft.ifr_certified) %></td>
-                      <td><%= display_boolean(aircraft.simulator) %></td>
-                      <td><%= currency aircraft.rate_per_hour %></td>
-                      <td><%= currency aircraft.block_rate_per_hour %></td>
-                      <td><%= display_hour_tenths(aircraft.last_tach_time) %></td>
-                      <td><%= display_hour_tenths(aircraft.last_hobbs_time) %></td>
+                      <td><%= simulator.equipment %></td>
+                      <td><%= display_boolean(simulator.ifr_certified) %></td>
+                      <td><%= display_boolean(simulator.simulator) %></td>
+                      <td><%= currency simulator.rate_per_hour %></td>
+                      <td><%= currency simulator.block_rate_per_hour %></td>
                       <td class="text-right">
-                        <a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm">view</a>
-                        <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-aircraft-id="<%= aircraft.id %>">delete</button>
+                        <a href="/admin/simulators/<%= simulator.id %>" class="btn btn-primary btn-sm">view</a>
+                        <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-simulator-id="<%= simulator.id %>">delete</button>
                       </td>
                     </tr>
                   <% end %>
@@ -119,10 +115,6 @@
               </div>
               <div class="modal-body detail-list">
                 <dl class="d-flex justify-content-between flex-row-reverse">
-                  <dt>Tach 8100</dt>
-                  <dd>100HR</dd>
-                </dl>
-                <dl class="d-flex justify-content-between flex-row-reverse">
                   <dt>4/22/19</dt>
                   <dd>Annual</dd>
                 </dl>
@@ -160,18 +152,18 @@
 </div>
 <!-- end content -->
 <div style="display:none">
-  <%= form_tag "/admin/aircrafts/:pending:", method: "delete", id: "delete_form" do %>
+  <%= form_tag "/admin/simulators/:pending:", method: "delete", id: "delete_form" do %>
   <% end %>
 </div>
 <%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
 <script>
   $(document).ready(function() {
     $('._delete_button').on('click', function() {
-      var id = $(this).attr("data-aircraft-id")
-      var shouldDelete = confirm("This aircraft and all of its information will be archived and removed from the system.")
+      var id = $(this).attr("data-simulator-id")
+      var shouldDelete = confirm("This simulator and all of its information will be archived and removed from the system.")
       if (shouldDelete) {
         var form = $('#delete_form')[0]
-        form.action = "/admin/aircrafts/" + id
+        form.action = "/admin/simulators/" + id
         form.submit()
       }
     });
