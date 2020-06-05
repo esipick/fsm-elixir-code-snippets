@@ -260,24 +260,28 @@ defmodule Flight.BillingFixtures do
   end
 
   def transaction_attrs(attrs \\ %{}, transaction_line_items \\ transaction_line_item_attrs()) do
-    [%{
-      payment_option: "cash",
-      total: 20000,
-      state: "completed",
-      tax_rate: 20,
-      total_tax: 4000,
-      total_amount_due: 24000,
-      line_items: transaction_line_items
-    }
-    |> Map.merge(attrs)]
+    [
+      %{
+        payment_option: "cash",
+        total: 20000,
+        state: "completed",
+        tax_rate: 20,
+        total_tax: 4000,
+        total_amount_due: 24000,
+        line_items: transaction_line_items
+      }
+      |> Map.merge(attrs)
+    ]
   end
 
   def transaction_line_item_attrs(attrs \\ %{}) do
-      [%{
+    [
+      %{
         amount: 10000,
         type: "remove_funds",
         transaction_id: 1
       }
-      |> Map.merge(attrs)]
+      |> Map.merge(attrs)
+    ]
   end
 end
