@@ -1,6 +1,7 @@
 defmodule FlightWeb.Admin.SettingsView do
   use FlightWeb, :view
   import FlightWeb.ViewHelpers
+  import Scrivener.HTML
   alias Flight.Auth.Permission
 
   def stripe_authorize_url() do

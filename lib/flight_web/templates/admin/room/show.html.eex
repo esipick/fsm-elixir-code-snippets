@@ -1,5 +1,6 @@
 <div class="panel-header">
   <div class="header text-center">
+    <h6 class="title back-link"><a href="/admin/rooms">< Back to rooms</a></h6>
     <h2 class="title"><%= @room.location %></h2>
     <p class="category"><a href="/admin/rooms/<%= @room.id %>/edit" class="btn btn-primary">Edit room</a></p>
   </div>

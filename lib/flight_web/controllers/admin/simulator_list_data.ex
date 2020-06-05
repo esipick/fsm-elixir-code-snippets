@@ -7,7 +7,7 @@ defmodule FlightWeb.Admin.SimulatorListData do
 
   alias FlightWeb.Admin.SimulatorListData
 
-  def build(school_context, page_params, search_term) do
+  def build(school_context, page_params, search_term \\ "") do
     page = simulators_page(school_context, page_params, search_term)
 
     %SimulatorListData{

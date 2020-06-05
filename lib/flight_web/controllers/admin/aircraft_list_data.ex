@@ -7,7 +7,7 @@ defmodule FlightWeb.Admin.AircraftListData do
 
   alias FlightWeb.Admin.AircraftListData
 
-  def build(school_context, page_params, search_term) do
+  def build(school_context, page_params, search_term \\ "") do
     page = aircrafts_page(school_context, page_params, search_term)
 
     %AircraftListData{

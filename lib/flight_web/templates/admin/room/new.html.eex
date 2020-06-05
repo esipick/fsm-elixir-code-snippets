@@ -8,7 +8,7 @@
         <div class="card-header">
           <h3 class="card-title">New room</h3>
         </div>
-        <%= render "_form.html", changeset: @changeset, room: nil, is_edit: false %>
+        <%= render "_form.html", changeset: @changeset, room: nil, is_edit: false, redirect_to: @redirect_to %>
       </div> <!-- end card -->
     </div>
   </div>

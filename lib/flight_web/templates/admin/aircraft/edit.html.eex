@@ -9,10 +9,10 @@
 
 
 <div class="row">
-          
+
           <div class="col-md-8">
             <div class="card">
-              <%= render "_form.html", changeset: @changeset, aircraft: @aircraft, is_edit: true %>
+              <%= render "_form.html", changeset: @changeset, aircraft: @aircraft, is_edit: true, redirect_to: @redirect_to %>
             </div> <!-- end card -->
           </div>
 

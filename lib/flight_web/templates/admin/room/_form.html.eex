@@ -44,6 +44,8 @@
         </div>
       </div>
     </div>
+
+    <%= hidden_input f, :redirect_to, value: @redirect_to %>
   </div>
   <!-- end card-body -->
   <div class="card-footer ">

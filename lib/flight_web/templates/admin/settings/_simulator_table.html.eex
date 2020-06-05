@@ -1,0 +1,45 @@
+<table class="table">
+  <thead>
+    <th>Name</th>
+    <th>Equipment</th>
+    <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
+    <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
+    <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
+  </thead>
+  <tbody>
+    <%= for simulator <- @data.table_data.rows do %>
+      <tr>
+        <td><span class="text-nowrap"><b><%= simulator.name %></b></span></br>
+          <small><%= simulator.make %> <%= simulator.model %></small>
+        </td>
+        <td><%= simulator.equipment %></td>
+        <td><%= display_boolean(simulator.ifr_certified) %></td>
+        <td><%= currency simulator.rate_per_hour %></td>
+        <td><%= currency simulator.block_rate_per_hour %></td>
+        <td class="text-right">
+          <a href="/admin/simulators/<%= simulator.id %>/edit?redirect_to=<%= @redirect_back_to %>" class="btn btn-primary btn-sm">edit</a>
+          <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-simulator-id="<%= simulator.id %>">delete</button>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div style="display:none">
+  <%= form_tag "/admin/simulators/:pending:?redirect_to=#{@redirect_back_to}", method: "delete", id: "delete_form" do %>
+  <% end %>
+</div>
+<script>
+  $(document).ready(function() {
+    $('._delete_button').on('click', function() {
+      var id = $(this).attr("data-simulator-id")
+      var shouldDelete = confirm("This simulator and all of its information will be archived and removed from the system.")
+      if (shouldDelete) {
+        var form = $('#delete_form')[0];
+        var action = "/admin/simulators/" + id + "?redirect_to=<%= raw(@redirect_back_to) %>";
+        form.action = action;
+        form.submit()
+      }
+    });
+  });
+</script>

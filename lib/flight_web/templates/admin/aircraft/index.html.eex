@@ -56,7 +56,6 @@
                   <% end %>
                   <th>Equipment</th>
                   <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
-                  <th data-toggle="tooltip" data-placement="top" title="Has Simulator">Sim</th>
                   <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
                   <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
                   <th data-toggle="tooltip" data-placement="top" title="Last Recorded Tach Time">Tach Time</th>
@@ -73,7 +72,6 @@
                       <% end %>
                       <td><%= aircraft.equipment %></td>
                       <td><%= display_boolean(aircraft.ifr_certified) %></td>
-                      <td><%= display_boolean(aircraft.simulator) %></td>
                       <td><%= currency aircraft.rate_per_hour %></td>
                       <td><%= currency aircraft.block_rate_per_hour %></td>
                       <td><%= display_hour_tenths(aircraft.last_tach_time) %></td>

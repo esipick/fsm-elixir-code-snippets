@@ -1,0 +1,44 @@
+<hr />
+
+<div class="d-flex justify-content-between">
+  <a href="/admin/<%= @asset %>s/new?redirect_to=<%= @redirect_back_to %>" class="btn-success round-button">+</a>
+
+  <ul class="nav nav-pills nav-pills-primary" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link <%= if @asset == :aircraft, do: "active" %>"
+        href=<%= "#{@conn.request_path}?tab=assets&asset=aircraft" %>
+        role="tablist" aria-expanded="false">Aircrafts</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= if @asset == :simulator, do: "active" %>"
+        href=<%= "#{@conn.request_path}?tab=assets_simulator" %>
+        role="tablist" aria-expanded="false">Simulators</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= if @asset == :room, do: "active" %>"
+        href=<%= "#{@conn.request_path}?tab=assets_room" %>
+        role="tablist" aria-expanded="false">Rooms</a>
+    </li>
+  </ul>
+</div>
+
+<div class="table-responsive">
+  <%= render "_#{@asset}_table.html", data: @data, conn: @conn, redirect_back_to: @redirect_back_to %>
+</div>
+
+<%= if @data.table_data.page.total_pages > 1 do %>
+  <div class="row">
+    <div class="col-md-10">
+      <%= pagination_links @conn,
+                  @data.table_data.page,
+                  search: @data.search_term,
+                  page_size: @data.table_data.page.page_size
+                %>
+    </div>
+    <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+  </div>
+<% else %>
+  <div class="row justify-content-end">
+    <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+  </div>
+<% end %>

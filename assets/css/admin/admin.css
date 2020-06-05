@@ -1367,3 +1367,18 @@ a.round-button {
   font-weight: bolder;
   cursor: pointer;
 }
+
+.back-link {
+  position: absolute;
+  left: 30px;
+}
+.back-link a {
+  text-decoration: none;
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+	.back-link {
+    position: initial;
+  }
+}

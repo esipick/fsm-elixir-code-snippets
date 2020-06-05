@@ -1,0 +1,44 @@
+<table class="table">
+  <thead>
+    <th>Aircraft</th>
+    <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
+    <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
+    <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
+  </thead>
+  <tbody>
+    <%= for aircraft <- @data.table_data.rows do %>
+      <tr>
+        <td><span class="text-nowrap"><b><%= aircraft.make %> <%= aircraft.model %></b></span></br>
+          <small><%= aircraft.tail_number %></small>
+        </td>
+        <td><%= display_boolean(aircraft.ifr_certified) %></td>
+        <td><%= display_boolean(aircraft.simulator) %></td>
+        <td><%= currency aircraft.rate_per_hour %></td>
+        <td><%= currency aircraft.block_rate_per_hour %></td>
+        <td class="text-right">
+          <a href="/admin/aircrafts/<%= aircraft.id %>/edit?redirect_to=<%= @redirect_back_to %>" class="btn btn-primary btn-sm">edit</a>
+          <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-aircraft-id="<%= aircraft.id %>">delete</button>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div style="display:none">
+  <%= form_tag "/admin/aircrafts/:pending:?redirect_to=#{@redirect_back_to}", method: "delete", id: "delete_form" do %>
+  <% end %>
+</div>
+<script>
+  $(document).ready(function() {
+    $('._delete_button').on('click', function() {
+      var id = $(this).attr("data-aircraft-id")
+      var shouldDelete = confirm("This aircraft and all of its information will be archived and removed from the system.")
+      if (shouldDelete) {
+        var form = $('#delete_form')[0];
+        var action = "/admin/aircrafts/" + id + "?redirect_to=<%= raw(@redirect_back_to) %>";
+        form.action = action;
+        form.submit()
+      }
+    });
+  });
+</script>

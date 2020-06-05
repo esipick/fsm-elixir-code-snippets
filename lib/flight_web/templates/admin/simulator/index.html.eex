@@ -56,7 +56,6 @@
                   <% end %>
                   <th>Equipment</th>
                   <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
-                  <th data-toggle="tooltip" data-placement="top" title="Has Simulator">Sim</th>
                   <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
                   <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
                 </thead>
@@ -71,7 +70,6 @@
                       <% end %>
                       <td><%= simulator.equipment %></td>
                       <td><%= display_boolean(simulator.ifr_certified) %></td>
-                      <td><%= display_boolean(simulator.simulator) %></td>
                       <td><%= currency simulator.rate_per_hour %></td>
                       <td><%= currency simulator.block_rate_per_hour %></td>
                       <td class="text-right">

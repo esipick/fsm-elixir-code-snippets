@@ -5,25 +5,30 @@ defmodule FlightWeb.Admin.AircraftController do
   alias Flight.Scheduling.Aircraft
   alias Flight.Repo
 
+  import FlightWeb.Admin.AssetsHelper
+
   plug(:get_aircraft when action in [:show, :edit, :update, :delete])
 
   def create(conn, %{"data" => aircraft_data}) do
+    redirect_to = get_redirect_param(aircraft_data)
+
     case Scheduling.admin_create_aircraft(aircraft_data, conn) do
       {:ok, aircraft} ->
         conn
         |> put_flash(:success, "Successfully created aircraft.")
-        |> redirect(to: "/admin/aircrafts/#{aircraft.id}")
+        |> redirect(to: redirect_to || "/admin/aircrafts/#{aircraft.id}")
 
       {:error, changeset} ->
         conn
-        |> render("new.html", changeset: changeset)
+        |> render("new.html", changeset: changeset, redirect_to: redirect_to)
     end
   end
 
-  def new(conn, _params) do
+  def new(conn, params) do
     conn
     |> render(
       "new.html",
+      redirect_to: params["redirect_to"],
       changeset: Aircraft.admin_changeset(%Aircraft{}, %{})
     )
   end
@@ -45,34 +50,37 @@ defmodule FlightWeb.Admin.AircraftController do
     |> render("index.html", data: data, message: message, tab: :aircraft)
   end
 
-  def edit(conn, _params) do
+  def edit(conn, params) do
     conn
     |> render(
       "edit.html",
       changeset: Aircraft.admin_changeset(conn.assigns.aircraft, %{}),
-      skip_shool_select: true
+      skip_shool_select: true,
+      redirect_to: params["redirect_to"]
     )
   end
 
   def update(conn, %{"data" => aircraft_data}) do
+    redirect_to = get_redirect_param(aircraft_data)
+
     case Scheduling.admin_update_aircraft(conn.assigns.aircraft, aircraft_data) do
       {:ok, aircraft} ->
         conn
         |> put_flash(:success, "Successfully updated aircraft.")
-        |> redirect(to: "/admin/aircrafts/#{aircraft.id}")
+        |> redirect(to: redirect_to || "/admin/aircrafts/#{aircraft.id}")
 
       {:error, changeset} ->
         conn
-        |> render("edit.html", changeset: changeset)
+        |> render("edit.html", changeset: changeset, redirect_to: redirect_to)
     end
   end
 
-  def delete(conn, _params) do
+  def delete(conn, params) do
     Scheduling.archive_aircraft(conn.assigns.aircraft)
 
     conn
     |> put_flash(:success, "Aircraft successfully archived.")
-    |> redirect(to: "/admin/aircrafts")
+    |> redirect(to: params["redirect_to"] || "/admin/aircrafts")
   end
 
   defp get_aircraft(conn, _) do
