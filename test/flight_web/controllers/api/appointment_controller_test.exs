@@ -435,6 +435,28 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
     end
 
+    test "instructor creates appointment for themselve", %{conn: conn} do
+      instructor = user_fixture() |> assign_role("instructor")
+
+      params = %{
+        data:
+          @default_attrs
+          |> Map.merge(%{instructor_user_id: instructor.id})
+      }
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/appointments", params)
+        |> json_response(200)
+
+      appointment =
+        Flight.Repo.get(Appointment, json["data"]["id"])
+        |> FlightWeb.API.AppointmentView.preload()
+
+      assert json == render_json(AppointmentView, "show.json", appointment: appointment)
+    end
+
     test "can't create appointment without instructor or aircraft", %{conn: conn} do
       student = student_fixture()
 

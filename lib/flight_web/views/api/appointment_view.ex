@@ -77,7 +77,11 @@ defmodule FlightWeb.API.AppointmentView do
       id: appointment.id,
       start_at: Flight.NaiveDateTime.to_walltime_json(appointment.start_at, timezone),
       end_at: Flight.NaiveDateTime.to_walltime_json(appointment.end_at, timezone),
-      user: render(FlightWeb.API.UserView, "skinny_user.json", user: appointment.user),
+      user:
+        Optional.map(
+          appointment.user,
+          &render(FlightWeb.API.UserView, "skinny_user.json", user: &1)
+        ),
       transaction_id: appointment.transaction_id,
       note: appointment.note,
       status: appointment.status,
