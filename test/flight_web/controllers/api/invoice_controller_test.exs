@@ -1299,7 +1299,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> post("/api/invoices/from_appointment/#{appointment.id}")
         |> json_response(201)
 
-      invoice = Repo.get_by(Invoice, user_id: appointment.user_id) |> preload_invoice
+      invoice = Repo.get(Invoice, json["data"]["id"]) |> preload_invoice
 
       assert invoice.total == 115
       assert invoice.tax_rate == 10
@@ -1311,6 +1311,35 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end
 
+    @tag :integration
+    test "creates invoice from appointment with instructor only", %{conn: conn} do
+      instructor = instructor_fixture()
+
+      attrs = %{
+        start_at: ~N[2020-05-13 06:30:00],
+        end_at: ~N[2020-05-13 07:00:00]
+      }
+
+      appointment = past_appointment_fixture(attrs, nil, instructor, nil)
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices/from_appointment/#{appointment.id}")
+        |> json_response(201)
+
+      invoice = Repo.get(Invoice, json["data"]["id"]) |> preload_invoice
+
+      assert invoice.total == 50
+      assert invoice.tax_rate == 10
+      assert invoice.total_tax == 0
+      assert invoice.total_amount_due == 50
+      assert Enum.count(invoice.line_items) == 1
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
     test "creates invoice from appointment with hobbs/tach time", %{conn: conn} do
       student = student_fixture(%{balance: 999_999})
       aircraft = aircraft_fixture()

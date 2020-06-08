@@ -75,55 +75,8 @@ defmodule FlightWeb.API.InvoiceController do
   end
 
   def create(conn, %{"invoice" => invoice_params}) do
-    case CreateInvoice.run(invoice_params, conn) do
-      {:ok, invoice} ->
-        invoice = Repo.preload(invoice, [:line_items, :user, :school, :appointment], force: true)
-
-        conn
-        |> put_status(201)
-        |> render("show.json", invoice: invoice)
-
-      {:error, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
-        conn
-        |> put_status(400)
-        |> json(%{error: %{message: message}, errors: ViewHelpers.translate_errors(changeset)})
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        conn
-        |> put_status(422)
-        |> json(%{
-          error: %{message: "Could not save invoice. Please correct errors in the form."},
-          errors: ViewHelpers.translate_errors(changeset)
-        })
-
-      {:error, id, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
-        conn
-        |> put_status(400)
-        |> json(%{
-          id: id,
-          error: %{message: message},
-          errors: ViewHelpers.translate_errors(changeset)
-        })
-
-      {:error, id, %Ecto.Changeset{} = changeset} ->
-        conn
-        |> put_status(422)
-        |> json(%{
-          id: id,
-          error: %{message: "Could not save invoice. Please correct errors in the form."},
-          errors: ViewHelpers.translate_errors(changeset)
-        })
-
-      {:error, id, %Stripe.Error{} = error} ->
-        conn
-        |> put_status(error.extra.http_status)
-        |> json(%{id: id, stripe_error: StripeHelper.human_error(error.message)})
-
-      {:error, id, %PaymentError{} = error} ->
-        conn
-        |> put_status(400)
-        |> json(%{id: id, stripe_error: StripeHelper.human_error(error.message)})
-    end
+    CreateInvoice.run(invoice_params, conn)
+    |> render_created_invoice(conn)
   end
 
   def update(conn, %{"invoice" => invoice_params}) do
@@ -194,31 +147,8 @@ defmodule FlightWeb.API.InvoiceController do
   end
 
   def from_appointment(conn, %{"appointment_id" => appointment_id} = params) do
-    case CreateInvoiceFromAppointment.run(appointment_id, params, conn) do
-      {:ok, invoice} ->
-        invoice =
-          Repo.get(Invoice, invoice.id)
-          |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
-
-        conn
-        |> put_status(201)
-        |> render("show.json", invoice: invoice)
-
-      {:error, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
-        conn
-        |> put_status(400)
-        |> json(%{error: %{message: message}, errors: ViewHelpers.translate_errors(changeset)})
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        conn
-        |> put_status(422)
-        |> json(%{errors: ViewHelpers.translate_errors(changeset)})
-
-      {:error, _invoice_id, %Ecto.Changeset{} = changeset} ->
-        conn
-        |> put_status(400)
-        |> json(%{errors: ViewHelpers.translate_errors(changeset)})
-    end
+    CreateInvoiceFromAppointment.run(appointment_id, params, conn)
+    |> render_created_invoice(conn)
   end
 
   def payment_options(conn, _) do
@@ -292,6 +222,58 @@ defmodule FlightWeb.API.InvoiceController do
       halt_not_found_response(conn, "Invoice has already been removed.")
     else
       conn
+    end
+  end
+
+  defp render_created_invoice(result, conn) do
+    case result do
+      {:ok, invoice} ->
+        invoice = Repo.preload(invoice, [:line_items, :user, :school, :appointment], force: true)
+
+        conn
+        |> put_status(201)
+        |> render("show.json", invoice: invoice)
+
+      {:error, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{error: %{message: message}, errors: ViewHelpers.translate_errors(changeset)})
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(422)
+        |> json(%{
+          error: %{message: "Could not save invoice. Please correct errors in the form."},
+          errors: ViewHelpers.translate_errors(changeset)
+        })
+
+      {:error, id, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
+        conn
+        |> put_status(400)
+        |> json(%{
+          id: id,
+          error: %{message: message},
+          errors: ViewHelpers.translate_errors(changeset)
+        })
+
+      {:error, id, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(422)
+        |> json(%{
+          id: id,
+          error: %{message: "Could not save invoice. Please correct errors in the form."},
+          errors: ViewHelpers.translate_errors(changeset)
+        })
+
+      {:error, id, %Stripe.Error{} = error} ->
+        conn
+        |> put_status(error.extra.http_status)
+        |> json(%{id: id, stripe_error: StripeHelper.human_error(error.message)})
+
+      {:error, id, %PaymentError{} = error} ->
+        conn
+        |> put_status(400)
+        |> json(%{id: id, stripe_error: StripeHelper.human_error(error.message)})
     end
   end
 end

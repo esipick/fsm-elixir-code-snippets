@@ -35,7 +35,6 @@ defmodule Flight.Scheduling.Appointment do
     |> validate_required([
       :start_at,
       :end_at,
-      :user_id,
       :school_id,
       :type
     ])

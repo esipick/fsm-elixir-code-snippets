@@ -240,8 +240,8 @@ $(document).ready(function () {
         method: "post",
         url: "/api/invoices/from_appointment/" + appointmentId,
         headers: AUTH_HEADERS
-      }).catch(function () {
-        window.location.href = `/billing/invoices/new`
+      }).catch(function (error) {
+        window.location.href = `/billing/invoices/new?appointment_id=${appointmentId}`
       })
 
       promise.then(function (response) {

@@ -94,9 +94,9 @@ defmodule Flight.SchedulingFixtures do
       %Appointment{
         start_at: start_at,
         end_at: end_at,
-        user_id: user.id,
+        user_id: if(user, do: user.id, else: nil),
         instructor_user_id: instructor.id,
-        aircraft_id: aircraft.id,
+        aircraft_id: if(aircraft, do: aircraft.id, else: nil),
         school_id: school.id,
         type: type
       }

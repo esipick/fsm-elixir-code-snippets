@@ -435,7 +435,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
     end
 
-    test "instructor creates appointment for themselve", %{conn: conn} do
+    test "instructor creates appointment for themselves", %{conn: conn} do
       instructor = user_fixture() |> assign_role("instructor")
 
       params = %{
