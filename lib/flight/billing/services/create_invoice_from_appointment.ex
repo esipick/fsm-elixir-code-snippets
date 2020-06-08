@@ -34,27 +34,20 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   def create_invoice_from_appointment(appointment_id, params, school_context) do
     appointment =
-      Repo.get(Appointment, appointment_id) |> Repo.preload([:instructor_user, :aircraft])
+      Repo.get(Appointment, appointment_id)
+      |> Repo.preload([:user, :instructor_user, :aircraft])
 
     school = school(school_context)
-    duration = Timex.diff(appointment.end_at, appointment.start_at, :minutes) / 60.0
-    payment_option = Map.get(params, "payment_option", "balance")
     current_user = school_context.assigns.current_user
-
-    line_items =
-      [
-        aircraft_item(appointment, duration, params, current_user),
-        instructor_item(appointment, duration, current_user)
-      ]
-      |> Enum.filter(fn x -> x end)
 
     invoice_payload = %{
       "school_id" => school.id,
       "appointment_id" => appointment.id,
       "user_id" => appointment.user_id,
+      "payer_name" => payer_name_from(appointment),
       "date" => NaiveDateTime.to_date(appointment.end_at),
-      "payment_option" => payment_option,
-      "line_items" => line_items
+      "payment_option" => Map.get(params, "payment_option", "balance"),
+      "line_items" => line_items_from(appointment, params, current_user)
     }
 
     case CalculateInvoice.run(invoice_payload, school_context) do
@@ -64,6 +57,20 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
       {:error, errors} ->
         {:error, errors}
     end
+  end
+
+  defp payer_name_from(appointment) do
+    Flight.Accounts.User.full_name(appointment.user || appointment.instructor_user)
+  end
+
+  defp line_items_from(appointment, params, current_user) do
+    duration = Timex.diff(appointment.end_at, appointment.start_at, :minutes) / 60.0
+
+    [
+      aircraft_item(appointment, duration, params, current_user),
+      instructor_item(appointment, duration, current_user)
+    ]
+    |> Enum.filter(fn x -> x end)
   end
 
   def aircraft_item(appointment, quantity, params \\ %{}, current_user) do

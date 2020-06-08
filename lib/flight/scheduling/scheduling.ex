@@ -330,15 +330,19 @@ defmodule Flight.Scheduling do
         end
 
       status =
-        Availability.user_with_permission_status(
-          permission_slug(:appointment_user, :modify, :personal),
-          user_id,
-          start_at,
-          end_at,
-          excluded_appointment_ids,
-          [],
-          school_context
-        )
+        if user_id && user_id != "" do
+          Availability.user_with_permission_status(
+            permission_slug(:appointment_user, :modify, :personal),
+            user_id,
+            start_at,
+            end_at,
+            excluded_appointment_ids,
+            [],
+            school_context
+          )
+        else
+          :available
+        end
 
       changeset =
         case status do
@@ -542,7 +546,7 @@ defmodule Flight.Scheduling do
   def send_created_notifications(appointment, modifying_user) do
     appointment = Repo.preload(appointment, [:user, :instructor_user])
 
-    if modifying_user.id != appointment.user_id do
+    if appointment.user_id && modifying_user.id != appointment.user_id do
       Flight.PushNotifications.appointment_created_notification(
         appointment.user,
         modifying_user,
@@ -564,7 +568,7 @@ defmodule Flight.Scheduling do
   def send_changed_notifications(appointment, modifying_user) do
     appointment = Repo.preload(appointment, [:user, :instructor_user])
 
-    if modifying_user.id != appointment.user_id do
+    if appointment.user_id && modifying_user.id != appointment.user_id do
       Flight.PushNotifications.appointment_changed_notification(
         appointment.user,
         modifying_user,

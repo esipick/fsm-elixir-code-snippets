@@ -1,5 +1,15 @@
 /* global $, swal, moment */
 
+function userTitle(user) {
+  if (!user) return '';
+
+  return `${user.first_name} ${user.last_name}`;
+}
+
+function appointmentTitle(appointment) {
+  return userTitle(appointment.user) || userTitle(appointment.instructor_user);
+}
+
 $(document).ready(function () {
 
   var AUTH_HEADERS = { "Authorization": window.fsm_token };
@@ -230,8 +240,8 @@ $(document).ready(function () {
         method: "post",
         url: "/api/invoices/from_appointment/" + appointmentId,
         headers: AUTH_HEADERS
-      }).catch(function () {
-        window.location.href = `/billing/invoices/new`
+      }).catch(function (error) {
+        window.location.href = `/billing/invoices/new?appointment_id=${appointmentId}`
       })
 
       promise.then(function (response) {
@@ -495,8 +505,8 @@ $(document).ready(function () {
             instructor_user_id: instructor_user_id,
             aircraft_id: aircraft_id,
             note: appointment.note,
-            user_id: appointment.user.id,
-            user_name: `${appointment.user.first_name} ${appointment.user.last_name}`,
+            user_id: appointment.user_id,
+            user_name: appointmentTitle(appointment),
             id: appointment.id
           })
         }
@@ -536,7 +546,7 @@ $(document).ready(function () {
             }
 
             return {
-              title: appointment.user.first_name + " " + appointment.user.last_name,
+              title: appointmentTitle(appointment),
               start: moment(appointment.start_at),
               end: moment(appointment.end_at),
               id: "appointment:" + appointment.id,

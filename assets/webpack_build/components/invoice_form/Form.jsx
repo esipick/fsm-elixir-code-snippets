@@ -25,9 +25,13 @@ class Form extends Component {
     super(props);
 
     this.formRef = null;
-    const { creator, staff_member } = props;
+    const { creator, staff_member, appointment } = props;
+
+    const appointments = appointment ? [appointment] : [];
 
     this.state = {
+      appointment,
+      appointments,
       id: props.id || '',
       sales_tax: props.tax_rate || 0,
       action: props.action || 'create',

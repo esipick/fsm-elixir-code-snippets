@@ -32,10 +32,17 @@ defmodule FlightWeb.Billing.InvoiceController do
     render(conn, "index.html", page: page, invoices: invoices, params: params)
   end
 
-  def new(conn, _) do
+  def new(conn, params) do
+    appointment =
+      if params["appointment_id"] do
+        Repo.get(Flight.Scheduling.Appointment, params["appointment_id"])
+        |> Repo.preload([:aircraft, :instructor_user])
+        |> FlightWeb.API.AppointmentView.preload()
+      end
+
     props =
       base_invoice_props(conn)
-      |> Map.put(:action, "create")
+      |> Map.merge(%{action: "create", appointment: appointment})
 
     render(conn, "new.html", props: props)
   end

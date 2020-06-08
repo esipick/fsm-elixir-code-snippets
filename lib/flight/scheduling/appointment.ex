@@ -35,7 +35,6 @@ defmodule Flight.Scheduling.Appointment do
     |> validate_required([
       :start_at,
       :end_at,
-      :user_id,
       :school_id,
       :type
     ])
@@ -61,11 +60,9 @@ defmodule Flight.Scheduling.Appointment do
     |> validate_required([
       :start_at,
       :end_at,
-      :user_id,
       :school_id,
       :type
     ])
-    |> required_error_message(:user_id, "Renter/Student", "can’t be blank")
     |> apply_utc_timezone_changeset(timezone)
     |> validate_end_at_after_start_at
     |> validate_user_instructor_different

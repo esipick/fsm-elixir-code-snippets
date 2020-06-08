@@ -128,12 +128,6 @@ defmodule FlightWeb.API.AppointmentController do
         instructor_user_id_from_appointment
 
     cond do
-      !user_id ->
-        render_bad_request(
-          conn,
-          "You must choose a Renter."
-        )
-
       user_can?(current_user, [
         Permission.new(:appointment_user, :modify, {:personal, user_id}),
         Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id}),
