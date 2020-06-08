@@ -254,175 +254,176 @@ class Main extends Component {
     this.setState({ allCheckboxSelected: checkbox, checkboxes: selected })
   }
 
+  adminDropzone = () => {
+    const { documentsToSubmit } = this.state;
+
+    if (documentsToSubmit.length) return this.uploadForm();
+
+    return (
+      <Dropzone maxFiles={1}
+        accept=".jpeg,.jpg,.png,.pdf"
+        maxSize={5000000}
+        onDrop={this.acceptFiles}>
+        {({ getRootProps, getInputProps }) => (
+          <div className="dropzone"
+            {...getRootProps()}>
+            <input {...getInputProps()} />
+            <div className="button">
+              <p>Drag & Drop a file to upload it.</p>
+              <p className="dropzone-description">Allowed file types: .jpeg, .jpg, .png, .pdf.</p>
+              <p className="dropzone-description">Max size: 5MB</p>
+              <p>
+                <button className="btn btn-primary">
+                  Browse Files
+                  </button>
+              </p>
+            </div>
+          </div>
+        )}
+      </Dropzone>
+    )
+  }
+
+  documentsTable = () => {
+    const { allCheckboxSelected, checkboxes, documents, dropzone, documentsToSubmit,
+      errors, search, page_number, page_size, total_entries, total_pages, saving } = this.state
+    const { admin } = this.props;
+
+    return (
+      <div className="table table m-0">
+        <div className="row bar m-0">
+          <div className="col-md-4 col-xs-12 desktop">
+            {admin && checkboxes.length > 0 &&
+              <div>
+                <button className="btn btn-danger"
+                  onClick={(e) => { if (window.confirm('Are you sure you wish to delete selected documents?')) this.deleteSelectedDocuments(e) }}>
+                  Delete
+            </button>
+                <button className="btn btn-primary ml-3"
+                  onClick={this.setDocumentsToSubmit}>
+                  Edit
+            </button>
+              </div>
+            }
+          </div>
+          <div className="col-md-4 col-xs-12 search-col">
+            <div className="form-group m-0">
+              <img src="/images/search.svg" />
+              <input className="form-control"
+                onChange={this.handleSearch}
+                placeholder="Search"
+                type="search"
+                value={search} />
+            </div>
+          </div>
+          <div className="col-md-4 col-xs-12 desktop">
+            {admin &&
+              <div className="form-group m-0 d-flex flex-row-reverse p-0">
+                <button className="btn btn-primary"
+                  onClick={this.openDropzone}>+ Add new document</button>
+              </div>
+            }
+          </div>
+        </div>
+        {documents.length ? (
+          <div className="files">
+            <div className="row m-0 desktop">
+              {admin &&
+                <div className="th checkbox-col">
+                  <div className="checkbox">
+                    <input checked={allCheckboxSelected}
+                      id="allCheckbox"
+                      onChange={this.handleCheckboxChange}
+                      type="checkbox" />
+                    <label htmlFor="allCheckbox" />
+                  </div>
+                </div>
+              }
+              <div className="th full-width file-col">
+                <h2>Document</h2>
+              </div>
+              <div className="th full-width expiry-col desktop">
+                <h2>Expiry date</h2>
+              </div>
+              {admin &&
+                <div className="th action-col desktop">
+                  <h2>Actions</h2>
+                </div>
+              }
+              <div className="th warning-col"></div>
+            </div>
+            {documents.map(document => (
+              <File admin={admin} checkboxes
+                checkboxes={checkboxes}
+                checked={checkboxes.includes(document.id)}
+                editDocument={this.editDocument}
+                expired={document.expired}
+                expires_at={document.expires_at}
+                file={document.file}
+                id={document.id}
+                key={document.id}
+                onRemove={(e) => { if (window.confirm('Are you sure you wish to delete this document?')) this.removeDocument(e) }}
+                title={document.title}
+                updateCheckboxes={this.updateCheckboxes}>
+              </File>
+            ))}
+            {total_pages > 1 &&
+              <Pagination activePage={page_number}
+                itemClass="page-item"
+                itemsCountPerPage={page_size}
+                linkClass="page-link"
+                onChange={this.setPage}
+                pageRangeDisplayed={5}
+                totalItemsCount={total_entries} />}
+          </div>
+        ) : (
+            <div className="files">
+              <div className="row m-0">
+                <p>No documents found</p>
+              </div>
+            </div>
+          )
+        }
+      </div>
+    )
+  }
+
+  uploadForm = (options = {}) => {
+    const { documentsToSubmit, errors, saving } = this.state;
+
+    return (
+      <div className="form">
+        <div className={options.wrapperClass}>
+          {documentsToSubmit.map(document => (
+            <SelectedFile cancel={this.cancel}
+              document={document}
+              errors={errors}
+              key={document.id}
+              updateDocumentsToSubmit={this.updateDocumentsToSubmit}>
+            </SelectedFile>
+          ))}
+        </div>
+        <div className="action">
+          <button className="btn btn-primary"
+            disabled={saving}
+            onClick={this.submit}>
+            Update
+            </button>
+        </div>
+      </div>
+    )
+  }
+
   render() {
     const { allCheckboxSelected, checkboxes, documents, dropzone, documentsToSubmit,
       errors, search, page_number, page_size, total_entries, total_pages, saving } = this.state
-    const { admin } = this.props
+    const { admin } = this.props;
 
     return (
       <div className="documents">
-        {admin && dropzone &&
-          (documentsToSubmit.length ? (
-            <div className="form">
-              {documentsToSubmit.map(document => (
-                <SelectedFile cancel={this.cancel}
-                  document={document}
-                  errors={errors}
-                  key={document.id}
-                  updateDocumentsToSubmit={this.updateDocumentsToSubmit}>
-                </SelectedFile>
-              ))}
-              <div className="action">
-                <button className="btn btn-primary"
-                  disabled={saving}
-                  onClick={this.submit}>
-                  Upload files
-                  </button>
-              </div>
-            </div>
-          ) : (
-              <Dropzone maxFiles={1}
-                accept=".jpeg,.jpg,.png,.pdf"
-                maxSize={5000000}
-                onDrop={this.acceptFiles}>
-                {({ getRootProps, getInputProps }) => (
-                  <div className="dropzone"
-                    {...getRootProps()}>
-                    <input {...getInputProps()} />
-                    <div className="button">
-                      <p>Drag & Drop a file to upload it.</p>
-                      <p className="dropzone-description">Allowed file types: .jpeg, .jpg, .png, .pdf.</p>
-                      <p className="dropzone-description">Max size: 5MB</p>
-                      <p>
-                        <button className="btn btn-primary">
-                          Browse Files
-                          </button>
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </Dropzone>
-            ))
-        }
-        {!dropzone &&
-          (documentsToSubmit.length ? (
-            <div className="form">
-              <div className="files">
-                {documentsToSubmit.map(document => (
-                  <SelectedFile cancel={this.cancel}
-                    document={document}
-                    errors={errors}
-                    key={document.id}
-                    updateDocumentsToSubmit={this.updateDocumentsToSubmit}>
-                  </SelectedFile>
-                ))}
-              </div>
-              <div className="action">
-                <button className="btn btn-primary"
-                  disabled={saving}
-                  onClick={this.submit}>
-                  Update
-                  </button>
-              </div>
-            </div>
-          ) : (
-              <div className="table table m-0">
-                <div className="row bar m-0">
-                  <div className="col-md-4 col-xs-12 desktop">
-                    {admin && checkboxes.length > 0 &&
-                      <div>
-                        <button className="btn btn-danger"
-                          onClick={(e) => { if (window.confirm('Are you sure you wish to delete selected documents?')) this.deleteSelectedDocuments(e) }}>
-                          Delete
-                    </button>
-                        <button className="btn btn-primary ml-3"
-                          onClick={this.setDocumentsToSubmit}>
-                          Edit
-                    </button>
-                      </div>
-                    }
-                  </div>
-                  <div className="col-md-4 col-xs-12 search-col">
-                    <div className="form-group m-0">
-                      <img src="/images/search.svg" />
-                      <input className="form-control"
-                        onChange={this.handleSearch}
-                        placeholder="Search"
-                        type="search"
-                        value={search} />
-                    </div>
-                  </div>
-                  <div className="col-md-4 col-xs-12 desktop">
-                    {admin &&
-                      <div className="form-group m-0 d-flex flex-row-reverse p-0">
-                        <button className="btn btn-primary"
-                          onClick={this.openDropzone}>+ Add new document</button>
-                      </div>
-                    }
-                  </div>
-                </div>
-                {documents.length ? (
-                  <div className="files">
-                    <div className="row m-0 desktop">
-                      {admin &&
-                        <div className="th checkbox-col">
-                          <div className="checkbox">
-                            <input checked={allCheckboxSelected}
-                              id="allCheckbox"
-                              onChange={this.handleCheckboxChange}
-                              type="checkbox" />
-                            <label htmlFor="allCheckbox" />
-                          </div>
-                        </div>
-                      }
-                      <div className="th full-width file-col">
-                        <h2>Document</h2>
-                      </div>
-                      <div className="th full-width expiry-col desktop">
-                        <h2>Expiry date</h2>
-                      </div>
-                      {admin &&
-                        <div className="th action-col desktop">
-                          <h2>Actions</h2>
-                        </div>
-                      }
-                      <div className="th warning-col"></div>
-                    </div>
-                    {documents.map(document => (
-                      <File admin={admin} checkboxes
-                        checkboxes={checkboxes}
-                        checked={checkboxes.includes(document.id)}
-                        editDocument={this.editDocument}
-                        expired={document.expired}
-                        expires_at={document.expires_at}
-                        file={document.file}
-                        id={document.id}
-                        key={document.id}
-                        onRemove={(e) => { if (window.confirm('Are you sure you wish to delete this document?')) this.removeDocument(e) }}
-                        title={document.title}
-                        updateCheckboxes={this.updateCheckboxes}>
-                      </File>
-                    ))}
-                    {total_pages > 1 &&
-                      <Pagination activePage={page_number}
-                        itemClass="page-item"
-                        itemsCountPerPage={page_size}
-                        linkClass="page-link"
-                        onChange={this.setPage}
-                        pageRangeDisplayed={5}
-                        totalItemsCount={total_entries} />}
-                  </div>
-                ) : (
-                    <div className="files">
-                      <div className="row m-0">
-                        <p>No documents found</p>
-                      </div>
-                    </div>
-                  )
-                }
-              </div>
-            )
-          )}
+        {admin && dropzone && this.adminDropzone()}
+
+        {!dropzone && (documentsToSubmit.length ? this.uploadForm({wrapperClass: "files"}) : this.documentsTable())}
       </div>
     )
   }
