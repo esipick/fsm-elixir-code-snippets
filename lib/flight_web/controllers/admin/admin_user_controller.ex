@@ -14,7 +14,7 @@ defmodule FlightWeb.Admin.UserController do
   plug(:protect_admin_users when action in [:show, :edit, :update])
 
   def index(conn, %{"role" => "user" = role, "tab" => "archived"} = params) do
-    role_slug= %{slug: role}
+    role_slug = %{slug: role}
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
 
@@ -38,8 +38,8 @@ defmodule FlightWeb.Admin.UserController do
     render(conn, "index.html", data: data, message: message, tab: :archived)
   end
 
-  def index(conn, %{"role" => "user" =role} = params) do
-    role_slug= %{slug: role}
+  def index(conn, %{"role" => "user" = role} = params) do
+    role_slug = %{slug: role}
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
     data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, nil)

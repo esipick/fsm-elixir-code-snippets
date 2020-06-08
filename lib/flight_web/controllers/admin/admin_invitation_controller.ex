@@ -6,7 +6,7 @@ defmodule FlightWeb.Admin.InvitationController do
   plug(:get_invitation when action in [:resend, :delete])
   plug(:check_invitation when action in [:create])
 
-  def index(conn, %{"role" => "user"= role_slug}) do
+  def index(conn, %{"role" => "user" = role_slug}) do
     invitations = Accounts.visible_invitations_with_role(role_slug, conn)
     available_user_roles = Accounts.get_user_roles(conn)
 

@@ -30,10 +30,10 @@ defmodule FlightWeb.API.InvoiceController do
 
     result =
       if staff_member?(user) do
-        Flight.Queries.Invoice.page(conn, page_params, params)
+        Flight.Queries.Invoice.all(conn, params)
       else
         options = %{user_id: user.id}
-        Flight.Queries.Invoice.own_invoices(conn, page_params, options)
+        Flight.Queries.Invoice.own_invoices(conn, options)
       end
 
     {page, invoices} =
