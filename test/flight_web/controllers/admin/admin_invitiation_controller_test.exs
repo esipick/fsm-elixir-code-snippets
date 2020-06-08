@@ -35,6 +35,22 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
 
       refute content =~ invitation.email
     end
+
+    test "doesn't render accepted invitations in all user role invitations", %{conn: conn} do
+      role_slug = "admin"
+      role_fixture(%{slug: role_slug})
+
+      invitation = invitation_fixture(%{}, Accounts.role_for_slug(role_slug))
+      Accounts.accept_invitation(invitation)
+
+      content =
+        conn
+        |> web_auth_admin()
+        |> get("/admin/invitations?role=user")
+        |> html_response(200)
+
+      refute content =~ invitation.email
+    end
   end
 
   describe "POST /admin/invitations" do

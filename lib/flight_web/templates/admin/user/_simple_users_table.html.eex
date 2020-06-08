@@ -1,0 +1,42 @@
+<%= if Enum.any?(@simple_rows) do %>
+  <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <%= if show_to_superadmin?(@conn) do %>
+          <th>School</th>
+        <% end %>
+        <th>Roles</th>
+        <th>Phone #</th>
+        <th>Email</th>
+        <th class="disabled-sorting text-right">&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for row <- @simple_rows do %>
+        <tr>
+          <td class="text-nowrap"><b><%= row.name %></b></td>
+          <%= if show_to_superadmin?(@conn) do %>
+            <td><a href="/admin/schools/<%= row.school.id %>"><%= row.school.name %></a></td>
+          <% end %>
+          <td><%= singular_labels_for_roles(row.roles) %></td>
+          <td><a href="tel:<%= row.phone_number %>"><%= row.phone_number %></a></td>
+          <td><a href="mailto:<%= row.email %>"><%= row.email %></a></td>
+          <td class="text-right">
+            <%= if @tab == :main do %>
+              <a href="/admin/users/<%= row.user_id %>" class="btn btn-primary btn-sm">view</a>
+              <a href="/admin/users/<%= row.user_id %>/edit" class="btn btn-primary btn-sm">edit</a>
+              <button type="button" class="btn btn-danger btn-sm _delete_button" data-school-id="<%= row.user_id %>">
+                Delete
+              </button>
+            <% else %>
+              <a href="/admin/users/<%= row.user_id %>/restore?role=<%= @role %>" class="btn btn-primary btn-sm">Restore</a>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="card-body">No <%= @role %> found</div>
+<% end %>
