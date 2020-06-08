@@ -16,7 +16,7 @@ defmodule Flight.Accounts.Search.Document do
         where(
           query,
           fragment(
-            "to_tsvector('english', file || ' ') @@ to_tsquery(?)",
+            "to_tsvector('english', coalesce(title, ' ') || ' ' || file) @@ to_tsquery(?)",
             ^Utils.prefix_search(normalized_term)
           )
         )

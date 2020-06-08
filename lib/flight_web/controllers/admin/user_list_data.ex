@@ -20,18 +20,19 @@ defmodule FlightWeb.Admin.UserListData do
   alias Flight.{Accounts, Format}
   alias FlightWeb.Admin.UserListData
 
-  def build(school_context, %{slug: "user"}= role, page_params, search_term, archived) do
-      %UserListData{
-        role: role,
-        search_term: search_term,
-        user_table_data:
-          table_data_for_role(role, search_term, school_context, page_params, archived),
-        invitations: []
-      }
+  def build(school_context, %{slug: "user"} = role, page_params, search_term, archived) do
+    %UserListData{
+      role: role,
+      search_term: search_term,
+      user_table_data:
+        table_data_for_role(role, search_term, school_context, page_params, archived),
+      invitations: []
+    }
   end
 
   def build(school_context, role_slug, page_params, search_term, archived) do
     role = Accounts.role_for_slug(role_slug)
+
     if role do
       %UserListData{
         role: role,
@@ -61,7 +62,14 @@ defmodule FlightWeb.Admin.UserListData do
     end
   end
 
-  def user_table_data(mode, %{slug: "user"}= role, search_term, school_context, page_params, archived) do
+  def user_table_data(
+        mode,
+        %{slug: "user"} = role,
+        search_term,
+        school_context,
+        page_params,
+        archived
+      ) do
     page = users_page(role, search_term, school_context, page_params, archived)
 
     rows = simple_rows_for_all_users(page.entries)
@@ -128,7 +136,7 @@ defmodule FlightWeb.Admin.UserListData do
     end
   end
 
-  def users_page(%{slug: "user"}= role, search_term, school_context, page_params, archived) do
+  def users_page(%{slug: "user"} = role, search_term, school_context, page_params, archived) do
     if archived == :archived do
       Accounts.archived_users_with_role_query(role, search_term, school_context)
       |> Flight.Repo.paginate(page_params)

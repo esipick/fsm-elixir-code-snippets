@@ -393,18 +393,39 @@
   background: #ebecf1;
   border-radius: 5px;
   color: #9b9d9c;
+  cursor: pointer;
   display: flex;
   font-size: 30px;
   height: 60px;
   justify-content: center;
   margin: 0 20px 0 0;
   min-width: 60px;
+  overflow: hidden;
   width: 60px;
 }
 .profile .documents .files .action-col,
 .profile .documents .files .warning-col {
   display: flex;
   justify-content: center;
+}
+.profile .documents .files .action-col .buttons {
+  display: flex;
+}
+.profile .documents .files .action-col .action {
+  align-items: center;
+  background: none;
+  border-radius: 50%;
+  border: 2px solid #eaebf0;
+  display: flex;
+  font-size: 20px;
+  height: 46px;
+  justify-content: center;
+  line-height: 46px;
+  text-decoration: none;
+  width: 46px;
+}
+.profile .documents .files .action-col .action + .action {
+  margin: 0 0 0 5px;
 }
 .profile .documents .files h2,
 .profile .documents .files h3,
@@ -420,9 +441,6 @@
   align-items: center;
   display: flex;
   text-decoration: none;
-}
-.profile .documents .files .link-content {
-  cursor: pointer;
 }
 .profile .documents .files h3 {
   color: #444;
@@ -447,19 +465,6 @@
   color: #e02459;
   font-size: 20px;
   margin: 0 0 0 10px;
-}
-.profile .documents .delete {
-  align-items: center;
-  border-radius: 50%;
-  border: 2px solid #eaebf0;
-  color: #e02459;
-  display: flex;
-  font-size: 20px;
-  height: 46px;
-  justify-content: center;
-  line-height: 46px;
-  text-decoration: none;
-  width: 46px;
 }
 .profile .documents .dropzone {
   align-items: center;
@@ -529,27 +534,46 @@
   user-select: none;
 }
 .profile .documents .file-content .description {
-  padding: 0 40px 0 0;
+  margin: 0 40px;
+  max-width: 100%;
 }
 .profile .documents .file-content .icon {
   align-items: center;
   background: #ebecf1;
   border-radius: 15px;
   display: flex;
+  font-size: 40px;
   height: 80px;
   justify-content: center;
-  margin: 0 60px 0 0;
+  max-width: 80px;
   min-width: 80px;
-  font-size: 40px;
+  overflow: hidden;
+  position: relative;
 }
-.profile .documents .file-content h3 {
+.profile .documents .file-content label {
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.profile .documents .file-content input[type='file'] {
+  display: none;
+}
+.profile .documents .file-content input[type='text'] {
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: inset 0 0 2px #fdfdfd;
   color: #2c2c2c;
-  font-size: 26px;
+  font-size: 14px;
   font-weight: 500;
-  margin: 0;
+  outline: 0;
+  padding: 3px 6px;
+  width: 360px;
 }
 .profile .documents .file-content p {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 500;
   margin: 5px 0 0;
 }
@@ -576,6 +600,9 @@
   .profile .card-body {
     padding: 0;
   }
+  .profile .documents {
+    padding: 10px;
+  }
   .profile .documents .table .bar {
     padding: 10px 4vw;
   }
@@ -597,9 +624,6 @@
   .profile .documents .files .row {
     margin: 20px 0 0;
   }
-  .profile .documents .file {
-    border-bottom: 1px solid #eaebf0;
-  }
   .profile .documents .files p {
     margin: 10px 0 0;
     color: #666;
@@ -610,6 +634,31 @@
   }
   .profile .documents .files .lt .message {
     color: red;
+  }
+  .profile .documents .file {
+    border-bottom: 1px solid #eaebf0;
+  }
+  .profile .documents .file-content .description {
+    margin: 0 20px;
+  }
+  .profile .documents .file-content input {
+    margin: 0;
+    width: 250px;
+  }
+  .profile .documents .file-content p {
+    font-size: 12px;
+  }
+}
+@media (max-width: 425px) {
+  .profile .documents .file-content {
+    display: block;
+  }
+  .profile .documents .file-content .description {
+    margin: 0;
+  }
+  .profile .documents .file-content input {
+    margin: 10px 0 0;
+    width: 100%;
   }
 }
 

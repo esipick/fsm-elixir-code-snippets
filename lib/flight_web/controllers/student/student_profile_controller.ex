@@ -70,9 +70,9 @@ defmodule FlightWeb.Student.ProfileController do
         %{
           expired: Date.compare(document.expires_at || Date.add(today, 2), today),
           expires_at: document.expires_at,
-          file_name: document.file.file_name,
-          file_url: Accounts.Document.file_url(document),
-          id: document.id
+          file: %{name: document.file.file_name, url: Accounts.Document.file_url(document)},
+          id: document.id,
+          title: document.title || document.file.file_name
         }
       end)
 

@@ -2,8 +2,8 @@ defmodule FlightWeb.SidebarItem do
   defstruct [:path, :icon_class, :label, :active, :prefix]
 
   alias FlightWeb.SidebarItem
-#  alias Flight.Auth.Permission
-#  import Flight.Auth.Authorization
+  #  alias Flight.Auth.Permission
+  #  import Flight.Auth.Authorization
 
   def admin_sidebar(user) do
     [
