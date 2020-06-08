@@ -59,6 +59,48 @@ defmodule FlightWeb.Admin.SettingsController do
     )
   end
 
+  def show(conn, %{"tab" => "assets_aircraft"} = params) do
+    page_params = FlightWeb.Pagination.params(params)
+    data = FlightWeb.Admin.AircraftListData.build(conn, page_params)
+
+    render(conn, "show.html",
+      hide_school_info: true,
+      school: conn.assigns.school,
+      tab: :assets,
+      asset: :aircraft,
+      data: data,
+      redirect_back_to: redirect_back_to_path(conn)
+    )
+  end
+
+  def show(conn, %{"tab" => "assets_simulator"} = params) do
+    page_params = FlightWeb.Pagination.params(params)
+    data = FlightWeb.Admin.SimulatorListData.build(conn, page_params)
+
+    render(conn, "show.html",
+      hide_school_info: true,
+      school: conn.assigns.school,
+      tab: :assets,
+      asset: :simulator,
+      data: data,
+      redirect_back_to: redirect_back_to_path(conn)
+    )
+  end
+
+  def show(conn, %{"tab" => "assets_room"} = params) do
+    page_params = FlightWeb.Pagination.params(params)
+    data = FlightWeb.Admin.RoomListData.build(conn, page_params)
+
+    render(conn, "show.html",
+      hide_school_info: true,
+      school: conn.assigns.school,
+      tab: :assets,
+      asset: :room,
+      data: data,
+      redirect_back_to: redirect_back_to_path(conn)
+    )
+  end
+
   def show(%{assigns: %{school: school}} = conn, _) do
     changeset = Accounts.School.admin_changeset(school, %{})
 
@@ -132,5 +174,9 @@ defmodule FlightWeb.Admin.SettingsController do
     else
       conn
     end
+  end
+
+  defp redirect_back_to_path(conn) do
+    conn.request_path <> "?" <> conn.query_string
   end
 end

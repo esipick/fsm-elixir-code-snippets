@@ -1,0 +1,110 @@
+<% form_url = if @is_edit, do: "/admin/simulators/#{@simulator.id}", else: "/admin/simulators" %>
+<%= form_for @changeset, form_url, [as: :data, method: (if @is_edit, do: "put", else: "post"), class: ""], fn f -> %>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Name *</label>
+          <%= text_input f, :name, class: "form-control" %>
+          <%= full_error_tag f, :name %>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Serial # *</label>
+          <%= text_input f, :serial_number, class: "form-control" %>
+          <%= full_error_tag f, :serial_number %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Make *</label>
+          <%= text_input f, :make, class: "form-control" %>
+          <%= full_error_tag f, :make %>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Model *</label>
+          <%= text_input f, :model, class: "form-control" %>
+          <%= full_error_tag f, :model %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Rate Per Hour *</label>
+          <%= number_input f, :rate_per_hour, class: "form-control", value: Optional.map(@changeset.data.rate_per_hour, &Flight.Format.dollars_from_cents/1), step: "0.01" %>
+          <%= full_error_tag f, :rate_per_hour %>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Block Rate Per Hour *</label>
+          <%= number_input f, :block_rate_per_hour, class: "form-control", value: Optional.map(@changeset.data.block_rate_per_hour, &Flight.Format.dollars_from_cents/1), step: "0.01" %>
+          <%= full_error_tag f, :block_rate_per_hour %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Equipment *</label>
+          <%= text_input f, :equipment, class: "form-control" %>
+          <%= full_error_tag f, :equipment %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-check">
+          <label class="form-check-label">
+            <%= checkbox f, :ifr_certified %>
+            <span class="form-check-sign"></span>
+            IFR Certified
+          </label>
+        </div>
+      </div>
+      <div class="col-md-6">
+      </div>
+    </div>
+
+    <%= hidden_input f, :redirect_to, value: @redirect_to %>
+  </div>
+  <!-- end card-body -->
+  <div class="card-footer ">
+    <%= if @is_edit do %>
+      <a href="/admin/simulators/<%= @simulator.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+    <% else %>
+      <a href="/admin/simulators" class="btn btn-fill btn-default mr-2">Cancel</a>
+    <% end %>
+    <input type="submit" class="btn btn-fill btn-primary" value="Save">
+    <%= if @is_edit do %>
+      <!-- Button trigger modal -->
+      <button type="button" id="delete_button" class="btn btn-danger float-right">
+        Delete simulator
+      </button>
+    <% end %>
+  </div>
+<% end %>
+<%= if @is_edit do %>
+<div style="display:none">
+<%= form_tag "/admin/simulators/#{@simulator.id}", method: "delete", id: "delete_form" do %>
+<% end %>
+</div>
+
+
+<script>
+$(document).ready(function() {
+  $('#delete_button').on('click', function() {
+    var shouldDelete = confirm("This simulator and all of its information will be archived and removed from the system.")
+    if (shouldDelete) {
+      $('#delete_form')[0].submit()
+    }
+  });
+});
+</script>
+<% end %>

@@ -1,0 +1,21 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @simulator.name %></h2>
+    <p class="category">Edit simulator</p>
+  </div>
+</div>
+
+<div class="content">
+
+
+<div class="row">
+
+          <div class="col-md-8">
+            <div class="card">
+              <%= render "_form.html", changeset: @changeset, simulator: @simulator, is_edit: true, redirect_to: @redirect_to %>
+            </div> <!-- end card -->
+          </div>
+
+        </div>
+
+</div> <!-- end content -->

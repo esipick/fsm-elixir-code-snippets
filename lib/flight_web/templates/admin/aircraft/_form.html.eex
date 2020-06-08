@@ -81,17 +81,12 @@
             IFR Certified
           </label>
         </div>
-        <div class="form-check mt-3">
-          <label class="form-check-label">
-            <%= checkbox f, :simulator %>
-            <span class="form-check-sign"></span>
-            Simulator
-          </label>
-        </div>
       </div>
       <div class="col-md-6">
       </div>
     </div>
+
+    <%= hidden_input f, :redirect_to, value: @redirect_to %>
   </div>
   <!-- end card-body -->
   <div class="card-footer ">

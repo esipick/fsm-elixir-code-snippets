@@ -743,10 +743,30 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
 
     @tag :integration
-    test "updates invoice", %{conn: conn} do
+    test "updates invoice and aircraft", %{conn: conn} do
       invoice = invoice_fixture()
       instructor = instructor_fixture()
-      invoice_params = %{total_amount_due: 25000}
+      aircraft = aircraft_fixture()
+      new_tach_time = aircraft.last_tach_time + 5
+      new_hobbs_time = aircraft.last_hobbs_time + 5
+
+      invoice_params = %{
+        line_items: [
+          %{
+            type: "aircraft",
+            aircraft_id: aircraft.id,
+            tach_start: aircraft.last_tach_time,
+            tach_end: new_tach_time,
+            hobbs_start: aircraft.last_hobbs_time,
+            hobbs_end: new_hobbs_time,
+            hobbs_tach_used: true,
+            description: "Flight Hours",
+            amount: 850,
+            quantity: 0.5,
+            rate: 1700
+          }
+        ]
+      }
 
       json =
         conn
@@ -755,6 +775,53 @@ defmodule FlightWeb.API.InvoiceControllerTest do
         |> json_response(200)
 
       invoice = preload_invoice(invoice)
+
+      aircraft = Repo.get(Aircraft, aircraft.id)
+
+      assert aircraft.last_tach_time == new_tach_time
+      assert aircraft.last_hobbs_time == new_hobbs_time
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
+    test "updates invoice but not aircraft.last_tach_time if tach_end less", %{conn: conn} do
+      invoice = invoice_fixture()
+      instructor = instructor_fixture()
+      aircraft = aircraft_fixture()
+      new_tach_time = aircraft.last_tach_time - 5
+      new_hobbs_time = aircraft.last_hobbs_time - 5
+
+      invoice_params = %{
+        line_items: [
+          %{
+            type: "aircraft",
+            aircraft_id: aircraft.id,
+            tach_start: aircraft.last_tach_time,
+            tach_end: new_tach_time,
+            hobbs_start: aircraft.last_hobbs_time,
+            hobbs_end: new_hobbs_time,
+            hobbs_tach_used: true,
+            description: "Flight Hours",
+            amount: 850,
+            quantity: 0.5,
+            rate: 1700
+          }
+        ]
+      }
+
+      json =
+        conn
+        |> auth(instructor)
+        |> put("/api/invoices/#{invoice.id}", %{invoice: invoice_params})
+        |> json_response(200)
+
+      invoice = preload_invoice(invoice)
+
+      aircraft = Repo.get(Aircraft, aircraft.id)
+
+      assert aircraft.last_tach_time == aircraft.last_tach_time
+      assert aircraft.last_hobbs_time == aircraft.last_hobbs_time
 
       assert json == render_json(InvoiceView, "show.json", invoice: invoice)
     end

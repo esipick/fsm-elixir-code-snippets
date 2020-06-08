@@ -1,7 +1,7 @@
 defmodule FlightWeb.Features.CreateAircraftTest do
   use FlightWeb.FeatureCase, async: false
 
-  @tag :integration
+  @tag :skip
   test "admin can create aircraft", %{session: session} do
     session
     |> log_in_admin()

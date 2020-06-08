@@ -1351,14 +1351,34 @@ fieldset[disabled] .fc button:hover {
   display: inline;
 }
 
+a.round-button {
+  text-decoration: none;
+  line-height: 36.5px;
+}
+
 .round-button{
   width: 39px;
   height: 38px;
   border-radius: 19px;
   border: transparent;
-  font-size: 13px;
+  font-size: 1.5em;
   text-align: center;
   color: white;
   font-weight: bolder;
   cursor: pointer;
+}
+
+.back-link {
+  position: absolute;
+  left: 30px;
+}
+.back-link a {
+  text-decoration: none;
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+	.back-link {
+    position: initial;
+  }
 }

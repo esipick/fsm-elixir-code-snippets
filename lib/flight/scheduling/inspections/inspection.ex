@@ -16,7 +16,7 @@ defmodule Flight.Scheduling.Inspection do
   def changeset(inspection, attrs) do
     inspection
     |> cast(attrs, [:type, :date_value, :number_value, :aircraft_id, :name])
-    |> validate_required([:type, :aircraft_id, :name])
+    |> validate_required([:type, :name, :aircraft_id])
     |> validate_inclusion(:type, ["date", "tach"])
     |> validate_by_type()
   end

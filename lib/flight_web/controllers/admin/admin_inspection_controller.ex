@@ -5,16 +5,15 @@ defmodule FlightWeb.Admin.InspectionController do
   plug(:get_inspection when action in [:edit, :update, :delete])
 
   alias Flight.Scheduling
-  alias Flight.Scheduling.{DateInspection, TachInspection, Inspection}
+  alias Flight.Scheduling.{Aircraft, DateInspection, TachInspection, Inspection}
+  alias Flight.Repo
 
   def create(conn, %{"date_inspection" => date_inspection_data}) do
     data = Map.put(date_inspection_data, "aircraft_id", conn.assigns.aircraft.id)
 
     case Scheduling.create_date_inspection(data) do
-      {:ok, _inspection} ->
-        conn
-        |> put_flash(:success, "Successfully created inspection")
-        |> redirect(to: "/admin/aircrafts/#{conn.assigns.aircraft.id}")
+      {:ok, inspection} ->
+        redirect_to_asset(conn, inspection)
 
       {:error, changeset} ->
         render(
@@ -31,10 +30,8 @@ defmodule FlightWeb.Admin.InspectionController do
     data = Map.put(tach_inspection_data, "aircraft_id", conn.assigns.aircraft.id)
 
     case Scheduling.create_tach_inspection(data) do
-      {:ok, _inspection} ->
-        conn
-        |> put_flash(:success, "Successfully created inspection")
-        |> redirect(to: "/admin/aircrafts/#{conn.assigns.aircraft.id}")
+      {:ok, inspection} ->
+        redirect_to_asset(conn, inspection)
 
       {:error, changeset} ->
         render(
@@ -57,6 +54,7 @@ defmodule FlightWeb.Admin.InspectionController do
     render(
       conn,
       "new.html",
+      asset_namespace: asset_namespace(conn.assigns.aircraft),
       aircraft: conn.assigns.aircraft,
       changeset: changeset,
       form_type: form_type,
@@ -65,7 +63,10 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   def new(conn, _params) do
-    redirect(conn, to: "/admin/aircrafts/#{conn.assigns.aircraft.id}/inspections/new?type=date")
+    aircraft = conn.assigns.aircraft
+    namespace = asset_namespace(aircraft)
+
+    redirect(conn, to: "/admin/#{namespace}/#{aircraft.id}/inspections/new?type=date")
   end
 
   def edit(conn, _params) do
@@ -90,10 +91,13 @@ defmodule FlightWeb.Admin.InspectionController do
 
   def update(conn, %{"inspection" => inspection_data}) do
     case Scheduling.update_inspection(conn.assigns.inspection, inspection_data) do
-      {:ok, _inspection} ->
+      {:ok, inspection} ->
+        aircraft = Repo.preload(inspection, :aircraft).aircraft
+        namespace = asset_namespace(aircraft)
+
         conn
         |> put_flash(:success, "Successfully created inspection")
-        |> redirect(to: "/admin/aircrafts/#{conn.assigns.inspection.aircraft.id}")
+        |> redirect(to: "/admin/#{namespace}/#{aircraft.id}")
 
       {:error, changeset} ->
         render(
@@ -107,29 +111,31 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   def delete(conn, _) do
-    Scheduling.delete_inspection!(conn.assigns.inspection)
+    inspection = conn.assigns.inspection
+    Scheduling.delete_inspection!(inspection)
+
+    aircraft = conn.assigns.inspection.aircraft
+    namespace = asset_namespace(aircraft)
 
     conn
     |> put_flash(:success, "Inspection deleted")
-    |> redirect(to: "/admin/aircrafts/#{conn.assigns.inspection.aircraft.id}")
+    |> redirect(to: "/admin/#{namespace}/#{aircraft.id}")
   end
 
   defp get_aircraft(conn, _) do
-    aircraft = Scheduling.get_aircraft(conn.params["aircraft_id"], conn)
+    vehicle_id = conn.params["aircraft_id"] || conn.params["simulator_id"]
+    aircraft = Scheduling.get_aircraft(vehicle_id, conn)
 
     cond do
       aircraft && !aircraft.archived ->
         assign(conn, :aircraft, aircraft)
 
       aircraft && aircraft.archived ->
-        conn
-        |> put_flash(:error, "Aircraft already removed.")
-        |> redirect(to: "/admin/aircrafts")
-        |> halt()
+        redirect_from_deleted_asset_page(aircraft)
 
       true ->
         conn
-        |> put_flash(:error, "Unknown aircraft.")
+        |> put_flash(:error, "Unknown asset.")
         |> redirect(to: "/admin/aircrafts")
         |> halt()
     end
@@ -139,16 +145,18 @@ defmodule FlightWeb.Admin.InspectionController do
     inspection = Scheduling.get_inspection(conn.params["id"])
 
     if inspection do
+      aircraft = Scheduling.get_visible_air_asset(inspection.aircraft_id, conn)
+
       cond do
-        Scheduling.get_visible_aircraft(inspection.aircraft_id, conn) ->
-          inspection = Flight.Repo.preload(inspection, :aircraft)
+        aircraft && !aircraft.archived ->
+          inspection = Repo.preload(inspection, :aircraft)
           assign(conn, :inspection, inspection)
 
+        aircraft && aircraft.archived ->
+          redirect_from_deleted_asset_page(conn, aircraft)
+
         true ->
-          conn
-          |> put_flash(:error, "Aircraft already removed.")
-          |> redirect(to: "/admin/aircrafts")
-          |> halt()
+          redirect_from_deleted_asset_page(conn)
       end
     else
       conn
@@ -156,5 +164,25 @@ defmodule FlightWeb.Admin.InspectionController do
       |> redirect(to: "/admin/aircrafts")
       |> halt()
     end
+  end
+
+  defp redirect_from_deleted_asset_page(conn, aircraft \\ nil) do
+    conn
+    |> put_flash(:error, "#{Aircraft.display_name(aircraft)} already removed.")
+    |> redirect(to: "/admin/#{asset_namespace(aircraft)}")
+    |> halt()
+  end
+
+  defp redirect_to_asset(conn, inspection) do
+    aircraft = Repo.preload(inspection, :aircraft).aircraft
+    namespace = asset_namespace(aircraft)
+
+    conn
+    |> put_flash(:success, "Successfully created inspection")
+    |> redirect(to: "/admin/#{namespace}/#{aircraft.id}")
+  end
+
+  defp asset_namespace(aircraft) do
+    (Aircraft.display_name(aircraft) |> String.downcase()) <> "s"
   end
 end

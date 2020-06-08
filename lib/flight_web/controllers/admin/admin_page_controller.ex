@@ -7,7 +7,7 @@ defmodule FlightWeb.Admin.PageController do
     student_count = Accounts.get_user_count(Accounts.Role.student(), conn)
     instructor_count = Accounts.get_user_count(Accounts.Role.instructor(), conn)
     renter_count = Accounts.get_user_count(Accounts.Role.renter(), conn)
-    aircrafts = Scheduling.visible_aircrafts(conn)
+    aircrafts = Scheduling.visible_air_assets(conn)
 
     fsm_income = Billing.platform_income()
 

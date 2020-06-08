@@ -21,6 +21,7 @@ defmodule FlightWeb.Student.ProfileController do
     appointments =
       Scheduling.get_appointments(options, conn)
       |> Repo.preload([:aircraft, :instructor_user])
+
     total_hrs_spent = Scheduling.calculate_appointments_duration(appointments)
 
     render(
@@ -93,8 +94,7 @@ defmodule FlightWeb.Student.ProfileController do
   end
 
   def edit(conn, _) do
-    user =
-      Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :flyer_certificates])
+    user = Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :flyer_certificates])
 
     render(
       conn,
@@ -114,8 +114,7 @@ defmodule FlightWeb.Student.ProfileController do
         _ -> params["user"]
       end
 
-    user =
-      Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :flyer_certificates])
+    user = Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :flyer_certificates])
 
     case Accounts.regular_user_update_profile(user, user_form) do
       {:ok, _} ->

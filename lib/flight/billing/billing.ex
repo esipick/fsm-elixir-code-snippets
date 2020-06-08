@@ -401,9 +401,10 @@ defmodule Flight.Billing do
   def calculate_amount_spent_in_transactions(transactions) do
     Enum.reduce(transactions, 0, fn m, acc ->
       line_items = Map.get(m, :line_items) || []
+
       if (List.first(line_items) != nil &&
-            Map.get(List.first(line_items), :type) not in ["add_funds", "remove_funds"]
-           ) || List.first(line_items) == nil do
+            Map.get(List.first(line_items), :type) not in ["add_funds", "remove_funds"]) ||
+           List.first(line_items) == nil do
         (Map.get(m, :total) || 0) + acc
       else
         0 + acc

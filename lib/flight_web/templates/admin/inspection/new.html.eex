@@ -6,18 +6,21 @@
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">New Inspection</h3>
-          <p>Select the appropriate inspection type below then fill out the rest.</p>
-          <ul class="nav nav-pills nav-pills-primary" role="tablist">
-            <li class="nav-item">
-              <a class="nav-link <%= if @form_type == :date, do: "active", else: "" %>" href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new?type=date" role="tablist">Date Inspection</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link <%= if @form_type == :tach, do: "active", else: "" %>" href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new?type=tach" role="tablist">Tach Inspection</a>
-            </li>
-          </ul>
+          <%= if !@aircraft.simulator do %>
+            <p>Select the appropriate inspection type below then fill out the rest.</p>
+
+            <ul class="nav nav-pills nav-pills-primary" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link <%= if @form_type == :date, do: "active", else: "" %>" href="/admin/<%= @asset_namespace %>/<%= @aircraft.id %>/inspections/new?type=date" role="tablist">Date Inspection</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link <%= if @form_type == :tach, do: "active", else: "" %>" href="/admin/<%= @asset_namespace %>/<%= @aircraft.id %>/inspections/new?type=tach" role="tablist">Tach Inspection</a>
+              </li>
+            </ul>
+          <% end %>
         </div>
         <% inspection_key = if @form_type == :tach, do: :tach_inspection, else: :date_inspection %>
-        <%= form_for @changeset, "/admin/aircrafts/#{@aircraft.id}/inspections", [as: inspection_key, method: "post", class: "form-horizontal"], fn f -> %>
+        <%= form_for @changeset, "/admin/#{@asset_namespace}/#{@aircraft.id}/inspections", [as: inspection_key, method: "post", class: "form-horizontal"], fn f -> %>
           <div class="card-body">
             <%= hidden_input f, :aircraft_id, value: @aircraft.id %>
             <%= case @form_type do
@@ -26,7 +29,7 @@
             end %>
           </div>
           <div class="card-footer ">
-            <a href="/admin/aircrafts/<%= @aircraft.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+            <a href="/admin/<%= @asset_namespace %>/<%= @aircraft.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
             <input type="submit" class="btn btn-fill btn-primary" value="Save">
           </div>
         <% end %>

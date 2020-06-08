@@ -19,10 +19,9 @@ defmodule Flight.Scheduling do
 
   def admin_create_aircraft(attrs, school_context) do
     result =
-      %Aircraft{}
-      |> SchoolScope.school_changeset(school_context)
-      |> Aircraft.admin_changeset(attrs)
-      |> Repo.insert()
+      Map.merge(attrs, %{simulator: false})
+      |> MapUtil.atomize_shallow()
+      |> insert_aircraft(school_context)
 
     case result do
       {:ok, aircraft} ->
@@ -49,31 +48,72 @@ defmodule Flight.Scheduling do
           |> Repo.insert()
         end
 
-      _ ->
-        {}
-    end
+        result
 
-    result
+      _ ->
+        result
+    end
+  end
+
+  def admin_create_simulator(attrs, school_context) do
+    result =
+      Map.merge(attrs, %{simulator: true})
+      |> MapUtil.atomize_shallow()
+      |> insert_aircraft(school_context)
+
+    case result do
+      {:ok, aircraft} ->
+        date_inspection = %DateInspection{
+          name: "Letter of authorization",
+          aircraft_id: aircraft.id
+        }
+
+        %Inspection{}
+        |> Inspection.changeset(DateInspection.attrs(date_inspection))
+        |> Repo.insert()
+
+        result
+
+      _ ->
+        result
+    end
+  end
+
+  def insert_aircraft(attrs, school_context) do
+    %Aircraft{}
+    |> SchoolScope.school_changeset(school_context)
+    |> Aircraft.admin_changeset(attrs)
+    |> Repo.insert()
   end
 
   def visible_aircraft_query(school_context, search_term \\ "") do
-    Aircraft
-    |> Flight.Scheduling.Search.Aircraft.run(search_term)
-    |> order_by([a], asc: [a.make, a.model, a.tail_number])
-    |> SchoolScope.scope_query(school_context)
+    aircraft_query(school_context, search_term)
     |> where([a], a.archived == false)
+    |> where([a], a.simulator == false)
+    |> order_by([a], asc: [a.make, a.model, a.tail_number])
+  end
+
+  def visible_simulator_query(school_context, search_term \\ "") do
+    aircraft_query(school_context, search_term)
+    |> where([a], a.archived == false)
+    |> where([a], a.simulator == true)
+    |> order_by([a], asc: [a.name])
+  end
+
+  def visible_air_assets_query(school_context, search_term \\ "") do
+    aircraft_query(school_context, search_term)
+    |> where([a], a.archived == false)
+    |> order_by([a], asc: [a.make, a.model, a.tail_number, a.name])
   end
 
   def aircraft_query(school_context, search_term \\ "") do
     Aircraft
     |> Flight.Scheduling.Search.Aircraft.run(search_term)
-    |> order_by([a], asc: [a.make, a.model, a.tail_number])
     |> SchoolScope.scope_query(school_context)
   end
 
-  def visible_aircrafts(school_context) do
-    visible_aircraft_query(school_context)
-    |> Repo.all()
+  def visible_air_assets(school_context) do
+    visible_air_assets_query(school_context) |> Repo.all()
   end
 
   def visible_aircraft_count(school_context) do
@@ -81,8 +121,9 @@ defmodule Flight.Scheduling do
     |> Repo.aggregate(:count, :id)
   end
 
-  def get_visible_aircraft(id, school_context) do
-    visible_aircraft_query(school_context)
+  def get_visible_air_asset(id, school_context) do
+    aircraft_query(school_context)
+    |> where([a], a.archived == false)
     |> where([a], a.id == ^id)
     |> Repo.one()
   end
@@ -233,12 +274,13 @@ defmodule Flight.Scheduling do
   def calculate_appointments_duration(appointments) do
     seconds =
       Enum.reduce(appointments, 0, fn appointment, acc ->
-        seconds= NaiveDateTime.diff(appointment.end_at, appointment.start_at, :second)
+        seconds = NaiveDateTime.diff(appointment.end_at, appointment.start_at, :second)
         seconds + acc
       end)
-    hours = Integer.floor_div(seconds, 3600)|> to_string
+
+    hours = Integer.floor_div(seconds, 3600) |> to_string
     minutes = Time.add(~T[00:00:00], seconds).minute |> to_string
-    hours<>"h"<>"  "<>minutes<>"m"
+    hours <> "h" <> "  " <> minutes <> "m"
   end
 
   def apply_utc_timezone(changeset, key, timezone) do

@@ -5,9 +5,29 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header d-flex flex-column">
-          <div class="text-right">
-            <h3 class="card-title pull-left">Aircraft</h3>
-            <a href="/admin/aircrafts/new" class="btn btn-primary">Add New</a>
+          <div class="text-left">
+            <h3 class="card-title">Assets</h3>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="/admin/aircrafts/new" class="btn-success round-button">+</a>
+            <ul class="nav nav-pills nav-pills-primary" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link <%= if @tab == :aircraft, do: "active" %>"
+                  href="/admin/aircrafts"
+                  role="tablist" aria-expanded="false">Aircrafts</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link <%= if @tab == :simulator, do: "active" %>"
+                  href="/admin/simulators"
+                  role="tablist" aria-expanded="false">Simulators</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link <%= if @tab == :room, do: "active" %>"
+                  href="/admin/rooms"
+                  role="tablist" aria-expanded="false">Rooms</a>
+              </li>
+            </ul>
           </div>
           <div>
             <%= form_for @conn, "/admin/aircrafts", [method: "get"], fn f -> %>
@@ -36,7 +56,6 @@
                   <% end %>
                   <th>Equipment</th>
                   <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
-                  <th data-toggle="tooltip" data-placement="top" title="Has Simulator">Sim</th>
                   <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
                   <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
                   <th data-toggle="tooltip" data-placement="top" title="Last Recorded Tach Time">Tach Time</th>
@@ -53,7 +72,6 @@
                       <% end %>
                       <td><%= aircraft.equipment %></td>
                       <td><%= display_boolean(aircraft.ifr_certified) %></td>
-                      <td><%= display_boolean(aircraft.simulator) %></td>
                       <td><%= currency aircraft.rate_per_hour %></td>
                       <td><%= currency aircraft.block_rate_per_hour %></td>
                       <td><%= display_hour_tenths(aircraft.last_tach_time) %></td>

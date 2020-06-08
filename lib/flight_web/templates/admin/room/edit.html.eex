@@ -1,0 +1,18 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h2 class="title"><%= @room.location %></h2>
+    <p class="category">Edit room</p>
+  </div>
+</div>
+
+<div class="content">
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <%= render "_form.html", changeset: @changeset, room: @room, is_edit: true, redirect_to: @redirect_to %>
+    </div> <!-- end card -->
+  </div>
+</div>
+
+</div> <!-- end content -->

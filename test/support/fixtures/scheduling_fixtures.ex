@@ -10,28 +10,34 @@ defmodule Flight.SchedulingFixtures do
     Unavailability
   }
 
+  alias Flight.SchoolAssets.Room
+
   alias Flight.{Repo}
 
-  def aircraft_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
-    aircraft =
-      %Aircraft{
-        make: "Sesna",
-        model: "Thing",
-        tail_number: "N1546",
-        serial_number: "54-54615",
-        ifr_certified: true,
-        equipment: Flight.Random.hex(15),
-        simulator: true,
-        last_tach_time: 400,
-        last_hobbs_time: 400,
-        rate_per_hour: 130,
-        block_rate_per_hour: 120,
-        school_id: school.id
-      }
-      |> Aircraft.changeset(attrs)
-      |> Repo.insert!()
+  def aircraft_fixture(params \\ %{}, school \\ default_school_fixture()) do
+    attrs = MapUtil.atomize_shallow(params)
 
-    aircraft
+    %Aircraft{
+      make: "Sesna",
+      model: "Thing",
+      tail_number: "N1546",
+      serial_number: "54-54615",
+      ifr_certified: true,
+      equipment: Flight.Random.hex(15),
+      last_tach_time: 400,
+      last_hobbs_time: 400,
+      rate_per_hour: 130,
+      block_rate_per_hour: 120,
+      school_id: school.id,
+      name: if(attrs[:simulator], do: "Simulator", else: nil)
+    }
+    |> Aircraft.changeset(attrs)
+    |> Repo.insert!()
+  end
+
+  def simulator_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
+    Map.merge(attrs, %{simulator: true})
+    |> aircraft_fixture(school)
   end
 
   def appointment_fixture(
@@ -164,5 +170,18 @@ defmodule Flight.SchedulingFixtures do
       |> Repo.insert!()
 
     %{inspection | aircraft: aircraft}
+  end
+
+  def room_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
+    %Room{
+      capacity: 5,
+      location: "Millenium Street 5",
+      resources: Flight.Random.hex(15),
+      rate_per_hour: 130,
+      block_rate_per_hour: 120,
+      school_id: school.id
+    }
+    |> Room.changeset(attrs)
+    |> Repo.insert!()
   end
 end

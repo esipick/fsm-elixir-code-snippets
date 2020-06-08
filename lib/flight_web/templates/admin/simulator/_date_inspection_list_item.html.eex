@@ -1,0 +1,6 @@
+
+<tr>
+  <td><%= @date_inspection.name %></td>
+  <td><%= format_date(@date_inspection.expiration) %></td>
+  <td class="text-right"><a href="/admin/inspections/<%= @date_inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
+</tr>

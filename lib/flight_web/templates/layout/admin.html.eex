@@ -39,6 +39,7 @@
       <!-- End Navbar -->
 
         <%= render @view_module, @view_template, assigns %>
+
         <footer class="footer">
           <div class="container-fluid">
             <nav>

@@ -185,13 +185,15 @@ defmodule FlightWeb.Router do
       get("/resend", SchoolInvitationController, :resend)
     end
 
-    resources(
-      "/aircrafts",
-      AircraftController,
-      only: [:create, :update, :edit, :show, :index, :new, :delete]
-    ) do
+    resources("/aircrafts", AircraftController) do
       resources("/inspections", InspectionController, only: [:create, :new])
     end
+
+    resources("/simulators", SimulatorController) do
+      resources("/inspections", InspectionController, only: [:create, :new])
+    end
+
+    resources("/rooms", RoomController)
 
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
   end

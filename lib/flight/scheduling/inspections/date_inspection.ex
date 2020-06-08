@@ -11,7 +11,7 @@ defmodule Flight.Scheduling.DateInspection do
   def changeset(date_inspection, attrs) do
     date_inspection
     |> cast(attrs, [:expiration, :aircraft_id, :name])
-    |> validate_required([:aircraft_id, :name, :expiration])
+    |> validate_required([:name, :expiration, :aircraft_id])
     |> validate_expiration_after_today()
   end
 

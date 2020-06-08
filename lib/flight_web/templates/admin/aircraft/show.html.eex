@@ -1,5 +1,6 @@
 <div class="panel-header">
   <div class="header text-center">
+    <h6 class="title back-link"><a href="/admin/aircrafts">< Back to aircrafts</a></h6>
     <h2 class="title"><%= @aircraft.make %> <%= @aircraft.model %></h2>
     <p class="category"><a href="/admin/aircrafts/<%= @aircraft.id %>/edit" class="btn btn-primary">Edit Aircraft</a></p>
   </div>

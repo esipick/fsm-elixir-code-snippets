@@ -16,7 +16,11 @@ defmodule Flight.Scheduling.Search.Aircraft do
         where(
           query,
           fragment(
-            "to_tsvector('english', tail_number) @@ to_tsquery(?)",
+            "to_tsvector(
+              'english',
+              coalesce(tail_number, ' ') || ' ' ||
+              coalesce(name, ' ')
+            ) @@ to_tsquery(?)",
             ^Utils.prefix_search(normalized_term)
           )
         )

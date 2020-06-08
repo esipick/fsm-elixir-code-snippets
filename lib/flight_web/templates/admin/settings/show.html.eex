@@ -9,7 +9,7 @@
 
 <div class="content">
   <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-12">
       <div class="card ">
         <div class="card-header">
           <div class="d-flex justify-content-between mb-3">
@@ -27,10 +27,13 @@
                 <li class="nav-item">
                   <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=billing" %>>Billing Settings</a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link <%= if @tab == :profile, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=profile" %>>Profile Settings</a>
-                </li>
               <% end %>
+              <li class="nav-item">
+                <a class="nav-link <%= if @tab == :profile, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=profile" %>>Profile Settings</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link <%= if @tab == :assets, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=assets_aircraft" %>>Assets</a>
+              </li>
             </ul>
           </div>
         </div>
@@ -42,13 +45,16 @@
               :payment -> render "_payment.html", school: @school
               :billing -> render "_billing.html", school: @school, changeset: @changeset, request_path: @conn.request_path, props: @props
               :profile -> render "_profile.html", school: @school, changeset: @changeset, request_path: @conn.request_path
+              :assets -> render "_assets.html", data: @data, conn: @conn, asset: @asset, redirect_back_to: @redirect_back_to
             end
             %>
         </div>
       </div> <!-- end card -->
     </div>
+  </div>
 
-    <div class="col-md-4">
+  <div class="row">
+    <div class="col-md-12">
       <div class="card">
         <div class="card-body detail-list">
           <dl class="d-flex justify-content-between">

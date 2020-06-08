@@ -14,7 +14,7 @@ defmodule Flight.SchedulingTest do
       serial_number: "54-58423",
       equipment: "equipment",
       ifr_certified: true,
-      simulator: true,
+      simulator: false,
       last_tach_time: 8010,
       last_hobbs_time: 8000,
       rate_per_hour: 130,
@@ -30,7 +30,7 @@ defmodule Flight.SchedulingTest do
       assert aircraft.tail_number == "N876"
       assert aircraft.serial_number == "54-58423"
       assert aircraft.ifr_certified == true
-      assert aircraft.simulator == true
+      assert aircraft.simulator == false
       assert aircraft.last_tach_time == 8010
       assert aircraft.last_hobbs_time == 8000
       assert aircraft.rate_per_hour == 130
@@ -82,16 +82,19 @@ defmodule Flight.SchedulingTest do
       assert {:error, _} = Scheduling.admin_create_aircraft(%{}, default_school_fixture())
     end
 
-    test "get_visible_aircraft/1 gets aircraft" do
+    test "get_visible_air_asset/1 gets aircraft" do
       aircraft = aircraft_fixture()
 
-      assert %Aircraft{} = Scheduling.get_visible_aircraft(aircraft.id, aircraft)
+      assert %Aircraft{} = Scheduling.get_visible_air_asset(aircraft.id, aircraft)
     end
 
-    test "visible_aircrafts/0 gets aircrafts" do
+    test "visible_air_assets/0 gets aircrafts" do
       aircraft_fixture()
       aircraft_fixture()
-      assert [%Aircraft{}, %Aircraft{}] = Scheduling.visible_aircrafts(default_school_fixture())
+      simulator_fixture()
+
+      assert [%Aircraft{}, %Aircraft{}, %Aircraft{}] =
+               Scheduling.visible_air_assets(default_school_fixture())
     end
 
     test "update_aircraft/2 updates" do
@@ -724,30 +727,42 @@ defmodule Flight.SchedulingTest do
 
   describe "calculate_appointments_duration/2 that returns string time duration" do
     test "by passing appointments having no time difference to validate zero value difference" do
-      appointment = appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-03 10:00:01]})
+      appointment =
+        appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-03 10:00:01]})
 
       assert Scheduling.calculate_appointments_duration([appointment]) == "0h  0m"
     end
 
     test "by passing appointments having valid time difference" do
-      appointment = appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-03 11:30:00]})
+      appointment =
+        appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-03 11:30:00]})
 
       assert Scheduling.calculate_appointments_duration([appointment]) == "1h  30m"
     end
 
     test "by passing appointments having more than 2 days time difference" do
-      appointment1 = appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-04 10:43:00]})
-      appointment2 = appointment_fixture(%{start_at: ~N[2030-06-07 10:43:00], end_at: ~N[2030-06-08 13:40:00]})
+      appointment1 =
+        appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-04 10:43:00]})
 
-      assert Scheduling.calculate_appointments_duration([appointment1, appointment2]) == "51h  40m"
+      appointment2 =
+        appointment_fixture(%{start_at: ~N[2030-06-07 10:43:00], end_at: ~N[2030-06-08 13:40:00]})
+
+      assert Scheduling.calculate_appointments_duration([appointment1, appointment2]) ==
+               "51h  40m"
     end
 
     test "by passing appointments having more than 30 days time difference" do
-      appointment1 = appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-23 10:43:00]})
-      appointment2 = appointment_fixture(%{start_at: ~N[2030-06-23 10:43:00], end_at: ~N[2030-06-29 11:40:00]})
-      appointment3 = appointment_fixture(%{start_at: ~N[2030-06-29 11:40:00], end_at: ~N[2030-07-03 13:51:00]})
+      appointment1 =
+        appointment_fixture(%{start_at: ~N[2030-06-03 10:00:00], end_at: ~N[2030-06-23 10:43:00]})
 
-      assert Scheduling.calculate_appointments_duration([appointment1, appointment2, appointment3]) == "723h  51m"
+      appointment2 =
+        appointment_fixture(%{start_at: ~N[2030-06-23 10:43:00], end_at: ~N[2030-06-29 11:40:00]})
+
+      appointment3 =
+        appointment_fixture(%{start_at: ~N[2030-06-29 11:40:00], end_at: ~N[2030-07-03 13:51:00]})
+
+      assert Scheduling.calculate_appointments_duration([appointment1, appointment2, appointment3]) ==
+               "723h  51m"
     end
   end
 

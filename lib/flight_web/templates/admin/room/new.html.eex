@@ -1,0 +1,16 @@
+<div class="panel-header panel-header-sm"></div>
+
+<div class="content">
+
+<div class="row">
+    <div class="sol-sm 12 col-md-10 col-lg-9">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">New room</h3>
+        </div>
+        <%= render "_form.html", changeset: @changeset, room: nil, is_edit: false, redirect_to: @redirect_to %>
+      </div> <!-- end card -->
+    </div>
+  </div>
+
+</div> <!-- end content -->

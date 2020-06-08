@@ -68,7 +68,7 @@ defmodule FlightWeb.SidebarItem do
       },
       %SidebarItem{
         path: "/admin/aircrafts",
-        label: "Aircraft",
+        label: "Assets",
         icon_class: "objects_spaceship",
         active: false
       },

@@ -416,7 +416,10 @@ defmodule Flight.BillingTest do
     end
 
     test "passes to exclude remove funds transactions" do
-      line_items = transaction_line_item_attrs(%{type: "remove_funds"}) ++ transaction_line_item_attrs(%{type: "remove_funds"})
+      line_items =
+        transaction_line_item_attrs(%{type: "remove_funds"}) ++
+          transaction_line_item_attrs(%{type: "remove_funds"})
+
       transactions = transaction_attrs(%{total: 10000}, line_items)
 
       assert Billing.calculate_amount_spent_in_transactions(transactions) == 0

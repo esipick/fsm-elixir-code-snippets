@@ -1,6 +1,7 @@
 defmodule Flight.Billing.Invoice do
   use Ecto.Schema
   import Ecto.Changeset
+  import ValidationUtil
 
   alias __MODULE__
   alias Flight.Repo
@@ -72,15 +73,6 @@ defmodule Flight.Billing.Invoice do
     change(invoice, attrs) |> Repo.update()
   end
 
-  def validate_required_inclusion(changeset, fields) do
-    if Enum.any?(fields, &present?(changeset, &1)) do
-      changeset
-    else
-      # Add the error to the first field only since Ecto requires a field name for each error.
-      add_error(changeset, hd(fields), "One of these fields must be present: #{inspect(fields)}")
-    end
-  end
-
   def validate_appointment_is_valid(changeset) do
     appointment_id = get_field(changeset, :appointment_id)
 
@@ -110,10 +102,5 @@ defmodule Flight.Billing.Invoice do
       change(invoice, %{archived: true, archived_at: archived_at})
       |> Flight.Repo.update()
     end
-  end
-
-  def present?(changeset, field) do
-    value = get_field(changeset, field)
-    value && value != ""
   end
 end

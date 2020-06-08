@@ -1,0 +1,169 @@
+<div class="panel-header panel-header-sm">
+</div>
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header d-flex flex-column">
+          <div class="text-left">
+            <h3 class="card-title">Assets</h3>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="/admin/simulators/new" class="btn-success round-button">+</a>
+            <ul class="nav nav-pills nav-pills-primary" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link <%= if @tab == :aircraft, do: "active" %>"
+                  href="/admin/aircrafts"
+                  role="tablist" aria-expanded="false">Aircrafts</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link <%= if @tab == :simulator, do: "active" %>"
+                  href="/admin/simulators"
+                  role="tablist" aria-expanded="false">Simulators</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link <%= if @tab == :room, do: "active" %>"
+                  href="/admin/rooms"
+                  role="tablist" aria-expanded="false">Rooms</a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <%= form_for @conn, "/admin/simulators", [method: "get"], fn f -> %>
+              <div class="row mb-4">
+                <div class="col-md-10 col-xs-12">
+                  <div class="form-group">
+                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Search by name" %>
+                    <span class="text-danger"><%= @message %></span>
+                  </div>
+                </div>
+                <div class="col-md-2 pl-1">
+                  <input type="submit" class="btn btn-primary m-0 pull-right" value="Search" />
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <%= if Enum.any?(@data.table_data.rows) do %>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <th>Name</th>
+                  <%= if show_to_superadmin?(@conn) do %>
+                    <th>School</th>
+                  <% end %>
+                  <th>Equipment</th>
+                  <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
+                  <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
+                  <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
+                </thead>
+                <tbody>
+                  <%= for simulator <- @data.table_data.rows do %>
+                    <tr>
+                      <td><span class="text-nowrap"><b><%= simulator.name %></b></span></br>
+                        <small><%= simulator.make %> <%= simulator.model %></small>
+                      </td>
+                      <%= if show_to_superadmin?(@conn) do %>
+                        <td><a href="/admin/schools/<%= simulator.school.id %>"><%= simulator.school.name %></a></td>
+                      <% end %>
+                      <td><%= simulator.equipment %></td>
+                      <td><%= display_boolean(simulator.ifr_certified) %></td>
+                      <td><%= currency simulator.rate_per_hour %></td>
+                      <td><%= currency simulator.block_rate_per_hour %></td>
+                      <td class="text-right">
+                        <a href="/admin/simulators/<%= simulator.id %>" class="btn btn-primary btn-sm">view</a>
+                        <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-simulator-id="<%= simulator.id %>">delete</button>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% else %>
+          <div class="card-body">No result found</div>
+        <% end %>
+        <%= if @data.table_data.page.total_pages > 1 do %>
+          <div class="row">
+            <div class="col-md-10">
+              <%= pagination_links @conn,
+                          @data.table_data.page,
+                          search: @data.search_term,
+                          page_size: @data.table_data.page.page_size
+                        %>
+            </div>
+            <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+          </div>
+        <% else %>
+          <div class="row justify-content-end">
+            <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+          </div>
+        <% end %>
+        <!-- Modal -->
+        <div class="modal fade" id="inspectionModal" tabindex="-1" role="dialog" aria-labelledby="inspectionModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="inspectionModalLongTitle">Inspections for Archer N40670</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body detail-list">
+                <dl class="d-flex justify-content-between flex-row-reverse">
+                  <dt>4/22/19</dt>
+                  <dd>Annual</dd>
+                </dl>
+                <dl class="d-flex justify-content-between flex-row-reverse">
+                  <dt class="text-right">
+                    <p class="mb-0 text-expiring">5/5/18</p>
+                    <small class="text-expiring">EXPIRES SOON</small>
+                  </dt>
+                  <dd>Transponder</dd>
+                </dl>
+                <dl class="d-flex justify-content-between flex-row-reverse">
+                  <dt class="text-right">
+                    <p class="mb-0 text-expired">3/12/18</p>
+                    <small class="text-expired">EXPIRED</small>
+                  </dt>
+                  <dd>Altimeter</dd>
+                </dl>
+                <dl class="d-flex justify-content-between flex-row-reverse">
+                  <dt>4/22/19</dt>
+                  <dd>ELT</dd>
+                </dl>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--  end card  -->
+    </div>
+    <!-- end col-md-12 -->
+  </div>
+  <!-- end row -->
+</div>
+<!-- end content -->
+<div style="display:none">
+  <%= form_tag "/admin/simulators/:pending:", method: "delete", id: "delete_form" do %>
+  <% end %>
+</div>
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
+<script>
+  $(document).ready(function() {
+    $('._delete_button').on('click', function() {
+      var id = $(this).attr("data-simulator-id")
+      var shouldDelete = confirm("This simulator and all of its information will be archived and removed from the system.")
+      if (shouldDelete) {
+        var form = $('#delete_form')[0]
+        form.action = "/admin/simulators/" + id
+        form.submit()
+      }
+    });
+  });
+</script>
