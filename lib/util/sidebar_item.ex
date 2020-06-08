@@ -2,8 +2,8 @@ defmodule FlightWeb.SidebarItem do
   defstruct [:path, :icon_class, :label, :active, :prefix]
 
   alias FlightWeb.SidebarItem
-  alias Flight.Auth.Permission
-  import Flight.Auth.Authorization
+#  alias Flight.Auth.Permission
+#  import Flight.Auth.Authorization
 
   def admin_sidebar(user) do
     [
@@ -43,26 +43,8 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
-        path: "/admin/users?role=instructor",
-        label: "Instructors",
-        icon_class: "users_single-02",
-        active: false
-      },
-      %SidebarItem{
-        path: "/admin/users?role=student",
-        label: "Students",
-        icon_class: "education_hat",
-        active: false
-      },
-      %SidebarItem{
-        path: "/admin/users?role=renter",
-        label: "Renters",
-        icon_class: "objects_key-25",
-        active: false
-      },
-      %SidebarItem{
-        path: "/admin/users?role=dispatcher",
-        label: "Dispatchers",
+        path: "/admin/users?role=user",
+        label: "User Roles",
         icon_class: "tech_headphones",
         active: false
       },
@@ -72,16 +54,6 @@ defmodule FlightWeb.SidebarItem do
         icon_class: "objects_spaceship",
         active: false
       },
-      if user_can?(user, [Permission.new(:admins, :modify, :all)]) do
-        %SidebarItem{
-          path: "/admin/users?role=admin",
-          label: "Admins",
-          icon_class: "business_badge",
-          active: false
-        }
-      else
-        nil
-      end,
       %SidebarItem{
         path: "/admin/reports",
         label: "Reports",

@@ -62,6 +62,39 @@ defmodule FlightWeb.Admin.UserControllerTest do
       end
     end
 
+    test "renders all user roles", %{conn: conn} do
+      for role_slug <- Role.available_role_slugs() do
+        user = user_fixture() |> assign_role(role_slug)
+
+        content =
+          conn
+          |> web_auth_admin()
+          |> get("/admin/users?role=user")
+          |> html_response(200)
+
+        assert content =~ user.first_name
+      end
+    end
+
+    test "renders all user roles with search", %{conn: conn} do
+      for role_slug <- Role.available_role_slugs() do
+        user = user_fixture() |> assign_role(role_slug)
+
+        another_user =
+          user_fixture(%{first_name: "some name", last_name: "some last name"})
+          |> assign_role(role_slug)
+
+        content =
+          conn
+          |> web_auth_admin()
+          |> get("/admin/users?role=user&search=some")
+          |> html_response(200)
+
+        assert content =~ user.first_name
+        refute content =~ another_user.first_name
+      end
+    end
+
     test "renders for all roles", %{conn: conn} do
       for role_slug <- Role.available_role_slugs() do
         user = user_fixture() |> assign_role(role_slug)

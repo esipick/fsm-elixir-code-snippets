@@ -1,6 +1,9 @@
 defmodule Flight.Accounts do
+  import Flight.Auth.Authorization
   import Ecto.Query, warn: false
+
   alias Flight.Repo
+  alias Flight.Auth.Permission
 
   alias Flight.Accounts.{
     User,
@@ -592,6 +595,24 @@ defmodule Flight.Accounts do
     end
   end
 
+  def get_user_roles(conn) do
+    user = conn.assigns.current_user
+    roles = Role |> Flight.Repo.all()
+
+    if user_can?(user, [Permission.new(:admins, :modify, :all)]) do
+      roles
+    else
+      Enum.filter(roles, fn r -> !(r.slug in ["admin", "dispatcher"]) end)
+    end
+  end
+
+  def users_with_role_query(%{slug: "user"}, search_term, school_context) do
+    User
+    |> Flight.Accounts.Search.User.run(search_term)
+    |> default_users_query(school_context)
+    |> preload(:roles)
+  end
+
   def users_with_role_query(role, search_term, school_context) do
     role
     |> Ecto.assoc(:users)
@@ -604,6 +625,13 @@ defmodule Flight.Accounts do
       join: i in assoc(u, :instructors),
       where: i.id == ^instructor_id
     )
+  end
+
+  def archived_users_with_role_query(%{slug: "user"}, search_term, school_context) do
+    User
+    |> Flight.Accounts.Search.User.run(search_term)
+    |> archived_users_query(school_context)
+    |> preload(:roles)
   end
 
   def archived_users_with_role_query(role, search_term, school_context) do
@@ -734,6 +762,17 @@ defmodule Flight.Accounts do
     |> where([i], i.token == ^token)
     |> SchoolScope.scope_query(school_context)
     |> Repo.one()
+  end
+
+  def visible_invitations_with_role("user", school_context) do
+    from(
+      i in Invitation,
+      inner_join: r in assoc(i, :role),
+      where: is_nil(i.accepted_at),
+      preload: [:role]
+    )
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.all()
   end
 
   def visible_invitations_with_role(role_slug, school_context) do
