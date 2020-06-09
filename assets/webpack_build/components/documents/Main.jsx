@@ -42,7 +42,13 @@ class Main extends Component {
   }
 
   acceptFiles = (acceptedFiles) => {
-    const documentsToSubmit = acceptedFiles.map((file, i) => ({ id: i, file: file, fresh: true, title: file.path }))
+    const documentsToSubmit = acceptedFiles.map((file, i) => ({
+      id: i,
+      file: file,
+      fresh: true,
+      title: file.path,
+      tempUrl: URL.createObjectURL(file)
+    }))
 
     this.setState({ documentsToSubmit })
   }

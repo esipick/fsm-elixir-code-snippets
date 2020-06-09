@@ -6,7 +6,7 @@ class SelectedFile extends Component {
   constructor(props) {
     super(props)
 
-    const { document: { expires_at, file, title } } = this.props
+    const { document: { expires_at, file, title, tempUrl } } = this.props
     const today = new Date()
 
     this.state = {
@@ -14,7 +14,8 @@ class SelectedFile extends Component {
       file: file,
       hideDatePickerValue: !expires_at,
       title: title,
-      today: today
+      today: today,
+      tempUrl: tempUrl
     }
   }
 
@@ -58,8 +59,9 @@ class SelectedFile extends Component {
     const { document: { expires_at, id, title }, updateDocumentsToSubmit } = this.props
     let file = e.target.files[0]
     file.path = file.name
+    let tempUrl = URL.createObjectURL(file)
 
-    this.setState({ file, title })
+    this.setState({ file, title, tempUrl })
     updateDocumentsToSubmit({ expires_at, file, id, title })
   }
 
@@ -71,9 +73,19 @@ class SelectedFile extends Component {
     updateDocumentsToSubmit({ expires_at, file, id, title })
   }
 
+  preview = () => {
+    const { file, tempUrl } = this.state;
+
+    if (!file) return;
+
+    if (file.name.endsWith('.pdf')) return (<img src="/images/pdf.svg" />);
+
+    return (<img src={tempUrl || file.url} />);
+  }
+
   render() {
     const { errors, document: { id } } = this.props
-    const { date, hideDatePickerValue, file, title, today } = this.state
+    const { date, file, hideDatePickerValue, title, today } = this.state
     const error = errors.find(error => error.id == id) || { messages: {} }
     const CustomExpiryDateInput = forwardRef(({ onClick, value, hidden }, ref) => (
       <div className="expiry-date-container" ref={ref}>
@@ -90,16 +102,10 @@ class SelectedFile extends Component {
       <div className="selected-file">
         <div className="file-content">
           <div className="icon">
-            {file && (file.name.endsWith('.pdf') ? (
-              <img src="/images/pdf.svg" />
-            ) : (
-                <img src={file.url} />
-              )
-            )}
-            {!file.url && <div className="now-ui-icons design_image"></div>}
+            {this.preview()}
             <div className="upload-file">
               <label>
-                <input onChange={this.onFileChange} type="file" />
+                <input onChange={this.onFileChange} type="file" accept=".jpeg,.jpg,.png,.pdf"/>
               </label>
             </div>
           </div>
