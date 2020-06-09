@@ -91,7 +91,7 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def delete(%{assigns: %{appointment: appointment, current_user: user}} = conn, _) do
-    case Scheduling.Appointment.allowed_for_archive?(appointment, user) do
+    case Scheduling.Appointment.allowed_for_archive?(appointment) do
       true ->
         Scheduling.delete_appointment(appointment.id, user, conn)
 

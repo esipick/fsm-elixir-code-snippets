@@ -72,11 +72,8 @@ defmodule Flight.Scheduling.Appointment do
   def update_transaction_changeset(appointment, attrs),
     do: cast(appointment, attrs, [:transaction_id])
 
-  def allowed_for_archive?(appointment, user),
-    do:
-      !(Flight.Accounts.has_role?(user, "student") &&
-          (is_paid?(appointment) ||
-             is_ended?(appointment)))
+  def allowed_for_archive?(appointment),
+    do: !(is_paid?(appointment) || is_ended?(appointment))
 
   def paid(%Flight.Scheduling.Appointment{} = appointment),
     do: change(appointment, status: :paid) |> Flight.Repo.update()
@@ -120,18 +117,5 @@ defmodule Flight.Scheduling.Appointment do
     else
       changeset
     end
-  end
-
-  defp required_error_message(changeset, field, new_key, new_error_message) do
-    update_in(
-      changeset.errors,
-      &Enum.map(&1, fn
-        {key, {"can't be blank", validations}} when key == field ->
-          {new_key, {new_error_message, validations}}
-
-        {_key, _error} = tuple ->
-          tuple
-      end)
-    )
   end
 end
