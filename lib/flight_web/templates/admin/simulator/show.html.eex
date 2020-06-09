@@ -67,6 +67,7 @@
                     <%= for inspection <- @simulator.inspections do %>
                       <%= case Flight.Scheduling.Inspection.to_specific(inspection) do
                         %Flight.Scheduling.DateInspection{} = date_inspection -> render("_date_inspection_list_item.html", date_inspection: date_inspection)
+                        %Flight.Scheduling.TachInspection{} = tach_inspection -> render("_tach_inspection_list_item.html", tach_inspection: tach_inspection)
                       end %>
                     <% end %>
 
