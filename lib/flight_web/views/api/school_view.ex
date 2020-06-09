@@ -17,7 +17,9 @@ defmodule FlightWeb.API.SchoolView do
       contact_phone_number: school.contact_phone_number,
       timezone: school.timezone,
       sales_tax: school.sales_tax,
-      archived: school.archived
+      archived: school.archived,
+      show_student_accounts_summary: school.show_student_accounts_summary,
+      show_student_flight_hours: school.show_student_flight_hours
     }
   end
 end

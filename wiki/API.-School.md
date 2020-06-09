@@ -7,7 +7,7 @@
 ```
 GET /api/school (https://randon-aviation-staging.herokuapp.com/api/school/)
 
-Available to Admin, Instructor and Dispatcher only
+Available to everyone
 
 Body (JSON):
 {
@@ -15,6 +15,8 @@ Body (JSON):
   "website": null,
   "timezone": "America/Denver",
   "state": null,
+  "show_student_flight_hours": true,
+  "show_student_accounts_summary": true,
   "sales_tax": 10.0,
   "phone_number": null,
   "name": "default",

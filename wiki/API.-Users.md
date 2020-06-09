@@ -175,6 +175,74 @@ Example response (JSON):
 
 ---
 
+<a name="index"/>
+
+# Get User
+
+```
+GET /api/users/:user_id
+
+Role is one of `admin`, `dispatcher`, `instructor`, `student`, `renter`
+```
+
+Example response (JSON):
+```json
+{
+  "data": {
+    "zipcode": null,
+    "stripe_account_id": null,
+    "state": null,
+    "show_student_flight_hours": true,
+    "show_student_accounts_summary": true,
+    "school_id": 1,
+    "roles": [
+      "student"
+    ],
+    "phone_number": "892-757-5960",
+    "permissions": [
+      "appointment_student:modify:personal",
+      "appointment_user:modify:personal",
+      "documents:view:personal",
+      "invoice:modify:personal",
+      "invoice:view:personal",
+      "objective_score:view:personal",
+      "push_token:modify:personal",
+      "school:view:personal",
+      "transaction:view:personal",
+      "transaction_approve:modify:personal",
+      "transaction_creator:modify:personal",
+      "transaction_user:view:personal",
+      "users:modify:personal",
+      "users:view:personal",
+      "web_dashboard:access:all"
+    ],
+    "medical_rating": 0,
+    "medical_expires_at": null,
+    "main_instructor_id": null,
+    "main_instructor": null,
+    "last_name": "Toy",
+    "instructors": [],
+    "id": 15,
+    "flyer_certificates": [],
+    "flight_training_number": null,
+    "first_name": "Camila",
+    "email": "student+714cf6de61d1801@gmail.com",
+    "city": null,
+    "certificate_number": null,
+    "balance": 92379,
+    "awards": null,
+    "avatar": {
+      "thumb": null,
+      "original": null
+    },
+  "aircrafts": [],
+  "address_1": null
+  }
+}
+```
+
+---
+
 <a name="upload_avatar" />
 
 # Upload avatar example
