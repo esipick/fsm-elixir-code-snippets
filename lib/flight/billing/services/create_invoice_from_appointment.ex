@@ -3,15 +3,21 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   alias Flight.Scheduling.Appointment
   alias Flight.Repo
-  alias Flight.Billing.{Invoice, CalculateInvoice}
+  alias Flight.Billing.{Invoice, CalculateInvoice, CreateInvoice, UpdateInvoice}
+
+  @invoice_line_item_excluded_types ~w(aircraft instructor)a
+  @invoice_line_item_fields ~w(id description rate amount quantity creator_id type taxable deductible)a
 
   def run(appointment_id, params, school_context) do
-    case fetch_invoice(appointment_id) do
+    appointment = get_appointment(appointment_id)
+    invoice_payload = get_invoice_payload(appointment, params, school_context)
+
+    case fetch_invoice(appointment.id) do
       {:ok, invoice} ->
-        {:ok, invoice}
+        check_appointment_updated_at(appointment, invoice, invoice_payload, school_context)
 
       {:error, _} ->
-        create_invoice_from_appointment(appointment_id, params, school_context)
+        create_invoice_from_appointment(invoice_payload, school_context)
     end
   end
 
@@ -24,6 +30,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
       )
       |> limit(1)
       |> Repo.one()
+      |> Repo.preload([:line_items])
 
     if invoice do
       {:ok, invoice}
@@ -32,31 +39,54 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     end
   end
 
-  def create_invoice_from_appointment(appointment_id, params, school_context) do
-    appointment =
-      Repo.get(Appointment, appointment_id)
-      |> Repo.preload([:user, :instructor_user, :aircraft])
+  defp check_appointment_updated_at(appointment, invoice, invoice_payload, school_context) do
+    if invoice.status == :paid || appointment.updated_at == invoice.appointment_updated_at do
+      {:ok, invoice}
+    else
+      update_invoice_from_appointment(invoice, invoice_payload, school_context)
+    end
+  end
 
+  defp update_invoice_from_appointment(invoice, invoice_payload, school_context) do
+    case CalculateInvoice.run(invoice_payload, school_context) do
+      {:ok, invoice_params} ->
+        invoice_params = update_invoice_params(invoice, invoice_params)
+        UpdateInvoice.run(invoice, invoice_params, school_context)
+
+      {:error, errors} ->
+        {:error, errors}
+    end
+  end
+
+  defp create_invoice_from_appointment(invoice_payload, school_context) do
+    case CalculateInvoice.run(invoice_payload, school_context) do
+      {:ok, invoice_params} ->
+        CreateInvoice.run(invoice_params, school_context)
+
+      {:error, errors} ->
+        {:error, errors}
+    end
+  end
+
+  defp get_appointment(appointment_id) do
+    Repo.get(Appointment, appointment_id)
+    |> Repo.preload([:user, :instructor_user, :aircraft])
+  end
+
+  defp get_invoice_payload(appointment, params, school_context) do
     school = school(school_context)
     current_user = school_context.assigns.current_user
 
-    invoice_payload = %{
+    %{
       "school_id" => school.id,
       "appointment_id" => appointment.id,
       "user_id" => appointment.user_id,
       "payer_name" => payer_name_from(appointment),
       "date" => NaiveDateTime.to_date(appointment.end_at),
       "payment_option" => Map.get(params, "payment_option", "balance"),
-      "line_items" => line_items_from(appointment, params, current_user)
+      "line_items" => line_items_from(appointment, params, current_user),
+      "appointment_updated_at" => appointment.updated_at
     }
-
-    case CalculateInvoice.run(invoice_payload, school_context) do
-      {:ok, invoice_params} ->
-        Flight.Billing.CreateInvoice.run(invoice_params, school_context)
-
-      {:error, errors} ->
-        {:error, errors}
-    end
   end
 
   defp payer_name_from(appointment) do
@@ -71,6 +101,16 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
       instructor_item(appointment, duration, current_user)
     ]
     |> Enum.filter(fn x -> x end)
+  end
+
+  defp update_invoice_params(invoice, invoice_params) do
+    custom_line_items =
+      invoice.line_items
+      |> Enum.filter(fn x -> !Enum.member?(@invoice_line_item_excluded_types, x.type) end)
+      |> Enum.map(fn x -> Map.from_struct(x) |> Map.take(@invoice_line_item_fields) end)
+      |> Enum.concat(invoice_params["line_items"])
+
+    Map.put(invoice_params, "line_items", custom_line_items)
   end
 
   def aircraft_item(appointment, quantity, params \\ %{}, current_user) do

@@ -173,7 +173,12 @@ defmodule FlightWeb.API.UserController do
   end
 
   defp get_user(conn, _) do
-    assign(conn, :user, Accounts.get_user(conn.params["id"] || conn.params["user_id"], conn) |> Flight.Repo.preload([:school]))
+    assign(
+      conn,
+      :user,
+      Accounts.get_user(conn.params["id"] || conn.params["user_id"], conn)
+      |> Flight.Repo.preload([:school])
+    )
   end
 
   defp fetch_user_role(role_id, conn) do

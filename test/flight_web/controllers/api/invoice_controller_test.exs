@@ -1432,10 +1432,95 @@ defmodule FlightWeb.API.InvoiceControllerTest do
     end
 
     @tag :integration
-    test "returns existing invoice for appointment", %{conn: conn} do
+    test "updates existing invoice by appointment", %{conn: conn} do
       appointment = past_appointment_fixture()
       instructor = instructor_fixture()
       invoice = invoice_fixture(%{appointment_id: appointment.id}) |> preload_invoice
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices/from_appointment/#{appointment.id}")
+        |> json_response(201)
+
+      invoice = Repo.get(Invoice, invoice.id) |> preload_invoice
+      line_items = invoice.line_items
+      aircraft_line_item = Enum.find(line_items, fn i -> i.type == :aircraft end)
+      instructor_line_item = Enum.find(line_items, fn i -> i.type == :instructor end)
+
+      discount_line_item =
+        Enum.find(line_items, fn i ->
+          i.type == :other && i.description == "discount"
+        end)
+
+      fuel_line_item =
+        Enum.find(line_items, fn i ->
+          i.type == :other && i.description == "fuel reimbursement"
+        end)
+
+      assert invoice.total == 460
+      assert invoice.tax_rate == 10
+      assert invoice.total_tax == 26
+      assert invoice.date == ~D[2018-03-03]
+      assert invoice.total_amount_due == 486
+      assert invoice.user_id == appointment.user_id
+      assert invoice.payer_name == "some first name some last name"
+
+      assert fuel_line_item.rate == 7500
+      assert fuel_line_item.quantity == 1
+      assert fuel_line_item.amount == 7500
+
+      assert discount_line_item.rate == -2500
+      assert discount_line_item.quantity == 1
+      assert discount_line_item.amount == -2500
+
+      assert aircraft_line_item.rate == 130
+      assert aircraft_line_item.amount == 260
+      assert aircraft_line_item.quantity == 2
+      assert aircraft_line_item.taxable == true
+      assert aircraft_line_item.tach_start == 400
+      assert aircraft_line_item.hobbs_start == 400
+      assert aircraft_line_item.hobbs_tach_used == false
+      assert aircraft_line_item.creator_id == instructor.id
+
+      assert instructor_line_item.rate == 100
+      assert instructor_line_item.quantity == 2
+      assert instructor_line_item.creator_id == instructor.id
+      assert instructor_line_item.description == "Instructor Hours"
+      assert instructor_line_item.instructor_user_id == appointment.instructor_user.id
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
+    test "returns existing paid invoice for appointment", %{conn: conn} do
+      appointment = past_appointment_fixture()
+      instructor = instructor_fixture()
+
+      invoice =
+        invoice_fixture(%{appointment_id: appointment.id, status: :paid})
+        |> preload_invoice
+
+      json =
+        conn
+        |> auth(instructor)
+        |> post("/api/invoices/from_appointment/#{appointment.id}")
+        |> json_response(201)
+
+      assert json == render_json(InvoiceView, "show.json", invoice: invoice)
+    end
+
+    @tag :integration
+    test "returns existing already updated invoice for appointment", %{conn: conn} do
+      appointment = past_appointment_fixture()
+      instructor = instructor_fixture()
+
+      invoice =
+        invoice_fixture(%{
+          appointment_id: appointment.id,
+          appointment_updated_at: appointment.updated_at
+        })
+        |> preload_invoice
 
       json =
         conn
