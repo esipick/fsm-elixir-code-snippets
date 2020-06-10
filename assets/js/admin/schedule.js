@@ -505,7 +505,7 @@ $(document).ready(function () {
             instructor_user_id: instructor_user_id,
             aircraft_id: aircraft_id,
             note: appointment.note,
-            user_id: appointment.user_id,
+            user_id: appointment.user ? appointment.user.id : null,
             user_name: appointmentTitle(appointment),
             id: appointment.id
           })

@@ -77,7 +77,7 @@
                 <div class="form-group">
                   <select id="apptStudent" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Renter/Student" placeholder="Student">
                     <%= for renter <- @renters do %>
-                      <option value="<%= renter.id %>" <%= if renter.id == @student_id, do: "selected" %>><%= display_name(renter) %></option>
+                      <option value="<%= renter.id %>"><%= display_name(renter) %></option>
                     <% end %>
                   </select>
                 </div>
