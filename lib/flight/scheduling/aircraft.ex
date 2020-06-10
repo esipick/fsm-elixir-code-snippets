@@ -57,16 +57,6 @@ defmodule Flight.Scheduling.Aircraft do
     |> validate_required_unless(:tail_number, :simulator)
     |> validate_number(:rate_per_hour, greater_than_or_equal_to: 0)
     |> validate_number(:block_rate_per_hour, greater_than_or_equal_to: 0)
-#    |> validate_format(
-#      :serial_number,
-#      Flight.Format.serial_number_regex(),
-#      message: "must be in a valid format"
-#    )
-#    |> validate_format(
-#      :tail_number,
-#      Flight.Format.tail_number_regex(),
-#      message: "must be in a valid format. (e.g. N55555)"
-#    )
   end
 
   def admin_changeset(aircraft, attrs) do
