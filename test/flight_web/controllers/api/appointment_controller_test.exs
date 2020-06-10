@@ -3,6 +3,8 @@ defmodule FlightWeb.API.AppointmentControllerTest do
 
   alias FlightWeb.API.AppointmentView
   alias Flight.Scheduling.{Availability, Appointment}
+  alias Flight.Repo
+  alias Flight.Billing.Invoice
 
   describe "GET /api/appointments/availability" do
     test "returns availabilities", %{conn: conn} do
@@ -228,7 +230,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
         |> json_response(200)
 
       assert appointment =
-               Flight.Repo.get_by(
+               Repo.get_by(
                  Appointment,
                  id: appointment.id,
                  start_at:
@@ -244,6 +246,71 @@ defmodule FlightWeb.API.AppointmentControllerTest do
         |> FlightWeb.API.AppointmentView.preload()
 
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
+    end
+
+    test "invoice is updated when appointment is updated", %{conn: conn} do
+      student = student_fixture()
+      admin = admin_fixture()
+      instructor = instructor_fixture(%{billing_rate: 100})
+      another_instructor = instructor_fixture(%{billing_rate: 50})
+      aircraft = aircraft_fixture(%{rate_per_hour: 100, block_rate_per_hour: 100})
+      another_aircraft = aircraft_fixture(%{rate_per_hour: 50, block_rate_per_hour: 50})
+      school = default_school_fixture()
+
+      school_context = %Plug.Conn{assigns: %{current_user: admin}}
+
+      appointment =
+        appointment_fixture(
+          @default_attrs
+          |> Map.merge(%{
+            user_id: student.id,
+            instructor_user_id: instructor.id,
+            aircraft_id: aircraft.id
+          })
+        )
+
+      {:ok, invoice} =
+        Flight.Billing.CreateInvoiceFromAppointment.run(
+          appointment.id,
+          %{"payment_option" => "check"},
+          school_context
+        )
+
+      instructor_item = Enum.find(invoice.line_items, fn i -> i.type == :instructor end)
+      aircraft_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
+
+      assert instructor_item.instructor_user_id == instructor.id
+      assert aircraft_item.aircraft_id == aircraft.id
+      assert invoice.total_amount_due == 420
+      assert invoice.payment_option == :check
+
+      Invoice.changeset(invoice, %{appointment_updated_at: nil}) |> Repo.update()
+
+      params = %{
+        data: %{
+          start_at: Timex.shift(@default_date, hours: 3),
+          note: "Heyo Timeo",
+          instructor_user_id: another_instructor.id,
+          aircraft_id: another_aircraft.id
+        }
+      }
+
+      conn
+      |> auth(admin)
+      |> put("/api/appointments/#{appointment.id}", params)
+      |> json_response(200)
+
+      invoice =
+        Repo.get(Invoice, invoice.id)
+        |> Repo.preload([:line_items, :appointment], force: true)
+
+      instructor_item = Enum.find(invoice.line_items, fn i -> i.type == :instructor end)
+      aircraft_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
+
+      assert instructor_item.instructor_user_id == another_instructor.id
+      assert aircraft_item.aircraft_id == another_aircraft.id
+      assert invoice.total_amount_due == 155
+      assert invoice.payment_option == :check
     end
 
     test "student updates appointment for the same time", %{conn: conn} do
@@ -332,7 +399,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
         |> json_response(200)
 
       assert appointment =
-               Flight.Repo.get_by(
+               Repo.get_by(
                  Appointment,
                  user_id: student.id,
                  instructor_user_id: instructor.id,
@@ -372,7 +439,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
         |> json_response(200)
 
       assert appointment =
-               Flight.Repo.get_by(
+               Repo.get_by(
                  Appointment,
                  user_id: student.id,
                  instructor_user_id: instructor.id,
@@ -422,7 +489,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
         |> json_response(200)
 
       assert appointment =
-               Flight.Repo.get_by(
+               Repo.get_by(
                  Appointment,
                  user_id: student.id,
                  instructor_user_id: instructor.id,
@@ -451,7 +518,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
         |> json_response(200)
 
       appointment =
-        Flight.Repo.get(Appointment, json["data"]["id"])
+        Repo.get(Appointment, json["data"]["id"])
         |> FlightWeb.API.AppointmentView.preload()
 
       assert json == render_json(AppointmentView, "show.json", appointment: appointment)
@@ -548,7 +615,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       |> delete("/api/appointments/#{appointment.id}")
       |> response(401)
 
-      appointment = Flight.Repo.get(Appointment, appointment.id)
+      appointment = Repo.get(Appointment, appointment.id)
       refute appointment.archived
     end
 
@@ -563,7 +630,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       |> delete("/api/appointments/#{appointment.id}")
       |> response(204)
 
-      appointment = Flight.Repo.get(Appointment, appointment.id)
+      appointment = Repo.get(Appointment, appointment.id)
       assert appointment.archived
     end
 
@@ -575,7 +642,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       |> delete("/api/appointments/#{appointment.id}")
       |> response(204)
 
-      appointment = Flight.Repo.get(Appointment, appointment.id)
+      appointment = Repo.get(Appointment, appointment.id)
 
       assert appointment.archived
     end

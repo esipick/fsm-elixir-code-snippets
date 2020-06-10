@@ -6,6 +6,7 @@ defmodule FlightWeb.API.AppointmentController do
 
   import Flight.Auth.Authorization
   alias Flight.{Scheduling, Repo}
+  alias Flight.Billing.CreateInvoiceFromAppointment
   alias Scheduling.Availability
   alias Flight.Auth.Permission
 
@@ -81,6 +82,8 @@ defmodule FlightWeb.API.AppointmentController do
          ) do
       {:ok, appointment} ->
         appointment = FlightWeb.API.AppointmentView.preload(appointment)
+        update_invoice(appointment, conn)
+
         render(conn, "show.json", appointment: appointment)
 
       {:error, changeset} ->
@@ -162,6 +165,17 @@ defmodule FlightWeb.API.AppointmentController do
 
       true ->
         assign(conn, :appointment, appointment)
+    end
+  end
+
+  defp update_invoice(appointment, conn) do
+    case CreateInvoiceFromAppointment.fetch_invoice(appointment.id) do
+      {:ok, invoice} ->
+        params = %{"payment_option" => invoice.payment_option}
+        CreateInvoiceFromAppointment.sync_invoice(appointment, invoice, params, conn)
+
+      _ ->
+        nil
     end
   end
 end
