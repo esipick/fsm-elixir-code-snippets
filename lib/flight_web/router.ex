@@ -53,6 +53,10 @@ defmodule FlightWeb.Router do
     plug(:accepts, ["json"])
   end
 
+  pipeline :complete_onboarding do
+    plug(FlightWeb.CompleteOnboarding)
+  end
+
   ###
   # Admin Routes
   ###
@@ -125,7 +129,13 @@ defmodule FlightWeb.Router do
   end
 
   scope("/billing", FlightWeb.Billing, as: :billing) do
-    pipe_through([:browser, :admin_layout, :web_user_authenticate, :admin_metrics_namespace])
+    pipe_through([
+      :browser,
+      :admin_layout,
+      :web_user_authenticate,
+      :admin_metrics_namespace,
+      :complete_onboarding
+    ])
 
     resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show, :delete])
     resources("/bulk_invoices", BulkInvoiceController, only: [:new])
@@ -133,7 +143,13 @@ defmodule FlightWeb.Router do
   end
 
   scope "/admin", FlightWeb.Admin do
-    pipe_through([:browser, :admin_layout, :admin_authenticate, :admin_metrics_namespace])
+    pipe_through([
+      :browser,
+      :admin_layout,
+      :admin_authenticate,
+      :admin_metrics_namespace,
+      :complete_onboarding
+    ])
 
     get("/", PageController, :root)
 
@@ -159,11 +175,6 @@ defmodule FlightWeb.Router do
       post("/cancel", TransactionController, :cancel)
     end
 
-    resources("/settings", SettingsController, only: [:show, :update])
-    resources("/settings", SettingsController, only: [:show, :update], singleton: true)
-
-    get("/stripe_connect", StripeController, :connect)
-
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
 
     resources("/courses", CoursesController, only: [:index, :show, :edit, :new, :create])
@@ -184,6 +195,16 @@ defmodule FlightWeb.Router do
       post("/resend", SchoolInvitationController, :resend)
       get("/resend", SchoolInvitationController, :resend)
     end
+  end
+
+  # Onboarding admin pages
+  scope "/admin", FlightWeb.Admin do
+    pipe_through([:browser, :admin_layout, :admin_authenticate, :admin_metrics_namespace])
+
+    get("/stripe_connect", StripeController, :connect)
+
+    resources("/settings", SettingsController, only: [:show, :update])
+    resources("/settings", SettingsController, only: [:show, :update], singleton: true)
 
     resources("/aircrafts", AircraftController) do
       resources("/inspections", InspectionController, only: [:create, :new])

@@ -23,9 +23,16 @@
   </div>
     <input type="hidden" name="redirect_tab" value="profile" />
   <div class="card-footer mt-3">
-    <div class="form-check">
-      <a href="/admin/settings" class="btn btn-fill btn-default mr-2">Cancel</a>
-      <input type="submit" class="btn btn-fill btn-primary" value="Save">
-    </div>
+    <%= if onboarding_completed?(@school) do %>
+      <div class="form-check">
+        <a href="/admin/settings" class="btn btn-fill btn-default mr-2">Cancel</a>
+        <input type="submit" class="btn btn-fill btn-primary" value="Save">
+      </div>
+    <% else %>
+      <div class="form-check">
+        <a href="/admin/settings?step_back=true" class="btn btn-fill btn-default mr-2">Back</a>
+        <a href="/admin/settings?step_forward=true" class="btn btn-fill btn-primary">Next</a>
+      </div>
+    <% end %>
   </div>
 <% end %>
