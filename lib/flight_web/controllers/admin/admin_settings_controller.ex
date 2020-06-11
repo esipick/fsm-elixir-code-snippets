@@ -132,7 +132,7 @@ defmodule FlightWeb.Admin.SettingsController do
 
   def show(conn, %{"step_forward" => "true"}) do
     school = conn.assigns.school
-    step = current_step(school)
+    step = Atom.to_string(current_step(school))
     {school, tab} = ProgressSchoolOnboarding.run(school, %{redirect_tab: step})
 
     if onboarding_completed?(school) do
@@ -162,7 +162,7 @@ defmodule FlightWeb.Admin.SettingsController do
 
         conn
         |> put_flash(:success, "Successfully updated settings.")
-        |> redirect(to: Routes.settings_path(conn, :show, tab: tab))
+        |> redirect(to: conn.request_path <> "?tab=#{tab}")
 
       {:error, changeset} ->
         tab =

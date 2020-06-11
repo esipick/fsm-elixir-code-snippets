@@ -1,9 +1,11 @@
 defmodule Flight.Accounts.ProgressSchoolOnboarding do
   import Flight.OnboardingUtil
 
-  alias Flight.Accounts.{School, SchoolOnboarding}
+  alias Flight.Accounts.SchoolOnboarding
 
   def run(school, %{redirect_tab: redirect_tab}) do
+    redirect_tab = String.to_atom(redirect_tab)
+
     if onboarding_completed?(school) do
       {school, redirect_tab}
     else
