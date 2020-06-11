@@ -33,12 +33,7 @@
   </div>
   <input type="hidden" name="redirect_tab" value="contact" />
   <div class="card-footer mt-3">
-    <%= if onboarding_completed?(@school) do %>
-      <a href="/admin/settings" class="btn btn-fill btn-default mr-2">Cancel</a>
-      <input type="submit" class="btn btn-fill btn-primary" value="Save">
-    <% else %>
-      <a href="/admin/settings?step_back=true" class="btn btn-fill btn-default mr-2">Back</a>
-      <input type="submit" class="btn btn-fill btn-primary" value="Save & Next">
-    <% end %>
+    <a href="/admin/settings" class="btn btn-fill btn-default mr-2">Cancel</a>
+    <input type="submit" class="btn btn-fill btn-primary" value="Save">
   </div>
 <% end %>

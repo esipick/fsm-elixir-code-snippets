@@ -514,17 +514,11 @@ defmodule Flight.Accounts.AccountsTest do
       assert {:ok, {school, _user}} =
                Accounts.create_school_from_invitation(data, school_invitation)
 
-      school = school |> Repo.preload(:school_onboarding)
-      school_onboarding = school.school_onboarding
-
       assert school.name == "School name"
       assert school.contact_first_name == "Jesse"
       assert school.contact_last_name == "Allen"
       assert school.contact_phone_number == "801-555-5555"
       assert school.contact_email == email
-
-      assert school_onboarding.current_step == :school
-      assert school_onboarding.completed == false
 
       assert refresh(school_invitation).accepted_at
 

@@ -13,12 +13,8 @@ defmodule FlightWeb.FeatureHelpers do
     |> click(button("Login"))
   end
 
-  def log_in_admin(
-        session,
-        school \\ default_school_fixture(),
-        attrs \\ %{email: "admin@example.com", password: "password"}
-      ) do
-    admin_fixture(attrs, school)
+  def log_in_admin(session, attrs \\ %{email: "admin@example.com", password: "password"}) do
+    admin_fixture(attrs)
 
     session
     |> visit("/login")
