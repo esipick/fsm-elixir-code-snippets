@@ -14,8 +14,7 @@ defmodule Flight.Accounts do
     PasswordReset,
     School,
     SchoolInvitation,
-    StripeAccount,
-    SchoolOnboarding
+    StripeAccount
   }
 
   alias Flight.SchoolScope
@@ -905,7 +904,6 @@ defmodule Flight.Accounts do
         Repo.transaction(fn ->
           with {:ok, school} <- create_school(school_data),
                {:ok, user} <- create_user(user_data, school, school.stripe_account != nil) do
-            create_school_onboarding(school)
             accept_school_invitation(school_invitation)
             assign_roles(user, [Role.admin()])
 
@@ -1021,9 +1019,5 @@ defmodule Flight.Accounts do
 
   def is_superadmin?(user) do
     user.id in Application.get_env(:flight, :superadmin_ids, [])
-  end
-
-  def create_school_onboarding(school) do
-    SchoolOnboarding.create(%{school_id: school.id})
   end
 end

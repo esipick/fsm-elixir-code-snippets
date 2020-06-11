@@ -1,6 +1,5 @@
+<h6>Set Sales Tax Rate</h6>
 <%= form_for @changeset, @request_path, [as: :data, method: "put"], fn f -> %>
-  <h6>Set Sales Tax Rate</h6>
-
   <div class="row mb-4">
     <div class="col-md-10">
       <div class="form-group">
@@ -9,22 +8,11 @@
       </div>
     </div>
     <input type="hidden" name="redirect_tab" value="billing" />
-
-    <%= if onboarding_completed?(@school) do %>
-      <div class="col-md-2">
-        <div class="form-group">
-          <input type="submit" class="btn mt-4 btn-primary" value="Save">
-        </div>
+    <div class="col-md-2">
+      <div class="form-group">
+        <input type="submit" class="btn mt-4 btn-primary" value="Save">
       </div>
-    <% end %>
-  </div>
-
-  <%= ReactPhoenix.ClientSide.react_component("Components.InvoiceCustomLineItem", @props) %>
-
-  <%= if !onboarding_completed?(@school) do %>
-    <div class="card-footer mt-3">
-      <a href="/admin/settings?step_back=true" class="btn btn-fill btn-default mr-2">Back</a>
-      <input type="submit" class="btn btn-fill btn-primary" value="Save & Next">
     </div>
-  <% end %>
+  </div>
 <% end %>
+<%= ReactPhoenix.ClientSide.react_component("Components.InvoiceCustomLineItem", @props) %>

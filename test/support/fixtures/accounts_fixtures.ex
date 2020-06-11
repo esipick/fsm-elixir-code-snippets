@@ -1,6 +1,6 @@
 defmodule Flight.AccountsFixtures do
   alias Flight.{Accounts, Repo}
-  alias Flight.Accounts.{User, School, StripeAccount, SchoolOnboarding}
+  alias Flight.Accounts.{User, School, StripeAccount}
 
   def avatar_base64_fixture(path \\ "assets/static/images/margot.jpg") do
     path
@@ -14,7 +14,7 @@ defmodule Flight.AccountsFixtures do
     %Plug.Upload{content_type: type, filename: Path.basename(path), path: path}
   end
 
-  def school_fixture_without_onboarding(attrs \\ %{}) do
+  def school_fixture(attrs \\ %{}) do
     %School{
       name: "some_school_name",
       contact_email:
@@ -27,13 +27,6 @@ defmodule Flight.AccountsFixtures do
     }
     |> School.create_changeset(attrs)
     |> Repo.insert!()
-  end
-
-  def school_fixture(attrs \\ %{}) do
-    school = school_fixture_without_onboarding(attrs)
-    school_onboarding = completed_school_onboarding_fixture(school)
-
-    %{school | school_onboarding: school_onboarding}
   end
 
   def stripe_account_fixture(attrs \\ %{}, school \\ school_fixture()) do
@@ -49,18 +42,6 @@ defmodule Flight.AccountsFixtures do
       |> Repo.insert!()
 
     %{account | school: school}
-  end
-
-  def school_onboarding_fixture(attrs \\ %{}, school \\ school_fixture_without_onboarding()) do
-    attrs = Map.merge(%{school_id: school.id}, attrs)
-    {:ok, school_onboarding} = SchoolOnboarding.create(attrs)
-    school = %{school | school_onboarding: school_onboarding}
-
-    %{school_onboarding | school: school}
-  end
-
-  def completed_school_onboarding_fixture(school \\ school_fixture()) do
-    school_onboarding_fixture(%{completed: true, current_step: :assets}, school)
   end
 
   def default_school_fixture() do

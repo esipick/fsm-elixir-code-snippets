@@ -123,7 +123,7 @@ defmodule FlightWeb.Admin.SettingsControllerTest do
         conn
         |> put(first_school_path, params)
 
-      assert redirected_to(content) == "#{first_school_path}?tab=school"
+      assert redirected_to(content) == first_school_path
       assert Flight.Repo.get(School, first_school.id).name == "another name"
 
       second_school_path = "/admin/settings/#{second_school.id}"
@@ -132,7 +132,7 @@ defmodule FlightWeb.Admin.SettingsControllerTest do
         conn
         |> put(second_school_path, params)
 
-      assert redirected_to(content) == "#{second_school_path}?tab=school"
+      assert redirected_to(content) == second_school_path
       assert Flight.Repo.get(School, second_school.id).name == "another name"
     end
   end
@@ -154,7 +154,7 @@ defmodule FlightWeb.Admin.SettingsControllerTest do
         |> web_auth(admin)
         |> put("/admin/settings", params)
 
-      assert redirected_to(conn) == "/admin/settings?tab=school"
+      assert redirected_to(conn) == "/admin/settings"
 
       assert refresh(admin.school).name
     end

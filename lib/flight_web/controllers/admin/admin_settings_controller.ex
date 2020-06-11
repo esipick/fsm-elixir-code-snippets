@@ -1,16 +1,8 @@
 defmodule FlightWeb.Admin.SettingsController do
   use FlightWeb, :controller
   import Flight.Repo
-  import Flight.OnboardingUtil
 
-  alias FlightWeb.Router.Helpers, as: Routes
-
-  alias Flight.{
-    Accounts,
-    Auth.Permission,
-    Billing.InvoiceCustomLineItem,
-    Accounts.ProgressSchoolOnboarding
-  }
+  alias Flight.{Accounts, Auth.Permission, Billing.InvoiceCustomLineItem}
 
   plug(:get_school)
   plug(:authorize_admin when action in [:show])
@@ -67,20 +59,6 @@ defmodule FlightWeb.Admin.SettingsController do
     )
   end
 
-  def show(conn, %{"tab" => "assets"} = params) do
-    page_params = FlightWeb.Pagination.params(params)
-    data = FlightWeb.Admin.AircraftListData.build(conn, page_params)
-
-    render(conn, "show.html",
-      hide_school_info: true,
-      school: conn.assigns.school,
-      tab: :assets,
-      asset: :aircraft,
-      data: data,
-      redirect_back_to: redirect_back_to_path(conn)
-    )
-  end
-
   def show(conn, %{"tab" => "assets_aircraft"} = params) do
     page_params = FlightWeb.Pagination.params(params)
     data = FlightWeb.Admin.AircraftListData.build(conn, page_params)
@@ -123,27 +101,6 @@ defmodule FlightWeb.Admin.SettingsController do
     )
   end
 
-  def show(conn, %{"step_back" => step_back}) do
-    {_school, tab} = ProgressSchoolOnboarding.run(conn.assigns.school, %{step_back: step_back})
-
-    conn
-    |> redirect(to: Routes.settings_path(conn, :show, tab: tab))
-  end
-
-  def show(conn, %{"step_forward" => "true"}) do
-    school = conn.assigns.school
-    step = Atom.to_string(current_step(school))
-    {school, tab} = ProgressSchoolOnboarding.run(school, %{redirect_tab: step})
-
-    if onboarding_completed?(school) do
-      conn
-      |> redirect(to: Routes.page_path(conn, :dashboard))
-    else
-      conn
-      |> redirect(to: Routes.settings_path(conn, :show, tab: tab))
-    end
-  end
-
   def show(%{assigns: %{school: school}} = conn, _) do
     changeset = Accounts.School.admin_changeset(school, %{})
 
@@ -157,12 +114,18 @@ defmodule FlightWeb.Admin.SettingsController do
 
   def update(conn, %{"data" => school_params, "redirect_tab" => redirect_tab}) do
     case Accounts.admin_update_school(conn.assigns.school, school_params) do
-      {:ok, school} ->
-        {_school, tab} = ProgressSchoolOnboarding.run(school, %{redirect_tab: redirect_tab})
+      {:ok, _school} ->
+        redirect_append =
+          case redirect_tab do
+            "school" -> ""
+            "contact" -> "?tab=contact"
+            "billing" -> "?tab=billing"
+            "profile" -> "?tab=profile"
+          end
 
         conn
         |> put_flash(:success, "Successfully updated settings.")
-        |> redirect(to: conn.request_path <> "?tab=#{tab}")
+        |> redirect(to: conn.request_path <> redirect_append)
 
       {:error, changeset} ->
         tab =
@@ -184,7 +147,7 @@ defmodule FlightWeb.Admin.SettingsController do
 
   def get_school(%{params: %{"id" => id}} = conn, _) do
     if Accounts.is_superadmin?(conn.assigns.current_user) do
-      if school = Accounts.get_school(id) |> preload([:stripe_account, :school_onboarding]) do
+      if school = Accounts.get_school(id) |> preload(:stripe_account) do
         conn
         |> assign(:school, school)
       else
@@ -202,7 +165,7 @@ defmodule FlightWeb.Admin.SettingsController do
 
   def get_school(%{assigns: %{current_user: %{school: school}}} = conn, _) do
     conn
-    |> assign(:school, preload(school, [:stripe_account, :school_onboarding]))
+    |> assign(:school, preload(school, :stripe_account))
   end
 
   defp authorize_admin(conn, _) do
