@@ -10,14 +10,13 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   def run(appointment_id, params, school_context) do
     appointment = get_appointment(appointment_id)
-    invoice_payload = get_invoice_payload(appointment, params, school_context)
 
     case fetch_invoice(appointment.id) do
       {:ok, invoice} ->
-        check_appointment_updated_at(appointment, invoice, invoice_payload, school_context)
+        sync_invoice(appointment, invoice, params, school_context)
 
       {:error, _} ->
-        create_invoice_from_appointment(invoice_payload, school_context)
+        create_invoice_from_appointment(appointment, params, school_context)
     end
   end
 
@@ -39,15 +38,17 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     end
   end
 
-  defp check_appointment_updated_at(appointment, invoice, invoice_payload, school_context) do
+  def sync_invoice(appointment, invoice, params, school_context) do
     if invoice.status == :paid || appointment.updated_at == invoice.appointment_updated_at do
       {:ok, invoice}
     else
-      update_invoice_from_appointment(invoice, invoice_payload, school_context)
+      update_invoice_from_appointment(invoice, appointment, params, school_context)
     end
   end
 
-  defp update_invoice_from_appointment(invoice, invoice_payload, school_context) do
+  defp update_invoice_from_appointment(invoice, appointment, params, school_context) do
+    invoice_payload = get_invoice_payload(appointment, params, school_context)
+
     case CalculateInvoice.run(invoice_payload, school_context) do
       {:ok, invoice_params} ->
         invoice_params = update_invoice_params(invoice, invoice_params)
@@ -58,7 +59,9 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     end
   end
 
-  defp create_invoice_from_appointment(invoice_payload, school_context) do
+  defp create_invoice_from_appointment(appointment, params, school_context) do
+    invoice_payload = get_invoice_payload(appointment, params, school_context)
+
     case CalculateInvoice.run(invoice_payload, school_context) do
       {:ok, invoice_params} ->
         CreateInvoice.run(invoice_params, school_context)
@@ -73,7 +76,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     |> Repo.preload([:user, :instructor_user, :aircraft])
   end
 
-  defp get_invoice_payload(appointment, params, school_context) do
+  def get_invoice_payload(appointment, params, school_context) do
     school = school(school_context)
     current_user = school_context.assigns.current_user
 
@@ -118,6 +121,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
       rate = appointment.aircraft.rate_per_hour
       hobbs_end = Map.get(params, "hobbs_time", nil)
       tach_end = Map.get(params, "tach_time", nil)
+      aircraft = appointment.aircraft
 
       %{
         "description" => "Flight Hours",
@@ -125,12 +129,12 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "quantity" => quantity,
         "amount" => round(rate * quantity),
         "type" => :aircraft,
-        "aircraft_id" => appointment.aircraft.id,
+        "aircraft_id" => aircraft.id,
         "taxable" => true,
         "deductible" => false,
         "hobbs_tach_used" => !!(hobbs_end || tach_end),
-        "hobbs_start" => appointment.aircraft.last_hobbs_time,
-        "tach_start" => appointment.aircraft.last_tach_time,
+        "hobbs_start" => aircraft.last_hobbs_time,
+        "tach_start" => aircraft.last_tach_time,
         "hobbs_end" => hobbs_end,
         "tach_end" => tach_end,
         "creator_id" => current_user.id
@@ -139,8 +143,8 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   end
 
   def instructor_item(appointment, quantity, current_user) do
-    if appointment.instructor_user do
-      rate = appointment.instructor_user.billing_rate
+    if instructor = appointment.instructor_user do
+      rate = instructor.billing_rate
 
       %{
         "description" => "Instructor Hours",
@@ -148,7 +152,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "quantity" => quantity,
         "amount" => round(rate * quantity),
         "type" => :instructor,
-        "instructor_user_id" => appointment.instructor_user.id,
+        "instructor_user_id" => instructor.id,
         "taxable" => false,
         "deductible" => false,
         "creator_id" => current_user.id
