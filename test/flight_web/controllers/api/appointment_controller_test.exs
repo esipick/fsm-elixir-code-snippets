@@ -255,7 +255,6 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       another_instructor = instructor_fixture(%{billing_rate: 50})
       aircraft = aircraft_fixture(%{rate_per_hour: 100, block_rate_per_hour: 100})
       another_aircraft = aircraft_fixture(%{rate_per_hour: 50, block_rate_per_hour: 50})
-      school = default_school_fixture()
 
       school_context = %Plug.Conn{assigns: %{current_user: admin}}
 
@@ -606,7 +605,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
   end
 
   describe "DELETE /api/appointments/:id" do
-    test "student can't delete paid or ended appointment", %{conn: conn} do
+    test "student can't delete paid appointment", %{conn: conn} do
       appointment = appointment_fixture()
       Appointment.paid(appointment)
 
@@ -617,6 +616,19 @@ defmodule FlightWeb.API.AppointmentControllerTest do
 
       appointment = Repo.get(Appointment, appointment.id)
       refute appointment.archived
+    end
+
+    test "dispatcher can delete paid", %{conn: conn} do
+      appointment = appointment_fixture()
+      Appointment.paid(appointment)
+
+      conn
+      |> auth(dispatcher_fixture())
+      |> delete("/api/appointments/#{appointment.id}")
+      |> response(204)
+
+      appointment = Repo.get(Appointment, appointment.id)
+      assert appointment.archived
     end
 
     test "student can delete new unpaid appointment", %{conn: conn} do
@@ -634,7 +646,20 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       assert appointment.archived
     end
 
-    test "deletes appointment", %{conn: conn} do
+    test "instructor can't delete other user appointment", %{conn: conn} do
+      instructor_user = instructor_fixture()
+      appointment = appointment_fixture()
+
+      conn
+      |> auth(instructor_user)
+      |> delete("/api/appointments/#{appointment.id}")
+      |> response(401)
+
+      appointment = Repo.get(Appointment, appointment.id)
+      refute appointment.archived
+    end
+
+    test "instructor can delete own appointment", %{conn: conn} do
       appointment = appointment_fixture()
 
       conn
@@ -643,7 +668,6 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       |> response(204)
 
       appointment = Repo.get(Appointment, appointment.id)
-
       assert appointment.archived
     end
 

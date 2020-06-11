@@ -94,17 +94,29 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def delete(%{assigns: %{appointment: appointment, current_user: user}} = conn, _) do
-    case Scheduling.Appointment.allowed_for_archive?(appointment) do
-      true ->
-        Scheduling.delete_appointment(appointment.id, user, conn)
-
-        conn
-        |> resp(204, "")
-
-      false ->
+    if user_can?(user, [Permission.new(:appointment, :modify, :all)]) do
+      delete_appointment(appointment, user, conn)
+    else
+      if Scheduling.Appointment.is_paid?(appointment) do
         conn
         |> put_status(401)
-        |> json(%{human_errors: ["Appointment is ended or paid."]})
+        |> json(%{human_errors: ["Can't delete paid appointment."]})
+      else
+        if user_can?(user, [
+             Permission.new(:appointment_user, :modify, {:personal, appointment.user_id}),
+             Permission.new(
+               :appointment_instructor,
+               :modify,
+               {:personal, appointment.instructor_user_id}
+             )
+           ]) do
+          delete_appointment(appointment, user, conn)
+        else
+          conn
+          |> put_status(401)
+          |> json(%{human_errors: ["Can't delete appointment associated with other user."]})
+        end
+      end
     end
   end
 
@@ -177,5 +189,12 @@ defmodule FlightWeb.API.AppointmentController do
       _ ->
         nil
     end
+  end
+
+  defp delete_appointment(appointment, user, conn) do
+    Scheduling.delete_appointment(appointment.id, user, conn)
+
+    conn
+    |> resp(204, "")
   end
 end

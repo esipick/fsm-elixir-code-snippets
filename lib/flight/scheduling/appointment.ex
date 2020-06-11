@@ -72,19 +72,13 @@ defmodule Flight.Scheduling.Appointment do
   def update_transaction_changeset(appointment, attrs),
     do: cast(appointment, attrs, [:transaction_id])
 
-  def allowed_for_archive?(appointment),
-    do: !(is_paid?(appointment) || is_ended?(appointment))
-
   def paid(%Flight.Scheduling.Appointment{} = appointment),
     do: change(appointment, status: :paid) |> Flight.Repo.update()
 
   def archive(%Flight.Scheduling.Appointment{} = appointment),
     do: change(appointment, archived: true) |> Flight.Repo.update()
 
-  defp is_paid?(appointment), do: appointment.status == :paid
-
-  defp is_ended?(appointment),
-    do: NaiveDateTime.compare(NaiveDateTime.utc_now(), appointment.end_at) == :gt
+  def is_paid?(appointment), do: appointment.status == :paid
 
   defp apply_utc_timezone_changeset(changeset, timezone) do
     changeset
