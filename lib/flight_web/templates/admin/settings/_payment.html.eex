@@ -56,4 +56,12 @@
     <div class="mt-4">
       <a href="http://stripe.com" target="_blank"><img src="/images/powered_by_stripe.svg" alt="Powered by Stripe" width="120"></a>
     </div>
-  <% end %>
+<% end %>
+
+<%= if !onboarding_completed?(@school) do %>
+  <div class="card-footer mt-3">
+    <a href="/admin/settings?step_back=true" class="btn btn-fill btn-default mr-2">Back</a>
+    <a href="/admin/settings?step_forward=true" class="btn btn-fill btn-primary">Save & Next</a>
+  </div>
+<% end %>
+

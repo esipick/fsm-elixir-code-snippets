@@ -536,6 +536,23 @@ dl .disc.expired {background-color: #FF5572;}
 .nav-pills .nav-item .dropdown .nav-link {
   padding: 9px 0px;
 }
+.nav-pills.nav-pills-primary .nav-item .nav-link.onboarding.completed,
+.nav-pills.nav-pills-primary .nav-item .nav-link.onboarding.completed:focus,
+.nav-pills.nav-pills-primary .nav-item .nav-link.onboarding.completed:hover {
+  background-color: #c2c2c7;
+  pointer-events: none;
+}
+.nav-pills.nav-pills-primary .nav-item .nav-link.onboarding.upcoming,
+.nav-pills.nav-pills-primary .nav-item .nav-link.onboarding.upcoming:focus,
+.nav-pills.nav-pills-primary .nav-item .nav-link.onboarding.upcoming:hover {
+  background-color: #f6f6fa;
+  pointer-events: none;
+}
+.nav-pills.nav-pills-primary .nav-item .nav-link.onboarding.active,
+.nav-pills.nav-pills-primary .nav-item .nav-link.onboarding.active:focus,
+.nav-pills.nav-pills-primary .nav-item .nav-link.onboarding.active:hover {
+  pointer-events: none;
+}
 
 
 .sidebar .nav p,
