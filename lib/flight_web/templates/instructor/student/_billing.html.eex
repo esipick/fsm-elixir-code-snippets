@@ -28,7 +28,7 @@
               <dl class="form-group d-flex flex-row-reverse">
                 <dt class="col-md-9"><input type="text" name="amount" id="addFundsAmount" style="text-align:right;" class="form-control"/></dt>
                 <dd class="col-md-3">
-                  <p>Amount to add</p>
+                  <p>Amount</p>
                 </dd>
               </dl>
               <dl class="form-group d-flex flex-row-reverse">
