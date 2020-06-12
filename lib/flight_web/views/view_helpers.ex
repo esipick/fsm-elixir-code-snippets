@@ -244,9 +244,6 @@ defmodule FlightWeb.ViewHelpers do
   end
 
   def user_role_select(user_roles),
-    do: [{"Role", nil} | user_role_for_select(user_roles)]
-
-  defp user_role_for_select(user_roles),
     do: user_roles |> Enum.map(&{"#{singular_label_for_role(&1)}", &1.id})
 
   def display_date(date) do

@@ -51,21 +51,21 @@
                   <div class="col-md-3 pr-1">
                     <div class="form-group">
                       <label class="sr-only" >Student First Name</label>
-                      <%= text_input f, :first_name, class: "form-control", placeholder: "First Name" %>
+                      <%= text_input f, :first_name, class: "form-control", placeholder: "First Name", required: true %>
                       <%= full_error_tag f, :first_name %>
                     </div>
                   </div>
                   <div class="col-md-3 pr-1 pl-1">
                     <div class="form-group">
                       <label class="sr-only" >Student Last Name</label>
-                      <%= text_input f, :last_name, class: "form-control", placeholder: "Last Name" %>
+                      <%= text_input f, :last_name, class: "form-control", placeholder: "Last Name", required: true %>
                       <%= full_error_tag f, :last_name %>
                     </div>
                   </div>
                   <div class="col-md-3 pl-1">
                     <div class="form-group">
                       <label class="sr-only" for="exampleInputEmail1">Student Email</label>
-                      <%= email_input f, :email, class: "form-control", placeholder: "Email" %>
+                      <%= email_input f, :email, class: "form-control", placeholder: "Email", required: true %>
                       <%= full_error_tag f, :email %>
                     </div>
                   </div>
