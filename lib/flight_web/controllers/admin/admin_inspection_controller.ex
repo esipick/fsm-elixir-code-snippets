@@ -19,6 +19,7 @@ defmodule FlightWeb.Admin.InspectionController do
         render(
           conn,
           "new.html",
+          asset_namespace: asset_namespace(conn.assigns.aircraft),
           aircraft: conn.assigns.aircraft,
           changeset: changeset,
           form_type: :date
@@ -37,6 +38,7 @@ defmodule FlightWeb.Admin.InspectionController do
         render(
           conn,
           "new.html",
+          asset_namespace: asset_namespace(conn.assigns.aircraft),
           aircraft: conn.assigns.aircraft,
           changeset: changeset,
           form_type: :tach

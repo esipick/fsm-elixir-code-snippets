@@ -4,7 +4,7 @@
     <div class="row">
       <div class="col-md-12">
         <div class="form-group">
-          <label>Location *</label>
+          <label>Location (address or description) *</label>
           <%= text_input f, :location, class: "form-control" %>
           <%= full_error_tag f, :location %>
         </div>
@@ -13,7 +13,7 @@
     <div class="row">
       <div class="col-md-12">
         <div class="form-group">
-          <label>Resources</label>
+          <label>Resources (e.g. whiteboard, projector, flip boards)</label>
           <%= text_input f, :resources, class: "form-control" %>
           <%= full_error_tag f, :resources %>
         </div>
@@ -38,7 +38,7 @@
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
-          <label>Capacity *</label>
+          <label>Capacity (# of people) *</label>
           <%= select f, :capacity, 1..20, class: "form-control selectpicker" %>
           <%= full_error_tag f, :capacity %>
         </div>
