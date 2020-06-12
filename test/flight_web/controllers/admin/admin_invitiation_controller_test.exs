@@ -100,7 +100,7 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
         |> post("/admin/invitations", payload)
         |> response_redirected_to("/admin/users?role=instructor")
 
-      assert get_flash(conn, :error) =~ "Instructor has already registered."
+      assert get_flash(conn, :error) =~ "Instructor has already registered with this email address."
     end
 
     @tag :integration

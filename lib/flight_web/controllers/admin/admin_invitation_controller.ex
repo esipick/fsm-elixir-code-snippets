@@ -112,14 +112,14 @@ defmodule FlightWeb.Admin.InvitationController do
         conn
         |> put_flash(
           :error,
-          "#{slug} already removed. You may reinstate this account using \"Restore\" button below"
+          "#{slug} already removed with this email address. You may reinstate this account using \"Restore\" button below"
         )
         |> redirect(to: "/admin/users?role=#{role.slug}&tab=archived")
         |> halt()
 
       invitation && invitation.accepted_at && !user.archived ->
         conn
-        |> put_flash(:error, "#{slug} has already registered.")
+        |> put_flash(:error, "#{slug} has already registered with this email address.")
         |> redirect(to: "/admin/users?role=#{role.slug}")
         |> halt()
 
@@ -127,7 +127,7 @@ defmodule FlightWeb.Admin.InvitationController do
         conn
         |> put_flash(
           :error,
-          "#{slug} already invited. Please wait for invitation acceptance or resend invitation"
+          "#{slug} already invited at this email address. Please wait for invitation acceptance or resend invitation"
         )
         |> redirect(to: "/admin/invitations?role=#{role.slug}")
         |> halt()
