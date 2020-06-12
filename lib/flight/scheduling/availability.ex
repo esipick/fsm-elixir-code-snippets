@@ -153,6 +153,9 @@ defmodule Flight.Scheduling.Availability do
 
         instructor_ids_from_appointments =
           case instuctor_id do
+            "" ->
+              MapSet.new()
+
             nil ->
               MapSet.new()
 

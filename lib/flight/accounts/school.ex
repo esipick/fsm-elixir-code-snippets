@@ -19,7 +19,7 @@ defmodule Flight.Accounts.School do
     field(:sales_tax, :float)
     field(:archived, :boolean, default: false)
     field(:show_student_accounts_summary, :boolean, default: false)
-    field(:show_student_flight_hours, :boolean, default: true)
+    field(:show_student_flight_hours, :boolean, default: false)
     has_one(:stripe_account, Flight.Accounts.StripeAccount)
 
     has_many(:custom_line_items, Flight.Billing.InvoiceCustomLineItem,

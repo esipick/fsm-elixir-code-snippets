@@ -28,9 +28,11 @@
                   <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=billing" %>>Billing Settings</a>
                 </li>
               <% end %>
+              <!-- HIDE UNTIL 4.0.5 Release updates
               <li class="nav-item">
                 <a class="nav-link <%= if @tab == :profile, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=profile" %>>Profile Settings</a>
               </li>
+              -->
               <li class="nav-item">
                 <a class="nav-link <%= if @tab == :assets, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=assets_aircraft" %>>Assets</a>
               </li>
