@@ -67,7 +67,7 @@
                       <div class="col-md-6">
                         <div class="form-group text-left">
                           <label class="sr-only">Email address</label>
-                          <%= email_input f, :email, class: "form-control", placeholder: "Email" %>
+                          <%= email_input f, :email, class: "form-control", placeholder: "Email", readonly: true %>
                           <%= full_error_tag f, :email %>
                         </div>
                       </div>
