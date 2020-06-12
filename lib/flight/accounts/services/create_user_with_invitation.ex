@@ -126,6 +126,7 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
       true ->
         case Repo.insert(changeset) do
           {:ok, invitation} = payload ->
+          invitation = Map.put(invitation, :school, %{name: Map.get(school, :name) || "Randon Aviation"})
             Accounts.send_invitation_email(invitation)
             payload
 

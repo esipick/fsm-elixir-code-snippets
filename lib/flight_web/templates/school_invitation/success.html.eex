@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>Randon Aviation</title>
+    <title>Flight School Manager</title>
     <%= render FlightWeb.Admin.PartialView, "_shared_head.html", assigns %>
   </head>
   <body class="sidebar-none">
@@ -38,7 +38,7 @@
       <!-- End Navbar -->
       <div class="panel-header">
         <div class="header text-center">
-          <h2 class="title">Welcome to Randon Aviation</h2>
+          <h2 class="title">Welcome to Flight School Manager</h2>
         </div>
       </div>
       <div class="content">

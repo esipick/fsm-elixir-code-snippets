@@ -8,17 +8,18 @@ defmodule Flight.Email do
 
   def invitation_email(%Invitation{} = invitation) do
     role = Flight.Accounts.get_role(invitation.role_id)
+    company_name = invitation.school.name
 
     new_email()
     |> to(invitation.email)
     |> put_layout({FlightWeb.EmailView, "invitation"})
     # TODO: What email address to use here?
     |> from("noreply@randonaviation.com")
-    |> subject("Welcome to Randon Aviation!")
+    |> subject("Welcome to "<>company_name<>"!")
     |> render(
       "_user_invitation.html",
       link: invitation_link(invitation),
-      company_name: "Randon Aviation",
+      company_name: company_name,
       first_name: invitation.first_name,
       role: role.slug
     )
