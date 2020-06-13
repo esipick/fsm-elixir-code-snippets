@@ -58,7 +58,6 @@ defmodule FlightWeb.API.UnavailabilityController do
 
   def delete(conn, _) do
     Scheduling.delete_unavailability(conn.assigns.unavailability.id, conn)
-
     conn
     |> resp(204, "")
   end
