@@ -42,16 +42,18 @@ defmodule FlightWeb.Admin.InvitationController do
           :success,
           "Successfully sent invitation. Please have #{invitation.first_name} check their email to complete the sign up process."
         )
-        |> redirect(to: "/admin/invitations?role=#{conn.assigns.role.slug}")
+        |> redirect(to: "/admin/invitations?role=user")
 
       {:error, changeset} ->
         invitations = Accounts.visible_invitations_with_role(conn.assigns.role.slug, conn)
+        available_user_roles = Accounts.get_user_roles(conn)
 
         render(conn, "index.html",
           invitations: invitations,
           changeset: changeset,
           request_path: invite_request_path(conn),
-          role: conn.assigns.role
+          role: conn.assigns.role,
+          available_user_roles: available_user_roles
         )
     end
   end
@@ -61,7 +63,7 @@ defmodule FlightWeb.Admin.InvitationController do
 
     conn
     |> put_flash(:success, "Invitation deleted")
-    |> redirect(to: "/admin/invitations?role=#{conn.assigns.role}")
+    |> redirect(to: "/admin/invitations?role=user")
   end
 
   def resend(conn, _params) do
@@ -72,7 +74,7 @@ defmodule FlightWeb.Admin.InvitationController do
       :success,
       "Successfully sent invitation email to #{conn.assigns.invitation.email}"
     )
-    |> redirect(to: "/admin/invitations?role=#{conn.assigns.role}")
+    |> redirect(to: "/admin/invitations?role=user")
   end
 
   defp get_invitation(conn, _) do
@@ -84,7 +86,7 @@ defmodule FlightWeb.Admin.InvitationController do
       invitation && invitation.accepted_at ->
         conn
         |> put_flash(:error, "#{slug} already registered.")
-        |> redirect(to: "/admin/invitations?role=#{role.slug}")
+        |> redirect(to: "/admin/invitations?role=user")
         |> halt()
 
       invitation ->
@@ -114,13 +116,13 @@ defmodule FlightWeb.Admin.InvitationController do
           :error,
           "#{slug} already removed with this email address. You may reinstate this account using \"Restore\" button below"
         )
-        |> redirect(to: "/admin/users?role=#{role.slug}&tab=archived")
+        |> redirect(to: "/admin/users?role=user&tab=archived")
         |> halt()
 
       invitation && invitation.accepted_at && !user.archived ->
         conn
-        |> put_flash(:error, "#{slug} has already registered with this email address.")
-        |> redirect(to: "/admin/users?role=#{role.slug}")
+        |> put_flash(:error, "Email already exists.")
+        |> redirect(to: "/admin/users?role=user")
         |> halt()
 
       invitation ->
@@ -129,7 +131,7 @@ defmodule FlightWeb.Admin.InvitationController do
           :error,
           "#{slug} already invited at this email address. Please wait for invitation acceptance or resend invitation"
         )
-        |> redirect(to: "/admin/invitations?role=#{role.slug}")
+        |> redirect(to: "/admin/invitations?role=user")
         |> halt()
 
       true ->

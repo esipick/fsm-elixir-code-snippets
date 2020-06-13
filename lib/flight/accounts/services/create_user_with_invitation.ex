@@ -120,13 +120,12 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
 
       user && require_uniq? ->
         changeset
-        |> Ecto.Changeset.add_error(:user, "#{role} has already signed up.")
+        |> Ecto.Changeset.add_error(:user, "Email already exists.")
         |> Ecto.Changeset.apply_action(:insert)
 
       true ->
         case Repo.insert(changeset) do
           {:ok, invitation} = payload ->
-          invitation = Map.put(invitation, :school, %{name: Map.get(school, :name) || "Randon Aviation"})
             Accounts.send_invitation_email(invitation)
             payload
 

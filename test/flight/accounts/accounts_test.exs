@@ -298,7 +298,7 @@ defmodule Flight.Accounts.AccountsTest do
                  user
                )
 
-      assert errors_on(changeset).user |> List.first() =~ "has already signed up."
+      assert errors_on(changeset).user |> List.first() == "Email already exists."
     end
 
     test "accept_invitation/1 accepts if not accepted" do

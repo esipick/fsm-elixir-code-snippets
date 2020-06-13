@@ -3,11 +3,13 @@ defmodule Flight.Email do
   use Bamboo.Phoenix, view: FlightWeb.EmailView
 
   alias Flight.Accounts.{Invitation, SchoolInvitation}
+  alias Flight.Repo
 
   # System Emails
 
   def invitation_email(%Invitation{} = invitation) do
     role = Flight.Accounts.get_role(invitation.role_id)
+    invitation = Repo.preload(invitation, :school)
     company_name = invitation.school.name
 
     new_email()

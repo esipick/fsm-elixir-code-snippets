@@ -5,6 +5,20 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
   alias Flight.Accounts
 
   describe "GET /admin/invitations" do
+    test "renders for all roles in combined user roles", %{conn: conn} do
+      for role_slug <- Accounts.Role.available_role_slugs() do
+        role_fixture(%{slug: role_slug})
+        invitation = invitation_fixture(%{}, Accounts.role_for_slug(role_slug))
+
+        content =
+          conn
+          |> web_auth_admin()
+          |> get("/admin/invitations?role=user")
+          |> html_response(200)
+
+        assert content =~ invitation.first_name
+      end
+    end
     test "renders for all roles", %{conn: conn} do
       for role_slug <- Accounts.Role.available_role_slugs() do
         role_fixture(%{slug: role_slug})
@@ -21,6 +35,22 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
     end
 
     test "doesn't render accepted invitations", %{conn: conn} do
+      role_slug = "admin"
+      role_fixture(%{slug: role_slug})
+
+      invitation = invitation_fixture(%{}, Accounts.role_for_slug(role_slug))
+      Accounts.accept_invitation(invitation)
+
+      content =
+        conn
+        |> web_auth_admin()
+        |> get("/admin/invitations?role=#{role_slug}")
+        |> html_response(200)
+
+      refute content =~ invitation.email
+    end
+
+    test "doesn't render accepted invitations in combined user roles", %{conn: conn} do
       role_slug = "admin"
       role_fixture(%{slug: role_slug})
 
@@ -71,7 +101,7 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
       conn
       |> web_auth(admin)
       |> post("/admin/invitations", payload)
-      |> response_redirected_to("/admin/invitations?role=instructor")
+      |> response_redirected_to("/admin/invitations?role=user")
 
       invitation = Accounts.get_invitation_for_email("jonesy@hello.com", admin)
 
@@ -98,9 +128,9 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
         conn
         |> web_auth_admin()
         |> post("/admin/invitations", payload)
-        |> response_redirected_to("/admin/users?role=instructor")
+        |> response_redirected_to("/admin/users?role=user")
 
-      assert get_flash(conn, :error) =~ "Instructor has already registered with this email address."
+      assert get_flash(conn, :error) =~ "Email already exists."
     end
 
     @tag :integration
@@ -123,10 +153,10 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
         conn
         |> web_auth_admin()
         |> post("/admin/invitations", payload)
-        |> response_redirected_to("/admin/users?role=student&tab=archived")
+        |> response_redirected_to("/admin/users?role=user&tab=archived")
 
       assert get_flash(conn, :error) =~
-               "Student already removed. You may reinstate this account using \"Restore\" button below"
+               "Student already removed with this email address. You may reinstate this account using \"Restore\" button below"
     end
 
     @tag :integration
@@ -146,10 +176,10 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
         conn
         |> web_auth_admin()
         |> post("/admin/invitations", payload)
-        |> response_redirected_to("/admin/invitations?role=student")
+        |> response_redirected_to("/admin/invitations?role=user")
 
       assert get_flash(conn, :error) =~
-               "Student already invited. Please wait for invitation acceptance or resend invitation"
+               "Student already invited at this email address. Please wait for invitation acceptance or resend invitation"
     end
 
     @tag :wip
@@ -188,7 +218,7 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
       conn
       |> web_auth_admin()
       |> post("/admin/invitations/#{invitation.id}/resend")
-      |> response_redirected_to("/admin/invitations?role=admin")
+      |> response_redirected_to("/admin/invitations?role=user")
 
       assert_delivered_email(Flight.Email.invitation_email(invitation))
     end
@@ -219,7 +249,7 @@ defmodule FlightWeb.Admin.InvitationControllerTest do
 
       refute Accounts.get_invitation(invitation.id, invitation.school)
 
-      assert redirected_to(conn) == "/admin/invitations?role=admin"
+      assert redirected_to(conn) == "/admin/invitations?role=user"
     end
 
     test "show error if user already registered", %{conn: conn} do
