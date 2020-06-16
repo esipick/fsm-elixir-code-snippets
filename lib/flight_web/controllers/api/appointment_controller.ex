@@ -126,21 +126,35 @@ defmodule FlightWeb.API.AppointmentController do
 
     user_id =
       with %Scheduling.Appointment{} = appointment <- conn.assigns[:appointment],
-           true <- user_id_param == nil or appointment.user_id != current_user.id do
+           true <- user_id_param == nil or appointment.owner_user_id != current_user.id do
         appointment.user_id
       else
         _ -> user_id_param
       end
 
+    instructor_id_param = conn.params["data"] |> Optional.map(& &1["instructor_user_id"])
+
+    owner_instructor_user_id =
+      with %Scheduling.Appointment{} = appointment <- conn.assigns[:appointment],
+           true <- instructor_id_param == nil or instructor_id_param == "" or appointment.owner_user_id != current_user.id do
+        appointment.owner_user_id
+      else
+        _ -> current_user.id
+      end
+
     instructor_user_id_from_appointment =
       case conn.assigns do
+        %{appointment: %{instructor_user_id: nil}} -> owner_instructor_user_id
         %{appointment: %{instructor_user_id: id}} -> id
-        _ -> nil
+        _ -> owner_instructor_user_id
       end
 
     instructor_user_id =
-      conn.params["data"] |> Optional.map(& &1["instructor_user_id"]) ||
+     if (conn.params["data"] |> Optional.map(& &1["instructor_user_id"])) not in [nil, ""] do
+      (conn.params["data"] |> Optional.map(& &1["instructor_user_id"]))
+      else
         instructor_user_id_from_appointment
+    end
 
     cond do
       user_can?(current_user, [
