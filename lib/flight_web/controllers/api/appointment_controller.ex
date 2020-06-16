@@ -102,14 +102,36 @@ defmodule FlightWeb.API.AppointmentController do
         |> put_status(401)
         |> json(%{human_errors: ["Can't delete paid appointment."]})
       else
+        instructor_user_id = Map.get(appointment, :instructor_user_id)
+        owner_user_id = Map.get(appointment, :owner_user_id)
+
+        owner_instructor_permission =
+          if owner_user_id == user.id do
+            [
+              Permission.new(
+                :appointment_instructor,
+                :modify,
+                {:personal, owner_user_id})
+            ]
+          else
+              []
+          end
+
+        instructor_user_id =
+          if instructor_user_id == "" do
+             nil
+          else
+            instructor_user_id
+          end
+
         if user_can?(user, [
              Permission.new(:appointment_user, :modify, {:personal, appointment.user_id}),
              Permission.new(
                :appointment_instructor,
                :modify,
-               {:personal, appointment.instructor_user_id}
+               {:personal, instructor_user_id}
              )
-           ]) do
+           ] ++ owner_instructor_permission) do
           delete_appointment(appointment, user, conn)
         else
           conn
@@ -126,21 +148,35 @@ defmodule FlightWeb.API.AppointmentController do
 
     user_id =
       with %Scheduling.Appointment{} = appointment <- conn.assigns[:appointment],
-           true <- user_id_param == nil or appointment.user_id != current_user.id do
+           true <- user_id_param == nil or appointment.owner_user_id != current_user.id do
         appointment.user_id
       else
         _ -> user_id_param
       end
 
+    instructor_id_param = conn.params["data"] |> Optional.map(& &1["instructor_user_id"])
+
+    owner_instructor_user_id =
+      with %Scheduling.Appointment{} = appointment <- conn.assigns[:appointment],
+           true <- instructor_id_param == nil or instructor_id_param == "" or appointment.owner_user_id != current_user.id do
+        appointment.owner_user_id
+      else
+        _ -> current_user.id
+      end
+
     instructor_user_id_from_appointment =
       case conn.assigns do
+        %{appointment: %{instructor_user_id: nil}} -> owner_instructor_user_id
         %{appointment: %{instructor_user_id: id}} -> id
-        _ -> nil
+        _ -> owner_instructor_user_id
       end
 
     instructor_user_id =
-      conn.params["data"] |> Optional.map(& &1["instructor_user_id"]) ||
+     if (conn.params["data"] |> Optional.map(& &1["instructor_user_id"])) not in [nil, ""] do
+      (conn.params["data"] |> Optional.map(& &1["instructor_user_id"]))
+      else
         instructor_user_id_from_appointment
+    end
 
     cond do
       user_can?(current_user, [

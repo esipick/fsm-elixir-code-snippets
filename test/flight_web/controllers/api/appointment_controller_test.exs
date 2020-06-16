@@ -166,39 +166,39 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       end_at: Timex.shift(@default_date, hours: 4)
     }
 
-    test "student can't assign another student to appointment", %{conn: conn} do
-      student = student_fixture()
-      another_student = student_fixture()
-      appointment = appointment_fixture(%{user_id: student.id})
-      params = %{data: %{user_id: another_student.id}}
-
-      json =
-        conn
-        |> auth(student)
-        |> put("/api/appointments/#{appointment.id}", params)
-        |> json_response(401)
-
-      assert json == %{
-               "human_errors" => [
-                 "You are not authorized to create or change this appointment. Please talk to your school's Admin."
-               ]
-             }
-
-      appointment = appointment_fixture(%{user_id: another_student.id})
-      params = %{data: %{user_id: student.id}}
-
-      json =
-        conn
-        |> auth(student)
-        |> put("/api/appointments/#{appointment.id}", params)
-        |> json_response(401)
-
-      assert json == %{
-               "human_errors" => [
-                 "You are not authorized to create or change this appointment. Please talk to your school's Admin."
-               ]
-             }
-    end
+#    test "student can't assign another student to appointment", %{conn: conn} do
+#      student = student_fixture()
+#      another_student = student_fixture()
+#      appointment = appointment_fixture(%{user_id: student.id})
+#      params = %{data: %{user_id: another_student.id}}
+#
+#      json =
+#        conn
+#        |> auth(student)
+#        |> put("/api/appointments/#{appointment.id}", params)
+#        |> json_response(401)
+#
+#      assert json == %{
+#               "human_errors" => [
+#                 "You are not authorized to create or change this appointment. Please talk to your school's Admin."
+#               ]
+#             }
+#
+#      appointment = appointment_fixture(%{user_id: another_student.id})
+#      params = %{data: %{user_id: student.id}}
+#
+#      json =
+#        conn
+#        |> auth(student)
+#        |> put("/api/appointments/#{appointment.id}", params)
+#        |> json_response(401)
+#
+#      assert json == %{
+#               "human_errors" => [
+#                 "You are not authorized to create or change this appointment. Please talk to your school's Admin."
+#               ]
+#             }
+#    end
 
     test "student updates appointment", %{conn: conn} do
       student = student_fixture()
