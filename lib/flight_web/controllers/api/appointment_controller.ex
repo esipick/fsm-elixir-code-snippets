@@ -102,14 +102,36 @@ defmodule FlightWeb.API.AppointmentController do
         |> put_status(401)
         |> json(%{human_errors: ["Can't delete paid appointment."]})
       else
+        instructor_user_id = Map.get(appointment, :instructor_user_id)
+        owner_user_id = Map.get(appointment, :owner_user_id)
+
+        owner_instructor_permission =
+          if owner_user_id == user.id do
+            [
+              Permission.new(
+                :appointment_instructor,
+                :modify,
+                {:personal, owner_user_id})
+            ]
+          else
+              []
+          end
+
+        instructor_user_id =
+          if instructor_user_id == "" do
+             nil
+          else
+            instructor_user_id
+          end
+
         if user_can?(user, [
              Permission.new(:appointment_user, :modify, {:personal, appointment.user_id}),
              Permission.new(
                :appointment_instructor,
                :modify,
-               {:personal, appointment.instructor_user_id}
+               {:personal, instructor_user_id}
              )
-           ]) do
+           ] ++ owner_instructor_permission) do
           delete_appointment(appointment, user, conn)
         else
           conn
