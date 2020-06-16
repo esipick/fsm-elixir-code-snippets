@@ -90,6 +90,7 @@ defmodule FlightWeb.API.AppointmentView do
           appointment.instructor_user,
           &render(FlightWeb.API.UserView, "skinny_user.json", user: &1)
         ),
+      owner_user_id: appointment.owner_user_id,
       aircraft:
         Optional.map(
           appointment.aircraft,

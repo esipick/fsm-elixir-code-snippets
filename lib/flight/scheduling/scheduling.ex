@@ -304,6 +304,12 @@ defmodule Flight.Scheduling do
         school_context
       ) do
     school = SchoolScope.get_school(school_context)
+    attrs =
+      if Map.get(attrs, :instructor_user_id) in [nil, ""] and Repo.preload(modifying_user, :roles).roles |> List.first |> Map.get(:slug)  == "instructor" do
+        Map.put(attrs, "owner_user_id", modifying_user.id)
+      else
+        attrs
+      end
 
     changeset =
       appointment

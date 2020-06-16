@@ -13,6 +13,7 @@ defmodule Flight.Scheduling.Appointment do
     field(:archived, :boolean, default: false)
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
+    belongs_to(:owner_user, Flight.Accounts.User)
     belongs_to(:user, Flight.Accounts.User)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
     belongs_to(:transaction, Flight.Billing.Transaction)
@@ -27,6 +28,7 @@ defmodule Flight.Scheduling.Appointment do
       :end_at,
       :user_id,
       :instructor_user_id,
+      :owner_user_id,
       :aircraft_id,
       :note,
       :type,
@@ -52,6 +54,7 @@ defmodule Flight.Scheduling.Appointment do
       :end_at,
       :user_id,
       :instructor_user_id,
+      :owner_user_id,
       :aircraft_id,
       :note,
       :type,
