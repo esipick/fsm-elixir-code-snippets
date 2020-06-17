@@ -33,11 +33,9 @@
                   <%= nav_item_link("Billing Settings", @conn, @school, @tab, :billing) %>
                 </li>
               <% end %>
-              <!-- HIDE UNTIL 4.0.5 Release updates
               <li class="nav-item">
                 <%= nav_item_link("Profile Settings", @conn, @school, @tab, :profile) %>
               </li>
-              -->
               <li class="nav-item">
                 <%= nav_item_link("Assets", @conn, @school, @tab, :assets) %>
               </li>
