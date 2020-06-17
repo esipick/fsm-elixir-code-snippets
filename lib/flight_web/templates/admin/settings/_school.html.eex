@@ -75,7 +75,7 @@
     <%= if onboarding_completed?(@school) do %>
       <input type="submit" class="btn btn-fill btn-primary" value="Save">
     <% else %>
-      <input type="submit" class="btn btn-fill btn-primary" value="Next">
+      <input type="submit" class="btn btn-fill btn-primary" value="Save & Next">
     <% end %>
   </div>
 <% end %>
