@@ -72,6 +72,10 @@
   </div>
   <input type="hidden" name="redirect_tab" value="school" />
   <div class="card-footer mt-3">
-    <input type="submit" class="btn btn-fill btn-primary" value="Save">
+    <%= if onboarding_completed?(@school) do %>
+      <input type="submit" class="btn btn-fill btn-primary" value="Save">
+    <% else %>
+      <input type="submit" class="btn btn-fill btn-primary" value="Next">
+    <% end %>
   </div>
 <% end %>

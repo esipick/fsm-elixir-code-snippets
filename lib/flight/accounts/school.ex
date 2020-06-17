@@ -21,6 +21,7 @@ defmodule Flight.Accounts.School do
     field(:show_student_accounts_summary, :boolean, default: false)
     field(:show_student_flight_hours, :boolean, default: false)
     has_one(:stripe_account, Flight.Accounts.StripeAccount)
+    has_one(:school_onboarding, Flight.Accounts.SchoolOnboarding)
 
     has_many(:custom_line_items, Flight.Billing.InvoiceCustomLineItem,
       on_replace: :delete,

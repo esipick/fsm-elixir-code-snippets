@@ -20,3 +20,13 @@ defenum(
 )
 
 defenum(AppointmentStatusEnum, pending: 0, paid: 1)
+
+defenum(
+  SchoolOnboardingCurrentStepEnum,
+  school: 0,
+  contact: 1,
+  payment: 2,
+  billing: 3,
+  profile: 4,
+  assets: 5
+)

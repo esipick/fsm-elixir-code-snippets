@@ -15,26 +15,26 @@
           <div class="d-flex justify-content-between mb-3">
             <ul class="nav nav-pills nav-pills-primary" role="tablist">
               <li class="nav-item">
-                <a class="nav-link <%= if @tab == :school, do: "active", else: "" %>" href=<%= @conn.request_path %>>School Details</a>
+                <%= nav_item_link("School Details", @conn, @school, @tab, :school) %>
               </li>
               <li class="nav-item">
-                <a class="nav-link <%= if @tab == :contact, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=contact" %>>Contact Details</a>
+                <%= nav_item_link("Contact Details", @conn, @school, @tab, :contact) %>
               </li>
               <%= if can_access_billing?(@conn) do %>
                 <li class="nav-item">
-                  <a class="nav-link <%= if @tab == :payment, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=payment" %>>Payment Setup</a>
+                  <%= nav_item_link("Payment Setup", @conn, @school, @tab, :payment) %>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link <%= if @tab == :billing, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=billing" %>>Billing Settings</a>
+                  <%= nav_item_link("Billing Settings", @conn, @school, @tab, :billing) %>
                 </li>
               <% end %>
               <!-- HIDE UNTIL 4.0.5 Release updates
               <li class="nav-item">
-                <a class="nav-link <%= if @tab == :profile, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=profile" %>>Profile Settings</a>
+                <%= nav_item_link("Profile Settings", @conn, @school, @tab, :profile) %>
               </li>
               -->
               <li class="nav-item">
-                <a class="nav-link <%= if @tab == :assets, do: "active", else: "" %>" href=<%= "#{@conn.request_path}?tab=assets_aircraft" %>>Assets</a>
+                <%= nav_item_link("Assets", @conn, @school, @tab, :assets) %>
               </li>
             </ul>
           </div>
@@ -47,7 +47,7 @@
               :payment -> render "_payment.html", school: @school
               :billing -> render "_billing.html", school: @school, changeset: @changeset, request_path: @conn.request_path, props: @props
               :profile -> render "_profile.html", school: @school, changeset: @changeset, request_path: @conn.request_path
-              :assets -> render "_assets.html", data: @data, conn: @conn, asset: @asset, redirect_back_to: @redirect_back_to
+              :assets -> render "_assets.html", school: @school, data: @data, conn: @conn, asset: @asset, redirect_back_to: @redirect_back_to
             end
             %>
         </div>
