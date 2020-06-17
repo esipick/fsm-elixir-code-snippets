@@ -1,6 +1,11 @@
 <div class="panel-header">
   <div class="header text-center">
-    <h2 class="title"><%= @school.name %></h2>
+    <h2 class="title">
+      <%= @school.name %>
+      <%= if !onboarding_completed?(@school) do %>
+        <span> Onboarding</span>
+      <% end %>
+    </h2>
     <%= if @school.address_1 do %>
       <p class="category"><%= @school.address_1 %><br/> <%= @school.city %>, <%= @school.state %> <%= @school.zipcode %></p>
     <% end %>
