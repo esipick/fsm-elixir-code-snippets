@@ -98,11 +98,15 @@ defmodule Flight.Scheduling.Appointment do
   end
 
   defp validate_user_instructor_different(changeset) do
-    with user_id <- get_field(changeset, :user_id),
-         true <- user_id == get_field(changeset, :instructor_user_id) do
-      add_error(changeset, :instructor, "cannot be the same person as the renter.")
+    if get_field(changeset, :instructor_user_id) || get_field(changeset, :user_id) do
+      with user_id <- get_field(changeset, :user_id),
+           true <- user_id == get_field(changeset, :instructor_user_id) do
+        add_error(changeset, :instructor, "cannot be the same person as the renter.")
+      else
+        _ -> changeset
+      end
     else
-      _ -> changeset
+      add_error(changeset, :instructor, "or student must be set.")
     end
   end
 
