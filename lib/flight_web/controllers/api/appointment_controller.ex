@@ -163,6 +163,8 @@ defmodule FlightWeb.API.AppointmentController do
       else
         _ -> current_user.id
       end
+    owner_instructor_permisssions = Permission.new(:appointment_instructor, :modify, {:personal, owner_instructor_user_id})
+
 
     instructor_user_id_from_appointment =
       case conn.assigns do
@@ -178,12 +180,14 @@ defmodule FlightWeb.API.AppointmentController do
         instructor_user_id_from_appointment
     end
 
+    instructor_permisssions = Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id})
+
     cond do
-      user_can?(current_user, [
-        Permission.new(:appointment_user, :modify, {:personal, user_id}),
-        Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id}),
-        Permission.new(:appointment, :modify, :all)
-      ]) ->
+      user_can?(current_user,
+        [Permission.new(:appointment_user, :modify, {:personal, user_id}),
+        instructor_permisssions,
+        owner_instructor_permisssions,
+        Permission.new(:appointment, :modify, :all)]) ->
         conn
 
       true ->
