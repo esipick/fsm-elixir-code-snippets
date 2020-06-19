@@ -39,6 +39,7 @@ class Form extends Component {
       errors: props.errors || {},
       stripe_error: props.stripe_error || '',
       error_alert_open: false,
+      error_date_alert_open: false,
       balance_warning_open: false,
       balance_warning_accepted: false,
       payment_method: {},
@@ -353,6 +354,17 @@ class Form extends Component {
   submitForm = ({ pay_off }) => {
     if (this.state.saving) return;
 
+    if (pay_off && (typeof(this.state.appointment) == "undefined" || Date.now() < Date.parse(this.state.appointment.start_at))){
+      this.setState({ error_date_alert_open: true });
+      return;
+    }
+
+    if ( typeof(this.state.line_items[0].errors) != "undefined") {
+      for (let increment in this.state.line_items) {
+        if (this.state.line_items[increment].type == "aircraft" && typeof(this.state.line_items[increment].errors) != "undefined") return;
+      }
+    }
+
     if (pay_off && this.showBalanceWarning()) return;
 
     if (this.formRef.checkValidity()) {
@@ -390,6 +402,10 @@ class Form extends Component {
 
   closeErrorAlert = () => {
     this.setState({ error_alert_open: false });
+  }
+
+  closeErrorDateAlert = () => {
+    this.setState({ error_date_alert_open: false });
   }
 
   acceptBalanceWarning = () => {
@@ -555,7 +571,14 @@ class Form extends Component {
 
       <ErrorAlert open={this.state.error_alert_open}
           onAccept={this.closeErrorAlert}
-          text="Invoices cannot be saved with a total amount below or equal to zero." />
+          text="Invoices cannot be saved with a total amount below or equal to zero."
+      />
+
+
+      <ErrorAlert open={this.state.error_date_alert_open}
+          onAccept={this.closeErrorDateAlert}
+          text="Invoices cannot be paid before the starting time of appointment."
+      />
       </div>
     );
   }
