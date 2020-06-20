@@ -93,7 +93,7 @@ defmodule Flight.Scheduling.Appointment do
     if get_field(changeset, :instructor_user_id) || get_field(changeset, :aircraft_id) do
       changeset
     else
-      add_error(changeset, :aircraft, "or instructor must be set.")
+      add_error(changeset, :aircraft, "or instructor is required.")
     end
   end
 
@@ -106,7 +106,7 @@ defmodule Flight.Scheduling.Appointment do
         _ -> changeset
       end
     else
-      add_error(changeset, :instructor, "or student must be set.")
+      add_error(changeset, :instructor, "or student is required.")
     end
   end
 
