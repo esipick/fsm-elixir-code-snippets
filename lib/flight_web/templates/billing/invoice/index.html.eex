@@ -67,7 +67,7 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Date</th>
+                <th>Invoice Date</th>
                 <%= if show_to_superadmin?(@conn) do %>
                   <th>School</th>
                 <% end %>

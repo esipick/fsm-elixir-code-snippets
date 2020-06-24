@@ -44,6 +44,7 @@ class Form extends Component {
       balance_warning_accepted: false,
       payment_method: {},
       line_items: [],
+      is_visible: true,
       student: staff_member ? undefined : creator,
       date: new Date()
     }
@@ -249,7 +250,7 @@ class Form extends Component {
   payload = () => {
     const {
       appointment, student, sales_tax, total, total_tax, total_amount_due, date,
-      payment_method, action
+      payment_method, action, is_visible
     } = this.state;
     const is_edit = action == 'edit';
 
@@ -269,6 +270,7 @@ class Form extends Component {
       total_tax,
       total_amount_due,
       payment_option: payment_method.value,
+      is_visible: is_visible,
       appointment_id: appointment && appointment.id
     }
   }
@@ -498,7 +500,7 @@ class Form extends Component {
 
                 <div className="form-group">
                   <label>
-                    Date
+                    Invoice Date
                     <Error text={errors.date} />
                   </label>
                   <div>
