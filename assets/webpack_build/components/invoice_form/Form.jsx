@@ -356,14 +356,19 @@ class Form extends Component {
   submitForm = ({ pay_off }) => {
     if (this.state.saving) return;
 
-    if (pay_off && (typeof(this.state.appointment) == "undefined" || Date.now() < Date.parse(this.state.appointment.start_at))){
-      this.setState({ error_date_alert_open: true });
-      return;
-    }
-
-    if ( typeof(this.state.line_items[0].errors) != "undefined") {
+    if ( this.state.line_items.length > 0) {
       for (let increment in this.state.line_items) {
-        if (this.state.line_items[increment].type == "aircraft" && typeof(this.state.line_items[increment].errors) != "undefined") return;
+        if (this.state.line_items[increment].type == "aircraft") {
+          if(typeof(this.state.line_items[increment].errors) != "undefined") {
+            return;
+          }
+          else{
+            if (pay_off && (typeof(this.state.appointment) == "undefined" || (this.state.appointment) && Date.now() < Date.parse(this.state.appointment.start_at))) {
+              this.setState({error_date_alert_open: true});
+              return;
+            }
+          }
+        }
       }
     }
 
