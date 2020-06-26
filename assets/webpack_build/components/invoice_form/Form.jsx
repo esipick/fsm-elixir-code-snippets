@@ -38,7 +38,9 @@ class Form extends Component {
       error: props.error || '',
       errors: props.errors || {},
       stripe_error: props.stripe_error || '',
-      error_alert_open: false,
+      error_alert_total_open: false,
+      error_alert_total_due_open: false,
+      error_alert_total_tax_open: false,
       error_date_alert_open: false,
       balance_warning_open: false,
       balance_warning_accepted: false,
@@ -312,7 +314,7 @@ class Form extends Component {
         this.setState({
           saving: false, id, action,
           stripe_error, error, errors,
-          error_alert_open: this.state.total <= 0
+          error_alert_total_open: this.state.total <= 0
         });
       });
     });
@@ -355,6 +357,18 @@ class Form extends Component {
 
   submitForm = ({ pay_off }) => {
     if (this.state.saving) return;
+    if (this.state.total <= 0) {
+      this.setState({error_alert_total_open: true});
+      return;
+    }
+    if (this.state.total_amount_due <= 0) {
+      this.setState({error_alert_total_due_open: true});
+      return;
+    }
+    if (this.state.total_tax < 0) {
+      this.setState({error_alert_total_tax_open: true});
+      return;
+    }
 
     if ( this.state.line_items.length > 0) {
       for (let increment in this.state.line_items) {
@@ -407,8 +421,16 @@ class Form extends Component {
     this.setState({ balance_warning_open: false });
   }
 
-  closeErrorAlert = () => {
+  closeTotalErrorAlert = () => {
+    this.setState({ error_alert_total_open: false });
+  }
+
+  closeTotalDueErrorAlert = () => {
     this.setState({ error_alert_open: false });
+  }
+
+  closeTotalTaxErrorAlert = () => {
+    this.setState({ error_alert_total_due_open: false });
   }
 
   closeErrorDateAlert = () => {
@@ -576,8 +598,18 @@ class Form extends Component {
           total={total_amount_due}
         />
 
-      <ErrorAlert open={this.state.error_alert_open}
-          onAccept={this.closeErrorAlert}
+      <ErrorAlert open={this.state.error_alert_total_open}
+          onAccept={this.closeTotalErrorAlert}
+          text="Invoices cannot be saved with a total amount below or equal to zero."
+      />
+
+      <ErrorAlert open={this.state.error_alert_total_due_open}
+          onAccept={this.closeTotalDueErrorAlert}
+          text="Invoices cannot be saved with a total amount below or equal to zero."
+      />
+
+      <ErrorAlert open={this.state.error_alert_total_tax_open}
+          onAccept={this.closeTotalTaxErrorAlert}
           text="Invoices cannot be saved with a total amount below or equal to zero."
       />
 
