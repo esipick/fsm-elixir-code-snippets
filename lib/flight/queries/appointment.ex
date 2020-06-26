@@ -15,7 +15,7 @@ defmodule Flight.Queries.Appointment do
         i in Invoice,
         where:
           i.archived == false and not is_nil(i.appointment_id) and
-            i.school_id == ^SchoolScope.school_id(school_context),
+            i.school_id == ^SchoolScope.school_id(school_context) and i.is_visible == true,
         select: i.appointment_id
       )
       |> Repo.all()

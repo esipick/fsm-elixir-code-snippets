@@ -70,7 +70,9 @@ defmodule FlightWeb.API.UserView do
       email: user.email,
       flight_training_number: user.flight_training_number,
       awards: user.awards,
-      roles: Enum.map(user.roles, & &1.slug)
+      roles: Enum.map(user.roles, & &1.slug),
+      stripe_customer_id: user.stripe_customer_id
+
     }
   end
 

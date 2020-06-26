@@ -15,7 +15,7 @@ const Invoice = (props) => {
         </div>
       </div>
       <div className="col-md-3 col-xs-3 bulk-invoice__invoice-item">
-        <a href={`/admin/invoices/${id}`} target="_blank">{id}</a>
+        <a href={`/billing/invoices/${id}`} target="_blank">{id}</a>
       </div>
       <div className="col-md-3 col-xs-3 bulk-invoice__invoice-item">{date}</div>
       <div className="col-md-3 col-xs-3 bulk-invoice__invoice-item">

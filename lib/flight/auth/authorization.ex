@@ -122,7 +122,7 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:transaction_creator, :view, :personal),
       permission_slug(:transaction_user, :be, :all),
       permission_slug(:transaction_user, :view, :personal),
-      permission_slug(:unavailability_aircraft, :modify, :all),
+#      permission_slug(:unavailability_aircraft, :modify, :all),
       permission_slug(:unavailability_instructor, :modify, :personal),
       permission_slug(:user_protected_info, :view, :all),
       permission_slug(:users, :create, :all),

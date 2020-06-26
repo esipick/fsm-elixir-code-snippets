@@ -22,7 +22,7 @@ defmodule Flight.Queries.Invoice do
     end_date = parse_date(params["end_date"], 1)
     status = params["status"] && parse_status(params["status"])
 
-    from(i in Invoice, where: i.archived == false, order_by: [desc: i.id])
+    from(i in Invoice, where: i.archived == false and i.is_visible == true, order_by: [desc: i.id])
     |> SchoolScope.scope_query(school_context)
     |> pass_unless(
       search_term,
@@ -43,7 +43,7 @@ defmodule Flight.Queries.Invoice do
   end
 
   def own_invoices(school_context, params) do
-    from(i in Invoice, where: i.archived == false, order_by: [desc: i.inserted_at])
+    from(i in Invoice, where: i.archived == false and i.is_visible == true, order_by: [desc: i.inserted_at])
     |> SchoolScope.scope_query(school_context)
     |> where([i], i.user_id == ^params[:user_id])
     |> where([i], i.archived == false)

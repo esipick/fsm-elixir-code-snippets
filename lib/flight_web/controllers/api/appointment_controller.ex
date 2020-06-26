@@ -114,24 +114,24 @@ defmodule FlightWeb.API.AppointmentController do
                 {:personal, owner_user_id})
             ]
           else
-              []
+            []
           end
 
         instructor_user_id =
           if instructor_user_id == "" do
-             nil
+            nil
           else
             instructor_user_id
           end
 
         if user_can?(user, [
-             Permission.new(:appointment_user, :modify, {:personal, appointment.user_id}),
-             Permission.new(
-               :appointment_instructor,
-               :modify,
-               {:personal, instructor_user_id}
-             )
-           ] ++ owner_instructor_permission) do
+                             Permission.new(:appointment_user, :modify, {:personal, appointment.user_id}),
+                             Permission.new(
+                               :appointment_instructor,
+                               :modify,
+                               {:personal, instructor_user_id}
+                             )
+                           ] ++ owner_instructor_permission) do
           delete_appointment(appointment, user, conn)
         else
           conn
@@ -163,6 +163,8 @@ defmodule FlightWeb.API.AppointmentController do
       else
         _ -> current_user.id
       end
+    owner_instructor_permisssions = Permission.new(:appointment_instructor, :modify, {:personal, owner_instructor_user_id})
+
 
     instructor_user_id_from_appointment =
       case conn.assigns do
@@ -172,18 +174,20 @@ defmodule FlightWeb.API.AppointmentController do
       end
 
     instructor_user_id =
-     if (conn.params["data"] |> Optional.map(& &1["instructor_user_id"])) not in [nil, ""] do
-      (conn.params["data"] |> Optional.map(& &1["instructor_user_id"]))
+      if (conn.params["data"] |> Optional.map(& &1["instructor_user_id"])) not in [nil, ""] do
+        (conn.params["data"] |> Optional.map(& &1["instructor_user_id"]))
       else
         instructor_user_id_from_appointment
-    end
+      end
+
+    instructor_permisssions = Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id})
 
     cond do
-      user_can?(current_user, [
-        Permission.new(:appointment_user, :modify, {:personal, user_id}),
-        Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id}),
-        Permission.new(:appointment, :modify, :all)
-      ]) ->
+      user_can?(current_user,
+        [Permission.new(:appointment_user, :modify, {:personal, user_id}),
+          instructor_permisssions,
+          owner_instructor_permisssions,
+          Permission.new(:appointment, :modify, :all)]) ->
         conn
 
       true ->

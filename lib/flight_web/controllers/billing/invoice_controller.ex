@@ -102,6 +102,7 @@ defmodule FlightWeb.Billing.InvoiceController do
 
       invoice.user_id == user.id ->
         conn
+        |> put_flash(:error, "Can't modify invoice that is already paid.")
         |> redirect(to: "/billing/invoices/#{invoice.id}")
         |> halt()
 

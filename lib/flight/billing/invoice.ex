@@ -30,6 +30,7 @@ defmodule Flight.Billing.Invoice do
     field(:payment_option, InvoicePaymentOptionEnum)
     field(:payer_name, :string)
     field(:archived, :boolean, default: false)
+    field(:is_visible, :boolean, default: false)
     field(:archived_at, :naive_datetime)
     field(:appointment_updated_at, :naive_datetime)
 
@@ -53,16 +54,16 @@ defmodule Flight.Billing.Invoice do
     invoice
     |> cast(attrs, @required_fields)
     |> cast(attrs, @payer_fields)
-    |> cast(attrs, [:appointment_id, :archived, :status, :appointment_updated_at])
+    |> cast(attrs, [:appointment_id, :archived, :is_visible, :status, :appointment_updated_at])
     |> cast_assoc(:line_items)
     |> assoc_constraint(:user)
     |> assoc_constraint(:school)
     |> validate_required(@required_fields)
     |> validate_required_inclusion(@payer_fields)
     |> validate_appointment_is_valid
-    |> validate_number(:total_amount_due, greater_than: 0)
+#    |> validate_number(:total_amount_due, greater_than: 0)
     |> validate_number(:total_tax, greater_than_or_equal_to: 0)
-    |> validate_number(:total, greater_than: 0)
+#    |> validate_number(:total, greater_than: 0)
   end
 
   def paid(%Invoice{} = invoice) do
