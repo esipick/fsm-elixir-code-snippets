@@ -403,8 +403,8 @@ defmodule Flight.Billing do
       line_items = Map.get(m, :line_items) || []
 
       if (List.first(line_items) != nil &&
-            Map.get(List.first(line_items), :type) not in ["add_funds", "remove_funds"]) ||
-           List.first(line_items) == nil do
+            Map.get(List.first(line_items), :type) not in ["add_funds", "remove_funds"] and m.state != "failed") ||
+          (List.first(line_items) == nil and m.state != "failed") do
         (Map.get(m, :total) || 0) + acc
       else
         0 + acc
