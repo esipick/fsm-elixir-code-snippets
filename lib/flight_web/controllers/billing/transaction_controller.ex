@@ -17,8 +17,7 @@ defmodule FlightWeb.Billing.TransactionController do
       if staff_member?(user) do
         Flight.Queries.Transaction.page(conn, page_params, params)
       else
-        options = %{user_id: user.id}
-        Flight.Queries.Transaction.own_transactions(conn, page_params, options)
+        Flight.Queries.Transaction.own_transactions(conn, page_params, params)
       end
 
     transactions =

@@ -42,11 +42,35 @@ defmodule Flight.Queries.Invoice do
     |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
   end
 
-  def own_invoices(school_context, params) do
-    from(i in Invoice, where: i.archived == false and i.is_visible == true, order_by: [desc: i.inserted_at])
+  def own_invoices(%{assigns: %{current_user: %{id: user_id}}} = school_context, params = %{}) do
+    search_term = Map.get(params, "search", nil)
+    user_ids = users_search(search_term, school_context)
+    invoice_ids = line_items_search(search_term)
+
+    normalized_term = Utils.normalize(search_term || "")
+
+    start_date = parse_date(params["start_date"], 0)
+    end_date = parse_date(params["end_date"], 1)
+    status = params["status"] && parse_status(params["status"])
+
+    from(i in Invoice, where: i.archived == false and i.is_visible == true and i.user_id == ^user_id, order_by: [desc: i.id])
     |> SchoolScope.scope_query(school_context)
-    |> where([i], i.user_id == ^params[:user_id])
-    |> where([i], i.archived == false)
+    |> pass_unless(
+         search_term,
+         &where(
+           &1,
+           [t],
+           t.user_id in ^user_ids or t.id in ^invoice_ids or
+           fragment(
+             "to_tsvector('english', payer_name) @@ to_tsquery(?)",
+             ^Utils.prefix_search(normalized_term)
+           )
+         )
+       )
+    |> pass_unless(start_date, &where(&1, [t], t.inserted_at >= ^start_date))
+    |> pass_unless(end_date, &where(&1, [t], t.inserted_at <= ^end_date))
+    |> pass_unless(status, &where(&1, [t], t.status == ^status))
+    |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
   end
 
   defp parse_date(date, shift_days) do

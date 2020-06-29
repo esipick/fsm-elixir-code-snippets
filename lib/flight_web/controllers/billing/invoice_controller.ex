@@ -22,8 +22,7 @@ defmodule FlightWeb.Billing.InvoiceController do
       if staff_member?(user) do
         Flight.Queries.Invoice.all(conn, params)
       else
-        options = %{user_id: user.id}
-        Flight.Queries.Invoice.own_invoices(conn, options)
+        Flight.Queries.Invoice.own_invoices(conn, params)
       end
 
     page = result |> Repo.paginate(page_params)

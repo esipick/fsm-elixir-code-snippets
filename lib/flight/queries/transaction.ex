@@ -43,10 +43,35 @@ defmodule Flight.Queries.Transaction do
     |> Repo.paginate(page_params)
   end
 
-  def own_transactions(school_context, page_params, params) do
-    from(t in Transaction, order_by: [desc: t.inserted_at])
+  def own_transactions(%{assigns: %{current_user: %{id: user_id}}} = school_context, page_params, params = %{}) do
+    search_term = Map.get(params, "search", nil)
+    user_ids = users_search(search_term, school_context)
+    transaction_ids = transaction_line_items_search(search_term)
+    invoice_ids = invoice_line_items_search(search_term)
+
+    normalized_term = Utils.normalize(search_term || "")
+
+    start_date = parse_date(params["start_date"], 0)
+    end_date = parse_date(params["end_date"], 1)
+    state = parse_state(params["state"])
+
+    from(i in Transaction,  where: i.user_id == ^user_id, order_by: [desc: i.inserted_at])
     |> SchoolScope.scope_query(school_context)
-    |> where([t], t.user_id == ^params[:user_id])
+    |> pass_unless(
+      search_term,
+      &where(
+        &1,
+        [t],
+        t.user_id in ^user_ids or t.id in ^transaction_ids or t.invoice_id in ^invoice_ids or
+          fragment(
+            "to_tsvector('english', first_name) @@ to_tsquery(?)",
+            ^Utils.prefix_search(normalized_term)
+          )
+      )
+    )
+    |> pass_unless(start_date, &where(&1, [t], t.inserted_at >= ^start_date))
+    |> pass_unless(end_date, &where(&1, [t], t.inserted_at <= ^end_date))
+    |> pass_unless(state, &where(&1, [t], t.state == ^state))
     |> Repo.paginate(page_params)
   end
 
