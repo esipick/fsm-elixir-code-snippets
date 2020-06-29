@@ -224,6 +224,7 @@ defmodule FlightWeb.Router do
   ###
   scope "/api", FlightWeb.API do
     post("/stripe_events", StripeController, :stripe_events)
+    get("/ios_app_version", IosAppVersionController, :index)
   end
 
   scope "/api", FlightWeb.API do

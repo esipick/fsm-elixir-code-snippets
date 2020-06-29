@@ -5,3 +5,4 @@
 - [/api/school](API.-School)
 - [/api/users](API.-Users)
 - [/api/roles](API.-Roles)
+- [/api/ios_app_version](API.-iOS.App.Version.md)
