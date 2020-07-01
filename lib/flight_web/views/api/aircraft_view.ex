@@ -42,7 +42,8 @@ defmodule FlightWeb.API.AircraftView do
       tail_number: aircraft.tail_number,
       last_tach_time: aircraft.last_tach_time,
       last_hobbs_time: aircraft.last_hobbs_time,
-      rate_per_hour: aircraft.rate_per_hour
+      rate_per_hour: aircraft.rate_per_hour,
+      block_rate_per_hour: aircraft.block_rate_per_hour
     }
   end
 

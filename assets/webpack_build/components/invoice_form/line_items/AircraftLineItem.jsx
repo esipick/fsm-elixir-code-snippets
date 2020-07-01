@@ -23,13 +23,14 @@ class AircraftLineItem extends Component {
   constructor(props) {
     super(props);
 
-    const { line_item } = props;
+    const { creator, staff_member, line_item } = props;
     const { aircraft } = line_item;
 
     this.state = {
       aircraft,
       line_item
     }
+    this.setRate(this.props.line_item);
   }
 
   updateLineItem = (line_item) => {
@@ -49,6 +50,35 @@ class AircraftLineItem extends Component {
     this.updateLineItem(line_item);
   }
 
+  componentDidMount() {
+    this.setRate(this.props.line_item);
+  }
+
+  setRate = (line_item) => {
+    // const { aircraft } = this.state;
+    console.log(this.getAccountBalance())
+    if (line_item.aircraft && (this.getAccountBalance() >=1 )) {
+      // this.setState({ rate: this.props.line_item.aircraft.block_rate_per_hour });
+      line_item.rate = this.props.line_item.aircraft.block_rate_per_hour;
+    }
+    else if(line_item.aircraft){
+      line_item.rate = this.props.line_item.aircraft.rate_per_hour;
+    }
+    else {
+      line_item;
+    }
+    line_item.quantity = 0;
+    line_item.amount = 0;
+
+    this.updateLineItem(line_item);
+  }
+
+  getAccountBalance = () => {
+    if (!this.props.student) return 0;
+
+    return (this.props.student.balance * 1.0 / 100).toFixed(2);
+  }
+
   remove = (e) => {
     e.preventDefault();
 
@@ -56,7 +86,7 @@ class AircraftLineItem extends Component {
   }
 
   setAircraft = (aircraft) => {
-    const rate = aircraft ? aircraft.rate_per_hour : DEFAULT_RATE;
+    const rate = aircraft ? this.state.line_item.rate : DEFAULT_RATE;
     const aircraft_id = aircraft ? aircraft.id : null;
     const amount = rate * this.state.line_item.quantity;
     const payload = { rate, aircraft_id, amount };
