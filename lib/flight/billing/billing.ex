@@ -73,7 +73,7 @@ defmodule Flight.Billing do
   end
 
   def rate_type_for_form(%DetailedTransactionForm{} = form, school_context) do
-    {%{total: blockTotal}, _, _, _, _} =
+    {%{total: _blockTotal}, _, _, _, _} =
       DetailedTransactionForm.to_transaction(form, :block, school_context)
 
     user =
@@ -81,7 +81,7 @@ defmodule Flight.Billing do
         Flight.Accounts.get_user(form.user_id, school_context)
       end
 
-    if user && user.balance >= blockTotal do
+    if user && user.balance >= 1 do
       :block
     else
       :normal
