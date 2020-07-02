@@ -438,6 +438,7 @@ Example response:
           "tail_number":"730a1a5c753f595",
           "serial_number":"49e9b3ac719e732",
           "rate_per_hour":130,
+          "block_rate_per_hour": 100,
           "model":"Thing",
           "make":"Sesna",
           "last_tach_time":400,
@@ -503,7 +504,8 @@ Example response:
         ],
         "ifr_certified":true,
         "id":3919,
-        "equipment":"5cfc74dd6089fae"
+        "equipment":"5cfc74dd6089fae",
+        "block_rate_per_hour": 100
       }
     }
   }
