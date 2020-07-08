@@ -233,7 +233,9 @@ function getPlainDate(start_at) {
                     <td><%= currency(@invoice.bulk_transaction.amount_due) %></td>
                     <td><%= currency(@invoice.bulk_transaction.amount_paid) %></td>
                     <td><%= @invoice.bulk_transaction.state %></td>
-                    <td><%= @invoice.bulk_transaction.completed_at %></td>
+                  <script> document.write(
+                  '<td>'+getPlainDate('<%= @invoice.bulk_transaction.completed_at %>')+'</td>'
+                  ); </script>
                     <td><%= @invoice.bulk_transaction.payment_method %></td>
                   </tr>
                 <% end %>

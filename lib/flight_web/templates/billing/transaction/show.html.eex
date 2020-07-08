@@ -1,3 +1,11 @@
+<script>
+function getPlainDate(start_at) {
+  var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
+  var date = date_time.format('YYYY-MM-DD')
+  return date;
+}
+</script>
+
 <div class="panel-header">
   <div class="header text-center">
     <h2 class="title"><%= @transaction.title %></h2>
@@ -23,7 +31,9 @@
 
               <dl class="d-flex justify-content-between">
                 <dt>Payment date</dt>
-                <dd><%= @transaction.completed_at %></dd>
+                <script>
+                  document.write('<dd class="text-nowrap">'+getPlainDate('<%= @transaction.completed_at %>')+'</dd>');
+                </script>
               </dl>
 
               <dl class="d-flex justify-content-between">
