@@ -1,3 +1,11 @@
+<script>
+function getPlainDate(start_at) {
+  var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
+  var date = date_time.format('YYYY-MM-DD')
+  return date;
+}
+</script>
+
 <div class="panel-header panel-header-sm">
   <div class="header text-center"></div>
 </div>
@@ -85,7 +93,9 @@
               <%= for invoice <- @invoices do %>
                 <tr>
                   <td><%= invoice.id %></td>
-                  <td class="text-nowrap"><%= invoice.created %></td>
+                <script> document.write(
+                '<td class="text-nowrap">'+getPlainDate('<%= invoice.created %>')+'</td>'
+                ); </script>
                   <%= if show_to_superadmin?(@conn) do %>
                     <td><a href="/admin/schools/<%= invoice.school.id %>"><%= invoice.school.name %></a></td>
                   <% end %>

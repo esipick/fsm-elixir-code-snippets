@@ -126,8 +126,8 @@ $(document).ready(function () {
       var eventInstructor = safeParseInt($('#apptInstructor').val());
       var eventAircraft = safeParseInt($('#apptAircraft').val());
 
-      var eventStart = moment($('#apptStart').val()).format()
-      var eventEnd = moment($('#apptEnd').val()).format()
+      var eventStart = (moment.utc($('#apptStart').val()).add(-(moment().utcOffset()), 'm')).format()
+      var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment().utcOffset()), 'm')).format()
       var eventNote = $('#apptNote').val()
 
       var eventData = {
@@ -159,8 +159,16 @@ $(document).ready(function () {
       var eventInstructor = safeParseInt($('#unavailInstructor').val());
       var eventAircraft = safeParseInt($('#unavailAircraft').val());
 
-      var eventStart = moment($('#unavailStart').val()).format()
-      var eventEnd = moment($('#unavailEnd').val()).format()
+      var eventStart;
+      var eventEnd;
+      if (eventInstructor){
+        eventStart = (moment.utc($('#unavailStart').val()).add(-(moment().utcOffset()), 'm')).format()
+        eventEnd = (moment.utc($('#unavailEnd').val()).add(-(moment().utcOffset()), 'm')).format()
+      }
+      else { //eventAircraft
+        eventStart = moment($('#unavailStart').val()).format()
+        eventEnd = moment($('#unavailEnd').val()).format()
+      }
       var eventNote = $('#unavailNote').val()
 
       var eventData = {
@@ -479,8 +487,8 @@ $(document).ready(function () {
 
           openAppointmentModal({
             type: "unavailability",
-            start_at: moment(calEvent.unavailability.start_at),
-            end_at: moment(calEvent.unavailability.end_at),
+            start_at: moment.utc(calEvent.unavailability.start_at).add(+(moment().utcOffset()), 'm'),
+            end_at: moment.utc(calEvent.unavailability.end_at).add(+(moment().utcOffset()), 'm'),
             instructor_user_id: instructor_user_id,
             aircraft_id: aircraft_id,
             note: calEvent.unavailability.note,
@@ -500,8 +508,8 @@ $(document).ready(function () {
           }
 
           openAppointmentModal({
-            start_at: moment(appointment.start_at),
-            end_at: moment(appointment.end_at),
+            start_at: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm'),
+            end_at: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm'),
             instructor_user_id: instructor_user_id,
             aircraft_id: aircraft_id,
             note: appointment.note,
@@ -518,8 +526,8 @@ $(document).ready(function () {
 
       // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
       events: function (start, end, timezone, callback) {
-        var startStr = moment(start).toISOString()
-        var endStr = moment(end).toISOString()
+        var startStr = (moment(start).add(-(moment().utcOffset()), 'm')).toISOString();
+        var endStr = (moment(end).add(-(moment().utcOffset()), 'm')).toISOString();
 
         var paramStr = addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr;
 
@@ -547,8 +555,8 @@ $(document).ready(function () {
 
             return {
               title: appointmentTitle(appointment),
-              start: moment(appointment.start_at),
-              end: moment(appointment.end_at),
+              start: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm'),
+              end: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm'),
               id: "appointment:" + appointment.id,
               appointment: appointment,
               resourceIds: resourceIds,
@@ -569,8 +577,8 @@ $(document).ready(function () {
 
             return {
               title: "Unavailable",
-              start: moment(unavailability.start_at),
-              end: moment(unavailability.end_at),
+              start: moment.utc(unavailability.start_at).add(+(moment().utcOffset()), 'm'),
+              end: moment.utc(unavailability.end_at).add(+(moment().utcOffset()), 'm'),
               id: "unavailability:" + unavailability.id,
               unavailability: unavailability,
               resourceIds: resourceIds,

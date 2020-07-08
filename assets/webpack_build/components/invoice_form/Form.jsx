@@ -185,8 +185,8 @@ class Form extends Component {
       const { start_at, end_at, aircraft, instructor_user } = appointment;
 
       const date = start_at.split("T")[0];
-      const start_time = start_at.split("T")[1];
-      const end_time = end_at.split("T")[1];
+      const start_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm').format('hh:mmA');
+      const end_time = moment.utc(end_at).add(+(moment().utcOffset()), 'm').format('hh:mmA');
       const instructor =
         instructor_user ? `, Instructor: ${instructor_user.first_name} ${instructor_user.last_name}` : '';
 
@@ -527,7 +527,7 @@ class Form extends Component {
 
                 <div className="form-group">
                   <label>
-                    Invoice Date
+                    Payment Date
                     <Error text={errors.date} />
                   </label>
                   <div>

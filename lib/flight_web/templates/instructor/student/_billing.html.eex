@@ -1,3 +1,10 @@
+<script>
+function getPlainDate(start_at) {
+  var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
+  var date = date_time.format('YYYY-MM-DD')
+  return date;
+}
+</script>
 <div class="tab-pane detail-list list-billing" id="link2">
   <div class="d-flex justify-content-center">
     <div class="text-center mb-2 mt-2">
@@ -76,7 +83,9 @@
     <% else %>
       <p>Requested by <%= display_name transaction.creator_user %></p>
     <% end %>
-    <small><%= display_date transaction.inserted_at %></small>
+  <script> document.write(
+  '<small>'+getPlainDate('<%= transaction.inserted_at %>')+'</small>'
+  ); </script>
     <%
           status =
             case transaction.state do

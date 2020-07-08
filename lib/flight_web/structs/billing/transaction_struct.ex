@@ -18,14 +18,14 @@ defmodule FlightWeb.Billing.TransactionStruct do
   defp base_params(transaction, opts) do
     %{
       id: transaction.id,
-      created: NaiveDateTime.to_date(transaction.inserted_at),
+      created: transaction.inserted_at,
       school: transaction.school,
       invoice_id: transaction.invoice_id,
       student_name: student_name(transaction),
       amount_due: transaction.total,
       amount_paid: amount_paid(transaction),
       state: transaction.state,
-      completed_at: format_date(transaction.completed_at),
+      completed_at: transaction.completed_at,
       payment_method: transaction.payment_option,
       error_message: transaction.error_message,
       bulk_invoices: if(opts[:render_invoices], do: bulk_invoices(transaction), else: []),
@@ -60,9 +60,5 @@ defmodule FlightWeb.Billing.TransactionStruct do
 
   defp title(transaction) do
     "Transaction ##{transaction.id} (#{transaction.state})"
-  end
-
-  defp format_date(date) do
-    date && NaiveDateTime.to_date(date)
   end
 end

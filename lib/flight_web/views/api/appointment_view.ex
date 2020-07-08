@@ -70,13 +70,11 @@ defmodule FlightWeb.API.AppointmentView do
   end
 
   def render("appointment.json", %{appointment: appointment}) do
-    school = Flight.Accounts.get_school(appointment.school_id)
-    timezone = school.timezone
 
     %{
       id: appointment.id,
-      start_at: Flight.NaiveDateTime.to_walltime_json(appointment.start_at, timezone),
-      end_at: Flight.NaiveDateTime.to_walltime_json(appointment.end_at, timezone),
+      start_at: appointment.start_at, # utc response
+      end_at: appointment.end_at, # utc response
       user:
         Optional.map(
           appointment.user,

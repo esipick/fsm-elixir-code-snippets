@@ -1,3 +1,17 @@
+<script>
+  function getLocalUserAppointmentDate(dt) {
+    var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+    var date = new Date(date_time);
+    date = date.toLocaleString('default', { weekday: 'long' })+' '+date.toLocaleString('default', { month: 'long' })+ date_time.format(' DD, YYYY')
+    return date;
+  }
+  function getLocalUserAppointmentDateTime(dt) {
+    var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+    var date = new Date(date_time);
+    var d_time = date_time.format('D ')+date.toLocaleString('default', { month: 'long' })+date_time.format(' h:mmA')
+    return d_time;
+  }
+</script>
 <%= if @show_student_flight_hours do %>
   <div class="d-flex justify-content-center">
     <div class="text-center mb-2 mt-2">
@@ -11,15 +25,21 @@
   <div class="tab-pane detail-list list-billing" id="link3">
     <%= for appointment <- @appointments do %>
       <dl class="d-flex justify-content-between">
-        <dt><%= display_walltime_date(appointment.start_at, @user.school.timezone, :long) %></dt>
+        <script> document.write(
+        '<dt>'+getLocalUserAppointmentDate('<%= appointment.start_at %>')+'</dt>'
+        ); </script>
         <dd>
           <dl class="d-flex justify-content-between">
             <dt>Start Time</dt>
-            <dd><%= display_walltime_datetime(appointment.start_at, @user.school.timezone) %></dd>
+            <script> document.write(
+            '<dd>'+getLocalUserAppointmentDateTime('<%= appointment.start_at %>')+'</dd>'
+            ); </script>
           </dl>
           <dl class="d-flex justify-content-between">
             <dt>End Time</dt>
-            <dd><%= display_walltime_datetime(appointment.end_at, @user.school.timezone) %></dd>
+            <script> document.write(
+            '<dd>'+getLocalUserAppointmentDateTime('<%= appointment.end_at %>')+'</dd>'
+            ); </script>
           </dl>
           <%= if appointment.aircraft_id do %>
             <dl class="d-flex justify-content-between">

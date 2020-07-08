@@ -31,7 +31,7 @@ defmodule Flight.Scheduling.Unavailability do
       :belongs
     ])
     |> validate_required([:start_at, :end_at, :available, :type, :school_id])
-    |> apply_utc_timezone_changeset(timezone)
+    |> apply_utc_timezone_changeset(attrs, timezone)
     |> validate_inclusion(:type, ["time_off"])
     |> validate_resources
   end
@@ -50,7 +50,7 @@ defmodule Flight.Scheduling.Unavailability do
       :belongs
     ])
     |> validate_required([:start_at, :end_at, :available, :type, :school_id])
-    |> apply_utc_timezone_changeset(timezone)
+    |> apply_utc_timezone_changeset(attrs, timezone)
     |> validate_end_at_after_start_at
     |> validate_inclusion(:type, ["time_off"])
     |> validate_resources
@@ -71,10 +71,9 @@ defmodule Flight.Scheduling.Unavailability do
     end
   end
 
-  defp apply_utc_timezone_changeset(changeset, timezone) do
+  defp apply_utc_timezone_changeset(changeset, attrs, timezone) do
     changeset
-    |> Scheduling.apply_utc_timezone(:start_at, timezone)
-    |> Scheduling.apply_utc_timezone(:end_at, timezone)
+    |> Scheduling.apply_utc_timezone_if_aircraft(attrs, "aircraft_id", timezone)
   end
 
   defp validate_end_at_after_start_at(changeset) do

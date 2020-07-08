@@ -24,7 +24,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
     %InvoiceStruct{
       id: invoice.id,
       user_id: invoice.user_id,
-      created: NaiveDateTime.to_date(invoice.inserted_at),
+      created: invoice.inserted_at,
       school: invoice.school,
       payer_name: payer_name(invoice),
       amount_due: invoice.total_amount_due,

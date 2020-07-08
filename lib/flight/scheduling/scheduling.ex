@@ -228,23 +228,22 @@ defmodule Flight.Scheduling do
   ##
 
   def get_appointments(options, school_context) do
-    school = SchoolScope.get_school(school_context)
 
     from_value =
       case NaiveDateTime.from_iso8601(options["from"] || "") do
-        {:ok, date} -> walltime_to_utc(date, school.timezone)
+        {:ok, date} -> date
         _ -> nil
       end
 
     to_value =
       case NaiveDateTime.from_iso8601(options["to"] || "") do
-        {:ok, date} -> walltime_to_utc(date, school.timezone)
+        {:ok, date} -> date
         _ -> nil
       end
 
     start_at_after_value =
       case NaiveDateTime.from_iso8601(options["start_at_after"] || "") do
-        {:ok, date} -> walltime_to_utc(date, school.timezone)
+        {:ok, date} -> date
         _ -> nil
       end
 
@@ -281,6 +280,16 @@ defmodule Flight.Scheduling do
     hours = Integer.floor_div(seconds, 3600) |> to_string
     minutes = Time.add(~T[00:00:00], seconds).minute |> to_string
     hours <> "h" <> "  " <> minutes <> "m"
+  end
+
+  def apply_utc_timezone_if_aircraft(changeset, attrs, key, timezone) do
+    case Map.get(attrs, key) do
+      "" -> changeset
+      _value ->
+        changeset
+        |> apply_utc_timezone(:start_at, timezone)
+        |> apply_utc_timezone(:end_at, timezone)
+    end
   end
 
   def apply_utc_timezone(changeset, key, timezone) do
@@ -321,8 +330,8 @@ defmodule Flight.Scheduling do
     if changeset.valid? do
       {:ok, _} = apply_action(changeset, :insert)
 
-      start_at = get_field(changeset, :start_at) |> utc_to_walltime(school.timezone)
-      end_at = get_field(changeset, :end_at) |> utc_to_walltime(school.timezone)
+      start_at = get_field(changeset, :start_at) # |> utc_to_walltime(school.timezone)
+      end_at = get_field(changeset, :end_at) # |> utc_to_walltime(school.timezone)
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
       aircraft_id = get_field(changeset, :aircraft_id)
@@ -384,6 +393,7 @@ defmodule Flight.Scheduling do
 
       changeset =
         if aircraft_id do
+
           status =
             Availability.aircraft_status(
               aircraft_id,
@@ -432,23 +442,22 @@ defmodule Flight.Scheduling do
   end
 
   def get_unavailabilities(options, school_context) do
-    school = SchoolScope.get_school(school_context)
 
     from_value =
       case NaiveDateTime.from_iso8601(options["from"] || "") do
-        {:ok, date} -> walltime_to_utc(date, school.timezone)
+        {:ok, date} -> date
         _ -> nil
       end
 
     to_value =
       case NaiveDateTime.from_iso8601(options["to"] || "") do
-        {:ok, date} -> walltime_to_utc(date, school.timezone)
+        {:ok, date} -> date
         _ -> nil
       end
 
     start_at_after_value =
       case NaiveDateTime.from_iso8601(options["start_at_after"] || "") do
-        {:ok, date} -> walltime_to_utc(date, school.timezone)
+        {:ok, date} -> date
         _ -> nil
       end
 
@@ -486,9 +495,6 @@ defmodule Flight.Scheduling do
 
     if changeset.valid? do
       {:ok, _} = apply_action(changeset, :insert)
-
-      start_at = get_field(changeset, :start_at) |> utc_to_walltime(school.timezone)
-      end_at = get_field(changeset, :end_at) |> utc_to_walltime(school.timezone)
       instructor_user_id = get_field(changeset, :instructor_user_id)
       aircraft_id = get_field(changeset, :aircraft_id)
 
@@ -496,6 +502,8 @@ defmodule Flight.Scheduling do
 
       changeset =
         if instructor_user_id do
+          start_at = get_field(changeset, :start_at) # utc time for instructor
+          end_at = get_field(changeset, :end_at) # utc time for instructor
           status =
             Availability.user_with_permission_status(
               :unavailability,
@@ -518,6 +526,8 @@ defmodule Flight.Scheduling do
 
       changeset =
         if aircraft_id do
+          start_at = get_field(changeset, :start_at) |> utc_to_walltime(school.timezone)
+          end_at = get_field(changeset, :end_at) |> utc_to_walltime(school.timezone)
           status =
             Availability.aircraft_status(
               :unavailability,

@@ -1,3 +1,11 @@
+<script>
+function getPlainDate(start_at) {
+  var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
+  var date = date_time.format('YYYY-MM-DD')
+  return date;
+}
+</script>
+
 <div class="panel-header">
   <div class="header text-center">
     <h2 class="title"><%= @invoice.title %></h2>
@@ -57,8 +65,21 @@
 
                       <tbody>
                         <tr>
-                          <td><%= display_walltime_date(@invoice.appointment.start_at, @user.school.timezone, :long) %></td>
-                          <td><%= display_walltime_time(@invoice.appointment.start_at, @user.school.timezone) %> - <%= display_walltime_time(@invoice.appointment.end_at, @user.school.timezone) %></td>
+                        <script>
+                          function getDate(start_at) {
+                            var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
+                            var date = new Date(date_time);
+                            date = date.toLocaleString('default', { month: 'long' })+ date_time.format(' DD, YYYY')
+                            return date;
+                          }
+                          function getLocalTime(dt) {
+                            var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+                            var time = date_time.format('hh:mmA')
+                            return time;
+                          }
+                          document.write('<td>'+getDate('<%=@invoice.appointment.start_at %>')+'</td>');
+                          document.write('<td>'+getLocalTime('<%=@invoice.appointment.start_at %>')+' - '+getLocalTime('<%=@invoice.appointment.end_at %>')+'</td>');
+                        </script>
                           <%= if @invoice.appointment.aircraft_id do %>
                             <td>
                               <%= if InvoicePolicy.can_see_link_to_profile?(@current_user) &&
@@ -186,11 +207,15 @@
                         <%= transaction.id %>
                       </a>
                     </td>
-                    <td><%= transaction.created %></td>
+                  <script> document.write(
+                  '<td class="text-nowrap">'+getPlainDate('<%= transaction.created %>')+'</td>'
+                  ); </script>
                     <td><%= currency(transaction.amount_due) %></td>
                     <td><%= currency(transaction.amount_paid) %></td>
                     <td><%= transaction.state %></td>
-                    <td><%= transaction.completed_at %></td>
+                  <script> document.write(
+                  '<td class="text-nowrap">'+getPlainDate('<%= transaction.completed_at %>')+'</td>'
+                  ); </script>
                     <td><%= transaction.payment_method %></td>
                   </tr>
                 <% end %>
@@ -202,7 +227,9 @@
                         <%= @invoice.bulk_transaction.id %>
                       </a>
                     </td>
-                    <td><%= @invoice.bulk_transaction.created %></td>
+                  <script> document.write(
+                  '<td>'+getPlainDate('<%= @invoice.bulk_transaction.created %>')+'</td>'
+                  ); </script>
                     <td><%= currency(@invoice.bulk_transaction.amount_due) %></td>
                     <td><%= currency(@invoice.bulk_transaction.amount_paid) %></td>
                     <td><%= @invoice.bulk_transaction.state %></td>

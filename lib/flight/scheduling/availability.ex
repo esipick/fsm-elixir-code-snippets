@@ -24,7 +24,6 @@ defmodule Flight.Scheduling.Availability do
   import Ecto.Query
   import Flight.Auth.Authorization
   import Flight.Auth.Permission, only: [permission_slug: 3]
-  import Flight.Walltime
   import Pipe
 
   @scopes [:all, :appointment, :unavailability]
@@ -112,7 +111,6 @@ defmodule Flight.Scheduling.Availability do
     role_slugs = role_slugs_for_permission_slug(permission_slug)
     roles = from(r in Role, where: r.slug in ^role_slugs) |> Repo.all()
     visible_users = Flight.Accounts.users_with_roles(roles, school_context, params)
-    timezone = SchoolScope.get_school(school_context).timezone
 
     appointment_unavailable_user_ids =
       if scope in [:all, :appointment] do
@@ -121,10 +119,7 @@ defmodule Flight.Scheduling.Availability do
         |> select_for_permission_slug(permission_slug)
         |> exclude_appointment_or_unavailability_query(excluded_appointment_ids)
         |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
-        |> overlap_query(
-          walltime_to_utc(start_at, timezone),
-          walltime_to_utc(end_at, timezone)
-        )
+        |> overlap_query(start_at, end_at)
         |> Repo.all()
         |> MapSet.new()
       else
@@ -138,10 +133,7 @@ defmodule Flight.Scheduling.Availability do
           |> SchoolScope.scope_query(school_context)
           |> select([a], a.instructor_user_id)
           |> exclude_appointment_or_unavailability_query(excluded_unavailability_ids)
-          |> overlap_query(
-            walltime_to_utc(start_at, timezone),
-            walltime_to_utc(end_at, timezone)
-          )
+          |> overlap_query(start_at, end_at)
           |> Repo.all()
           |> MapSet.new()
 
@@ -168,10 +160,7 @@ defmodule Flight.Scheduling.Availability do
                 [a],
                 a.instructor_user_id == ^instuctor_id
               )
-              |> overlap_query(
-                walltime_to_utc(start_at, timezone),
-                walltime_to_utc(end_at, timezone)
-              )
+              |> overlap_query(start_at, end_at)
               |> Repo.all()
               |> Enum.map(& &1.instructor_user_id)
               |> MapSet.new()
@@ -257,17 +246,12 @@ defmodule Flight.Scheduling.Availability do
       |> Repo.all()
       |> FlightWeb.API.AircraftView.preload()
 
-    timezone = SchoolScope.get_school(school_context).timezone
-
     appointment_unavailable_aircraft_ids =
       if scope in [:all, :appointment] do
         from(a in Appointment, where: a.archived == false)
         |> SchoolScope.scope_query(school_context)
         |> select([a], a.aircraft_id)
-        |> overlap_query(
-          walltime_to_utc(start_at, timezone),
-          walltime_to_utc(end_at, timezone)
-        )
+        |> overlap_query(start_at, end_at)
         |> exclude_appointment_or_unavailability_query(excluded_appointment_ids)
         |> Repo.all()
         |> MapSet.new()
@@ -280,10 +264,7 @@ defmodule Flight.Scheduling.Availability do
         Unavailability
         |> SchoolScope.scope_query(school_context)
         |> select([a], a.aircraft_id)
-        |> overlap_query(
-          walltime_to_utc(start_at, timezone),
-          walltime_to_utc(end_at, timezone)
-        )
+        |> overlap_query(start_at, end_at)
         |> exclude_appointment_or_unavailability_query(excluded_unavailability_ids)
         |> Repo.all()
         |> MapSet.new()

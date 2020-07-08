@@ -47,7 +47,7 @@ defmodule Flight.Scheduling.Appointment do
   end
 
   @doc false
-  def changeset(appointment, attrs, timezone) do
+  def changeset(appointment, attrs, _timezone) do
     appointment
     |> cast(attrs, [
       :start_at,
@@ -66,7 +66,6 @@ defmodule Flight.Scheduling.Appointment do
       :school_id,
       :type
     ])
-    |> apply_utc_timezone_changeset(timezone)
     |> validate_end_at_after_start_at
     |> validate_user_instructor_different
     |> validate_either_instructor_or_aircraft_set
