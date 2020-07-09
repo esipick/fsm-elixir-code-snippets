@@ -284,6 +284,7 @@ defmodule Flight.Scheduling do
 
   def apply_utc_timezone_if_aircraft(changeset, attrs, key, timezone) do
     case Map.get(attrs, key) do
+      nil -> changeset
       "" -> changeset
       _value ->
         changeset
