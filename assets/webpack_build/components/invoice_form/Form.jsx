@@ -184,7 +184,7 @@ class Form extends Component {
     if (appointment) {
       const { start_at, end_at, aircraft, instructor_user } = appointment;
 
-      const date = start_at.split("T")[0];
+      const date = moment.utc(start_at).add(+(moment().utcOffset()), 'm').format('YYYY-MM-DD')
       const start_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm').format('hh:mmA');
       const end_time = moment.utc(end_at).add(+(moment().utcOffset()), 'm').format('hh:mmA');
       const instructor =
@@ -377,7 +377,8 @@ class Form extends Component {
             return;
           }
           else{
-            if (pay_off && (typeof(this.state.appointment) == "undefined" || (this.state.appointment) && Date.now() < Date.parse(this.state.appointment.start_at))) {
+            var start_at = moment.utc(this.state.appointment.start_at).add(+(moment().utcOffset()), 'm').format().split("Z")[0];
+            if (pay_off && (typeof(this.state.appointment) == "undefined" || (this.state.appointment) && Date.now() < Date.parse(start_at))) {
               this.setState({error_date_alert_open: true});
               return;
             }
