@@ -26,8 +26,8 @@ defmodule Flight.Accounts.User do
     field(:medical_rating, :integer, default: 0)
     field(:medical_expires_at, Flight.Date)
     field(:certificate_number, :string)
-    field(:billing_rate, Flight.DollarCents, default: 0)
-    field(:pay_rate, Flight.DollarCents, default: 0)
+    field(:billing_rate, Flight.DollarCents, default: 100)
+    field(:pay_rate, Flight.DollarCents, default: 100)
     field(:awards, :string)
     field(:archived, :boolean, default: false)
     field(:stripe_customer_id, :string)
@@ -343,8 +343,8 @@ defmodule Flight.Accounts.User do
       Flight.Format.email_regex(),
       message: "must be in a valid format"
     )
-    |> validate_number(:billing_rate, greater_than_or_equal_to: 0)
-    |> validate_number(:pay_rate, greater_than_or_equal_to: 0)
+    |> validate_number(:billing_rate, greater_than_or_equal_to: 100)
+    |> validate_number(:pay_rate, greater_than_or_equal_to: 100)
     |> normalize_phone_number()
     |> Pipe.pass_unless(roles, &put_assoc(&1, :roles, roles))
     |> Pipe.pass_unless(aircrafts, &put_assoc(&1, :aircrafts, aircrafts))
