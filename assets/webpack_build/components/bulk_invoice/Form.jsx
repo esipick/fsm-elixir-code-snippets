@@ -102,8 +102,8 @@ class BulkInvoiceForm extends Component {
     this.setState({ saving: true });
 
     const { student, invoices, total_amount_due, payment_method } = this.state;
-    const invoice_ids = invoices.map(i => i.id);
 
+    const invoice_ids = invoices.filter(i => i.checked).map(i => i.id);
     const bulk_invoice = {
       user_id: student.id,
       total_amount_due,
@@ -142,7 +142,6 @@ class BulkInvoiceForm extends Component {
     }
 
     if (this.showBalanceWarning()) return;
-
     if (this.formRef.checkValidity()) {
       this.saveBulkInvoice();
     }
@@ -166,7 +165,7 @@ class BulkInvoiceForm extends Component {
       return i;
     });
     const total_amount_due = this.calculateTotal();
-    const all_invoices_selected = invoices.filter(i => i.checked).length > 0;
+    const all_invoices_selected = invoices.filter(i => i.checked).length == invoices.length;
 
     this.setState({ invoices, total_amount_due, all_invoices_selected });
   }
