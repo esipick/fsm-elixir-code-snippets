@@ -7,7 +7,7 @@ defenum(
   balance: 0,
   cc: 1,
   cash: 2,
-  check: 3,
+  cheque: 3,
   venmo: 4
 )
 

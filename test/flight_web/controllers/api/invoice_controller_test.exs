@@ -1542,7 +1542,7 @@ defmodule FlightWeb.API.InvoiceControllerTest do
       |> json_response(200)
 
     assert json == %{
-             "data" => [["balance", 0], ["cc", 1], ["cash", 2], ["check", 3], ["venmo", 4]]
+             "data" => [["balance", 0], ["cc", 1], ["cash", 2], ["cheque", 3], ["venmo", 4]]
            }
   end
 

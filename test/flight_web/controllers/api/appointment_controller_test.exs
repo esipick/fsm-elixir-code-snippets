@@ -271,7 +271,7 @@ defmodule FlightWeb.API.AppointmentControllerTest do
       {:ok, invoice} =
         Flight.Billing.CreateInvoiceFromAppointment.run(
           appointment.id,
-          %{"payment_option" => "check"},
+          %{"payment_option" => "cheque"},
           school_context
         )
 

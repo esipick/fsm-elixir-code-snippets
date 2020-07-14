@@ -67,6 +67,8 @@ defmodule Flight.Billing.Transaction do
   def get_paid_by_column(transaction) do
     payment_option = transaction.payment_option
     column_suffix = Map.get(%{cc: :charge}, payment_option, payment_option)
+    column_suffix =
+      if column_suffix == :cheque, do: :check, else: column_suffix
     String.to_atom("paid_by_#{column_suffix}")
   end
 

@@ -29,7 +29,7 @@ Body (JSON):
 |user_id|integer, required if payer_name is blank|id of student|
 |payer_name|string, required if user_id is blank|name of payer if invoice is for someone who is not in system|
 |date|iso string in utc time, required|invoice date|
-|payment_option|string, required|One of: "balance", "cc", "cash", "check", "venmo"|
+|payment_option|string, required|One of: "balance", "cc", "cash", "cheque", "venmo"|
 |total|integer, required|total amount of invoice *in cents*, before applying taxes. This is sum of line items `amount`|
 |total_tax|integer, required|`total` * `tax_rate`|
 |total_amount_due|integer, required|`total` + `total_tax`|
@@ -543,7 +543,7 @@ Example response:
     ["balance", 0],
     ["cc", 1],
     ["cash", 2],
-    ["check", 3],
+    ["cheque", 3],
     ["venmo", 4]
   ]
 }
