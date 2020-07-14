@@ -310,7 +310,7 @@ class BulkInvoiceForm extends Component {
                   <div><Error text={stripe_error} /></div>
                 </div>
 
-                <div className="form-group invoice-save-buttons">
+                <div  id="save_and_pay" className="form-group invoice-save-buttons">
                   <input id="pay"
                     className="btn btn-primary"
                     type="submit"
