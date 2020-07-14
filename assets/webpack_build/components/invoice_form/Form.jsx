@@ -377,8 +377,7 @@ class Form extends Component {
             return;
           }
           else{
-            var start_at = moment.utc(this.state.appointment.start_at).add(+(moment().utcOffset()), 'm').format().split("Z")[0];
-            if (pay_off && (typeof(this.state.appointment) == "undefined" || (this.state.appointment) && Date.now() < Date.parse(start_at))) {
+            if (pay_off && (typeof(this.state.appointment) == "undefined" || (this.state.appointment) && Date.now() < Date.parse(moment.utc(this.state.appointment.start_at).add(+(moment().utcOffset()), 'm').format().split("Z")[0]))) {
               this.setState({error_date_alert_open: true});
               return;
             }
