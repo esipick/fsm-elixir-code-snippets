@@ -506,6 +506,9 @@ $(document).ready(function () {
           if (appointment.aircraft) {
             aircraft_id = appointment.aircraft.id
           }
+          if( appointment.status == "paid") {
+            alert("This appointment has been successfully paid!");
+          }
 
           openAppointmentModal({
             start_at: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm'),

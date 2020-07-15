@@ -19,9 +19,15 @@ function getPlainDate(start_at) {
         <div class="card-header">
           <div class="text-right">
             <%= if can_modify_invoice?(@conn, @invoice) do %>
-              <a href="/billing/invoices/<%= @invoice.id %>/edit" class="btn btn-primary">
-                Edit
-              </a>
+              <%= if @invoice.status == :pending do %>
+                <a href="/billing/invoices/<%= @invoice.id %>/edit#save_and_pay" class="btn btn-primary">
+                  Save and Pay
+                </a>
+              <% else %>
+                <a href="/billing/invoices/<%= @invoice.id %>/edit" class="btn btn-primary">
+                  Edit
+                </a>
+              <%end %>
             <% end %>
 
             <%= if can_delete_invoice?(@conn, @invoice) do %>
