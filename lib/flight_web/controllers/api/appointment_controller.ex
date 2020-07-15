@@ -146,12 +146,12 @@ defmodule FlightWeb.API.AppointmentController do
     current_user = conn.assigns.current_user
     user_id_param = conn.params["data"] |> Optional.map(& &1["user_id"])
 
-    user_id =
+    {user_id, start_at} =
       with %Scheduling.Appointment{} = appointment <- conn.assigns[:appointment],
            true <- user_id_param == nil or appointment.owner_user_id != current_user.id do
-        appointment.user_id
+        {appointment.user_id, appointment.start_at}
       else
-        _ -> user_id_param
+        _ -> {user_id_param, nil}
       end
 
     instructor_id_param = conn.params["data"] |> Optional.map(& &1["instructor_user_id"])
@@ -184,15 +184,32 @@ defmodule FlightWeb.API.AppointmentController do
 
     cond do
       user_can?(current_user,
-        [Permission.new(:appointment_user, :modify, {:personal, user_id}),
-          instructor_permisssions,
+        [instructor_permisssions,
           owner_instructor_permisssions,
           Permission.new(:appointment, :modify, :all)]) ->
         conn
 
+      user_can?(current_user,
+        [Permission.new(:appointment_user, :modify, {:personal, user_id})]) -> #student
+          if (start_at == nil or NaiveDateTime.utc_now() < start_at) do
+            conn
+          else
+            render_bad_time_request(conn)
+          end
+
       true ->
         render_bad_request(conn)
     end
+  end
+
+  defp render_bad_time_request(
+         conn,
+         message \\ "You are not authorized to change this appointment after starting time. Please talk to your assigned Instructor, Dispatcher or school's Admin."
+       ) do
+    conn
+    |> put_status(401)
+    |> json(%{human_errors: [message]})
+    |> halt()
   end
 
   defp render_bad_request(
