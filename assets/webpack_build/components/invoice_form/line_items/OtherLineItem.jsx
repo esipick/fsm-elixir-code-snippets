@@ -112,7 +112,7 @@ class OtherLineItem extends Component {
         id, description, rate, quantity, deductible
       }
     } = this.state;
-    const { number, canRemove, errors, lineItemTypeOptions, editable, line_item: { amount } } = this.props;
+    const { number, canRemove, errors, lineItemTypeOptions, editable, staff_member, line_item: { amount } } = this.props;
     const descriptionOpt = lineItemTypeOptions.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
     const amountCss = classnames('lc-column', deductible ? 'deductible' : '');
@@ -138,7 +138,7 @@ class OtherLineItem extends Component {
         <td className="lc-column">
           <NumberFormat onValueChange={this.setRate}
             value={rate == null ? null : rate / 100 }
-            disabled={!editable}
+            disabled={!staff_member}
             {...rateOpts} />
           { errors.rate && <br /> }
           <Error text={errors.rate} />
