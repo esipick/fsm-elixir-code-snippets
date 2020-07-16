@@ -155,6 +155,7 @@ class AircraftLineItem extends Component {
     const { rate, quantity, amount } = this.props.line_item;
     const descriptionOpt = lineItemTypeOptions.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
+    const hobbsTachNotDisabledInputProps = Object.assign({}, NUMBER_PROPS, { disabled: false });
     const hobbsTachInputProps = Object.assign({}, NUMBER_PROPS, { disabled: !aircraft || !editable });
     const hobbsErr = (this.props.line_item.errors || {}).aircraft_details || {};
     const hobbsWrapperClass = (hobbsErr.hobbs_start || hobbsErr.hobbs_end) ? 'lc-row-with-error' : '';
@@ -194,7 +195,7 @@ class AircraftLineItem extends Component {
           </td>
           <td>
             <label>Hobbs End *</label>
-            <NumberFormat {...hobbsTachInputProps}
+            <NumberFormat {...hobbsTachNotDisabledInputProps}
               onValueChange={this.setHobbsEnd}
               value={hobbs_end / 10} />
             <Error text={hobbsErr.hobbs_end} className="hobbs-and-tach__error" />
@@ -227,7 +228,7 @@ class AircraftLineItem extends Component {
           </td>
           <td>
             <label>Tach End *</label>
-            <NumberFormat {...hobbsTachInputProps}
+            <NumberFormat {...hobbsTachNotDisabledInputProps}
               onValueChange={this.setTachEnd}
               value={tach_end / 10} />
             <Error text={hobbsErr.tach_end} className="hobbs-and-tach__error" />
