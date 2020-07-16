@@ -4,6 +4,41 @@ function getPlainDate(start_at) {
   var date = date_time.format('YYYY-MM-DD')
   return date;
 }
+function downloadCSV(csv, filename) {
+    var csvFile;
+    var downloadLink;
+    csvFile = new Blob([csv], {type: "text/csv"});
+    downloadLink = document.createElement("a");
+    downloadLink.download = filename;
+
+    // Create a link to the file
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+
+    // Hide download link
+    downloadLink.style.display = "none";
+
+    // Add the link to DOM
+    document.body.appendChild(downloadLink);
+
+    // Click download link
+    downloadLink.click();
+}
+function exportTableToCSV(filename) {
+    var csv = [];
+    var rows = document.querySelectorAll("table tr");
+
+    for (var i = 0; i < rows.length; i++) {
+        var row = [], cols = rows[i].querySelectorAll("td, th");
+
+        for (var j = 0; j < cols.length; j++)
+            row.push(cols[j].innerText);
+
+        csv.push(row.join(","));
+    }
+
+    // Download CSV file
+    downloadCSV(csv.join("\n"), filename);
+}
 </script>
 
 <div class="panel-header panel-header-sm">
@@ -67,6 +102,9 @@ function getPlainDate(start_at) {
 
       <%= if Enum.any?(@transactions) do %>
         <div class="card-body">
+          <div class="col-xs-12  pl-1 text-right">
+            <button class="btn btn-primary" onclick="exportTableToCSV('fsm_transactions.csv')"><i class="fa fa-download"></i>   CSV</button>
+          </div>
           <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
             <thead>
               <tr>
