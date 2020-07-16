@@ -616,7 +616,7 @@ class Form extends Component {
 
       <ErrorAlert open={this.state.error_date_alert_open}
           onAccept={this.closeErrorDateAlert}
-          text="Invoices cannot be paid before the starting time of appointment."
+          text="Invoice associated with aircraft cannot be paid before the starting time of appointment."
       />
       </div>
     );
