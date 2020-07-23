@@ -57,6 +57,7 @@
         <ul id="apptTabs" class="nav nav-pills nav-pills-primary" role="tablist">
           <li class="nav-item"><a id="navAppt" class="nav-link active" data-toggle="tab" href="#" role="tablist">Appointment</a></li>
           <li class="nav-item"><a id="navUnavail" class="nav-link" data-toggle="tab" href="#" role="tablist">Unavailability</a></li>
+          <li class="nav-item"><a id="navDemoAppt" class="nav-link" data-toggle="tab" href="#" role="tablist">Demo Flight</a></li>
         </ul>
         <div class="tab-content mt-2 mb-2">
 
@@ -187,6 +188,59 @@
             </div>
             -->
           </div>
+
+          <div class="tab-pane" id="demoAppointmentForm">
+            <div class="row"><label class="col-md-3 col-form-label">Start Time *</label>
+              <div class="col-md-9">
+                <div class="form-group"><input id="demoApptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value=""></div>
+              </div>
+            </div>
+            <div class="row"><label class="col-md-3 col-form-label">End Time *</label>
+              <div class="col-md-9">
+                <div class="form-group"><input id="demoApptEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div>
+              </div>
+            </div>
+            <div class="row"><label class="col-md-3 col-form-label">Name</label>
+              <div class="col-md-9">
+                <div class="form-group"><input id="demoApptCustomer" type="text" class="form-control" placeholder="Customer Name" value=""></div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Instructor *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="demoApptInstructor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
+                    <option value="">None</option>
+                    <%= for instructor <- @instructors do %>
+                      <option value="<%= instructor.id %>"><%= display_name(instructor) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Aircraft *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="demoApptAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Aircraft">
+                    <option value="">None</option>
+                    <%= for aircraft <- @aircrafts do %>
+                      <option value="<%= aircraft.id %>"><%= aircraft_display_name(aircraft, :short) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-3 col-form-label">Note</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <textarea id="demoApptNote" class="form-control"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
       <div class="modal-footer d-flex justify-content-between">
