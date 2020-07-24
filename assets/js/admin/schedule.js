@@ -10,6 +10,10 @@ function appointmentTitle(appointment) {
   return (appointment.demo) ? "Demo Flight" : userTitle(appointment.user) || userTitle(appointment.instructor_user);
 }
 
+function payerTitle(appointment) {
+  return (appointment.demo) ? appointment.payer_name : userTitle(appointment.user) || userTitle(appointment.instructor_user);
+}
+
 $(document).ready(function () {
 
   var AUTH_HEADERS = { "Authorization": window.fsm_token };
@@ -465,6 +469,7 @@ $(document).ready(function () {
     $('#demoApptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#demoApptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
     $('#demoApptNote').val(initialData.note);
+    $('#demoApptCustomer').val(initialData.payer_name);
 
     $('#calendarNewModal').modal();
   };
@@ -610,7 +615,7 @@ $(document).ready(function () {
             aircraft_id: aircraft_id,
             note: appointment.note,
             demo: appointment.demo,
-            payer_name: appointmentTitle(appointment),
+            payer_name: payerTitle(appointment),
             id: appointment.id
           })
         } else if (calEvent.appointment) {

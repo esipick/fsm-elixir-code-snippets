@@ -87,6 +87,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
       "appointment_id" => appointment.id,
       "user_id" => appointment.user_id,
       "payer_name" => payer_name_from(appointment),
+      "demo" => appointment.demo,
       "date" => NaiveDateTime.to_date(appointment.end_at),
       "payment_option" => Map.get(params, "payment_option", "balance"),
       "line_items" => line_items_from(appointment, params, current_user),
@@ -95,7 +96,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   end
 
   defp payer_name_from(appointment) do
-    Flight.Accounts.User.full_name(appointment.user || appointment.instructor_user)
+    if appointment.demo, do: appointment.payer_name, else: Flight.Accounts.User.full_name(appointment.user || appointment.instructor_user)
   end
 
   defp line_items_from(appointment, params, current_user) do

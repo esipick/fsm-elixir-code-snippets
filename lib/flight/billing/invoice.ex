@@ -29,6 +29,7 @@ defmodule Flight.Billing.Invoice do
     field(:status, InvoiceStatusEnum, default: :pending)
     field(:payment_option, InvoicePaymentOptionEnum)
     field(:payer_name, :string)
+    field(:demo, :boolean, default: false)
     field(:archived, :boolean, default: false)
     field(:is_visible, :boolean, default: false)
     field(:archived_at, :naive_datetime)
@@ -56,7 +57,7 @@ defmodule Flight.Billing.Invoice do
     invoice
     |> cast(attrs, @required_fields)
     |> cast(attrs, @payer_fields)
-    |> cast(attrs, [:aircraft_info, :appointment_id, :archived, :is_visible, :status, :appointment_updated_at])
+    |> cast(attrs, [:aircraft_info, :appointment_id, :archived, :is_visible, :status, :appointment_updated_at, :demo])
     |> cast_assoc(:line_items)
     |> assoc_constraint(:user)
     |> assoc_constraint(:school)

@@ -109,6 +109,7 @@ class LineItemsTable extends Component {
                 onRemove={this.removeLineItem} />
             ))
           }
+
           <tr>
             <td colSpan="7">
               <button className="btn btn-sm btn-default" onClick={this.addLineItem}>Add</button>
