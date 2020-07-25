@@ -217,6 +217,8 @@ defmodule FlightWeb.Router do
     resources("/rooms", RoomController)
 
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
+
+    post("/maintenance", MaintenanceController, :create)
   end
 
   ###
@@ -231,6 +233,15 @@ defmodule FlightWeb.Router do
     pipe_through(:api)
 
     post("/login", SessionController, :api_login)
+  end
+
+  scope "/api", FlightWeb.API do
+    pipe_through([:api, :api_authenticate])
+
+    post("/maintenance", MaintenanceController, :create)
+
+    post("/checklists", CheckListController, :create)
+    get("/checklists", CheckListController, :index)
   end
 
   scope "/api", FlightWeb.API do

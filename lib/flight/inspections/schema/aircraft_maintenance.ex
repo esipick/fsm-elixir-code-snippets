@@ -8,26 +8,39 @@ defmodule Flight.Inspections.AircraftMaintenance do
         AircraftMaintenance
     }
 
-    @primary_key false
-    schema "aircraft_maintenance" do
-        field(:aircraft_id, :id, primary_key: true)
-        field(:maintenance_id, :binary_id, primary_key: true)
+    @allowed_status ["pending", "completed"]
 
-        field(:tach_hours_diff, :integer, default: 0)
+    @primary_key {:id, :binary_id, autogenerate: true}
+    schema "aircraft_maintenance" do
+        field(:aircraft_id, :id, null: false)
+        field(:maintenance_id, :binary_id, null: false)
+
+        field(:start_tach_hours, :integer, default: 0) # at this tach time, the event is gonna start.
         field(:start_time, :naive_datetime, null: true)
         field(:end_time, :naive_datetime, null: true)
+
+        field(:status, :string, default: "pending")
 
         belongs_to(:aircraft, Aircraft, define_field: false, foreign_key: :aircraft_id)
         belongs_to(:maintenance, Maintenance, define_field: false, foreign_key: :maintenance_id)
 
-        timestamps()
+        timestamps([inserted_at: :created_at])
     end
 
-    defp required_fields(), do: ~w(aircraft_id maintenance_id)
+    defp required_fields(), do: ~w(aircraft_id maintenance_id)a
 
     def changeset(%AircraftMaintenance{} = changeset, params \\ %{}) do
         changeset
         |> cast(params, __MODULE__.__schema__(:fields))
         |> validate_required(required_fields())
+        |> normalize_status
+        |> validate_inclusion(:status, @allowed_status)
+        |> unique_constraint([:aircraft_id, :maintenance_id, :status], message: "Record already exists.")
     end
+
+    def normalize_status(%Ecto.Changeset{valid?: true, changes: %{status: status}}) do
+        status = status || "pending"
+        String.downcase(status)
+    end
+    def normalize_status(changeset), do: changeset
 end
