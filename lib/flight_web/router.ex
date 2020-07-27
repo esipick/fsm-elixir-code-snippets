@@ -219,6 +219,7 @@ defmodule FlightWeb.Router do
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
 
     post("/maintenance", MaintenanceController, :create)
+    get("/maintenance", MaintenanceController, :index)
   end
 
   ###
@@ -239,6 +240,10 @@ defmodule FlightWeb.Router do
     pipe_through([:api, :api_authenticate])
 
     post("/maintenance", MaintenanceController, :create)
+    post("/maintenance/addchecklist", MaintenanceController, :add_checklist)
+
+    get("/maintenance", MaintenanceController, :get)
+    get("/maintenance/:id", MaintenanceController, :show)
 
     post("/checklists", CheckListController, :create)
     get("/checklists", CheckListController, :index)

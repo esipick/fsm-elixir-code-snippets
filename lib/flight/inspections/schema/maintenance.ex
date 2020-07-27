@@ -18,7 +18,7 @@ defmodule Flight.Inspections.Maintenance do
         field(:tach_hours, :integer, default: 0) # the event will occur after this many tach hours
         field(:no_of_days, :integer, default: 0) # Or the event will occur in this many days
 
-        many_to_many(:checklists, CheckList, join_through: MaintenanceCheckList)
+        many_to_many(:checklists, CheckList, join_through: MaintenanceCheckList, join_keys: [maintenance_id: :id, checklist_id: :id])
         many_to_many(:aircrafts, Aircraft, join_through: AircraftMaintenance)
 
         timestamps([inserted_at: :created_at])
