@@ -12,5 +12,6 @@ defmodule Flight.Repo.Migrations.CreateChecklist do
 
       timestamps([inserted_at: :created_at, default: fragment("now()")])
     end
+    create unique_index(:checklist, :name)
   end
 end

@@ -86,22 +86,25 @@ defmodule Flight.Inspections do
 
     def create_checklist(school_id, params) do
         school = Accounts.get_school(school_id)
-        params = 
-            Enum.map(params, fn(item) -> 
-                CheckList.changeset(%CheckList{}, Map.put(item, "school_id", school_id)) 
+
+        Repo.transaction(fn -> 
+            Enum.reduce_while(params, [], fn(item, acc) -> 
+                %CheckList{}
+                |> CheckList.changeset(Map.put(item, "school_id", school_id))
+                |> Repo.insert
+                |> case do
+                    {:ok, changeset} -> 
+                        {:cont, [changeset | acc]}
+
+                    {:error, error} -> 
+                        {:halt, {:error, "#{Map.get(item, "name")} already exists in checklists."}}
+                    end
             end)
-
-        valid = Enum.all?(params, &(&1.valid?))
-
-        cond do
-            valid && school -> 
-                params = Enum.map(params, &(&1.changes))
-                {_, checklists} = Repo.insert_all(CheckList, params, [returning: true])
-                {:ok, checklists}
-
-            !valid -> {:error, "Name cannot be empty or null."}
-            true -> {:error, "School with id: #{school_id} not found."}
-        end
+            |> case do
+                {:error, error} -> Repo.rollback(error)
+                result -> result
+            end
+        end)
     end
 
     def add_checklists_to_maintenance(school_id, maintenance_id, checklists) do
@@ -145,23 +148,32 @@ defmodule Flight.Inspections do
             {:error, "Something wrong with alerts, Please check and try again."}
         end
     end
+    
+    def assign_maintenance_to_aircrafts_transaction(m_id, aircraft_hours) when is_map(aircraft_hours), do: assign_maintenance_to_aircrafts_transaction(m_id, [aircraft_hours])
+    def assign_maintenance_to_aircrafts_transaction(m_id, aircraft_hours) do
+        Repo.transaction(fn -> 
+            assign_maintenance_to_aircrafts(m_id, aircraft_hours)
+            |> case do
+                {:error, error} -> Repo.rollback(error)
+                {:ok, result} -> result
+            end
+        end)
+    end
 
-    defp assign_maintenance_to_aircrafts(maintenance_id, aircraft_hours) do
-        items = 
-            Enum.map(aircraft_hours, fn(item) -> 
-                AircraftMaintenance.changeset(%AircraftMaintenance{}, Map.put(item, "maintenance_id", maintenance_id)) 
-            end)
-        
-        valid = Enum.all?(items, &(&1.valid?))
-        
-        if valid do
-            items = Enum.map(items, &(&1.changes))
-            Repo.insert_all(AircraftMaintenance, items, conflict_target: [:aircraft_id, :maintenance_id, :status], on_conflict: :nothing)
-
-            {:ok, :done}
-
-        else
-            {:error, items}
-        end
+    defp assign_maintenance_to_aircrafts(m_id, aircraft_hours) do 
+        aircraft_hours
+        |> MapSet.new
+        |> MapSet.to_list
+        |> Enum.reduce_while({:ok, :done}, fn(item, _acc) -> 
+            %AircraftMaintenance{}
+            |> AircraftMaintenance.changeset(Map.put(item, "maintenance_id", m_id))
+            |> Repo.insert
+            |> case do
+                {:ok, _} -> {:cont, {:ok, :done}}
+                {:error, changeset} -> 
+                    error = Flight.Ecto.Errors.traverse(changeset)
+                    {:halt, {:error, error}}
+            end 
+        end)
     end
 end

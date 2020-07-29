@@ -27,6 +27,7 @@ defmodule Flight.Inspections.CheckList do
         changeset
         |> cast(params, __MODULE__.__schema__(:fields))
         |> validate_required(required_fields())
+        |> unique_constraint(:name, message: "A checklist with the same name already exists.")
         |> foreign_key_constraint(:school_id, name: :checklist_school_id_fkey, message: "No school found with id.")
     end
 end

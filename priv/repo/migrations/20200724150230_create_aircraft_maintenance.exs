@@ -17,6 +17,6 @@ defmodule Flight.Repo.Migrations.CreateAircraftMaintenance do
       timestamps([inserted_at: :created_at, default: fragment("now()")])
     end
 
-    create unique_index(:aircraft_maintenance, [:aircraft_id, :maintenance_id, :status])
+    create unique_index(:aircraft_maintenance, [:aircraft_id, :maintenance_id])
   end
 end

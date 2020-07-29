@@ -24,6 +24,15 @@ defmodule FlightWeb.API.MaintenanceController do
         {:error, error} -> json(conn, %{human_errors: [error]})
       end
     end
+  
+    def assign_aircrafts(conn, %{"maintenance_id" => m_id, "aircrafts" => aircrafts} = params) do
+      with  {:ok, :done} <- Inspections.assign_maintenance_to_aircrafts_transaction(m_id, aircrafts) do
+        json(conn, %{"result" => "success"})
+
+      else
+        {:error, error} -> json(conn, %{human_errors: [error]})
+      end
+    end
 
     def get(conn, params) do
       # get by 

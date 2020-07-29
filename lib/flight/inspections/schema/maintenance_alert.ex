@@ -11,8 +11,10 @@ defmodule Flight.Inspections.MaintenanceAlert do
 
     @primary_key {:id, :binary_id, autogenerate: true}
     schema "maintenance_alerts" do
-        field(:name, :string, null: false)
-        field(:description, :string, null: true)
+        field(:name, :string, null: true)
+        field(:description, :string, null: false)
+
+        field(:send_alert_percentage, :integer, default: 0)
 
         field(:send_to_roles, {:array, :string}, null: false)
 
@@ -22,7 +24,7 @@ defmodule Flight.Inspections.MaintenanceAlert do
         timestamps([inserted_at: :created_at])
     end
 
-    defp required_fields(), do: ~w(name send_to_roles maintenance_id)a
+    defp required_fields(), do: ~w(description send_to_roles maintenance_id)a
 
     def changeset(%MaintenanceAlert{} = changeset, params \\ %{}) do
         changeset

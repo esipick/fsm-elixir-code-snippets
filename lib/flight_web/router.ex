@@ -240,7 +240,8 @@ defmodule FlightWeb.Router do
     pipe_through([:api, :api_authenticate])
 
     post("/maintenance", MaintenanceController, :create)
-    post("/maintenance/addchecklist", MaintenanceController, :add_checklist)
+    post("/maintenance/add_checklist", MaintenanceController, :add_checklist)
+    post("/maintenance/assign_aircrafts", MaintenanceController, :assign_aircrafts)
 
     get("/maintenance", MaintenanceController, :get)
     get("/maintenance/:id", MaintenanceController, :show)

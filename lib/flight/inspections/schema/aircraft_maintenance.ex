@@ -35,7 +35,8 @@ defmodule Flight.Inspections.AircraftMaintenance do
         |> validate_required(required_fields())
         |> normalize_status
         |> validate_inclusion(:status, @allowed_status)
-        |> unique_constraint([:aircraft_id, :maintenance_id, :status], message: "Record already exists.")
+        |> unique_constraint([:aircraft_id, :maintenance_id], message: "Aircraft already assigned.")
+        |> foreign_key_constraint(:aircraft_id, name: :aircraft_maintenance_aircraft_id_fkey, message: "No aircraft with id: #{inspect Map.get(params, "aircraft_id")} found.")
     end
 
     def normalize_status(%Ecto.Changeset{valid?: true, changes: %{status: status}}) do

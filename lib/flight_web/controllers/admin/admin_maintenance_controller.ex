@@ -3,6 +3,8 @@ defmodule FlightWeb.Admin.MaintenanceController do
 
     def index(conn, _params) do
         # render a page here.
+
+        # render("index.html", %{})
     end
 
     def create(conn, %{"checklist_ids" => checklist_ids, "aircraft_hours" => aircraft_hours} = params) do
