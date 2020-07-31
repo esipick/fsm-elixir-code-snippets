@@ -14,6 +14,8 @@ defmodule Flight.Repo.Migrations.CreateMaintenance do
       add :ref_start_date, :naive_datetime, null: true # if maintenance is on calander months based, it will be the reference date. 
       add :due_date, :naive_datetime, null: true
 
+      add(:school_id, references(:schools, type: :id, on_delete: :delete_all))
+
       timestamps([inserted_at: :created_at, default: fragment("now()")])
     end
 

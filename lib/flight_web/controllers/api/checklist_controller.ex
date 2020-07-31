@@ -2,6 +2,7 @@ defmodule FlightWeb.API.CheckListController do
     use FlightWeb, :controller
 
     alias Flight.Inspections
+    alias Flight.Ecto.Errors
 
     def index(conn, params) do
         page = Map.get(params, "page")
@@ -16,7 +17,7 @@ defmodule FlightWeb.API.CheckListController do
         
         filter = nil
 
-        checklists = Inspections.get_all_checklists(nil, nil, sort_field, sort_order, filter)
+        checklists = Inspections.get_all_checklists(page, per_page, sort_field, sort_order, filter)
         render(conn, "show.json", checklists: checklists)
     end
 
@@ -29,5 +30,21 @@ defmodule FlightWeb.API.CheckListController do
         else
             {:error, error} -> json(conn, %{ human_errors: [error]})
         end
+    end
+
+    def delete(conn, %{"id" => id}) do
+        with {:ok, changeset} <- Inspections.delete_checklist(id) do
+            json(conn, %{"result" => "success"})
+        else
+            {:error, changeset} ->
+                error = Errors.traverse(changeset) 
+                json(conn, %{human_errors: [error]})
+        end
+    end
+
+    def delete_checklist_from_maintenance(conn, %{"maintenance_id" => m_id, "checklist_ids" => checklist_ids}) do
+        {:ok, :done} = Inspections.delete_checklist_from_maintenance(m_id, checklist_ids)
+
+        json(conn, %{"result" => "success"})
     end
 end

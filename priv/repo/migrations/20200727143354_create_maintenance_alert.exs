@@ -10,6 +10,7 @@ defmodule Flight.Repo.Migrations.CreateMaintenanceAlert do
         add(:send_to_roles, {:array, :string}, null: false)
 
         add(:maintenance_id, references(:maintenance, type: :binary_id, on_delete: :delete_all))
+        add(:school_id, references(:schools, type: :id, on_delete: :delete_all))
 
         timestamps([inserted_at: :created_at, default: fragment("now()")])
       end

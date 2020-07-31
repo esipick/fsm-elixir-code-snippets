@@ -3,6 +3,8 @@ defmodule Flight.Inspections.Maintenance do
     import Ecto.Changeset
 
     alias Flight.Scheduling.Aircraft
+    alias Flight.Accounts.School
+
     alias Flight.Inspections.{
         CheckList,
         Maintenance,
@@ -21,13 +23,16 @@ defmodule Flight.Inspections.Maintenance do
         field(:ref_start_date, :naive_datetime, null: true) # ref date to start counting no_of_months to the maintenance.
         field(:due_date, :naive_datetime, null: true)
 
+        field(:school_id, :id, null: false)
+
+        belongs_to(:school, School, define_field: false, foreign_key: :school_id)
         many_to_many(:checklists, CheckList, join_through: MaintenanceCheckList, join_keys: [maintenance_id: :id, checklist_id: :id])
         many_to_many(:aircrafts, Aircraft, join_through: AircraftMaintenance)
 
         timestamps([inserted_at: :created_at])
     end
 
-    def required_fields(), do: ~w(name)a
+    def required_fields(), do: ~w(name school_id)a
 
     def changeset(%Maintenance{} = changeset, params \\ %{}) do
         changeset

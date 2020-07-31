@@ -1,7 +1,7 @@
 defmodule Flight.Utils do
     @secs_in_a_day 86000
 
-    def add_months(%NaiveDateTime{day: day} = date, no_of_months) do
+    def add_months(%NaiveDateTime{} = date, no_of_months) do
         total_days = no_of_days_by_adding_months(date, no_of_months)
         due_date = NaiveDateTime.add(date, total_days * @secs_in_a_day)
         

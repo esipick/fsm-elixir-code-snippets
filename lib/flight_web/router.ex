@@ -245,9 +245,16 @@ defmodule FlightWeb.Router do
 
     get("/maintenance", MaintenanceController, :get)
     get("/maintenance/:id", MaintenanceController, :show)
+    delete("/maintenance/:id", MaintenanceController, :delete)
+
+    get("aircrafts/:id/maintenance", MaintenanceController, :aircraft_maintenance)
+    delete("aircrafts/maintenance", MaintenanceController, :remove_aircrafts_from_maintenance)
 
     post("/checklists", CheckListController, :create)
     get("/checklists", CheckListController, :index)
+
+    delete("/checklists/", CheckListController, :delete)
+    delete("/checklists/maintenance", CheckListController, :delete_checklist_from_maintenance)
   end
 
   scope "/api", FlightWeb.API do

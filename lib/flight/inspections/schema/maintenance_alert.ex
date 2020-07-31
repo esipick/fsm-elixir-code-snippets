@@ -2,6 +2,7 @@ defmodule Flight.Inspections.MaintenanceAlert do
     use Ecto.Schema
     import Ecto.Changeset
 
+    alias Flight.Accounts.School
     alias Flight.Inspections.{
         Maintenance,
         MaintenanceAlert
@@ -20,6 +21,9 @@ defmodule Flight.Inspections.MaintenanceAlert do
 
         field(:maintenance_id, :binary_id, null: false)
         belongs_to(:maintenance, Maintenance, define_field: false, foreign_key: :maintenance_id)
+
+        field(:school_id, :id, null: false)
+        belongs_to(:school, School, define_field: false, foreign_key: :school_id)
 
         timestamps([inserted_at: :created_at])
     end

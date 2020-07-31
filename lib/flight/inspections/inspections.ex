@@ -1,7 +1,7 @@
 defmodule Flight.Inspections do
     alias Flight.Repo
 
-    alias Flight.Accounts
+    alias Flight.Scheduling.Aircraft
     alias Flight.Inspections.{
         Queries,
         CheckList,
@@ -11,18 +11,34 @@ defmodule Flight.Inspections do
         MaintenanceCheckList
     }
 
-    def get_all_maintenance(sort_field, sort_order, filter) do
-        {:ok, []}
+    def get_all_maintenance(page, per_page, sort_field, sort_order, filter) do
+        Queries.get_all_maintenance_query(page, per_page, sort_field, sort_order, filter)
+        |> Repo.all
+    end
+
+    def get_aircraft_maintenance(aircraft_id, sort_field, sort_order, filter) do
+        Repo.get(Aircraft, aircraft_id)
+        |> case do
+            %{id: id} ->
+                filter = Map.put(filter, :aircraft_id, id)
+
+                {:ok, Repo.all(Queries.get_aircraft_maintenance(sort_field, sort_order, filter))}
+
+            _ -> {:error, "Aircraft with id: #{aircraft_id} not found."}
+        end
     end
 
     def get_maintenance_assoc(id) do
-        with {:ok, changeset} <- get_maintenance(id) do
+        with {:ok, changeset} <- get_maintenance(%{id: id}) do
             {:ok, Repo.preload(changeset, :checklists)}
         end
     end
 
-    def get_maintenance(id) do
-        Repo.get(Maintenance, id)
+    def get_maintenance(filter) do
+        filter
+        |> Queries.get_maintenance_query
+        |> Ecto.Query.first
+        |> Repo.get_by([])
         |> case do
             nil -> {:error, "Maintenance Not found"}
             item -> {:ok, item}
@@ -55,15 +71,15 @@ defmodule Flight.Inspections do
     end
 
     def update_maintenance(id, params) do
-        with {:ok, maintenance} <- get_maintenance(id) do
+        with {:ok, maintenance} <- get_maintenance(%{id: id}) do
             maintenance
             |> Maintenance.changeset(params)
             |> Repo.update
         end
     end
 
-    def delete_maintenance(id) do
-        with {:ok, maintenance} <- get_maintenance(id) do
+    def delete_maintenance(id, school_id) do
+        with {:ok, maintenance} <- get_maintenance(%{id: id, school_id: school_id}) do
             Repo.delete(maintenance)
         end
     end 
@@ -73,10 +89,9 @@ defmodule Flight.Inspections do
     '''
 
     def get_all_checklists(page, per_page, sort_field, sort_order, filter) do
-        checklists = 
-            Queries.get_all_checklists_query(page, per_page, sort_field, sort_order, filter)
-            |> Repo.all
-            |> Enum.map(&(Map.take(&1, CheckList.__schema__(:fields))))
+        Queries.get_all_checklists_query(page, per_page, sort_field, sort_order, filter)
+        |> Repo.all
+        |> Enum.map(&(Map.take(&1, CheckList.__schema__(:fields))))
     end
 
     def create_checklist(_school_id, []), do: {:ok, []}
@@ -85,7 +100,7 @@ defmodule Flight.Inspections do
     end
 
     def create_checklist(school_id, params) do
-        school = Accounts.get_school(school_id)
+        # school = Accounts.get_school(school_id)
 
         Repo.transaction(fn -> 
             Enum.reduce_while(params, [], fn(item, acc) -> 
@@ -96,7 +111,7 @@ defmodule Flight.Inspections do
                     {:ok, changeset} -> 
                         {:cont, [changeset | acc]}
 
-                    {:error, error} -> 
+                    {:error, _error} -> 
                         {:halt, {:error, "#{Map.get(item, "name")} already exists in checklists."}}
                     end
             end)
@@ -126,12 +141,29 @@ defmodule Flight.Inspections do
         {:ok, :done}
     end
 
+    def delete_checklist(id) do
+        with %{id: _} = changeset <- Repo.get(CheckList, id) do
+            Repo.delete(changeset)
+
+        else
+            nil -> {:error, "Checklist with id: #{id} not found."}
+        end
+    end
+
+    def delete_checklist_from_maintenance(_m_id, []), do: {:ok, :done}
+    def delete_checklist_from_maintenance(m_id, checklist_ids) do
+        Queries.delete_checklist_from_maintenance_query(m_id, checklist_ids)
+        |> Repo.delete_all(checklist_ids)
+
+        {:ok, :done}
+    end
+
     '''
         Maintenance Alerts
     '''
 
     def add_alerts_to_maintenance(_maintenance_id, []), do: {:ok, :done}
-    def add_alerts_to_maintenance(%{id: id} = maintenance, alerts) do
+    def add_alerts_to_maintenance(%{id: id} = _maintenance, alerts) do
         params = 
             Enum.map(alerts, fn(item) -> 
                 MaintenanceAlert.changeset(%MaintenanceAlert{}, Map.put(item, "maintenance_id", id)) 
@@ -148,7 +180,15 @@ defmodule Flight.Inspections do
             {:error, "Something wrong with alerts, Please check and try again."}
         end
     end
-    
+
+    def remove_aircrafts_from_maintenance(_maintenance_id, []), do: {:ok, :done}
+    def remove_aircrafts_from_maintenance(maintenance_id, aircraft_ids) do
+        Queries.delete_aircrafts_from_maintenance_query(maintenance_id, aircraft_ids)
+        |> Repo.delete_all(aircraft_ids)
+
+        {:ok, :done}
+    end
+
     def assign_maintenance_to_aircrafts_transaction(m_id, aircraft_hours) when is_map(aircraft_hours), do: assign_maintenance_to_aircrafts_transaction(m_id, [aircraft_hours])
     def assign_maintenance_to_aircrafts_transaction(m_id, aircraft_hours) do
         Repo.transaction(fn -> 
