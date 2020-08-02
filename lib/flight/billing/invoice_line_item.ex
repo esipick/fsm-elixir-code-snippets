@@ -43,6 +43,9 @@ defmodule Flight.Billing.InvoiceLineItem do
 
   @doc false
   def changeset(%InvoiceLineItem{} = invoice_line_item, raw_attrs) do
+    rate = Map.get(raw_attrs, "rate") || 0
+    raw_attrs = Map.put(raw_attrs, "rate", round(rate))
+
     attrs = atomize_shallow(raw_attrs) |> coerce_hobbs_tach_time()
 
     invoice_line_item

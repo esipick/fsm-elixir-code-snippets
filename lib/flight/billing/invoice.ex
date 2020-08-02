@@ -55,7 +55,7 @@ defmodule Flight.Billing.Invoice do
     |> cast(attrs, @required_fields)
     |> cast(attrs, @payer_fields)
     |> cast(attrs, [:appointment_id, :archived, :is_visible, :status, :appointment_updated_at])
-    |> cast_assoc(:line_items)
+    |> cast_assoc(:line_items, with: &InvoiceLineItem.changeset/2)
     |> assoc_constraint(:user)
     |> assoc_constraint(:school)
     |> validate_required(@required_fields)
