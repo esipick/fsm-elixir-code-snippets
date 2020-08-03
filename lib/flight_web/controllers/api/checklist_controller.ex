@@ -21,6 +21,10 @@ defmodule FlightWeb.API.CheckListController do
         render(conn, "show.json", checklists: checklists)
     end
 
+    def categories(conn, _params) do
+        json(conn, %{"result" => Inspections.get_checklist_categories()})
+    end
+
     def create(conn, %{"_json" => params}), do: create(conn, params)    
     def create(%{assigns: %{current_user: %{school_id: school_id}}} = conn, params) do
 

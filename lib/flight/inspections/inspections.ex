@@ -2,6 +2,7 @@ defmodule Flight.Inspections do
     alias Flight.Repo
 
     alias Flight.Scheduling.Aircraft
+    alias Flight.Ecto.Errors
     alias Flight.Inspections.{
         Queries,
         CheckList,
@@ -94,6 +95,10 @@ defmodule Flight.Inspections do
         |> Enum.map(&(Map.take(&1, CheckList.__schema__(:fields))))
     end
 
+    def get_checklist_categories() do
+        CheckList.categories()
+    end
+
     def create_checklist(_school_id, []), do: {:ok, []}
     def create_checklist(school_id, params) when is_map(params) do
         create_checklist(school_id, [params])
@@ -111,8 +116,8 @@ defmodule Flight.Inspections do
                     {:ok, changeset} -> 
                         {:cont, [changeset | acc]}
 
-                    {:error, _error} -> 
-                        {:halt, {:error, "#{Map.get(item, "name")} already exists in checklists."}}
+                    {:error, error} ->
+                        {:halt, {:error, "#{Map.get(item, "name")} #{Errors.traverse(error)}"}}
                     end
             end)
             |> case do

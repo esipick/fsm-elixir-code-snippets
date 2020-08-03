@@ -2,7 +2,7 @@ defmodule FlightWeb.API.CheckListView do
     use FlightWeb, :view
   
     def render("show.json", %{checklists: checklist}) when is_map(checklist) do
-        Map.take(checklist, [:id, :school_id, :name, :description, :created_at, :updated_at])
+        Map.take(checklist, [:id, :school_id, :name, :description, :category, :created_at, :updated_at])
     end
 
     def render("show.json", %{checklists: checklist}) when is_list(checklist) do 

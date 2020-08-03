@@ -8,6 +8,8 @@ defmodule Flight.Repo.Migrations.CreateChecklist do
       add(:name, :string, null: false)
       add(:description, :string, null: true)
 
+      add(:category, :string, default: "others")
+
       add(:school_id, references(:schools, type: :id, on_delete: :delete_all))
 
       timestamps([inserted_at: :created_at, default: fragment("now()")])

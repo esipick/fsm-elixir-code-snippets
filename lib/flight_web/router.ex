@@ -252,6 +252,7 @@ defmodule FlightWeb.Router do
 
     post("/checklists", CheckListController, :create)
     get("/checklists", CheckListController, :index)
+    get("/checklists/categories", CheckListController, :categories)
 
     delete("/checklists/", CheckListController, :delete)
     delete("/checklists/maintenance", CheckListController, :delete_checklist_from_maintenance)
