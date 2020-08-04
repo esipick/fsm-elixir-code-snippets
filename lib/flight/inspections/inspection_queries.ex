@@ -1,6 +1,7 @@
 defmodule Flight.Inspections.Queries do
     import Ecto.Query, warn: false
 
+    alias Flight.Utils
     alias Flight.Scheduling.Aircraft
     alias Flight.Inspections.{
         CheckList,
@@ -164,20 +165,56 @@ defmodule Flight.Inspections.Queries do
                     from [_, am, _] in query,
                         where: am.status == ^value
                 
-                :proximity -> # can be 0, 5, 10, 20
-                    perc = value / 100
-                    from [m, am, a] in query,
+                :urgency -> # #can only be applied when status is pending, [extream, high, normal, low, lowest]
+                    perc = 
+                        case value do
+                            "extream" -> 0
+                            "high" -> 0.05
+                            "normal" -> 0.10
+                            "low" -> 0.20
+                            _ -> 1.0
+                        end
+                    
+                    if value == "lowest" do
+                        # greater than or equal to 21 %
+                        perc = 0.21
+                        from [m, am, a] in query,
+                        where: (m.tach_hours > 0 and fragment("((?+?-?)::float/?::float)>=?", m.tach_hours, am.start_tach_hours, a.last_tach_time, m.tach_hours, ^perc)) or
+                                (not is_nil(m.due_date) and not is_nil(m.ref_start_date) and 
+                                fragment("(DATE_PART('day',?::timestamp-now()::timestamp)/DATE_PART('day',?::timestamp-?::timestamp))>=?", m.due_date, m.due_date, m.ref_start_date, ^perc))
+
+                    else
+                        from [m, am, a] in query,
                         where: (m.tach_hours > 0 and fragment("((?+?-?)::float/?::float)<=?", m.tach_hours, am.start_tach_hours, a.last_tach_time, m.tach_hours, ^perc)) or
                                 (not is_nil(m.due_date) and not is_nil(m.ref_start_date) and 
                                 fragment("(DATE_PART('day',?::timestamp-now()::timestamp)/DATE_PART('day',?::timestamp-?::timestamp))<=?", m.due_date, m.due_date, m.ref_start_date, ^perc))
-
-                :remaining_tach -> 
-                    from [m, am, a] in query,
-                        where: (m.tach_hours + am.start_tach_hours - a.last_tach_time) == ^value
-
-                :remaining_days -> 
-                    from [m, am, a] in query,
-                        where: not is_nil(m.due_date) and fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", m.due_date) == ^value
+                    end
+                :occurance ->
+                    now = NaiveDateTime.utc_now()
+                    # can be any_time, past_week, past_month, past_year, current_week, current_month, current_year. "1596561995-1596562995"
+                    {start_date, end_date} =
+                        case value do
+                            "past_week" -> {Utils.beginning_of_last_week(), Utils.end_of_last_week()}
+                            "past_month" -> {Utils.beginning_of_last_month(), Utils.end_of_last_month()}
+                            "past_year" -> {Utils.beginning_of_last_year(), Utils.end_of_last_year()}
+                            "current_week" -> {Timex.beginning_of_week(now), Timex.end_of_week(now)}
+                            "current_month" -> {Timex.beginning_of_month(now), Timex.end_of_month(now)}
+                            "current_year" -> {Timex.beginning_of_year(now), Timex.end_of_year(now)}
+                            "any_time" -> {nil, nil}
+                            _ -> Utils.date_range_from_str(value) 
+                        end
+                    
+                    status = Map.get(filter, :status) || "pending"
+                    cond do
+                        status == "pending" && start_date ->
+                            from [m, _, _] in  query,
+                                where: m.due_date >= ^start_date and m.due_date <= ^end_date
+                        status == "completed" && start_date ->
+                            from [_m, am, _] in  query,
+                                where: am.end_time >= ^start_date and am.end_time <= ^end_date 
+                        true ->
+                            query   
+                    end                    
 
                 :maintenance_name ->
                     from [m, _, _a] in query,

@@ -79,7 +79,7 @@ defmodule FlightWeb.API.MaintenanceController do
     def delete(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => id}) do
       with {:ok, changeset} <- Inspections.delete_maintenance(id, school_id) do
         json(conn, %{"result" => "success"})
-        
+
       else
         {:error, changeset} ->
             error = Errors.traverse(changeset) 
@@ -109,14 +109,13 @@ defmodule FlightWeb.API.MaintenanceController do
         
         cond do
           String.downcase(key) =="status" ->
-              Integer.parse(value)
-              |> case do
-                {value, _} -> Map.put(filter, :proximity, value)
-                _ -> filter
-              end
+              Map.put(filter, :status, value)
 
-          String.downcase(key) == "maintenance_name" ->
-            Map.put(filter, :maintenance_name, value)  
+          String.downcase(key) == "urgency" -> #can only be applied when status is pending, [extream, high, normal, low, lowest]
+              Map.put(filter, :urgency, value)
+
+          String.downcase(key) == "occurance" -> # can be any_time, past_week, past_month, past_year, current_week, current_month, current_year. "2001-01-01-2002-07-01"
+            Map.put(filter, :occurance, value)  
 
           String.downcase(key) == "aircraft_name" ->
             Map.put(filter, :aircraft_name, value)  
@@ -124,19 +123,6 @@ defmodule FlightWeb.API.MaintenanceController do
           String.downcase(key) == "aircraft_id" ->
               Map.put(filter, :aircraft_id, value)
 
-          String.downcase(key) == "event_date" ->
-            # could be, any_time, past_week, past_month, past_year, upcoming_weak, upcoming_month, upcoming_year
-            Map.put(filter, :remaining_days, value)
-
-          String.downcase(key) == "remaining_tach" ->
-              Integer.parse(value)
-              |> case do
-                {value, _} -> Map.put(filter, :remaining_tach, value)
-                _ -> filter
-              end
-          
-          String.downcase(key) == "remaining_days" ->
-              Map.put(filter, :remaining_days, value)
           true -> filter
         end 
       end)
