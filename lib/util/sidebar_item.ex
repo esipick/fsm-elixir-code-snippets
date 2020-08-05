@@ -49,6 +49,12 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
+        path: "/admin/maintenance",
+        label: "Maintenance",
+        icon_class: "objects_spaceship",
+        active: false
+      },
+      %SidebarItem{
         path: "/admin/aircrafts",
         label: "Assets",
         icon_class: "objects_spaceship",

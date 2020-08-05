@@ -3,6 +3,11 @@ defmodule Flight.Scheduling.Aircraft do
   import Ecto.Changeset
   import ValidationUtil
 
+  alias Flight.Inspections.{
+    Maintenance,
+    AircraftMaintenance
+  }
+
   schema "aircrafts" do
     field(:ifr_certified, :boolean, default: false)
     field(:last_tach_time, Flight.HourTenth, default: 0)
@@ -19,6 +24,8 @@ defmodule Flight.Scheduling.Aircraft do
     field(:archived, :boolean, default: false)
     belongs_to(:school, Flight.Accounts.School)
     has_many(:inspections, Flight.Scheduling.Inspection)
+
+    many_to_many(:maintenance, Maintenance, join_through: AircraftMaintenance)
 
     timestamps()
   end
