@@ -132,12 +132,46 @@ defmodule Flight.Billing.CalculateInvoice do
   defp validate_aircraft_item(line_item, detailed_params) do
     changeset = DetailedTransactionForm.changeset(%DetailedTransactionForm{}, detailed_params)
 
-    case Ecto.Changeset.apply_action(changeset, :insert) do
-      {:ok, _} ->
+    {line_item, should_validate} = 
+      with {:ok, appointment} <- Flight.Scheduling.get_appointment_dangrous(Map.get(detailed_params, :appointment_id)) do
+          fix_aircraft_hours(appointment, line_item)
+      else
+        _ -> {line_item, true}        
+      end
+    
+    with true <- should_validate,
+      {:ok, _} <- Ecto.Changeset.apply_action(changeset, :insert) do
         line_item
-
+    
+    else
       {:error, errors} ->
         Map.merge(line_item, %{"errors" => ViewHelpers.translate_errors(errors)})
+
+      _ -> line_item
     end
+  end
+
+  defp fix_aircraft_hours(appointment, aircraft) do
+      aircraft = 
+          if appointment.start_tach_time, do: Map.put(aircraft, "tach_start", appointment.start_tach_time), else: aircraft
+        
+        aircraft = 
+          if appointment.end_tach_time do
+              Map.put(aircraft, "tach_end", appointment.end_tach_time)
+          else 
+            aircraft
+          end
+
+        aircraft = 
+          if appointment.start_hobbs_time, do: Map.put(aircraft, "hobbs_start", appointment.start_hobbs_time), else: aircraft
+        
+        aircraft = 
+          if appointment.end_hobbs_time do
+              Map.put(aircraft, "hobbs_end", appointment.end_hobbs_time) 
+          else
+              aircraft
+          end
+
+        {aircraft, appointment.end_hobbs_time == nil} # if hobbs time is nil, it means its a new invoice and then validate it
   end
 end

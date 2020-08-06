@@ -2,6 +2,7 @@ defmodule Flight.Billing.UpdateInvoice do
   alias Flight.Repo
   alias Flight.Billing.{Invoice, CreateInvoice, LineItemCreator}
   alias Flight.Scheduling.Aircraft
+  alias Flight.Billing.Services.Utils
 
   def run(invoice, invoice_params, school_context) do
     pay_off = Map.get(school_context.params, "pay_off", false)
@@ -10,7 +11,10 @@ defmodule Flight.Billing.UpdateInvoice do
     result =
       case update_invoice(invoice, invoice_attrs(invoice_params, current_user)) do
         {:ok, invoice} ->
-          update_aircraft(invoice)
+          # update_aircraft(invoice)
+          if invoice.appointment_id != nil do
+            Utils.update_aircraft(invoice)
+          end
 
           if pay_off == true do
             CreateInvoice.pay(invoice, school_context)
@@ -43,6 +47,7 @@ defmodule Flight.Billing.UpdateInvoice do
 
   defp update_aircraft(invoice) do
     line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
+    IO.inspect("Don't update tach times if its already updated on line number 46 update_invoice.")
 
     if line_item && line_item.hobbs_end && line_item.tach_end do
       aircraft = Repo.get(Aircraft, line_item.aircraft_id)

@@ -89,6 +89,10 @@ defmodule FlightWeb.API.AppointmentView do
           &render(FlightWeb.API.UserView, "skinny_user.json", user: &1)
         ),
       owner_user_id: appointment.owner_user_id,
+      start_tach_time: Map.get(appointment, :start_tach_time),
+      end_tach_time: Map.get(appointment, :end_tach_time),
+      start_hobbs_time: Map.get(appointment, :start_hobbs_time),
+      end_hobbs_time: Map.get(appointment, :end_hobbs_time),
       aircraft:
         Optional.map(
           appointment.aircraft,

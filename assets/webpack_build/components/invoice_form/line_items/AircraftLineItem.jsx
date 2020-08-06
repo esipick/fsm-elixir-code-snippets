@@ -28,8 +28,9 @@ class AircraftLineItem extends Component {
 
     this.state = {
       aircraft,
-      line_item
+      line_item,
     }
+
     this.setRate(this.props.line_item);
   }
 
@@ -56,7 +57,6 @@ class AircraftLineItem extends Component {
 
   setRate = (line_item) => {
     // const { aircraft } = this.state;
-    console.log(this.getAccountBalance())
     if (line_item.aircraft && (this.getAccountBalance() >=1 )) {
       // this.setState({ rate: this.props.line_item.aircraft.block_rate_per_hour });
       line_item.rate = this.props.line_item.aircraft.block_rate_per_hour;
@@ -90,6 +90,7 @@ class AircraftLineItem extends Component {
     const aircraft_id = aircraft ? aircraft.id : null;
     const amount = rate * this.state.line_item.quantity;
     const payload = { rate, aircraft_id, amount };
+
     const line_item = Object.assign(
       {}, this.state.line_item, payload, populateHobbsTach(aircraft)
     );
@@ -149,18 +150,19 @@ class AircraftLineItem extends Component {
   render() {
     const { aircraft, line_item } = this.state;
     const {
-      hobbs_start, hobbs_end, tach_start, tach_end, id, description
+      hobbs_start, hobbs_end, tach_start, tach_end, id, description, disable_flight_hours
     } = line_item;
     const { number, canRemove, errors, lineItemTypeOptions, editable } = this.props;
     const { rate, quantity, amount } = this.props.line_item;
     const descriptionOpt = lineItemTypeOptions.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
-    const hobbsTachNotDisabledInputProps = Object.assign({}, NUMBER_PROPS, { disabled: false });
-    const hobbsTachInputProps = Object.assign({}, NUMBER_PROPS, { disabled: !aircraft || !editable });
+    
+    const hobbsTachNotDisabledInputProps = Object.assign({}, NUMBER_PROPS, { disabled: disable_flight_hours });
+    const hobbsTachInputProps = Object.assign({}, NUMBER_PROPS, { disabled: !aircraft || !editable || disable_flight_hours });
     const hobbsErr = (this.props.line_item.errors || {}).aircraft_details || {};
     const hobbsWrapperClass = (hobbsErr.hobbs_start || hobbsErr.hobbs_end) ? 'lc-row-with-error' : '';
     const tachWrapperClass = (hobbsErr.tach_start || hobbsErr.tach_end) ? 'lc-row-with-error' : '';
-
+    
     return (
       <React.Fragment>
         <tr key={id} className={wrapperClass}>
@@ -189,6 +191,7 @@ class AircraftLineItem extends Component {
           <td>
             <label>Hobbs Start *</label>
             <NumberFormat {...hobbsTachInputProps}
+              disabled={disable_flight_hours}
               onValueChange={this.setHobbsStart}
               value={hobbs_start / 10} />
             <Error text={hobbsErr.hobbs_start} className="hobbs-and-tach__error" />

@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Error from '../common/Error';
 import LineItem from './line_items/LineItem';
 
-import { itemsFromAppointment, LineItemRecord } from './line_items/line_item_utils';
+import { itemsFromAppointment, LineItemRecord, aircraftFlightHours } from './line_items/line_item_utils';
 
 import { authHeaders, addSchoolIdParam } from '../utils';
 
@@ -15,7 +15,7 @@ class LineItemsTable extends Component {
 
     const { appointment } = props;
     const line_items =
-      props.line_items.length > 0 ? props.line_items : itemsFromAppointment(appointment);
+      props.line_items.length > 0 && !appointment ? props.line_items : itemsFromAppointment(appointment);
 
     this.state = { line_items, appointment };
   }
@@ -27,7 +27,7 @@ class LineItemsTable extends Component {
   static getDerivedStateFromProps(props, state) {
     const prevAppointmentId = state.appointment && state.appointment.id;
     const appointmentId = props.appointment && props.appointment.id;
-
+        
     if (!prevAppointmentId && !appointmentId) return null;
 
     if (prevAppointmentId !== appointmentId) {

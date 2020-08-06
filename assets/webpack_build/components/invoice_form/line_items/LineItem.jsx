@@ -9,6 +9,7 @@ import {
 } from './line_item_utils';
 
 class InvoiceLineItem extends PureComponent {
+
   lineItemTypeOptions = () => {
     const options = DESCRIPTION_OPTS.concat(this.props.custom_line_items.map(o => ({
       label: o.description,
@@ -49,15 +50,14 @@ class InvoiceLineItem extends PureComponent {
 
   render() {
     const { line_item, creator, staff_member } = this.props;
-
     const editable = staff_member || !line_item.creator_id || line_item.creator_id == creator.id;
 
     const props = Object.assign({}, this.props, {
       lineItemTypeOptions: this.lineItemTypeOptions(),
       itemFromOption: this.itemFromOption,
-      editable
+      editable,
     });
-
+    
     if (line_item.type == 'aircraft') {
       return <AircraftLineItem {...props} />
     } else {

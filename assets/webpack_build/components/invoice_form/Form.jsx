@@ -9,6 +9,8 @@ import { debounce } from 'lodash';
 import { authHeaders, addSchoolIdParam } from '../utils';
 import Error from '../common/Error';
 
+import { itemsFromInvoice } from './line_items/line_item_utils';
+
 import LineItemsTable from './LineItemsTable';
 import LowBalanceAlert from './LowBalanceAlert';
 import ErrorAlert from './ErrorAlert';
@@ -93,7 +95,7 @@ class Form extends Component {
       headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
-        const invoice = r.data;
+        const invoice = itemsFromInvoice(r.data);
 
         this.setState({
           date: invoice.date ? new Date(invoice.date) : new Date(),
@@ -476,7 +478,7 @@ class Form extends Component {
       instructors, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
-
+    
     return (
       <div className="card">
         <div className="card-header text-left">

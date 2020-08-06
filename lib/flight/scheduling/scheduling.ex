@@ -307,6 +307,15 @@ defmodule Flight.Scheduling do
     |> Repo.one()
   end
 
+  def get_appointment_dangrous(nil), do: {:error, "id cannot be nil."}
+  def get_appointment_dangrous(id) do
+    Repo.get(Appointment, id)
+    |> case do
+        nil -> {:error, "Appiontment with id: #{id} not found."}
+        appointment -> {:ok, appointment}
+    end
+  end
+
   def insert_or_update_appointment(
         appointment,
         attrs,
