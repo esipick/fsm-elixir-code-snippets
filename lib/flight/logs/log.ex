@@ -55,6 +55,15 @@ defmodule Flight.Log do
     aircraft_logs_query(school_context, search_term)
     |> join(:inner, [a], u in User, on: a.user_id == u.id)
     |> join(:inner, [l], s in School, on: l.school_id == s.id)
+    |> select([l, u, s], %{
+        id: l.id, 
+        school_id: l.school_id, 
+        user_id: l.user_id, 
+        action_description: l.action_description, 
+        updated_at: l.updated_at, 
+        school_name: s.name, 
+        user_name: fragment("concat(?, ' ', ?)", u.first_name, u.last_name),
+        aircraft_id: l.aircraft_id})
     |> where([a], a.archived == false)
     |> where([a], a.aircraft_id == ^aircraft_id  )
     |> order_by([a], desc: [a.updated_at])
@@ -63,7 +72,7 @@ defmodule Flight.Log do
   def aircraft_logs_query(school_context, search_term \\ "") do
     AuditLog
     |> Flight.Scheduling.Search.AircraftLogs.run(search_term)
-    |> SchoolScope.scope_query(school_context)
+    # |> SchoolScope.scope_query(school_context)
   end
 
   def visible_aircraft_logs_count(school_context) do
