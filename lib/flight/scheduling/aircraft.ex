@@ -19,6 +19,7 @@ defmodule Flight.Scheduling.Aircraft do
     field(:archived, :boolean, default: false)
     belongs_to(:school, Flight.Accounts.School)
     has_many(:inspections, Flight.Scheduling.Inspection)
+    has_many(:audit_logs, Flight.Logs.AuditLog)
 
     timestamps()
   end
