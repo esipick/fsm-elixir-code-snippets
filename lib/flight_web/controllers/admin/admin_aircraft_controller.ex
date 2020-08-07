@@ -44,7 +44,7 @@ require Logger
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
     data = FlightWeb.Admin.AircraftLogsListData.build(conn, page_params, search_term)
-    Logger.info fn -> "data: #{inspect data}" end
+    # Logger.info fn -> "data: #{inspect data}" end
     message = params["search"] && set_message(params["search"])
 
     aircraft = Repo.preload(conn.assigns.aircraft, :audit_logs)

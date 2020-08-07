@@ -8,7 +8,6 @@ defmodule Flight.Repo.Migrations.CreateAuditLogs do
       add :school_id, references(:schools, type: :integer, on_delete: :delete_all), null: false
       add :aircraft_id, references(:aircrafts, type: :integer, on_delete: :delete_all)
       add :user_id, references(:users, type: :integer, on_delete: :nothing)
-      add :role, :string
       add :comment, :text
       add :archived, :boolean, default: false, null: false
       timestamps([:inserted_at, default: fragment("now()")])

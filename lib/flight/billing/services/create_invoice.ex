@@ -8,7 +8,7 @@ defmodule Flight.Billing.CreateInvoice do
   alias Flight.Scheduling.{Appointment}
   alias Flight.Billing.Services.Utils
 
-  def run(invoice_params, school_context) do
+  def run(invoice_params, %{assigns: %{current_user: user}} = school_context) do
     pay_off = Map.get(school_context.params, "pay_off", false)
     school = Flight.SchoolScope.get_school(school_context)
     current_user = school_context.assigns.current_user
@@ -26,15 +26,14 @@ defmodule Flight.Billing.CreateInvoice do
           "aircraft_info" => aircraft_info
         }
       )
-
     case Invoice.create(invoice_attrs) do
       {:ok, invoice} ->
 
         if invoice.appointment_id != nil do
-          Utils.update_aircraft(invoice)
+          Utils.update_aircraft(invoice, user)
         else
           line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
-          Utils.update_aircraft(line_item.aircraft_id, line_item)
+          Utils.update_aircraft(line_item.aircraft_id, line_item, user)
         end
 
         if pay_off == true do

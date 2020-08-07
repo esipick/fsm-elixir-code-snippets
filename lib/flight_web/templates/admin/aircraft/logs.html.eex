@@ -38,11 +38,10 @@
                 <thead>
                 <%= if show_to_superadmin?(@conn) do %>
                   <th>School</th>
-                  <th>Aircraft</th>
+                  <%# <th>Aircraft</th> %>
                 <% end %>
                 <th>Date Time</th>
                 <th>User</th>
-                <th>Role</th>
                 <th>Action Description</th>
                 <th class="disabled-sorting text-right">&nbsp;</th>
                 </thead>
@@ -50,13 +49,12 @@
                   <%= for audit_log <- @data.table_data.rows do %>
                     <tr>
                       <%= if show_to_superadmin?(@conn) do %>
-                        <td><a href="/admin/schools/<%= audit_log.school_id %>"><%= audit_log.school_id %></a></td>
-                        <td><a href="/admin/aircrafts/<%= audit_log.aircraft_id %>"><%= audit_log.aircraft_id %></a></td>
+                        <td><a href="/admin/schools/<%= audit_log.school_id %>"><%= Map.get((Map.get(audit_log, :school) || %{}), :name) %></a></td>
+                        <!-- <td><a href="/admin/aircrafts/<%= audit_log.aircraft_id %>"><%= audit_log.aircraft_id %></a></td> -->
                       <% end %>
                       <td><%= audit_log.updated_at %></td>
                       <td class="text-nowrap"><a href="/admin/users/<%= audit_log.user_id %>" class="btn btn-primary btn-sm"><b>William Anderson</b></a></td>
-                      <td><%= audit_log.role %></td>
-                      <td><%= audit_log.action_description %></td>
+                      <td><%= raw(audit_log.action_description) %></td>
                       <td class="text-right">
                           <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-audit-log-id="<%= audit_log.id %>">delete</button>
                       </td>

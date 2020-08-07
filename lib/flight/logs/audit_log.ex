@@ -5,7 +5,6 @@ defmodule Flight.Logs.AuditLog do
   schema "audit_logs" do
     field(:action, :string)
     field(:action_description, :string)
-    field(:role, :string)
     field(:comment, :string)
     field(:archived, :boolean, default: false)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
@@ -21,7 +20,6 @@ defmodule Flight.Logs.AuditLog do
     |> cast(attrs, [
       :action,
       :action_description,
-      :role,
       :comment,
       :school_id,
       :aircraft_id,

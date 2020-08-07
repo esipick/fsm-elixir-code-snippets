@@ -11,7 +11,7 @@ defmodule Flight.Billing.Services.Utils do
     end
     def aircraft_info_map(_), do: nil
     
-    def update_aircraft(invoice) do
+    def update_aircraft(invoice, user) do
         line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
 
         with {:ok, apmnt} <- Flight.Scheduling.get_appointment_dangrous(invoice.appointment_id) do
@@ -30,7 +30,7 @@ defmodule Flight.Billing.Services.Utils do
                         end_hobbs_time: line_item.hobbs_end
                     }, 0)
                 
-                aircraft = 
+                changeset = 
                     aircraft
                     |> Aircraft.changeset(%{
                         last_tach_time: line_item.tach_end,
@@ -38,23 +38,67 @@ defmodule Flight.Billing.Services.Utils do
                     })
 
                 with {:ok, _apmnt} <- Repo.update(apmnt),
-                    {:ok, aircraft} <- Repo.update(aircraft) do
-                    {:ok, aircraft}
+                    {:ok, changeset} <- Repo.update(changeset) do
+                        info = %{
+                            aircraft_id: changeset.id,
+                            hobbs_start: aircraft.last_hobbs_time,
+                            hobbs_end: changeset.last_hobbs_time,
+                            tach_start: aircraft.last_tach_time,
+                            tach_end: changeset.last_tach_time
+                        }
+            
+                        log_aircraft_time_change(user, info)
+                        {:ok, changeset}
                 end
             end
         end
     end
 
-    def update_aircraft(nil, _map), do: {:ok, :done}
-    def update_aircraft(aircraft_id, %{tach_end: tach_end, hobbs_end: hobbs_end}) do
+    def update_aircraft(nil, _map, _), do: {:ok, :done}
+    def update_aircraft(aircraft_id, %{tach_end: tach_end, hobbs_end: hobbs_end}, user) do
         aircraft = Repo.get(Aircraft, aircraft_id)
+        changeset = 
+            aircraft
+            |> Aircraft.changeset(%{
+                last_tach_time: tach_end,
+                last_hobbs_time: hobbs_end
+            })
+        
+        with {:ok, changeset} <- Repo.update(changeset) do
+            info = %{
+                aircraft_id: changeset.id,
+                hobbs_start: aircraft.last_hobbs_time,
+                hobbs_end: changeset.last_hobbs_time,
+                tach_start: aircraft.last_tach_time,
+                tach_end: changeset.last_tach_time
+            }
 
-        aircraft
-        |> Aircraft.changeset(%{
-            last_tach_time: tach_end,
-            last_hobbs_time: hobbs_end
-        })
-        |> Repo.update
+            log_aircraft_time_change(user, info)
+            {:ok, changeset}
+        end
     end
     def update_aircraft(_, _map), do: {:ok, :done}
+
+    def log_aircraft_time_change(%{id: user_id, school_id: school_id}, %{
+        aircraft_id: aircraft_id, 
+        hobbs_start: hobbs_start, 
+        hobbs_end: hobbs_end, 
+        tach_start: tach_start, 
+        tach_end: tach_end} = info) do
+            
+            info =
+                info
+                |> Map.put(:user_id, user_id)
+                |> Map.put(:school_id, school_id)
+
+            cond do
+                hobbs_start != hobbs_end && tach_start != tach_end ->
+                    Flight.Log.record(:record_tach_time_change, info)
+                    Flight.Log.record(:record_hobbs_time_change, info)
+
+                hobbs_start != hobbs_end -> Flight.Log.record(:record_hobbs_time_change, info)
+                tach_start != tach_end -> Flight.Log.record(:record_tach_time_change, info)
+                true -> :ok
+            end
+    end
 end
