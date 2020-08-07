@@ -41,10 +41,10 @@ defmodule Flight.Billing.Services.Utils do
                     {:ok, changeset} <- Repo.update(changeset) do
                         info = %{
                             aircraft_id: changeset.id,
-                            hobbs_start: aircraft.last_hobbs_time,
-                            hobbs_end: changeset.last_hobbs_time,
-                            tach_start: aircraft.last_tach_time,
-                            tach_end: changeset.last_tach_time
+                            hobbs_start: aircraft.last_hobbs_time / 10,
+                            hobbs_end: changeset.last_hobbs_time / 10,
+                            tach_start: aircraft.last_tach_time / 10,
+                            tach_end: changeset.last_tach_time / 10
                         }
             
                         log_aircraft_time_change(user, info)
@@ -67,25 +67,25 @@ defmodule Flight.Billing.Services.Utils do
         with {:ok, changeset} <- Repo.update(changeset) do
             info = %{
                 aircraft_id: changeset.id,
-                hobbs_start: aircraft.last_hobbs_time,
-                hobbs_end: changeset.last_hobbs_time,
-                tach_start: aircraft.last_tach_time,
-                tach_end: changeset.last_tach_time
+                hobbs_start: aircraft.last_hobbs_time / 10,
+                hobbs_end: changeset.last_hobbs_time / 10,
+                tach_start: aircraft.last_tach_time / 10,
+                tach_end: changeset.last_tach_time / 10
             }
 
             log_aircraft_time_change(user, info)
             {:ok, changeset}
         end
     end
-    def update_aircraft(_, _map), do: {:ok, :done}
+    def update_aircraft(_, _map, _), do: {:ok, :done}
 
     def log_aircraft_time_change(%{id: user_id, school_id: school_id}, %{
-        aircraft_id: aircraft_id, 
+        aircraft_id: _aircraft_id, 
         hobbs_start: hobbs_start, 
         hobbs_end: hobbs_end, 
         tach_start: tach_start, 
         tach_end: tach_end} = info) do
-            
+
             info =
                 info
                 |> Map.put(:user_id, user_id)
