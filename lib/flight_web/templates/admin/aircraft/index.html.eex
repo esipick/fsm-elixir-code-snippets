@@ -78,6 +78,7 @@
                       <td><%= display_hour_tenths(aircraft.last_hobbs_time) %></td>
                       <td class="text-right">
                         <a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm">view</a>
+                        <a href="/admin/aircrafts/<%= aircraft.id %>/logs" class="btn btn-primary btn-sm">logs</a>
                         <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-aircraft-id="<%= aircraft.id %>">delete</button>
                       </td>
                     </tr>

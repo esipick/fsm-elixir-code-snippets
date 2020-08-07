@@ -207,6 +207,7 @@ defmodule FlightWeb.Router do
     resources("/settings", SettingsController, only: [:show, :update], singleton: true)
 
     resources("/aircrafts", AircraftController) do
+      get("logs", AircraftController, :logs)
       resources("/inspections", InspectionController, only: [:create, :new])
     end
 
