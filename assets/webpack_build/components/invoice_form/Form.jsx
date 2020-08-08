@@ -6,6 +6,10 @@ import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { debounce } from 'lodash';
 
+// import "core-js/stable";
+import "regenerator-runtime/runtime";
+import { loadStripe } from "@stripe/stripe-js";
+
 import { authHeaders, addSchoolIdParam } from '../utils';
 import Error from '../common/Error';
 
@@ -23,13 +27,20 @@ import {
 let calculateRequest = () => { };
 
 class Form extends Component {
+  
   constructor(props) {
     super(props);
 
     this.formRef = null;
     const { creator, staff_member, appointment } = props;
+    const {stripe_account_id, pub_key} = props
 
     const appointments = appointment ? [appointment] : [];
+    
+    var stripePromise = null;
+    if (stripe_account_id && pub_key) {
+      stripePromise = loadStripe(pub_key, {stripeAccount: stripe_account_id});
+    }
 
     this.state = {
       appointment,
@@ -50,7 +61,9 @@ class Form extends Component {
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
-      date: new Date()
+      date: new Date(),
+      stripe: stripePromise,
+      stripeSessionId: props.stripe_session_id
     }
   }
 
@@ -208,7 +221,6 @@ class Form extends Component {
   }
 
   accountBalance = () => {
-    console.log(this.state.appointment)
     if (this.state.student && this.state.appointment){
       return "";
     } else if (!this.state.student) {
@@ -375,7 +387,26 @@ class Form extends Component {
     calculateRequest(payload);
   }
 
+  async stripeCheckout(stripePromise, sessionId) {
+    const stripe = await stripePromise;
+
+    stripe.redirectToCheckout({
+        sessionId:sessionId
+      })
+      .then(({ error }) => {
+        console.log(error);
+      });
+  }
+
   submitForm = ({ pay_off }) => {
+    console.log("saving")
+
+    if(this.state.stripeSessionId) {
+      this.stripeCheckout(this.state.stripe, this.state.stripeSessionId)
+      return;
+    }
+
+
     if (this.state.saving) return;
     if (this.state.total <= 0) {
       this.setState({error_alert_total_open: true});

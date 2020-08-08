@@ -635,6 +635,12 @@ defmodule Flight.Billing do
     |> Repo.one()
   end
 
+  def get_stripe_account_by_school_id(school_id) do
+    from(s in StripeAccount)
+    |> where([s], s.school_id == ^school_id and not is_nil(s.stripe_account_id))
+    |> Repo.one()
+  end
+
   def update_stripe_account(
         %StripeAccount{} = account,
         %Stripe.Account{} = api_account

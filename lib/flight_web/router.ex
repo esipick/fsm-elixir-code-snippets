@@ -138,6 +138,7 @@ defmodule FlightWeb.Router do
     ])
 
     resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show, :delete])
+    get("/invoices/checkout", InvoiceController, :checkout)
     resources("/bulk_invoices", BulkInvoiceController, only: [:new])
     resources("/transactions", TransactionController, only: [:index, :show])
   end
