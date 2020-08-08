@@ -99,7 +99,7 @@ class Form extends Component {
 
         this.setState({
           date: invoice.date ? new Date(invoice.date) : new Date(),
-          student: invoice.user || this.guestPayer(invoice.payer_name),
+          student: invoice.user || this.guestPayer(invoice.appointment.demo, invoice.payer_name),
           line_items: invoice.line_items || [],
           payment_method: this.getPaymentMethod(invoice.payment_option),
           sales_tax: invoice.tax_rate,
@@ -198,14 +198,24 @@ class Form extends Component {
     }
   }
 
+  demoFlightAppointment = (appointment) => {
+    const { demo } = appointment;
+      return demo;
+  }
+
   setAppointment = (appointment) => {
     this.setState({ appointment });
   }
 
   accountBalance = () => {
-    if (!this.state.student) return "0.00";
-
-    return (this.state.student.balance * 1.0 / 100).toFixed(2);
+    console.log(this.state.appointment)
+    if (this.state.student && this.state.appointment){
+      return "";
+    } else if (!this.state.student) {
+      return "0.00";
+    } else {
+      return (this.state.student.balance * 1.0 / 100).toFixed(2);
+    }
   }
 
   setStudent = (student) => {
@@ -230,6 +240,14 @@ class Form extends Component {
     balance: 0,
     id: null,
     guest: true
+  });
+
+  guestPayer = (demo, payer_name) => ({
+    label: payer_name,
+    balance: 0,
+    id: null,
+    guest: true,
+    demo: typeof (demo) != "undefined" ? demo : false
   });
 
   createGuestPayer = (payer_name) => {
@@ -568,7 +586,7 @@ class Form extends Component {
                     <Select placeholder="Payment method"
                       value={payment_method}
                       classNamePrefix="react-select"
-                      options={student && student.guest ? GUEST_PAYMENT_OPTIONS : PAYMENT_OPTIONS}
+                      options={student && student.guest && !student.demo ? GUEST_PAYMENT_OPTIONS : PAYMENT_OPTIONS}
                       onChange={this.setPaymentMethod}
                       required={true} />
                   </div>
