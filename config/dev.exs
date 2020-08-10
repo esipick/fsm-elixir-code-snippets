@@ -30,14 +30,6 @@ config :flight, FlightWeb.Endpoint,
 #   version: "2018-05-21",
 #   httpoison: [recv_timeout: 5000, timeout: 8000]
 
-# config :stripity_stripe,
-#   api_key: "sk_test_51HEXdbAOviGJecEsZypUhZsPuhvg2Tdv5rYAwiE5b1Vqn6R68Cctstrb5Tkt3oAMyttlAgBRV8ckLjM7xNCSuhQ300oqe2boQ1",
-#   connect_client_id: "ca_HoA63Eo1FtA72uZ5ZfB2GY1VdCpdRn9G"
-
-# config :flight, :stripe_publishable_key,  "pk_test_51HEXdbAOviGJecEs9LtNuhm4NxKshUgegCC7WzbUxpVj5BqLIS8HV1na1xA2qXC0zWZlqHJSvzdDbdUK5lwuR6vw00zDTFnzam"
-# config :flight, :stripe_webhook_secret, "whsec_GRniVd07D9yl84sImiK3ijoy1JE6gqwf"
-# config :flight, :stripe_livemode, false
-
 config :stripity_stripe,
   api_key: "sk_test_j56pdGNCUxL66RMEP7mFdyNQ",
   connect_client_id: "ca_DGcV6SWq1ghyws1HwmcAHLgPldcHNisy"
@@ -101,8 +93,8 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :flight, Flight.Repo,
-  username: "dev",
-  password: "asdf",
+  username: "postgres",
+  password: "postgres",
   database: "flight_dev",
   hostname: "localhost",
   pool_size: 10
