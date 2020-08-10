@@ -10,6 +10,13 @@ defmodule Flight.Billing.Services.Utils do
         end
     end
     def aircraft_info_map(_), do: nil
+
+    def multiple_aircrafts?(nil), do: true
+    def multiple_aircrafts?(line_items) do
+        line_items = Enum.filter(line_items, fn i -> Map.get(i, "type") == "aircraft" || Map.get(i, :type) == :aircraft end) 
+
+        Enum.count(line_items) > 1
+    end
     
     def update_aircraft(invoice, user) do
         line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)

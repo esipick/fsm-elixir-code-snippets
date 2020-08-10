@@ -26,27 +26,28 @@ defmodule Flight.Billing.CreateInvoice do
           "aircraft_info" => aircraft_info
         }
       )
-    case Invoice.create(invoice_attrs) do
-      {:ok, invoice} ->
 
-        if invoice.appointment_id != nil do
-          Utils.update_aircraft(invoice, user)
-        else
-          line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
-          Utils.update_aircraft(line_item.aircraft_id, line_item, user)
-        end
-
-        if pay_off == true do
-          case pay(invoice, school_context) do
-            {:ok, invoice} -> {:ok, invoice}
-            {:error, error} -> {:error, invoice.id, error}
+    with false <- Utils.multiple_aircrafts?(line_items),
+        {:ok, invoice} <- Invoice.create(invoice_attrs) do
+          
+          if invoice.appointment_id != nil do
+            Utils.update_aircraft(invoice, user)
+          else
+            line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
+            Utils.update_aircraft(line_item.aircraft_id, line_item, user)
           end
-        else
-          {:ok, invoice}
-        end
-
-      {:error, error} ->
-        {:error, error}
+  
+          if pay_off == true do
+            case pay(invoice, school_context) do
+              {:ok, invoice} -> {:ok, invoice}
+              {:error, error} -> {:error, invoice.id, error}
+            end
+          else
+            {:ok, invoice}
+          end  
+    else
+      true -> {:error, "An invoice can have only 1 aircraft hours."}
+      error -> error
     end
   end
 

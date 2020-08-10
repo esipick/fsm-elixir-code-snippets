@@ -11,8 +11,8 @@ config :logger, level: :warn
 
 # Configure your database
 config :flight, Flight.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "dev",
+  password: "asdf",
   database: "flight_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox,
