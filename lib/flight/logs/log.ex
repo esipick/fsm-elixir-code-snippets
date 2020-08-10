@@ -17,7 +17,7 @@ defmodule Flight.Log do
     } = info) do
     info = 
       info
-      |> Map.put(:action_description, "Updated Tach Hours from <b>#{tach_start}</b> to <b>#{tach_end}</b>.")
+      |> Map.put(:action_description, "Updated Tach Hours from <b>#{escape_scientific_notation(tach_start)}</b> to <b>#{escape_scientific_notation(tach_end)}</b>.")
       |> Map.put(:action, "Changed Aircraft Tach Hours")
   
       insert_aircraft_audit_log(info)
@@ -33,7 +33,7 @@ defmodule Flight.Log do
     } = info) do
     info = 
       info
-      |> Map.put(:action_description, "Updated Hobbs Hours from <b>#{hobbs_start}</b> to <b>#{hobbs_end}</b>.")
+      |> Map.put(:action_description, "Updated Hobbs Hours from <b>#{escape_scientific_notation(hobbs_start)}</b> to <b>#{escape_scientific_notation(hobbs_end)}</b>.")
       |> Map.put(:action, "Changed Aircraft Hobbs Hours")
   
       insert_aircraft_audit_log(info)
@@ -84,5 +84,13 @@ defmodule Flight.Log do
     audit_log
     |> AuditLog.archive_changeset(%{archived: true})
     |> Repo.update()
+  end
+
+  defp escape_scientific_notation(value) do
+    Float.parse("#{value}")
+    |> case do
+      {value, _} -> :erlang.float_to_binary(value, decimals: 1)
+      :error -> "unknown"
+    end
   end
 end
