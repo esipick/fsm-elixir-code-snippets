@@ -2,7 +2,7 @@ defmodule Flight.Billing.Services.Utils do
     alias Flight.Scheduling.{Appointment, Aircraft}
     alias Flight.Repo
 
-    def aircraft_info_map(%{"appointment_id" => apnmt_id, "line_items" => line_items}) when is_nil(apnmt_id) do
+    def aircraft_info_map(%{"line_items" => line_items}) do
         line_item = Enum.find(line_items, fn i -> Map.get(i, "type") == "aircraft" end) 
 
         if line_item do
