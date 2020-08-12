@@ -73,7 +73,7 @@ defmodule Flight.Utils do
     end
 
     def date_range_from_str(str) do
-        parts = String.splite(str, "-")
+        parts = String.split(str, "-")
         start_date = List.first(parts) || ""
         end_date = List.last(parts) || ""
 
@@ -81,12 +81,12 @@ defmodule Flight.Utils do
             {end_date, _} <- Integer.parse(end_date) do
                 start_date = 
                     start_date
-                    Timex.from_unix
+                    |> Timex.from_unix
                     |> Timex.to_naive_datetime
 
                 end_date = 
-                    start_date
-                    Timex.from_unix
+                    end_date
+                    |> Timex.from_unix
                     |> Timex.to_naive_datetime
 
                 {start_date, end_date}
