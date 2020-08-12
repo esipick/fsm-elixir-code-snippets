@@ -9,14 +9,31 @@ defmodule Flight.Billing.UpdateInvoice do
     pay_off = Map.get(school_context.params, "pay_off", false)
     current_user = school_context.assigns.current_user
     invoice_attribs = invoice_attrs(invoice_params, current_user)
-    
+    aircraft_info = Utils.aircraft_info_map(invoice_params)
+
+    {invoice_attribs, update_hours} = 
+      if Map.get(invoice, :aircraft_info) == nil do
+        {Map.put(invoice_attribs, "aircraft_info", aircraft_info), true}
+
+      else 
+        {invoice_attribs, false}
+      end
+
     line_items = Map.get(invoice_attribs, "line_items") || []
 
     with false <- Utils.multiple_aircrafts?(line_items), 
       {:ok, invoice} <- update_invoice(invoice, invoice_attribs) do
-        if invoice.appointment_id != nil do
-          Utils.update_aircraft(invoice, user)
+        line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
+
+        cond do
+          invoice.appointment_id != nil -> Utils.update_aircraft(invoice, user)
+          update_hours && line_item != nil -> Utils.update_aircraft(line_item.aircraft_id, line_item, user)
+          true -> :nothing
         end
+
+        # if invoice.appointment_id != nil do
+        #   Utils.update_aircraft(invoice, user)
+        # end
 
         if pay_off == true do
           CreateInvoice.pay(invoice, school_context)
