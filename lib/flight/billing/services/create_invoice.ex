@@ -5,14 +5,16 @@ defmodule Flight.Billing.CreateInvoice do
   alias Flight.Accounts.User
   alias Flight.Billing.{Invoice, LineItemCreator, PayOff}
   alias FlightWeb.Billing.InvoiceStruct
-  alias Flight.Scheduling.{Appointment, Aircraft}
+  alias Flight.Scheduling.{Appointment}
+  alias Flight.Billing.Services.Utils
 
-  def run(invoice_params, school_context) do
+  def run(invoice_params, %{assigns: %{current_user: user}} = school_context) do
     pay_off = Map.get(school_context.params, "pay_off", false)
     school = Flight.SchoolScope.get_school(school_context)
     current_user = school_context.assigns.current_user
 
     line_items = LineItemCreator.populate_creator(invoice_params["line_items"], current_user)
+    aircraft_info = Utils.aircraft_info_map(invoice_params)
 
     invoice_attrs =
       Map.merge(
@@ -20,25 +22,32 @@ defmodule Flight.Billing.CreateInvoice do
         %{
           "school_id" => school.id,
           "tax_rate" => school.sales_tax || 0,
-          "line_items" => line_items
+          "line_items" => line_items,
+          "aircraft_info" => aircraft_info
         }
       )
 
-    case Invoice.create(invoice_attrs) do
-      {:ok, invoice} ->
-        update_aircraft(invoice)
-
-        if pay_off == true do
-          case pay(invoice, school_context) do
-            {:ok, invoice} -> {:ok, invoice}
-            {:error, error} -> {:error, invoice.id, error}
+    with false <- Utils.multiple_aircrafts?(line_items),
+        {:ok, invoice} <- Invoice.create(invoice_attrs) do
+          
+          if invoice.appointment_id != nil do
+            Utils.update_aircraft(invoice, user)
+          else
+            line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
+            Utils.update_aircraft(line_item.aircraft_id, line_item, user)
           end
-        else
-          {:ok, invoice}
-        end
-
-      {:error, error} ->
-        {:error, error}
+  
+          if pay_off == true do
+            case pay(invoice, school_context) do
+              {:ok, invoice} -> {:ok, invoice}
+              {:error, error} -> {:error, invoice.id, error}
+            end
+          else
+            {:ok, invoice}
+          end  
+    else
+      true -> {:error, "An invoice can have only 1 aircraft hours."}
+      error -> error
     end
   end
 
@@ -57,22 +66,6 @@ defmodule Flight.Billing.CreateInvoice do
 
       {:error, changeset} ->
         {:error, changeset}
-    end
-  end
-
-  defp update_aircraft(invoice) do
-    line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
-
-    if line_item && line_item.hobbs_end && line_item.tach_end do
-      aircraft = Repo.get(Aircraft, line_item.aircraft_id)
-
-      {:ok, _} =
-        aircraft
-        |> Aircraft.changeset(%{
-          last_tach_time: line_item.tach_end,
-          last_hobbs_time: line_item.hobbs_end
-        })
-        |> Flight.Repo.update()
     end
   end
 

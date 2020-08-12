@@ -6,7 +6,7 @@ defmodule FlightWeb.API.InvoiceController do
   alias Flight.Auth.Permission
   alias Flight.Repo
   alias FlightWeb.{ViewHelpers, Pagination, StripeHelper}
-
+  alias Flight.Scheduling
   alias Flight.Billing.{
     CalculateInvoice,
     CreateInvoice,
@@ -61,16 +61,22 @@ defmodule FlightWeb.API.InvoiceController do
   end
 
   def calculate(conn, %{"invoice" => invoice_params}) do
-    case CalculateInvoice.run(invoice_params, conn) do
-      {:ok, calculated_params} ->
+
+    with {:ok, calculated_params} <- CalculateInvoice.run(invoice_params, conn) do
         conn
         |> put_status(200)
         |> json(calculated_params)
-
+        
+    else
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(422)
         |> json(%{errors: ViewHelpers.translate_errors(changeset)})
+
+      {:error, error} -> 
+        conn
+        |> put_status(422)
+        |> json(%{errors: [error]})
     end
   end
 
@@ -113,13 +119,18 @@ defmodule FlightWeb.API.InvoiceController do
         conn
         |> put_status(400)
         |> json(%{stripe_error: StripeHelper.human_error(error.message)})
+
+      {:error, msg} ->
+        conn
+        |> put_status(422)
+        |> json(%{error: %{message: msg}})
     end
   end
 
   def show(conn, _params) do
     invoice =
       Repo.preload(conn.assigns.invoice, [:line_items, :user, :school, :appointment], force: true)
-
+    
     conn
     |> put_status(200)
     |> render("show.json", invoice: invoice)
@@ -283,6 +294,11 @@ defmodule FlightWeb.API.InvoiceController do
         conn
         |> put_status(400)
         |> json(%{id: id, stripe_error: StripeHelper.human_error(error.message)})
+
+      {:error, msg} ->
+        conn
+        |> put_status(422)
+        |> json(%{error: %{message: msg}})
     end
   end
 end

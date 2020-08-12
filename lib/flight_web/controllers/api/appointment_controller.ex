@@ -174,7 +174,8 @@ defmodule FlightWeb.API.AppointmentController do
       end
 
     instructor_user_id =
-      if (conn.params["data"] |> Optional.map(& &1["instructor_user_id"])) not in [nil, ""] do
+      if (conn.params["data"] |> Optional.map(& &1["instructor_user_id"])) not in [nil, ""] and
+         (conn.assigns[:appointment] != nil and conn.assigns[:appointment].instructor_user_id == current_user.id and conn.assigns[:appointment].status != :paid) do
         (conn.params["data"] |> Optional.map(& &1["instructor_user_id"]))
       else
         instructor_user_id_from_appointment

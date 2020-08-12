@@ -1,0 +1,101 @@
+<script>
+  function getLocalTime(dt) {
+    var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+    var time = date_time.format('YYYY-MM-DD hh:mm:ss A')
+    return time;
+  }
+</script>
+
+<div class="panel-header">
+  <div class="header text-center">
+    <h6 class="title back-link"><a href="/admin/aircrafts">< Back to aircrafts</a></h6>
+    <h2 class="title">
+    <%= if @aircraft.make && @aircraft.model do "#{@aircraft.make} #{@aircraft.model}" else "Audit Logs" end %>
+  </div>
+</div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card ">
+<%= if @aircraft.id do %>
+        <div class="card-header d-flex flex-column">
+          <div class="text-left">
+            <h3 class="card-title"><%= if @aircraft.id do "Aircraft" else "Audit" end %> Logs</h3>
+          </div>
+          <div>
+            <%= form_for @conn, "/admin/aircrafts/#{@aircraft.id}/logs", [method: "get"], fn f -> %>
+              <div class="row mb-4">
+                <div class="col-md-10 col-xs-12">
+                  <div class="form-group">
+                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Type here to search words in 'Action Description'" %>
+                    <span class="text-danger"><%= @message %></span>
+                  </div>
+                </div>
+                <div class="col-md-2 pl-1">
+                  <input type="submit" class="btn btn-primary m-0 pull-right" value="Search" />
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <%= if Enum.any?(@data.table_data.rows) do %>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                <%= if show_to_superadmin?(@conn) do %>
+                  <th>School</th>
+                  <%# <th>Aircraft</th> %>
+                <% end %>
+                <th>Date Time</th>
+                <th>User</th>
+                <th>Action Description</th>
+                <th class="disabled-sorting text-right">&nbsp;</th>
+                </thead>
+                <tbody>
+                  <%= for audit_log <- @data.table_data.rows do %>
+                    <tr>
+                      <%= if show_to_superadmin?(@conn) do %>
+                        <td><a href="/admin/schools/<%= audit_log.school_id %>"><%= audit_log.school_name %></a></td>
+                        <!-- <td><a href="/admin/aircrafts/<%= audit_log.aircraft_id %>"><%= audit_log.aircraft_id %></a></td> -->
+                      <% end %>
+                      <td><script>document.write(getLocalTime('<%= audit_log.updated_at %>'))</script></td>
+                      <td class="text-nowrap"><a href="/admin/users/<%= audit_log.user_id %>" class="btn btn-primary btn-sm"><b><%= audit_log.user_name %></b></a></td>
+                      <td><%= raw(audit_log.action_description) %></td>
+                      <td class="text-right">
+                          <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-audit-log-id="<%= audit_log.id %>">delete</button>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% else %>
+          <div class="card-body">No result found</div>
+        <% end %>
+        <%= if @data.table_data.page.total_pages > 1 do %>
+          <div class="row">
+            <div class="col-md-10">
+              <%= pagination_links @conn,
+                          @data.table_data.page,
+                          search: @data.search_term,
+                          page_size: @data.table_data.page.page_size
+                        %>
+            </div>
+            <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+          </div>
+        <% else %>
+          <div class="row justify-content-end">
+            <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="card-body">No result found</div>
+      <% end %>
+      </div> <!-- end card -->
+    </div>
+  </div>
+</div> <!-- end content -->
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>

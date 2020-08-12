@@ -11,6 +11,13 @@ defmodule Flight.Scheduling.Appointment do
     field(:type, :string, default: "lesson")
     field(:status, InvoiceStatusEnum, default: :pending)
     field(:archived, :boolean, default: false)
+
+    field(:start_tach_time, Flight.HourTenth, null: true)
+    field(:end_tach_time, Flight.HourTenth, null: true)
+
+    field(:start_hobbs_time, Flight.HourTenth, null: true)
+    field(:end_hobbs_time, Flight.HourTenth, null: true)
+
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:owner_user, Flight.Accounts.User)
@@ -49,17 +56,7 @@ defmodule Flight.Scheduling.Appointment do
   @doc false
   def changeset(appointment, attrs, _timezone) do
     appointment
-    |> cast(attrs, [
-      :start_at,
-      :end_at,
-      :user_id,
-      :instructor_user_id,
-      :owner_user_id,
-      :aircraft_id,
-      :note,
-      :type,
-      :status
-    ])
+    |> cast(attrs, __MODULE__.__schema__(:fields))
     |> validate_required([
       :start_at,
       :end_at,

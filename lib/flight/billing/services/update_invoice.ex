@@ -2,27 +2,31 @@ defmodule Flight.Billing.UpdateInvoice do
   alias Flight.Repo
   alias Flight.Billing.{Invoice, CreateInvoice, LineItemCreator}
   alias Flight.Scheduling.Aircraft
+  alias Flight.Billing.Services.Utils
 
-  def run(invoice, invoice_params, school_context) do
+
+  def run(invoice, invoice_params, %{assigns: %{current_user: user}} = school_context) do
     pay_off = Map.get(school_context.params, "pay_off", false)
     current_user = school_context.assigns.current_user
+    invoice_attribs = invoice_attrs(invoice_params, current_user)
+    
+    line_items = Map.get(invoice_attribs, "line_items") || []
 
-    result =
-      case update_invoice(invoice, invoice_attrs(invoice_params, current_user)) do
-        {:ok, invoice} ->
-          update_aircraft(invoice)
+    with false <- Utils.multiple_aircrafts?(line_items), 
+      {:ok, invoice} <- update_invoice(invoice, invoice_attribs) do
+        if invoice.appointment_id != nil do
+          Utils.update_aircraft(invoice, user)
+        end
 
-          if pay_off == true do
-            CreateInvoice.pay(invoice, school_context)
-          else
-            {:ok, invoice}
-          end
-
-        {:error, error} ->
-          {:error, error}
-      end
-
-    result
+        if pay_off == true do
+          CreateInvoice.pay(invoice, school_context)
+        else
+          {:ok, invoice}
+        end
+    else
+      true -> {:error, "An invoice can have only 1 aircraft hours."}
+      error -> error
+    end
   end
 
   defp update_invoice(invoice, invoice_params) do

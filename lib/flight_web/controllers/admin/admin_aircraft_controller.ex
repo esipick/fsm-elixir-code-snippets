@@ -7,7 +7,7 @@ defmodule FlightWeb.Admin.AircraftController do
 
   import FlightWeb.Admin.AssetsHelper
 
-  plug(:get_aircraft when action in [:show, :edit, :update, :delete])
+  plug(:get_aircraft when action in [:logs, :show, :edit, :update, :delete])
 
   def create(conn, %{"data" => aircraft_data}) do
     redirect_to = get_redirect_param(aircraft_data)
@@ -38,6 +38,19 @@ defmodule FlightWeb.Admin.AircraftController do
 
     conn
     |> render("show.html", aircraft: aircraft, skip_shool_select: true)
+  end
+require Logger
+  def logs(conn, params) do
+    search_term = Map.get(params, "search", "")
+    page_params = FlightWeb.Pagination.params(params)
+    data = FlightWeb.Admin.AircraftLogsListData.build(conn, page_params, search_term)
+    Logger.info fn -> "data: #{inspect data}" end
+    message = params["search"] && set_message(params["search"])
+
+    aircraft = Repo.preload(conn.assigns.aircraft, :audit_logs)
+
+    conn
+    |> render("logs.html", aircraft: aircraft, data: data, message: message)
   end
 
   def index(conn, params) do

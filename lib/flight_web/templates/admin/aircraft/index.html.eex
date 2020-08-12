@@ -77,8 +77,11 @@
                       <td><%= display_hour_tenths(aircraft.last_tach_time) %></td>
                       <td><%= display_hour_tenths(aircraft.last_hobbs_time) %></td>
                       <td class="text-right">
-                        <a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm">view</a>
-                        <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-aircraft-id="<%= aircraft.id %>">delete</button>
+                        <div id="button-wrapper" class="d-flex justify-content-end">
+                          <a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm ml-1">view</a>
+                          <a href="/admin/aircrafts/<%= aircraft.id %>/logs" class="btn btn-primary btn-sm ml-1">logs</a>
+                          <button stype="button" type="button" class="btn btn-danger btn-sm ml-1 _delete_button" data-aircraft-id="<%= aircraft.id %>">delete</button>
+                        </div>
                       </td>
                     </tr>
                   <% end %>

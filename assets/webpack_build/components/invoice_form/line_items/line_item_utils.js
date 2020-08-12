@@ -61,9 +61,9 @@ export class LineItemRecord {
     if (this.type == "aircraft") {
       const { hobbs_start, hobbs_end, tach_start, tach_end } = populateHobbsTach(this.aircraft);
       this.hobbs_start = hobbs_start;
-      this.hobbs_end = hobbs_end;
+      this.hobbs_end = this.hobbs_end || hobbs_end;
       this.tach_start = tach_start;
-      this.tach_end = tach_end;
+      this.tach_end = this.tach_end || tach_end;
       this.quantity = 0;
     }
   }
@@ -75,12 +75,27 @@ export const itemsFromAppointment = (appointment) => {
   if (appointment) {
     const duration = (new Date(appointment.end_at) - new Date(appointment.start_at)) / HOUR_IN_MILLIS;
     const items = [];
-
     if (appointment.instructor_user) {
       items.push(instructorItem(appointment.instructor_user, duration));
     }
 
-    if (appointment.aircraft) { items.push(fromAircraft(appointment.aircraft)); }
+    if (appointment.aircraft) {
+      let item = fromAircraft(appointment.aircraft) 
+      
+      item.hobbs_start = appointment.start_hobbs_time || item.hobbs_start;
+      item.hobbs_end = appointment.end_hobbs_time || item.hobbs_end;
+
+      item.tach_start = appointment.start_tach_time || item.tach_start;
+      item.tach_end = appointment.end_tach_time || item.tach_end;
+
+      if (appointment.end_hobbs_time > 0) {
+        item.disable_flight_hours = true
+      } else {
+        item.disable_flight_hours = false
+      }
+
+      items.push(item); 
+    }
 
     return items;
   } else {
@@ -110,4 +125,23 @@ const fromAircraft = (aircraft, duration) => {
     taxable: true,
     deductible: false
   });
+}
+
+export const itemsFromInvoice = (invoice) => {
+  if (invoice.appointment_id || !invoice.aircraft_info || !invoice.line_items) {return invoice}
+
+  let index = -1
+  const aircraft = 
+    invoice.line_items.find(function(item, curr_index, _arr){
+      index = curr_index
+      return item.type == "aircraft"
+    })
+
+  if (aircraft && aircraft.hobbs_end > 0) {aircraft.disable_flight_hours = true}
+  
+  if (index < invoice.line_items.length) {
+    invoice.line_items[index] = aircraft
+  }
+
+  return invoice
 }
