@@ -7,14 +7,14 @@ defmodule Flight.StripeSinglePayment do
         with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id),
             {:ok, %{id: id}} <- create_session(acc_id, info) do
                 pub_key = Application.get_env(:flight, :stripe_publishable_key)
-
-                {:ok, %{stripe_session_id: id, stripe_account_id: acc_id, pub_key: pub_key}}
+                
+                {:ok, %{stripe_session_id: id, stripe_account_id: "acct_1HEy8fHf8cmTIKS1", pub_key: pub_key}}
 
         else
             nil -> {:error, "Stripe Account not added for this school."}
-            {:error, error} -> 
+            {:error, error} ->
+                IO.inspect(error, label: "Erorr") 
                 {:error, "Unable to create stripe session, Please try again later."}
-
         end    
     end
 
@@ -28,10 +28,14 @@ defmodule Flight.StripeSinglePayment do
                 "amount" => 2000,
                 "quantity" => 1
                 }],
+            "payment_intent_data" => %{
+                "application_fee_amount" => 123,
+            },
             "success_url" => success_url,
             "cancel_url" => cancel_url
         }
 
-        Stripe.Session.create(params, [{"Stripe-Account", account_id}])
+        Stripe.Session.create(params, [connect_account: "acct_1HEy8fHf8cmTIKS1"])
+        # Stripe.Session.create(params, [{"Stripe-Account", account_id}])
     end
 end

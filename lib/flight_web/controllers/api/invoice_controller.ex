@@ -85,6 +85,7 @@ defmodule FlightWeb.API.InvoiceController do
     |> render_created_invoice(conn)
   end
 
+  
   def update(conn, %{"invoice" => invoice_params}) do
     invoice_params = Map.put(invoice_params, "is_visible", true)
     case UpdateInvoice.run(conn.assigns.invoice, invoice_params, conn) do
