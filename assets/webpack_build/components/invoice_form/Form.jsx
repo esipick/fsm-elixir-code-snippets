@@ -36,11 +36,6 @@ class Form extends Component {
     const {stripe_account_id, pub_key} = props
 
     const appointments = appointment ? [appointment] : [];
-    
-    var stripePromise = null;
-    if (stripe_account_id && pub_key) {
-      stripePromise = loadStripe(pub_key, {stripeAccount: stripe_account_id});
-    }
 
     this.state = {
       appointment,
@@ -61,9 +56,7 @@ class Form extends Component {
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
-      date: new Date(),
-      stripe: stripePromise,
-      stripeSessionId: props.stripe_session_id
+      date: new Date()
     }
   }
 
@@ -336,6 +329,13 @@ class Form extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
+        console.log(data)
+
+        if (data.session_id) {
+          this.stripeCheckout(data.session_id, data.connect_account, data.pub_key)
+          return;
+        }
+
         window.location = `/billing/invoices/${data.id}`;
       });
     }).catch(response => {
@@ -387,8 +387,12 @@ class Form extends Component {
     calculateRequest(payload);
   }
 
-  async stripeCheckout(stripePromise, sessionId) {
-    const stripe = await stripePromise;
+  async stripeCheckout(sessionId, accountId, pub_key) {
+    console.log(sessionId)
+    console.log(accountId)
+    console.log(pub_key)
+
+    const stripe = await loadStripe(pub_key, {stripeAccount: accountId});
 
     stripe.redirectToCheckout({
         sessionId:sessionId
@@ -400,12 +404,6 @@ class Form extends Component {
 
   submitForm = ({ pay_off }) => {
     console.log("saving")
-
-    if(this.state.stripeSessionId) {
-      this.stripeCheckout(this.state.stripe, this.state.stripeSessionId)
-      return;
-    }
-
 
     if (this.state.saving) return;
     if (this.state.total <= 0) {

@@ -18,22 +18,9 @@ defmodule Flight.Billing.StripeEvents do
     type: "checkout.session.completed",
     data: %{object: %Stripe.Session{} = session} = event}) do
       IO.inspect(session, label: "Session")
-      IO.inspect(event.account, label: "Account")
-
-  end
-
-  def process(%Stripe.Event{
-    type: "checkout.session.async_payment_failed",
-    data: %{object: %Stripe.Session{} = session}}) do
-      IO.inspect(session, label: "Session")
-
-  end
-
-  def process(%Stripe.Event{
-    type: "checkout.session.async_payment_succeeded",
-    data: %{object: %Stripe.Session{} = session}}) do
-      IO.inspect(session, label: "Session")
-
+      # IO.inspect(event.account, label: "Account")
+      Flight.Billing.Invoice.get_by_session_id(session.id)
+      |> Flight.Billing.Invoice.paid_by_cc
   end
 
   def process(%Stripe.Event{type: "account.application.deauthorized", account: account_id}) do

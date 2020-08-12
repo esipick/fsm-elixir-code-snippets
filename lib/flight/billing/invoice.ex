@@ -36,6 +36,7 @@ defmodule Flight.Billing.Invoice do
     field(:appointment_updated_at, :naive_datetime)
     
     field(:aircraft_info, :map, null: true)
+    field(:session_id, :string, null: true)
 
     belongs_to(:user, User)
     belongs_to(:school, School)
@@ -57,7 +58,7 @@ defmodule Flight.Billing.Invoice do
     invoice
     |> cast(attrs, @required_fields)
     |> cast(attrs, @payer_fields)
-    |> cast(attrs, [:aircraft_info, :appointment_id, :archived, :is_visible, :status, :appointment_updated_at, :demo])
+    |> cast(attrs, [:aircraft_info, :appointment_id, :archived, :is_visible, :status, :appointment_updated_at, :demo, :session_id])
     |> cast_assoc(:line_items)
     |> assoc_constraint(:user)
     |> assoc_constraint(:school)
@@ -73,9 +74,21 @@ defmodule Flight.Billing.Invoice do
     change(invoice, status: :paid) |> Repo.update()
   end
 
+  def paid_by_cc(nil), do: {:error, nil}
   def paid_by_cc(%Invoice{} = invoice) do
     attrs = [payment_option: :cc, status: :paid]
     change(invoice, attrs) |> Repo.update()
+  end
+
+  def save_invoice(%Invoice{} = invoice, attrs) do
+    invoice
+    |> changeset(attrs)
+    |> Repo.update
+  end
+
+  def get_by_session_id(nil), do: nil
+  def get_by_session_id(session_id) do
+    Repo.get_by(Invoice, [session_id: session_id])
   end
 
   def validate_appointment_is_valid(changeset) do

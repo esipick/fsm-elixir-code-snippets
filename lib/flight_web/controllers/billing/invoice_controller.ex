@@ -52,32 +52,32 @@ defmodule FlightWeb.Billing.InvoiceController do
       |> Map.put(:action, "edit")
       |> Map.put(:id, conn.assigns.invoice.id)
     
-      appointment_id = Map.get(conn.assigns.invoice, :appointment_id)
-      school_id = Map.get(conn.assigns.current_user, :school_id)
-      cancel_url = base_url() <> "/billing/invoices/#{props.id}/edit"
+      # appointment_id = Map.get(conn.assigns.invoice, :appointment_id)
+      # school_id = Map.get(conn.assigns.current_user, :school_id)
+      # cancel_url = base_url() <> "/billing/invoices/#{props.id}/edit"
       
-      info = %{
-        cancel_url: cancel_url,
-        success_url: base_url() <> "/billing/invoices/#{props.id}"
-      }
+      # info = %{
+      #   cancel_url: cancel_url,
+      #   success_url: base_url() <> "/billing/invoices/#{props.id}"
+      # }
 
-      props = 
-        with %{demo: true} <- Repo.get(Flight.Scheduling.Appointment, appointment_id),
-        {:ok, stripe_info} <- Flight.StripeSinglePayment.get_stripe_session(school_id, info) do
-            props
-            |> Map.merge(stripe_info)
-            |> IO.inspect(label: "Stripe Session Added")
+      # props = 
+      #   with %{demo: true} <- Repo.get(Flight.Scheduling.Appointment, appointment_id),
+      #   {:ok, stripe_info} <- Flight.StripeSinglePayment.get_stripe_session(school_id, info) do
+      #       props
+      #       |> Map.merge(stripe_info)
+      #       |> IO.inspect(label: "Stripe Session Added")
 
-        else
-          {:error, error} -> 
-              conn
-              |> put_flash(:error, error)
-              |> halt()
+      #   else
+      #     {:error, error} -> 
+      #         conn
+      #         |> put_flash(:error, error)
+      #         |> halt()
 
-              props
+      #         props
 
-          _ -> props
-        end
+      #     _ -> props
+      #   end
 
     render(conn, "edit.html", props: props, skip_shool_select: true)
   end
@@ -200,9 +200,5 @@ defmodule FlightWeb.Billing.InvoiceController do
         deductible: custom_line_item.deductible
       }
     end)
-  end
-
-  defp base_url() do 
-    FlightWeb.Endpoint.url()
   end
 end

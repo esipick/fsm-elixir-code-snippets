@@ -1,41 +1,51 @@
 defmodule Flight.StripeSinglePayment do
     alias Flight.Billing
 
-    def get_stripe_session(nil, _info), do: {:error, "School id not identified."}
-    def get_stripe_session(school_id, info) do
-        # get stripe account id.
+    def get_stripe_session(_invoice, nil), do: {:error, "School id not identified."}
+    def get_stripe_session(invoice, school_id) do
+        info = %{
+            "cancel_url" => base_url() <> "/billing/invoices/#{invoice.id}/edit",
+            "success_url" => base_url() <> "/billing/invoices/#{invoice.id}",
+            "line_items" => map_line_items(invoice.line_items)
+        }
+        
         with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id),
             {:ok, %{id: id}} <- create_session(acc_id, info) do
-                pub_key = Application.get_env(:flight, :stripe_publishable_key)
-                
-                {:ok, %{stripe_session_id: id, stripe_account_id: "acct_1HEy8fHf8cmTIKS1", pub_key: pub_key}}
+                pub_key = FlightWeb.StripeHelper.stripe_key()
+                {:ok, %{session_id: id, connect_account: "acct_1HEy8fHf8cmTIKS1", pub_key: pub_key}}
 
         else
             nil -> {:error, "Stripe Account not added for this school."}
-            {:error, error} ->
-                IO.inspect(error, label: "Erorr") 
-                {:error, "Unable to create stripe session, Please try again later."}
+            error -> error
         end    
     end
 
-    def create_session(account_id, %{cancel_url: cancel_url, success_url: success_url}) do
-        params = %{
+    def create_session(account_id, info) do
+        %{
             "mode" => "payment",
             "payment_method_types" => ["card"],
-            "line_items" => [%{
-                "name" => "Flight Hours",
-                "currency" => "usd",
-                "amount" => 2000,
-                "quantity" => 1
-                }],
             "payment_intent_data" => %{
                 "application_fee_amount" => 123,
-            },
-            "success_url" => success_url,
-            "cancel_url" => cancel_url
+            }
         }
-
-        Stripe.Session.create(params, [connect_account: "acct_1HEy8fHf8cmTIKS1"])
-        # Stripe.Session.create(params, [{"Stripe-Account", account_id}])
+        |> Map.merge(info)
+        |> Stripe.Session.create([connect_account: "acct_1HEy8fHf8cmTIKS1"])
     end
+
+    defp map_line_items(nil), do: []
+    defp map_line_items(line_items) do
+        Enum.map(line_items, fn item ->
+            %{
+                "quantity" => round(item.quantity),
+                "currency" => "usd",
+                "amount" => item.rate,
+                "name" => item.description
+            }
+        end)
+    end
+
+    defp base_url() do 
+        FlightWeb.Endpoint.url()
+    end
+    
 end

@@ -52,13 +52,11 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   def pay(invoice, school_context) do
-    invoice =
-      Repo.preload(invoice, user: from(i in User, lock: "FOR UPDATE NOWAIT"))
-      |> Repo.preload(:appointment)
-
-    IO.inspect(invoice, label: "Invoice.")
-
-    case process_payment(invoice, school_context) do
+    invoice
+    |> Repo.preload(user: from(i in User, lock: "FOR UPDATE NOWAIT"))
+    |> Repo.preload(:appointment)
+    |> process_payment(school_context)
+    |> case do
       {:ok, invoice} ->
         if invoice.appointment do
           Appointment.paid(invoice.appointment)
@@ -69,6 +67,7 @@ defmodule Flight.Billing.CreateInvoice do
       {:error, changeset} ->
         {:error, changeset}
     end
+
   end
 
   defp process_payment(invoice, school_context) do
@@ -98,6 +97,19 @@ defmodule Flight.Billing.CreateInvoice do
 
       {:error, changeset} ->
         {:error, changeset}
+    end
+  end
+
+  defp pay_off_cc(%Invoice{appointment: %Appointment{demo: true}} = invoice, 
+    %{assigns: %{current_user: %{school_id: school_id}}}) do
+    Flight.StripeSinglePayment.get_stripe_session(invoice, school_id)
+    |> case do
+      {:ok, session} -> 
+        # save to invoice.
+        Invoice.save_invoice(invoice, session)
+        {:ok, Map.merge(invoice, session)}
+
+      error -> error
     end
   end
 

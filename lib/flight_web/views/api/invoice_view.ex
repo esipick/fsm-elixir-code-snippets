@@ -33,7 +33,10 @@ defmodule FlightWeb.API.InvoiceView do
           invoice.appointment,
           &render_appointment(&1)
         ),
-      line_items: render_many(line_items, InvoiceLineItemView, "line_item.json", as: :line_item)
+      line_items: render_many(line_items, InvoiceLineItemView, "line_item.json", as: :line_item),
+      connect_account: Map.get(invoice, :connect_account),
+      session_id: Map.get(invoice, :session_id),
+      pub_key: Map.get(invoice, :pub_key)
     }
   end
 
