@@ -29,12 +29,12 @@ defmodule Flight.Billing.CreateInvoice do
 
     with false <- Utils.multiple_aircrafts?(line_items),
         {:ok, invoice} <- Invoice.create(invoice_attrs) do
-          
-          if invoice.appointment_id != nil do
-            Utils.update_aircraft(invoice, user)
-          else
-            line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
-            Utils.update_aircraft(line_item.aircraft_id, line_item, user)
+          line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
+
+          cond do
+            invoice.appointment_id != nil -> Utils.update_aircraft(invoice, user)
+            line_item != nil -> Utils.update_aircraft(line_item.aircraft_id, line_item, user)
+            true -> :nothing
           end
   
           if pay_off == true do
@@ -55,6 +55,8 @@ defmodule Flight.Billing.CreateInvoice do
     invoice =
       Repo.preload(invoice, user: from(i in User, lock: "FOR UPDATE NOWAIT"))
       |> Repo.preload(:appointment)
+
+    IO.inspect(invoice, label: "Invoice.")
 
     case process_payment(invoice, school_context) do
       {:ok, invoice} ->
