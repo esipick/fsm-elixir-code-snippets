@@ -252,7 +252,11 @@ defmodule FlightWeb.API.InvoiceController do
   defp render_created_invoice(result, conn) do
     case result do
       {:ok, invoice} ->
-        invoice = Repo.preload(invoice, [:line_items, :user, :school, :appointment], force: true)
+        session_info = Map.take(invoice, [:session_id, :connect_account, :pub_key])
+        invoice = 
+          invoice
+          |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
+          |> Map.merge(session_info)
 
         conn
         |> put_status(201)

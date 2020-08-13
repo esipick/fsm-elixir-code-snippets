@@ -78,6 +78,10 @@ defmodule Flight.Billing.CreateInvoice do
     end
   end
 
+  defp pay_off_balance(%Invoice{appointment: %Appointment{demo: true}}, _context) do
+    {:error, "Payment method not available for demo flights."}
+  end
+
   defp pay_off_balance(invoice, school_context) do
     total_amount_due = InvoiceStruct.build(invoice).amount_remainder
 

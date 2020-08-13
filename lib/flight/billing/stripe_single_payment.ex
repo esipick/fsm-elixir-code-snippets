@@ -3,10 +3,15 @@ defmodule Flight.StripeSinglePayment do
 
     def get_stripe_session(_invoice, nil), do: {:error, "School id not identified."}
     def get_stripe_session(invoice, school_id) do
+        {line_items, total_amount} = map_line_items(invoice.line_items)
+
         info = %{
             "cancel_url" => base_url() <> "/billing/invoices/#{invoice.id}/edit",
-            "success_url" => base_url() <> "/billing/invoices/#{invoice.id}",
-            "line_items" => map_line_items(invoice.line_items)
+            "success_url" => base_url() <> "/billing/checkout_success?session_id={CHECKOUT_SESSION_ID}",
+            "line_items" => line_items,
+            "payment_intent_data" => %{
+                "application_fee_amount" => Flight.Billing.application_fee_for_total(total_amount),
+            }
         }
         
         with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id),
@@ -23,10 +28,7 @@ defmodule Flight.StripeSinglePayment do
     def create_session(account_id, info) do
         %{
             "mode" => "payment",
-            "payment_method_types" => ["card"],
-            "payment_intent_data" => %{
-                "application_fee_amount" => 123,
-            }
+            "payment_method_types" => ["card"]
         }
         |> Map.merge(info)
         |> Stripe.Session.create([connect_account: "acct_1HEy8fHf8cmTIKS1"])
@@ -34,13 +36,20 @@ defmodule Flight.StripeSinglePayment do
 
     defp map_line_items(nil), do: []
     defp map_line_items(line_items) do
-        Enum.map(line_items, fn item ->
-            %{
-                "quantity" => round(item.quantity),
-                "currency" => "usd",
-                "amount" => item.rate,
-                "name" => item.description
-            }
+        Enum.reduce(line_items, {[], 0}, fn(item, acc) ->
+            {line_items, total} = acc
+
+            total = total + (round(item.quantity) * item.rate / 10)
+
+            item = 
+                %{
+                    "quantity" => round(item.quantity),
+                    "currency" => "usd",
+                    "amount" => item.rate,
+                    "name" => item.description
+                }
+
+            {[item | line_items], total}
         end)
     end
 

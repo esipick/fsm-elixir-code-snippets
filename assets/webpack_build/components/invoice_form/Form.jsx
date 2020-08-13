@@ -329,8 +329,6 @@ class Form extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
-        console.log(data)
-
         if (data.session_id) {
           this.stripeCheckout(data.session_id, data.connect_account, data.pub_key)
           return;
@@ -358,7 +356,6 @@ class Form extends Component {
     }
 
     const { student, appointment, action } = this.state;
-
     const payload = {
       ignore_last_time: action == 'edit',
       line_items,
@@ -388,10 +385,6 @@ class Form extends Component {
   }
 
   async stripeCheckout(sessionId, accountId, pub_key) {
-    console.log(sessionId)
-    console.log(accountId)
-    console.log(pub_key)
-
     const stripe = await loadStripe(pub_key, {stripeAccount: accountId});
 
     stripe.redirectToCheckout({
