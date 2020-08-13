@@ -165,6 +165,8 @@ defmodule FlightWeb.Billing.InvoiceController do
       nil -> 
         conn
         |> put_flash(:error, "Invalid Session id.")
+        |> redirect(to: "/billing/invoices")
+
 
       %{id: id} ->
 
