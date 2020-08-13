@@ -3,31 +3,23 @@
 </div>
 
 <div class="content">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between">
-                        <%# <ul class="nav nav-pills nav-pills-primary" role="tablist"> %>
-                            <h1>Payment Successful</h1>
-                            <a class="nav-link" href="/billing/invoices/<%= @props.invoice_id %>" role="tablist" aria-expanded="true">
-                                <%= "Go to Invoice# #{@props.invoice_id}"%>
-                            </a>
-                            <%# <li class="nav-item">
-                            <a class="nav-link active" href="#" role="tablist" aria-expanded="false">
-                                Invoices
-                            </a>
-                            </li>
-
-                            <li class="nav-item">
-                            <a class="nav-link" href="/billing/transactions" role="tablist" aria-expanded="true">
-                                Transactions
-                            </a>
-                            </li> %>
-                        <%# </ul> %>
-                    </div>
-                </div>
-            </div>
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+      </div>
+      <div class="card-body">
+        <div class="border border-light p-3 mb-4">
+          <div class="d-flex align-items-center justify-content-center" style="height: 350px">
+          <img src="<%= static_path(@conn, "/images/success_tick.svg") %>"/>
+          </div>
+          <div class="text-center" style="height: 100px">
+           <h2>Payment Successful</h2><br>
+            <a href="/billing/invoices/<%= @props.invoice_id %>" role="tablist" aria-expanded="true">Click here to go to Invoice</a>
+          </div>
         </div>
+      </div>
     </div>
+   </div>
 </div>
+
+
