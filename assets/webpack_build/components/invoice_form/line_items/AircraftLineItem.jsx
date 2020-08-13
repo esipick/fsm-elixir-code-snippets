@@ -81,6 +81,8 @@ class AircraftLineItem extends Component {
   setCustomRate = ({ floatValue = 0}) => {
     const rate = floatValue >= MAX_INT ? MAX_INT : floatValue * 100;
     let line_item = Object.assign({}, this.state.line_item, { rate: rate});
+
+    if (!line_item.demo) {return}
     this.setRate(line_item)
   }
 
