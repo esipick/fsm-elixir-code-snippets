@@ -17,7 +17,7 @@ defmodule Flight.StripeSinglePayment do
         with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id),
             {:ok, %{id: id}} <- create_session(acc_id, info) do
                 pub_key = FlightWeb.StripeHelper.stripe_key()
-                {:ok, %{session_id: id, connect_account: "acct_1HEy8fHf8cmTIKS1", pub_key: pub_key}}
+                {:ok, %{session_id: id, connect_account: acc_id, pub_key: pub_key}}
 
         else
             nil -> {:error, "Stripe Account not added for this school."}
@@ -31,7 +31,7 @@ defmodule Flight.StripeSinglePayment do
             "payment_method_types" => ["card"]
         }
         |> Map.merge(info)
-        |> Stripe.Session.create([connect_account: "acct_1HEy8fHf8cmTIKS1"])
+        |> Stripe.Session.create([connect_account: account_id])
     end
 
     defp map_line_items(nil), do: []

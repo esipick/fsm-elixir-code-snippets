@@ -167,7 +167,6 @@ defmodule FlightWeb.Billing.InvoiceController do
         |> put_flash(:error, "Invalid Session id.")
         |> redirect(to: "/billing/invoices")
 
-
       %{id: id} ->
 
         render(conn, "success.html", props: %{invoice_id: id})
