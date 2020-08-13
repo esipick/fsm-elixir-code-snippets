@@ -51,6 +51,33 @@ defmodule FlightWeb.Billing.InvoiceController do
       base_invoice_props(conn)
       |> Map.put(:action, "edit")
       |> Map.put(:id, conn.assigns.invoice.id)
+    
+      # appointment_id = Map.get(conn.assigns.invoice, :appointment_id)
+      # school_id = Map.get(conn.assigns.current_user, :school_id)
+      # cancel_url = base_url() <> "/billing/invoices/#{props.id}/edit"
+      
+      # info = %{
+      #   cancel_url: cancel_url,
+      #   success_url: base_url() <> "/billing/invoices/#{props.id}"
+      # }
+
+      # props = 
+      #   with %{demo: true} <- Repo.get(Flight.Scheduling.Appointment, appointment_id),
+      #   {:ok, stripe_info} <- Flight.StripeSinglePayment.get_stripe_session(school_id, info) do
+      #       props
+      #       |> Map.merge(stripe_info)
+      #       |> IO.inspect(label: "Stripe Session Added")
+
+      #   else
+      #     {:error, error} -> 
+      #         conn
+      #         |> put_flash(:error, error)
+      #         |> halt()
+
+      #         props
+
+      #     _ -> props
+      #   end
 
     render(conn, "edit.html", props: props, skip_shool_select: true)
   end
@@ -129,6 +156,20 @@ defmodule FlightWeb.Billing.InvoiceController do
       conn
     else
       redirect_unathorized_user(conn)
+    end
+  end
+
+  def checkout_success(conn, %{"session_id" => session_id}) do
+    Invoice.get_by_session_id(session_id)
+    |> case do
+      nil -> 
+        conn
+        |> put_flash(:error, "Invalid Session id.")
+        |> redirect(to: "/billing/invoices")
+
+      %{id: id} ->
+
+        render(conn, "success.html", props: %{invoice_id: id})
     end
   end
 

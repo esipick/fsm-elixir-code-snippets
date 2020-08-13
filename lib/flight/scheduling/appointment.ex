@@ -8,6 +8,8 @@ defmodule Flight.Scheduling.Appointment do
     field(:end_at, :naive_datetime)
     field(:start_at, :naive_datetime)
     field(:note, :string)
+    field(:payer_name, :string)
+    field(:demo, :boolean, default: false)
     field(:type, :string, default: "lesson")
     field(:status, InvoiceStatusEnum, default: :pending)
     field(:archived, :boolean, default: false)
@@ -38,6 +40,8 @@ defmodule Flight.Scheduling.Appointment do
       :owner_user_id,
       :aircraft_id,
       :note,
+      :payer_name,
+      :demo,
       :type,
       :status
     ])
@@ -51,6 +55,7 @@ defmodule Flight.Scheduling.Appointment do
     |> validate_end_at_after_start_at
     |> validate_user_instructor_different
     |> validate_either_instructor_or_aircraft_set
+    |> validate_demo_instructor_and_aircraft_set
   end
 
   @doc false
@@ -66,6 +71,7 @@ defmodule Flight.Scheduling.Appointment do
     |> validate_end_at_after_start_at
     |> validate_user_instructor_different
     |> validate_either_instructor_or_aircraft_set
+    |> validate_demo_instructor_and_aircraft_set
   end
 
   def update_transaction_changeset(appointment, attrs),
@@ -86,23 +92,41 @@ defmodule Flight.Scheduling.Appointment do
   end
 
   defp validate_either_instructor_or_aircraft_set(changeset) do
-    if get_field(changeset, :instructor_user_id) || get_field(changeset, :aircraft_id) do
-      changeset
-    else
-      add_error(changeset, :aircraft, "or instructor is required.")
+    cond do
+      get_field(changeset, :demo) ->
+        changeset
+
+      get_field(changeset, :instructor_user_id) || get_field(changeset, :aircraft_id) ->
+        changeset
+
+      true ->
+        add_error(changeset, :aircraft, "or instructor is required.")
+    end
+  end
+
+  defp validate_demo_instructor_and_aircraft_set(changeset) do
+    cond do
+      !get_field(changeset, :demo) -> changeset
+      get_field(changeset, :instructor_user_id) && get_field(changeset, :instructor_user_id) &&  get_field(changeset, :aircraft_id) -> changeset
+      true -> add_error(changeset, :aircraft, "and instructor are required for demo flights.")
     end
   end
 
   defp validate_user_instructor_different(changeset) do
-    if get_field(changeset, :instructor_user_id) || get_field(changeset, :user_id) do
-      with user_id <- get_field(changeset, :user_id),
-           true <- user_id == get_field(changeset, :instructor_user_id) do
-        add_error(changeset, :instructor, "cannot be the same person as the renter.")
-      else
-        _ -> changeset
-      end
-    else
-      add_error(changeset, :instructor, "or student is required.")
+    cond do
+      get_field(changeset, :demo) ->
+        changeset
+
+      get_field(changeset, :instructor_user_id) || get_field(changeset, :user_id) ->
+        with user_id <- get_field(changeset, :user_id),
+             true <- user_id == get_field(changeset, :instructor_user_id) do
+          add_error(changeset, :instructor, "cannot be the same person as the renter.")
+        else
+          _ -> changeset
+        end
+
+      true ->
+        add_error(changeset, :instructor, "or student is required.")
     end
   end
 

@@ -60,7 +60,7 @@ defmodule Flight.Mixfile do
       {:comeonin, "~> 4.0"},
       {:timex, "~> 3.6.1"},
       {:hackney, "~> 1.16", override: true},
-      {:stripity_stripe, "~> 2.1.0"},
+      {:stripity_stripe, "~> 2.7"},
       {:currency_formatter, "~> 0.4"},
       {:appsignal, "~> 1.8.0"},
       {:sweet_xml, "~> 0.6"},

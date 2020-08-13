@@ -9,9 +9,18 @@ defmodule Flight.Billing.StripeEvents do
            Flight.Billing.get_stripe_account_by_account_id(api_account.id) do
       Flight.Billing.update_stripe_account(account, api_account)
     else
-      _ ->
+      _error ->
         :nothing
     end
+  end
+
+  def process(%Stripe.Event{
+    type: "checkout.session.completed",
+    data: %{object: %Stripe.Session{} = session} = event}) do
+      IO.inspect(session, label: "Session")
+      # IO.inspect(event.account, label: "Account")
+      Flight.Billing.Invoice.get_by_session_id(session.id)
+      |> Flight.Billing.Invoice.paid_by_cc
   end
 
   def process(%Stripe.Event{type: "account.application.deauthorized", account: account_id}) do

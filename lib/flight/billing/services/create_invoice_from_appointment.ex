@@ -61,9 +61,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   defp create_invoice_from_appointment(appointment, params, school_context) do
     invoice_payload = get_invoice_payload(appointment, params, school_context)
-    #update invoice start, end tach times, start, end hobbs time.
-    # IO.inspect(params, label: "create_invoice_from_appointment")
-    # line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
+  
     case CalculateInvoice.run(invoice_payload, school_context) do
       {:ok, invoice_params} ->
         CreateInvoice.run(invoice_params, school_context)
@@ -87,6 +85,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
       "appointment_id" => appointment.id,
       "user_id" => appointment.user_id,
       "payer_name" => payer_name_from(appointment),
+      "demo" => appointment.demo,
       "date" => NaiveDateTime.to_date(appointment.end_at),
       "payment_option" => Map.get(params, "payment_option", "balance"),
       "line_items" => line_items_from(appointment, params, current_user),
@@ -95,7 +94,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   end
 
   defp payer_name_from(appointment) do
-    Flight.Accounts.User.full_name(appointment.user || appointment.instructor_user)
+    if appointment.demo, do: appointment.payer_name, else: Flight.Accounts.User.full_name(appointment.user || appointment.instructor_user)
   end
 
   defp line_items_from(appointment, params, current_user) do

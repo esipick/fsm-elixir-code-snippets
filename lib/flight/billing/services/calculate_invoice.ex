@@ -84,7 +84,6 @@ defmodule Flight.Billing.CalculateInvoice do
 
   defp calculate_aircraft_item(line_item, invoice, school_context) do
     current_user = school_context.assigns.current_user
-
     aircraft_details =
       line_item
       |> MapUtil.atomize_shallow()
@@ -119,9 +118,19 @@ defmodule Flight.Billing.CalculateInvoice do
         :normal -> aircraft.rate_per_hour
         :block -> aircraft.block_rate_per_hour
       end
+    
+    {rate, amount} = 
+      if line_item["enable_rate"] && line_item["rate"] > 0 do
+        rate = line_item["rate"]
+        amount = Billing.aircraft_cost!(form.aircraft_details.hobbs_start, form.aircraft_details.hobbs_end, rate, 0.0)
+        {rate, amount}
+
+      else
+        {rate, transaction.total}
+      end 
 
     Map.merge(line_item, %{
-      "amount" => round(transaction.total),
+      "amount" => round(amount),
       "rate" => rate,
       "quantity" => qty
     })

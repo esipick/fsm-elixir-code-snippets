@@ -56,7 +56,12 @@ class AircraftLineItem extends Component {
   }
 
   setRate = (line_item) => {
-    // const { aircraft } = this.state;
+    if (line_item.demo && line_item.rate > 0) {      
+      this.calculateAmount(line_item)
+      return
+    }
+
+    const { aircraft } = this.state;
     if (line_item.aircraft && (this.getAccountBalance() >=1 )) {
       // this.setState({ rate: this.props.line_item.aircraft.block_rate_per_hour });
       line_item.rate = this.props.line_item.aircraft.block_rate_per_hour;
@@ -71,6 +76,12 @@ class AircraftLineItem extends Component {
     line_item.amount = 0;
 
     this.updateLineItem(line_item);
+  }
+
+  setCustomRate = ({ floatValue = 0}) => {
+    const rate = floatValue >= MAX_INT ? MAX_INT : floatValue * 100;
+    let line_item = Object.assign({}, this.state.line_item, { rate: rate});
+    this.setRate(line_item)
   }
 
   getAccountBalance = () => {
@@ -150,7 +161,7 @@ class AircraftLineItem extends Component {
   render() {
     const { aircraft, line_item } = this.state;
     const {
-      hobbs_start, hobbs_end, tach_start, tach_end, id, description, disable_flight_hours
+      hobbs_start, hobbs_end, tach_start, tach_end, id, description, disable_flight_hours, enable_rate,
     } = line_item;
     const { number, canRemove, errors, lineItemTypeOptions, editable } = this.props;
     const { rate, quantity, amount } = this.props.line_item;
@@ -205,7 +216,7 @@ class AircraftLineItem extends Component {
           </td>
           <td>
             <label>Rate</label>
-            <NumberFormat disabled={true} value={rate == null ? null : rate / 100} {...NUMBER_INPUT_OPTS} />
+            <NumberFormat disabled={!enable_rate} onValueChange={this.setCustomRate} value={rate == null ? null : rate / 100} {...NUMBER_INPUT_OPTS} />
             {errors.rate && <br />}
             <Error text={errors.rate} />
           </td>

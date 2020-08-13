@@ -87,9 +87,16 @@ export const itemsFromAppointment = (appointment) => {
 
       item.tach_start = appointment.start_tach_time || item.tach_start;
       item.tach_end = appointment.end_tach_time || item.tach_end;
+      item.demo = appointment.demo
+      
+      if (appointment.demo) {
+        item.enable_rate = true
+      }
 
       if (appointment.end_hobbs_time > 0) {
         item.disable_flight_hours = true
+        item.enable_rate = false
+
       } else {
         item.disable_flight_hours = false
       }
