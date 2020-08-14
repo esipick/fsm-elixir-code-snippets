@@ -40,6 +40,8 @@ defmodule Flight.StripeSinglePayment do
 
         with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id),
             {:ok, %{id: id, client_secret: secret}} <- create_payment_intent(acc_id, total_amount) do
+                pub_key = FlightWeb.StripeHelper.stripe_key()
+
                 {:ok, %{id: id, session_id: secret, connect_account: acc_id, pub_key: pub_key}}
 
         else
