@@ -111,7 +111,7 @@ defmodule Flight.Billing.CreateInvoice do
     %{assigns: %{current_user: %{school_id: school_id}}}, "ios") do
     Flight.StripeSinglePayment.get_payment_intent_secret(invoice, school_id)
     |> case do
-      {:ok, %{id: id} = session} -> 
+      {:ok, %{intent_id: id} = session} -> 
         Invoice.save_invoice(invoice, %{session_id: id})
         {:ok, Map.merge(invoice, session)}
 
