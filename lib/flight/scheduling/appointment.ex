@@ -55,7 +55,7 @@ defmodule Flight.Scheduling.Appointment do
     |> validate_end_at_after_start_at
     |> validate_user_instructor_different
     |> validate_either_instructor_or_aircraft_set
-    |> validate_demo_instructor_and_aircraft_set
+    |> validate_demo_aircraft_set
   end
 
   @doc false
@@ -71,7 +71,7 @@ defmodule Flight.Scheduling.Appointment do
     |> validate_end_at_after_start_at
     |> validate_user_instructor_different
     |> validate_either_instructor_or_aircraft_set
-    |> validate_demo_instructor_and_aircraft_set
+    |> validate_demo_aircraft_set
   end
 
   def update_transaction_changeset(appointment, attrs),
@@ -104,11 +104,11 @@ defmodule Flight.Scheduling.Appointment do
     end
   end
 
-  defp validate_demo_instructor_and_aircraft_set(changeset) do
+  defp validate_demo_aircraft_set(changeset) do
     cond do
       !get_field(changeset, :demo) -> changeset
-      get_field(changeset, :instructor_user_id) && get_field(changeset, :instructor_user_id) &&  get_field(changeset, :aircraft_id) -> changeset
-      true -> add_error(changeset, :aircraft, "and instructor are required for demo flights.")
+      get_field(changeset, :aircraft_id) -> changeset
+      true -> add_error(changeset, :aircraft, "is required for demo flights.")
     end
   end
 
