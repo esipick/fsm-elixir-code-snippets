@@ -13,9 +13,14 @@ export const GUEST_PAYMENT_OPTIONS = [
   { value: VENMO, label: 'Venmo' }
 ];
 export const DEFAULT_PAYMENT_OPTION = { value: CREDIT_CARD, label: 'Credit Card' };
+export const DEFAULT_DEMO_PAYMENT_OPTION = { value: BALANCE, label: 'Balance' };
 export const PAYMENT_OPTIONS = [
   DEFAULT_PAYMENT_OPTION,
   { value: BALANCE, label: 'Balance' },
+  ...GUEST_PAYMENT_OPTIONS
+];
+export const DEMO_PAYMENT_OPTIONS = [
+  DEFAULT_PAYMENT_OPTION,
   ...GUEST_PAYMENT_OPTIONS
 ];
 

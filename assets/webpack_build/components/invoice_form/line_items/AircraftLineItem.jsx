@@ -81,6 +81,8 @@ class AircraftLineItem extends Component {
   setCustomRate = ({ floatValue = 0}) => {
     const rate = floatValue >= MAX_INT ? MAX_INT : floatValue * 100;
     let line_item = Object.assign({}, this.state.line_item, { rate: rate});
+
+    if (!line_item.demo) {return}
     this.setRate(line_item)
   }
 
@@ -110,9 +112,11 @@ class AircraftLineItem extends Component {
     this.props.onChange(line_item);
   }
 
-  aircraftSelect = () => {
+  aircraftSelect = (disable_selection) => {
     const { errors, editable } = this.props;
     const { aircrafts_loading, aircraft } = this.state;
+
+    disable_selection = disable_selection || !editable
 
     return (
       <div>
@@ -120,7 +124,7 @@ class AircraftLineItem extends Component {
           getOptionLabel={(o) => o.tail_number}
           getOptionValue={(o) => o.id}
           isClearable={true}
-          isDisabled={!editable}
+          isDisabled={disable_selection}
           onChange={this.setAircraft}
           options={this.props.aircrafts}
           placeholder="Tail #"
@@ -187,7 +191,7 @@ class AircraftLineItem extends Component {
             <Error text={errors.description} />
           </td>
           <td className="lc-desc-column">
-            {this.aircraftSelect()}
+            {this.aircraftSelect(disable_flight_hours)}
           </td>
           <td className="lc-column"></td>
           <td className="lc-column"></td>
