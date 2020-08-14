@@ -53,8 +53,8 @@ defmodule Flight.StripeSinglePayment do
         end)
     end
 
-    defp base_url() do 
-        FlightWeb.Endpoint.url()
+    defp base_url() do
+      Application.get_env(:flight, :web_base_url)
     end
     
 end
