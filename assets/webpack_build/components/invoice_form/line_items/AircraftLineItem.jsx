@@ -112,9 +112,11 @@ class AircraftLineItem extends Component {
     this.props.onChange(line_item);
   }
 
-  aircraftSelect = () => {
+  aircraftSelect = (disable_selection) => {
     const { errors, editable } = this.props;
     const { aircrafts_loading, aircraft } = this.state;
+
+    disable_selection = disable_selection || !editable
 
     return (
       <div>
@@ -122,7 +124,7 @@ class AircraftLineItem extends Component {
           getOptionLabel={(o) => o.tail_number}
           getOptionValue={(o) => o.id}
           isClearable={true}
-          isDisabled={!editable}
+          isDisabled={disable_selection}
           onChange={this.setAircraft}
           options={this.props.aircrafts}
           placeholder="Tail #"
@@ -189,7 +191,7 @@ class AircraftLineItem extends Component {
             <Error text={errors.description} />
           </td>
           <td className="lc-desc-column">
-            {this.aircraftSelect()}
+            {this.aircraftSelect(disable_flight_hours)}
           </td>
           <td className="lc-column"></td>
           <td className="lc-column"></td>

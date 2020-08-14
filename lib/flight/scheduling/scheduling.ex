@@ -346,7 +346,7 @@ defmodule Flight.Scheduling do
       instructor_user_id = get_field(changeset, :instructor_user_id)
       aircraft_id = get_field(changeset, :aircraft_id)
       _type = get_field(changeset, :type)
-
+      
       excluded_appointment_ids =
         if appointment.id do
           [appointment.id]
@@ -421,9 +421,27 @@ defmodule Flight.Scheduling do
         else
           changeset
         end
+      
+      new_aircraft_id = get_change(changeset, :aircraft_id) || get_field(changeset, :aircraft_id)
+
+      {should_delete_item, changeset} = 
+        if appointment.aircraft_id != nil && appointment.aircraft_id != new_aircraft_id do
+          changeset =
+            changeset
+            |> Appointment.changeset(%{start_tach_time: nil, end_tach_time: nil, start_hobbs_time: nil, end_hobbs_time: nil}, school.timezone)
+          {true, changeset}
+        else
+          {false, changeset}
+        end
+
 
       case Repo.insert_or_update(changeset) do
         {:ok, appointment} ->
+
+          if should_delete_item do
+            Flight.Bills.delete_appointment_aircraft(appointment.id, appointment.aircraft_id)
+          end
+
           Mondo.Task.start(fn ->
             if Enum.count(changeset.changes) > 0 do
               if is_create? do
