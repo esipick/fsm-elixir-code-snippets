@@ -1,6 +1,6 @@
 defmodule Flight.StripeSinglePayment do
     alias Flight.Billing
-
+    require Logger
     def get_stripe_session(_invoice, nil), do: {:error, "School id not identified."}
     def get_stripe_session(invoice, school_id) do
         {line_items, total_amount} = map_line_items(invoice.line_items)
@@ -13,6 +13,7 @@ defmodule Flight.StripeSinglePayment do
                 "application_fee_amount" => Flight.Billing.application_fee_for_total(total_amount),
             }
         }
+        Logger.info fn -> "Url info: #{inspect info}" end
         
         with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id),
             {:ok, %{id: id}} <- create_session(acc_id, info) do
