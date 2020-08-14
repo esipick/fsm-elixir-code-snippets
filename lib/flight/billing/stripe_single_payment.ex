@@ -43,7 +43,7 @@ defmodule Flight.StripeSinglePayment do
             {:ok, %{id: id, client_secret: secret}} <- create_payment_intent(acc_id, total_amount) do
                 pub_key = FlightWeb.StripeHelper.stripe_key()
 
-                {:ok, %{id: id, session_id: secret, connect_account: acc_id, pub_key: pub_key}}
+                {:ok, %{intent_id: id, session_id: secret, connect_account: acc_id, pub_key: pub_key}}
 
         else
             nil -> {:error, "Stripe Account not added for this school."}
