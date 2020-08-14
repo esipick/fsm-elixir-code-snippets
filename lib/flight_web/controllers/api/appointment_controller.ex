@@ -73,23 +73,29 @@ defmodule FlightWeb.API.AppointmentController do
     end
   end
 
-  def update(conn, %{"data" => appointment_data}) do
-    case Flight.Scheduling.insert_or_update_appointment(
-           conn.assigns.appointment,
-           appointment_data,
-           Repo.preload(conn.assigns.current_user, :school),
-           conn
-         ) do
-      {:ok, appointment} ->
-        appointment = FlightWeb.API.AppointmentView.preload(appointment)
-        update_invoice(appointment, conn)
+  def update(%{assigns: %{appointment: appointment, current_user: user}} = conn, %{"data" => appointment_data}) do
+    if !user_can?(user, [Permission.new(:appointment, :modify, :all)]) && Scheduling.Appointment.is_paid?(appointment) do
+      conn
+      |> put_status(401)
+      |> json(%{human_errors: ["Can't modify paid appointment. Please contact administrator to re-schedule or update the content."]})
+    else
+      case Flight.Scheduling.insert_or_update_appointment(
+             conn.assigns.appointment,
+             appointment_data,
+             Repo.preload(conn.assigns.current_user, :school),
+             conn
+           ) do
+        {:ok, appointment} ->
+          appointment = FlightWeb.API.AppointmentView.preload(appointment)
+          update_invoice(appointment, conn)
 
-        render(conn, "show.json", appointment: appointment)
+          render(conn, "show.json", appointment: appointment)
 
-      {:error, changeset} ->
-        conn
-        |> put_status(400)
-        |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
+        {:error, changeset} ->
+          conn
+          |> put_status(400)
+          |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
+      end
     end
   end
 
@@ -100,7 +106,7 @@ defmodule FlightWeb.API.AppointmentController do
       if Scheduling.Appointment.is_paid?(appointment) do
         conn
         |> put_status(401)
-        |> json(%{human_errors: ["Can't delete paid appointment."]})
+        |> json(%{human_errors: ["Can't delete paid appointment. Please contact administrator to re-schedule or delete the content."]})
       else
         instructor_user_id = Map.get(appointment, :instructor_user_id)
         owner_user_id = Map.get(appointment, :owner_user_id)
