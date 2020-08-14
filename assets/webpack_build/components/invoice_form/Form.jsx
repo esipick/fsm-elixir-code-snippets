@@ -21,7 +21,7 @@ import ErrorAlert from './ErrorAlert';
 
 import {
   BALANCE, CASH, CHECK, VENMO, MARK_AS_PAID, PAY,
-  GUEST_PAYMENT_OPTIONS, DEFAULT_PAYMENT_OPTION, PAYMENT_OPTIONS
+  GUEST_PAYMENT_OPTIONS, DEFAULT_PAYMENT_OPTION, PAYMENT_OPTIONS, DEMO_PAYMENT_OPTIONS
 } from './constants';
 
 let calculateRequest = () => { };
@@ -107,7 +107,8 @@ class Form extends Component {
           date: invoice.date ? new Date(invoice.date) : new Date(),
           student: invoice.user || this.guestPayer(invoice.appointment.demo, invoice.payer_name),
           line_items: invoice.line_items || [],
-          payment_method: this.getPaymentMethod(invoice.payment_option),
+          payment_method: this.getPaymentMethod(invoice.appointment.demo ? DEFAULT_PAYMENT_OPTION : invoice.payment_option),
+          demo: invoice.appointment.demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
           total_tax: invoice.total_tax || 0,
@@ -515,10 +516,10 @@ class Form extends Component {
   render() {
     const { custom_line_items, staff_member } = this.props;
     const { aircrafts, appointment, appointment_loading, appointments,
-      instructors, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
+      instructors, date, errors, id, invoice_loading, line_items, payment_method, demo, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
-    
+
     return (
       <div className="card">
         <div className="card-header text-left">
@@ -608,7 +609,7 @@ class Form extends Component {
                     <Select placeholder="Payment method"
                       value={payment_method}
                       classNamePrefix="react-select"
-                      options={student && student.guest && !student.demo ? GUEST_PAYMENT_OPTIONS : PAYMENT_OPTIONS}
+                      options={student && student.guest && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS}
                       onChange={this.setPaymentMethod}
                       required={true} />
                   </div>
