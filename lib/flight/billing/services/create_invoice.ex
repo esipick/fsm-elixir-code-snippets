@@ -71,9 +71,12 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   defp process_payment(invoice, school_context) do
+    x_device = Enum.into(Map.get(school_context, :req_headers) || [], %{})["X-Device"] || ""
+    x_device = String.downcase(x_device)
+
     case invoice.payment_option do
       :balance -> pay_off_balance(invoice, school_context)
-      :cc -> pay_off_cc(invoice, school_context)
+      :cc -> pay_off_cc(invoice, school_context, x_device)
       _ -> pay_off_manually(invoice, school_context)
     end
   end
@@ -94,10 +97,10 @@ defmodule Flight.Billing.CreateInvoice do
         Invoice.paid(invoice)
 
       {:ok, :balance_not_enough, remainder, _} ->
-        pay_off_cc(invoice, school_context, remainder)
+        pay_off_cc(invoice, school_context, nil, remainder)
 
       {:error, :balance_is_empty} ->
-        pay_off_cc(invoice, school_context, total_amount_due)
+        pay_off_cc(invoice, school_context, nil, total_amount_due)
 
       {:error, changeset} ->
         {:error, changeset}
@@ -105,11 +108,22 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   defp pay_off_cc(%Invoice{appointment: %Appointment{demo: true}} = invoice, 
-    %{assigns: %{current_user: %{school_id: school_id}}}) do
+    %{assigns: %{current_user: %{school_id: school_id}}}, "ios") do
+    Flight.StripeSinglePayment.get_payment_intent_secret(invoice, school_id)
+    |> case do
+      {:ok, %{id: id} = session} -> 
+        Invoice.save_invoice(invoice, %{session_id: id})
+        {:ok, Map.merge(invoice, session)}
+
+      error -> error
+    end
+  end
+
+  defp pay_off_cc(%Invoice{appointment: %Appointment{demo: true}} = invoice, 
+    %{assigns: %{current_user: %{school_id: school_id}}}, _) do
     Flight.StripeSinglePayment.get_stripe_session(invoice, school_id)
     |> case do
       {:ok, session} -> 
-        # save to invoice.
         Invoice.save_invoice(invoice, session)
         {:ok, Map.merge(invoice, session)}
 
@@ -117,7 +131,7 @@ defmodule Flight.Billing.CreateInvoice do
     end
   end
 
-  defp pay_off_cc(invoice, school_context, amount \\ nil) do
+  defp pay_off_cc(invoice, school_context, _, amount \\ nil) do
     amount = amount || invoice.total_amount_due
 
     transaction_attrs =

@@ -10,7 +10,7 @@ defmodule Flight.StripeSinglePayment do
             "success_url" => base_url() <> "/billing/checkout_success?session_id={CHECKOUT_SESSION_ID}",
             "line_items" => line_items,
             "payment_intent_data" => %{
-                "application_fee_amount" => Flight.Billing.application_fee_for_total(total_amount),
+                "application_fee_amount" => application_fee(total_amount),
             }
         }
         Logger.info fn -> "Url info: #{inspect info}" end
@@ -35,6 +35,31 @@ defmodule Flight.StripeSinglePayment do
         |> Stripe.Session.create([connect_account: account_id])
     end
 
+    def get_payment_intent_secret(_invoice, nil), do: {:error, "School id not identified."}
+    def get_payment_intent_secret(invoice, school_id) do
+        {_line_items, total_amount} = map_line_items(invoice.line_items)
+
+        with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id),
+            {:ok, %{id: id, client_secret: secret}} <- create_payment_intent(acc_id, total_amount) do
+                {:ok, %{id: id, session_id: secret}}
+
+        else
+            nil -> {:error, "Stripe Account not added for this school."}
+            error -> error
+        end
+    end
+
+    defp create_payment_intent(account_id, amount) do
+        info = %{
+            "payment_method_types" => ["card"],
+            "amount" => round(amount),
+            "currency" => "usd",
+            "application_fee_amount" => application_fee(amount)
+        }
+
+        Stripe.PaymentIntent.create(info, [connect_account: account_id])
+    end
+
     defp map_line_items(nil), do: []
     defp map_line_items(line_items) do
         Enum.reduce(line_items, {[], 0}, fn(item, acc) ->
@@ -52,6 +77,11 @@ defmodule Flight.StripeSinglePayment do
 
             {[item | line_items], total}
         end)
+    end
+
+    defp application_fee(amount) do
+        fee = Flight.Billing.application_fee_for_total(amount) 
+        if fee > 1, do: fee, else: 1
     end
 
     defp base_url() do

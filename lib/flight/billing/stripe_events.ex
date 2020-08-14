@@ -17,11 +17,17 @@ defmodule Flight.Billing.StripeEvents do
   def process(%Stripe.Event{
     type: "checkout.session.completed",
     data: %{object: %Stripe.Session{} = session} = event}) do
-      IO.inspect(session, label: "Session")
-      # IO.inspect(event.account, label: "Account")
       Flight.Billing.Invoice.get_by_session_id(session.id)
       |> Flight.Billing.Invoice.paid_by_cc
   end
+
+  def process(%Stripe.Event{
+    type: "payment_intent.succeeded",
+    data: %{object: %Stripe.PaymentIntent{} = session} = event}) do
+      Flight.Billing.Invoice.get_by_session_id(session.id)
+      |> Flight.Billing.Invoice.paid_by_cc
+  end
+  
 
   def process(%Stripe.Event{type: "account.application.deauthorized", account: account_id}) do
     stripe_account = Flight.Billing.get_stripe_account_by_account_id(account_id)
