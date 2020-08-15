@@ -102,13 +102,18 @@ class Form extends Component {
     }).then(r => r.json())
       .then(r => {
         const invoice = itemsFromInvoice(r.data);
+        
+        console.log(invoice)
+
+        var demo = false
+        if(invoice.appointment){ invoice.appointment.demo }
 
         this.setState({
           date: invoice.date ? new Date(invoice.date) : new Date(),
-          student: invoice.user || this.guestPayer(invoice.appointment.demo, invoice.payer_name),
+          student: invoice.user || this.guestPayer(demo, invoice.payer_name),
           line_items: invoice.line_items || [],
-          payment_method: this.getPaymentMethod(invoice.appointment.demo ? DEFAULT_PAYMENT_OPTION : invoice.payment_option),
-          demo: invoice.appointment.demo,
+          payment_method: this.getPaymentMethod(demo ? DEFAULT_PAYMENT_OPTION : invoice.payment_option),
+          demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
           total_tax: invoice.total_tax || 0,
@@ -519,7 +524,7 @@ class Form extends Component {
       instructors, date, errors, id, invoice_loading, line_items, payment_method, demo, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
-
+    
     return (
       <div className="card">
         <div className="card-header text-left">
