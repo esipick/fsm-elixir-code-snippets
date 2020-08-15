@@ -102,9 +102,7 @@ class Form extends Component {
     }).then(r => r.json())
       .then(r => {
         const invoice = itemsFromInvoice(r.data);
-
-        var demo = false
-        if(invoice.appointment){ demo = invoice.appointment.demo }
+        const demo = invoice.appointment ? invoice.appointment.demo : false
 
         this.setState({
           date: invoice.date ? new Date(invoice.date) : new Date(),
@@ -218,7 +216,7 @@ class Form extends Component {
   }
 
   accountBalance = () => {
-    if (this.state.student && this.state.appointment){
+    if (this.state.student && this.state.appointment && this.state.appointment.demo){
       return "";
     } else if (!this.state.student) {
       return "0.00";
@@ -522,7 +520,7 @@ class Form extends Component {
       instructors, date, errors, id, invoice_loading, line_items, payment_method, demo, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
-    
+
     return (
       <div className="card">
         <div className="card-header text-left">
@@ -612,7 +610,7 @@ class Form extends Component {
                     <Select placeholder="Payment method"
                       value={payment_method}
                       classNamePrefix="react-select"
-                      options={student && student.guest && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS}
+                      options={student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined" && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS}
                       onChange={this.setPaymentMethod}
                       required={true} />
                   </div>
