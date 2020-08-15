@@ -11,10 +11,25 @@ defmodule Flight.Bills.Queries do
             where: i.appointment_id == ^appointment_id and i.is_visible == ^true
     end
 
+    def archive_appointment_invoices_query(apmnt_id) do
+        query = 
+            from i in Invoice
+
+        filter_by(query, %{appointment_id: apmnt_id, status: :pending})
+    end
+
     defp filter_by(query, nil), do: query 
     defp filter_by(query, filter) do
         Enum.reduce(filter, query, fn({key, value}, query) -> 
             case key do
+                :appointment_id ->
+                    from q in query,
+                        where: q.appointment_id == ^value
+
+                :status ->
+                    from q in query,
+                        where: q.status == ^value
+
                 :aircraft_id ->
                     from q in query,
                         where: q.aircraft_id == ^value

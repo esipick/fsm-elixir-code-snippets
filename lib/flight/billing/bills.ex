@@ -15,4 +15,12 @@ defmodule Flight.Bills do
                 Repo.delete(line_item)
         end
     end
+
+    def archive_appointment_invoices(appointment_id) do
+        archived_at = NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
+    
+        appointment_id
+        |> Queries.archive_appointment_invoices_query
+        |> Repo.update_all(set: [archived: true, archived_at: archived_at])
+    end
 end

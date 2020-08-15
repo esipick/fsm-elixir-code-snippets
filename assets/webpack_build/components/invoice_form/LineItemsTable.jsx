@@ -12,10 +12,10 @@ const lineItemsKey = (appointment) => appointment && appointment.id || 'none';
 class LineItemsTable extends Component {
   constructor(props) {
     super(props);
-
     const { appointment } = props;
+    
     const line_items =
-      props.line_items.length > 0 && !appointment ? props.line_items : itemsFromAppointment(appointment);
+      props.line_items.length > 0 && !appointment ? props.line_items : itemsFromAppointment(appointment, props.line_items);
 
     this.state = { line_items, appointment };
   }

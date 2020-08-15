@@ -638,6 +638,8 @@ defmodule Flight.Scheduling do
 
     deleting_user = Repo.preload(deleting_user, :school)
     Appointment.archive(appointment)
+    
+    Flight.Bills.archive_appointment_invoices(appointment.id)
 
     Mondo.Task.start(fn ->
       if deleting_user.id != appointment.user_id do

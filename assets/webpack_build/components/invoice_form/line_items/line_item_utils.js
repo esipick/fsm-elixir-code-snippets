@@ -71,16 +71,25 @@ export class LineItemRecord {
 
 const HOUR_IN_MILLIS = 3600000;
 
-export const itemsFromAppointment = (appointment) => {
+export const itemsFromAppointment = (appointment, line_items) => {
   if (appointment) {
     const duration = (new Date(appointment.end_at) - new Date(appointment.start_at)) / HOUR_IN_MILLIS;
     const items = [];
     if (appointment.instructor_user) {
-      items.push(instructorItem(appointment.instructor_user, duration));
+      const item = findItem(line_items, "instructor")
+      if (!item) {
+        items.push(instructorItem(appointment.instructor_user, duration));
+      
+      } else {
+        items.push(item)
+      }
     }
 
     if (appointment.aircraft) {
-      let item = fromAircraft(appointment.aircraft) 
+      var item = findItem(line_items, "aircraft")
+      if (!item) {
+        item = fromAircraft(appointment.aircraft)
+      }       
       
       item.hobbs_start = appointment.start_hobbs_time || item.hobbs_start;
       item.hobbs_end = appointment.end_hobbs_time || item.hobbs_end;
@@ -151,4 +160,9 @@ export const itemsFromInvoice = (invoice) => {
   }
 
   return invoice
+}
+
+function findItem(line_items, type){
+  const existing_items = line_items || []
+  return existing_items.find(function(item) {return item.type == type})
 }

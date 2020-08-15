@@ -10,6 +10,8 @@ defmodule Flight.Billing.UpdateInvoice do
     current_user = school_context.assigns.current_user
     invoice_attribs = invoice_attrs(invoice_params, current_user)
     aircraft_info = Utils.aircraft_info_map(invoice_params)
+    
+    {:ok, invoice_attribs} = Flight.Billing.CalculateInvoice.run(invoice_attribs, school_context)
 
     {invoice_attribs, update_hours} = 
       if Map.get(invoice, :aircraft_info) == nil do
