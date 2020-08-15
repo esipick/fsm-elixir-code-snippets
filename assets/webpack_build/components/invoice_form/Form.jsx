@@ -102,11 +102,9 @@ class Form extends Component {
     }).then(r => r.json())
       .then(r => {
         const invoice = itemsFromInvoice(r.data);
-        
-        console.log(invoice)
 
         var demo = false
-        if(invoice.appointment){ invoice.appointment.demo }
+        if(invoice.appointment){ demo = invoice.appointment.demo }
 
         this.setState({
           date: invoice.date ? new Date(invoice.date) : new Date(),
