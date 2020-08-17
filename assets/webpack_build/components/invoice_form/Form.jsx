@@ -18,6 +18,7 @@ import { itemsFromInvoice } from './line_items/line_item_utils';
 import LineItemsTable from './LineItemsTable';
 import LowBalanceAlert from './LowBalanceAlert';
 import ErrorAlert from './ErrorAlert';
+import {itemsFromAppointment} from './line_items/line_item_utils';
 
 import {
   BALANCE, CASH, CHECK, VENMO, MARK_AS_PAID, PAY,
@@ -212,7 +213,17 @@ class Form extends Component {
   }
 
   setAppointment = (appointment) => {
-    this.setState({ appointment });
+    const line_items = itemsFromAppointment(appointment)
+    this.setState({appointment})
+    
+    this.calculateTotal(line_items, (values) => {
+      this.setState({
+        line_items: values.line_items,
+        total: values.total || 0,
+        total_tax: values.total_tax || 0,
+        total_amount_due: values.total_amount_due || 0
+      });
+    });
   }
 
   accountBalance = () => {

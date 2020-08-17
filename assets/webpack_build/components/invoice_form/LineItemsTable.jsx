@@ -33,7 +33,7 @@ class LineItemsTable extends Component {
     if (prevAppointmentId !== appointmentId) {
       const { appointment } = props;
       const line_items = itemsFromAppointment(appointment);
-
+      
       return { ...state, line_items, appointment };
     }
 
@@ -72,11 +72,15 @@ class LineItemsTable extends Component {
   }
 
   render() {
-    const { total, total_tax, total_amount_due } = this.state;
+    var { total, total_tax, total_amount_due } = this.state;
     const { aircrafts, custom_line_items, errors, instructors, sales_tax } = this.props;
     const line_items = this.lineItems();
     const line_items_errors = errors.line_items || [];
-
+    
+    total = total || this.props.total || 0
+    total_tax = total_tax || this.props.total_tax || 0
+    total_amount_due = total_amount_due || this.props.total_amount_due || 0
+    
     return (
       <table className="table table-striped line-items-table">
         <thead>
