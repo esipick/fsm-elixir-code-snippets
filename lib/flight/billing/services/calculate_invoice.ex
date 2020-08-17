@@ -108,6 +108,7 @@ defmodule Flight.Billing.CalculateInvoice do
     hobbs_end = form.aircraft_details.hobbs_end || form.aircraft_details.hobbs_start || 0
 
     qty = (hobbs_end - hobbs_start) / 10.0
+    qty = if qty <= 0, do: 1, else: qty
 
     {transaction, _, _, _, _} =
       DetailedTransactionForm.to_transaction(form, rate_type, school_context)
