@@ -16,7 +16,6 @@ defmodule Flight.Billing.CalculateInvoice do
       )
 
     line_items = calculate_line_items(invoice_attrs, school_context)
-
     total = Enum.map(line_items, &chargeable_amount/1) |> Enum.sum() |> round
 
     total_taxable = Enum.map(line_items, &taxable_amount/1) |> Enum.sum()
@@ -103,10 +102,12 @@ defmodule Flight.Billing.CalculateInvoice do
 
   defp calculate_from_hobbs_tach(line_item, detailed_params, school_context) do
     form = struct(DetailedTransactionForm, detailed_params)
-
     rate_type = Billing.rate_type_for_form(form, school_context)
 
-    qty = (form.aircraft_details.hobbs_end - form.aircraft_details.hobbs_start) / 10.0
+    hobbs_start = form.aircraft_details.hobbs_start || 0
+    hobbs_end = form.aircraft_details.hobbs_end || form.aircraft_details.hobbs_start || 0
+
+    qty = (hobbs_end - hobbs_start) / 10.0
 
     {transaction, _, _, _, _} =
       DetailedTransactionForm.to_transaction(form, rate_type, school_context)
@@ -129,6 +130,9 @@ defmodule Flight.Billing.CalculateInvoice do
         {rate, transaction.total}
       end 
 
+    IO.inspect(rate, label: "RATEEE")
+    IO.inspect(amount, label: "Amount")
+    
     Map.merge(line_item, %{
       "amount" => round(amount),
       "rate" => rate,
