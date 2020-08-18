@@ -109,10 +109,13 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   defp pay_off_cc(%Invoice{appointment: %Appointment{demo: true}} = invoice, 
-    %{assigns: %{current_user: %{school_id: school_id}}}, "ios") do
+    %{assigns: %{current_user: %{school_id: school_id}}} = school_context, "ios") do
     Flight.StripeSinglePayment.get_payment_intent_secret(invoice, school_id)
     |> case do
       {:ok, %{intent_id: id} = session} -> 
+        transaction_attrs = transaction_attributes(invoice)
+        CreateTransaction.run(invoice.user, school_context, transaction_attrs)
+
         Invoice.save_invoice(invoice, %{session_id: id})
         {:ok, Map.merge(invoice, session)}
 
@@ -121,10 +124,13 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   defp pay_off_cc(%Invoice{appointment: %Appointment{demo: true}} = invoice, 
-    %{assigns: %{current_user: %{school_id: school_id}}}, _) do
+    %{assigns: %{current_user: %{school_id: school_id}}} = school_context, _) do
     Flight.StripeSinglePayment.get_stripe_session(invoice, school_id)
     |> case do
       {:ok, session} -> 
+        transaction_attrs = transaction_attributes(invoice)
+        CreateTransaction.run(invoice.user, school_context, transaction_attrs)
+
         Invoice.save_invoice(invoice, session)
         {:ok, Map.merge(invoice, session)}
 

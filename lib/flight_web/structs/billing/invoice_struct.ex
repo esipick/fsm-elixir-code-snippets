@@ -57,10 +57,6 @@ defmodule FlightWeb.Billing.InvoiceStruct do
     end
   end
 
-  defp amount_paid(%{total_amount_due: amount_paid, demo: true, payment_option: :cc, status: :paid}) do
-    amount_paid
-  end
-
   defp amount_paid(invoice) do
     completed_transactions(invoice)
     |> Enum.reduce(0, fn transaction, acc -> transaction.amount_due + acc end)

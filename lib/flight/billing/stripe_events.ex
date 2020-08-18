@@ -44,6 +44,7 @@ defmodule Flight.Billing.StripeEvents do
     with %{appointment_id: apmnt_id} = invoice <- Flight.Billing.Invoice.get_by_session_id(session_id),
         {:ok, invoice} <- Flight.Billing.Invoice.paid_by_cc(invoice),
         %{id: id} = appointment <- Flight.Repo.get(Appointment, apmnt_id) do
+          Flight.Billing.PayTransaction.pay_invoice_cc_transaction(invoice.id, session_id)
           Appointment.paid(appointment)
 
     else
