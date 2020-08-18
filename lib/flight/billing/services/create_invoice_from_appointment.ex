@@ -79,11 +79,17 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   def get_invoice_payload(appointment, params, school_context) do
     school = school(school_context)
     current_user = school_context.assigns.current_user
+    user_id = 
+      cond do
+        appointment.user_id not in [nil, "", " "] -> appointment.user_id
+        !appointment.demo -> appointment.instructor_user_id
+        true -> nil
+      end
 
     %{
       "school_id" => school.id,
       "appointment_id" => appointment.id,
-      "user_id" => appointment.user_id,
+      "user_id" => user_id,
       "payer_name" => payer_name_from(appointment),
       "demo" => appointment.demo,
       "date" => NaiveDateTime.to_date(appointment.end_at),

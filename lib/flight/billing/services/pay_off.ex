@@ -3,6 +3,7 @@ defmodule Flight.Billing.PayOff do
     PayTransaction
   }
 
+  def balance(nil, _transaction_attrs, _school_context), do: {:error, "Payment method not allowed for user."}
   def balance(user, transaction_attrs, school_context) do
     user_balance = user.balance
     total_amount_due = transaction_attrs[:total]
