@@ -107,7 +107,7 @@ class Form extends Component {
 
         this.setState({
           date: invoice.date ? new Date(invoice.date) : new Date(),
-          student: invoice.user || this.guestPayer(demo, invoice.payer_name),
+          student: invoice.user || this.demoGuestPayer(demo, invoice.payer_name),
           line_items: invoice.line_items || [],
           payment_method: this.getPaymentMethod(demo ? DEFAULT_PAYMENT_OPTION : invoice.payment_option),
           demo: demo,
@@ -260,7 +260,7 @@ class Form extends Component {
     guest: true
   });
 
-  guestPayer = (demo, payer_name) => ({
+  demoGuestPayer = (demo, payer_name) => ({
     label: payer_name,
     balance: 0,
     id: null,
