@@ -122,7 +122,7 @@ defmodule Flight.Billing.CalculateInvoice do
       end
     
     {rate, amount} = 
-      if line_item["enable_rate"] && line_item["rate"] > 0 do
+      if line_item["enable_rate"] != nil && line_item["rate"] > 0 do
         rate = line_item["rate"]
         amount = Billing.aircraft_cost!(form.aircraft_details.hobbs_start, form.aircraft_details.hobbs_end, rate, 0.0)
         {rate, amount}
