@@ -76,12 +76,12 @@ defmodule Flight.StripeSinglePayment do
 
                     rate = rate + tax
                     total = total + rate
-                    {total, rate}
+
+                    {total, rate / round(item.quantity)}
 
                 else
-                    rate = (round(item.quantity) * item.rate)
-                    total = total + rate
-                    {total, rate}
+                    total = total + (round(item.quantity) * item.rate)
+                    {total, item.rate}
                 end
 
             item = 
