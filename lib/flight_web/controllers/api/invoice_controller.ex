@@ -115,8 +115,9 @@ defmodule FlightWeb.API.InvoiceController do
         })
 
       {:error, %Stripe.Error{} = error} ->
+        status = Map.get(error.extra, :http_status) || 422
         conn
-        |> put_status(error.extra.http_status)
+        |> put_status(status)
         |> json(%{stripe_error: StripeHelper.human_error(error)})
 
       {:error, %PaymentError{} = error} ->
