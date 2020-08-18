@@ -120,9 +120,12 @@ defmodule Flight.Billing.CalculateInvoice do
         :normal -> aircraft.rate_per_hour
         :block -> aircraft.block_rate_per_hour
       end
+
+    demo = Map.get(detailed_params, :aircraft_details) || %{}
+    demo = Map.get(demo, :demo)
     
     {rate, amount} = 
-      if line_item["enable_rate"] != nil && line_item["rate"] > 0 do
+      if demo && line_item["enable_rate"] != nil && line_item["rate"] > 0 do
         rate = line_item["rate"]
         amount = Billing.aircraft_cost!(form.aircraft_details.hobbs_start, form.aircraft_details.hobbs_end, rate, 0.0)
         {rate, amount}
@@ -130,9 +133,6 @@ defmodule Flight.Billing.CalculateInvoice do
       else
         {rate, transaction.total}
       end 
-
-    IO.inspect(rate, label: "RATEEE")
-    IO.inspect(amount, label: "Amount")
     
     Map.merge(line_item, %{
       "amount" => round(amount),
