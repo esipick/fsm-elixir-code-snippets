@@ -342,7 +342,7 @@ class Form extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
-        if (data.session_id) {
+        if (data.session_id && pay_off) {
           this.stripeCheckout(data.session_id, data.connect_account, data.pub_key)
           return;
         }
