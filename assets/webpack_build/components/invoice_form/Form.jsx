@@ -37,7 +37,7 @@ class Form extends Component {
     const {stripe_account_id, pub_key} = props
 
     const appointments = appointment ? [appointment] : [];
-
+  
     this.state = {
       appointment,
       appointments,
@@ -368,6 +368,7 @@ class Form extends Component {
       calculateRequest.cancel();
     }
 
+    console.log(line_items)
     const { student, appointment, action } = this.state;
     const payload = {
       ignore_last_time: action == 'edit',

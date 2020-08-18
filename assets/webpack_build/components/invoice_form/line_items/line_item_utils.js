@@ -72,6 +72,8 @@ export class LineItemRecord {
 const HOUR_IN_MILLIS = 3600000;
 
 export const itemsFromAppointment = (appointment, line_items) => {
+  line_items = line_items || []
+  
   if (appointment) {
     const duration = (new Date(appointment.end_at) - new Date(appointment.start_at)) / HOUR_IN_MILLIS;
     const items = [];
@@ -112,8 +114,11 @@ export const itemsFromAppointment = (appointment, line_items) => {
 
       items.push(item); 
     }
+    const keys = items.map(function(item){return item.id})
+   
+    const others = line_items.filter(function(item){return !(keys.includes(item["id"]))})
 
-    return items;
+    return items.concat(others);
   } else {
     return [
       new LineItemRecord({ description: '' })
