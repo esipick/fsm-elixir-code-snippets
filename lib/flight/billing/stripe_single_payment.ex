@@ -3,7 +3,7 @@ defmodule Flight.StripeSinglePayment do
     require Logger
     def get_stripe_session(_invoice, nil), do: {:error, "School id not identified."}
     def get_stripe_session(invoice, school_id) do
-        {line_items, total_amount} = map_line_items(invoice.line_items)
+        {line_items, total_amount} = map_line_items(invoice.line_items, invoice.tax_rate)
 
         info = %{
             "cancel_url" => base_url() <> "/billing/invoices/#{invoice.id}/edit",
@@ -37,7 +37,7 @@ defmodule Flight.StripeSinglePayment do
 
     def get_payment_intent_secret(_invoice, nil), do: {:error, "School id not identified."}
     def get_payment_intent_secret(invoice, school_id) do
-        {_line_items, total_amount} = map_line_items(invoice.line_items)
+        {_line_items, total_amount} = map_line_items(invoice.line_items, invoice.tax_rate)
 
         with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id),
             {:ok, %{id: id, client_secret: secret}} <- create_payment_intent(acc_id, total_amount) do
@@ -62,18 +62,31 @@ defmodule Flight.StripeSinglePayment do
         Stripe.PaymentIntent.create(info, [connect_account: account_id])
     end
 
-    defp map_line_items(nil), do: []
-    defp map_line_items(line_items) do
+    defp map_line_items(nil, _tax_rate), do: []
+    defp map_line_items(line_items, tax_rate) do
         Enum.reduce(line_items, {[], 0}, fn(item, acc) ->
             {line_items, total} = acc
+            
+            {total, rate } =
+                if item.taxable do
+                    rate = round(item.quantity) * item.rate
+                    tax = escape_scientific_notation(rate * tax_rate) / 100
 
-            total = total + (round(item.quantity) * item.rate / 10)
+                    rate = rate + tax
+                    total = total + rate
+                    {total, rate}
+
+                else
+                    rate = (round(item.quantity) * item.rate)
+                    total = total + rate
+                    {total, rate}
+                end
 
             item = 
                 %{
                     "quantity" => round(item.quantity),
                     "currency" => "usd",
-                    "amount" => item.rate,
+                    "amount" => escape_scientific_notation(rate),
                     "name" => item.description
                 }
 
@@ -89,5 +102,15 @@ defmodule Flight.StripeSinglePayment do
     defp base_url() do
       Application.get_env(:flight, :web_base_url)
     end
-    
+
+    defp escape_scientific_notation(value) do
+
+        with {value, _} <- Float.parse("#{value}"),
+            value <- :erlang.float_to_binary(value, decimals: 2),
+            {value, _} <- Integer.parse("#{value}") do
+            value
+        else
+            _ -> value
+        end
+    end
 end
