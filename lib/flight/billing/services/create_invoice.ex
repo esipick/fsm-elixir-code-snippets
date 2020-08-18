@@ -58,7 +58,7 @@ defmodule Flight.Billing.CreateInvoice do
     |> process_payment(school_context)
     |> case do
       {:ok, invoice} ->
-        if invoice.appointment && !invoice.demo do
+        if invoice.appointment && (!invoice.demo || invoice.payment_option != :cc) do
           Appointment.paid(invoice.appointment)
         end
 
