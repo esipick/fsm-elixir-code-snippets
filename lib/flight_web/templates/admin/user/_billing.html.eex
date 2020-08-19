@@ -33,7 +33,7 @@ function getPlainDate(start_at) {
                 </dl>
                 <dl class="form-group d-flex flex-row-reverse">
                   <dt class="col-md-9"><input type="text" name="amount" id="addFundsAmount" class="form-control"/></dt>
-                  <dd class="col-md-3"><p>Amount</p></dd>
+                  <dd class="col-md-3"><p>Amount<br/><span id="arithmeticOperator"></span></p></dd>
                 </dl>
                 <dl class="form-group d-flex flex-row-reverse">
                   <dt class="col-md-9"><textarea class="form-control" name="description" placeholder="enter description here"></textarea></dt>
@@ -115,6 +115,8 @@ function getPlainDate(start_at) {
       $("#addFundsSubmit")[0].value = "Add Funds"
     } else if (amount < 0) {
       $("#addFundsSubmit")[0].value = "Remove Funds"
+      $("#arithmeticOperator").text("(-)");
+
     }
   })
 </script>
