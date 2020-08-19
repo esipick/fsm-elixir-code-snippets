@@ -71,33 +71,54 @@ export class LineItemRecord {
 
 const HOUR_IN_MILLIS = 3600000;
 
-export const itemsFromAppointment = (appointment) => {
+export const itemsFromAppointment = (appointment, line_items) => {
+  line_items = line_items || []
+  
   if (appointment) {
     const duration = (new Date(appointment.end_at) - new Date(appointment.start_at)) / HOUR_IN_MILLIS;
     const items = [];
     if (appointment.instructor_user) {
-      items.push(instructorItem(appointment.instructor_user, duration));
+      const item = findItem(line_items, "instructor")
+      if (!item) {
+        items.push(instructorItem(appointment.instructor_user, duration));
+      
+      } else {
+        items.push(item)
+      }
     }
 
     if (appointment.aircraft) {
-      let item = fromAircraft(appointment.aircraft) 
+      var item = findItem(line_items, "aircraft")
+      if (!item) {
+        item = fromAircraft(appointment.aircraft)
+      }       
       
       item.hobbs_start = appointment.start_hobbs_time || item.hobbs_start;
       item.hobbs_end = appointment.end_hobbs_time || item.hobbs_end;
 
       item.tach_start = appointment.start_tach_time || item.tach_start;
       item.tach_end = appointment.end_tach_time || item.tach_end;
+      item.demo = appointment.demo
+      
+      if (appointment.demo) {
+        item.enable_rate = true
+      }
 
       if (appointment.end_hobbs_time > 0) {
         item.disable_flight_hours = true
+        item.enable_rate = false
+
       } else {
         item.disable_flight_hours = false
       }
 
       items.push(item); 
     }
+    const keys = items.map(function(item){return item.id})
+   
+    const others = line_items.filter(function(item){return !(keys.includes(item["id"]))})
 
-    return items;
+    return items.concat(others);
   } else {
     return [
       new LineItemRecord({ description: '' })
@@ -144,4 +165,9 @@ export const itemsFromInvoice = (invoice) => {
   }
 
   return invoice
+}
+
+function findItem(line_items, type){
+  const existing_items = line_items || []
+  return existing_items.find(function(item) {return item.type == type})
 }

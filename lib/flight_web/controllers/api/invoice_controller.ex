@@ -85,13 +85,17 @@ defmodule FlightWeb.API.InvoiceController do
     |> render_created_invoice(conn)
   end
 
+  
   def update(conn, %{"invoice" => invoice_params}) do
     invoice_params = Map.put(invoice_params, "is_visible", true)
     case UpdateInvoice.run(conn.assigns.invoice, invoice_params, conn) do
       {:ok, invoice} ->
+        session_info = Map.take(invoice, [:session_id, :connect_account, :pub_key])
+        
         invoice =
           Repo.get(Invoice, invoice.id)
           |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
+          |> Map.merge(session_info)
 
         conn
         |> put_status(200)
@@ -111,9 +115,10 @@ defmodule FlightWeb.API.InvoiceController do
         })
 
       {:error, %Stripe.Error{} = error} ->
+        status = Map.get(error.extra, :http_status) || 422
         conn
-        |> put_status(error.extra.http_status)
-        |> json(%{stripe_error: StripeHelper.human_error(error.message)})
+        |> put_status(status)
+        |> json(%{stripe_error: StripeHelper.human_error(error)})
 
       {:error, %PaymentError{} = error} ->
         conn
@@ -248,7 +253,11 @@ defmodule FlightWeb.API.InvoiceController do
   defp render_created_invoice(result, conn) do
     case result do
       {:ok, invoice} ->
-        invoice = Repo.preload(invoice, [:line_items, :user, :school, :appointment], force: true)
+        session_info = Map.take(invoice, [:session_id, :connect_account, :pub_key])
+        invoice = 
+          invoice
+          |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
+          |> Map.merge(session_info)
 
         conn
         |> put_status(201)
@@ -284,11 +293,11 @@ defmodule FlightWeb.API.InvoiceController do
           error: %{message: "Could not save invoice. Please correct errors in the form."},
           errors: ViewHelpers.translate_errors(changeset)
         })
-
+      
       {:error, id, %Stripe.Error{} = error} ->
         conn
         |> put_status(error.extra.http_status)
-        |> json(%{id: id, stripe_error: StripeHelper.human_error(error.message)})
+        |> json(%{id: id, stripe_error: StripeHelper.human_error(error)})
 
       {:error, id, %PaymentError{} = error} ->
         conn

@@ -10,6 +10,11 @@ defmodule FlightWeb.StripeHelper do
     Application.get_env(:flight, :stripe_publishable_key)
   end
 
+  def human_error(%Stripe.Error{} = error) do
+    param = Map.get(error.extra, :param)
+    if param != nil, do: "#{inspect param}: " <> human_error(error.message), else: human_error(error.message)
+  end
+
   def human_error(message) do
     cond do
       message =~ "passed an empty string for 'card'" ->

@@ -82,6 +82,8 @@ defmodule FlightWeb.API.AppointmentView do
         ),
       transaction_id: appointment.transaction_id,
       note: appointment.note,
+      payer_name: appointment.payer_name,
+      demo: appointment.demo,
       status: appointment.status,
       instructor_user:
         Optional.map(

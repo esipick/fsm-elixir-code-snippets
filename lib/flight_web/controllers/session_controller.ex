@@ -20,13 +20,17 @@ defmodule FlightWeb.SessionController do
   end
 
   def login_submit(conn, %{"email" => email, "password" => password}) do
-    user = Accounts.get_user_by_email(email)
+    user = 
+      Accounts.get_user_by_email(email)
+      |> Flight.Repo.preload([:school])
+
+    IO.inspect(user, label: "User")
 
     if user do
       case Accounts.check_password(user, password) do
         {:ok, user} ->
           cond do
-            user.archived ->
+            user.archived || user.school.archived ->
               conn
               |> put_flash(
                 :error,

@@ -18,6 +18,10 @@ export const PAYMENT_OPTIONS = [
   { value: BALANCE, label: 'Balance' },
   ...GUEST_PAYMENT_OPTIONS
 ];
+export const DEMO_PAYMENT_OPTIONS = [
+  DEFAULT_PAYMENT_OPTION,
+  ...GUEST_PAYMENT_OPTIONS
+];
 
 export const modalStyles = {
   content: {

@@ -43,6 +43,9 @@ defmodule Flight.Billing.InvoiceLineItem do
 
   @doc false
   def changeset(%InvoiceLineItem{} = invoice_line_item, raw_attrs) do
+    rate = Map.get(raw_attrs, "rate") || 0
+    raw_attrs = Map.put(raw_attrs, "rate", round(rate))
+
     attrs = atomize_shallow(raw_attrs) |> coerce_hobbs_tach_time()
 
     invoice_line_item
@@ -54,7 +57,7 @@ defmodule Flight.Billing.InvoiceLineItem do
       less_than: 999_999,
       message: "must be less than $10,000"
     )
-    |> validate_number(:quantity, greater_than: 0, less_than: 1000)
+    |> validate_number(:quantity, greater_than: 0)
     |> validate_conditional_required(:aircraft_id, &aircraft_type?(&1))
     |> validate_conditional_required(:instructor_user_id, &instructor_type?(&1))
     |> validate_aircraft_existence

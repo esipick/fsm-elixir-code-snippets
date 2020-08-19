@@ -7,7 +7,11 @@ function userTitle(user) {
 }
 
 function appointmentTitle(appointment) {
-  return userTitle(appointment.user) || userTitle(appointment.instructor_user);
+  return (appointment.demo) ? "Demo Flight" : userTitle(appointment.user) || userTitle(appointment.instructor_user);
+}
+
+function payerTitle(appointment) {
+  return (appointment.demo) ? appointment.payer_name : userTitle(appointment.user) || userTitle(appointment.instructor_user);
 }
 
 $(document).ready(function () {
@@ -60,13 +64,22 @@ $(document).ready(function () {
   // change event type based on user choice
   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     var id = $(e.target).get(0).id
+
     if (id == "navAppt") {
-      $('#appointmentForm.tab-pane').toggleClass("active")
-      $('#unavailabilityForm.tab-pane').toggleClass("active")
+      $('#appointmentForm.tab-pane').addClass("active");
+      $('#unavailabilityForm.tab-pane').removeClass("active")
+      $('#demoAppointmentForm.tab-pane').removeClass("active")
       eventType = "appt";
+    }
+    else if (id == "navDemoAppt") {
+      $('#appointmentForm.tab-pane').removeClass("active")
+      $('#unavailabilityForm.tab-pane').removeClass("active")
+      $('#demoAppointmentForm.tab-pane').addClass("active");
+      eventType = "demoAppt";
     } else {
-      $('#appointmentForm.tab-pane').toggleClass("active")
-      $('#unavailabilityForm.tab-pane').toggleClass("active")
+      $('#appointmentForm.tab-pane').removeClass("active")
+      $('#unavailabilityForm.tab-pane').addClass("active")
+      $('#demoAppointmentForm.tab-pane').removeClass("active")
       eventType = "unavail"
     }
   })
@@ -154,6 +167,45 @@ $(document).ready(function () {
           headers: AUTH_HEADERS
         })
       }
+    } else if (eventType == "demoAppt") {
+      var payerName = $('#demoApptCustomer').val();
+
+      payerName = (typeof (payerName) === "undefined" || payerName === "" || payerName === " ") ? "Demo Flight" : payerName
+
+      var eventInstructor = safeParseInt($('#demoApptInstructor').val());
+      var eventAircraft = safeParseInt($('#demoApptAircraft').val());
+
+      var eventStart = (moment.utc($('#demoApptStart').val()).add(-(moment().utcOffset()), 'm')).format()
+      var eventEnd = (moment.utc($('#demoApptEnd').val()).add(-(moment().utcOffset()), 'm')).format()
+      var eventNote = $('#demoApptNote').val()
+
+      var eventData = {
+        start_at: eventStart,
+        end_at: eventEnd,
+        user_id: null,
+        payer_name: payerName,
+        demo: true,
+        instructor_user_id: eventInstructor,
+        aircraft_id: eventAircraft,
+        note: eventNote,
+        type: "lesson"
+      };
+
+      if (appointmentOrUnavailabilityId) {
+        promise = $.ajax({
+          method: "put",
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          data: { data: eventData },
+          headers: AUTH_HEADERS
+        })
+      } else {
+        promise = $.post({
+          url: "/api/appointments" + addSchoolIdParam('?'),
+          data: { data: eventData },
+          headers: AUTH_HEADERS
+        })
+      }
+
     } else if (eventType == "unavail") {
       var eventFor = $('#unavailFor').val();
       var eventInstructor = safeParseInt($('#unavailInstructor').val());
@@ -206,6 +258,8 @@ $(document).ready(function () {
       var event;
       if (eventType == "appt") {
         event = "appointment"
+      } else if (eventType == "demoAppt") {
+        event = "demo flight appointment"
       } else {
         event = "unavailability"
       }
@@ -273,6 +327,12 @@ $(document).ready(function () {
           url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
           headers: AUTH_HEADERS
         })
+      } else if (eventType == "demoAppt") {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          headers: AUTH_HEADERS
+        })
       } else {
         promise = $.ajax({
           method: "delete",
@@ -284,6 +344,8 @@ $(document).ready(function () {
       var event;
       if (eventType == "appt") {
         event = "appointment"
+      } else if (eventType == "demoAppt") {
+        event = "demo flight appointment"
       } else {
         event = "unavailability"
       }
@@ -335,6 +397,21 @@ $(document).ready(function () {
       } else {
         $('#apptTitle').text("Create New")
       }
+    }
+    else if (initialData.type == "demoAppointment"){
+      appointmentId = initialData.id;
+      if (appointmentId) {
+        $('#btnInvoice').show()
+      } else {
+        $('#btnInvoice').hide()
+      }
+
+      $('#navDemoAppt').tab("show")
+      if (appointmentOrUnavailabilityId) {
+        $('#apptTitle').text("Edit Appointment")
+      } else {
+        $('#apptTitle').text("Create New")
+      }
     } else {
       appointmentId = initialData.id;
       if (appointmentId) {
@@ -374,6 +451,25 @@ $(document).ready(function () {
     $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
     $('#unavailNote').val(initialData.note);
+
+    $('#demoApptStart').val(initialData.start_at.format(displayFormat))
+    $('#demoApptEnd').val(initialData.end_at.format(displayFormat))
+
+    if (initialData.user_name && meta_roles.content == "student") {
+      $('#demoApptStudent').append(new Option(initialData.user_name, initialData.user_id));
+      $('#demoApptStudent').val(initialData.user_id);
+      $('#demoApptStudent').prop("disabled", true).selectpicker("refresh");
+      $('#demoApptStudent').find('option:last').remove();
+    } else {
+      if (meta_roles.content != "student") { $('#demoApptStudent').val(initialData.user_id); }
+
+      $('#demoApptStudent').prop("disabled", false).selectpicker("refresh");
+    }
+
+    $('#demoApptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
+    $('#demoApptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+    $('#demoApptNote').val(initialData.note);
+    $('#demoApptCustomer').val(initialData.payer_name);
 
     $('#calendarNewModal').modal();
   };
@@ -473,6 +569,7 @@ $(document).ready(function () {
       },
       editable: true,
       eventClick: function (calEvent, jsEvent, view) {
+        console.log(calEvent)
 
         if (calEvent.unavailability) {
           var instructor_user_id = null;
@@ -495,6 +592,32 @@ $(document).ready(function () {
             id: calEvent.unavailability.id
           })
           return;
+        } else if (calEvent.appointment.demo) {
+          var appointment = calEvent.appointment
+          var instructor_user_id = null;
+          if (appointment.instructor_user) {
+            instructor_user_id = appointment.instructor_user.id
+          }
+
+          var aircraft_id = null;
+          if (appointment.aircraft) {
+            aircraft_id = appointment.aircraft.id
+          }
+          if( appointment.status == "paid") {
+            alert("This appointment has been successfully paid!");
+          }
+
+          openAppointmentModal({
+            type: "demoAppointment",
+            start_at: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm'),
+            end_at: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm'),
+            instructor_user_id: instructor_user_id,
+            aircraft_id: aircraft_id,
+            note: appointment.note,
+            demo: appointment.demo,
+            payer_name: payerTitle(appointment),
+            id: appointment.id
+          })
         } else if (calEvent.appointment) {
           var appointment = calEvent.appointment
           var instructor_user_id = null;

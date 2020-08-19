@@ -6,6 +6,10 @@ import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { debounce } from 'lodash';
 
+// import "core-js/stable";
+import "regenerator-runtime/runtime";
+import { loadStripe } from "@stripe/stripe-js";
+
 import { authHeaders, addSchoolIdParam } from '../utils';
 import Error from '../common/Error';
 
@@ -14,23 +18,26 @@ import { itemsFromInvoice } from './line_items/line_item_utils';
 import LineItemsTable from './LineItemsTable';
 import LowBalanceAlert from './LowBalanceAlert';
 import ErrorAlert from './ErrorAlert';
+import {itemsFromAppointment} from './line_items/line_item_utils';
 
 import {
   BALANCE, CASH, CHECK, VENMO, MARK_AS_PAID, PAY,
-  GUEST_PAYMENT_OPTIONS, DEFAULT_PAYMENT_OPTION, PAYMENT_OPTIONS
+  GUEST_PAYMENT_OPTIONS, DEFAULT_PAYMENT_OPTION, PAYMENT_OPTIONS, DEMO_PAYMENT_OPTIONS
 } from './constants';
 
 let calculateRequest = () => { };
 
 class Form extends Component {
+  
   constructor(props) {
     super(props);
 
     this.formRef = null;
     const { creator, staff_member, appointment } = props;
+    const {stripe_account_id, pub_key} = props
 
     const appointments = appointment ? [appointment] : [];
-
+  
     this.state = {
       appointment,
       appointments,
@@ -96,12 +103,14 @@ class Form extends Component {
     }).then(r => r.json())
       .then(r => {
         const invoice = itemsFromInvoice(r.data);
+        const demo = invoice.appointment ? invoice.appointment.demo : false
 
         this.setState({
           date: invoice.date ? new Date(invoice.date) : new Date(),
-          student: invoice.user || this.guestPayer(invoice.payer_name),
+          student: invoice.user || this.demoGuestPayer(demo, invoice.payer_name),
           line_items: invoice.line_items || [],
-          payment_method: this.getPaymentMethod(invoice.payment_option),
+          payment_method: this.getPaymentMethod(demo ? DEFAULT_PAYMENT_OPTION : invoice.payment_option),
+          demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
           total_tax: invoice.total_tax || 0,
@@ -198,14 +207,33 @@ class Form extends Component {
     }
   }
 
+  demoFlightAppointment = (appointment) => {
+    const { demo } = appointment;
+      return demo;
+  }
+
   setAppointment = (appointment) => {
-    this.setState({ appointment });
+    const line_items = itemsFromAppointment(appointment)
+    this.setState({appointment})
+    
+    this.calculateTotal(line_items, (values) => {
+      this.setState({
+        line_items: values.line_items,
+        total: values.total || 0,
+        total_tax: values.total_tax || 0,
+        total_amount_due: values.total_amount_due || 0
+      });
+    });
   }
 
   accountBalance = () => {
-    if (!this.state.student) return "0.00";
-
-    return (this.state.student.balance * 1.0 / 100).toFixed(2);
+    if (this.state.student && this.state.appointment && this.state.appointment.demo){
+      return "";
+    } else if (!this.state.student) {
+      return "0.00";
+    } else {
+      return (this.state.student.balance * 1.0 / 100).toFixed(2);
+    }
   }
 
   setStudent = (student) => {
@@ -230,6 +258,14 @@ class Form extends Component {
     balance: 0,
     id: null,
     guest: true
+  });
+
+  demoGuestPayer = (demo, payer_name) => ({
+    label: payer_name,
+    balance: 0,
+    id: null,
+    guest: true,
+    demo: typeof (demo) != "undefined" ? demo : false
   });
 
   createGuestPayer = (payer_name) => {
@@ -306,6 +342,11 @@ class Form extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
+        if (data.session_id && pay_off) {
+          this.stripeCheckout(data.session_id, data.connect_account, data.pub_key)
+          return;
+        }
+
         window.location = `/billing/invoices/${data.id}`;
       });
     }).catch(response => {
@@ -327,8 +368,8 @@ class Form extends Component {
       calculateRequest.cancel();
     }
 
+    console.log(line_items)
     const { student, appointment, action } = this.state;
-
     const payload = {
       ignore_last_time: action == 'edit',
       line_items,
@@ -357,7 +398,20 @@ class Form extends Component {
     calculateRequest(payload);
   }
 
+  async stripeCheckout(sessionId, accountId, pub_key) {
+    const stripe = await loadStripe(pub_key, {stripeAccount: accountId});
+
+    stripe.redirectToCheckout({
+        sessionId:sessionId
+      })
+      .then(({ error }) => {
+        console.log(error);
+      });
+  }
+
   submitForm = ({ pay_off }) => {
+    console.log("saving")
+
     if (this.state.saving) return;
     if (this.state.total <= 0) {
       this.setState({error_alert_total_open: true});
@@ -475,10 +529,10 @@ class Form extends Component {
   render() {
     const { custom_line_items, staff_member } = this.props;
     const { aircrafts, appointment, appointment_loading, appointments,
-      instructors, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
+      instructors, date, errors, id, invoice_loading, line_items, payment_method, demo, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
-    
+
     return (
       <div className="card">
         <div className="card-header text-left">
@@ -568,7 +622,7 @@ class Form extends Component {
                     <Select placeholder="Payment method"
                       value={payment_method}
                       classNamePrefix="react-select"
-                      options={student && student.guest ? GUEST_PAYMENT_OPTIONS : PAYMENT_OPTIONS}
+                      options={student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined" && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS}
                       onChange={this.setPaymentMethod}
                       required={true} />
                   </div>

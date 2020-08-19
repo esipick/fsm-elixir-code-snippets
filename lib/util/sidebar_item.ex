@@ -48,6 +48,12 @@ defmodule FlightWeb.SidebarItem do
         icon_class: "tech_headphones",
         active: false
       },
+      # %SidebarItem{
+      #   path: "/admin/maintenance",
+      #   label: "Maintenance",
+      #   icon_class: "objects_spaceship",
+      #   active: false
+      # },
       %SidebarItem{
         path: "/admin/aircrafts",
         label: "Assets",

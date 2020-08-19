@@ -1,0 +1,25 @@
+<div class="panel-header panel-header-sm">
+  <div class="header text-center"></div>
+</div>
+
+<div class="content">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+      </div>
+      <div class="card-body">
+        <div class="border border-light p-3 mb-4">
+          <div class="d-flex align-items-center justify-content-center" style="height: 350px">
+          <img src="<%= static_path(@conn, "/images/success_tick.svg") %>"/>
+          </div>
+          <div class="text-center" style="height: 100px">
+           <h2>Payment Successful</h2><br>
+            <a href="/billing/invoices/<%= @props.invoice_id %>" role="tablist" aria-expanded="true">Click here to go to Invoice</a>
+          </div>
+        </div>
+      </div>
+    </div>
+   </div>
+</div>
+
+

@@ -30,6 +30,7 @@ defmodule Flight.Billing do
     )
   end
 
+  def aircraft_cost(hobbs_start, hobbs_end, rate, _fee_percentage) when is_nil(hobbs_start) or is_nil(hobbs_end) or is_nil(rate), do: {:ok, 0}
   def aircraft_cost(hobbs_start, hobbs_end, rate, fee_percentage) do
     cond do
       hobbs_end <= hobbs_start ->
@@ -42,6 +43,7 @@ defmodule Flight.Billing do
     end
   end
 
+  def aircraft_cost!(hobbs_start, hobbs_end, rate, _fee_percentage) when is_nil(hobbs_start) or is_nil(hobbs_end) or is_nil(rate), do: 0
   def aircraft_cost!(hobbs_start, hobbs_end, rate, fee_percentage) do
     case aircraft_cost(hobbs_start, hobbs_end, rate, fee_percentage) do
       {:ok, amount} -> amount
@@ -77,9 +79,9 @@ defmodule Flight.Billing do
       DetailedTransactionForm.to_transaction(form, :block, school_context)
 
     user =
-      if form.user_id do
-        Flight.Accounts.get_user(form.user_id, school_context)
-      end
+        if form.user_id do
+          Flight.Accounts.get_user(form.user_id, school_context)
+        end
 
     if user && user.balance >= 1 do
       :block
@@ -632,6 +634,12 @@ defmodule Flight.Billing do
   def get_stripe_account_by_account_id(account_id) do
     from(s in StripeAccount)
     |> where([s], s.stripe_account_id == ^account_id)
+    |> Repo.one()
+  end
+
+  def get_stripe_account_by_school_id(school_id) do
+    from(s in StripeAccount)
+    |> where([s], s.school_id == ^school_id and not is_nil(s.stripe_account_id))
     |> Repo.one()
   end
 

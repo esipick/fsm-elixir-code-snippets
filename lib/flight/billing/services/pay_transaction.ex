@@ -27,6 +27,19 @@ defmodule Flight.Billing.PayTransaction do
     end
   end
 
+  def pay_invoice_cc_transaction(invoice_id, session_id) do
+    attribs = %{
+      "stripe_charge_id" => session_id
+    }
+
+    with %{id: id} = trans <- Repo.get_by(Transaction, invoice_id: invoice_id) do
+      complete_transaction(trans)
+      
+    else
+      nil -> {:error, "Transaction not found."}
+    end
+  end
+
   defp update_user_balance(transaction) do
     user = transaction.user
     changeset = change(user, balance: user.balance - transaction.total)

@@ -132,6 +132,20 @@ defmodule FlightWeb.Billing.InvoiceController do
     end
   end
 
+  def checkout_success(conn, %{"session_id" => session_id}) do
+    Invoice.get_by_session_id(session_id)
+    |> case do
+      nil -> 
+        conn
+        |> put_flash(:error, "Invalid Session id.")
+        |> redirect(to: "/billing/invoices")
+
+      %{id: id} ->
+
+        render(conn, "success.html", props: %{invoice_id: id})
+    end
+  end
+
   defp check_paid_invoice(%{assigns: %{invoice: %{status: :paid}}} = conn, _) do
     conn
     |> put_flash(:error, "Can't modify invoice that is already paid.")

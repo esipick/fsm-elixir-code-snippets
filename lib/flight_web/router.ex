@@ -138,6 +138,7 @@ defmodule FlightWeb.Router do
     ])
 
     resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show, :delete])
+    get("/checkout_success/", InvoiceController, :checkout_success)
     resources("/bulk_invoices", BulkInvoiceController, only: [:new])
     resources("/transactions", TransactionController, only: [:index, :show])
   end
@@ -218,6 +219,9 @@ defmodule FlightWeb.Router do
     resources("/rooms", RoomController)
 
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
+
+    post("/maintenance", MaintenanceController, :create)
+    get("/maintenance", MaintenanceController, :index)
   end
 
   ###
@@ -232,6 +236,28 @@ defmodule FlightWeb.Router do
     pipe_through(:api)
 
     post("/login", SessionController, :api_login)
+  end
+
+  scope "/api", FlightWeb.API do
+    pipe_through([:api, :api_authenticate])
+
+    post("/maintenance", MaintenanceController, :create)
+    post("/maintenance/add_checklist", MaintenanceController, :add_checklist)
+    post("/maintenance/assign_aircrafts", MaintenanceController, :assign_aircrafts)
+
+    get("/maintenance", MaintenanceController, :get)
+    get("/maintenance/:id", MaintenanceController, :show)
+    delete("/maintenance/:id", MaintenanceController, :delete)
+
+    get("aircrafts/:id/maintenance", MaintenanceController, :aircraft_maintenance)
+    delete("aircrafts/maintenance", MaintenanceController, :remove_aircrafts_from_maintenance)
+
+    post("/checklists", CheckListController, :create)
+    get("/checklists", CheckListController, :index)
+    get("/checklists/categories", CheckListController, :categories)
+
+    delete("/checklists/", CheckListController, :delete)
+    delete("/checklists/maintenance", CheckListController, :delete_checklist_from_maintenance)
   end
 
   scope "/api", FlightWeb.API do

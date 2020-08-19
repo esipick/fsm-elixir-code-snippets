@@ -16,7 +16,6 @@ defmodule Flight.Billing.CalculateInvoice do
       )
 
     line_items = calculate_line_items(invoice_attrs, school_context)
-
     total = Enum.map(line_items, &chargeable_amount/1) |> Enum.sum() |> round
 
     total_taxable = Enum.map(line_items, &taxable_amount/1) |> Enum.sum()
@@ -84,7 +83,6 @@ defmodule Flight.Billing.CalculateInvoice do
 
   defp calculate_aircraft_item(line_item, invoice, school_context) do
     current_user = school_context.assigns.current_user
-
     aircraft_details =
       line_item
       |> MapUtil.atomize_shallow()
@@ -104,10 +102,13 @@ defmodule Flight.Billing.CalculateInvoice do
 
   defp calculate_from_hobbs_tach(line_item, detailed_params, school_context) do
     form = struct(DetailedTransactionForm, detailed_params)
-
     rate_type = Billing.rate_type_for_form(form, school_context)
 
-    qty = (form.aircraft_details.hobbs_end - form.aircraft_details.hobbs_start) / 10.0
+    hobbs_start = form.aircraft_details.hobbs_start || 0
+    hobbs_end = form.aircraft_details.hobbs_end || form.aircraft_details.hobbs_start || 0
+
+    qty = (hobbs_end - hobbs_start) / 10.0
+    qty = if qty <= 0, do: 1, else: qty
 
     {transaction, _, _, _, _} =
       DetailedTransactionForm.to_transaction(form, rate_type, school_context)
@@ -120,8 +121,21 @@ defmodule Flight.Billing.CalculateInvoice do
         :block -> aircraft.block_rate_per_hour
       end
 
+    demo = Map.get(detailed_params, :aircraft_details) || %{}
+    demo = Map.get(demo, :demo)
+    
+    {rate, amount} = 
+      if demo && line_item["enable_rate"] != nil && line_item["rate"] > 0 do
+        rate = line_item["rate"]
+        amount = Billing.aircraft_cost!(form.aircraft_details.hobbs_start, form.aircraft_details.hobbs_end, rate, 0.0)
+        {rate, amount}
+
+      else
+        {rate, transaction.total}
+      end 
+    
     Map.merge(line_item, %{
-      "amount" => round(transaction.total),
+      "amount" => round(amount),
       "rate" => rate,
       "quantity" => qty
     })

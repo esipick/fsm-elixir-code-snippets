@@ -52,15 +52,13 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   def pay(invoice, school_context) do
-    invoice =
-      Repo.preload(invoice, user: from(i in User, lock: "FOR UPDATE NOWAIT"))
-      |> Repo.preload(:appointment)
-
-    IO.inspect(invoice, label: "Invoice.")
-
-    case process_payment(invoice, school_context) do
+    invoice
+    |> Repo.preload(user: from(i in User, lock: "FOR UPDATE NOWAIT"))
+    |> Repo.preload(:appointment)
+    |> process_payment(school_context)
+    |> case do
       {:ok, invoice} ->
-        if invoice.appointment do
+        if invoice.appointment && (!invoice.demo || invoice.payment_option != :cc) do
           Appointment.paid(invoice.appointment)
         end
 
@@ -69,14 +67,23 @@ defmodule Flight.Billing.CreateInvoice do
       {:error, changeset} ->
         {:error, changeset}
     end
+
   end
 
   defp process_payment(invoice, school_context) do
+    x_device = Enum.into(Map.get(school_context, :req_headers) || [], %{})
+    x_device = x_device["X-Device"] || x_device["x-device"] || ""
+    x_device = String.downcase(x_device)
+
     case invoice.payment_option do
       :balance -> pay_off_balance(invoice, school_context)
-      :cc -> pay_off_cc(invoice, school_context)
+      :cc -> pay_off_cc(invoice, school_context, x_device)
       _ -> pay_off_manually(invoice, school_context)
     end
+  end
+
+  defp pay_off_balance(%Invoice{appointment: %Appointment{demo: true}}, _context) do
+    {:error, "Payment method not available for demo flights."}
   end
 
   defp pay_off_balance(invoice, school_context) do
@@ -91,17 +98,47 @@ defmodule Flight.Billing.CreateInvoice do
         Invoice.paid(invoice)
 
       {:ok, :balance_not_enough, remainder, _} ->
-        pay_off_cc(invoice, school_context, remainder)
+        pay_off_cc(invoice, school_context, nil, remainder)
 
       {:error, :balance_is_empty} ->
-        pay_off_cc(invoice, school_context, total_amount_due)
+        pay_off_cc(invoice, school_context, nil, total_amount_due)
 
       {:error, changeset} ->
         {:error, changeset}
     end
   end
 
-  defp pay_off_cc(invoice, school_context, amount \\ nil) do
+  defp pay_off_cc(%Invoice{appointment: %Appointment{demo: true}} = invoice, 
+    %{assigns: %{current_user: %{school_id: school_id}}} = school_context, "ios") do
+    Flight.StripeSinglePayment.get_payment_intent_secret(invoice, school_id)
+    |> case do
+      {:ok, %{intent_id: id} = session} -> 
+        transaction_attrs = transaction_attributes(invoice)
+        CreateTransaction.run(invoice.user, school_context, transaction_attrs)
+
+        Invoice.save_invoice(invoice, %{session_id: id})
+        {:ok, Map.merge(invoice, session)}
+
+      error -> error
+    end
+  end
+
+  defp pay_off_cc(%Invoice{appointment: %Appointment{demo: true}} = invoice, 
+    %{assigns: %{current_user: %{school_id: school_id}}} = school_context, _) do
+    Flight.StripeSinglePayment.get_stripe_session(invoice, school_id)
+    |> case do
+      {:ok, session} -> 
+        transaction_attrs = transaction_attributes(invoice)
+        CreateTransaction.run(invoice.user, school_context, transaction_attrs)
+
+        Invoice.save_invoice(invoice, session)
+        {:ok, Map.merge(invoice, session)}
+
+      error -> error
+    end
+  end
+
+  defp pay_off_cc(invoice, school_context, _, amount \\ nil) do
     amount = amount || invoice.total_amount_due
 
     transaction_attrs =
