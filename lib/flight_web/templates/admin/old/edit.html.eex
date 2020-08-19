@@ -67,7 +67,7 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label>School Email</label>
+                  <label>School Email <small> (This email is used for system communication with your users)</small></label>
                   <input type="email" class="form-control" value="flywithus@randonaviation.com">
                 </div>
               </div>
