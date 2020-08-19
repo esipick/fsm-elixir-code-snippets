@@ -155,6 +155,36 @@ defmodule FlightWeb.SidebarItem do
     ]
   end
 
+  def renter_sidebar do
+    [
+      %SidebarItem{
+        path: "/renter/profile",
+        label: "Profile",
+        icon_class: "users_single-02",
+        active: false
+      },
+      %SidebarItem{
+        path: "/billing/invoices",
+        label: "Billing",
+        icon_class: "business_money-coins",
+        active: false,
+        prefix: "/billing"
+      },
+      %SidebarItem{
+        path: "/renter/schedule",
+        label: "Schedule",
+        icon_class: "ui-1_calendar-60",
+        active: false
+      },
+      %SidebarItem{
+        path: "/logout",
+        label: "Log out",
+        icon_class: "media-1_button-power",
+        active: false
+      }
+    ]
+  end
+
   def build(path, query_string, user) do
     appended =
       if String.length(query_string) > 0 do
@@ -170,6 +200,7 @@ defmodule FlightWeb.SidebarItem do
         "admin" -> admin_sidebar(user)
         "instructor" -> instructor_sidebar()
         "student" -> student_sidebar()
+        "renter" -> renter_sidebar()
       end
 
     items
