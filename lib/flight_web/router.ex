@@ -29,12 +29,16 @@ defmodule FlightWeb.Router do
     plug(FlightWeb.AuthenticateWebUser, roles: ["student"])
   end
 
+  pipeline :renter_authenticate do
+    plug(FlightWeb.AuthenticateWebUser, roles: ["renter"])
+  end
+
   pipeline :instructor_authenticate do
     plug(FlightWeb.AuthenticateWebUser, roles: ["instructor"])
   end
 
   pipeline :web_user_authenticate do
-    plug(FlightWeb.AuthenticateWebUser, roles: ["admin", "dispatcher", "student", "instructor"])
+    plug(FlightWeb.AuthenticateWebUser, roles: ["admin", "dispatcher", "student", "renter", "instructor"])
   end
 
   pipeline :webhooks_authenticate do
@@ -109,6 +113,16 @@ defmodule FlightWeb.Router do
 
   scope "/student", FlightWeb.Student do
     pipe_through([:browser, :admin_layout, :student_authenticate, :admin_metrics_namespace])
+
+    resources("/schedule", ScheduleController, only: [:index, :show, :edit])
+
+    resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true) do
+      put("/update_card", ProfileController, :update_card)
+    end
+  end
+
+  scope "/renter", FlightWeb.Student do
+    pipe_through([:browser, :admin_layout, :renter_authenticate, :admin_metrics_namespace])
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
 

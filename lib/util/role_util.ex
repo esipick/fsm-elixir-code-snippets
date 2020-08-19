@@ -4,6 +4,7 @@ defmodule FlightWeb.RoleUtil do
       "admin" -> "/admin/dashboard"
       "instructor" -> "/instructor/profile"
       "student" -> "/student/profile"
+      "renter" -> "/renter/profile"
       _ -> nil
     end
   end
@@ -21,6 +22,9 @@ defmodule FlightWeb.RoleUtil do
 
       Enum.member?(roles, "student") ->
         "student"
+
+      Enum.member?(roles, "renter") ->
+        "renter"
 
       true ->
         nil

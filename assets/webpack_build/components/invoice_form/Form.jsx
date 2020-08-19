@@ -514,7 +514,7 @@ class Form extends Component {
 
     return (
       <div className={classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '')}>
-        <CreatableSelect placeholder="Student name"
+        <CreatableSelect placeholder="Student/Renter name"
           isClearable
           isValidNewOption={this.isGuestNameValid}
           onCreateOption={this.createGuestPayer}
@@ -547,7 +547,7 @@ class Form extends Component {
               <form ref={this.setFormRef}>
                 <div className="form-group">
                   <label>
-                    Student name
+                    Student/Renter name
                     <Error text={this.userErrors(errors.user_id)} />
                   </label>
                   { staff_member && this.studentSelect() }
