@@ -455,10 +455,10 @@ class Form extends Component {
 
   saveAndPayButton = () => {
     const { payment_method: { value }, saving } = this.state;
-    const inputValue = [CASH, CHECK, VENMO].includes(value) ? MARK_AS_PAID : PAY
+    const inputValue = "Pay Now";//[CASH, CHECK, VENMO].includes(value) ? MARK_AS_PAID : PAY
 
     return (
-      <input className="btn btn-danger invoice-form__pay-btn"
+      <input className="btn btn-success invoice-form__pay-btn"
         type="submit"
         disabled={saving}
         value={inputValue}
@@ -632,7 +632,7 @@ class Form extends Component {
                 <div id="save_and_pay" className="form-group invoice-save-buttons">
                   <input className="btn btn-primary"
                     type="submit"
-                    value="Save"
+                    value="Save for later"
                     disabled={saving}
                     onClick={() => { this.submitForm({ pay_off: false }) }} />
 
