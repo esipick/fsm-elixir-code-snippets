@@ -111,7 +111,7 @@
                 <div class="card-footer mb-3">
                   <input type="submit" class="btn btn-primary btn-round btn-lg" value="Sign Up" />
                   <div class="col-md-8 ml-auto mr-auto">
-                    <p class="text-muted mt-4"><small>By signing up, you are agreeing to the Flight School Manager <a href="#linktoterms">Terms and Conditions</a> .</small></p>
+                    <p class="text-muted mt-4"><small>By signing up, you are agreeing to the Flight School Manager <a href="https://flightschoolmanager.co/terms-conditions/">Terms and Conditions</a> .</small></p>
                   </div>
                 </div>
               <% end %>
