@@ -25,43 +25,43 @@
                 <%= nav_item_link("STEP 01 - School Details", @conn, @school, @tab, :school) %>
               </li>
               <li class="nav-item">
-                <%= nav_item_link("STEP 02 - Contact Details", @conn, @school, @tab, :contact) %>
+                <%= nav_item_link("STEP 02 - User Roles", @conn, @school, @tab, :contact) %>
+              </li>
+              <li class="nav-item">
+                <%= nav_item_link("STEP 03 - Profile Settings", @conn, @school, @tab, :profile) %>
+              </li>
+              <li class="nav-item">
+                <%= nav_item_link("STEP 04 - Assets", @conn, @school, @tab, :assets) %>
               </li>
               <%= if can_access_billing?(@conn) do %>
                 <li class="nav-item">
-                  <%= nav_item_link("STEP 03 - Payment Setup", @conn, @school, @tab, :payment) %>
+                  <%= nav_item_link("STEP 05 - Payments", @conn, @school, @tab, :payment) %>
                 </li>
                 <li class="nav-item">
-                  <%= nav_item_link("STEP 04 - Billing Settings", @conn, @school, @tab, :billing) %>
+                  <%= nav_item_link("FINISH - Billing Settings", @conn, @school, @tab, :billing) %>
                 </li>
               <% end %>
-              <li class="nav-item">
-                <%= nav_item_link("STEP 05 - Profile Settings", @conn, @school, @tab, :profile) %>
-              </li>
-              <li class="nav-item">
-                <%= nav_item_link("FINISH - Assets", @conn, @school, @tab, :assets) %>
-              </li>
             <% else %>
               <li class="nav-item">
                 <%= nav_item_link("School Details", @conn, @school, @tab, :school) %>
               </li>
               <li class="nav-item">
-                <%= nav_item_link("Contact Details", @conn, @school, @tab, :contact) %>
+                <%= nav_item_link("User Roles", @conn, @school, @tab, :contact) %>
               </li>
-              <%= if can_access_billing?(@conn) do %>
-                <li class="nav-item">
-                  <%= nav_item_link("Payment Setup", @conn, @school, @tab, :payment) %>
-                </li>
-                <li class="nav-item">
-                  <%= nav_item_link("Billing Settings", @conn, @school, @tab, :billing) %>
-                </li>
-              <% end %>
               <li class="nav-item">
                 <%= nav_item_link("Profile Settings", @conn, @school, @tab, :profile) %>
               </li>
               <li class="nav-item">
                 <%= nav_item_link("Assets", @conn, @school, @tab, :assets) %>
               </li>
+              <%= if can_access_billing?(@conn) do %>
+                <li class="nav-item">
+                  <%= nav_item_link("Payments", @conn, @school, @tab, :payment) %>
+                </li>
+                <li class="nav-item">
+                  <%= nav_item_link("Billing Settings", @conn, @school, @tab, :billing) %>
+                </li>
+              <% end %>
             <% end %>
 
             </ul>

@@ -19,7 +19,7 @@
               <a class="nav-link active" data-toggle="tab" href="#link1" role="tablist">School Details</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-toggle="tab" href="#link2" role="tablist">Contact Details</a>
+              <a class="nav-link" data-toggle="tab" href="#link2" role="tablist">User Roles</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" data-toggle="tab" href="#link3" role="tablist">Billing Setup</a>
@@ -167,7 +167,7 @@
           <!--  <dd>Enter in all information for your flight school. This info will be publicly visible to your students.</dd>-->
           <!--</dl>-->
           <!--<dl>-->
-          <!--  <dt>2. Contact Details</dt>-->
+          <!--  <dt>2. User Roles</dt>-->
           <!--  <dd>Enter personal contact info that Flight School Manager can use when contacting you. This info will not be publicly visible.</dd>-->
           <!--</dl>-->
           <!--<dl>-->
