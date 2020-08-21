@@ -94,10 +94,10 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
       |> SchoolScope.school_changeset(school_context)
       |> Invitation.create_changeset(attrs)
 
-    school =
-      School
-      |> Repo.get(SchoolScope.school_id(school_context))
-      |> Repo.preload(:stripe_account)
+    # school =
+    #   School
+    #   |> Repo.get(SchoolScope.school_id(school_context))
+    #   |> Repo.preload(:stripe_account)
 
     email = Ecto.Changeset.get_field(changeset, :email)
 
@@ -110,13 +110,13 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
     user = Accounts.get_user_by_email(email)
 
     cond do
-      !school.stripe_account ->
-        changeset
-        |> Ecto.Changeset.add_error(
-          :user,
-          "#{role} can't be invited unless you've attached a Stripe account. Go to Settings → Billing Setup to attach a Stripe account."
-        )
-        |> Ecto.Changeset.apply_action(:insert)
+      # !school.stripe_account ->
+      #   changeset
+      #   |> Ecto.Changeset.add_error(
+      #     :user,
+      #     "#{role} can't be invited unless you've attached a Stripe account. Go to Settings → Billing Setup to attach a Stripe account."
+      #   )
+      #   |> Ecto.Changeset.apply_action(:insert)
 
       user && require_uniq? ->
         changeset
