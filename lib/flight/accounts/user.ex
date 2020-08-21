@@ -155,6 +155,12 @@ defmodule Flight.Accounts.User do
     |> put_pass_hash()
   end
 
+  def create_user_with_role_changeset(user, attrs, roles) do
+    user
+    |> create_changeset(attrs)
+    |> base_validations(roles)
+  end
+
   def initial_user_changeset(user, attrs) do
     user
     |> cast(attrs, [

@@ -7,7 +7,7 @@ defmodule Flight.Billing.PayOff do
   def balance(user, transaction_attrs, school_context) do
     user_balance = user.balance
     total_amount_due = transaction_attrs[:total]
-
+  
     if user_balance > 0 do
       remainder = user_balance - total_amount_due
       balance_enough = remainder >= 0
@@ -39,6 +39,7 @@ defmodule Flight.Billing.PayOff do
     end
   end
 
+  def credit_card(%{stripe_customer_id: nil}, _, _), do: {:error, "Payment method not available for user. Please update the user profile and add a credit card."}
   def credit_card(user, transaction_attrs, school_context) do
     case CreateTransaction.run(user, school_context, transaction_attrs) do
       {:ok, transaction} ->

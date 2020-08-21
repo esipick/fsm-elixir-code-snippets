@@ -108,7 +108,7 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
       |> String.capitalize()
 
     user = Accounts.get_user_by_email(email)
-
+    
     cond do
       # !school.stripe_account ->
       #   changeset
@@ -126,6 +126,20 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
       true ->
         case Repo.insert(changeset) do
           {:ok, invitation} = payload ->
+              role = Accounts.get_role(Map.get(attrs, "role_id"))
+              roles = if role, do: [role], else: []
+
+              params = 
+                attrs
+                |> Map.take(["email", "first_name", "last_name", "school_id"])
+                |> Map.put("phone_number", "000-000-0000")
+                |> Map.put("password", invitation.token)
+
+              %User{}
+              |> SchoolScope.school_changeset(school_context)
+              |> User.create_user_with_role_changeset(params, roles)
+              |> save_user
+
             Accounts.send_invitation_email(invitation)
             payload
 
@@ -133,6 +147,10 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
             other
         end
     end
+  end
+
+  defp save_user(changeset) do
+    Repo.insert(changeset)
   end
 
   defp save_user(changeset, user) do
