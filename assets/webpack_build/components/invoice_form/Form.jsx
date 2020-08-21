@@ -37,11 +37,12 @@ class Form extends Component {
     const {stripe_account_id, pub_key} = props
 
     const appointments = appointment ? [appointment] : [];
-  
+    
     this.state = {
       appointment,
       appointments,
       id: props.id || '',
+      current_user_id: props.current_user_id,
       sales_tax: props.tax_rate || 0,
       action: props.action || 'create',
       error: props.error || '',
@@ -213,7 +214,7 @@ class Form extends Component {
   }
 
   setAppointment = (appointment) => {
-    const line_items = itemsFromAppointment(appointment)
+    const line_items = itemsFromAppointment(appointment, [])
     this.setState({appointment})
     
     this.calculateTotal(line_items, (values) => {
@@ -368,7 +369,6 @@ class Form extends Component {
       calculateRequest.cancel();
     }
 
-    console.log(line_items)
     const { student, appointment, action } = this.state;
     const payload = {
       ignore_last_time: action == 'edit',
@@ -610,7 +610,8 @@ class Form extends Component {
                       sales_tax={sales_tax}
                       total={total}
                       total_amount_due={total_amount_due}
-                      total_tax={total_tax} />}
+                      total_tax={total_tax}
+                      current_user_id={this.state.current_user_id} />}
                 </div>
 
                 <div className="form-group">

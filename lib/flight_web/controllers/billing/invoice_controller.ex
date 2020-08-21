@@ -170,6 +170,7 @@ defmodule FlightWeb.Billing.InvoiceController do
     current_user = conn.assigns.current_user
 
     %{
+      current_user_id: current_user.id,
       custom_line_items: custom_line_items_props(conn),
       creator: FlightWeb.API.UserView.render("skinny_user.json", user: current_user),
       tax_rate: current_user.school.sales_tax || 0,

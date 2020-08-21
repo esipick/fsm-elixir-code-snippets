@@ -78,13 +78,13 @@ export const itemsFromAppointment = (appointment, line_items) => {
     const duration = (new Date(appointment.end_at) - new Date(appointment.start_at)) / HOUR_IN_MILLIS;
     const items = [];
     if (appointment.instructor_user) {
-      const item = findItem(line_items, "instructor")
-      if (!item) {
-        items.push(instructorItem(appointment.instructor_user, duration));
+      var item = findItem(line_items, "instructor")
       
-      } else {
-        items.push(item)
+      if (!item) {
+        item = instructorItem(appointment.instructor_user, duration);
       }
+
+      items.push(item)
     }
 
     if (appointment.aircraft) {
@@ -166,6 +166,11 @@ export const itemsFromInvoice = (invoice) => {
 
   return invoice
 }
+
+export const isInstructorOwnHours = (line_item, current_user_id) => {
+  return line_item.type === "instructor" && current_user_id == line_item.instructor_user_id && current_user_id !== undefined
+}
+
 
 function findItem(line_items, type){
   const existing_items = line_items || []
