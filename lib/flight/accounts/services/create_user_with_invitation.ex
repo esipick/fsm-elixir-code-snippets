@@ -52,7 +52,7 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
       |> Poison.decode!()
 
     changeset = Accounts.user_changeset(user, attrs, school_context)
-
+    
     if changeset.valid? do
       if requires_stripe_account? do
         email = Ecto.Changeset.get_field(changeset, :email)
@@ -118,34 +118,41 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
       #   )
       #   |> Ecto.Changeset.apply_action(:insert)
 
-      user && require_uniq? ->
+      user && !user.archived && require_uniq? ->
         changeset
         |> Ecto.Changeset.add_error(:user, "Email already exists.")
         |> Ecto.Changeset.apply_action(:insert)
 
       true ->
-        case Repo.insert(changeset) do
-          {:ok, invitation} = payload ->
-              role = Accounts.get_role(Map.get(attrs, "role_id"))
-              roles = if role, do: [role], else: []
+        role = Accounts.get_role(Map.get(attrs, "role_id"))
+        roles = if role, do: [role], else: []
+        password = Flight.Random.hex(10)
 
-              params = 
-                attrs
-                |> Map.take(["email", "first_name", "last_name", "school_id"])
-                |> Map.put("phone_number", "000-000-0000")
-                |> Map.put("password", invitation.token)
+        params = 
+          attrs
+          |> Map.take(["email", "first_name", "last_name", "school_id"])
+          |> Map.put("phone_number", "000-000-0000")
+          |> Map.put("password", password)
+          |> Map.put("archived", false)
 
-              %User{}
-              |> SchoolScope.school_changeset(school_context)
-              |> User.create_user_with_role_changeset(params, roles)
-              |> save_user
+        user = if user, do: Repo.preload(user, :roles), else: %User{}
 
-            Accounts.send_invitation_email(invitation)
-            payload
+        user_changeset = 
+          user
+          |> SchoolScope.school_changeset(school_context)
+          |> User.create_user_with_role_changeset(params, roles)
+        
+        Repo.transaction(fn ->
+          with {:ok, user} <- save_user(user_changeset, user),
+            {:ok, invitation} <- Repo.insert(Ecto.Changeset.put_change(changeset, :user_id, user.id)) do
+              Accounts.send_invitation_email(invitation)
 
-          other ->
-            other
-        end
+              invitation
+          else
+            {:error, error} -> 
+              Repo.rollback(error)
+          end
+        end)
     end
   end
 

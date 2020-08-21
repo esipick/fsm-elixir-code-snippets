@@ -158,6 +158,7 @@ defmodule Flight.Accounts.User do
   def create_user_with_role_changeset(user, attrs, roles) do
     user
     |> create_changeset(attrs)
+    |> archive_changeset(attrs)
     |> base_validations(roles)
   end
 
