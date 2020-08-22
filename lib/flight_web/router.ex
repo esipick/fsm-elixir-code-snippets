@@ -272,6 +272,8 @@ defmodule FlightWeb.Router do
 
     delete("/checklists/", CheckListController, :delete)
     delete("/checklists/maintenance", CheckListController, :delete_checklist_from_maintenance)
+
+    get("/user_info", SessionController, :user_info)
   end
 
   scope "/api", FlightWeb.API do
