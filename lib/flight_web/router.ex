@@ -286,6 +286,8 @@ defmodule FlightWeb.Router do
     get("/users/autocomplete", UserController, :autocomplete, as: :autocomplete)
     get("/users/by_role", UserController, :by_role, as: :by_role)
 
+    get("/zip_code", UserController, :zip_code)
+
     resources("/users", UserController, only: [:show, :create, :update, :index]) do
       get("/form_items", UserController, :form_items)
       patch("/change_password", UserController, :change_password)
