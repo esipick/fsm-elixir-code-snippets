@@ -37,4 +37,19 @@ defmodule FlightWeb.API.SessionController do
         |> json(%{human_errors: ["Invalid email or password."]})
     end
   end
+
+  def user_info(conn, _params) do
+    user = 
+      conn.assigns.current_user
+      |> Flight.Repo.preload(:roles)
+
+    roles = Enum.map(user.roles, &(&1.slug))
+    user = 
+      user
+      |> Map.take([:id, :first_name, :last_name])
+      |> Map.put(:roles, roles)
+
+    IO.inspect(user, label: "User")
+    json(conn, user)
+  end
 end
