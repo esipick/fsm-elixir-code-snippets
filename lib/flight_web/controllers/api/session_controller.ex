@@ -49,7 +49,6 @@ defmodule FlightWeb.API.SessionController do
       |> Map.take([:id, :first_name, :last_name])
       |> Map.put(:roles, roles)
 
-    IO.inspect(user, label: "User")
     json(conn, user)
   end
 end
