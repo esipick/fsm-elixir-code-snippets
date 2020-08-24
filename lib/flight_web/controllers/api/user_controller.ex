@@ -151,12 +151,12 @@ defmodule FlightWeb.API.UserController do
   end
 
   def zip_code(conn, params) do
-    Map.get(params, "zip_code") 
+    Map.get(params, "id") 
     |> Flight.KnowledgeBase.get_zipcode
     |> case do
       nil -> 
         conn
-        |> put_status(401)
+        |> put_status(404)
         |> json(%{human_errors: ["Zip code not found."]})
 
       zip_code -> json(conn, Map.take(zip_code, [:zip_code, :state, :state_abbrv, :city]))

@@ -32,7 +32,7 @@
     <div class="col-md-4">
       <div class="form-group">
         <label>Zip Code</label>
-        <%= text_input f, :zipcode, class: "form-control" %>
+        <%= text_input f, :zipcode, class: "form-control", onfocusout: "zipCodeChanged()" %>
         <%= full_error_tag f, :zipcode %>
       </div>
     </div>
@@ -79,3 +79,24 @@
     <% end %>
   </div>
 <% end %>
+
+<%# <script type="text/javascript" src="assets/js/admin/zipcodeSearch.js"></script> %>
+
+<script>
+function zipCodeChanged() {
+  var x = document.getElementById("data_zipcode");
+  const zip_code = x.value
+
+  if (!zip_code || zip_code.trim() === "") {return}
+  
+  const AUTH_HEADERS = { "authorization": window.fsm_token };
+
+  $.get({ url: "/api/zip_code/" + zip_code, headers: AUTH_HEADERS }).then(function(info){
+    const city = document.getElementById("data_city")
+    const state = document.getElementById("data_state")
+    
+    city.value = info.city
+    state.value = info.state
+  })
+}
+</script>
