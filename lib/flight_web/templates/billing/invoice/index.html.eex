@@ -104,7 +104,7 @@ function getPlainDate(start_at) {
                   <td><%= currency(invoice.amount_paid) %></td>
                   <td><%= invoice.status %></td>
                   <td class="text-nowrap"><%= invoice.payment_date %></td>
-                  <td><%= invoice.payment_method %></td>
+                  <td><%= if invoice.payment_method == :cheque, do: "check", else: invoice.payment_method %></td>
                   <td class="text-right">
                     <div id="button-wrapper" class="d-flex justify-content-end">
                       <%= if can_modify_invoice?(@conn, invoice) do %>
