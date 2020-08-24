@@ -271,13 +271,23 @@ defmodule FlightWeb.ViewHelpers do
   end
 
   def stripe_status_html(stripe_account) do
-    {class, text} =
+    {class, text, tooltip} =
       case Accounts.StripeAccount.status(stripe_account) do
-        :running -> {"badge-success", "Good"}
-        _ -> {"badge-danger", "Error"}
+        :running -> {"badge-success", "✔", ""}
+        _ -> {"badge-danger", "!", "data-toggle=\"tooltip\" title=\"This needs to be configured.\""}
       end
 
-    Phoenix.HTML.raw("<span class=\"badge #{class}\">#{text}</span>")
+    Phoenix.HTML.raw("<span class=\"badge #{class}\" #{tooltip}>#{text}</span>")
+  end
+
+  def stripe_status_html(conn, stripe_account) do
+    {class, text, tooltip} =
+      case Accounts.StripeAccount.status(stripe_account) do
+        :running -> {"badge-success", "✔", ""}
+        _ -> {"badge-danger", "!", "data-toggle=\"tooltip\" title=\"This needs to be configured.\""}
+      end
+
+    Phoenix.HTML.raw("<span class=\"badge #{class}\" #{tooltip}>#{text}</span>")
   end
 
   def display_hour_tenths(tenths) do
