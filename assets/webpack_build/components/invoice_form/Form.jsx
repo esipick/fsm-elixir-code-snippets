@@ -342,7 +342,10 @@ class Form extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
-        if (data.session_id && pay_off) {
+        
+        console.log(data)
+
+        if (pay_off && data.session_id && data.connect_account && data.pub_key) {
           this.stripeCheckout(data.session_id, data.connect_account, data.pub_key)
           return;
         }
@@ -368,7 +371,6 @@ class Form extends Component {
       calculateRequest.cancel();
     }
 
-    console.log(line_items)
     const { student, appointment, action } = this.state;
     const payload = {
       ignore_last_time: action == 'edit',
