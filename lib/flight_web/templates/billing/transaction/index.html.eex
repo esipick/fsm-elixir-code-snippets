@@ -76,7 +76,7 @@ function exportTableToCSV(filename) {
             <div class="row mb-4">
               <div class="col-md-4 col-xs-12">
                 <div class="form-group">
-                  <%= text_input f, :search, value: @params["search"], class: "form-control", placeholder: "Search by student name or aircraft tail #" %>
+                  <%= text_input f, :search, value: @params["search"], class: "form-control", placeholder: "Search by person name or aircraft tail #" %>
                 </div>
               </div>
               <div class="col-md-4 col-xs-12">
@@ -114,12 +114,12 @@ function exportTableToCSV(filename) {
                   <th>School</th>
                 <% end %>
                 <th>Invoice ID</th>
-                <th>Student name</th>
-                <th>Amount due</th>
-                <th>Amount paid</th>
+                <th>Person Name</th>
+                <th>Amount Due</th>
+                <th>Amount Paid</th>
                 <th>State</th>
-                <th>Completed at</th>
-                <th>Payment method</th>
+                <th>Completed At</th>
+                <th>Payment Method</th>
               </tr>
             </thead>
 

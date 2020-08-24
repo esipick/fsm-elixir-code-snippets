@@ -73,10 +73,10 @@
               </div>
             </div>
             <div class="row">
-              <label class="col-md-3 col-form-label">Renter/Student*</label>
+              <label class="col-md-3 col-form-label">Person *</label>
               <div class="col-md-9">
                 <div class="form-group">
-                  <select id="apptStudent" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Renter/Student" placeholder="Student">
+                  <select id="apptStudent" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Person Name" placeholder="Student">
                     <%= for renter <- @renters do %>
                       <option value="<%= renter.id %>"><%= display_name(renter) %></option>
                     <% end %>
@@ -202,7 +202,7 @@
             </div>
             <div class="row"><label class="col-md-3 col-form-label">Person</label>
               <div class="col-md-9">
-                <div class="form-group"><input id="demoApptCustomer" type="text" class="form-control" placeholder="Name" value=""></div>
+                <div class="form-group"><input id="demoApptCustomer" type="text" class="form-control" placeholder="Person Name" value=""></div>
               </div>
             </div>
             <div class="row">

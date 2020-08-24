@@ -251,12 +251,12 @@ class BulkInvoiceForm extends Component {
               <form ref={this.setFormRef}>
                 <div className="form-group">
                   <label>
-                    Student name
+                    Person Name
                     <Error text={errors.user_id} />
                   </label>
                   <div className={classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '')}>
                     <Select id="student-name"
-                      placeholder="Student name"
+                      placeholder="Person Name"
                       classNamePrefix="react-select"
                       options={students}
                       onChange={this.setStudent}
