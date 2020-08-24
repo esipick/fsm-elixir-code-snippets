@@ -1,5 +1,3 @@
-<%# <script src="<%= static_path(@conn, "/js/admin/zipcodeSearch.js") %>"></script> %>
-
 <div class="panel-header">
   <div class="header text-center">
     <h2 class="title">
@@ -73,7 +71,9 @@
           <%=
             case @tab do
               :school -> render "_school.html", school: @school, changeset: @changeset, request_path: @conn.request_path
-              :contact -> render "_contact.html", school: @school, changeset: @changeset, request_path: @conn.request_path
+              :contact -> 
+                render "_contact.html", school: @school, changeset: @changeset, request_path: @conn.request_path, conn: @conn, user_template: @user_template, users_info: @users_info
+
               :payment -> render "_payment.html", school: @school
               :billing -> render "_billing.html", school: @school, changeset: @changeset, request_path: @conn.request_path, props: @props
               :profile -> render "_profile.html", school: @school, changeset: @changeset, request_path: @conn.request_path

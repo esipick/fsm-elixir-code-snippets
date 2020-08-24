@@ -14,6 +14,7 @@ defmodule FlightWeb.Admin.InvitationController do
       conn,
       "users.html",
       invitations: invitations,
+      from_contacts: false,
       changeset: Accounts.Invitation.create_changeset(%Accounts.Invitation{}, %{}),
       request_path: invite_request_path(conn),
       role: %{slug: "user"},
@@ -28,6 +29,7 @@ defmodule FlightWeb.Admin.InvitationController do
       conn,
       "index.html",
       invitations: invitations,
+      from_contacts: false,
       changeset: Accounts.Invitation.create_changeset(%Accounts.Invitation{}, %{}),
       request_path: invite_request_path(conn),
       role: Accounts.role_for_slug(role_slug)

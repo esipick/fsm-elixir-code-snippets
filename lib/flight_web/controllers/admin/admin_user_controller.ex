@@ -14,66 +14,23 @@ defmodule FlightWeb.Admin.UserController do
   plug(:protect_admin_users when action in [:show, :edit, :update])
 
   def index(conn, %{"role" => "user" = role, "tab" => "archived"} = params) do
-    role_slug = %{slug: role}
-    search_term = Map.get(params, "search", "")
-    page_params = FlightWeb.Pagination.params(params)
-
-    data =
-      FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, :archived)
-
-    message = params["search"] && set_message(params["search"])
-
-    render(conn, "users.html", data: data, message: message, tab: :archived)
+    {template, assigns} = Flight.UserRolesUtils.process(conn, false, params)
+    render(conn, template, assigns)
   end
 
   def index(conn, %{"role" => role_slug, "tab" => "archived"} = params) do
-    search_term = Map.get(params, "search", "")
-    page_params = FlightWeb.Pagination.params(params)
-
-    data =
-      FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, :archived)
-
-    message = params["search"] && set_message(params["search"])
-
-    render(conn, "index.html", data: data, message: message, tab: :archived)
+    {template, assigns} = Flight.UserRolesUtils.process(conn, false, params)
+    render(conn, template, assigns)
   end
 
   def index(conn, %{"role" => "user" = role} = params) do
-    role_slug = %{slug: role}
-    search_term = Map.get(params, "search", "")
-    page_params = FlightWeb.Pagination.params(params)
-    data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, nil)
-    message = params["search"] && set_message(params["search"])
-    available_user_roles = Accounts.get_user_roles(conn)
-
-    render(
-      conn,
-      "users.html",
-      data: data,
-      message: message,
-      tab: :main,
-      changeset: Accounts.Invitation.create_changeset(%Accounts.Invitation{}, %{}),
-      request_path: InvitationController.invite_request_path(conn),
-      available_user_roles: available_user_roles
-    )
+    {template, assigns} = Flight.UserRolesUtils.process(conn, false, params)
+    render(conn, template, assigns)
   end
 
   def index(conn, %{"role" => role_slug} = params) do
-    search_term = Map.get(params, "search", "")
-    page_params = FlightWeb.Pagination.params(params)
-    data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, nil)
-    message = params["search"] && set_message(params["search"])
-
-    render(
-      conn,
-      "index.html",
-      data: data,
-      message: message,
-      tab: :main,
-      changeset: Accounts.Invitation.create_changeset(%Accounts.Invitation{}, %{}),
-      request_path: InvitationController.invite_request_path(conn),
-      role: Accounts.role_for_slug(role_slug)
-    )
+    {template, assigns} = Flight.UserRolesUtils.process(conn, false, params)
+    render(conn, template, assigns)
   end
 
   def show(conn, %{"tab" => "appointments"}) do
@@ -418,11 +375,5 @@ defmodule FlightWeb.Admin.UserController do
 
   defp modify_admin_permission() do
     [Permission.new(:admins, :modify, :all)]
-  end
-
-  defp set_message(search_param) do
-    if String.trim(search_param) == "" do
-      "Please fill out search field"
-    end
   end
 end

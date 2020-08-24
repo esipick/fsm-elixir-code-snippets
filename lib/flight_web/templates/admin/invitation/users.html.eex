@@ -6,14 +6,27 @@
         <div class="card-header">
           <div class="d-flex justify-content-between mb-3">
             <ul class="nav nav-pills nav-pills-primary" role="tablist">
+            <div class="hiddentext" style="display:none;">
+              <%= 
+                  users_url =
+                    if @from_contacts, do: "/admin/settings?tab=contact&inner_tab=users&role=#{@role.slug}#user_info", else: "/admin/users?role=#{@role.slug}" 
+
+                  invitation_url =
+                    if @from_contacts, do: "/admin/settings?tab=contact&inner_tab=invitation&role=#{@role.slug}#user_info", else: "/admin/invitations?role=#{@role.slug}"
+
+                  archived_url =
+                    if @from_contacts, do: "/admin/settings?tab=contact&inner_tab=archived&role=#{@role.slug}#user_info", else: "/admin/users?role=#{@role.slug}&tab=archived"
+              %>
+              </div>
+              
               <li class="nav-item">
-                <a class="nav-link" href="/admin/users?role=<%= @role.slug %>" role="tablist" aria-expanded="false"><%= plural_label_for_role(@role) %></a>
+                <a class="nav-link" href="<%= users_url %>" role="tablist" aria-expanded="false"><%= plural_label_for_role(@role) %></a>
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="/admin/invitations?role=<%= @role.slug %>" role="tablist" aria-expanded="true">Invitations</a>
+                <a class="nav-link active" href="<%= invitation_url %>" role="tablist" aria-expanded="true">Invitations</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/admin/users?role=<%= @role.slug %>&tab=archived" role="tablist" aria-expanded="false">Archived</a>
+                <a class="nav-link" href="<%= archived_url %>" role="tablist" aria-expanded="false">Archived</a>
               </li>
             </ul>
           </div>
