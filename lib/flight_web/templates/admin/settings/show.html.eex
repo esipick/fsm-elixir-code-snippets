@@ -85,21 +85,23 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-body detail-list">
-          <dl class="d-flex justify-content-between">
-            <dt>Account Created</dt>
-            <dd><%= display_date @school.inserted_at, :short %></dd>
-          </dl>
-          <dl class="d-flex justify-content-between">
-            <dt>Billing Status</dt>
-            <dd><%= stripe_status_html(@school.stripe_account) %></dd>
-          </dl>
+  <%= if @tab==:billing do %>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body detail-list">
+            <dl class="d-flex justify-content-between">
+              <dt>Account Created</dt>
+              <dd><%= display_date @school.inserted_at, :short %></dd>
+            </dl>
+            <dl class="d-flex justify-content-between">
+              <dt>Billing Status</dt>
+              <dd><%= stripe_status_html(@school.stripe_account) %></dd>
+            </dl>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 <%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
