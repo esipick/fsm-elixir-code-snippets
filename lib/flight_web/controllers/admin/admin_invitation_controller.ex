@@ -38,6 +38,7 @@ defmodule FlightWeb.Admin.InvitationController do
 
   def create(conn, %{"data" => %{} = data} = params) do
     from_contacts =  Map.get(params, "from_contacts")
+
     path =
         if from_contacts == "true" do
           "/admin/settings?tab=contact&role=user&inner_tab=invitation#user_info"
@@ -140,36 +141,60 @@ defmodule FlightWeb.Admin.InvitationController do
     end
   end
 
-  defp check_invitation(conn, _) do
+  defp check_invitation(conn, params) do
     email = conn.params["data"]["email"]
     invitation = Accounts.get_invitation_for_email(email, conn)
     user = Accounts.get_user_by_email(email)
     role = invitation && Accounts.get_role!(invitation.role_id)
     slug = invitation && String.capitalize(role.slug)
 
+    from_contacts =  conn.params["from_contacts"]
+
+
     cond do
       invitation && invitation.accepted_at && user.archived ->
+        path =
+          if from_contacts == "true" do
+            "/admin/settings?tab=contact&role=user&inner_tab=archived#user_info"
+          else
+            "/admin/users?role=user&tab=archived"
+          end
+
         conn
         |> put_flash(
           :error,
           "#{slug} already removed with this email address. You may reinstate this account using \"Restore\" button below"
         )
-        |> redirect(to: "/admin/users?role=user&tab=archived")
+        |> redirect(to: path)
         |> halt()
 
       invitation && invitation.accepted_at && !user.archived ->
+        path =
+          if from_contacts == "true" do
+            "/admin/settings?tab=contact&role=user#user_info"
+          else
+            "/admin/users?role=user"
+          end
+
         conn
         |> put_flash(:error, "Email already exists.")
-        |> redirect(to: "/admin/users?role=user")
+        |> redirect(to: path)
         |> halt()
 
       invitation ->
+        path =
+          if from_contacts == "true" do
+            "/admin/settings?tab=contact&role=user&inner_tab=invitation#user_info"
+          else
+            "/admin/invitations?role=user"
+          end
+
         conn
         |> put_flash(
           :error,
           "#{slug} already invited at this email address. Please wait for invitation acceptance or resend invitation"
         )
-        |> redirect(to: "/admin/invitations?role=user")
+        |> redirect(to: path)
         |> halt()
 
       true ->

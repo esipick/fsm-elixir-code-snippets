@@ -72,7 +72,7 @@
             case @tab do
               :school -> render "_school.html", school: @school, changeset: @changeset, request_path: @conn.request_path
               :contact -> 
-                render "_contact.html", school: @school, changeset: @changeset, request_path: @conn.request_path, conn: @conn, user_template: @user_template, users_info: @users_info
+                render "_contact.html", school: @school, changeset: @changeset, request_path: @conn.request_path, conn: @conn
 
               :payment -> render "_payment.html", school: @school
               :billing -> render "_billing.html", school: @school, changeset: @changeset, request_path: @conn.request_path, props: @props
@@ -85,7 +85,20 @@
     </div>
   </div>
 
-  <%= if @tab==:billing do %>
+  
+  <%= if @tab == :contact do%>
+  <div class="row">
+    <div class="col-md-12">
+      <div id="user_info">
+      <%=
+        render(@user_template, [conn: @conn, from_contacts: true] ++ @users_info)
+      %>
+      </div>
+    </div>
+  </div>
+  <%= end %>
+
+  <%= if @tab ==:billing do %>
     <div class="row">
       <div class="col-md-12">
         <div class="card">
@@ -99,7 +112,6 @@
               <dd><%= stripe_status_html(@school.stripe_account) %></dd>
             </dl>
           </div>
-        </div>
       </div>
     </div>
   <% end %>

@@ -43,12 +43,3 @@
     <% end %>
   </div>
 <% end %>
-</div>
-</div>
-<div id="user_info">
-<%=
-    render(@user_template, [conn: @conn, from_contacts: true] ++ @users_info)
-%>
-</div>
-<div>
-<div>
