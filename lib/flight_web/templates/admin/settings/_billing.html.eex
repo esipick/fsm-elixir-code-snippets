@@ -24,7 +24,7 @@
   <%= if !onboarding_completed?(@school) do %>
     <div class="card-footer mt-3">
       <a href="/admin/settings?step_back=true" class="btn btn-fill btn-default mr-2">Back</a>
-      <input type="submit" class="btn btn-fill btn-primary" value="Save & Next">
+      <input type="submit" class="btn btn-fill btn-primary" value="COMPLETE">
     </div>
   <% end %>
 <% end %>
