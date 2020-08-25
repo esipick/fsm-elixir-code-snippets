@@ -1,4 +1,7 @@
+<%= if !@from_contacts do%>
 <div class="panel-header panel-header-sm"></div>
+<%=end%>
+
 <div class="content">
   <div class="row">
     <div class="col-md-12">
@@ -73,6 +76,7 @@
                   <%= full_error_tag f, :email %>
                 </div>
               </div>
+              <input type="hidden" name="from_contacts" value="<%= @from_contacts %>" />
               <div class="col-md-2 pl-1">
                 <input type="submit" class="btn btn-primary m-0" value="Send Invite" />
               </div>
@@ -110,10 +114,11 @@
                         <button
                                 type="button"
                                 class="btn btn-danger btn-sm _delete_button"
+                                from_contacts = "<%= @from_contacts%>"
                                 data-invitation-id="<%= invitation.id %>">
                           Remove
                         </button>
-                        <a href="/admin/invitations/<%= invitation.id %>/resend" class="btn btn-sm btn-primary">Resend</a>
+                        <a href="/admin/invitations/<%= invitation.id %>/resend?from_contacts=<%= @from_contacts %>" class="btn btn-sm btn-primary">Resend</a>
                       </td>
                     </tr>
                   <% end %>

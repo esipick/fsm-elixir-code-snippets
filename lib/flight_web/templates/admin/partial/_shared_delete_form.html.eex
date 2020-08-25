@@ -7,10 +7,18 @@
 $(document).ready(function() {
   $('._delete_button').on('click', function() {
     var id = $(this).attr('<%= "data-#{@attribute}-id" %>')
+    const from_contacts = $(this).attr('from_contacts')
+
+    var path = '<%= @path %>' + id
+    
+    if (from_contacts != undefined) {
+      path = '<%= @path %>' + id + '?from_contacts='+from_contacts
+    }
+
     var shouldDelete = confirm("<%= @message %>")
     if (shouldDelete) {
       var form = $('#delete_form')[0]
-      form.action = '<%= @path %>' + id
+      form.action = path
       form.submit()
     }
   });

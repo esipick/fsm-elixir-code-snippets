@@ -36,7 +36,15 @@ defmodule FlightWeb.Admin.InvitationController do
     )
   end
 
-  def create(conn, %{"data" => %{} = data}) do
+  def create(conn, %{"data" => %{} = data} = params) do
+    from_contacts =  Map.get(params, "from_contacts")
+    path =
+        if from_contacts == "true" do
+          "/admin/settings?tab=contact&role=user&inner_tab=invitation#user_info"
+        else
+          "/admin/invitations?role=user"
+        end
+    
     case Accounts.create_invitation(data, conn) do
       {:ok, invitation} ->
         conn
@@ -44,39 +52,67 @@ defmodule FlightWeb.Admin.InvitationController do
           :success,
           "Successfully sent invitation. Please have #{invitation.first_name} check their email to complete the sign up process."
         )
-        |> redirect(to: "/admin/invitations?role=user")
+        |> redirect(to: path)
 
       {:error, changeset} ->
-        invitations = Accounts.visible_invitations_with_role(conn.assigns.role.slug, conn)
-        available_user_roles = Accounts.get_user_roles(conn)
+        
+        if from_contacts == "true" do
+          msg = FlightWeb.ViewHelpers.human_error_messages_for_user_without_key(changeset) || []
+          msg = List.last(msg)
 
-        render(conn, "index.html",
-          invitations: invitations,
-          changeset: changeset,
-          request_path: invite_request_path(conn),
-          role: conn.assigns.role,
-          available_user_roles: available_user_roles
-        )
+          conn
+          |> put_flash(
+            :error,
+            "#{inspect msg}"
+          )
+          |> redirect(to: path)
+          |> halt()
+        
+        else
+          invitations = Accounts.visible_invitations_with_role(conn.assigns.role.slug, conn)
+          available_user_roles = Accounts.get_user_roles(conn)
+
+          render(conn, "index.html",
+            invitations: invitations,
+            changeset: changeset,
+            request_path: invite_request_path(conn),
+            role: conn.assigns.role,
+            available_user_roles: available_user_roles
+          )
+        end
     end
   end
 
-  def delete(conn, _params) do
+  def delete(conn, params) do
     Accounts.delete_invitation!(conn.assigns.invitation)
+    
+    path =
+      if Map.get(params, "from_contacts") == "true" do
+        "/admin/settings?tab=contact&role=user&inner_tab=invitation#user_info"
+      else
+        "/admin/invitations?role=user"
+      end
 
     conn
     |> put_flash(:success, "Invitation deleted")
-    |> redirect(to: "/admin/invitations?role=user")
+    |> redirect(to: path)
   end
 
-  def resend(conn, _params) do
+  def resend(conn, params) do
     Accounts.send_invitation_email(conn.assigns.invitation)
+    path =
+      if Map.get(params, "from_contacts") == "true" do
+        "/admin/settings?tab=contact&role=user&inner_tab=invitation#user_info"
+      else
+        "/admin/invitations?role=user"
+      end
 
     conn
     |> put_flash(
       :success,
       "Successfully sent invitation email to #{conn.assigns.invitation.email}"
     )
-    |> redirect(to: "/admin/invitations?role=user")
+    |> redirect(to: path)
   end
 
   defp get_invitation(conn, _) do

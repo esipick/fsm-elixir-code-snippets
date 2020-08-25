@@ -281,11 +281,14 @@ defmodule FlightWeb.Admin.UserController do
     conn =
       conn
       |> put_flash(:success, "Successfully archived #{user.first_name} #{user.last_name}")
+    
+    cond do
+      params["from_contacts"] == "true" -> 
+        redirect(conn, to: "/admin/settings?tab=contact&role=#{params["role"]}&page=#{params["page"]}#user_info")
 
-    if params["role"] do
-      redirect(conn, to: "/admin/users?role=#{params["role"]}&page=#{params["page"]}")
-    else
-      redirect(conn, to: "/admin/dashboard")
+      params["role"] -> redirect(conn, to: "/admin/users?role=#{params["role"]}&page=#{params["page"]}")
+
+      true -> redirect(conn, to: "/admin/dashboard")
     end
   end
 
@@ -297,10 +300,13 @@ defmodule FlightWeb.Admin.UserController do
       conn
       |> put_flash(:success, "Successfully restored #{user.first_name} #{user.last_name} account")
 
-    if params["role"] do
-      redirect(conn, to: "/admin/users?role=#{params["role"]}")
-    else
-      redirect(conn, to: "/admin/dashboard")
+    cond do
+      params["from_contacts"] == "true" -> 
+        redirect(conn, to: "/admin/settings?tab=contact&role=#{params["role"]}#user_info")
+
+      params["role"] -> redirect(conn, to: "/admin/users?role=#{params["role"]}")
+
+      true -> redirect(conn, to: "/admin/dashboard")
     end
   end
 

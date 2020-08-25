@@ -20,7 +20,7 @@ defmodule FlightWeb.Admin.SettingsController do
 
     tab = Map.get(params, "inner_tab")
     role = Map.get(params, "role")
-
+  
     params = if tab, do: Map.put(params, "tab", tab), else: params
     params = if role, do: params, else: Map.put(params, "role", "user")
     

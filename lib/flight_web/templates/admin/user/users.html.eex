@@ -1,7 +1,12 @@
+<%= if !@from_contacts do%>
 <div class="panel-header panel-header-sm">
   <div class="header text-center">
   </div>
 </div>
+<%=end%>
+
+
+
 <div class="content">
   <div class="row">
     <div class="col-md-12">
@@ -20,6 +25,9 @@
 
                   archived_url =
                     if @from_contacts, do: "/admin/settings?tab=contact&inner_tab=archived&role=#{@data.role.slug}#user_info", else: "/admin/users?role=#{@data.role.slug}&tab=archived"
+                  
+                  search_url =
+                    if @tab == :archived, do: archived_url, else: users_url
                   %>  
                 </div>
 
@@ -82,6 +90,8 @@
                       <%= full_error_tag f, :email %>
                     </div>
                   </div>
+                  <input type="hidden" name="from_contacts" value="<%= @from_contacts %>" />
+                  
                   <div class="col-md-3 pl-1">
                     <input type="submit" class="btn btn-primary m-1 w-50 p-2" value="Send Invite" />
                   </div>
@@ -91,9 +101,20 @@
           <% end %>
           <%= if @data.role.slug != "admin" do %>
             <div>
-              <%= form_for @conn, "/admin/users", [method: "get"], fn f -> %>
+              <%= form_for @conn, search_url, [method: "get"], fn f -> %>
                 <%= hidden_input f, :role, value: @data.role.slug %>
-                <%= hidden_input f, :tab, value: @tab %>
+                <%= 
+                  if @from_contacts do
+                    hidden_input f, :inner_tab, value: @tab 
+                  end
+                %>
+                <%= if @from_contacts do 
+                      (hidden_input f, :tab, value: :contact) 
+                    else
+                     (hidden_input f, :tab, value: @tab)
+                    end 
+                %>
+
                 <div class="row mb-4">
                   <div class="col-md-9 col-xs-12">
                     <div class="form-group">
@@ -113,11 +134,11 @@
           <%=
           case @data.user_table_data.style do
             :detailed -> render(FlightWeb.Admin.UserView, "_detailed_table.html",
-              conn: @conn, detailed_rows: @data.user_table_data.rows, role: @data.role.slug, tab: @tab)
+              conn: @conn, detailed_rows: @data.user_table_data.rows, role: @data.role.slug, tab: @tab, from_contacts: @from_contacts)
             :simple -> render(FlightWeb.Admin.UserView, "_simple_table.html",
-              conn: @conn, simple_rows: @data.user_table_data.rows, role: @data.role.slug, tab: @tab)
+              conn: @conn, simple_rows: @data.user_table_data.rows, role: @data.role.slug, tab: @tab, from_contacts: @from_contacts)
             :simple_users -> render(FlightWeb.Admin.UserView, "_simple_users_table.html",
-              conn: @conn, simple_rows: @data.user_table_data.rows, role: @data.role.slug, tab: @tab)
+              conn: @conn, simple_rows: @data.user_table_data.rows, role: @data.role.slug, tab: @tab, from_contacts: @from_contacts)
           end
           %>
 
@@ -163,6 +184,7 @@
   <%= form_tag "/admin/users/:pending:", method: "delete", id: "delete_form" do %>
     <input type="hidden" name="role" value="<%= @data.role.slug %>" />
     <input type="hidden" name="page" value="<%= @data.user_table_data.page.page_number %>" />
+    <input type="hidden" name="from_contacts" value="<%= @from_contacts %>" />
   <% end %>
 </div>
 <script>
