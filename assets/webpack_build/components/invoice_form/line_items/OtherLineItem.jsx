@@ -7,7 +7,7 @@ import Error from '../../common/Error';
 
 import {
   DESCRIPTION_SELECT_OPTS, NUMBER_INPUT_OPTS, INSTRUCTOR_HOURS,
-  DEFAULT_TYPE, TYPES, DEFAULT_RATE
+  DEFAULT_TYPE, TYPES, DEFAULT_RATE, isInstructorOwnHours
 } from './line_item_utils';
 import { authHeaders } from '../../utils';
 
@@ -15,7 +15,7 @@ class OtherLineItem extends Component {
   constructor(props) {
     super(props);
 
-    const { line_item } = props;
+    const { line_item, current_user_id } = props;
     const { instructor_user } = line_item;
 
     this.state = {
@@ -112,7 +112,7 @@ class OtherLineItem extends Component {
         id, description, rate, quantity, deductible
       }
     } = this.state;
-    const { number, canRemove, errors, lineItemTypeOptions, editable, staff_member, line_item: { amount } } = this.props;
+    const { number, canRemove, errors, lineItemTypeOptions, editable, staff_member, line_item: { amount }, current_user_id } = this.props;
     const descriptionOpt = lineItemTypeOptions.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
     const amountCss = classnames('lc-column', deductible ? 'deductible' : '');
@@ -120,6 +120,8 @@ class OtherLineItem extends Component {
       'form-control inherit-font-size', deductible ? 'deductible' : ''
     );
     const rateOpts = Object.assign({}, NUMBER_INPUT_OPTS, {className: rateClass});
+    
+    const shouldDisableRate = isInstructorOwnHours(this.state.line_item, current_user_id) 
 
     return (
       <tr key={id} className={wrapperClass}>
@@ -138,7 +140,7 @@ class OtherLineItem extends Component {
         <td className="lc-column">
           <NumberFormat onValueChange={this.setRate}
             value={rate == null ? null : rate / 100 }
-            disabled={!staff_member}
+            disabled={!staff_member || shouldDisableRate}
             {...rateOpts} />
           { errors.rate && <br /> }
           <Error text={errors.rate} />

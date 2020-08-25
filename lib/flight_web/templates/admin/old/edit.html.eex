@@ -67,7 +67,7 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label>School Email</label>
+                  <label>School Email <small> (This email is used for system communication with your users)</small></label>
                   <input type="email" class="form-control" value="flywithus@randonaviation.com">
                 </div>
               </div>
@@ -98,7 +98,7 @@
       <div class="card">
         <div class="card-header">
           <h7>Private Information</h7>
-          <h4 class="card-title">Contact Details</h4>
+          <h4 class="card-title">User Roles</h4>
         </div>
          
         <form accept-charset="UTF-8" action="/admin/aircrafts/1" class="" method="post"><input name="_method" type="hidden" value="put"><input name="_csrf_token" type="hidden" value="B04YOgcLLzZ5XhcgTSkGJ2tGAiofNgAAK/LhmzGBL4Qd5q1p2r3Oyw=="><input name="_utf8" type="hidden" value="✓">

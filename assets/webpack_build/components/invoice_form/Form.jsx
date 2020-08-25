@@ -37,11 +37,12 @@ class Form extends Component {
     const {stripe_account_id, pub_key} = props
 
     const appointments = appointment ? [appointment] : [];
-  
+    
     this.state = {
       appointment,
       appointments,
       id: props.id || '',
+      current_user_id: props.current_user_id,
       sales_tax: props.tax_rate || 0,
       action: props.action || 'create',
       error: props.error || '',
@@ -213,7 +214,7 @@ class Form extends Component {
   }
 
   setAppointment = (appointment) => {
-    const line_items = itemsFromAppointment(appointment)
+    const line_items = itemsFromAppointment(appointment, [])
     this.setState({appointment})
     
     this.calculateTotal(line_items, (values) => {
@@ -457,10 +458,10 @@ class Form extends Component {
 
   saveAndPayButton = () => {
     const { payment_method: { value }, saving } = this.state;
-    const inputValue = [CASH, CHECK, VENMO].includes(value) ? MARK_AS_PAID : PAY
+    const inputValue = "Pay Now";//[CASH, CHECK, VENMO].includes(value) ? MARK_AS_PAID : PAY
 
     return (
-      <input className="btn btn-danger invoice-form__pay-btn"
+      <input className="btn btn-success invoice-form__pay-btn"
         type="submit"
         disabled={saving}
         value={inputValue}
@@ -514,7 +515,7 @@ class Form extends Component {
 
     return (
       <div className={classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '')}>
-        <CreatableSelect placeholder="Student name"
+        <CreatableSelect placeholder="Person Name"
           isClearable
           isValidNewOption={this.isGuestNameValid}
           onCreateOption={this.createGuestPayer}
@@ -547,7 +548,7 @@ class Form extends Component {
               <form ref={this.setFormRef}>
                 <div className="form-group">
                   <label>
-                    Student name
+                    Person Name
                     <Error text={this.userErrors(errors.user_id)} />
                   </label>
                   { staff_member && this.studentSelect() }
@@ -612,7 +613,8 @@ class Form extends Component {
                       sales_tax={sales_tax}
                       total={total}
                       total_amount_due={total_amount_due}
-                      total_tax={total_tax} />}
+                      total_tax={total_tax}
+                      current_user_id={this.state.current_user_id} />}
                 </div>
 
                 <div className="form-group">
@@ -634,7 +636,7 @@ class Form extends Component {
                 <div id="save_and_pay" className="form-group invoice-save-buttons">
                   <input className="btn btn-primary"
                     type="submit"
-                    value="Save"
+                    value="Save for later"
                     disabled={saving}
                     onClick={() => { this.submitForm({ pay_off: false }) }} />
 

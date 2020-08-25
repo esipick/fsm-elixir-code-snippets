@@ -9,7 +9,7 @@ export const PAY = 'Save and Pay';
 
 export const GUEST_PAYMENT_OPTIONS = [
   { value: CASH, label: 'Cash' },
-  { value: CHEQUE, label: 'Cheque' },
+  { value: CHEQUE, label: 'Check' },
   { value: VENMO, label: 'Venmo' }
 ];
 export const DEFAULT_PAYMENT_OPTION = { value: CREDIT_CARD, label: 'Credit Card' };

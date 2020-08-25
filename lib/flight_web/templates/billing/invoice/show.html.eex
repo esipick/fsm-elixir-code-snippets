@@ -124,7 +124,7 @@ function getPlainDate(start_at) {
 
               <dl class="d-flex justify-content-between">
                 <dt>Payment method</dt>
-                <dd><%= @invoice.payment_method %></dd>
+                <dd><%= if @invoice.payment_method == :cheque, do: "check", else: @invoice.payment_method %></dd>
               </dl>
 
               <dl class="d-flex justify-content-between">

@@ -15,13 +15,23 @@ defmodule FlightWeb.Admin.SettingsController do
   plug(:get_school)
   plug(:authorize_admin when action in [:show])
 
-  def show(conn, %{"tab" => "contact"}) do
+  def show(conn, %{"tab" => "contact"} = params) do
     changeset = Accounts.School.admin_changeset(conn.assigns.school, %{})
 
+    tab = Map.get(params, "inner_tab")
+    role = Map.get(params, "role")
+  
+    params = if tab, do: Map.put(params, "tab", tab), else: params
+    params = if role, do: params, else: Map.put(params, "role", "user")
+    
+    {template, users_info} = Flight.UserRolesUtils.process(conn, true, params)
+    
     render(conn, "show.html",
       changeset: changeset,
       hide_school_info: true,
       school: conn.assigns.school,
+      users_info: users_info,
+      user_template: template,
       tab: :contact
     )
   end

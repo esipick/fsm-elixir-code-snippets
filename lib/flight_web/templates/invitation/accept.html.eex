@@ -82,14 +82,12 @@
                       </div>
                     </div>
                     <%= if needs_card?(@invitation) do %>
-                      <div class="row">
+                      <div class="row" id="empppp">
                         <div class="col-md-12">
-                          <div class="form-group">
-                            <label for="card-element">Credit or debit card</label>
-                            <div id="card-element">
-                            </div>
-                            <div id="card-errors" role="alert"></div>
-                          </div>
+                        <input type="checkbox" id="c-card-element" name="c-card-element" value="cc">
+                        <label for="card-element">Credit or debit card <span data-toggle='tooltip' title='We will use the credit card for your appointment payments'>(Your credit card information is kept safe by stripe.)</span></label>
+                          <span class="form-group" id="cc_info">
+                          </span>
                         </div>
                       </div>
                     <% end %>
@@ -111,3 +109,90 @@
     </div>
   </body>
 </html>
+
+<script>
+$('#c-card-element').click(function(){
+  if($(this).prop("checked")) {
+    $("#cc_info").html('<div id="card-element" display="none"></div><div id="card-errors" role="alert"></div>');
+    reload_stripe();
+  } else {
+    $("#cc_info").empty();
+    location.reload(true);
+  }
+});
+
+function reload_stripe(){
+var stripe_key = document.getElementById('stripe-key').dataset.key;
+  var stripe = Stripe(stripe_key)
+  var elements = stripe.elements({
+    fonts: [
+      {
+        cssSrc: 'https://fonts.googleapis.com/css?family=Lato:300,400,700,900',
+      }
+    ]
+  });
+  var style = {
+    base: {
+      fontSize: '12px',
+      fontFamily: "'Lato',Helvetica,Arial,sans-serif",
+      color: '#2c2c2c',
+      fontWeight: 'normal',
+      '::placeholder': {
+        color: '#BBBCCD',
+        fontWeight: '300',
+      }
+    }
+  };
+  var form = document.getElementById('stripe-form');
+  var card = elements.create('card', {style: style});
+
+  card.mount('#card-element');
+
+  var $submitBtn = $(form).find("input[type='submit']");
+
+  card.addEventListener('change', function(event) {
+    var displayError = document.getElementById('card-errors');
+    if (event.error) {
+      $submitBtn.addClass("disabled");
+      displayError.textContent = event.error.message;
+    } else {
+      $submitBtn.removeClass("disabled");
+      displayError.textContent = '';
+    }
+  });
+
+  var isSubmitting = false;
+
+  var stripeTokenHandler = function(token) {
+    var hiddenInput = document.createElement('input');
+    hiddenInput.setAttribute('type', 'hidden');
+    hiddenInput.setAttribute('name', 'stripe_token');
+    hiddenInput.setAttribute('value', token.id);
+
+    form.appendChild(hiddenInput);
+
+    form.submit();
+  };
+
+  window.stripeTokenHandler = stripeTokenHandler
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    if (isSubmitting) {
+      return;
+    }
+    isSubmitting = true;
+
+    stripe.createToken(card).then(function(result) {
+      if (result.error) {
+        isSubmitting = false;
+        var errorElement = document.getElementById('card-errors');
+        errorElement.textContent = result.error.message;
+      } else {
+        stripeTokenHandler(result.token);
+      }
+    });
+  });
+}
+</script>

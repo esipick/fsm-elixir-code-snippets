@@ -51,4 +51,12 @@ defmodule FlightWeb.Admin.SettingsView do
     |> Enum.filter(&(!is_nil(&1)))
     |> Enum.join(" ")
   end
+
+  def render(template, %{invitations: _} = assigns) do
+    render(FlightWeb.Admin.InvitationView, template, assigns)
+  end
+
+  def render(template, %{from_contacts: true} = assigns) do
+      render(FlightWeb.Admin.UserView, template, assigns)
+  end
 end

@@ -12,12 +12,12 @@ const lineItemsKey = (appointment) => appointment && appointment.id || 'none';
 class LineItemsTable extends Component {
   constructor(props) {
     super(props);
-    const { appointment } = props;
-    
+    const { appointment, current_user_id } = props;
+ 
     const line_items =
       props.line_items.length > 0 && !appointment ? props.line_items : itemsFromAppointment(appointment, props.line_items);
 
-    this.state = { line_items, appointment };
+    this.state = { line_items, appointment, current_user_id };
   }
 
   componentDidMount = () => {
@@ -32,7 +32,7 @@ class LineItemsTable extends Component {
 
     if (prevAppointmentId !== appointmentId) {
       const { appointment } = props;
-      const line_items = itemsFromAppointment(appointment);
+      const line_items = itemsFromAppointment(appointment, []);
       
       return { ...state, line_items, appointment };
     }
@@ -110,7 +110,8 @@ class LineItemsTable extends Component {
                 line_items={line_items}
                 number={i + 1}
                 onChange={this.setLineItem}
-                onRemove={this.removeLineItem} />
+                onRemove={this.removeLineItem}
+                current_user_id={this.state.current_user_id} />
             ))
           }
 

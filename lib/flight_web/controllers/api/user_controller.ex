@@ -150,6 +150,19 @@ defmodule FlightWeb.API.UserController do
     render(conn, "autocomplete.json", users: users)
   end
 
+  def zip_code(conn, params) do
+    Map.get(params, "id") 
+    |> Flight.KnowledgeBase.get_zipcode
+    |> case do
+      nil -> 
+        conn
+        |> put_status(404)
+        |> json(%{human_errors: ["Zip code not found."]})
+
+      zip_code -> json(conn, Map.take(zip_code, [:zip_code, :state, :state_abbrv, :city]))
+    end
+  end
+
   defp authorize_modify(conn, _) do
     halt_unless_user_can?(conn, [
       Permission.new(:users, :modify, {:personal, conn.assigns.user}),

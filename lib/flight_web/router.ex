@@ -29,12 +29,16 @@ defmodule FlightWeb.Router do
     plug(FlightWeb.AuthenticateWebUser, roles: ["student"])
   end
 
+  pipeline :renter_authenticate do
+    plug(FlightWeb.AuthenticateWebUser, roles: ["renter"])
+  end
+
   pipeline :instructor_authenticate do
     plug(FlightWeb.AuthenticateWebUser, roles: ["instructor"])
   end
 
   pipeline :web_user_authenticate do
-    plug(FlightWeb.AuthenticateWebUser, roles: ["admin", "dispatcher", "student", "instructor"])
+    plug(FlightWeb.AuthenticateWebUser, roles: ["admin", "dispatcher", "student", "renter", "instructor"])
   end
 
   pipeline :webhooks_authenticate do
@@ -109,6 +113,16 @@ defmodule FlightWeb.Router do
 
   scope "/student", FlightWeb.Student do
     pipe_through([:browser, :admin_layout, :student_authenticate, :admin_metrics_namespace])
+
+    resources("/schedule", ScheduleController, only: [:index, :show, :edit])
+
+    resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true) do
+      put("/update_card", ProfileController, :update_card)
+    end
+  end
+
+  scope "/renter", FlightWeb.Student do
+    pipe_through([:browser, :admin_layout, :renter_authenticate, :admin_metrics_namespace])
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
 
@@ -258,6 +272,8 @@ defmodule FlightWeb.Router do
 
     delete("/checklists/", CheckListController, :delete)
     delete("/checklists/maintenance", CheckListController, :delete_checklist_from_maintenance)
+
+    get("/user_info", SessionController, :user_info)
   end
 
   scope "/api", FlightWeb.API do
@@ -269,6 +285,8 @@ defmodule FlightWeb.Router do
 
     get("/users/autocomplete", UserController, :autocomplete, as: :autocomplete)
     get("/users/by_role", UserController, :by_role, as: :by_role)
+
+    get("/zip_code/:id", UserController, :zip_code)
 
     resources("/users", UserController, only: [:show, :create, :update, :index]) do
       get("/form_items", UserController, :form_items)
