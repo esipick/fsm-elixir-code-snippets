@@ -12,8 +12,8 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header">
-          <div class="d-flex justify-content-between <%= if @tab == :main do %> text-right">
-            <button type="button" id="add_button" class="btn-success round-button">+</button> <% else %> "> <% end %>
+          <h5 class="card-title">Users</h5>
+          <div class="d-flex justify-content-between">
             <ul class="nav nav-pills nav-pills-primary" role="tablist">
               <div class="hiddentext" style="display:none;">
                   <%= 
@@ -43,6 +43,11 @@
                 <a class="nav-link <%= if @tab == :archived, do: "active" %>"
                   href="<%= archived_url %>"
                   role="tablist" aria-expanded="false">Archived</a>
+              </li>
+              <li class="nav-item">
+                <%= if @tab == :main do %>
+                  <button type="button" id="add_button" class="btn-success round-button">+</button>
+                <% end %>
               </li>
             </ul>
           </div>
@@ -116,7 +121,7 @@
                 %>
 
                 <div class="row mb-4">
-                  <div class="col-md-9 col-xs-12">
+                  <div class="col-md-3 pr-1">
                     <div class="form-group">
                       <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Search" %>
                       <span class="text-danger"><%= @message %></span>
