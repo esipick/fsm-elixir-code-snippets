@@ -274,7 +274,7 @@ defmodule FlightWeb.ViewHelpers do
     {class, text, tooltip} =
       case Accounts.StripeAccount.status(stripe_account) do
         :running -> {"badge-success", "✔", ""}
-        _ -> {"badge-danger", "!", "data-toggle=\"tooltip\" title=\"This needs to be configured.\""}
+        _ -> {"badge-danger", "!", "data-toggle=\"tooltip\" data-placement=\"left\" title=\"This needs to be configured.\""}
       end
 
     Phoenix.HTML.raw("<span class=\"badge #{class}\" #{tooltip}>#{text}</span>")
