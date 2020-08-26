@@ -117,7 +117,10 @@ $('#c-card-element').click(function(){
     reload_stripe();
   } else {
     $("#cc_info").empty();
-    location.reload(true);
+    var form = document.getElementById('stripe-form');
+    var $submitBtn = $(form).find("input[type='submit']");
+    $submitBtn.removeClass("disabled");
+    reload_stripe();
   }
 });
 
@@ -149,10 +152,14 @@ var stripe_key = document.getElementById('stripe-key').dataset.key;
   card.mount('#card-element');
 
   var $submitBtn = $(form).find("input[type='submit']");
+  var cc_checked = $( '#c-card-element' ).is( ":checked")
 
   card.addEventListener('change', function(event) {
+    cc_checked = $( '#c-card-element' ).is( ":checked")
     var displayError = document.getElementById('card-errors');
-    if (event.error) {
+    if (event.error && !cc_checked) {
+      displayError.textContent = event.error.message;
+    } else if (event.error) {
       $submitBtn.addClass("disabled");
       displayError.textContent = event.error.message;
     } else {
@@ -177,6 +184,8 @@ var stripe_key = document.getElementById('stripe-key').dataset.key;
   window.stripeTokenHandler = stripeTokenHandler
 
   form.addEventListener('submit', function(event) {
+  cc_checked = $( '#c-card-element' ).is( ":checked")
+  if ( !cc_checked ) {form.submit()}
     event.preventDefault();
 
     if (isSubmitting) {
@@ -193,6 +202,7 @@ var stripe_key = document.getElementById('stripe-key').dataset.key;
         stripeTokenHandler(result.token);
       }
     });
+
   });
 }
 </script>
