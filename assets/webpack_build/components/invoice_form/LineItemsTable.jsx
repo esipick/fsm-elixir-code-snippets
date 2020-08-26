@@ -12,12 +12,12 @@ const lineItemsKey = (appointment) => appointment && appointment.id || 'none';
 class LineItemsTable extends Component {
   constructor(props) {
     super(props);
-    const { appointment, current_user_id } = props;
+    const { appointment, current_user_id, user_roles } = props;
  
     const line_items =
       props.line_items.length > 0 && !appointment ? props.line_items : itemsFromAppointment(appointment, props.line_items);
 
-    this.state = { line_items, appointment, current_user_id };
+    this.state = { line_items, appointment, current_user_id, user_roles };
   }
 
   componentDidMount = () => {
@@ -111,7 +111,8 @@ class LineItemsTable extends Component {
                 number={i + 1}
                 onChange={this.setLineItem}
                 onRemove={this.removeLineItem}
-                current_user_id={this.state.current_user_id} />
+                current_user_id={this.state.current_user_id}
+                user_roles = {this.state.user_roles} />
             ))
           }
 

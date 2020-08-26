@@ -43,6 +43,7 @@ class Form extends Component {
       appointments,
       id: props.id || '',
       current_user_id: props.current_user_id,
+      user_roles: props.user_roles,
       sales_tax: props.tax_rate || 0,
       action: props.action || 'create',
       error: props.error || '',
@@ -614,7 +615,8 @@ class Form extends Component {
                       total={total}
                       total_amount_due={total_amount_due}
                       total_tax={total_tax}
-                      current_user_id={this.state.current_user_id} />}
+                      current_user_id={this.state.current_user_id}
+                      user_roles = {this.state.user_roles} />}
                 </div>
 
                 <div className="form-group">

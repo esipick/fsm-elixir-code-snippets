@@ -167,8 +167,9 @@ export const itemsFromInvoice = (invoice) => {
   return invoice
 }
 
-export const isInstructorOwnHours = (line_item, current_user_id) => {
-  return line_item.type === "instructor" && current_user_id == line_item.instructor_user_id && current_user_id !== undefined
+export const isInstructorHoursEditable = (line_item, user_roles) => {
+  return line_item.type === "instructor" && user_roles.includes("instructor")
+  // return line_item.type === "instructor" && current_user_id == line_item.instructor_user_id && current_user_id !== undefined
 }
 
 

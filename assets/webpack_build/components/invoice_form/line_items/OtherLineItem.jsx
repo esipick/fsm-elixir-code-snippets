@@ -7,7 +7,7 @@ import Error from '../../common/Error';
 
 import {
   DESCRIPTION_SELECT_OPTS, NUMBER_INPUT_OPTS, INSTRUCTOR_HOURS,
-  DEFAULT_TYPE, TYPES, DEFAULT_RATE, isInstructorOwnHours
+  DEFAULT_TYPE, TYPES, DEFAULT_RATE, isInstructorHoursEditable
 } from './line_item_utils';
 import { authHeaders } from '../../utils';
 
@@ -112,7 +112,7 @@ class OtherLineItem extends Component {
         id, description, rate, quantity, deductible
       }
     } = this.state;
-    const { number, canRemove, errors, lineItemTypeOptions, editable, staff_member, line_item: { amount }, current_user_id } = this.props;
+    const { number, canRemove, errors, lineItemTypeOptions, editable, staff_member, line_item: { amount }, user_roles } = this.props;
     const descriptionOpt = lineItemTypeOptions.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
     const amountCss = classnames('lc-column', deductible ? 'deductible' : '');
@@ -121,7 +121,7 @@ class OtherLineItem extends Component {
     );
     const rateOpts = Object.assign({}, NUMBER_INPUT_OPTS, {className: rateClass});
     
-    const shouldDisableRate = isInstructorOwnHours(this.state.line_item, current_user_id) 
+    const shouldDisableRate = isInstructorHoursEditable(this.state.line_item, user_roles) 
 
     return (
       <tr key={id} className={wrapperClass}>
