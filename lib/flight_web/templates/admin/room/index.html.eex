@@ -10,7 +10,6 @@
           </div>
 
           <div class="d-flex justify-content-between">
-            <a href="/admin/rooms/new" class="btn-success round-button">+</a>
             <ul class="nav nav-pills nav-pills-primary" role="tablist">
               <li class="nav-item">
                 <a class="nav-link <%= if @tab == :aircraft, do: "active" %>"
@@ -27,6 +26,7 @@
                   href="/admin/rooms"
                   role="tablist" aria-expanded="false">Rooms</a>
               </li>
+            <a href="/admin/rooms/new" class="btn-success round-button">+</a>
             </ul>
           </div>
         </div>
