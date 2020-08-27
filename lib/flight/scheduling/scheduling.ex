@@ -317,6 +317,22 @@ defmodule Flight.Scheduling do
   end
 
   def insert_or_update_appointment(
+    appointment,
+    attrs,
+    modifying_user,
+    school_context
+  ) do
+
+    Repo.transaction(fn -> 
+      upsert_appointment(appointment, attrs, modifying_user, school_context)
+      |> case do
+        {:ok, appointment} -> appointment
+        {:error, changeset} -> Repo.rollback(changeset)
+      end
+    end)
+  end
+
+  def upsert_appointment(
         appointment,
         attrs,
         modifying_user,
@@ -336,8 +352,22 @@ defmodule Flight.Scheduling do
       |> Appointment.changeset(attrs, school.timezone)
 
     is_create? = is_nil(appointment.id)
-
+    
     if changeset.valid? do
+
+      {temp_changeset, appointment} = 
+        with true <- is_create?,
+          {:ok, item} <- Repo.insert(changeset) do
+            {item, Map.put(appointment, :id, item.id)}
+
+        else
+          _ -> {changeset, appointment}
+        end
+      
+      changeset =
+       temp_changeset
+       |> Appointment.changeset(%{}, school.timezone)
+      
       {:ok, _} = apply_action(changeset, :insert)
 
       start_at = get_field(changeset, :start_at) # |> utc_to_walltime(school.timezone)
@@ -455,6 +485,8 @@ defmodule Flight.Scheduling do
           {:ok, appointment}
 
         other ->
+          if Map.get(temp_changeset, :id) != nil && is_create? == true, do: Repo.delete(temp_changeset), else: nil
+
           other
       end
     else
