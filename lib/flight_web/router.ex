@@ -179,13 +179,7 @@ defmodule FlightWeb.Router do
     scope("/reports") do
       get("/detail", ReportsController, :detail)
     end
-
-    resources("/users", UserController, only: [:index, :show, :edit, :update, :delete]) do
-      post("/add_funds", UserController, :add_funds)
-      get("/restore", UserController, :restore)
-      put("/update_card", UserController, :update_card)
-    end
-
+    
     resources("/transactions", TransactionController, only: []) do
       post("/cancel", TransactionController, :cancel)
     end
@@ -201,11 +195,6 @@ defmodule FlightWeb.Router do
       only: [:index, :edit, :new, :create]
     )
 
-    resources("/invitations", InvitationController, only: [:create, :index, :delete]) do
-      post("/resend", InvitationController, :resend)
-      get("/resend", InvitationController, :resend)
-    end
-
     resources("/school_invitations", SchoolInvitationController, only: [:create, :index, :delete]) do
       post("/resend", SchoolInvitationController, :resend)
       get("/resend", SchoolInvitationController, :resend)
@@ -220,6 +209,17 @@ defmodule FlightWeb.Router do
 
     resources("/settings", SettingsController, only: [:show, :update])
     resources("/settings", SettingsController, only: [:show, :update], singleton: true)
+
+    resources("/invitations", InvitationController, only: [:create, :index, :delete]) do
+      post("/resend", InvitationController, :resend)
+      get("/resend", InvitationController, :resend)
+    end
+
+    resources("/users", UserController, only: [:index, :show, :edit, :update, :delete]) do
+      post("/add_funds", UserController, :add_funds)
+      get("/restore", UserController, :restore)
+      put("/update_card", UserController, :update_card)
+    end
 
     resources("/aircrafts", AircraftController) do
       get("logs", AircraftController, :logs)

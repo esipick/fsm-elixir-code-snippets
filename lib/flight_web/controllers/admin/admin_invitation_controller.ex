@@ -150,7 +150,6 @@ defmodule FlightWeb.Admin.InvitationController do
 
     from_contacts =  conn.params["from_contacts"]
 
-
     cond do
       invitation && invitation.accepted_at && user.archived ->
         path =
