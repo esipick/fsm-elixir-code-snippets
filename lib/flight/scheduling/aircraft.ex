@@ -63,8 +63,8 @@ defmodule Flight.Scheduling.Aircraft do
     ])
     |> validate_required_if(:name, :simulator)
     |> validate_required_unless(:tail_number, :simulator)
-    |> validate_number(:rate_per_hour, greater_than_or_equal_to: 0)
-    |> validate_number(:block_rate_per_hour, greater_than_or_equal_to: 0)
+    |> validate_number(:rate_per_hour, greater_than_or_equal_to: 0, less_than: 2147483600, message: "(Rate per hour) must be between $0 and $21474835")
+    |> validate_number(:block_rate_per_hour, greater_than_or_equal_to: 0, less_than: 2147483600, message: "(Block rate per hour) must be between $0 and $21474835")
 #    |> validate_format(
 #      :serial_number,
 #      Flight.Format.serial_number_regex(),
