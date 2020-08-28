@@ -68,9 +68,7 @@ function getPlainDate(start_at) {
         %>
         <p class="transaction-status"><%= status %></p>
       <%= for line_item <- transaction.line_items do %>
-        <%= if label_for_line_item(line_item) == "Removed Funds" do%>
-          <p><small>I am taking away <%= currency transaction.total %></small></p>
-        <% end %>
+          <p><small><%= line_item.description %></small></p>
       <% end %>
       </dd>
     </dl>

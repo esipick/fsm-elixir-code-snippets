@@ -10,7 +10,7 @@
           </div>
 
           <div class="d-flex justify-content-between">
-            <a href="/admin/aircrafts/new" class="btn-success round-button">+</a>
+
             <ul class="nav nav-pills nav-pills-primary" role="tablist">
               <li class="nav-item">
                 <a class="nav-link <%= if @tab == :aircraft, do: "active" %>"
@@ -27,18 +27,19 @@
                   href="/admin/rooms"
                   role="tablist" aria-expanded="false">Rooms</a>
               </li>
+            <a href="/admin/aircrafts/new" class="btn-success round-button">+</a>
             </ul>
           </div>
           <div>
             <%= form_for @conn, "/admin/aircrafts", [method: "get"], fn f -> %>
               <div class="row mb-4">
-                <div class="col-md-10 col-xs-12">
+                 <div class="col-md-3 pr-1">
                   <div class="form-group">
-                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Tail #" %>
+                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Type here to search by 'Tail #'" %>
                     <span class="text-danger"><%= @message %></span>
                   </div>
                 </div>
-                <div class="col-md-2 pl-1">
+                <div class="col-xs-3 pl-3">
                   <input type="submit" class="btn btn-primary m-0 pull-right" value="Search" />
                 </div>
               </div>
@@ -50,7 +51,9 @@
             <div class="table-responsive">
               <table class="table">
                 <thead>
-                  <th>Aircraft</th>
+                  <th>Aircraft<br>
+                    <small>Tail #</small>
+                  </th>
                   <%= if show_to_superadmin?(@conn) do %>
                     <th>School</th>
                   <% end %>

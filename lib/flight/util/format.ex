@@ -20,7 +20,8 @@ defmodule Flight.Format do
   end
 
   def email_regex do
-    ~r/^[\w.!#$%&’*+\-\/=?\^`{|}~]+@([a-zA-Z0-9-]+)\.([a-zA-Z0-9-]+)*$/i
+    ~r/^[a-z0-9](\.?[\w.!#$%&’*+\-\/=?\^`{|}~]){0,}@[a-z0-9-]+\.([a-z]{1,6}\.)?[a-z]{2,6}$/i
+#    ~r/^[\w.!#$%&’*+\-\/=?\^`{|}~]+@([a-zA-Z0-9-]+)\.([a-zA-Z0-9-]+)*$/i
   end
 
   def normalize_phone_number(number) do

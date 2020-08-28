@@ -38,8 +38,8 @@ defmodule Flight.SchoolAssets.Room do
       :block_rate_per_hour,
       :school_id
     ])
-    |> validate_number(:rate_per_hour, greater_than_or_equal_to: 0)
-    |> validate_number(:block_rate_per_hour, greater_than_or_equal_to: 0)
+    |> validate_number(:rate_per_hour, greater_than_or_equal_to: 0, less_than: 2147483600, message: "(Rate per hour) must be between $0 and $21474835")
+    |> validate_number(:block_rate_per_hour, greater_than_or_equal_to: 0, less_than: 2147483600, message: "(Block rate per hour) must be between $0 and $21474835")
   end
 
   def update(room, attrs) do
