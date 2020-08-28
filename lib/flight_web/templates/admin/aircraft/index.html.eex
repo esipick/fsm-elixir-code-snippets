@@ -11,23 +11,23 @@
 
           <div class="d-flex justify-content-between">
 
-            <ul class="nav nav-pills col-xs-6" role="tablist">
-              <li class="nav-item">
+            <ul class="nav nav-pills col-xs-12" role="tablist">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :aircraft, do: "active" %>"
                   href="/admin/aircrafts"
                   role="tablist" aria-expanded="false">Aircrafts</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :simulator, do: "active" %>"
                   href="/admin/simulators"
                   role="tablist" aria-expanded="false">Simulators</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :room, do: "active" %>"
                   href="/admin/rooms"
                   role="tablist" aria-expanded="false">Rooms</a>
               </li>
-            <a href="/admin/aircrafts/new" class="btn-success round-button">+</a>
+            <a href="/admin/aircrafts/new" class="btn-success round-button col-xs-2">+</a>
             </ul>
           </div>
           <div>
