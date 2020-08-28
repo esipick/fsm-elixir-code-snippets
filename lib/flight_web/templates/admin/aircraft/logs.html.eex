@@ -26,13 +26,13 @@
           <div>
             <%= form_for @conn, "/admin/aircrafts/#{@aircraft.id}/logs", [method: "get"], fn f -> %>
               <div class="row mb-4">
-                <div class="col-md-10 col-xs-12">
+                <div class="col-md-5 pr-1">
                   <div class="form-group">
-                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Type here to search words in 'Action Description'" %>
+                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Type here to search words in 'Action'" %>
                     <span class="text-danger"><%= @message %></span>
                   </div>
                 </div>
-                <div class="col-md-2 pl-1">
+                <div class="col-xs-3 pl-1">
                   <input type="submit" class="btn btn-primary m-0 pull-right" value="Search" />
                 </div>
               </div>
