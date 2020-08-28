@@ -138,9 +138,9 @@ class Form extends Component {
 
   getPaymentMethod = (payment_option) => {
     const finded_option = PAYMENT_OPTIONS.find((option) => {
-      return option.value == payment_option
+      return option.value === payment_option
     });
-
+    
     return finded_option || DEFAULT_PAYMENT_OPTION;
   }
 
@@ -248,10 +248,12 @@ class Form extends Component {
       } else {
         appointment = null;
       }
+      
+      const payment_method = this.getPaymentMethod(BALANCE)
+      this.setState({payment_method: payment_method, student, appointment }, () => { this.loadAppointments(); });
 
-      this.setState({ student, appointment }, () => { this.loadAppointments(); });
     } else {
-      this.setState({ student, appointment: null, appointments: [] });
+      this.setState({ student, appointment: null, appointments: [], payment_method: {} });
     }
   }
 
@@ -513,7 +515,7 @@ class Form extends Component {
 
   studentSelect = () => {
     const { errors, student, students } = this.state;
-
+   
     return (
       <div className={classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '')}>
         <CreatableSelect placeholder="Person Name"
