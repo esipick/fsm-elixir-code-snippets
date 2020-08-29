@@ -12,6 +12,15 @@
 <% else %>
   <h4 class="card-title m-0 p-0 pb-2">Stripe Account Status</h4>
   <p>Below is a quick view of your Stripe Account Status. If everything is "good" you are good to go! If you see anything with an "error", click the supplied link and resolve them with Stripe to make sure your account is sending and recieving payments correctly.</p>
+
+  <%= if !onboarding_completed?(@school) and !@school.stripe_account.details_submitted do %>
+    <p>A method to make and receive payments is essential to the scheduling and billing functionality. In the School Details step, we asked you for the school email. That will now be used to set up a Stripe account, but if you already have an account, you'll later have the option to change to the pre-existing Stripe account.</p>
+    <p>Next Step - After activating your Stripe account, please go to the school email to 'verify' your email before scheduling or invoicing any users.</p>
+  <%= end %>
+
+  <%= if @school.stripe_account.details_submitted do%>
+      <p>The below status labels indicate whether your Stripe account is configured correctly.</p>
+  <%= end %>
   <div class="table-responsive">
     <table class="table text-left">
       <thead class="text-primary">
@@ -53,9 +62,9 @@
   <div>
     <td class="text-right"><a target="_blank" href="https://dashboard.stripe.com" class="btn btn-fill btn-primary btn-lg">Go To Stripe Dashboard</a>
     </div>
-    <div class="mt-4">
+    <!-- <div class="mt-4">
       <a href="http://stripe.com" target="_blank"><img src="/images/powered_by_stripe.svg" alt="Powered by Stripe" width="120"></a>
-    </div>
+    </div> -->
 <% end %>
 
 <%= if !onboarding_completed?(@school) do %>
