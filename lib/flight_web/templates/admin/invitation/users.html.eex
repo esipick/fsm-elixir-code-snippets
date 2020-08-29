@@ -9,7 +9,7 @@
         <div class="card-header">
           <h5 class="card-title">Users</h5>
           <div class="d-flex justify-content-between mb-3">
-            <ul class="nav nav-pills nav-pills-primary" role="tablist">
+            <ul class="nav nav-pills col-xs-12" role="tablist">
             <div class="hiddentext" style="display:none;">
               <%= 
                   users_url =
@@ -23,16 +23,16 @@
               %>
               </div>
               
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link" href="<%= users_url %>" role="tablist" aria-expanded="false"><%= plural_label_for_role(@role) %></a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link active" href="<%= invitation_url %>" role="tablist" aria-expanded="true">Invitations</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link" href="<%= archived_url %>" role="tablist" aria-expanded="false">Archived</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <button type="button" id="add_button" class="btn-success round-button">+</button>
               </li>
             </ul>

@@ -38,11 +38,13 @@ defmodule FlightWeb.Admin.RoomController do
   end
 
   def index(conn, params) do
+    search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
-    data = FlightWeb.Admin.RoomListData.build(conn, page_params)
+    data = FlightWeb.Admin.RoomListData.build(conn, page_params, search_term)
+    message = params["search"] && set_message(params["search"])
 
     conn
-    |> render("index.html", data: data, tab: :room)
+    |> render("index.html", data: data, message: message, tab: :room)
   end
 
   def edit(conn, params) do
@@ -96,6 +98,13 @@ defmodule FlightWeb.Admin.RoomController do
         |> put_flash(:error, "Unknown room.")
         |> redirect(to: "/admin/rooms")
         |> halt()
+    end
+  end
+
+
+  defp set_message(search_param) do
+    if String.trim(search_param) == "" do
+      "Please fill out search field"
     end
   end
 end

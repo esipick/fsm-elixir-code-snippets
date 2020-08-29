@@ -18,47 +18,47 @@
       <div class="card ">
         <div class="card-header">
           <div class="d-flex justify-content-between mb-3">
-            <ul class="nav nav-pills nav-pills-primary" role="tablist">
+            <ul class="nav nav-pills col-xs-12" role="tablist">
             <%= if !onboarding_completed?(@school) do %>
 
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <%= nav_item_link("STEP 01 - School Details", @conn, @school, @tab, :school) %>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <%= nav_item_link("STEP 02 - User Roles", @conn, @school, @tab, :contact) %>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <%= nav_item_link("STEP 03 - Profile Settings", @conn, @school, @tab, :profile) %>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <%= nav_item_link("STEP 04 - Assets", @conn, @school, @tab, :assets) %>
               </li>
               <%= if can_access_billing?(@conn) do %>
-                <li class="nav-item">
+                <li class="nav-item col-xs-2">
                   <%= nav_item_link("STEP 05 - Payments", @conn, @school, @tab, :payment) %>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item col-xs-2">
                   <%= nav_item_link("FINISH - Billing Settings", @conn, @school, @tab, :billing) %>
                 </li>
               <% end %>
             <% else %>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <%= nav_item_link("School Details", @conn, @school, @tab, :school) %>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <%= nav_item_link("User Roles", @conn, @school, @tab, :contact) %>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <%= nav_item_link("Profile Settings", @conn, @school, @tab, :profile) %>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <%= nav_item_link("Assets", @conn, @school, @tab, :assets) %>
               </li>
               <%= if can_access_billing?(@conn) do %>
-                <li class="nav-item">
+                <li class="nav-item col-xs-2">
                   <%= nav_item_link("Payments", @conn, @school, @tab, :payment) %>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item col-xs-2">
                   <%= nav_item_link("Billing Settings", @conn, @school, @tab, :billing) %>
                 </li>
               <% end %>

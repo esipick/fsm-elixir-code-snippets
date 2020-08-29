@@ -9,16 +9,16 @@
         <div class="card-header">
           <div class="d-flex justify-content-between <%= if @tab == :main do %> text-right">
             <button type="button" id="add_button" class="btn-success round-button">+</button> <% else %> "> <% end %>
-            <ul class="nav nav-pills nav-pills-primary" role="tablist">
-              <li class="nav-item">
+            <ul class="nav nav-pills col-xs-12" role="tablist">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :main, do: "active" %>"
                   href="/admin/users?role=<%= @data.role.slug %>"
                   role="tablist" aria-expanded="false"><%= plural_label_for_role(@data.role) %></a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link" href="/admin/invitations?role=<%= @data.role.slug %>" role="tablist" aria-expanded="true">Invitations</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :archived, do: "active" %>"
                   href="/admin/users?role=<%= @data.role.slug %>&tab=archived"
                   role="tablist" aria-expanded="false">Archived</a>
@@ -73,14 +73,14 @@
                 <%= hidden_input f, :role, value: @data.role.slug %>
                 <%= hidden_input f, :tab, value: @tab %>
                 <div class="row mb-4">
-                  <div class="col-md-9 col-xs-12">
+                  <div class="col-md-4 pr-1">
                     <div class="form-group">
                       <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Search" %>
                       <span class="text-danger"><%= @message %></span>
                     </div>
                   </div>
-                  <div class="col-md-3 pl-1">
-                    <input type="submit" class="btn btn-primary m-1 w-50 p-2" value="Search" />
+                  <div class="col-xs-3 pl-3">
+                    <input type="submit" class="btn btn-primary m-0 pull-right" value="Search" />
                   </div>
                 </div>
               <% end %>
