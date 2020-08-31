@@ -116,6 +116,14 @@ defmodule Flight.Scheduling do
     visible_air_assets_query(school_context) |> Repo.all()
   end
 
+  def visible_simulators(school_context) do
+    visible_simulator_query(school_context) |> Repo.all()
+  end
+
+  def visible_aircrafts(school_context) do
+    visible_aircraft_query(school_context) |> Repo.all()
+  end
+
   def visible_aircraft_count(school_context) do
     visible_aircraft_query(school_context)
     |> Repo.aggregate(:count, :id)

@@ -70,7 +70,6 @@ defmodule FlightWeb.API.AppointmentView do
   end
 
   def render("appointment.json", %{appointment: appointment}) do
-
     %{
       id: appointment.id,
       start_at: appointment.start_at, # utc response
@@ -95,6 +94,16 @@ defmodule FlightWeb.API.AppointmentView do
       end_tach_time: Map.get(appointment, :end_tach_time),
       start_hobbs_time: Map.get(appointment, :start_hobbs_time),
       end_hobbs_time: Map.get(appointment, :end_hobbs_time),
+      room:
+        Optional.map(
+          appointment.room,
+          &render(FlightWeb.API.RoomView, "room.json", room: &1)
+        ),
+      simulator:
+        Optional.map(
+          appointment.simulator,
+          &render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: &1)
+        ),
       aircraft:
         Optional.map(
           appointment.aircraft,
@@ -104,6 +113,6 @@ defmodule FlightWeb.API.AppointmentView do
   end
 
   def preload(appointments) do
-    Flight.Repo.preload(appointments, [:user, :instructor_user, [aircraft: :inspections]])
+      Flight.Repo.preload(appointments, [:user, :instructor_user, :room, [simulator: :inspections], [aircraft: :inspections]])
   end
 end

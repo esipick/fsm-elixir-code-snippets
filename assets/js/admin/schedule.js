@@ -46,16 +46,39 @@ $(document).ready(function () {
   // dynamic unavailability form
   var unavailType = 'Instructor';
   $('#fieldAircraft').hide(); // hide aircraft by default
+  $('#fieldSimulator').hide(); // hide simulator by default
+  $('#fieldRoom').hide(); // hide room by default
+
   $('#unavailFor').on('change', function () {
-    unavailType = this.value;
-    if (this.value == "Aircraft") {
+    displayForUnavailability(this.value)
+  });
+
+  function displayForUnavailability(type) {
+    if (type == "Aircraft") {
       $('#fieldAircraft').show();
       $('#fieldInstructor').hide();
-    } else if (this.value == "Instructor") {
+      $('#fieldSimulator').hide();
+      $('#fieldRoom').hide();
+
+    } else if (type == "Instructor") {
       $('#fieldAircraft').hide();
       $('#fieldInstructor').show();
+      $('#fieldSimulator').hide();
+      $('#fieldRoom').hide();
+
+    } else if (type == "Simulator") {
+      $('#fieldAircraft').hide();
+      $('#fieldInstructor').hide();
+      $('#fieldSimulator').show();
+      $('#fieldRoom').hide();
+
+    } else if (type == "Room") {
+      $('#fieldAircraft').hide();
+      $('#fieldInstructor').hide();
+      $('#fieldSimulator').hide();
+      $('#fieldRoom').show();
     }
-  });
+  }
 
   var eventType = "appt";
   var appointmentId = null;
@@ -86,10 +109,26 @@ $(document).ready(function () {
 
   $('#unavailInstructor').on('change', function (e) {
     $('#unavailAircraft').val(null).selectpicker("refresh")
+    $('#unavailSimulator').val(null).selectpicker("refresh")
+    $('#unavailRoom').val(null).selectpicker("refresh")
   })
 
   $('#unavailAircraft').on('change', function (e) {
     $('#unavailInstructor').val(null).selectpicker("refresh")
+    $('#unavailSimulator').val(null).selectpicker("refresh")
+    $('#unavailRoom').val(null).selectpicker("refresh")
+  })
+
+  $('#unavailSimulator').on('change', function (e) {
+    $('#unavailAircraft').val(null).selectpicker("refresh")
+    $('#unavailInstructor').val(null).selectpicker("refresh")
+    $('#unavailRoom').val(null).selectpicker("refresh")
+  })
+
+  $('#unavailRoom').on('change', function (e) {
+    $('#unavailAircraft').val(null).selectpicker("refresh")
+    $('#unavailInstructor').val(null).selectpicker("refresh")
+    $('#unavailSimulator').val(null).selectpicker("refresh")
   })
 
   // navigate calendar to selected date
@@ -123,6 +162,8 @@ $(document).ready(function () {
 
   // collect event data on save and send to server
   $('#btnSave').click(function () {
+    console.log("save Button Clicked")
+
     var buttonPos = $(this).offset();
 
     $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 170 }).show();
@@ -138,6 +179,9 @@ $(document).ready(function () {
       var eventRenter = safeParseInt($('#apptStudent').val());
       var eventInstructor = safeParseInt($('#apptInstructor').val());
       var eventAircraft = safeParseInt($('#apptAircraft').val());
+      var eventSimulator = safeParseInt($('#apptSimulator').val());
+      var eventRoom = safeParseInt($('#apptRoom').val());
+
 
       var eventStart = (moment.utc($('#apptStart').val()).add(-(moment().utcOffset()), 'm')).format()
       var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment().utcOffset()), 'm')).format()
@@ -149,6 +193,8 @@ $(document).ready(function () {
         user_id: eventRenter,
         instructor_user_id: eventInstructor,
         aircraft_id: eventAircraft,
+        simulator_id: eventSimulator,
+        room_id: eventRoom,
         note: eventNote,
         type: "lesson"
       };
@@ -210,6 +256,8 @@ $(document).ready(function () {
       var eventFor = $('#unavailFor').val();
       var eventInstructor = safeParseInt($('#unavailInstructor').val());
       var eventAircraft = safeParseInt($('#unavailAircraft').val());
+      var eventSimulator = safeParseInt($('#unavailSimulator').val());
+      var eventRoom = safeParseInt($('#unavailRoom').val());
 
       var eventStart;
       var eventEnd;
@@ -228,6 +276,8 @@ $(document).ready(function () {
         end_at: eventEnd,
         instructor_user_id: eventInstructor,
         aircraft_id: eventAircraft,
+        room_id: eventRoom,
+        simulator_id: eventSimulator,
         note: eventNote,
         belongs: eventFor
       };
@@ -379,7 +429,7 @@ $(document).ready(function () {
 
   var openAppointmentModal = function (initialData) {
     appointmentOrUnavailabilityId = initialData.id;
-
+    
     if (appointmentOrUnavailabilityId) {
       $('#apptTabs').hide()
       $('#btnDelete').show()
@@ -388,15 +438,47 @@ $(document).ready(function () {
       $('#btnDelete').hide()
     }
 
+    $('#unavailInstructor').val(null).selectpicker("refresh");
+    $('#unavailAircraft').val(null).selectpicker("refresh");
+    $('#unavailSimulator').val(null).selectpicker("refresh");
+    $('#unavailRoom').val(null).selectpicker("refresh");
+    $('#unavailNote').val(null);
+
+    var unavailType = "Instructor";
+    $('#unavailFor').val(unavailType).selectpicker("refresh");
+    displayForUnavailability(unavailType)
 
     if (initialData.type == "unavailability") {
       $('#btnInvoice').hide()
       $('#navUnavail').tab("show")
+      
       if (appointmentOrUnavailabilityId) {
         $('#apptTitle').text("Edit Unavailability")
       } else {
         $('#apptTitle').text("Create New")
       }
+
+      $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
+      $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+      $('#unavailSimulator').val(initialData.simulator_id).selectpicker("refresh");
+      $('#unavailRoom').val(initialData.room_id).selectpicker("refresh");
+      $('#unavailNote').val(initialData.note);
+
+      if (initialData.instructor_user_id) {
+        unavailType = "Instructor"
+
+      } else if (initialData.aircraft_id) {
+        unavailType = "Aircraft"
+
+      } else if (initialData.simulator_id) {
+        unavailType = "Simulator"
+
+      } else {
+        unavailType = "Room"
+      }
+
+      $('#unavailFor').val(unavailType).selectpicker("refresh");
+      displayForUnavailability(unavailType)
     }
     else if (initialData.type == "demoAppointment"){
       appointmentId = initialData.id;
@@ -441,16 +523,19 @@ $(document).ready(function () {
 
       $('#apptStudent').prop("disabled", false).selectpicker("refresh");
     }
-
+    
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#apptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+    $('#apptSimulator').val(initialData.simulator_id).selectpicker("refresh");
+    $('#apptRoom').val(initialData.room_id).selectpicker("refresh");
     $('#apptNote').val(initialData.note);
 
     $('#unavailStart').val(initialData.start_at.format(displayFormat))
     $('#unavailEnd').val(initialData.end_at.format(displayFormat))
-    $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
-    $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
-    $('#unavailNote').val(initialData.note);
+
+    // var element = document.getElementById('unavailRoom');
+    // var event = new Event('change');
+    // element.dispatchEvent(event);
 
     $('#demoApptStart').val(initialData.start_at.format(displayFormat))
     $('#demoApptEnd').val(initialData.end_at.format(displayFormat))
@@ -474,7 +559,7 @@ $(document).ready(function () {
     $('#calendarNewModal').modal();
   };
 
-  function fsmCalendar(instructors, aircrafts, current_user) {
+  function fsmCalendar(instructors, aircrafts, simulators, rooms, current_user) {
    
     var resources = instructors.map(function (instructor) {
       return {
@@ -490,6 +575,24 @@ $(document).ready(function () {
         id: "aircraft:" + aircraft.id,
         type: "Aircrafts",
         title: aircraft.make + " " + aircraft.tail_number, 
+        current_user: current_user
+      }
+    }))
+
+    resources = resources.concat(simulators.map(function (simulator) {
+      return {
+        id: "simulator:" + simulator.id,
+        type: "Simulators",
+        title: simulator.make + " " + simulator.tail_number, 
+        current_user: current_user
+      }
+    }))
+
+    resources = resources.concat(rooms.map(function (room) {
+      return {
+        id: "room:" + room.id,
+        type: "Rooms",
+        title: room.location, 
         current_user: current_user
       }
     }))
@@ -537,15 +640,22 @@ $(document).ready(function () {
       select: function (start, end, notSure, notSure2, resource) {
         var instructorId = null;
         var aircraftId = null;
+        var simulatorId = null;
+        var roomId = null;
 
         if (resource) {
           var split = resource.id.split(":")
           var type = split[0]
           var id = parseInt(split[1])
+
           if (type == "instructor") {
             instructorId = id
           } else if (type == "aircraft") {
             aircraftId = id
+          } else if (type == "simulator") {
+            simulatorId = id
+          } else if (type == "room") {
+            roomId = id
           }
         }
 
@@ -557,7 +667,9 @@ $(document).ready(function () {
           start_at: start,
           end_at: moment(start).add(1, 'hours'),
           instructor_user_id: instructorId,
-          aircraft_id: aircraftId
+          aircraft_id: aircraftId,
+          simulator_id: simulatorId,
+          room_id: roomId
         }
 
         if (resource.current_user && resource.current_user.roles.length == 1 && resource.current_user.roles[0] === "student") {
@@ -582,12 +694,17 @@ $(document).ready(function () {
             aircraft_id = calEvent.unavailability.aircraft.id
           }
 
+          var simulator_id = calEvent.unavailability.simulator && calEvent.unavailability.simulator.id
+          var room_id = calEvent.unavailability.room && calEvent.unavailability.room.id
+
           openAppointmentModal({
             type: "unavailability",
             start_at: moment.utc(calEvent.unavailability.start_at).add(+(moment().utcOffset()), 'm'),
             end_at: moment.utc(calEvent.unavailability.end_at).add(+(moment().utcOffset()), 'm'),
             instructor_user_id: instructor_user_id,
             aircraft_id: aircraft_id,
+            simulator_id: simulator_id,
+            room_id: room_id,
             note: calEvent.unavailability.note,
             id: calEvent.unavailability.id
           })
@@ -600,9 +717,11 @@ $(document).ready(function () {
           }
           
           var aircraft_id = null;
+          
           if (appointment.aircraft) {
             aircraft_id = appointment.aircraft.id
           }
+
           if( appointment.status == "paid") {
             alert("This appointment has been successfully paid!");
           }
@@ -626,18 +745,29 @@ $(document).ready(function () {
           }
 
           var aircraft_id = null;
+          var aircraft_id = null;
+          var simulator_id = null;
+          var room_id = appointment.room && appointment.room.id;
+
           if (appointment.aircraft) {
             aircraft_id = appointment.aircraft.id
           }
+
+          if (appointment.simulator){
+            simulator_id = appointment.simulator.id;
+          }
+          
           if( appointment.status == "paid") {
             alert("This appointment has been successfully paid!");
           }
-
+          
           openAppointmentModal({
             start_at: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm'),
             end_at: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm'),
             instructor_user_id: instructor_user_id,
             aircraft_id: aircraft_id,
+            simulator_id: simulator_id,
+            room_id: room_id,
             note: appointment.note,
             user_id: appointment.user ? appointment.user.id : null,
             user_name: appointmentTitle(appointment),
@@ -676,7 +806,15 @@ $(document).ready(function () {
             }
 
             if (appointment.aircraft) {
-              resourceIds.push("aircraft:" + appointment.aircraft.id)
+                resourceIds.push("aircraft:" + appointment.aircraft.id)
+            }
+
+            if (appointment.simulator) {
+              resourceIds.push("simulator:" + appointment.simulator.id)
+            }
+
+            if (appointment.room) {
+              resourceIds.push("room:" + appointment.room.id)
             }
 
             return {
@@ -701,6 +839,14 @@ $(document).ready(function () {
               resourceIds.push("aircraft:" + unavailability.aircraft.id)
             }
 
+            if (unavailability.simulator) {
+              resourceIds.push("simulator:" + unavailability.simulator.id)
+            }
+
+            if (unavailability.room) {
+              resourceIds.push("room:" + unavailability.room.id)
+            }
+
             return {
               title: "Unavailable",
               start: moment.utc(unavailability.start_at).add(+(moment().utcOffset()), 'm'),
@@ -720,14 +866,19 @@ $(document).ready(function () {
 
   var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
   var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: AUTH_HEADERS })
+  var rooms = $.get({url: "/api/rooms" + addSchoolIdParam('?'), headers: AUTH_HEADERS})
+
   var current_user = $.get({ url: "/api/user_info", headers: AUTH_HEADERS })
 
-  Promise.all([users, aircrafts, current_user]).then(function (values) {
+  Promise.all([users, aircrafts, rooms, current_user]).then(function (values) {
     var instructors = values[0].data.filter(function (user) {
       return user.roles.indexOf("instructor") != -1
     });
 
-    fsmCalendar(instructors, values[1].data, values[2]);
+    const aircrafts = values[1].data.filter(function(item) {return !item.simulator})
+    const simulators = values[1].data.filter(function(item) {return item.simulator})
+
+    fsmCalendar(instructors, aircrafts, simulators, values[2].data, values[3]);
   });
 
 

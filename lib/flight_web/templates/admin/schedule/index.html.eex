@@ -4,6 +4,8 @@
     renters: @renters,
     instructors: @instructors,
     aircrafts: @aircrafts,
+    simulators: @simulators,
+    rooms: @rooms,
     instructor_user_id: nil,
     student_id: nil)
 %>

@@ -3,6 +3,7 @@ defmodule Flight.Scheduling.Appointment do
 
   import Ecto.Changeset
   alias Flight.Scheduling
+  alias Flight.SchoolAssets.Room
 
   schema "appointments" do
     field(:end_at, :naive_datetime)
@@ -20,12 +21,17 @@ defmodule Flight.Scheduling.Appointment do
     field(:start_hobbs_time, Flight.HourTenth, null: true)
     field(:end_hobbs_time, Flight.HourTenth, null: true)
 
+    field(:simulator_id, :integer)
+    field(:room_id, :integer)
+
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:owner_user, Flight.Accounts.User)
     belongs_to(:user, Flight.Accounts.User)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
     belongs_to(:transaction, Flight.Billing.Transaction)
+    belongs_to(:simulator, Flight.Scheduling.Aircraft, foreign_key: :simulator_id, references: :id, define_field: false)
+    belongs_to(:room, Room, define_field: false)
 
     timestamps()
   end

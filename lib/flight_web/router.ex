@@ -179,7 +179,7 @@ defmodule FlightWeb.Router do
     scope("/reports") do
       get("/detail", ReportsController, :detail)
     end
-    
+
     resources("/transactions", TransactionController, only: []) do
       post("/cancel", TransactionController, :cancel)
     end
@@ -299,6 +299,7 @@ defmodule FlightWeb.Router do
 
     get("/aircrafts/autocomplete", AircraftController, :autocomplete, as: :autocomplete)
     resources("/aircrafts", AircraftController, only: [:index, :show])
+    resources("/rooms", RoomController, only: [:index])
 
     resources("/transactions", TransactionController, only: [:create, :index, :show]) do
       post("/approve", TransactionController, :approve)
