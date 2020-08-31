@@ -94,6 +94,11 @@ defmodule FlightWeb.API.AppointmentView do
       end_tach_time: Map.get(appointment, :end_tach_time),
       start_hobbs_time: Map.get(appointment, :start_hobbs_time),
       end_hobbs_time: Map.get(appointment, :end_hobbs_time),
+      aircraft:
+        Optional.map(
+          appointment.aircraft,
+          &render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: &1)
+        ),
       room:
         Optional.map(
           appointment.room,
@@ -102,11 +107,6 @@ defmodule FlightWeb.API.AppointmentView do
       simulator:
         Optional.map(
           appointment.simulator,
-          &render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: &1)
-        ),
-      aircraft:
-        Optional.map(
-          appointment.aircraft,
           &render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: &1)
         )
     }

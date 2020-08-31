@@ -68,7 +68,9 @@ defmodule FlightWeb.API.InvoiceView do
         :user,
         :school,
         :instructor_user,
-        [aircraft: :inspections]
+        :room,
+        [aircraft: :inspections],
+        [simulator: :inspections]
       ])
 
     render(AppointmentView, "appointment.json", appointment: appointment)

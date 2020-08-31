@@ -73,7 +73,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   defp get_appointment(appointment_id) do
     Repo.get(Appointment, appointment_id)
-    |> Repo.preload([:user, :instructor_user, :aircraft])
+    |> Repo.preload([:user, :instructor_user, :aircraft, :room, :simulator])
   end
 
   def get_invoice_payload(appointment, params, school_context) do
@@ -108,7 +108,9 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
     [
       aircraft_item(appointment, duration, params, current_user),
-      instructor_item(appointment, duration, current_user)
+      simulator_item(appointment, duration, params, current_user),
+      instructor_item(appointment, duration, current_user),
+      room_item(appointment, 1, current_user)
     ]
     |> Enum.filter(fn x -> x end)
   end
@@ -149,6 +151,24 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     end
   end
 
+  def room_item(appointment, quantity, current_user) do
+    if room = appointment.room do
+      rate = room.rate_per_hour
+
+      %{
+        "description" => "Room",
+        "rate" => rate,
+        "quantity" => quantity,
+        "amount" => round(rate * quantity),
+        "type" => :other,
+        "room_id" => room.id,
+        "taxable" => false,
+        "deductible" => false,
+        "creator_id" => current_user.id
+      }
+    end
+  end
+
   def instructor_item(appointment, quantity, current_user) do
     if instructor = appointment.instructor_user do
       rate = instructor.billing_rate
@@ -162,6 +182,32 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "instructor_user_id" => instructor.id,
         "taxable" => false,
         "deductible" => false,
+        "creator_id" => current_user.id
+      }
+    end
+  end
+
+  def simulator_item(appointment, quantity, params \\ %{}, current_user) do
+    if appointment.simulator do
+      rate = appointment.simulator.rate_per_hour
+      hobbs_end = Map.get(params, "hobbs_time", nil)
+      tach_end = Map.get(params, "tach_time", nil)
+      simulator = appointment.simulator
+
+      %{
+        "description" => "Simulator Hours",
+        "rate" => rate,
+        "quantity" => quantity,
+        "amount" => round(rate * quantity),
+        "type" => :aircraft,
+        "aircraft_id" => simulator.id,
+        "taxable" => true,
+        "deductible" => false,
+        "hobbs_tach_used" => !!(hobbs_end || tach_end),
+        "hobbs_start" => simulator.last_hobbs_time,
+        "tach_start" => simulator.last_tach_time,
+        "hobbs_end" => hobbs_end,
+        "tach_end" => tach_end,
         "creator_id" => current_user.id
       }
     end

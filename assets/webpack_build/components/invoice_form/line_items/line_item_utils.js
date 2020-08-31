@@ -74,6 +74,8 @@ const HOUR_IN_MILLIS = 3600000;
 export const itemsFromAppointment = (appointment, line_items) => {
   line_items = line_items || []
   
+  console.log(appointment)
+
   if (appointment) {
     const duration = (new Date(appointment.end_at) - new Date(appointment.start_at)) / HOUR_IN_MILLIS;
     const items = [];
@@ -87,9 +89,10 @@ export const itemsFromAppointment = (appointment, line_items) => {
       items.push(item)
     }
 
-    if (appointment.aircraft) {
+    if (appointment.aircraft || appointment.simulator) {
       var item = findItem(line_items, "aircraft")
       if (!item) {
+        item = appointment.aircraft || appointment.simulator
         item = fromAircraft(appointment.aircraft)
       }       
       
