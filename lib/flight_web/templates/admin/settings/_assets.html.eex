@@ -1,24 +1,23 @@
-<hr />
+
 
 <div class="d-flex justify-content-between">
-  <a href="/admin/<%= @asset %>s/new?redirect_to=<%= @redirect_back_to %>" class="btn-success round-button">+</a>
-
-  <ul class="nav nav-pills nav-pills-primary" role="tablist">
-    <li class="nav-item">
+  <ul class="nav nav-pills col-xs-12" role="tablist">
+    <li class="nav-item col-xs-2">
       <a class="nav-link <%= if @asset == :aircraft, do: "active" %>"
         href=<%= "#{@conn.request_path}?tab=assets&asset=aircraft" %>
         role="tablist" aria-expanded="false">Aircrafts</a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item col-xs-2">
       <a class="nav-link <%= if @asset == :simulator, do: "active" %>"
         href=<%= "#{@conn.request_path}?tab=assets_simulator" %>
         role="tablist" aria-expanded="false">Simulators</a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item col-xs-2">
       <a class="nav-link <%= if @asset == :room, do: "active" %>"
         href=<%= "#{@conn.request_path}?tab=assets_room" %>
         role="tablist" aria-expanded="false">Rooms</a>
     </li>
+  <a href="/admin/<%= @asset %>s/new?redirect_to=<%= @redirect_back_to %>" class="btn-success round-button col-xs-2">+</a>
   </ul>
 </div>
 
