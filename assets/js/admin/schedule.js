@@ -437,28 +437,18 @@ $(document).ready(function () {
       $('#apptTabs').show()
       $('#btnDelete').hide()
     }
-
-    $('#unavailInstructor').val(null).selectpicker("refresh");
-    $('#unavailAircraft').val(null).selectpicker("refresh");
-    $('#unavailSimulator').val(null).selectpicker("refresh");
-    $('#unavailRoom').val(null).selectpicker("refresh");
-    $('#unavailNote').val(null);
+    
+    // $('#unavailInstructor').val(null).selectpicker("refresh");
+    // $('#unavailAircraft').val(null).selectpicker("refresh");
+    // $('#unavailSimulator').val(null).selectpicker("refresh");
+    // $('#unavailRoom').val(null).selectpicker("refresh");
+    // $('#unavailNote').val(null);
 
     var unavailType = "Instructor";
-    $('#unavailFor').val(unavailType).selectpicker("refresh");
-    displayForUnavailability(unavailType)
+    // $('#unavailFor').val(unavailType).selectpicker("refresh");
+    // displayForUnavailability(unavailType)
 
-    if (initialData.type == "unavailability") {
-      $('#btnInvoice').hide()
-      $('#navUnavail').tab("show")
-      
-      if (appointmentOrUnavailabilityId) {
-        $('#apptTitle').text("Edit Unavailability")
-      } else {
-        $('#apptTitle').text("Create New")
-      }
-
-      $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
+    $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
       $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
       $('#unavailSimulator').val(initialData.simulator_id).selectpicker("refresh");
       $('#unavailRoom').val(initialData.room_id).selectpicker("refresh");
@@ -479,6 +469,16 @@ $(document).ready(function () {
 
       $('#unavailFor').val(unavailType).selectpicker("refresh");
       displayForUnavailability(unavailType)
+
+    if (initialData.type == "unavailability") {
+      $('#btnInvoice').hide()
+      $('#navUnavail').tab("show")
+      
+      if (appointmentOrUnavailabilityId) {
+        $('#apptTitle').text("Edit Unavailability")
+      } else {
+        $('#apptTitle').text("Create New")
+      }
     }
     else if (initialData.type == "demoAppointment"){
       appointmentId = initialData.id;

@@ -382,7 +382,8 @@ defmodule Flight.Scheduling do
       end_at = get_field(changeset, :end_at) # |> utc_to_walltime(school.timezone)
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
-      aircraft_id = get_field(changeset, :aircraft_id)
+      aircraft_id = get_field(changeset, :aircraft_id) || get_field(changeset, :simulator_id)
+      room_id = get_field(changeset, :room_id)
       _type = get_field(changeset, :type)
       
       excluded_appointment_ids =
@@ -454,25 +455,53 @@ defmodule Flight.Scheduling do
 
           case status do
             :available -> changeset
-            other -> add_error(changeset, :aircraft, "is #{other}", status: status)
+            other -> 
+              key = if get_field(changeset, :simulator_id), do: :simulator, else: :aircraft
+
+              add_error(changeset, key, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+      changeset =
+        if room_id do
+
+          status =
+            Availability.room_status(
+              room_id,
+              start_at,
+              end_at,
+              excluded_appointment_ids,
+              [],
+              school_context
+            )
+
+          case status do
+            :available -> changeset
+            other -> 
+              add_error(changeset, :room, "is #{other}", status: status)
           end
         else
           changeset
         end
       
       new_aircraft_id = get_change(changeset, :aircraft_id) || get_field(changeset, :aircraft_id)
+      new_simulator_id = get_change(changeset, :simulator_id) || get_field(changeset, :simulator_id)
 
       {should_delete_item, changeset} = 
-        if appointment.aircraft_id != nil && appointment.aircraft_id != new_aircraft_id do
+        if (appointment.aircraft_id != nil && appointment.aircraft_id != new_aircraft_id) or
+          (appointment.simulator_id != nil && appointment.simulator_id != new_simulator_id) do
           changeset =
             changeset
             |> Appointment.changeset(%{start_tach_time: nil, end_tach_time: nil, start_hobbs_time: nil, end_hobbs_time: nil}, school.timezone)
+
           {true, changeset}
+
         else
           {false, changeset}
         end
-
-
+        
       case Repo.insert_or_update(changeset) do
         {:ok, appointment} ->
 

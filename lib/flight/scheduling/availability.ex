@@ -6,6 +6,10 @@ defmodule Flight.Scheduling.AvailabilityAircraft do
   defstruct [:aircraft, :status]
 end
 
+defmodule Flight.Scheduling.AvailabilityRoom do
+  defstruct [:room, :status]
+end
+
 defmodule Flight.Scheduling.Availability do
   alias Flight.Accounts.{Role}
 
@@ -14,11 +18,14 @@ defmodule Flight.Scheduling.Availability do
     Appointment,
     Unavailability,
     AvailabilityUser,
-    AvailabilityAircraft
+    AvailabilityAircraft,
+    AvailabilityRoom
   }
 
   alias Flight.Repo
   alias Flight.SchoolScope
+
+  alias Flight.SchoolAssets
 
   require Ecto.Query
   import Ecto.Query
@@ -250,10 +257,11 @@ defmodule Flight.Scheduling.Availability do
       if scope in [:all, :appointment] do
         from(a in Appointment, where: a.archived == false)
         |> SchoolScope.scope_query(school_context)
-        |> select([a], a.aircraft_id)
+        |> select([a], %{aircraft_id: a.aircraft_id, simulator_id: a.simulator_id})
         |> overlap_query(start_at, end_at)
         |> exclude_appointment_or_unavailability_query(excluded_appointment_ids)
         |> Repo.all()
+        |> Enum.map(&(&1.aircraft_id || &1.simulator_id))
         |> MapSet.new()
       else
         MapSet.new()
@@ -263,10 +271,11 @@ defmodule Flight.Scheduling.Availability do
       if scope in [:all, :unavailability] do
         Unavailability
         |> SchoolScope.scope_query(school_context)
-        |> select([a], a.aircraft_id)
+        |> select([a], %{aircraft_id: a.aircraft_id, simulator_id: a.simulator_id})
         |> overlap_query(start_at, end_at)
         |> exclude_appointment_or_unavailability_query(excluded_unavailability_ids)
         |> Repo.all()
+        |> Enum.map(&(&1.aircraft_id || &1.simulator_id))
         |> MapSet.new()
       else
         MapSet.new()
@@ -280,6 +289,88 @@ defmodule Flight.Scheduling.Availability do
         %AvailabilityAircraft{aircraft: aircraft, status: :unavailable}
       else
         %AvailabilityAircraft{aircraft: aircraft, status: :available}
+      end
+    end
+  end
+
+  def room_status(
+        scope \\ :all,
+        id,
+        start_at,
+        end_at,
+        excluded_appointment_ids,
+        excluded_unavailability_ids,
+        school_context
+      )
+      when scope in @scopes do
+    room_statuses =
+      room_availability(
+        scope,
+        start_at,
+        end_at,
+        excluded_appointment_ids,
+        excluded_unavailability_ids,
+        school_context
+      )
+
+    room_status = Enum.find(room_statuses, &(&1.room.id == id))
+
+    if room_status do
+      room_status.status
+    else
+      :invalid
+    end
+  end
+
+  def room_availability(
+        scope \\ :all,
+        start_at,
+        end_at,
+        excluded_appointment_ids,
+        excluded_unavailability_ids,
+        school_context
+      )
+      when scope in @scopes do
+
+    visible_rooms =
+      school_context
+      |> SchoolAssets.visible_room_query() # school scope query already composed inside visible room query.
+      |> Repo.all()
+      
+    appointment_unavailable_room_ids =
+      if scope in [:all, :appointment] do
+        from(a in Appointment, where: a.archived == false)
+        |> SchoolScope.scope_query(school_context)
+        |> select([a], a.room_id)
+        |> overlap_query(start_at, end_at)
+        |> exclude_appointment_or_unavailability_query(excluded_appointment_ids)
+        |> Repo.all()
+        |> MapSet.new()
+      else
+        MapSet.new()
+      end
+
+    unavailability_room_ids =
+      if scope in [:all, :unavailability] do
+        Unavailability
+        |> SchoolScope.scope_query(school_context)
+        |> select([a], a.room_id)
+        |> overlap_query(start_at, end_at)
+        |> exclude_appointment_or_unavailability_query(excluded_unavailability_ids)
+        |> Repo.all()
+        |> MapSet.new()
+      else
+        MapSet.new()
+      end
+
+    unavailable_room_ids =
+      MapSet.union(appointment_unavailable_room_ids, unavailability_room_ids)
+
+    for room <- visible_rooms do
+      if MapSet.member?(unavailable_room_ids, room.id) do
+        %AvailabilityRoom{room: room, status: :unavailable}
+      else
+        %AvailabilityRoom{room: room, status: :available}
       end
     end
   end
