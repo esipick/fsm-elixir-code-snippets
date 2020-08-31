@@ -43,6 +43,13 @@ defmodule FlightWeb.Billing.InvoiceController do
       base_invoice_props(conn)
       |> Map.merge(%{action: "create", appointment: appointment})
 
+    props =
+      if "student" in props.user_roles do
+        Map.put(props, :payment_method, :balance)
+      else
+        props
+      end
+
     render(conn, "new.html", props: props)
   end
 

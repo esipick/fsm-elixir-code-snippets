@@ -35,9 +35,13 @@ class Form extends Component {
     this.formRef = null;
     const { creator, staff_member, appointment } = props;
     const {stripe_account_id, pub_key} = props
+    var {payment_method} = props
 
     const appointments = appointment ? [appointment] : [];
-    
+    payment_method = payment_method && this.getPaymentMethod(payment_method)
+    payment_method = payment_method || {}
+    console.log(payment_method)
+    // if not staff member then its a student i suppose
     this.state = {
       appointment,
       appointments,
@@ -55,7 +59,7 @@ class Form extends Component {
       error_date_alert_open: false,
       balance_warning_open: false,
       balance_warning_accepted: false,
-      payment_method: {},
+      payment_method: payment_method || {},
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
