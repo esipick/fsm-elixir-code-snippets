@@ -33,10 +33,6 @@ defmodule Flight.Billing.UpdateInvoice do
           true -> :nothing
         end
 
-        # if invoice.appointment_id != nil do
-        #   Utils.update_aircraft(invoice, user)
-        # end
-
         if pay_off == true do
           CreateInvoice.pay(invoice, school_context)
         else

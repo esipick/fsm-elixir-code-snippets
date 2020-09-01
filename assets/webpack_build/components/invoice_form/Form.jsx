@@ -34,13 +34,11 @@ class Form extends Component {
 
     this.formRef = null;
     const { creator, staff_member, appointment } = props;
-    const {stripe_account_id, pub_key} = props
     var {payment_method} = props
 
     const appointments = appointment ? [appointment] : [];
     payment_method = payment_method && this.getPaymentMethod(payment_method)
     payment_method = payment_method || {}
-    console.log(payment_method)
     // if not staff member then its a student i suppose
     this.state = {
       appointment,
@@ -80,12 +78,18 @@ class Form extends Component {
     this.loadAppointments();
     this.loadAircrafts();
     this.loadInstructors();
+    this.loadRooms();
   }
 
   loadAircrafts = () => {
     return http.get({ url: '/api/aircrafts', headers: authHeaders() })
       .then(r => r.json())
-      .then(r => { this.setState({ aircrafts: r.data }); })
+      .then(r => { 
+        const simulators = r.data.filter(function(item){return item.simulator})
+        const aircrafts = r.data.filter(function(item){return !item.simulator})
+
+        this.setState({ aircrafts: aircrafts, simulators: simulators }); 
+      })
       .catch(err => {
         err.json().then(e => { console.warn(e); });
       });
@@ -95,6 +99,15 @@ class Form extends Component {
     return http.get({ url: '/api/users/by_role?role=instructor', headers: authHeaders() })
       .then(r => r.json())
       .then(r => { this.setState({ instructors: r.data }); })
+      .catch(err => {
+        err.json().then(e => { console.warn(e); });
+      });
+  }
+
+  loadRooms = () => {
+    return http.get({ url: '/api/rooms', headers: authHeaders() })
+      .then(r => r.json())
+      .then(r => { this.setState({ rooms: r.data }); })
       .catch(err => {
         err.json().then(e => { console.warn(e); });
       });
@@ -538,8 +551,8 @@ class Form extends Component {
 
   render() {
     const { custom_line_items, staff_member } = this.props;
-    const { aircrafts, appointment, appointment_loading, appointments,
-      instructors, date, errors, id, invoice_loading, line_items, payment_method, demo, sales_tax,
+    const { aircrafts, simulators, appointment, appointment_loading, appointments,
+      instructors, rooms, date, errors, id, invoice_loading, line_items, payment_method, demo, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
 
@@ -607,6 +620,7 @@ class Form extends Component {
                 <div className="form-group">
                   {!invoice_loading &&
                     <LineItemsTable aircrafts={aircrafts}
+                      simulators={simulators}
                       appointment={appointment}
                       student={student}
                       creator={this.props.creator}
@@ -614,6 +628,7 @@ class Form extends Component {
                       custom_line_items={custom_line_items}
                       errors={errors}
                       instructors={instructors}
+                      rooms={rooms}
                       line_items={line_items}
                       onChange={this.onLineItemsTableChange}
                       calculateTotal={this.calculateTotal}

@@ -5,7 +5,7 @@ import Select from 'react-select';
 import Error from '../../common/Error';
 
 import {
-  DESCRIPTION_SELECT_OPTS, DEFAULT_TYPE, TYPES,
+  DESCRIPTION_SELECT_OPTS, DEFAULT_TYPE, TYPES, SIMULATOR_HOURS,
   NUMBER_INPUT_OPTS, DEFAULT_RATE, populateHobbsTach
 } from './line_item_utils';
 
@@ -118,6 +118,12 @@ class AircraftLineItem extends Component {
 
     disable_selection = disable_selection || !editable
 
+    var options = this.props.aircrafts
+
+    if (this.props.line_item.description === SIMULATOR_HOURS) {
+      options = this.props.simulators
+    }
+
     return (
       <div>
         <Select classNamePrefix="react-select"
@@ -126,7 +132,7 @@ class AircraftLineItem extends Component {
           isClearable={true}
           isDisabled={disable_selection}
           onChange={this.setAircraft}
-          options={this.props.aircrafts}
+          options={options}
           placeholder="Tail #"
           value={aircraft} />
         <Error text={errors.aircraft_id} />

@@ -21,7 +21,7 @@ defmodule FlightWeb.Billing.InvoiceView do
   end
 
   def line_item_notes(line_item) do
-    line_item = Flight.Repo.preload(line_item, [:instructor_user, :aircraft])
+    line_item = Flight.Repo.preload(line_item, [:instructor_user, :aircraft, :room])
 
     cond do
       line_item.type == :instructor && line_item.instructor_user ->
@@ -29,7 +29,10 @@ defmodule FlightWeb.Billing.InvoiceView do
 
       line_item.type == :aircraft && line_item.aircraft ->
         "Tail #: #{line_item.aircraft.tail_number}"
-
+      
+      line_item.type == :other && line_item.room ->
+        "Room #: #{inspect line_item.room.location}"
+        
       true ->
         ""
     end

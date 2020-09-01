@@ -49,7 +49,7 @@ defmodule FlightWeb.Billing.InvoiceController do
       else
         props
       end
-
+        
     render(conn, "new.html", props: props)
   end
 

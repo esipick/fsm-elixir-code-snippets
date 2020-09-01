@@ -1,17 +1,23 @@
 import shortid from 'shortid';
 
 export const FLIGHT_HOURS = "Flight Hours";
+export const SIMULATOR_HOURS = "Simulator Hours"
 export const INSTRUCTOR_HOURS = "Instructor Hours";
+export const ROOM = "Room"
 
 export const DEFAULT_TYPE = "other";
 export const TYPES = {
   [FLIGHT_HOURS]: "aircraft",
+  [SIMULATOR_HOURS]: "aircraft",
+  [ROOM]: "room",
   [INSTRUCTOR_HOURS]: "instructor"
 }
 
 export const DESCRIPTION_OPTS = [
   {label: FLIGHT_HOURS, value: FLIGHT_HOURS, taxable: true, deductible: false},
-  {label: INSTRUCTOR_HOURS, value: INSTRUCTOR_HOURS, taxable: false, deductible: false}
+  {label: SIMULATOR_HOURS, value: SIMULATOR_HOURS, taxable: true, deductible: false},
+  {label: INSTRUCTOR_HOURS, value: INSTRUCTOR_HOURS, taxable: false, deductible: false},
+  {label: ROOM, value: ROOM, taxable: false, deductible: false}
 ];
 
 export const DEFAULT_RATE = 0;
@@ -49,17 +55,22 @@ export class LineItemRecord {
     this.description = params.description;
     this.rate = params.rate || DEFAULT_RATE;
     this.quantity = params.quantity || 1;
+    this.room = params.room;
+    this.room_id = params.room && params.room.id;
     this.amount = this.rate * this.quantity;
     this.type = TYPES[this.description] || DEFAULT_TYPE;
     this.instructor_user = params.instructor_user;
     this.instructor_user_id = params.instructor_user && params.instructor_user.id;
-    this.aircraft = params.aircraft;
-    this.aircraft_id = params.aircraft && params.aircraft.id;
+
+    this.aircraft = params.aircraft || params.simulator;
+    this.aircraft_id = (params.aircraft && params.aircraft.id) || (params.simulator && params.simulator.id);
+    
     this.taxable = params.taxable;
     this.deductible = params.deductible;
-
+    
     if (this.type == "aircraft") {
-      const { hobbs_start, hobbs_end, tach_start, tach_end } = populateHobbsTach(this.aircraft);
+      const asset = this.aircraft || this.simulator
+      const { hobbs_start, hobbs_end, tach_start, tach_end } = populateHobbsTach(asset);
       this.hobbs_start = hobbs_start;
       this.hobbs_end = this.hobbs_end || hobbs_end;
       this.tach_start = tach_start;
@@ -74,8 +85,6 @@ const HOUR_IN_MILLIS = 3600000;
 export const itemsFromAppointment = (appointment, line_items) => {
   line_items = line_items || []
   
-  console.log(appointment)
-
   if (appointment) {
     const duration = (new Date(appointment.end_at) - new Date(appointment.start_at)) / HOUR_IN_MILLIS;
     const items = [];
@@ -89,11 +98,22 @@ export const itemsFromAppointment = (appointment, line_items) => {
       items.push(item)
     }
 
+    if (appointment.room) {
+      console.log(line_items)
+      var item = findItem(line_items, "room")
+      
+      if (!item) {
+        item = fromRoom(appointment.room);
+      }
+
+      items.push(item)
+    }
+
     if (appointment.aircraft || appointment.simulator) {
       var item = findItem(line_items, "aircraft")
       if (!item) {
         item = appointment.aircraft || appointment.simulator
-        item = fromAircraft(appointment.aircraft)
+        item = fromAircraft(item)
       }       
       
       item.hobbs_start = appointment.start_hobbs_time || item.hobbs_start;
@@ -144,8 +164,19 @@ const fromAircraft = (aircraft, duration) => {
   return new LineItemRecord({
     quantity: duration,
     rate: aircraft.rate_per_hour,
-    description: FLIGHT_HOURS,
+    description: aircraft.simulator ? SIMULATOR_HOURS : FLIGHT_HOURS,
     aircraft,
+    taxable: true,
+    deductible: false
+  });
+}
+
+const fromRoom = (room) => {
+  return new LineItemRecord({
+    quantity: 1,
+    rate: room.rate_per_hour,
+    description: ROOM,
+    room: room,
     taxable: true,
     deductible: false
   });

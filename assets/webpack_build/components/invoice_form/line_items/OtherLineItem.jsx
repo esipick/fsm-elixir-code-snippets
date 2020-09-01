@@ -6,7 +6,7 @@ import Select from 'react-select';
 import Error from '../../common/Error';
 
 import {
-  DESCRIPTION_SELECT_OPTS, NUMBER_INPUT_OPTS, INSTRUCTOR_HOURS,
+  DESCRIPTION_SELECT_OPTS, NUMBER_INPUT_OPTS, INSTRUCTOR_HOURS, ROOM,
   DEFAULT_TYPE, TYPES, DEFAULT_RATE, isInstructorHoursEditable
 } from './line_item_utils';
 import { authHeaders } from '../../utils';
@@ -16,9 +16,10 @@ class OtherLineItem extends Component {
     super(props);
 
     const { line_item, current_user_id } = props;
-    const { instructor_user } = line_item;
+    const { instructor_user, room } = line_item;
 
     this.state = {
+      room,
       instructor_user,
       line_item
     }
@@ -69,6 +70,41 @@ class OtherLineItem extends Component {
     e.preventDefault();
 
     this.props.onRemove(this.state.line_item.id);
+  }
+
+  isRoom = () => {
+    return this.state.line_item.description === ROOM
+  }
+
+  roomSelect = () => {
+    const { errors, editable } = this.props;
+    const { instructors_loading, room } = this.state;
+
+    return (
+      <div>
+        <Select classNamePrefix="react-select"
+          getOptionLabel={(o) => o.location}
+          getOptionValue={(o) => o.id}
+          isClearable={true}
+          isDisabled={!editable}
+          onChange={this.setRoom} // change this to setRoom
+          options={this.props.rooms} // change this to this.props.rooms.
+          value={room}
+          placeholder="Room" />
+        <Error text={errors.room_id} />
+      </div>
+    );
+  }
+
+  setRoom = (room) => {
+    const rate = room && room.rate_per_hour ? room.rate_per_hour : DEFAULT_RATE;
+    const room_id = room ? room.id : null;
+    const amount = rate * this.state.line_item.quantity;
+    const payload = { rate, room_id, amount };
+    const line_item = Object.assign({}, this.state.line_item, payload);
+
+    this.setState({ room, line_item });
+    this.props.onChange(line_item);
   }
 
   isInstructorHours = () => {
@@ -122,7 +158,7 @@ class OtherLineItem extends Component {
     const rateOpts = Object.assign({}, NUMBER_INPUT_OPTS, {className: rateClass});
     
     const shouldDisableRate = isInstructorHoursEditable(this.state.line_item, user_roles) 
-
+    
     return (
       <tr key={id} className={wrapperClass}>
         <td>{number}.</td>
@@ -134,9 +170,11 @@ class OtherLineItem extends Component {
             {...DESCRIPTION_SELECT_OPTS} />
           <Error text={errors.description} />
         </td>
+        
         <td className="lc-desc-column">
-          {this.isInstructorHours() && this.instructorSelect()}
+          {(this.isRoom() && this.roomSelect()) || (this.isInstructorHours() && this.instructorSelect())}
         </td>
+
         <td className="lc-column">
           <NumberFormat onValueChange={this.setRate}
             value={rate == null ? null : rate / 100 }

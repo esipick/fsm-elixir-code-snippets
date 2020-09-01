@@ -160,7 +160,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "rate" => rate,
         "quantity" => quantity,
         "amount" => round(rate * quantity),
-        "type" => :other,
+        "type" => :room,
         "room_id" => room.id,
         "taxable" => false,
         "deductible" => false,

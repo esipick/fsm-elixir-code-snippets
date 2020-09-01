@@ -57,7 +57,7 @@ class InvoiceLineItem extends PureComponent {
       itemFromOption: this.itemFromOption,
       editable,
     });
-    
+
     if (line_item.type == 'aircraft') {
       return <AircraftLineItem {...props} />
     } else {

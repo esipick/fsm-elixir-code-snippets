@@ -8,6 +8,7 @@ defmodule Flight.Billing.InvoiceLineItem do
   import HobbsTachUtil
 
   alias Flight.Billing.InvoiceLineItem
+  alias Flight.SchoolAssets.Room
 
   @required_fields ~w(description rate amount quantity)a
   @hobbs_tach_fields ~w(hobbs_start hobbs_end tach_start tach_end hobbs_tach_used)a
@@ -26,6 +27,7 @@ defmodule Flight.Billing.InvoiceLineItem do
     field(:deductible, :boolean)
     field(:type, InvoiceLineItemTypeEnum, default: :other)
 
+    belongs_to(:room, Room)
     belongs_to(:creator, User)
     belongs_to(:instructor_user, User)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
@@ -51,13 +53,15 @@ defmodule Flight.Billing.InvoiceLineItem do
     invoice_line_item
     |> cast(attrs, @required_fields)
     |> cast(attrs, @hobbs_tach_fields)
-    |> cast(attrs, [:instructor_user_id, :creator_id, :aircraft_id, :type, :taxable, :deductible])
+    |> cast(attrs, [:instructor_user_id, :room_id, :creator_id, :aircraft_id, :type, :taxable, :deductible])
     |> validate_required(@required_fields)
     |> validate_number(:quantity, greater_than: 0)
     |> validate_conditional_required(:aircraft_id, &aircraft_type?(&1))
     |> validate_conditional_required(:instructor_user_id, &instructor_type?(&1))
+    |> validate_conditional_required(:room_id, &room_type?(&1))
     |> validate_aircraft_existence
     |> validate_instructor_existence
+    |> validate_room_existence
   end
 
   def validate_conditional_required(changeset, field, conditional) do
@@ -94,6 +98,22 @@ defmodule Flight.Billing.InvoiceLineItem do
         changeset
       else
         add_error(changeset, :instructor_user_id, "does not exist")
+      end
+    else
+      changeset
+    end
+  end
+
+  def validate_room_existence(changeset) do
+    room_id = get_field(changeset, :room_id)
+
+    if room_id do
+      room = Repo.get(Room, room_id)
+
+      if room do
+        changeset
+      else
+        add_error(changeset, :room_id, "does not exist")
       end
     else
       changeset

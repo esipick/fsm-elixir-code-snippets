@@ -108,16 +108,6 @@ defmodule FlightWeb.API.AppointmentView do
         Optional.map(
           appointment.aircraft,
           &render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: &1)
-        ),
-      room:
-        Optional.map(
-          appointment.room,
-          &render(FlightWeb.API.RoomView, "room.json", room: &1)
-        ),
-      simulator:
-        Optional.map(
-          appointment.simulator,
-          &render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: &1)
         )
     }
   end
