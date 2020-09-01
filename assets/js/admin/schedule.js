@@ -80,6 +80,28 @@ $(document).ready(function () {
     }
   }
 
+  $('#apptFor').on('change', function () {
+    displayForAppointment(this.value)
+  });
+
+  function displayForAppointment(type) {
+    if (type == "Simulator") {
+      $('#apptFieldAircraft').hide();
+      $('#apptFieldSimulator').show();
+      $('#apptFieldRoom').hide();
+
+    } else if (type == "Room") {
+      $('#apptFieldAircraft').hide();
+      $('#apptFieldSimulator').hide();
+      $('#apptFieldRoom').show();
+    
+    } else {
+      $('#apptFieldAircraft').show();
+      $('#apptFieldSimulator').hide();
+      $('#apptFieldRoom').hide();
+    }
+  }
+
   var eventType = "appt";
   var appointmentId = null;
   var appointmentOrUnavailabilityId = null;
@@ -428,57 +450,17 @@ $(document).ready(function () {
   });
 
   var openAppointmentModal = function (initialData) {
-    appointmentOrUnavailabilityId = initialData.id;
-    
-    if (appointmentOrUnavailabilityId) {
-      $('#apptTabs').hide()
-      $('#btnDelete').show()
-    } else {
-      $('#apptTabs').show()
-      $('#btnDelete').hide()
-    }
-    
-    // $('#unavailInstructor').val(null).selectpicker("refresh");
-    // $('#unavailAircraft').val(null).selectpicker("refresh");
-    // $('#unavailSimulator').val(null).selectpicker("refresh");
-    // $('#unavailRoom').val(null).selectpicker("refresh");
-    // $('#unavailNote').val(null);
-
-    var unavailType = "Instructor";
-    // $('#unavailFor').val(unavailType).selectpicker("refresh");
-    // displayForUnavailability(unavailType)
-
-    $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
-      $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
-      $('#unavailSimulator').val(initialData.simulator_id).selectpicker("refresh");
-      $('#unavailRoom').val(initialData.room_id).selectpicker("refresh");
-      $('#unavailNote').val(initialData.note);
-
-      if (initialData.instructor_user_id) {
-        unavailType = "Instructor"
-
-      } else if (initialData.aircraft_id) {
-        unavailType = "Aircraft"
-
-      } else if (initialData.simulator_id) {
-        unavailType = "Simulator"
-
-      } else {
-        unavailType = "Room"
-      }
-
-      $('#unavailFor').val(unavailType).selectpicker("refresh");
-      displayForUnavailability(unavailType)
-
-    if (initialData.type == "unavailability") {
-      $('#btnInvoice').hide()
-      $('#navUnavail').tab("show")
+      appointmentOrUnavailabilityId = initialData.id;
       
       if (appointmentOrUnavailabilityId) {
-        $('#apptTitle').text("Edit Unavailability")
+        $('#apptTabs').hide()
+        $('#btnDelete').show()
       } else {
-        $('#apptTitle').text("Create New")
+        $('#apptTabs').show()
+        $('#btnDelete').hide()
       }
+
+      var unavailType = "Instructor";
 
       $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
       $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
@@ -501,6 +483,56 @@ $(document).ready(function () {
 
       $('#unavailFor').val(unavailType).selectpicker("refresh");
       displayForUnavailability(unavailType)
+
+      var assetType = null
+
+      if (initialData.aircraft_id) {
+        unavailType = "Aircraft"
+
+      } else if (initialData.simulator_id) {
+        assetType = "Simulator"
+
+      } else if (initialData.room_id) {
+        assetType = "Room"
+      }
+      
+      displayForAppointment(assetType)
+
+      if (!assetType) {assetType = "Aircraft"}
+      $('#apptFor').val(assetType).selectpicker("refresh");
+
+
+    if (initialData.type == "unavailability") {
+      $('#btnInvoice').hide()
+      $('#navUnavail').tab("show")
+      
+      if (appointmentOrUnavailabilityId) {
+        $('#apptTitle').text("Edit Unavailability")
+      } else {
+        $('#apptTitle').text("Create New")
+      }
+
+      // $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
+      // $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+      // $('#unavailSimulator').val(initialData.simulator_id).selectpicker("refresh");
+      // $('#unavailRoom').val(initialData.room_id).selectpicker("refresh");
+      // $('#unavailNote').val(initialData.note);
+
+      // if (initialData.instructor_user_id) {
+      //   unavailType = "Instructor"
+
+      // } else if (initialData.aircraft_id) {
+      //   unavailType = "Aircraft"
+
+      // } else if (initialData.simulator_id) {
+      //   unavailType = "Simulator"
+
+      // } else {
+      //   unavailType = "Room"
+      // }
+
+      // $('#unavailFor').val(unavailType).selectpicker("refresh");
+      // displayForUnavailability(unavailType)
     }
     else if (initialData.type == "demoAppointment"){
       appointmentId = initialData.id;
