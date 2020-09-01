@@ -73,8 +73,10 @@
                       <td><%= currency simulator.rate_per_hour %></td>
                       <td><%= currency simulator.block_rate_per_hour %></td>
                       <td class="text-right">
-                        <a href="/admin/simulators/<%= simulator.id %>" class="btn btn-primary btn-sm">view</a>
-                        <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-simulator-id="<%= simulator.id %>">delete</button>
+                        <div id="button-wrapper" class="d-flex justify-content-end">
+                          <a href="/admin/simulators/<%= simulator.id %>" class="btn btn-primary btn-sm ml-1">view</a>
+                          <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm ml-1 _delete_button" data-simulator-id="<%= simulator.id %>">delete</button>
+                        </div>
                       </td>
                     </tr>
                   <% end %>
