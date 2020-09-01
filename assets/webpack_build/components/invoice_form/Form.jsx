@@ -623,7 +623,7 @@ class Form extends Component {
                       total_tax={total_tax}
                       current_user_id={this.state.current_user_id}
                       user_roles = {this.state.user_roles} />}
-                </div>
+              </div>
 
                 <div className="form-group">
                   <label>

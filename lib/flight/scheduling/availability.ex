@@ -31,6 +31,8 @@ defmodule Flight.Scheduling.Availability do
   import Ecto.Query
   import Flight.Auth.Authorization
   import Flight.Auth.Permission, only: [permission_slug: 3]
+  import Flight.Walltime, only: [walltime_to_utc: 2, utc_to_walltime: 2]
+
   import Pipe
 
   @scopes [:all, :appointment, :unavailability]
@@ -266,7 +268,7 @@ defmodule Flight.Scheduling.Availability do
       else
         MapSet.new()
       end
-
+        
     unavailability_aircraft_ids =
       if scope in [:all, :unavailability] do
         Unavailability

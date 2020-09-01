@@ -584,7 +584,7 @@ defmodule Flight.Scheduling do
         school_context
       ) do
     school = SchoolScope.get_school(school_context)
-
+    # school_context = Map.put(school_context, :school, school)
     changeset =
       unavailability
       |> SchoolScope.school_changeset(school)
@@ -593,7 +593,8 @@ defmodule Flight.Scheduling do
     if changeset.valid? do
       {:ok, _} = apply_action(changeset, :insert)
       instructor_user_id = get_field(changeset, :instructor_user_id)
-      aircraft_id = get_field(changeset, :aircraft_id)
+      aircraft_id = get_field(changeset, :aircraft_id) || get_field(changeset, :simulator_id)
+      room_id = get_field(changeset, :room_id)
 
       excluded_unavailability_ids = if unavailability.id, do: [unavailability.id], else: []
 
@@ -621,10 +622,12 @@ defmodule Flight.Scheduling do
           changeset
         end
 
+      start_at = get_field(changeset, :start_at) #|> utc_to_walltime(school.timezone)
+      end_at = get_field(changeset, :end_at) #|> utc_to_walltime(school.timezone)
+      
       changeset =
         if aircraft_id do
-          start_at = get_field(changeset, :start_at) |> utc_to_walltime(school.timezone)
-          end_at = get_field(changeset, :end_at) |> utc_to_walltime(school.timezone)
+
           status =
             Availability.aircraft_status(
               :unavailability,
@@ -638,7 +641,33 @@ defmodule Flight.Scheduling do
 
           case status do
             :available -> changeset
-            other -> add_error(changeset, :aircraft, "is #{other}", status: status)
+            other -> 
+              key = if get_field(changeset, :simulator_id), do: :simulator, else: :aircraft
+
+              add_error(changeset, key, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+      changeset =
+        if room_id do
+
+          status =
+            Availability.room_status(
+              :unavailability,
+              room_id,
+              start_at,
+              end_at,
+              excluded_unavailability_ids,
+              [],
+              school_context
+            )
+
+          case status do
+            :available -> changeset
+            other -> 
+              add_error(changeset, :room, "is #{other}", status: status)
           end
         else
           changeset

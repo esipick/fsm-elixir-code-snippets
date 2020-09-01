@@ -91,6 +91,8 @@ defmodule Flight.Scheduling.Unavailability do
   defp apply_utc_timezone_changeset(changeset, attrs, timezone) do
     changeset
     |> Scheduling.apply_utc_timezone_if_aircraft(attrs, "aircraft_id", timezone)
+    |> Scheduling.apply_utc_timezone_if_aircraft(attrs, "room_id", timezone)
+    |> Scheduling.apply_utc_timezone_if_aircraft(attrs, "simulator_id", timezone)
   end
 
   defp validate_end_at_after_start_at(changeset) do
