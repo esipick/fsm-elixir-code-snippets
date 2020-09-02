@@ -157,7 +157,7 @@ class OtherLineItem extends Component {
     );
     const rateOpts = Object.assign({}, NUMBER_INPUT_OPTS, {className: rateClass});
     
-    const shouldDisableRate = isInstructorHoursEditable(this.state.line_item, user_roles) 
+    const shouldDisableRate = isInstructorHoursEditable(this.state.line_item, user_roles) || this.state.line_item.type === "room" 
     
     return (
       <tr key={id} className={wrapperClass}>
