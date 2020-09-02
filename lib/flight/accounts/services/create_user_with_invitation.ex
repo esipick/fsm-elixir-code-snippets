@@ -103,9 +103,9 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
 
     role_id = Ecto.Changeset.get_field(changeset, :role_id)
 
-    role =
-      Repo.get(Accounts.Role, role_id).slug
-      |> String.capitalize()
+    # role =
+    #   Repo.get(Accounts.Role, role_id).slug
+    #   |> String.capitalize()
 
     user = Accounts.get_user_by_email(email)
     
@@ -124,7 +124,9 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
         |> Ecto.Changeset.apply_action(:insert)
 
       true ->
-        role = Accounts.get_role(Map.get(attrs, "role_id"))
+        # IO.inspect(attrs, label: "Attributes")
+        # role_id = Map.get(attrs, "role_id") || Map.get(attrs, :role_id)
+        role = Accounts.get_role(role_id)
         roles = if role, do: [role], else: []
         password = Flight.Random.hex(10)
 
