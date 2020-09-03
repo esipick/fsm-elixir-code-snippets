@@ -25,8 +25,8 @@ defenum(
   SchoolOnboardingCurrentStepEnum,
   school: 0,
   contact: 1,
-  payment: 2,
-  billing: 3,
-  profile: 4,
-  assets: 5
+  profile: 2,
+  assets: 3,
+  payment: 4,
+  billing: 5
 )

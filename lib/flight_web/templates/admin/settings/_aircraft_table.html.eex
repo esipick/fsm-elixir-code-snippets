@@ -16,8 +16,10 @@
         <td><%= currency aircraft.rate_per_hour %></td>
         <td><%= currency aircraft.block_rate_per_hour %></td>
         <td class="text-right">
-          <a href="/admin/aircrafts/<%= aircraft.id %>/edit?redirect_to=<%= @redirect_back_to %>" class="btn btn-primary btn-sm">edit</a>
-          <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-aircraft-id="<%= aircraft.id %>">delete</button>
+          <div id="button-wrapper" class="d-flex justify-content-end">
+            <a href="/admin/aircrafts/<%= aircraft.id %>/edit?redirect_to=<%= @redirect_back_to %>" class="btn btn-primary btn-sm ml-1">edit</a>
+            <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm ml-1 _delete_button" data-aircraft-id="<%= aircraft.id %>">delete</button>
+          </div>
         </td>
       </tr>
     <% end %>

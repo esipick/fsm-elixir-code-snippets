@@ -67,6 +67,9 @@ function getPlainDate(start_at) {
             end
         %>
         <p class="transaction-status"><%= status %></p>
+      <%= for line_item <- transaction.line_items do %>
+          <p><small><%= line_item.description %></small></p>
+      <% end %>
       </dd>
     </dl>
   <% end %>

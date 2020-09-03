@@ -1,13 +1,17 @@
 <div class="card-body">
-  <p>Your account has been created. Please follow the link to download the Flight School Manager app to finish your profile and schedule your first lesson!</p>
+  <p>Your account has been created. Please follow the link to download the Flight School Manager app to schedule your first lesson!</p>
   <h4>Get The App</h4>
   <a hre>
   <div class="download-buttons">
     <a href="https://itunes.apple.com/nz/app/flight-school-manager/id1079676025?mt=8" target="_blank"><img src="<%= static_path(@conn, "/images/app-store.png") %>"/></a>
-    <a href="https://play.google.com/store/apps/details?id=com.russellaviation.fsm" target="_blank"><img src="<%= static_path(@conn, "/images/google-play@2x.png") %>"/></a>
+    <!-- a href="https://play.google.com/store/apps/details?id=com.russellaviation.fsm" target="_blank"><img src="<%= static_path(@conn, "/images/google-play@2x.png") %>"/></a>-->
   </div>
   <div class="col-md-8 ml-auto mr-auto">
-    <p class="text-muted mt-4"><small>Or search “Flight School Manager” in the app store on your Android or iOS device.</small></p>
+    <p class="text-muted mt-4"><small>Or search “Flight School Manager” in the app store on your iOS device.</small></p>
   </div>
-  <p>You may also login to the web dashboard <a href="/login">here.</a></p>
+    <p>You may also login to the web dashboard by clicking
+    <span class="logo-container">
+        <a href="/login"><img style="width: 20px !important;
+                                         height: 20px !important;" src="<%= static_path(@conn, "/images/fsm-icon.png") %>"/></a>
+      </span></p>
 </div>

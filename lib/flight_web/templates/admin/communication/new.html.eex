@@ -39,6 +39,13 @@
                 </div>
               </div>
             </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Note: Email sent through this service goes to all of your school users.</label>
+                </div>
+              </div>
+            </div>
           </div>
             <!-- end card-body -->
           <div class="card-footer ">

@@ -35,13 +35,19 @@ class Form extends Component {
     this.formRef = null;
     const { creator, staff_member, appointment } = props;
     const {stripe_account_id, pub_key} = props
+    var {payment_method} = props
 
     const appointments = appointment ? [appointment] : [];
-  
+    payment_method = payment_method && this.getPaymentMethod(payment_method)
+    payment_method = payment_method || {}
+    console.log(payment_method)
+    // if not staff member then its a student i suppose
     this.state = {
       appointment,
       appointments,
       id: props.id || '',
+      current_user_id: props.current_user_id,
+      user_roles: props.user_roles,
       sales_tax: props.tax_rate || 0,
       action: props.action || 'create',
       error: props.error || '',
@@ -53,7 +59,7 @@ class Form extends Component {
       error_date_alert_open: false,
       balance_warning_open: false,
       balance_warning_accepted: false,
-      payment_method: {},
+      payment_method: payment_method || {},
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
@@ -136,9 +142,9 @@ class Form extends Component {
 
   getPaymentMethod = (payment_option) => {
     const finded_option = PAYMENT_OPTIONS.find((option) => {
-      return option.value == payment_option
+      return option.value === payment_option
     });
-
+    
     return finded_option || DEFAULT_PAYMENT_OPTION;
   }
 
@@ -213,7 +219,7 @@ class Form extends Component {
   }
 
   setAppointment = (appointment) => {
-    const line_items = itemsFromAppointment(appointment)
+    const line_items = itemsFromAppointment(appointment, [])
     this.setState({appointment})
     
     this.calculateTotal(line_items, (values) => {
@@ -246,10 +252,12 @@ class Form extends Component {
       } else {
         appointment = null;
       }
+      
+      const payment_method = this.getPaymentMethod(BALANCE)
+      this.setState({payment_method: payment_method, student, appointment }, () => { this.loadAppointments(); });
 
-      this.setState({ student, appointment }, () => { this.loadAppointments(); });
     } else {
-      this.setState({ student, appointment: null, appointments: [] });
+      this.setState({ student, appointment: null, appointments: [], payment_method: {} });
     }
   }
 
@@ -342,7 +350,10 @@ class Form extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
-        if (data.session_id && pay_off) {
+        
+        console.log(data)
+
+        if (pay_off && data.session_id && data.connect_account && data.pub_key) {
           this.stripeCheckout(data.session_id, data.connect_account, data.pub_key)
           return;
         }
@@ -368,7 +379,6 @@ class Form extends Component {
       calculateRequest.cancel();
     }
 
-    console.log(line_items)
     const { student, appointment, action } = this.state;
     const payload = {
       ignore_last_time: action == 'edit',
@@ -455,10 +465,10 @@ class Form extends Component {
 
   saveAndPayButton = () => {
     const { payment_method: { value }, saving } = this.state;
-    const inputValue = [CASH, CHECK, VENMO].includes(value) ? MARK_AS_PAID : PAY
+    const inputValue = "Pay Now";//[CASH, CHECK, VENMO].includes(value) ? MARK_AS_PAID : PAY
 
     return (
-      <input className="btn btn-danger invoice-form__pay-btn"
+      <input className="btn btn-success invoice-form__pay-btn"
         type="submit"
         disabled={saving}
         value={inputValue}
@@ -509,10 +519,10 @@ class Form extends Component {
 
   studentSelect = () => {
     const { errors, student, students } = this.state;
-
+   
     return (
       <div className={classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '')}>
-        <CreatableSelect placeholder="Student name"
+        <CreatableSelect placeholder="Person Name"
           isClearable
           isValidNewOption={this.isGuestNameValid}
           onCreateOption={this.createGuestPayer}
@@ -545,7 +555,7 @@ class Form extends Component {
               <form ref={this.setFormRef}>
                 <div className="form-group">
                   <label>
-                    Student name
+                    Person Name
                     <Error text={this.userErrors(errors.user_id)} />
                   </label>
                   { staff_member && this.studentSelect() }
@@ -610,7 +620,9 @@ class Form extends Component {
                       sales_tax={sales_tax}
                       total={total}
                       total_amount_due={total_amount_due}
-                      total_tax={total_tax} />}
+                      total_tax={total_tax}
+                      current_user_id={this.state.current_user_id}
+                      user_roles = {this.state.user_roles} />}
                 </div>
 
                 <div className="form-group">
@@ -632,7 +644,7 @@ class Form extends Component {
                 <div id="save_and_pay" className="form-group invoice-save-buttons">
                   <input className="btn btn-primary"
                     type="submit"
-                    value="Save"
+                    value="Save for later"
                     disabled={saving}
                     onClick={() => { this.submitForm({ pay_off: false }) }} />
 

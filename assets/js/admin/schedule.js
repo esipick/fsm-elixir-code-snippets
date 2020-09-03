@@ -474,21 +474,14 @@ $(document).ready(function () {
     $('#calendarNewModal').modal();
   };
 
-
-
-
-
-
-
-
-
-  function fsmCalendar(instructors, aircrafts) {
-
+  function fsmCalendar(instructors, aircrafts, current_user) {
+   
     var resources = instructors.map(function (instructor) {
       return {
         id: "instructor:" + instructor.id,
         type: "Instructors",
-        title: fullName(instructor)
+        title: fullName(instructor),
+        current_user: current_user
       }
     })
 
@@ -496,7 +489,8 @@ $(document).ready(function () {
       return {
         id: "aircraft:" + aircraft.id,
         type: "Aircrafts",
-        title: aircraft.make + " " + aircraft.tail_number
+        title: aircraft.make + " " + aircraft.tail_number, 
+        current_user: current_user
       }
     }))
 
@@ -559,17 +553,23 @@ $(document).ready(function () {
         var eventData;
         var thatsAllDay = false;
 
-        openAppointmentModal({
+        var params = {
           start_at: start,
           end_at: moment(start).add(1, 'hours'),
           instructor_user_id: instructorId,
           aircraft_id: aircraftId
-        })
+        }
+
+        if (resource.current_user && resource.current_user.roles.length == 1 && resource.current_user.roles[0] === "student") {
+          params.user_name = fullName(resource.current_user)
+          params.user_id = resource.current_user.id
+        }
+
+        openAppointmentModal(params)
 
       },
       editable: true,
       eventClick: function (calEvent, jsEvent, view) {
-        console.log(calEvent)
 
         if (calEvent.unavailability) {
           var instructor_user_id = null;
@@ -598,7 +598,7 @@ $(document).ready(function () {
           if (appointment.instructor_user) {
             instructor_user_id = appointment.instructor_user.id
           }
-
+          
           var aircraft_id = null;
           if (appointment.aircraft) {
             aircraft_id = appointment.aircraft.id
@@ -720,13 +720,14 @@ $(document).ready(function () {
 
   var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
   var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: AUTH_HEADERS })
+  var current_user = $.get({ url: "/api/user_info", headers: AUTH_HEADERS })
 
-  Promise.all([users, aircrafts]).then(function (values) {
+  Promise.all([users, aircrafts, current_user]).then(function (values) {
     var instructors = values[0].data.filter(function (user) {
       return user.roles.indexOf("instructor") != -1
     });
 
-    fsmCalendar(instructors, values[1].data);
+    fsmCalendar(instructors, values[1].data, values[2]);
   });
 
 

@@ -22,10 +22,13 @@
           <h6><%= add_user_label_for_role(@role) %></h6>
           <%= form_for @changeset, @request_path, [as: :data, method: "post"], fn f -> %>
             <%= if Keyword.has_key?(f.errors, :user) do %>
-              <div class="alert alert-danger">
+              <div class="alert alert-danger alert-dismissible fade show">
                 <%= for error <- human_error_messages_for_user_without_key(@changeset) do %>
                   <span><%= error %></span></br>
                 <% end %>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
               </div>
             <% end %>
             <%= hidden_input f, :role_id, value: @role.id %>

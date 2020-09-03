@@ -40,6 +40,7 @@ defmodule FlightWeb.API.UserView do
       instructors: user.instructors,
       main_instructor: user.main_instructor,
       main_instructor_id: user.main_instructor_id,
+      stripe_customer_id: user.stripe_customer_id,
       stripe_account_id: nil,
       school_id: user.school_id,
       show_student_accounts_summary: user.school.show_student_accounts_summary,

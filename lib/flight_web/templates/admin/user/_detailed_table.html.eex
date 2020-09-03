@@ -27,7 +27,7 @@
                 Delete
               </button>
             <% else %>
-              <a href="/admin/users/<%= row.user_id %>/restore?role=<%= @role %>" class="btn btn-primary btn-sm">Restore</a>
+              <a href="/admin/users/<%= row.user_id %>/restore?role=<%= @role %>&from_contacts=<%= @from_contacts%>" class="btn btn-primary btn-sm">Restore</a>
             <% end %>
           </td>
         </tr>

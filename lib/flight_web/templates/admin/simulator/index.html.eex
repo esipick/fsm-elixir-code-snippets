@@ -10,35 +10,35 @@
           </div>
 
           <div class="d-flex justify-content-between">
-            <a href="/admin/simulators/new" class="btn-success round-button">+</a>
-            <ul class="nav nav-pills nav-pills-primary" role="tablist">
-              <li class="nav-item">
+            <ul class="nav nav-pills col-xs-12" role="tablist">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :aircraft, do: "active" %>"
                   href="/admin/aircrafts"
                   role="tablist" aria-expanded="false">Aircrafts</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :simulator, do: "active" %>"
                   href="/admin/simulators"
                   role="tablist" aria-expanded="false">Simulators</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :room, do: "active" %>"
                   href="/admin/rooms"
                   role="tablist" aria-expanded="false">Rooms</a>
               </li>
+            <a href="/admin/simulators/new" class="btn-success round-button col-xs-2">+</a>
             </ul>
           </div>
           <div>
             <%= form_for @conn, "/admin/simulators", [method: "get"], fn f -> %>
               <div class="row mb-4">
-                <div class="col-md-10 col-xs-12">
+                <div class="col-md-4 pr-1">
                   <div class="form-group">
-                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Search by name" %>
+                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Type here to search by 'Name'" %>
                     <span class="text-danger"><%= @message %></span>
                   </div>
                 </div>
-                <div class="col-md-2 pl-1">
+                <div class="col-xs-3 pl-3">
                   <input type="submit" class="btn btn-primary m-0 pull-right" value="Search" />
                 </div>
               </div>
@@ -73,8 +73,10 @@
                       <td><%= currency simulator.rate_per_hour %></td>
                       <td><%= currency simulator.block_rate_per_hour %></td>
                       <td class="text-right">
-                        <a href="/admin/simulators/<%= simulator.id %>" class="btn btn-primary btn-sm">view</a>
-                        <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm _delete_button" data-simulator-id="<%= simulator.id %>">delete</button>
+                        <div id="button-wrapper" class="d-flex justify-content-end">
+                          <a href="/admin/simulators/<%= simulator.id %>" class="btn btn-primary btn-sm ml-1">view</a>
+                          <button style="margin-left: 4px;" type="button" class="btn btn-danger btn-sm ml-1 _delete_button" data-simulator-id="<%= simulator.id %>">delete</button>
+                        </div>
                       </td>
                     </tr>
                   <% end %>

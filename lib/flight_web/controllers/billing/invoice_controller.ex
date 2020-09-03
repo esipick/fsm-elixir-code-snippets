@@ -43,6 +43,13 @@ defmodule FlightWeb.Billing.InvoiceController do
       base_invoice_props(conn)
       |> Map.merge(%{action: "create", appointment: appointment})
 
+    props =
+      if "student" in props.user_roles do
+        Map.put(props, :payment_method, :balance)
+      else
+        props
+      end
+
     render(conn, "new.html", props: props)
   end
 
@@ -167,9 +174,15 @@ defmodule FlightWeb.Billing.InvoiceController do
   end
 
   defp base_invoice_props(conn) do
-    current_user = conn.assigns.current_user
+    current_user = 
+      conn.assigns.current_user
+      |> Repo.preload(:roles)
 
+    roles = Enum.map(current_user.roles, &(&1.slug))
+    
     %{
+      user_roles: roles,
+      current_user_id: current_user.id,
       custom_line_items: custom_line_items_props(conn),
       creator: FlightWeb.API.UserView.render("skinny_user.json", user: current_user),
       tax_rate: current_user.school.sales_tax || 0,

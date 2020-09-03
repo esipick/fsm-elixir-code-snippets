@@ -1,24 +1,45 @@
+<%= if !@from_contacts do%>
 <div class="panel-header panel-header-sm"></div>
+<%=end%>
+
 <div class="content">
   <div class="row">
     <div class="col-md-12">
       <div class="card">
         <div class="card-header">
+          <h5 class="card-title">Users</h5>
           <div class="d-flex justify-content-between mb-3">
-            <ul class="nav nav-pills nav-pills-primary" role="tablist">
-              <li class="nav-item">
-                <a class="nav-link" href="/admin/users?role=<%= @role.slug %>" role="tablist" aria-expanded="false"><%= plural_label_for_role(@role) %></a>
+            <ul class="nav nav-pills col-xs-12" role="tablist">
+            <div class="hiddentext" style="display:none;">
+              <%= 
+                  users_url =
+                    if @from_contacts, do: "/admin/settings?tab=contact&inner_tab=users&role=#{@role.slug}#user_info", else: "/admin/users?role=#{@role.slug}" 
+
+                  invitation_url =
+                    if @from_contacts, do: "/admin/settings?tab=contact&inner_tab=invitation&role=#{@role.slug}#user_info", else: "/admin/invitations?role=#{@role.slug}"
+
+                  archived_url =
+                    if @from_contacts, do: "/admin/settings?tab=contact&inner_tab=archived&role=#{@role.slug}#user_info", else: "/admin/users?role=#{@role.slug}&tab=archived"
+              %>
+              </div>
+              
+              <li class="nav-item col-xs-2">
+                <a class="nav-link" href="<%= users_url %>" role="tablist" aria-expanded="false"><%= plural_label_for_role(@role) %></a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link active" href="/admin/invitations?role=<%= @role.slug %>" role="tablist" aria-expanded="true">Invitations</a>
+              <li class="nav-item col-xs-2">
+                <a class="nav-link active" href="<%= invitation_url %>" role="tablist" aria-expanded="true">Invitations</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/admin/users?role=<%= @role.slug %>&tab=archived" role="tablist" aria-expanded="false">Archived</a>
+              <li class="nav-item col-xs-2">
+                <a class="nav-link" href="<%= archived_url %>" role="tablist" aria-expanded="false">Archived</a>
+              </li>
+              <li class="nav-item col-xs-2">
+                <button type="button" id="add_button" class="btn-success round-button">+</button>
               </li>
             </ul>
           </div>
         </div>
         <div class="card-body">
+          <div id="show_hide" style="display:none">
           <h6><%= add_user_label_for_role(@role) %></h6>
           <%= form_for @changeset, @request_path, [as: :data, method: "post"], fn f -> %>
             <%= if Keyword.has_key?(f.errors, :user) do %>
@@ -60,9 +81,11 @@
                   <%= full_error_tag f, :email %>
                 </div>
               </div>
+              <input type="hidden" name="from_contacts" value="<%= @from_contacts %>" />
               <div class="col-md-2 pl-1">
                 <input type="submit" class="btn btn-primary m-0" value="Send Invite" />
               </div>
+            </div>
             </div>
           <% end %>
           <div class="row">
@@ -97,10 +120,11 @@
                         <button
                                 type="button"
                                 class="btn btn-danger btn-sm _delete_button"
+                                from_contacts = "<%= @from_contacts%>"
                                 data-invitation-id="<%= invitation.id %>">
                           Remove
                         </button>
-                        <a href="/admin/invitations/<%= invitation.id %>/resend" class="btn btn-sm btn-primary">Resend</a>
+                        <a href="/admin/invitations/<%= invitation.id %>/resend?from_contacts=<%= @from_contacts %>" class="btn btn-sm btn-primary">Resend</a>
                       </td>
                     </tr>
                   <% end %>
@@ -117,6 +141,15 @@
 <!-- end row -->
   </div>
 </div>
+
+<script>
+  $(document).ready(function() {
+    $("#add_button").click(function(){
+      $("#show_hide").toggle();
+    });
+  });
+</script>
+
 <!-- end content -->
 <%= render FlightWeb.Admin.PartialView,
           "_shared_delete_form.html",

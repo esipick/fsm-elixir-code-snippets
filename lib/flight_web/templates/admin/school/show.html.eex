@@ -80,34 +80,34 @@
 
                         <tr>
                           <td>Account Activated</td>
-                          <td>Whether this school has activated their Stripe account.</td>
+                          <td>This status tells us whether you have configured your stripe account correctly.</td>
                           <td class="text-right">
                             <%= if @school.stripe_account.details_submitted do %>
-                              <span class="badge badge-success ml-3">Good</span>
+                              <span class="badge badge-success ml-3">✔</span>
                             <% else %>
-                              <span class="badge badge-danger ml-3">Error</span>
+                              <span class="badge badge-danger ml-3">!</span>
                             <% end %>
                           </td>
                         </tr>
                         <tr>
-                          <td>Charges Enabled</td>
-                          <td>Whether Stripe can charge the credit cards of this school's students and renters.</td>
+                          <td>Transactions</td>
+                          <td>Is your account ready to charge user credit cards.</td>
                           <td class="text-right">
                             <%= if @school.stripe_account.charges_enabled do %>
-                              <span class="badge badge-success ml-3">Good</span>
+                              <span class="badge badge-success ml-3">✔</span>
                             <% else %>
-                              <span class="badge badge-danger ml-3">Error</span>
+                              <span class="badge badge-danger ml-3">!</span>
                             <% end %>
                           </td>
                         </tr>
                         <tr>
-                          <td>Payouts Enabled</td>
+                          <td>Payouts</td>
                           <td>Whether Stripe can send payouts to this school's bank account.</td>
                           <td class="text-right">
                             <%= if @school.stripe_account.payouts_enabled do %>
-                              <span class="badge badge-success ml-3">Good</span>
+                              <span class="badge badge-success ml-3">✔</span>
                             <% else %>
-                              <span class="badge badge-danger ml-3">Error</span>
+                              <span class="badge badge-danger ml-3">!</span>
                             <% end %>
                           </td>
                         </tr>

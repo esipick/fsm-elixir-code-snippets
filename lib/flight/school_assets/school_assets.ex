@@ -12,12 +12,13 @@ defmodule Flight.SchoolAssets do
     |> Repo.one()
   end
 
-  def visible_room_query(school_context) do
-    room_query(school_context) |> where([r], r.archived == false)
+  def visible_room_query(school_context, search_term \\ "") do
+    room_query(school_context, search_term) |> where([r], r.archived == false)
   end
 
-  def room_query(school_context) do
+  def room_query(school_context, search_term \\ "") do
     Room
+    |> Flight.SchoolAssets.Search.Room.run(search_term)
     |> order_by([r], asc: [r.location])
     |> SchoolScope.scope_query(school_context)
   end

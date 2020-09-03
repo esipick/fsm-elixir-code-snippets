@@ -10,8 +10,8 @@ defmodule FlightWeb.Features.CompleteOnboardingTest do
     |> log_in_admin(school)
     |> visit("/admin/dashboard")
     |> assert_has(css(".nav-link.onboarding.completed", text: " DETAILS"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "CONTACT DETAILS"))
-    |> assert_has(css(".nav-link.onboarding.upcoming", text: "PAYMENT SETUP"))
+    |> assert_has(css(".nav-link.onboarding.active", text: "USER ROLES"))
+    |> assert_has(css(".nav-link.onboarding.upcoming", text: "PROFILE SETTINGS"))
   end
 
   @tag :integration
@@ -23,15 +23,15 @@ defmodule FlightWeb.Features.CompleteOnboardingTest do
     |> log_in_admin(school)
     |> assert_has(css(".nav-link.onboarding.active", text: "SCHOOL DETAILS"))
     |> click(button("Save & Next"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "CONTACT DETAILS"))
-    |> click(button("Save & Next"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "PAYMENT SETUP"))
-    |> click(link("Save & Next"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "BILLING SETTINGS"))
+    |> assert_has(css(".nav-link.onboarding.active", text: "USER ROLES"))
     |> click(button("Save & Next"))
     |> assert_has(css(".nav-link.onboarding.active", text: "PROFILE SETTINGS"))
     |> click(button("Save & Next"))
     |> assert_has(css(".nav-link.onboarding.active", text: "ASSETS"))
+    |> click(button("Save & Next"))
+    |> assert_has(css(".nav-link.onboarding.active", text: "PAYMENT SETUP"))
+    |> click(link("Save & Next"))
+    |> assert_has(css(".nav-link.onboarding.active", text: "BILLING SETTINGS"))
     |> click(link("Complete"))
     |> assert_has(css(".stats-title", text: "STUDENTS"))
   end
@@ -43,15 +43,15 @@ defmodule FlightWeb.Features.CompleteOnboardingTest do
 
     session
     |> log_in_admin(school)
+    |> assert_has(css(".nav-link.onboarding.active", text: "BILLING SETTINGS"))
+    |> click(link("Back"))
+    |> assert_has(css(".nav-link.onboarding.active", text: "PAYMENTS"))
+    |> click(link("Back"))
     |> assert_has(css(".nav-link.onboarding.active", text: "ASSETS"))
     |> click(link("Back"))
     |> assert_has(css(".nav-link.onboarding.active", text: "PROFILE SETTINGS"))
     |> click(link("Back"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "BILLING SETTINGS"))
-    |> click(link("Back"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "PAYMENT SETUP"))
-    |> click(link("Back"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "CONTACT DETAILS"))
+    |> assert_has(css(".nav-link.onboarding.active", text: "USER ROLES"))
     |> click(link("Back"))
     |> assert_has(css(".nav-link.onboarding.active", text: "SCHOOL DETAILS"))
   end

@@ -34,9 +34,7 @@ function getPlainDate(start_at) {
               </dl>
               <dl class="form-group d-flex flex-row-reverse">
                 <dt class="col-md-9"><input type="text" name="amount" id="addFundsAmount" style="text-align:right;" class="form-control"/></dt>
-                <dd class="col-md-3">
-                  <p>Amount</p>
-                </dd>
+                  <dd class="col-md-3"><p>Amount<br/><span id="arithmeticOperator"></span></p></dd>
               </dl>
               <dl class="form-group d-flex flex-row-reverse">
                 <dt class="col-md-9">
@@ -104,6 +102,9 @@ function getPlainDate(start_at) {
             end
         %>
     <p class="transaction-status"><%= status %></p>
+      <%= for line_item <- transaction.line_items do %>
+          <p><small><%= line_item.description %></small></p>
+        <% end %>
   </dd>
 </dl>
 <% end %>
@@ -119,6 +120,7 @@ function getPlainDate(start_at) {
       $("#addFundsSubmit")[0].value = "Add Funds"
     } else if (amount < 0) {
       $("#addFundsSubmit")[0].value = "Remove Funds"
+      $("#arithmeticOperator").text("(-)");
     }
   })
 </script>
