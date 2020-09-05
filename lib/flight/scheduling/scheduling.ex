@@ -347,8 +347,10 @@ defmodule Flight.Scheduling do
         school_context
       ) do
     school = SchoolScope.get_school(school_context)
+    role = List.first(Repo.preload(modifying_user, :roles).roles)
+
     attrs =
-      if Map.get(attrs, :instructor_user_id) in [nil, ""] and Repo.preload(modifying_user, :roles).roles |> List.first |> Map.get(:slug)  == "instructor" do
+      if Map.get(attrs, :instructor_user_id) in [nil, ""] and Map.get(role, :slug)  == "instructor" do
         Map.put(attrs, "owner_user_id", modifying_user.id)
       else
         attrs
@@ -360,7 +362,7 @@ defmodule Flight.Scheduling do
       |> Appointment.changeset(attrs, school.timezone)
 
     is_create? = is_nil(appointment.id)
-    
+
     if changeset.valid? do
 
       {temp_changeset, appointment} = 
@@ -392,6 +394,8 @@ defmodule Flight.Scheduling do
         else
           []
         end
+
+      # if appointment has started. do not let instructor and 
 
       status =
         if user_id && user_id != "" do
