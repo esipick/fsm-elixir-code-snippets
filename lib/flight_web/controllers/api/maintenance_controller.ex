@@ -3,12 +3,18 @@ defmodule FlightWeb.API.MaintenanceController do
 
     alias Flight.Ecto.Errors
     alias Flight.Inspections
+    alias Flight.Squawks
+    alias Flight.Scheduling
 
-    def create(%{assigns: %{current_user: %{school_id: school_id}}} = conn, 
+    def create(%{assigns: %{current_user: %{id: id, school_id: school_id}}} = conn, 
       %{"checklist_ids" => checklist_ids, "aircraft_hours" => aircraft_hours} = params) do
         alerts = Map.get(params, "alerts") || []
         alerts = Enum.map(alerts, &(Map.put(&1, "school_id", school_id)))
-        params = Map.put(params, "school_id", school_id)
+
+        params = 
+          params
+          |> Map.put("school_id", school_id)
+          |> Map.put("creator_id", id)
 
         with {:ok, changeset} <- Inspections.create_and_schedule_maintenance(aircraft_hours, checklist_ids, alerts, params) do
           json(conn, %{"result" => "success"})
@@ -51,7 +57,7 @@ defmodule FlightWeb.API.MaintenanceController do
     end
 
     def show(conn, %{"id" => maintenance_id}) do
-      #
+
       with {:ok, item} <- Inspections.get_maintenance_assoc(maintenance_id) do
         json(conn, %{"result" => item})
 
@@ -90,6 +96,33 @@ defmodule FlightWeb.API.MaintenanceController do
     def remove_aircrafts_from_maintenance(conn, %{"maintenance_id" => m_id, "aircraft_ids" => aircraft_ids}) do
       {:ok, :done} = Inspections.remove_aircrafts_from_maintenance(m_id, aircraft_ids)
       json(conn, %{"result" => "success"})
+    end
+
+    @desc "Squawks"
+    def create_squawk(%{assigns: %{
+      current_user: %{school_id: school_id, id: user_id}}} = conn, attrs) do
+        aircraft_id = Map.get(attrs, "aircraft_id")
+
+        attrs =
+            attrs
+            |> Map.put("created_by_id", user_id)
+            |> Map.put("school_id", school_id)
+
+        resp = 
+          with true <- aircraft_id != nil,
+            %{id: _} <- Scheduling.get_aircraft(aircraft_id, conn),
+            {:ok, _} <- Squawks.create_squawk_and_notify(attrs) do
+              %{"result" => "success"}
+
+          else
+            false -> %{human_error: "Aircraft with id is required"}
+            nil -> %{human_error: "Aircraft with id: #{aircraft_id} doesn't exists."}
+            {:error, changeset} ->
+              error = Errors.traverse(changeset) 
+              %{human_errors: [error]}
+          end
+
+        json(conn, resp)
     end
 
     defp sort_params_from_params(params) do

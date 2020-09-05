@@ -26,8 +26,28 @@ defenum(
   SchoolOnboardingCurrentStepEnum,
   school: 0,
   contact: 1,
-  profile: 2,
-  assets: 3,
-  payment: 4,
-  billing: 5
+  payment: 2,
+  billing: 3,
+  profile: 4,
+  assets: 5
+)
+
+defenum(
+  SquawkSeverityEnum,
+  ground: 0,
+  fix_soon: 1,
+  no_fix_required: 2
+)
+
+defenum(
+  AlertPriorityEnum,
+  top: 0,
+  high: 1,
+  medium: 2,
+  low: 3
+)
+
+defenum(
+  AlertCodeEnum,
+  squawk_issue: "SQK-001"
 )

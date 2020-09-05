@@ -28,11 +28,11 @@ defmodule Flight.Billing.PayTransaction do
   end
 
   def pay_invoice_cc_transaction(invoice_id, session_id) do
-    attribs = %{
+    _attribs = %{
       "stripe_charge_id" => session_id
     }
 
-    with %{id: id} = trans <- Repo.get_by(Transaction, invoice_id: invoice_id) do
+    with %{id: _id} = trans <- Repo.get_by(Transaction, invoice_id: invoice_id) do
       complete_transaction(trans)
       
     else

@@ -3,8 +3,11 @@ defmodule Flight.Inspections.Maintenance do
     import Ecto.Changeset
 
     alias Flight.Scheduling.Aircraft
-    alias Flight.Accounts.School
-
+    alias Flight.Accounts.{
+        School,
+        User
+    }
+    
     alias Flight.Inspections.{
         CheckList,
         Maintenance,
@@ -24,7 +27,9 @@ defmodule Flight.Inspections.Maintenance do
         field(:due_date, :naive_datetime, null: true)
 
         field(:school_id, :id, null: false)
+        field(:creator_id, :id, null: false)
 
+        belongs_to(:user, User, define_field: false, foreign_key: :creator_id)
         belongs_to(:school, School, define_field: false, foreign_key: :school_id)
         many_to_many(:checklists, CheckList, join_through: MaintenanceCheckList, join_keys: [maintenance_id: :id, checklist_id: :id])
         many_to_many(:aircrafts, Aircraft, join_through: AircraftMaintenance)
@@ -32,7 +37,7 @@ defmodule Flight.Inspections.Maintenance do
         timestamps([inserted_at: :created_at])
     end
 
-    def required_fields(), do: ~w(name school_id)a
+    def required_fields(), do: ~w(name school_id creator_id)a
 
     def changeset(%Maintenance{} = changeset, params \\ %{}) do
         changeset

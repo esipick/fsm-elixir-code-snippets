@@ -258,6 +258,7 @@ defmodule FlightWeb.Router do
   scope "/api", FlightWeb.API do
     pipe_through([:api, :api_authenticate])
 
+    post("/maintenance/squawks", MaintenanceController, :create_squawk)
     post("/maintenance", MaintenanceController, :create)
     post("/maintenance/add_checklist", MaintenanceController, :add_checklist)
     post("/maintenance/assign_aircrafts", MaintenanceController, :assign_aircrafts)

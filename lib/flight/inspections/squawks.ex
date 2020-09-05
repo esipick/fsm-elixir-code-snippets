@@ -1,0 +1,52 @@
+defmodule Flight.Squawks do
+    alias Flight.Repo
+
+    alias Flight.Alerts
+    alias Flight.Inspections.{
+        Squawk,
+        SquawkAttachment
+    }
+
+    def create_squawk_and_notify(attrs) do
+        roles = Map.get(attrs, "notify_roles")
+        school_id = Map.get(attrs, "school_id")
+        created_by_id = Map.get(attrs, "created_by_id")
+
+        Repo.transaction(fn -> 
+            with {:ok, %{id: id} = squawk} <- create_squawk(attrs),
+            {:ok, _} <- upload_squawk_attachments(id, Map.get(attrs, "attachments")) do
+                Alerts.create_squawk_alert_and_notify_roles(id, school_id, created_by_id, roles)
+                {:ok, squawk}
+            else
+                {:error, error} -> Repo.rollback(error)
+            end
+        end)
+    end
+
+    defp upload_squawk_attachments(_, nil), do: {:ok, []}
+    defp upload_squawk_attachments(squawk_id, attrs) when is_map(attrs) do
+        upload_squawk_attachments(squawk_id, [attrs])
+        |> case do
+            {:ok, attachments} -> {:ok, List.first(attachments)}
+            error -> error
+        end
+    end
+
+    defp upload_squawk_attachments(squawk_id, attrs) when is_list(attrs) do
+        Enum.reduce_while(attrs, {:ok, []}, fn item, {:ok, acc} ->
+            %SquawkAttachment{}
+            |> SquawkAttachment.changeset(%{squawk_id: squawk_id, attachment: item})
+            |> Repo.insert
+            |> case do
+                {:ok, changeset} -> {:cont, {:ok, [changeset | acc]}}
+                error -> {:halt, error}
+            end
+        end)
+    end
+
+    defp create_squawk(attrs) do
+        %Squawk{}
+        |> Squawk.changeset(attrs)
+        |> Repo.insert
+    end
+end

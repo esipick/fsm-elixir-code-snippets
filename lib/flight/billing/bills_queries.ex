@@ -4,7 +4,6 @@ defmodule Flight.Bills.Queries do
     alias Flight.Billing.{Invoice, InvoiceLineItem}
 
     def get_appointment_invoice_aircraft_query(appointment_id, aircraft_id) do
-        query = 
         from i in Invoice,
             inner_join: il in InvoiceLineItem, on: il.invoice_id == i.id and il.aircraft_id == ^aircraft_id,
             select: il,
