@@ -18,6 +18,7 @@ defmodule FlightWeb.API.AircraftView do
   def render("aircraft.json", %{aircraft: aircraft}) do
     %{
       id: aircraft.id,
+      name: aircraft.name,
       make: aircraft.make,
       model: aircraft.model,
       serial_number: aircraft.serial_number,

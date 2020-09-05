@@ -625,7 +625,7 @@ $(document).ready(function () {
       return {
         id: "simulator:" + simulator.id,
         type: "Simulators",
-        title: simulator.make + " " + simulator.tail_number, 
+        title: simulator.make + " " + simulator.model, 
         current_user: current_user
       }
     }))

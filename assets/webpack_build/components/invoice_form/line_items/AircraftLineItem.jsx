@@ -25,7 +25,7 @@ class AircraftLineItem extends Component {
 
     const { creator, staff_member, line_item } = props;
     const { aircraft } = line_item;
-
+    
     this.state = {
       aircraft,
       line_item,
@@ -127,7 +127,7 @@ class AircraftLineItem extends Component {
     return (
       <div>
         <Select classNamePrefix="react-select"
-          getOptionLabel={(o) => o.tail_number}
+          getOptionLabel={(o) => o.tail_number || (o.make + ' ' + o.model)}
           getOptionValue={(o) => o.id}
           isClearable={true}
           isDisabled={disable_selection}

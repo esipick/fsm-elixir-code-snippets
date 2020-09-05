@@ -251,11 +251,15 @@ defmodule FlightWeb.ViewHelpers do
   end
 
   def aircraft_display_name(aircraft, :short) do
-    "#{aircraft.make} #{aircraft.tail_number}"
+    if aircraft.tail_number, do: "#{aircraft.make} #{aircraft.tail_number}", else: "#{aircraft.make} #{aircraft.model}"
   end
 
   def aircraft_display_name(aircraft, :long) do
-    "#{aircraft.make} #{aircraft.model} #{aircraft.tail_number}"
+    if aircraft.tail_number do
+      "#{aircraft.make} #{aircraft.model} #{aircraft.tail_number}"
+    else
+      aircraft_display_name(aircraft, :short)
+    end
   end
 
   def aircraft_display_name(aircraft) do
