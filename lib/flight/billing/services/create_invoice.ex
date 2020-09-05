@@ -18,6 +18,7 @@ defmodule Flight.Billing.CreateInvoice do
 
     invoice_attrs =
       Map.merge(
+
         invoice_params,
         %{
           "school_id" => school.id,
@@ -27,7 +28,8 @@ defmodule Flight.Billing.CreateInvoice do
         }
       )
 
-    with false <- Utils.multiple_aircrafts?(line_items),
+    with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
+        {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
         {:ok, invoice} <- Invoice.create(invoice_attrs) do
           line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
 
@@ -46,7 +48,8 @@ defmodule Flight.Billing.CreateInvoice do
             {:ok, invoice}
           end  
     else
-      true -> {:error, "An invoice can have only 1 aircraft hours."}
+      {:aircrafts, true} -> {:error, "An invoice can have only 1 aircraft hours."}
+      {:rooms, true} -> {:error, "The same room cannot be added twice to an invoice."}
       error -> error
     end
   end

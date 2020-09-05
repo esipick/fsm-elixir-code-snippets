@@ -11,11 +11,28 @@ defmodule Flight.Billing.Services.Utils do
     end
     def aircraft_info_map(_), do: nil
 
-    def multiple_aircrafts?(nil), do: true
+    def multiple_aircrafts?(nil), do: {:aircrafts, false}
     def multiple_aircrafts?(line_items) do
         line_items = Enum.filter(line_items, fn i -> Map.get(i, "type") == "aircraft" || Map.get(i, :type) == :aircraft end) 
 
-        Enum.count(line_items) > 1
+        {:aircrafts, Enum.count(line_items) > 1}
+    end
+
+    def same_room_multiple_items?(nil), do: {:rooms, false}
+    def same_room_multiple_items?(line_items) do
+        {:rooms,
+        Enum.reduce(line_items, %{}, fn item, acc -> 
+            key = Map.get(item, "room_id") || Map.get(item, :room_id)
+            
+            if key do
+                rooms = Map.get(acc, key) || []
+                Map.put(acc, key, [item | rooms])
+            else
+                acc
+            end
+        end)
+        |> Map.values
+        |> Enum.any?(&(Enum.count(&1) > 1))}
     end
     
     def update_aircraft(invoice, user) do
