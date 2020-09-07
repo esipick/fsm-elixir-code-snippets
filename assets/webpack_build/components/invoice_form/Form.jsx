@@ -378,10 +378,14 @@ class Form extends Component {
         console.warn(error_body);
         const { id = this.state.id, stripe_error = '', error = '', errors = {} } = error_body;
         const action = id ? 'edit' : 'create';
+        
+        const line_items = this.state.line_items || []
+        const isInstructorOnly = line_items.length == 1 && line_items[0].type === "instructor"
+
         this.setState({
           saving: false, id, action,
           stripe_error, error, errors,
-          error_alert_total_open: this.state.total <= 0
+          error_alert_total_open: !isInstructorOnly && this.state.total <= 0
         });
       });
     });
@@ -433,18 +437,19 @@ class Form extends Component {
   }
 
   submitForm = ({ pay_off }) => {
-    console.log("saving")
+    const line_items = this.state.line_items || []
+    const isInstructorOnly = line_items.length == 1 && line_items[0].type === "instructor"
 
     if (this.state.saving) return;
-    if (this.state.total <= 0) {
+    if (!isInstructorOnly && this.state.total <= 0) {
       this.setState({error_alert_total_open: true});
       return;
     }
-    if (this.state.total_amount_due <= 0) {
+    if (!isInstructorOnly && this.state.total_amount_due <= 0) {
       this.setState({error_alert_total_due_open: true});
       return;
     }
-    if (this.state.total_tax < 0) {
+    if (!isInstructorOnly &&this.state.total_tax < 0) {
       this.setState({error_alert_total_tax_open: true});
       return;
     }

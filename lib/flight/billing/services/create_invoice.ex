@@ -73,6 +73,10 @@ defmodule Flight.Billing.CreateInvoice do
 
   end
 
+  defp process_payment(%{total_amount_due: due_amount} = invoice, _school_context) when due_amount <= 0 do
+    Invoice.paid(invoice)
+  end
+
   defp process_payment(invoice, school_context) do
     x_device = Enum.into(Map.get(school_context, :req_headers) || [], %{})
     x_device = x_device["X-Device"] || x_device["x-device"] || ""
