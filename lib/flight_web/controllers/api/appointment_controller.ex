@@ -170,13 +170,13 @@ defmodule FlightWeb.API.AppointmentController do
         _ -> current_user.id
       end
 
-    owner_instructor_permisssions = 
+    {restrict_modify, owner_instructor_permisssions} = 
       if conn.assigns[:appointment] && (start_at == nil or NaiveDateTime.utc_now() < start_at) && 
       (conn.assigns[:appointment].room_id || conn.assigns[:appointment].simulator_id) do
-        Permission.new(:appointment_instructor, :view, {:personal, owner_instructor_user_id})
+        {true, Permission.new(:appointment_instructor, :view, {:personal, owner_instructor_user_id})}
 
       else
-        Permission.new(:appointment_instructor, :modify, {:personal, owner_instructor_user_id})
+        {false, Permission.new(:appointment_instructor, :modify, {:personal, owner_instructor_user_id})}
       end
 
     instructor_user_id_from_appointment =
@@ -194,7 +194,13 @@ defmodule FlightWeb.API.AppointmentController do
         instructor_user_id_from_appointment
       end
 
-    instructor_permisssions = Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id})
+    instructor_permisssions = 
+      if restrict_modify do
+        Permission.new(:appointment_instructor, :view, {:personal, instructor_user_id})
+
+      else
+        Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id})
+      end
 
     cond do
       user_can?(current_user,
