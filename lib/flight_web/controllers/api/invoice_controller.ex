@@ -308,6 +308,14 @@ defmodule FlightWeb.API.InvoiceController do
         conn
         |> put_status(422)
         |> json(%{error: %{message: msg}})
+
+      {:error, id, msg} ->
+          conn
+          |> put_status(400)
+          |> json(%{
+            id: id,
+            error: %{message: msg}
+          })
     end
   end
 end

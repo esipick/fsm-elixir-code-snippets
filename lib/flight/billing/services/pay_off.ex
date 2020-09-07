@@ -3,7 +3,7 @@ defmodule Flight.Billing.PayOff do
     PayTransaction
   }
 
-  def balance(nil, _transaction_attrs, _school_context), do: {:error, "Payment method not allowed for user."}
+  def balance(nil, _transaction_attrs, _school_context), do: {:error, "Payment method {Balance} not allowed for user."}
   def balance(user, transaction_attrs, school_context) do
     user_balance = user.balance
     total_amount_due = transaction_attrs[:total]
@@ -39,7 +39,7 @@ defmodule Flight.Billing.PayOff do
     end
   end
 
-  def credit_card(%{stripe_customer_id: nil}, _, _), do: {:error, "Payment method not available for user. Please update the user profile and add a credit card."}
+  def credit_card(%{stripe_customer_id: nil}, _, _), do: {:error, "Payment method {CC} not available for user. Please update the user profile and add a credit card."}
   def credit_card(user, transaction_attrs, school_context) do
     case CreateTransaction.run(user, school_context, transaction_attrs) do
       {:ok, transaction} ->
