@@ -25,12 +25,20 @@ defmodule FlightWeb.API.AppointmentController do
     aircrafts_available =
       Availability.aircraft_availability(start_at, end_at, excluded_appointment_ids, [], conn)
 
+    simulators_available = Enum.filter(aircrafts_available, &(&1.aircraft.simulator))
+    aircrafts_available = aircrafts_available -- simulators_available
+
+    rooms_available =
+      Availability.room_availability(start_at, end_at, excluded_appointment_ids, [], conn)
+
     render(
       conn,
       "availability.json",
       students_available: students_available,
       instructors_available: instructors_available,
-      aircrafts_available: aircrafts_available
+      aircrafts_available: aircrafts_available,
+      simulators_available: simulators_available,
+      rooms_available: rooms_available
     )
   end
 

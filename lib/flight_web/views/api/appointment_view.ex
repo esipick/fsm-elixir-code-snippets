@@ -4,7 +4,9 @@ defmodule FlightWeb.API.AppointmentView do
   def render("availability.json", %{
         students_available: students_available,
         instructors_available: instructors_available,
-        aircrafts_available: aircrafts_available
+        aircrafts_available: aircrafts_available,
+        simulators_available: simulators_available,
+        rooms_available: rooms_available
       }) do
     %{
       data: %{
@@ -28,6 +30,20 @@ defmodule FlightWeb.API.AppointmentView do
             FlightWeb.API.AppointmentView,
             "availability_aircraft.json",
             as: :availability_aircraft
+          ),
+        simulators:
+          render_many(
+            simulators_available,
+            FlightWeb.API.AppointmentView,
+            "availability_aircraft.json",
+            as: :availability_aircraft
+          ),
+        rooms: 
+          render_many(
+            rooms_available,
+            FlightWeb.API.AppointmentView,
+            "availability_room.json",
+            as: :availability_room
           )
       }
     }
@@ -48,6 +64,16 @@ defmodule FlightWeb.API.AppointmentView do
     %{
       aircraft: render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: aircraft.aircraft),
       status: aircraft.status
+    }
+  end
+
+  def render("availability_room.json", %{availability_room: room}) do
+    %{
+      user: %{
+        id: room.room.id,
+        first_name: room.room.location
+      },
+      status: room.status
     }
   end
 
