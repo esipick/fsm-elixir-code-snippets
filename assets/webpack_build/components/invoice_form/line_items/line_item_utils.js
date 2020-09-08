@@ -206,6 +206,9 @@ export const isInstructorHoursEditable = (line_item, user_roles) => {
   // return line_item.type === "instructor" && current_user_id == line_item.instructor_user_id && current_user_id !== undefined
 }
 
+export const containsSimulator = (line_items) => {
+  return line_items.find(function(item) {return item.description === SIMULATOR_HOURS})
+}
 
 function findItem(line_items, type){
   const existing_items = line_items || []

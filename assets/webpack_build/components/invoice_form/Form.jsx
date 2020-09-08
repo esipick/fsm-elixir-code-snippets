@@ -18,7 +18,7 @@ import { itemsFromInvoice } from './line_items/line_item_utils';
 import LineItemsTable from './LineItemsTable';
 import LowBalanceAlert from './LowBalanceAlert';
 import ErrorAlert from './ErrorAlert';
-import {itemsFromAppointment} from './line_items/line_item_utils';
+import {itemsFromAppointment, containsSimulator} from './line_items/line_item_utils';
 
 import {
   BALANCE, CASH, CHECK, VENMO, MARK_AS_PAID, PAY,
@@ -462,7 +462,13 @@ class Form extends Component {
           }
           else{
             if (pay_off && (typeof(this.state.appointment) == "undefined" || (this.state.appointment) && Date.now() < Date.parse(moment.utc(this.state.appointment.start_at).add(+(moment().utcOffset()), 'm').format().split("Z")[0]))) {
-              this.setState({error_date_alert_open: true});
+              
+              var appointmentMsg = "Invoice associated with aircraft cannot be paid before the starting time of appointment."
+              if (containsSimulator(this.state.line_items)) {
+                appointmentMsg = "Invoice associated with simulator cannot be paid before the starting time of appointment."
+              }
+              
+              this.setState({error_date_alert_open: true, appointmentMsg: appointmentMsg});
               return;
             }
           }
@@ -576,6 +582,7 @@ class Form extends Component {
       instructors, rooms, date, errors, id, invoice_loading, line_items, payment_method, demo, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
+
 
     return (
       <div className="card">
@@ -721,7 +728,7 @@ class Form extends Component {
 
       <ErrorAlert open={this.state.error_date_alert_open}
           onAccept={this.closeErrorDateAlert}
-          text="Invoice associated with aircraft cannot be paid before the starting time of appointment."
+          text={this.state.appointmentMsg}
       />
       </div>
     );
