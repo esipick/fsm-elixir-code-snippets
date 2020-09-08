@@ -56,7 +56,8 @@ defmodule FlightWeb.API.UserView do
       last_name: user.last_name,
       balance: user.balance,
       billing_rate: user.billing_rate,
-      email: user.email
+      email: user.email,
+      has_cc: !!user.stripe_customer_id
     }
   end
 

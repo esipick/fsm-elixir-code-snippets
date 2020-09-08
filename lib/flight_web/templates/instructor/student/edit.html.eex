@@ -238,7 +238,19 @@
       <!-- end card -->
     </div>
   </div>
+
+  <%=
+    render(
+      FlightWeb.SharedView,
+      "card_form.html",
+      conn: @conn,
+      user: @user,
+      update_url: "/instructor/students/#{@user.id}/update_card",
+      stripe_error: @stripe_error
+    )
+  %>
 </div>
+
 <!-- end content -->
 <div style="display:none">
   <%= form_tag "/instructor/students/#{@user.id}", method: "delete", id: "delete_user_form" do %>

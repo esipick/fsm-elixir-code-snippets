@@ -2,8 +2,9 @@ defmodule FlightWeb.Instructor.StudentController do
   use FlightWeb, :controller
 
   alias Flight.{Accounts, Billing, Repo, Scheduling, Queries}
+  alias FlightWeb.StripeHelper
 
-  plug(:get_user when action in [:show, :edit, :update, :add_funds])
+  plug(:get_user when action in [:show, :edit, :update, :add_funds, :update_card])
   plug(:allow_only_students when action in [:show, :edit, :update])
 
   def index(conn, params) do
@@ -115,7 +116,8 @@ defmodule FlightWeb.Instructor.StudentController do
       changeset: Accounts.User.create_changeset(user, %{}),
       instructors: instructors,
       skip_shool_select: true,
-      user: user
+      user: user,
+      stripe_error: nil
     )
   end
 
@@ -216,9 +218,36 @@ defmodule FlightWeb.Instructor.StudentController do
           changeset: changeset,
           instructors: instructors,
           skip_shool_select: true,
-          user: user
+          user: user,
+          stripe_error: nil
         )
     end
+  end
+
+  def update_card(conn, params) do
+    user = conn.assigns.requested_user
+
+    case Billing.update_customer_card(user, params["stripe_token"]) do
+      {:ok, _} ->
+        redirect(conn, to: "/instructor/students/#{user.id}")
+
+      {:error, %Stripe.Error{} = error} ->
+        user = conn.assigns.requested_user
+        aircrafts = Accounts.get_aircrafts(conn)
+        role = Accounts.role_for_slug("instructor")
+        instructors = Queries.User.get_users_by_role(role, conn)
+
+        render(
+          conn,
+          "edit.html",
+          aircrafts: aircrafts,
+          changeset: Accounts.User.create_changeset(user, %{}),
+          instructors: instructors,
+          skip_shool_select: true,
+          user: user,
+          stripe_error: StripeHelper.error_message(error)
+        )
+     end
   end
 
   defp get_user(conn, _) do

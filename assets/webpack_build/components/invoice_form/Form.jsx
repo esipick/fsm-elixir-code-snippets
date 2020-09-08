@@ -523,8 +523,24 @@ class Form extends Component {
 
   acceptBalanceWarning = () => {
     this.setState({ balance_warning_open: false, balance_warning_accepted: true });
+    const {student, user_roles} = this.state;
+    const shouldAddcc = (student && !student.has_cc)
+    
+    if (shouldAddcc) {
+      var path = `/admin/users/${student.id}/edit`
 
-    this.saveInvoice({ pay_off: true });
+      if(user_roles && user_roles.includes("instructor")) {
+        path = `/instructor/students/${student.id}/edit`
+
+      } else if ( user_roles && user_roles.includes('student')) {
+        path = `/student/profile/edit`
+      }
+
+      window.location = path
+
+    } else {
+      this.saveInvoice({ pay_off: true });
+    }
   }
 
   userErrors = (errorText) => {
@@ -683,6 +699,7 @@ class Form extends Component {
           onClose={this.closeBalanceWarning}
           onAccept={this.acceptBalanceWarning}
           balance={student ? student.balance : 0}
+          student={student}
           total={total_amount_due}
         />
 

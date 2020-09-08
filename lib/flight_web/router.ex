@@ -139,6 +139,7 @@ defmodule FlightWeb.Router do
 
     resources("/students", StudentController, only: [:index, :show, :edit, :update]) do
       post("/add_funds", StudentController, :add_funds)
+      put("/update_card", StudentController, :update_card)
     end
   end
 
