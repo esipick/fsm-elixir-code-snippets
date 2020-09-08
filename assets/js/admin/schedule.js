@@ -714,7 +714,7 @@ $(document).ready(function () {
           room_id: roomId
         }
 
-        if (resource.current_user && resource.current_user.roles.length == 1 && resource.current_user.roles[0] === "student") {
+        if (resource.current_user && resource.current_user.roles.length == 1 && ["student", "renter"].includes(resource.current_user.roles[0])) {
           params.user_name = fullName(resource.current_user)
           params.user_id = resource.current_user.id
         }
