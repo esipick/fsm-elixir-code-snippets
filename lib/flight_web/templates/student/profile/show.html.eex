@@ -80,6 +80,7 @@
                       </p>
                     </div>
                   <% end %>
+                  <%= if !(Accounts.has_role?(@user, "renter")) do %>
                   <div class="field">
                     <h3>Instructor</h3>
                     <%= if @user.main_instructor_id do %>
@@ -104,6 +105,7 @@
                       <p>-</p>
                     <% end %>
                   </div>
+                  <% end %>
                   <div class="field">
                     <h3>Aircraft Name</h3>
                     <%= if Enum.any?(@user.aircrafts) do %>

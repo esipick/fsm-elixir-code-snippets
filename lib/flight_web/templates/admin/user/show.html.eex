@@ -105,6 +105,8 @@ w<div class="panel-header"></div>
                         <p>-</p>
                       <% end %>
                     </div>
+                    <% end %>
+                    <%= if Accounts.has_role?(@user, "student") or Accounts.has_role?(@user, "renter") do %>
                     <div class="field">
                       <h3>Aircraft Name</h3>
                       <%= if Enum.any?(@user.aircrafts) do %>
