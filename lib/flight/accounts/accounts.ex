@@ -31,6 +31,20 @@ defmodule Flight.Accounts do
     |> Repo.all()
   end
 
+  def get_aircrafts_only(school_context) do
+    Flight.Scheduling.Aircraft
+    |> SchoolScope.scope_query(school_context)
+    |> where([u], u.simulator == false and u.archived == false)
+    |> Repo.all()
+  end
+
+  def get_simulators_only(school_context) do
+    Flight.Scheduling.Aircraft
+    |> SchoolScope.scope_query(school_context)
+    |> where([u], u.simulator == true and u.archived == false)
+    |> Repo.all()
+  end
+
   def get_school_user_by_id(id, school_context) do
     User
     |> SchoolScope.scope_query(school_context)

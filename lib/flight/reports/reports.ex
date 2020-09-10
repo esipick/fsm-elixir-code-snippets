@@ -44,7 +44,8 @@ defmodule Flight.Reports do
       "students" -> student_report(start_at, end_at, school_context)
       "instructors" -> instructor_report(start_at, end_at, school_context)
       "renters" -> renter_report(start_at, end_at, school_context)
-      "aircraft" -> aircraft_report(start_at, end_at, school_context)
+      "aircrafts" -> aircraft_report(start_at, end_at, false, school_context)
+      "simulators" -> aircraft_report(start_at, end_at, true, school_context)
     end
   end
 
@@ -151,8 +152,8 @@ defmodule Flight.Reports do
     }
   end
 
-  def aircraft_report(start_at, end_at, school_context) do
-    aircrafts = Flight.Accounts.get_aircrafts(school_context)
+  def aircraft_report(start_at, end_at, simulator, school_context) do
+    aircrafts = if simulator, do: Flight.Accounts.get_simulators_only(school_context), else: Flight.Accounts.get_aircrafts_only(school_context)
     aircraft_ids = Enum.map(aircrafts, & &1.id)
 
     # appointments = get_aircraft_appointments(aircraft_ids, start_at, end_at, school_context)
