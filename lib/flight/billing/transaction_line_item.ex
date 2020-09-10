@@ -1,6 +1,8 @@
 defmodule Flight.Billing.TransactionLineItem do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Flight.Billing.InstructorLineItemDetail
+  alias Flight.Billing.AircraftLineItemDetail
 
   schema "transaction_line_items" do
     field(:amount, :integer)
@@ -9,8 +11,8 @@ defmodule Flight.Billing.TransactionLineItem do
     belongs_to(:transaction, Flight.Billing.Transaction)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
     belongs_to(:instructor_user, Flight.Accounts.User)
-    has_one(:aircraft_detail, Flight.Billing.AircraftLineItemDetail)
-    has_one(:instructor_detail, Flight.Billing.InstructorLineItemDetail)
+    has_one(:aircraft_detail, AircraftLineItemDetail)
+    has_one(:instructor_detail, InstructorLineItemDetail)
 
     timestamps()
   end

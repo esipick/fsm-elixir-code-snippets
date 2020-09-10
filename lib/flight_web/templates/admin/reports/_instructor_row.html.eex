@@ -1,5 +1,5 @@
 <td>
-  <%= if Enum.at(@row, 0) |> elem(2) do %>
+  <%= if elem(Enum.at(@row, 0), 2) or elem(Enum.at(@row, 0), 0) == nil do %>
     <%= Enum.at(@row, 0) |> elem(1) %>
   <% else %>
     <a href="/admin/users/<%= Enum.at(@row, 0) |> elem(0) %>"><%= Enum.at(@row, 0) |> elem(1) %></a>
