@@ -215,7 +215,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
   def to_transaction(form, rate_type, school_context)
       when rate_type in [:normal, :block] do
     {aircraft_line_item, aircraft_details} =
-      if form.aircraft_details do
+      if Map.get(form, :aircraft_details) do
         aircraft_details = form.aircraft_details
 
         aircraft =
@@ -233,6 +233,11 @@ defmodule FlightWeb.API.DetailedTransactionForm do
             :block -> aircraft.block_rate_per_hour
           end
 
+        custom_rate = Map.get(form.aircraft_details, :rate_per_hour)
+        rate =
+          if custom_rate, do: custom_rate, else: rate 
+          #13 6 2 6
+          # of flights time flow
         detail = %AircraftLineItemDetail{
           aircraft_id: aircraft_details.aircraft_id,
           hobbs_start: aircraft_details.hobbs_start,
@@ -256,7 +261,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
       end
 
     {instructor_line_item, instructor_details} =
-      if form.instructor_details do
+      if Map.get(form, :instructor_details) do
         instructor =
           Flight.Accounts.get_user(form.instructor_details.instructor_id, school_context)
 
@@ -266,9 +271,11 @@ defmodule FlightWeb.API.DetailedTransactionForm do
                 })"
         end
 
+        billing_rate = Map.get(form.instructor_details, :billing_rate) || instructor.billing_rate
+
         detail = %InstructorLineItemDetail{
           instructor_user_id: form.instructor_details.instructor_id,
-          billing_rate: instructor.billing_rate,
+          billing_rate: billing_rate,
           pay_rate: instructor.pay_rate,
           hour_tenths: form.instructor_details.hour_tenths
         }
@@ -291,7 +298,9 @@ defmodule FlightWeb.API.DetailedTransactionForm do
       |> Enum.map(& &1.amount)
       |> Enum.reduce(0, &Kernel.+/2)
 
-    if form.user_id do
+    user_id = Map.get(form, :user_id)
+
+    if user_id do
       user = Flight.Accounts.get_user(form.user_id, school_context)
 
       if !user do
@@ -306,11 +315,11 @@ defmodule FlightWeb.API.DetailedTransactionForm do
         total: total,
         state: "pending",
         type: "debit",
-        user_id: form.user_id,
-        creator_user_id: form.creator_user_id,
+        user_id: user_id,
+        creator_user_id: Map.get(form, :creator_user_id),
         school_id: Flight.SchoolScope.school_id(school_context)
       }
-      |> Pipe.pass_unless(form.custom_user, fn transaction ->
+      |> Pipe.pass_unless(Map.get(form, :custom_user), fn transaction ->
         %{
           transaction
           | first_name: form.custom_user.first_name,

@@ -7,6 +7,7 @@ defmodule Flight.Billing.CreateInvoice do
   alias FlightWeb.Billing.InvoiceStruct
   alias Flight.Scheduling.{Appointment}
   alias Flight.Billing.Services.Utils
+  alias Flight.Billing.TransactionLineItem
 
   def run(invoice_params, %{assigns: %{current_user: user}} = school_context) do
     pay_off = Map.get(school_context.params, "pay_off", false)
@@ -61,9 +62,12 @@ defmodule Flight.Billing.CreateInvoice do
     |> process_payment(school_context)
     |> case do
       {:ok, invoice} ->
+        # here make transaction line items and insert.        
         if invoice.appointment && (!invoice.demo || invoice.payment_option != :cc) do
           Appointment.paid(invoice.appointment)
         end
+
+        insert_transaction_line_items(invoice, school_context)
 
         {:ok, invoice}
 
@@ -174,5 +178,83 @@ defmodule Flight.Billing.CreateInvoice do
       payer_name: invoice.payer_name,
       invoice_id: invoice.id
     }
+  end
+
+  defp insert_transaction_line_items(invoice, school_context) do
+    aircraft = Enum.find(invoice.line_items, &(&1.aircraft_id != nil && &1.type == :aircraft))
+    instructor = Enum.find(invoice.line_items, &(&1.instructor_user_id != nil && &1.type == :instructor))
+    
+    create_transaction_items(aircraft, instructor, invoice, school_context)
+  end
+
+  defp create_transaction_items(aircraft, instructor, _, _) when is_nil(aircraft) and is_nil(instructor), do: nil
+  defp create_transaction_items(aircraft, instructor, %{id: invoice_id} = invoice, school_context) do
+    {_, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details} = 
+      %{}
+      |> aircraft_details(aircraft)
+      |> instructor_details(instructor)
+      |>  FlightWeb.API.DetailedTransactionForm.to_transaction(:normal, school_context)
+
+    with %{id: id} <- Flight.Queries.Transaction.get_invoice_transaction(invoice_id) do
+      insert_instructor_transaction_item(instructor_line_item, instructor_details, id)
+      insert_aircraft_transaction_item(aircraft_line_item, aircraft_details, id)
+    end
+  end
+
+  defp insert_instructor_transaction_item(nil, _item_details, _transaction_id), do: {:ok, %{}}
+  defp insert_instructor_transaction_item(item, item_details, transaction_id) do
+      item
+      |> TransactionLineItem.changeset(%{transaction_id: transaction_id})
+      |> Repo.insert
+      |> case do
+        {:ok, %{id: id}} ->
+            item_details
+            |> Flight.Billing.InstructorLineItemDetail.changeset(%{transaction_line_item_id: id})
+            |> Repo.insert
+
+        error -> error
+      end
+  end
+
+  defp insert_aircraft_transaction_item(nil, _item_details, _transaction_id), do: {:ok, %{}}
+  defp insert_aircraft_transaction_item(item, item_details, transaction_id) do
+      item
+      |> TransactionLineItem.changeset(%{transaction_id: transaction_id})
+      |> Repo.insert
+      |> case do
+        {:ok, %{id: id}} ->
+            item_details
+            |> Flight.Billing.AircraftLineItemDetail.changeset(%{transaction_line_item_id: id})
+            |> Repo.insert
+
+        error -> error
+      end
+  end
+
+  defp aircraft_details(form, nil), do: form
+  defp aircraft_details(form, line_item) do
+    details = %{
+      aircraft_id: line_item.aircraft_id,
+      hobbs_start: line_item.hobbs_start,
+      hobbs_end: line_item.hobbs_end,
+      tach_start: line_item.tach_start,
+      tach_end: line_item.tach_end,
+      rate_per_hour: line_item.rate,
+      block_rate_per_hour: 0
+    }
+
+    Map.put(form, :aircraft_details, details)
+  end
+
+  defp instructor_details(form, nil), do: form
+  defp instructor_details(form, line_item) do
+    details = %{
+      instructor_id: line_item.instructor_user_id,
+      billing_rate: line_item.rate,
+      hour_tenths: Flight.Format.tenths_from_hours(line_item.quantity),
+      pay_rate: 0
+    }
+
+    Map.put(form, :instructor_details, details)
   end
 end
