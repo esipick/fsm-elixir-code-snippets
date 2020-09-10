@@ -16,3 +16,28 @@
   </div>
 
 </div> <!-- end content -->
+
+<script>
+  $('#data_rate_per_hour').on('input', function(){
+
+    $('#data_rate_per_hour').val(pad($('#data_rate_per_hour').val()));
+  });
+
+  $('#data_block_rate_per_hour').on('input', function(){
+
+    $('#data_block_rate_per_hour').val(pad($('#data_block_rate_per_hour').val()));
+  });
+  //### Function to add leading zero(s) if starts with "."
+  function pad(num) {
+    var value = Number(num);
+    var res = num.split(".");
+    if(res[0].length == 0) {
+        value = "0."+num;
+    }
+    if(res[0].length == 0 && res[1].length > 0) {
+        value = "0"+num;
+    }
+  return value;
+  }
+//### END Function to add leading zero(s) if starts with "."
+</script>
