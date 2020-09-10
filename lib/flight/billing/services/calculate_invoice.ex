@@ -67,8 +67,8 @@ defmodule Flight.Billing.CalculateInvoice do
         line_item
       end
     else
-      rate = line_item["rate"] || 0
-      qty = line_item["quantity"] || 0
+      rate = line_item["rate"] || line_item[:rate] || 0
+      qty = line_item["quantity"] || line_item[:quantity] || 0
       amount = qty * rate
 
       Map.merge(line_item, %{"amount" => round(amount), "rate" => rate, "quantity" => qty})

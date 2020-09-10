@@ -5,7 +5,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   alias Flight.Repo
   alias Flight.Billing.{Invoice, CalculateInvoice, CreateInvoice, UpdateInvoice}
 
-  @invoice_line_item_excluded_types ~w(aircraft instructor)a
+  @invoice_line_item_excluded_types ~w(aircraft instructor room)a
   @invoice_line_item_fields ~w(id description rate amount quantity creator_id type taxable deductible)a
 
   def run(appointment_id, params, school_context) do
