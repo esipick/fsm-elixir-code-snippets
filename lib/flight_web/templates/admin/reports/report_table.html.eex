@@ -31,7 +31,7 @@
                 <thead>
                   <tr>
                     <%= for header <- @report_table.headers do %>
-                      <th><%= header %></th>
+                      <th class="noselect"><%= header %> <i class="fa fa-fw fa-sort" style="font-size:12px;color:gray"></i></th>
                     <% end %>
                   </tr>
                 </thead>

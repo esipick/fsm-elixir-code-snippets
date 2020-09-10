@@ -1,4 +1,11 @@
 $(document).ready(function () {
+  $(function () {
+    $('table').tablesorter({
+        cssAsc: 'up',
+        cssDesc: 'down'
+    });
+  });
+
   $('th').click(function(){
     var table = $(this).parents('table').eq(0)
     var rows = table.find('tr:gt(0)').toArray()
