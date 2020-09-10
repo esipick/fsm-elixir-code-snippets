@@ -91,6 +91,8 @@ w<div class="panel-header"></div>
                         <% end %>
                       <% end %>
                       <%= if Enum.any?(@user.instructors) do %>
+                        <a data-toggle="collapse" href="#show_instructors">Show >></a>
+                        <div id="show_instructors" class="panel-collapse collapse">
                         <%= for instructor <- @user.instructors do %>
                           <%= if instructor.archived do %>
                             <p><%= instructor.first_name %> <%= instructor.last_name %></p>
@@ -98,6 +100,7 @@ w<div class="panel-header"></div>
                             <p><a href="/admin/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
                           <% end %>
                         <% end %>
+                        </div>
                       <% else %>
                         <p>-</p>
                       <% end %>
@@ -105,6 +108,8 @@ w<div class="panel-header"></div>
                     <div class="field">
                       <h3>Aircraft Name</h3>
                       <%= if Enum.any?(@user.aircrafts) do %>
+                      <a data-toggle="collapse" href="#show_aircrafts">Show >></a>
+                      <div id="show_aircrafts" class="panel-collapse collapse">
                         <%= for aircraft <- @user.aircrafts do %>
                           <%= if aircraft.archived do %>
                             <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
@@ -112,6 +117,7 @@ w<div class="panel-header"></div>
                             <p><a href="/admin/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a></p>
                           <% end %>
                         <% end %>
+                      </div>
                       <% else %>
                         <p>-</p>
                       <% end %>
