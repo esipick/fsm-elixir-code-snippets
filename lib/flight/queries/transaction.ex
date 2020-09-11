@@ -80,6 +80,11 @@ defmodule Flight.Queries.Transaction do
     |> Repo.one([])
   end
 
+  def get_bulk_invoice_transaction(bulk_invoice_id) do
+    from(t in Transaction, where: t.bulk_invoice_id == ^bulk_invoice_id, limit: 1)
+    |> Repo.one([])
+  end
+
   defp parse_date(date, shift_days) do
     case date do
       date when date in [nil, ""] ->

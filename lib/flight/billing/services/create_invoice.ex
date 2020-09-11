@@ -8,6 +8,7 @@ defmodule Flight.Billing.CreateInvoice do
   alias Flight.Scheduling.{Appointment}
   alias Flight.Billing.Services.Utils
   alias Flight.Billing.TransactionLineItem
+  alias Flight.Billing.InvoiceLineItem
 
   def run(invoice_params, %{assigns: %{current_user: user}} = school_context) do
     pay_off = Map.get(school_context.params, "pay_off", false)
@@ -180,22 +181,54 @@ defmodule Flight.Billing.CreateInvoice do
     }
   end
 
-  defp insert_transaction_line_items(invoice, school_context) do
+  defp get_invoice_line_items([]), do: []
+  defp get_invoice_line_items(invoice_ids) do
+    from(ili in InvoiceLineItem, select: ili, where: ili.invoice_id in ^invoice_ids)
+    |> Repo.all
+  end
+
+  def insert_bulk_invoice_line_items(_, [], _school_context), do: {:ok, :done}
+  def insert_bulk_invoice_line_items(bulk_invoice_id, invoices, school_context) do
+    ids = Enum.map(invoices, & &1.id)
+    line_items_map = 
+      get_invoice_line_items(ids)
+      |> IO.inspect(label: "Line Items")
+      |> Enum.group_by(& &1.invoice_id)
+      |> IO.inspect(label: "Line Items map")
+
+    Enum.map(invoices, fn invoice ->
+      line_items = Map.get(line_items_map, invoice.id)
+      invoice =
+        invoice 
+        |> Map.from_struct
+        |> Map.put(:line_items, line_items)
+
+      transaction = Flight.Queries.Transaction.get_bulk_invoice_transaction(bulk_invoice_id)
+      insert_transaction_line_items(invoice, school_context, transaction)
+    end)
+
+    {:ok, :done}
+  end
+
+  defp insert_transaction_line_items(invoice, school_context, transaction \\ nil) do
     aircraft = Enum.find(invoice.line_items, &(&1.aircraft_id != nil && &1.type == :aircraft))
     instructor = Enum.find(invoice.line_items, &(&1.instructor_user_id != nil && &1.type == :instructor))
     
-    create_transaction_items(aircraft, instructor, invoice, school_context)
+    create_transaction_items(aircraft, instructor, invoice, school_context, transaction)
   end
 
-  defp create_transaction_items(aircraft, instructor, _, _) when is_nil(aircraft) and is_nil(instructor), do: nil
-  defp create_transaction_items(aircraft, instructor, %{id: invoice_id} = invoice, school_context) do
+  defp create_transaction_items(aircraft, instructor, invoice, school_context, transaction \\ nil)
+  defp create_transaction_items(aircraft, instructor, _, _, _) when is_nil(aircraft) and is_nil(instructor), do: nil
+  defp create_transaction_items(aircraft, instructor, %{id: invoice_id}, school_context, transaction) do
     {_, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details} = 
       %{}
       |> aircraft_details(aircraft)
       |> instructor_details(instructor)
       |>  FlightWeb.API.DetailedTransactionForm.to_transaction(:normal, school_context)
 
-    with %{id: id} <- Flight.Queries.Transaction.get_invoice_transaction(invoice_id) do
+    transaction = transaction || Flight.Queries.Transaction.get_invoice_transaction(invoice_id)
+    
+    with %{id: id} <- transaction do
       insert_instructor_transaction_item(instructor_line_item, instructor_details, id)
       insert_aircraft_transaction_item(aircraft_line_item, aircraft_details, id)
     end
