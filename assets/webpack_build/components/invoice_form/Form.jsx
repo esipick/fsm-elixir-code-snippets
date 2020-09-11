@@ -18,6 +18,7 @@ import { itemsFromInvoice } from './line_items/line_item_utils';
 import LineItemsTable from './LineItemsTable';
 import LowBalanceAlert from './LowBalanceAlert';
 import ErrorAlert from './ErrorAlert';
+import ConfirmAlert from './ConfirmAlert';
 import {itemsFromAppointment, containsSimulator} from './line_items/line_item_utils';
 
 import {
@@ -55,6 +56,7 @@ class Form extends Component {
       error_alert_total_due_open: false,
       error_alert_total_tax_open: false,
       error_date_alert_open: false,
+      confirm_alert_open: false,
       balance_warning_open: false,
       balance_warning_accepted: false,
       payment_method: payment_method || {},
@@ -436,6 +438,10 @@ class Form extends Component {
       });
   }
 
+  confirmCloseAlert = () => {
+    this.setState({confirm_alert_open: true});
+  }
+
   submitForm = ({ pay_off }) => {
     const line_items = this.state.line_items || []
     const isInstructorOnly = line_items.length == 1 && line_items[0].type === "instructor"
@@ -525,6 +531,15 @@ class Form extends Component {
 
   closeErrorDateAlert = () => {
     this.setState({ error_date_alert_open: false });
+  }
+
+  confirmAlert = () => {
+    this.setState({ confirm_alert_open: false });
+    window.location = `/billing/invoices`;
+  }
+
+  rejectAlert = () => {
+    this.setState({ confirm_alert_open: false });
   }
 
   acceptBalanceWarning = () => {
@@ -690,8 +705,13 @@ class Form extends Component {
                     value="Save for later"
                     disabled={saving}
                     onClick={() => { this.submitForm({ pay_off: false }) }} />
+                  <input className="btn btn-default"
+                    type="button"
+                    value="Cancel"
+                    onClick={() => { this.confirmCloseAlert() }} />
 
                   {this.saveAndPayButton()}
+
                 </div>
 
                 <div className="form-group">
@@ -730,6 +750,14 @@ class Form extends Component {
           onAccept={this.closeErrorDateAlert}
           text={this.state.appointmentMsg}
       />
+
+
+      <ConfirmAlert open={this.state.confirm_alert_open}
+          onAccept={this.confirmAlert}
+          onReject={this.rejectAlert}
+          text="Changes will not be saved. Are you sure that you want to cancel! "
+      />
+
       </div>
     );
   }

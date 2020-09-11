@@ -210,7 +210,7 @@
                 </div>
               </div>
             </div>
-            <%= if Accounts.has_role?(@user, "student") do %>
+            <%= if Accounts.has_role?(@user, "student") or Accounts.has_role?(@user, "renter") do %>
               <%= if Enum.any?(@aircrafts) do %>
                 <div class="row">
                   <div class="col-md-12">
@@ -223,7 +223,7 @@
                   </div>
                 </div>
               <% end %>
-              <%= if Enum.any?(@instructors) do %>
+              <%= if Enum.any?(@instructors) and Accounts.has_role?(@user, "student") do %>
                 <div class="row">
                   <div class="col-md-12">
                     <div class="form-group">
