@@ -15,7 +15,7 @@ class LineItemsTable extends Component {
     const { appointment, current_user_id, user_roles } = props;
  
     const line_items =
-      props.line_items.length > 0 && !appointment ? props.line_items : itemsFromAppointment(appointment, props.line_items);
+      props.line_items.length > 0 && !appointment ? props.line_items : itemsFromAppointment(appointment, props.line_items, user_roles);
     
     this.state = { line_items, appointment, current_user_id, user_roles };
   }
@@ -32,7 +32,7 @@ class LineItemsTable extends Component {
 
     if (prevAppointmentId !== appointmentId) {
       const { appointment } = props;
-      const line_items = itemsFromAppointment(appointment, []);
+      const line_items = itemsFromAppointment(appointment, [], props.user_roles);
       
       return { ...state, line_items, appointment };
     }

@@ -40,7 +40,7 @@ class Form extends Component {
     const appointments = appointment ? [appointment] : [];
     payment_method = payment_method && this.getPaymentMethod(payment_method)
     payment_method = payment_method || {}
-    // if not staff member then its a student i suppose
+    
     this.state = {
       appointment,
       appointments,
@@ -123,7 +123,7 @@ class Form extends Component {
       headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
-        const invoice = itemsFromInvoice(r.data);
+        const invoice = itemsFromInvoice(r.data, this.props.user_roles);
         const demo = invoice.appointment ? invoice.appointment.demo : false
 
         this.setState({
@@ -234,7 +234,7 @@ class Form extends Component {
   }
 
   setAppointment = (appointment) => {
-    const line_items = itemsFromAppointment(appointment, [])
+    const line_items = itemsFromAppointment(appointment, [], this.state.user_roles)
     this.setState({appointment})
     
     this.calculateTotal(line_items, (values) => {
@@ -599,7 +599,6 @@ class Form extends Component {
       instructors, rooms, date, errors, id, invoice_loading, line_items, payment_method, demo, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
-
 
     return (
       <div className="card">
