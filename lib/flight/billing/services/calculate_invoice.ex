@@ -121,11 +121,11 @@ defmodule Flight.Billing.CalculateInvoice do
         :block -> aircraft.block_rate_per_hour
       end
 
-    demo = Map.get(detailed_params, :aircraft_details) || %{}
-    demo = Map.get(demo, :demo)
+    # demo = Map.get(detailed_params, :aircraft_details) || %{}
+    # demo = Map.get(demo, :demo)
     
     {rate, amount} = 
-      if demo && line_item["enable_rate"] != nil && line_item["rate"] > 0 do
+      if line_item["enable_rate"] != nil && line_item["rate"] > 0 do
         rate = line_item["rate"]
         amount = Billing.aircraft_cost!(form.aircraft_details.hobbs_start, form.aircraft_details.hobbs_end, rate, 0.0)
         {rate, amount}

@@ -82,7 +82,7 @@ export class LineItemRecord {
 
 const HOUR_IN_MILLIS = 3600000;
 
-export const itemsFromAppointment = (appointment, line_items) => {
+export const itemsFromAppointment = (appointment, line_items, user_roles) => {
   line_items = line_items || []
   
   if (appointment) {
@@ -99,7 +99,6 @@ export const itemsFromAppointment = (appointment, line_items) => {
     }
 
     if (appointment.room) {
-      console.log(line_items)
       var item = findItem(line_items, "room")
       
       if (!item) {
@@ -111,6 +110,7 @@ export const itemsFromAppointment = (appointment, line_items) => {
 
     if (appointment.aircraft || appointment.simulator) {
       var item = findItem(line_items, "aircraft")
+
       if (!item) {
         item = appointment.aircraft || appointment.simulator
         item = fromAircraft(item)
@@ -123,8 +123,9 @@ export const itemsFromAppointment = (appointment, line_items) => {
       item.tach_end = appointment.end_tach_time || item.tach_end;
       item.demo = appointment.demo
       
-      if (appointment.demo) {
+      if (appointment.demo || user_roles.includes("admin") || user_roles.includes("dispatcher")) {
         item.enable_rate = true
+        item.persist_rate = true // Do not let AircraftLineItem.jsx overwrite the rate with block rate and hour rate.
       }
 
       if (appointment.end_hobbs_time > 0) {
@@ -182,7 +183,7 @@ const fromRoom = (room) => {
   });
 }
 
-export const itemsFromInvoice = (invoice) => {
+export const itemsFromInvoice = (invoice, user_roles) => {
   if (invoice.appointment_id || !invoice.aircraft_info || !invoice.line_items) {return invoice}
 
   let index = -1
@@ -191,6 +192,11 @@ export const itemsFromInvoice = (invoice) => {
       index = curr_index
       return item.type == "aircraft"
     })
+
+  if (aircraft && (user_roles.includes("admin") || user_roles.includes("dispatcher"))) {
+    aircraft.persist_rate = true // Do not let AircraftLineItem.jsx overwrite the rate with block rate and hour rate.
+    aircraft.enable_rate = false
+  }
 
   if (aircraft && aircraft.hobbs_end > 0) {aircraft.disable_flight_hours = true}
   
