@@ -14,6 +14,14 @@ defmodule FlightWeb.API.AircraftController do
     render(conn, "index.json", aircrafts: aircrafts)
   end
 
+  def simulators(conn, _) do
+    simulators =
+      Scheduling.visible_simulators(conn)
+      |> Flight.Repo.preload(:inspections)
+
+    render(conn, "index.json", aircrafts: simulators)
+  end
+
   def show(conn, %{"id" => id}) do
     aircraft =
       Scheduling.get_visible_air_asset(id, conn)

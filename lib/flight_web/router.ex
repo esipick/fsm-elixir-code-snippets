@@ -298,6 +298,8 @@ defmodule FlightWeb.Router do
       resources("/cards", CardController, only: [:create, :update, :delete])
     end
 
+    get("/simulators", AircraftController, :simulators)
+
     get("/aircrafts/autocomplete", AircraftController, :autocomplete, as: :autocomplete)
     resources("/aircrafts", AircraftController, only: [:index, :show])
     resources("/rooms", RoomController, only: [:index])
