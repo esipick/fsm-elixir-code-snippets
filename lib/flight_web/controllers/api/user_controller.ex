@@ -150,6 +150,11 @@ defmodule FlightWeb.API.UserController do
     render(conn, "autocomplete.json", users: users)
   end
 
+  def get_students(conn, _params) do
+    users = Flight.Accounts.users_with_roles([Role.student(), Role.renter()], conn)
+    render(conn, "autocomplete.json", users: users)
+  end
+
   def zip_code(conn, params) do
     Map.get(params, "id") 
     |> Flight.KnowledgeBase.get_zipcode
