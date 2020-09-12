@@ -7,8 +7,46 @@ defmodule Flight.Accounts.Search.User do
   alias Flight.Search.Utils
 
   @spec run(Ecto.Query.t(), any()) :: Ecto.Query.t()
+  # def run(query, search_term) do
+  #   if String.contains?(search_term, "@") do
+  #     search_email(query, search_term)
+  #   else
+  #     search_name(query, search_term)
+  #   end
+  # end
+
+  # def search_email(query, search_term) do
+  #   case search_term do
+  #     "" ->
+  #       query
+
+  #     _ ->
+  #       where(
+  #         query,
+  #         fragment(
+  #           "to_tsvector(
+  #             'english',
+  #             u0.email || ' ' ||
+  #             u0.first_name || ' ' ||
+  #             u0.last_name || ' ' ||
+  #             replace(u0.phone_number, '-', '') || ' ' ||
+  #             coalesce(u0.address_1, ' ') || ' ' ||
+  #             coalesce(u0.city, ' ') || ' ' ||
+  #             coalesce(u0.zipcode, ' ') || ' ' ||
+  #             coalesce(u0.state, ' ')
+  #           ) @@
+  #           to_tsquery(?)",
+  #           ^Utils.prefix_search(normalized_term)
+  #         )
+  #       )
+  #   end
+  # end
+
   def run(query, search_term) do
-    case normalized_term = Utils.normalize(search_term) do
+    normalized_term = 
+      if String.contains?(search_term, "@"), do: search_term, else: Utils.normalize(search_term)
+
+    case normalized_term do
       "" ->
         query
 
