@@ -5,7 +5,9 @@ defmodule Flight.Queries.User do
 
   alias Flight.Accounts.{
     User,
-    Search
+    Search,
+    Role,
+    UserRole
   }
 
   def search_users_ids_by_name(search_term, _) do
@@ -31,6 +33,14 @@ defmodule Flight.Queries.User do
   def get_users_by_role(role, school_context) do
     role
     |> Ecto.assoc(:users)
+    |> Flight.Accounts.default_users_query(school_context)
+    |> Repo.all()
+  end
+
+  def get_users_by_roles(roles, school_context) do
+    from(u in User, select: u,
+      inner_join: ur in UserRole, on: ur.user_id == u.id,
+      inner_join: r in Role, on: r.id == ur.role_id and r.slug in ^roles, distinct: true)
     |> Flight.Accounts.default_users_query(school_context)
     |> Repo.all()
   end
