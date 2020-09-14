@@ -43,6 +43,12 @@ defmodule FlightWeb.API.UserController do
     end
   end
 
+  def index(conn, %{"invoice_payee" => _}) do
+    users = Flight.Queries.User.get_users_by_roles(["instructor", "student"], conn)
+
+    render(conn, "autocomplete.json", users: users)
+  end
+
   def show(conn, _params) do
     user =
       conn.assigns.user

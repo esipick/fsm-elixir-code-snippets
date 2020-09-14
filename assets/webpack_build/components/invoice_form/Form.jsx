@@ -172,7 +172,7 @@ class Form extends Component {
   loadStudents = () => {
     if (!this.props.staff_member) return;
 
-    return http.get({ url: '/api/users/by_role?role=student', headers: authHeaders() })
+    return http.get({ url: '/api/users?invoice_payee', headers: authHeaders() })
       .then(r => r.json())
       .then(r => { this.setState({ students: r.data }); })
       .catch(err => {
