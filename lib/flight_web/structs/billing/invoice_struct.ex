@@ -6,7 +6,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
   defstruct ~w(
     appointment id school payer_name amount_due amount_paid status payment_date
     editable title total tax_rate total_tax line_items transactions
-    amount_remainder created payment_method user_id bulk_transaction
+    amount_remainder created payment_method user_id bulk_transaction user
   )a
 
   def build(invoice) do
@@ -40,6 +40,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       total_tax: invoice.total_tax,
       line_items: invoice.line_items,
       transactions: transactions(invoice),
+      user: invoice.user,
       bulk_transaction:
         Optional.map(
           invoice.bulk_transaction,

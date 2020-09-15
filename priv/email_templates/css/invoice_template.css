@@ -1,0 +1,153 @@
+.container {
+    margin: auto;
+    align-content: center;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+div.header-item-left {
+    float: left;
+    width: 34%;
+    vertical-align: top;
+    display: table-cell;
+    margin-top: -10px;
+}
+
+div.header-item-center {
+    float: left;
+    width: 32%;
+    height: 150px;
+    text-align: center;
+    margin-top: 20px;
+
+}
+
+.cover {
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+    overflow: hidden;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+div.logo-container {
+    max-width: 60px;
+    max-height: 60px;
+    overflow: hidden;
+}
+
+div.header-item-right {
+    float: right;
+    width: 34%;
+}
+
+div.bill-to-div {
+    padding-top: 20px;
+    padding-left: 0px;
+    width: 50%
+}
+
+table {
+    border-collapse: collapse;
+  }
+
+table, th, td {
+    border: 2px solid black;
+}
+
+td {
+    height: 50px;
+    text-align: center;
+}
+
+th {
+    width: 50%;
+    height: 40px;
+}
+
+table.invoice-details {
+    width: auto;
+    margin-right: 0px;
+    margin-left: auto;
+    width: 65%;
+}
+
+.left-corner-empty-cell {
+    border-left-color: transparent;
+    border-bottom-color: transparent;  
+}
+
+table.bill-to-table {
+    padding-top: 10px;
+    text-align: left;
+    width: 100%;
+}
+
+table.bill-to-table td {
+    height: 120px;
+    vertical-align: top;
+    text-align: left;
+}
+
+table.bill-to-table td:nth-of-type(1) {border-bottom-color: transparent;}
+
+table.line-items-table {
+    text-align: center;
+    table-layout: fixed;
+    width: 100%;
+}
+
+th.line-item-date, th.line-item-rate, th.line-item-amount {
+    width: 15%;
+}
+
+th.line-item-hours {
+    width: 5%;
+}
+
+table td {
+    word-wrap: break-word;
+}
+
+table.line-items-table td:nth-of-type(2) {
+    text-align: left;
+    word-wrap: break-word;
+}
+
+table.line-items-table td:nth-child(1), 
+table.line-items-table td:nth-child(2), 
+table.line-items-table td:nth-child(3), 
+table.line-items-table td:nth-child(4) {
+    border-bottom-color: transparent;
+}
+
+table.line-items-table tr:last-child td {
+    border-bottom-color: black;
+}
+
+table.line-items-table th    {
+    word-wrap: break-word;
+}
+
+table.line-items-table td {
+    word-wrap: break-word;
+}
+
+table.total-table {
+    float: right;
+    table-layout: fixed;
+    width: 30%;
+}
+
+table.total-table tr:first-child td {
+    border-top-color: transparent;
+}
+
+table.total-table tr:nth-last-child(2) td,
+table.total-table tr:last-child td {
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    border-right-color: transparent;
+}

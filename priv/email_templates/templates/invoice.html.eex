@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%# <link rel="stylesheet" href= "/email_templates/css/invoice_template.css"> %>
+        <style>
+        <%=File.read!("priv/email_templates/css/invoice_template.css")%>
+        </style>
+    </head>
+    <body>
+    <div class="container">
+        <div class="header">
+            <div class="header-item-left">
+                <h2><%= @school.name %></h2>
+                <b><%= @school.address_1 || "-"%><br> 
+                <%= (@school.city || "") <> "," <> (@school.state || "") <> (@school.zipcode || "")%><br>
+                <%= @school.phone_number %></b>
+            </div>
+
+            <div class="header-item-center">
+                <img class="cover" src="<%= @base_url %>/images/FSM-sidebar.png" alt="School Logo">
+            </div>
+
+            <div class="header-item-right">
+                <table class="invoice-details">
+                    <tr>
+                        <th>Date</td>
+                        <th>Invoice#</td>
+                    </tr>
+                    <tr>
+                        <td><%= @invoice.payment_date %></td>
+                        <td><%= @invoice.id %></td>
+                    </tr>
+                    <tr>
+                        <td class="left-corner-empty-cell"></td>
+                        <td>Due Date</td>
+                    </tr>
+                    <tr>
+                        <td class="left-corner-empty-cell"></td>
+                        <td>Upon receipt</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div>
+            <div class="bill-to-div">
+                <table class="bill-to-table">
+                    <tr>
+                        <th>Bill To:</th>
+                    </tr>
+                    <tr>
+                        <td><%= @invoice.payer_name%></td>
+                    </tr>
+                </table>
+            </div>
+            <div>
+                <table class="line-items-table">
+                    <thead>
+                        <tr>
+                        <th class="line-item-date">Date</th>
+                        <th class="line-item-description">Description</th>
+                        <th class="line-item-hours">Qty.</th>
+                        <th class="line-item-rate">Rate</th>
+                        <th class="line-item-amount">Amount</th>
+                        </tr>
+                      </thead>
+                    <tbody>
+                        <%= for line_item <- @invoice.line_items do %>
+                            <tr>
+                                <td><%= NaiveDateTime.to_date(line_item.inserted_at) %></td>
+                                <td><%= line_item.description %></td>
+                                <td><%= line_item.quantity %></td>
+                                <td><%= if line_item.deductible, do: Flight.Format.currency(-line_item.rate), else: Flight.Format.currency(line_item.rate) %></td>
+                                <td><%= if line_item.deductible, do: Flight.Format.currency(-line_item.amount), else: Flight.Format.currency(line_item.amount) %></td>
+                            </tr>
+                        <% end %>
+                        <%= for _ <- 1..4 do %>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <% end %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+            <table class="total-table">
+                <tr>
+                    <td><h3>Amount excl. taxes</h3></td>
+                    <td><h3><%= Flight.Format.currency(@invoice.total) %></h3></td>
+                </tr>
+                <tr>
+                    <td>Total Tax</td>
+                    <td><%= Flight.Format.currency(@invoice.total_tax) %></td>
+                </tr>
+                <tr>
+                    <td><h3>Total Due</h3></td>
+                    <td><h4><%= Flight.Format.currency(@invoice.amount_due) %></h4></td>
+                </tr>
+                <tr>
+                    <td><h3>Total Paid</h3></td>
+                    <td><h4><%= Flight.Format.currency(@invoice.amount_paid) %></h4></td>
+                </tr>
+                <tr>
+                    <td><h3>Balance Due</h3></td>
+                    <td><h4><%= Flight.Format.currency(@invoice.amount_remainder) %></h4></td>
+                </tr>
+            </table>
+    </div>
+    </body>
+</html>

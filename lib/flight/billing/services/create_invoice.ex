@@ -69,7 +69,7 @@ defmodule Flight.Billing.CreateInvoice do
         end
 
         insert_transaction_line_items(invoice, school_context)
-
+        send_invoice_email(invoice, school_context)
         {:ok, invoice}
 
       {:error, changeset} ->
@@ -289,5 +289,23 @@ defmodule Flight.Billing.CreateInvoice do
     }
 
     Map.put(form, :instructor_details, details)
+  end
+
+  def send_invoice_email(invoice, school_context) do
+    school = Flight.SchoolScope.get_school(school_context)
+    invoice = Map.from_struct(FlightWeb.Billing.InvoiceStruct.build(invoice))
+
+    assigns = %{
+      school: school,
+      base_url: Application.get_env(:flight, :web_base_url),
+      invoice: invoice
+    }
+
+    html = Flight.InvoiceEmail.render(assigns)
+
+    invoice.user.email
+    |> Flight.Email.invoice_email(invoice.id, html)
+    |> Flight.Mailer.deliver_later
+    # File.write!("beautiful.html", html)
   end
 end
