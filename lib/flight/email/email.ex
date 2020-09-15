@@ -54,6 +54,15 @@ defmodule Flight.Email do
     )
   end
 
+  def invoice_email(to, _invoice_no, invoice_html) when is_nil(to) or is_nil(invoice_html), do: :error
+  def invoice_email(to, invoice_no, invoice_html) do
+    new_email()
+    |> to(to)
+    |> from("noreply@randonaviation.com")
+    |> subject("Invoice# #{invoice_no} - Flight School Manager")
+    |> html_body(invoice_html)
+  end 
+
   def invitation_link(%Invitation{} = invitation) do
     Application.get_env(:flight, :web_base_url) <> "/invitations/#{invitation.token}"
   end

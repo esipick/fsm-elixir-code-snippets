@@ -56,8 +56,7 @@ class AircraftLineItem extends Component {
   }
 
   setRate = (line_item) => {
-    console.log(line_item)
-
+    
     if ((line_item.demo || line_item.persist_rate) && line_item.rate > 0) {      
       this.calculateAmount(line_item)
       return
