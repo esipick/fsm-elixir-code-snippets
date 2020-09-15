@@ -20,6 +20,15 @@ defmodule Flight.Auth.InvoicePolicy do
     user.id == invoice.user_id || staff_member?(user)
   end
 
+  def send_invoice?(user, invoice) do
+    case invoice do
+      nil ->
+        false
+      _ -> 
+        invoice.status == :paid && view?(user, invoice)
+    end
+  end
+
   def delete?(user, invoice) do
     invoice.status != :archived && invoice.status == :pending && staff_member?(user)
   end

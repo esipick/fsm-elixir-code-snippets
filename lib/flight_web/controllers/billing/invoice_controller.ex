@@ -72,6 +72,15 @@ defmodule FlightWeb.Billing.InvoiceController do
     )
   end
 
+  def send_invoice(conn, %{"id" => id}) when not is_nil(id) do
+    invoice = Repo.get(Invoice, id)
+    Flight.Billing.CreateInvoice.send_invoice_email(invoice, conn)
+    
+    conn
+    |> put_flash(:success, "Invoice sent successfully")
+    |> redirect(to: "/billing/invoices")
+  end
+
   def delete(conn, _) do
     Invoice.archive(conn.assigns.invoice)
 

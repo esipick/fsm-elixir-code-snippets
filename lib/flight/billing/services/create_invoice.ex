@@ -306,6 +306,7 @@ defmodule Flight.Billing.CreateInvoice do
     invoice.user.email
     |> Flight.Email.invoice_email(invoice.id, html)
     |> Flight.Mailer.deliver_later
+
     # File.write!("beautiful.html", html)
   end
 end
