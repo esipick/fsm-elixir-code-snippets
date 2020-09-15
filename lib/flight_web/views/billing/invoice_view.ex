@@ -10,6 +10,10 @@ defmodule FlightWeb.Billing.InvoiceView do
     InvoicePolicy.modify?(conn.assigns.current_user, invoice)
   end
 
+  def can_send_invoice?(conn, invoice) do
+    InvoicePolicy.send_invoice?(conn.assigns.current_user, invoice)
+  end
+
   def can_delete_invoice?(conn, invoice) do
     InvoicePolicy.delete?(conn.assigns.current_user, invoice)
   end

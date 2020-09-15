@@ -117,6 +117,11 @@ function getPlainDate(start_at) {
                           </button>
                         <% end %>
                       <% end %>
+                      <%= if can_send_invoice?(@conn, invoice) do %>
+                          <a href="/billing/invoices/send_invoice/<%= invoice.id %>" class="btn btn-primary btn-sm ml-1">
+                            SEND INVOICE
+                          </a>
+                      <% end %>
                     </div>
                   </td>
                 </tr>
