@@ -69,9 +69,9 @@ defmodule Flight.Billing.CreateInvoice do
         end
 
         insert_transaction_line_items(invoice, school_context)
-
+        
         if invoice.user_id do
-          send_invoice_email(invoice, school_context)
+          Flight.InvoiceEmail.send_paid_invoice_email(invoice, school_context)
         end
 
         {:ok, invoice}
@@ -192,13 +192,11 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   def insert_bulk_invoice_line_items(_, [], _school_context), do: {:ok, :done}
-  def insert_bulk_invoice_line_items(bulk_invoice_id, invoices, school_context) do
+  def insert_bulk_invoice_line_items(%{id: bulk_invoice_id} = bulk_invoice, invoices, school_context) do
     ids = Enum.map(invoices, & &1.id)
     line_items_map = 
       get_invoice_line_items(ids)
-      |> IO.inspect(label: "Line Items")
       |> Enum.group_by(& &1.invoice_id)
-      |> IO.inspect(label: "Line Items map")
 
     Enum.map(invoices, fn invoice ->
       line_items = Map.get(line_items_map, invoice.id)
@@ -210,6 +208,8 @@ defmodule Flight.Billing.CreateInvoice do
       transaction = Flight.Queries.Transaction.get_bulk_invoice_transaction(bulk_invoice_id)
       insert_transaction_line_items(invoice, school_context, transaction)
     end)
+
+    Flight.InvoiceEmail.send_paid_bulk_invoice_email(bulk_invoice, invoices, line_items_map, school_context)
 
     {:ok, :done}
   end
@@ -293,24 +293,5 @@ defmodule Flight.Billing.CreateInvoice do
     }
 
     Map.put(form, :instructor_details, details)
-  end
-
-  def send_invoice_email(invoice, school_context) do
-    school = Flight.SchoolScope.get_school(school_context)
-    invoice = Map.from_struct(FlightWeb.Billing.InvoiceStruct.build(invoice))
-
-    assigns = %{
-      school: school,
-      base_url: Application.get_env(:flight, :web_base_url),
-      invoice: invoice
-    }
-
-    html = Flight.InvoiceEmail.render(assigns)
-
-    invoice.user.email
-    |> Flight.Email.invoice_email(invoice.id, html)
-    |> Flight.Mailer.deliver_later
-
-    # File.write!("beautiful.html", html)
   end
 end

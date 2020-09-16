@@ -263,7 +263,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
     {instructor_line_item, instructor_details} =
       if Map.get(form, :instructor_details) do
         instructor =
-          Flight.Accounts.get_user(form.instructor_details.instructor_id, school_context)
+          Flight.Accounts.get_user_regardless(form.instructor_details.instructor_id, school_context)
 
         if !instructor do
           raise "Unknown instructor (#{form.instructor_details.instructor_id}) for school (#{
