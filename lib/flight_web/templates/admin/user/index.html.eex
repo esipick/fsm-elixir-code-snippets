@@ -91,9 +91,9 @@
           <%=
           case @data.user_table_data.style do
             :detailed -> render(FlightWeb.Admin.UserView, "_detailed_table.html",
-              conn: @conn, detailed_rows: @data.user_table_data.rows, role: @data.role.slug, tab: @tab)
+              conn: @conn, detailed_rows: @data.user_table_data.rows, role: @data.role.slug, tab: @tab, from_contacts: @from_contacts)
             :simple -> render(FlightWeb.Admin.UserView, "_simple_table.html",
-              conn: @conn, simple_rows: @data.user_table_data.rows, role: @data.role.slug, tab: @tab)
+              conn: @conn, simple_rows: @data.user_table_data.rows, role: @data.role.slug, tab: @tab, from_contacts: @from_contacts)
           end
           %>
 
