@@ -133,6 +133,13 @@ defmodule Flight.Accounts do
     |> Repo.one()
   end
 
+  def get_user_regardless(id, school_context) do
+    User
+    |> all_users_query(school_context)
+    |> where([u], u.id == ^id)
+    |> Repo.one()
+  end
+
   def get_user(id, roles, school_context) do
     from(
       u in User,
@@ -678,6 +685,14 @@ defmodule Flight.Accounts do
     from(
       u in query,
       where: u.archived == false,
+      order_by: u.last_name
+    )
+    |> SchoolScope.scope_query(school_context)
+  end
+
+  def all_users_query(query, school_context) do
+    from(
+      u in query,
       order_by: u.last_name
     )
     |> SchoolScope.scope_query(school_context)
