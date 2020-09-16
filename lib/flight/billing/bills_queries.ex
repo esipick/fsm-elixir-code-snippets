@@ -18,10 +18,30 @@ defmodule Flight.Bills.Queries do
         filter_by(query, %{appointment_id: apmnt_id, status: :pending})
     end
 
+    def get_invoices_query(filter) do
+        query = 
+            from i in Invoice,
+                select: i
+
+        filter_by(query, filter)
+    end
+
     defp filter_by(query, nil), do: query 
     defp filter_by(query, filter) do
         Enum.reduce(filter, query, fn({key, value}, query) -> 
             case key do
+                :ids ->
+                    from q in query,
+                        where: q.id in ^value
+                
+                :user_id ->
+                    from q in query,
+                        where: q.user_id == ^value
+
+                :school_id ->
+                    from q in query,
+                        where: q.school_id == ^value
+
                 :appointment_id ->
                     from q in query,
                         where: q.appointment_id == ^value

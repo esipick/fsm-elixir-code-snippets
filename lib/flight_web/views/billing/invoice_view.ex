@@ -14,6 +14,10 @@ defmodule FlightWeb.Billing.InvoiceView do
     InvoicePolicy.send_invoice?(conn.assigns.current_user, invoice)
   end
 
+  def can_send_bulk_invoice?(conn) do
+    InvoicePolicy.can_send_bulk_invoice?(conn.assigns.current_user)
+  end
+
   def can_delete_invoice?(conn, invoice) do
     InvoicePolicy.delete?(conn.assigns.current_user, invoice)
   end

@@ -45,7 +45,7 @@ defmodule Flight.InvoiceEmail do
         |> deliver_email(school)
     end
 
-    defp deliver_email(invoice, school) do
+    def deliver_email(invoice, school) do
         assigns = %{
             school: school,
             base_url: Application.get_env(:flight, :web_base_url),
@@ -58,10 +58,7 @@ defmodule Flight.InvoiceEmail do
             invoice.user.email
             |> Flight.Email.invoice_email(invoice.id, html)
             |> Flight.Mailer.deliver_later
-        
             File.write!("beautiful.html", html)
         end
     end
 end
-
-# Flight.Billing.CreateInvoice.send_invoice_email
