@@ -132,9 +132,6 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
         roles = if role, do: [role], else: []
         password = Flight.Random.hex(10)
 
-        IO.inspect(changeset, label: "Changeset")
-        IO.inspect(attrs, label: "Attributes")
-
         params = 
           attrs
           |> Map.take(["email", "first_name", "last_name", "school_id", "phone_number"])
