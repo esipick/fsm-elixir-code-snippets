@@ -156,6 +156,7 @@ defmodule FlightWeb.Router do
     get("/invoices/send_invoice/:id", InvoiceController, :send_invoice)
     get("/checkout_success/", InvoiceController, :checkout_success)
     resources("/bulk_invoices", BulkInvoiceController, only: [:new])
+    get("/bulk_invoices/send_bulk_invoice", BulkInvoiceController, :send_bulk_invoice)
     resources("/transactions", TransactionController, only: [:index, :show])
   end
 
@@ -357,6 +358,7 @@ defmodule FlightWeb.Router do
 
     resources("/invoices", InvoiceController, only: [:index, :show, :create, :update, :delete])
     resources("/bulk_invoices", BulkInvoiceController, only: [:create])
+    post("/bulk_invoices/send_bulk_invoice", BulkInvoiceController, :send_bulk_invoice)
 
     resources("/courses", CourseController, only: [:index])
 

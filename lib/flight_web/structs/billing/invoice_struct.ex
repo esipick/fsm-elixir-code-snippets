@@ -50,6 +50,35 @@ defmodule FlightWeb.Billing.InvoiceStruct do
     }
   end
 
+  def build_skinny(invoice) do
+    invoice =
+      invoice
+      |> Repo.preload([
+        :transactions,
+        :line_items
+      ])
+
+    
+    %InvoiceStruct{
+      id: invoice.id,
+      user_id: invoice.user_id,
+      created: invoice.inserted_at,
+      amount_due: invoice.total_amount_due,
+      amount_paid: amount_paid(invoice),
+      amount_remainder: amount_remainder(invoice),
+      status: invoice.status,
+      payment_date: invoice.date,
+      payment_method: invoice.payment_option,
+      editable: editable(invoice),
+      title: title(invoice),
+      total: invoice.total,
+      tax_rate: invoice.tax_rate,
+      total_tax: invoice.total_tax,
+      line_items: invoice.line_items,
+      transactions: transactions(invoice),
+    }
+  end
+
   defp payer_name(invoice) do
     if invoice.user do
       User.full_name(invoice.user)
