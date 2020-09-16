@@ -566,7 +566,23 @@ defmodule Flight.Accounts do
       :medical_rating,
       :medical_expires_at,
       :certificate_number,
-      :inserted_at
+      :inserted_at,
+
+      :date_of_birth,
+      :gender,
+      :emergency_contact_no,
+      :emergency_phone_no,
+      :d_license_no,
+      :d_license_expires_at,
+      :d_license_country,
+      :d_license_state,
+      :passport_no,
+      :passport_expires_at,
+      :passport_country,
+      :passport_issuer_name,
+      :last_faa_flight_review_at,
+      :renter_policy_no,
+      :renter_insurance_expires_at
     ]
   end
 

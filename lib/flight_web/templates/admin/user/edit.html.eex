@@ -97,7 +97,140 @@
                 </div>
               </div>
             <% end %>
+
             <%= if has_cirriculum?(@user) do %>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Gender</label>
+                    <%= select f, :gender, ["Male", "Female", "N/A"], class: "form-control selectpicker", selected: input_value(f, :gender), title: "Gender" %>
+                    <%= full_error_tag f, :emergency_phone_no %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div id="date_of_birth"
+                  class="col-md-4">
+                  <div class="form-group">
+                    <label>Date of Birth</label>
+                    <%= text_input f, :date_of_birth,
+                      class: "form-control",
+                      value: format_date(input_value(f, :date_of_birth)),
+                      placeholder: "MM/DD/YYYY" %>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Emergency Contact No</label>
+                    <%= text_input f, :emergency_contact_no, class: "form-control" %>
+                    <%= full_error_tag f, :emergency_contact_no %>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Emergency Phone No</label>
+                    <%= text_input f, :emergency_phone_no, class: "form-control" %>
+                    <%= full_error_tag f, :emergency_phone_no %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Driving License No</label>
+                    <%= text_input f, :d_license_no, class: "form-control" %>
+                  </div>
+                </div>
+                <div id="d_license_expires_at"
+                  class="col-md-4">
+                  <div class="form-group">
+                    <label>Diving License Expiration</label>
+                    <%= text_input f, :d_license_expires_at,
+                      class: "form-control",
+                      value: format_date(input_value(f, :d_license_expires_at)),
+                      placeholder: "MM/DD/YYYY" %>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Diving License Country</label>
+                    <%= text_input f, :d_license_country, class: "form-control" %>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Diving License State</label>
+                    <%= text_input f, :d_license_state, class: "form-control" %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Passport No</label>
+                    <%= text_input f, :passport_no, class: "form-control" %>
+                  </div>
+                </div>
+                <div id="d_license_expires_at"
+                  class="col-md-4">
+                  <div class="form-group">
+                    <label>Passport Expiration</label>
+                    <%= text_input f, :passport_expires_at,
+                      class: "form-control",
+                      value: format_date(input_value(f, :d_license_expires_at)),
+                      placeholder: "MM/DD/YYYY" %>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Passport Country</label>
+                    <%= text_input f, :passport_country, class: "form-control" %>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Passport Issue</label>
+                    <%= text_input f, :passport_issuer_name, class: "form-control" %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div id="last_faa_flight_review_at"
+                  class="col-md-4">
+                  <div class="form-group">
+                    <label>Last FAA Flight Review</label>
+                    <%= text_input f, :last_faa_flight_review_at,
+                      class: "form-control",
+                      value: format_date(input_value(f, :last_faa_flight_review_at)),
+                      placeholder: "MM/DD/YYYY" %>
+                  </div>
+                </div>
+                <div id="renter_insurance_expires_at"
+                  class="col-md-4">
+                  <div class="form-group">
+                    <label>Renter Insurance Expiration</label>
+                    <%= text_input f, :renter_insurance_expires_at,
+                      class: "form-control",
+                      value: format_date(input_value(f, :renter_insurance_expires_at)),
+                      placeholder: "MM/DD/YYYY" %>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Renter Policy No</label>
+                    <%= text_input f, :renter_policy_no, class: "form-control" %>
+                  </div>
+                </div>
+              </div>
+
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
