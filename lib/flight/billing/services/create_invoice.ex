@@ -69,7 +69,11 @@ defmodule Flight.Billing.CreateInvoice do
         end
 
         insert_transaction_line_items(invoice, school_context)
-        send_invoice_email(invoice, school_context)
+
+        if invoice.user_id do
+          send_invoice_email(invoice, school_context)
+        end
+
         {:ok, invoice}
 
       {:error, changeset} ->
