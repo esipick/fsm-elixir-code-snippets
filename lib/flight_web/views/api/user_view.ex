@@ -60,7 +60,16 @@ defmodule FlightWeb.API.UserView do
       passport_issuer_name: user.passport_issuer_name,
       last_faa_flight_review_at: user.last_faa_flight_review_at,
       renter_policy_no: user.renter_policy_no,
-      renter_insurance_expires_at: user.renter_insurance_expires_at
+      renter_insurance_expires_at: user.renter_insurance_expires_at,
+
+      pilot_current_certificate: user.pilot_current_certificate,
+      pilot_aircraft_categories: user.pilot_aircraft_categories,
+      pilot_class: user.pilot_class,
+      pilot_ratings: user.pilot_ratings,
+      pilot_endorsements: user.pilot_endorsements,
+      pilot_certificate_number: user.pilot_certificate_number,
+      pilot_certificate_expires_at: user.pilot_certificate_expires_at
+
     }
   end
 

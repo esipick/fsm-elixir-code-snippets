@@ -12,7 +12,28 @@
           <!--<h3>Edit Profile</h3>-->
         </div>
         <%= form_for @changeset, "/admin/users/#{@user.id}", [as: :user, method: "put", class: "form-horizontal", multipart: true], fn f -> %>
-          <div class="card-body">
+
+        <div class="hiddentext" style="display:none;">
+          <%=
+            personal_url = "/admin/users/#{@user.id}/edit?tab=personal"
+            pilot_url = "/admin/users/#{@user.id}/edit?tab=pilot"
+          %>
+        </div>
+        <div class="card-body" <%= if @tab != nil and @tab != "personal" and has_cirriculum?(@user) do %> style="display:none;" <% end%>>
+
+        <%= if (@tab == nil or @tab == "personal") and has_cirriculum?(@user) do %>
+          <div class="d-flex justify-content-between mb-3">
+            <ul class="nav nav-pills col-xs-12" role="tablist">
+
+              <li class="nav-item col-xs-2">
+                <a class="nav-link active" href="<%= personal_url %>" role="tablist" aria-expanded="true">Personal</a>
+              </li>
+              <li class="nav-item col-xs-2">
+                <a class="nav-link" href="<%= pilot_url %>" role="tablist" aria-expanded="false">Pilot</a>
+              </li>
+            </ul>
+          </div>
+        <% end%>
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
@@ -377,8 +398,123 @@
                   </div>
                 </div>
               <% end %>
+          </div>
+          <div class="card-body" <%= if (@tab == nil or @tab == "personal") do %> style="display:none;" <% end%>>
+            <%= if @tab != nil and @tab != "personal" and has_cirriculum?(@user) do %>
+              <div class="d-flex justify-content-between mb-3" <%= if @tab == "personal" do %> style="display:none;" <% end%>>
+                <ul class="nav nav-pills col-xs-12" role="tablist">
+
+                  <li class="nav-item col-xs-2">
+                    <a class="nav-link" href="<%= personal_url %>" role="tablist" aria-expanded="true">Personal</a>
+                  </li>
+                  <li class="nav-item col-xs-2">
+                    <a class="nav-link active" href="<%= pilot_url %>" role="tablist" aria-expanded="false">Pilot</a>
+                  </li>
+                </ul>
+              </div>
+
+            <%= hidden_input f, :tab, value: @tab %>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Current Certificate</label>
+                  <input name="user[pilot_current_certificate][]" type="hidden" value="">
+                  <%= multiple_select f, :pilot_current_certificate, current_certificate_inputs(), selected: Enum.map(@user.pilot_current_certificate, & &1), class: "form-control selectpicker" %>
+                  <%= full_error_tag f, :pilot_current_certificate %>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Aircraft Categories</label>
+                  <div class="checkbox-radios">
+                    <%= for {label, value} <- aircraft_categories_inputs() do %>
+                      <div class="form-check">
+                        <label class="form-check-label">
+                        <input type="checkbox" name="pilot_aircraft_categories[<%= value %>]" <%= if value in @user.pilot_aircraft_categories, do: "checked", else: "" %> />
+                          <span class="form-check-sign"></span>
+                          <%= label %>
+                        </label>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Class</label>
+                  <div class="checkbox-radios">
+                    <%= for {label, value} <- pilot_class_inputs() do %>
+                      <div class="form-check">
+                        <label class="form-check-label">
+                        <input type="checkbox" name="pilot_class[<%= value %>]" <%= if value in @user.pilot_class, do: "checked", else: "" %> />
+                          <span class="form-check-sign"></span>
+                          <%= label %>
+                        </label>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Ratings</label>
+                  <div class="checkbox-radios">
+                    <%= for {label, value} <- pilot_ratings_inputs() do %>
+                      <div class="form-check">
+                        <label class="form-check-label">
+                        <input type="checkbox" name="pilot_ratings[<%= value %>]" <%= if value in @user.pilot_ratings, do: "checked", else: "" %> />
+                          <span class="form-check-sign"></span>
+                          <%= label %>
+                        </label>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Endorsement(s)</label>
+                  <div class="checkbox-radios">
+                    <%= for {label, value} <- pilot_endorsements_inputs() do %>
+                      <div class="form-check">
+                        <label class="form-check-label">
+                        <input type="checkbox" name="pilot_endorsements[<%= value %>]" <%= if value in @user.pilot_endorsements, do: "checked", else: "" %> />
+                          <span class="form-check-sign"></span>
+                          <%= label %>
+                        </label>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Certificate Number</label>
+                    <%= text_input f, :pilot_certificate_number, class: "form-control" %>
+                  </div>
+                </div>
+                <div id="pilot_certificate_expires_at"
+                  class="col-md-4">
+                  <div class="form-group">
+                    <label>CFI Expiration</label>
+                    <%= text_input f, :pilot_certificate_expires_at,
+                      class: "form-control",
+                      value: format_date(input_value(f, :pilot_certificate_expires_at)),
+                      placeholder: "MM/DD/YYYY" %>
+                  </div>
+                </div>
+              </div>
+
             <% end %>
           </div>
+          <% end %>
           <div class="card-footer ">
             <div class="row">
               <div class="col-md-12">
