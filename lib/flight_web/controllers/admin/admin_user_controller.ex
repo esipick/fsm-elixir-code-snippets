@@ -110,7 +110,8 @@ defmodule FlightWeb.Admin.UserController do
     )
   end
 
-  def edit(conn, _params) do
+  def edit(conn, params) do
+    tab = Map.get(params, "tab") || "personal"
     user = conn.assigns.requested_user
     aircrafts = Accounts.get_aircrafts(conn)
     role = Accounts.role_for_slug("instructor")
@@ -124,7 +125,8 @@ defmodule FlightWeb.Admin.UserController do
       instructors: instructors,
       skip_shool_select: true,
       user: user,
-      stripe_error: nil
+      stripe_error: nil,
+      tab: tab
     )
   end
 
@@ -167,6 +169,27 @@ defmodule FlightWeb.Admin.UserController do
   end
 
   def update(conn, %{"user" => user_form} = params) do
+    tab = Map.get(user_form, "tab") || "personal"
+    pilot_aircraft_categories =
+      (Map.get(params, "pilot_aircraft_categories") || %{})
+      |> Map.keys
+    pilot_class =
+      (Map.get(params, "pilot_class") || %{})
+      |> Map.keys
+    pilot_ratings =
+      (Map.get(params, "pilot_ratings") || %{})
+      |> Map.keys
+    pilot_endorsements =
+      (Map.get(params, "pilot_endorsements") || %{})
+      |> Map.keys
+
+    user_form =
+      user_form
+      |> Map.put("pilot_aircraft_categories", pilot_aircraft_categories)
+      |> Map.put("pilot_class", pilot_class)
+      |> Map.put("pilot_ratings", pilot_ratings)
+      |> Map.put("pilot_endorsements", pilot_endorsements)
+
     aircrafts =
       case Map.get(params["user"], "aircrafts") do
         params when params == [""] ->
@@ -243,7 +266,8 @@ defmodule FlightWeb.Admin.UserController do
           instructors: instructors,
           skip_shool_select: true,
           user: user,
-          stripe_error: nil
+          stripe_error: nil,
+          tab: tab
         )
     end
   end
