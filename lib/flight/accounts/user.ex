@@ -15,7 +15,6 @@ defmodule Flight.Accounts.User do
     field(:date_of_birth, Flight.Date)
     field(:gender, :string)
     field(:emergency_contact_no, :string)
-    field(:emergency_phone_no, :string)
     field(:d_license_no, :string)
     field(:d_license_expires_at, Flight.Date)
     field(:d_license_country, :string)
@@ -278,7 +277,6 @@ defmodule Flight.Accounts.User do
       :date_of_birth,
       :gender,
       :emergency_contact_no,
-      :emergency_phone_no,
       :d_license_no,
       :d_license_expires_at,
       :d_license_country,
@@ -334,7 +332,6 @@ defmodule Flight.Accounts.User do
       :date_of_birth,
       :gender,
       :emergency_contact_no,
-      :emergency_phone_no,
       :d_license_no,
       :d_license_expires_at,
       :d_license_country,
