@@ -49,7 +49,6 @@ defmodule FlightWeb.API.UserView do
       date_of_birth: user.date_of_birth,
       gender: user.gender,
       emergency_contact_no: user.emergency_contact_no,
-      emergency_phone_no: user.emergency_phone_no,
       d_license_no: user.d_license_no,
       d_license_expires_at: user.d_license_expires_at,
       d_license_country: user.d_license_country,

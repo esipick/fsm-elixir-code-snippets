@@ -571,7 +571,6 @@ defmodule Flight.Accounts do
       :date_of_birth,
       :gender,
       :emergency_contact_no,
-      :emergency_phone_no,
       :d_license_no,
       :d_license_expires_at,
       :d_license_country,

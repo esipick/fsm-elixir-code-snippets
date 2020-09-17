@@ -104,7 +104,7 @@
                   <div class="form-group">
                     <label>Gender</label>
                     <%= select f, :gender, ["Male", "Female", "N/A"], class: "form-control selectpicker", selected: input_value(f, :gender), title: "Gender" %>
-                    <%= full_error_tag f, :emergency_phone_no %>
+                    <%= full_error_tag f, :gender %>
                   </div>
                 </div>
               </div>
@@ -114,24 +114,17 @@
                   class="col-md-4">
                   <div class="form-group">
                     <label>Date of Birth</label>
-                    <%= text_input f, :date_of_birth,
-                      class: "form-control",
-                      value: format_date(input_value(f, :date_of_birth)),
+                    <%= date_input f, :date_of_birth,
+                      class: "form-control datetimepickerend",
+                      value: format_html5_date(input_value(f, :date_of_birth)),
                       placeholder: "MM/DD/YYYY" %>
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
                     <label>Emergency Contact No</label>
-                    <%= text_input f, :emergency_contact_no, class: "form-control" %>
+                    <%= text_input f, :emergency_contact_no, class: "form-control", maxlength: "17" %>
                     <%= full_error_tag f, :emergency_contact_no %>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Emergency Phone No</label>
-                    <%= text_input f, :emergency_phone_no, class: "form-control" %>
-                    <%= full_error_tag f, :emergency_phone_no %>
                   </div>
                 </div>
               </div>
@@ -140,16 +133,16 @@
                 <div class="col-md-4">
                   <div class="form-group">
                     <label>Driving License No</label>
-                    <%= text_input f, :d_license_no, class: "form-control" %>
+                    <%= text_input f, :d_license_no, class: "form-control", maxlength: "20" %>
                   </div>
                 </div>
                 <div id="d_license_expires_at"
                   class="col-md-4">
                   <div class="form-group">
                     <label>Diving License Expiration</label>
-                    <%= text_input f, :d_license_expires_at,
+                    <%= date_input f, :d_license_expires_at,
                       class: "form-control",
-                      value: format_date(input_value(f, :d_license_expires_at)),
+                      value: format_html5_date(input_value(f, :d_license_expires_at)),
                       placeholder: "MM/DD/YYYY" %>
                   </div>
                 </div>
@@ -179,9 +172,9 @@
                   class="col-md-4">
                   <div class="form-group">
                     <label>Passport Expiration</label>
-                    <%= text_input f, :passport_expires_at,
+                    <%= date_input f, :passport_expires_at,
                       class: "form-control",
-                      value: format_date(input_value(f, :d_license_expires_at)),
+                      value: format_html5_date(input_value(f, :passport_expires_at)),
                       placeholder: "MM/DD/YYYY" %>
                   </div>
                 </div>
@@ -205,9 +198,9 @@
                   class="col-md-4">
                   <div class="form-group">
                     <label>Last FAA Flight Review</label>
-                    <%= text_input f, :last_faa_flight_review_at,
+                    <%= date_input f, :last_faa_flight_review_at,
                       class: "form-control",
-                      value: format_date(input_value(f, :last_faa_flight_review_at)),
+                      value: format_html5_date(input_value(f, :last_faa_flight_review_at)),
                       placeholder: "MM/DD/YYYY" %>
                   </div>
                 </div>
@@ -215,9 +208,9 @@
                   class="col-md-4">
                   <div class="form-group">
                     <label>Renter Insurance Expiration</label>
-                    <%= text_input f, :renter_insurance_expires_at,
+                    <%= date_input f, :renter_insurance_expires_at,
                       class: "form-control",
-                      value: format_date(input_value(f, :renter_insurance_expires_at)),
+                      value: format_html5_date(input_value(f, :renter_insurance_expires_at)),
                       placeholder: "MM/DD/YYYY" %>
                   </div>
                 </div>
@@ -225,7 +218,7 @@
                 <div class="col-md-4">
                   <div class="form-group">
                     <label>Renter Policy No</label>
-                    <%= text_input f, :renter_policy_no, class: "form-control" %>
+                    <%= text_input f, :renter_policy_no, class: "form-control", maxlength: "20" %>
                   </div>
                 </div>
               </div>
@@ -317,7 +310,7 @@
                     <label>Medical Approval Expiration</label>
                     <%= text_input f, :medical_expires_at,
                       class: "form-control",
-                      value: format_date(input_value(f, :medical_expires_at)),
+                      value: format_html5_date(input_value(f, :medical_expires_at)),
                       placeholder: "MM/DD/YYYY" %>
                   </div>
                 </div>
