@@ -66,6 +66,10 @@ w<div class="panel-header"></div>
                 <%= if has_cirriculum?(@user) do %>
                   <div class="fields">
                     <div class="field">
+                      <h3>Start Date</h3>
+                      <p id="start_date"></p>
+                    </div>
+                    <div class="field">
                       <h3>Date of Birth (DOB)</h3>
                       <p><%= @user.date_of_birth  || "-" %></p>
                     </div>
@@ -74,17 +78,16 @@ w<div class="panel-header"></div>
                       <p><%= @user.gender  || "-" %></p>
                     </div>
                     <div class="field">
-                      <h3>Emergency</h3>
+                      <h3>Emergency Contact</h3>
                       <p>
-                        <%= if @user.emergency_contact_no || @user.emergency_phone_no do %>
-                          <small>Contact : <%= @user.emergency_contact_no || "N/A" %></small>,
-                          <small>Phone : <%= @user.emergency_phone_no || "N/A" %></small>
+                        <%= if @user.emergency_contact_no do %>
+                          <small><%= @user.emergency_contact_no || "N/A" %></small>,
                         <% else %> -
                         <% end %>
                       </p>
                     </div>
                     <div class="field">
-                      <h3>Driving Licence</h3>
+                      <h3>Driving License</h3>
                       <p>
                         <%= if @user.d_license_no do %>
                         <span># : <%= @user.d_license_no %></span>
@@ -305,6 +308,15 @@ w<div class="panel-header"></div>
   </div>
 </div> <!-- end content -->
 
+<script>
+  $(document).ready(function() {
+    var dt = '<%= @user.inserted_at %>'
+    var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+    var date = new Date(date_time);
+    date = date_time.format('YYYY-MM-DD')
+    document.getElementById("start_date").innerHTML =  date;
+    })
+</script>
 <%= if get_flash(@conn, :success) do %>
   <script>
     $(document).ready(function() {

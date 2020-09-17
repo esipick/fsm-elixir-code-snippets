@@ -6,7 +6,6 @@ defmodule Flight.Repo.Migrations.AddPersonalProfileFieldsToUser do
       add(:date_of_birth, :date)
       add(:gender, :string)
       add(:emergency_contact_no, :string)
-      add(:emergency_phone_no, :string)
       add(:d_license_no, :string)
       add(:d_license_expires_at, :date)
       add(:d_license_country, :string)

@@ -15,6 +15,13 @@ defmodule FlightWeb.ViewHelpers do
     Flight.Date.format(date)
   end
 
+  def format_html5_date(date) when is_binary(date), do: date
+  def format_html5_date(nil), do: ""
+
+  def format_html5_date(date) do
+    Flight.Date.html5_format(date)
+  end
+
   def is_dev?() do
     Mix.env() == :dev
   end
