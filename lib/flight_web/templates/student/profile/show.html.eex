@@ -186,6 +186,26 @@
                     <% end %>
                   </div>
                 </div>
+
+                <div class="fields">
+                  <%= if has_cirriculum?(@user) do %>
+                    <div class="field">
+                      <h3>Certificate # (Pilot)</h3>
+                      <p><%= @user.pilot_certificate_number  || "-" %></p>
+                    </div>
+
+                    <div class="field">
+                      <h3>Cert/ Ratings</h3>
+                      <%= if Enum.any?(@user.pilot_current_certificate) do %>
+                        <%= for certificate <- @user.pilot_current_certificate do %>
+                          <p><%= certificate %> </p>
+                        <% end %>
+                      <% else %>
+                        <p>-</p>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
               </div>
             </div>
           </div>
@@ -196,6 +216,18 @@
                   <div class="field ftn">
                     <h3>Training # (FTN)</h3>
                     <p><%= @user.flight_training_number || "-" %></p>
+
+                    <h3>Certificate #</h3>
+                    <p><%= @user.pilot_certificate_number || "-" %></p>
+
+                    <h3>Cert/ Ratings</h3>
+                    <%= if Enum.any?(@user.pilot_current_certificate) do %>
+                      <%= for certificate <- @user.pilot_current_certificate do %>
+                        <p><%= String.capitalize(certificate) %> </p>
+                      <% end %>
+                    <% else %>
+                      <p>-</p>
+                    <% end %>
                   </div>
                 <% end %>
                 <%= if has_medical?(@user) do %>

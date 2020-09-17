@@ -28,6 +28,14 @@ defmodule Flight.Accounts.User do
     field(:renter_policy_no, :string)
     field(:renter_insurance_expires_at, Flight.Date)
 
+    field(:pilot_current_certificate, {:array, :string})
+    field(:pilot_aircraft_categories, {:array, :string})
+    field(:pilot_class, {:array, :string})
+    field(:pilot_ratings, {:array, :string})
+    field(:pilot_endorsements, {:array, :string})
+    field(:pilot_certificate_number, :string)
+    field(:pilot_certificate_expires_at, Flight.Date)
+
     field(:first_name, :string)
     field(:last_name, :string)
     field(:password, :string, virtual: true)
@@ -281,7 +289,15 @@ defmodule Flight.Accounts.User do
       :passport_issuer_name,
       :last_faa_flight_review_at,
       :renter_policy_no,
-      :renter_insurance_expires_at
+      :renter_insurance_expires_at,
+
+      :pilot_current_certificate,
+      :pilot_aircraft_categories,
+      :pilot_class,
+      :pilot_ratings,
+      :pilot_endorsements,
+      :pilot_certificate_number,
+      :pilot_certificate_expires_at
     ])
     |> cast_avatar(attrs)
     |> base_validations(nil, aircrafts, flyer_certificates, instructors)
@@ -329,7 +345,15 @@ defmodule Flight.Accounts.User do
       :passport_issuer_name,
       :last_faa_flight_review_at,
       :renter_policy_no,
-      :renter_insurance_expires_at
+      :renter_insurance_expires_at,
+
+      :pilot_current_certificate,
+      :pilot_aircraft_categories,
+      :pilot_class,
+      :pilot_ratings,
+      :pilot_endorsements,
+      :pilot_certificate_number,
+      :pilot_certificate_expires_at
     ])
     |> cast_avatar(attrs)
     |> base_validations(roles, aircrafts, flyer_certificates, instructors)

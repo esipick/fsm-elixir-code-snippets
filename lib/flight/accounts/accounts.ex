@@ -582,7 +582,15 @@ defmodule Flight.Accounts do
       :passport_issuer_name,
       :last_faa_flight_review_at,
       :renter_policy_no,
-      :renter_insurance_expires_at
+      :renter_insurance_expires_at,
+
+      :pilot_current_certificate,
+      :pilot_aircraft_categories,
+      :pilot_class,
+      :pilot_ratings,
+      :pilot_endorsements,
+      :pilot_certificate_number,
+      :pilot_certificate_expires_at
     ]
   end
 
