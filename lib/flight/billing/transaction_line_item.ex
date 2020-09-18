@@ -8,6 +8,7 @@ defmodule Flight.Billing.TransactionLineItem do
     field(:amount, :integer)
     field(:description, :string)
     field(:type, :string)
+    field(:total_tax, :integer, default: 0)
     belongs_to(:transaction, Flight.Billing.Transaction)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
     belongs_to(:instructor_user, Flight.Accounts.User)
@@ -23,6 +24,7 @@ defmodule Flight.Billing.TransactionLineItem do
     |> cast(attrs, [
       :amount,
       :type,
+      :total_tax,
       :description,
       :transaction_id,
       :aircraft_id,

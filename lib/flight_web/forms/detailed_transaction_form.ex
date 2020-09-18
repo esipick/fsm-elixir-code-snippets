@@ -214,6 +214,11 @@ defmodule FlightWeb.API.DetailedTransactionForm do
 
   def to_transaction(form, rate_type, school_context)
       when rate_type in [:normal, :block] do
+    # user = Repo.preload(user, [:school])
+    # sales_tax = user && user.school.sales_tax
+    # sales_tax = sales_tax || 0
+    tax_rate = Map.get(form, :tax_rate) || 0
+
     {aircraft_line_item, aircraft_details} =
       if Map.get(form, :aircraft_details) do
         aircraft_details = form.aircraft_details
@@ -238,6 +243,7 @@ defmodule FlightWeb.API.DetailedTransactionForm do
           if custom_rate, do: custom_rate, else: rate 
           #13 6 2 6
           # of flights time flow
+
         detail = %AircraftLineItemDetail{
           aircraft_id: aircraft_details.aircraft_id,
           hobbs_start: aircraft_details.hobbs_start,
@@ -249,8 +255,14 @@ defmodule FlightWeb.API.DetailedTransactionForm do
           rate: rate
         }
 
+        amount = Billing.aircraft_cost!(detail)
+        total_tax = 
+          if Map.get(aircraft_details, :taxable), do: round(amount * tax_rate / 100), else: 0
+        
+        # calculate amount and save.
         line_item = %TransactionLineItem{
-          amount: Billing.aircraft_cost!(detail),
+          amount: amount,
+          total_tax: total_tax,
           type: "aircraft",
           aircraft_id: aircraft.id
         }
@@ -280,8 +292,13 @@ defmodule FlightWeb.API.DetailedTransactionForm do
           hour_tenths: form.instructor_details.hour_tenths
         }
 
+        amount = Flight.Billing.instructor_cost!(detail)
+        total_tax = 
+          if Map.get(form.instructor_details, :taxable), do: round(amount * tax_rate / 100), else: 0
+
         line_item = %TransactionLineItem{
-          amount: Flight.Billing.instructor_cost!(detail),
+          amount: amount,
+          total_tax: total_tax,
           type: "instructor",
           instructor_user_id: instructor.id
         }
