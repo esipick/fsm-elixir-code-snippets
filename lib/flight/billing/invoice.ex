@@ -27,7 +27,7 @@ defmodule Flight.Billing.Invoice do
     field(:total_tax, :integer)
     field(:total_amount_due, :integer)
     field(:status, InvoiceStatusEnum, default: :pending)
-    field(:payment_option, InvoicePaymentOptionEnum)
+    field(:payment_option, InvoicePaymentOptionEnum, default: :balance)
     field(:payer_name, :string)
     field(:demo, :boolean, default: false)
     field(:archived, :boolean, default: false)

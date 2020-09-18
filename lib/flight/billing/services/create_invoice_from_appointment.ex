@@ -86,17 +86,39 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         true -> nil
       end
 
-    %{
-      "school_id" => school.id,
-      "appointment_id" => appointment.id,
-      "user_id" => user_id,
-      "payer_name" => payer_name_from(appointment),
-      "demo" => appointment.demo,
-      "date" => NaiveDateTime.to_date(appointment.end_at),
-      "payment_option" => Map.get(params, "payment_option", "balance"),
-      "line_items" => line_items_from(appointment, params, current_user),
-      "appointment_updated_at" => appointment.updated_at
-    }
+    # %{
+    #   "school_id" => school.id,
+    #   "appointment_id" => appointment.id,
+    #   "user_id" => user_id,
+    #   "payer_name" => payer_name_from(appointment),
+    #   "demo" => appointment.demo,
+    #   "date" => NaiveDateTime.to_date(appointment.end_at),
+    #   "payment_option" => Map.get(params, "payment_option", "balance"),
+    #   "line_items" => line_items_from(appointment, params, current_user),
+    #   "appointment_updated_at" => appointment.updated_at
+    # }
+    
+    # default value for payment options is added as balance.
+
+    payload = 
+      %{
+        "school_id" => school.id,
+        "appointment_id" => appointment.id,
+        "user_id" => user_id,
+        "payer_name" => payer_name_from(appointment),
+        "demo" => appointment.demo,
+        "date" => NaiveDateTime.to_date(appointment.end_at),
+        "line_items" => line_items_from(appointment, params, current_user),
+        "appointment_updated_at" => appointment.updated_at
+      }
+
+    payment_option = Map.get(params, "payment_option")
+
+    cond do
+      appointment.demo && payment_option -> Map.put(payload, "payment_option", payment_option)
+      !appointment.demo -> Map.put(payload, "payment_option", Map.get(params, "payment_option", "balance"))
+      true -> payload
+    end
   end
 
   defp payer_name_from(appointment) do
