@@ -165,7 +165,8 @@ defmodule Flight.Reports do
         "Name",
         "# of Flights",
         "Time Flown",
-        "Money Billed"
+        "Money Billed",
+        "Total Incl. Tax"
       ],
       rows:
         Enum.map(aircrafts, fn aircraft ->
@@ -173,8 +174,9 @@ defmodule Flight.Reports do
             {aircraft.id, FlightWeb.ViewHelpers.aircraft_display_name(aircraft, :short),
              aircraft.archived},
             num_transactions(aircraft, transactions),
-            time_flown(aircraft, transactions),
-            amount_aircraft_billed(aircraft, transactions)
+            aircraft_time_flown(aircraft, transactions),
+            amount_aircraft_billed(aircraft, transactions),
+            amount_aircraft_incl_tax(aircraft, transactions)
           ]
         end)
         |> add_total_row
@@ -253,7 +255,7 @@ defmodule Flight.Reports do
     |> Repo.all()
     |> Repo.preload(line_items: [:aircraft_detail, :instructor_detail])
     |> Enum.group_by(fn transaction ->
-      Enum.find(transaction.line_items, & &1.aircraft_detail).aircraft_detail.aircraft_id
+        Enum.find(transaction.line_items, & &1.aircraft_detail).aircraft_detail.aircraft_id
     end)
   end
 
@@ -303,16 +305,69 @@ defmodule Flight.Reports do
     end)
   end
 
+  def aircraft_time_flown(aircraft, transactions) do
+    (transactions[aircraft.id] || [])
+    |> Enum.flat_map(& &1.line_items)
+    |> Enum.reduce(0, fn line_item, acc ->
+      case line_item do
+        %{
+          aircraft_id: id,
+          aircraft_detail: %Flight.Billing.AircraftLineItemDetail{
+            hobbs_start: hobbs_start,
+            hobbs_end: hobbs_end
+          }
+        } ->
+
+          if aircraft.id == id do
+            acc + (hobbs_end - hobbs_start)
+          else
+            acc
+          end
+
+        _ ->
+          acc
+      end
+    end)
+  end
+
   def amount_aircraft_billed(aircraft, transactions) do
     (transactions[aircraft.id] || [])
     |> Enum.flat_map(& &1.line_items)
     |> Enum.reduce(0, fn line_item, acc ->
       case line_item do
         %{
+          aircraft_id: id,
           aircraft_detail: %Flight.Billing.AircraftLineItemDetail{},
           amount: amount
         } ->
-          acc + amount
+          if id == aircraft.id do
+            acc + amount
+          else
+            acc
+          end
+
+        _ ->
+          acc
+      end
+    end)
+  end
+
+  def amount_aircraft_incl_tax(aircraft, transactions) do
+    (transactions[aircraft.id] || [])
+    |> Enum.flat_map(& &1.line_items)
+    |> Enum.reduce(0, fn line_item, acc ->
+      case line_item do
+        %{
+          aircraft_id: id,
+          aircraft_detail: %Flight.Billing.AircraftLineItemDetail{},
+          amount: amount,
+          total_tax: total_tax
+        } ->
+          if id == aircraft.id do
+            acc + amount + total_tax
+          else
+            acc
+          end
 
         _ ->
           acc
@@ -361,6 +416,7 @@ defmodule Flight.Reports do
       acc +
         (transaction.paid_by_cash ||
            transaction.paid_by_charge ||
+           transaction.paid_by_balance ||
            transaction.paid_by_check ||
            transaction.paid_by_venmo || 0)
     end)

@@ -64,7 +64,7 @@ defmodule Flight.Billing.CreateInvoice do
     |> case do
       {:ok, invoice} ->
         # here make transaction line items and insert.        
-        if invoice.appointment && (!invoice.demo || invoice.payment_option != :cc) do
+        if invoice.appointment && invoice.status == :paid do
           Appointment.paid(invoice.appointment)
         end
 
@@ -223,9 +223,10 @@ defmodule Flight.Billing.CreateInvoice do
 
   defp create_transaction_items(aircraft, instructor, invoice, school_context, transaction \\ nil)
   defp create_transaction_items(aircraft, instructor, _, _, _) when is_nil(aircraft) and is_nil(instructor), do: nil
-  defp create_transaction_items(aircraft, instructor, %{id: invoice_id}, school_context, transaction) do
+  defp create_transaction_items(aircraft, instructor, %{id: invoice_id, tax_rate: tax_rate}, school_context, transaction) do
+
     {_, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details} = 
-      %{}
+      %{tax_rate: tax_rate}
       |> aircraft_details(aircraft)
       |> instructor_details(instructor)
       |>  FlightWeb.API.DetailedTransactionForm.to_transaction(:normal, school_context)
@@ -277,7 +278,8 @@ defmodule Flight.Billing.CreateInvoice do
       tach_start: line_item.tach_start,
       tach_end: line_item.tach_end,
       rate_per_hour: line_item.rate,
-      block_rate_per_hour: 0
+      block_rate_per_hour: 0,
+      taxable: line_item.taxable
     }
 
     Map.put(form, :aircraft_details, details)
@@ -289,7 +291,8 @@ defmodule Flight.Billing.CreateInvoice do
       instructor_id: line_item.instructor_user_id,
       billing_rate: line_item.rate,
       hour_tenths: Flight.Format.tenths_from_hours(line_item.quantity),
-      pay_rate: 0
+      pay_rate: 0,
+      taxable: line_item.taxable
     }
 
     Map.put(form, :instructor_details, details)
