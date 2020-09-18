@@ -34,6 +34,22 @@
             </ul>
           </div>
         <% end%>
+          <%= if has_cirriculum?(@user) do %>
+            <div class="row">
+              <div id="inserted_at"
+                class="col-md-4">
+                <div class="form-group">
+                  <label>Start Date</label>
+                  <%= text_input f, :inserted_at,
+                    class: "form-control",
+                    value: standard_date_format(input_value(f, :inserted_at)),
+                    readonly: true
+                  %>
+                </div>
+              </div>
+            </div>
+          <%= end %>
+
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
@@ -137,15 +153,15 @@
                   <div class="form-group">
                     <label>Date of Birth</label>
                     <%= date_input f, :date_of_birth,
-                      class: "form-control datetimepickerend",
+                      class: "form-control",
                       value: format_html5_date(input_value(f, :date_of_birth)),
-                      placeholder: "MM/DD/YYYY" %>
+                      placeholder: "DD/MM/YYYY" %>
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
                     <label>Emergency Contact No</label>
-                    <%= text_input f, :emergency_contact_no, class: "form-control", maxlength: "17" %>
+                    <%= text_input f, :emergency_contact_no, class: "form-control", maxlength: "10" %>
                     <%= full_error_tag f, :emergency_contact_no %>
                   </div>
                 </div>
@@ -497,9 +513,9 @@
                   class="col-md-4">
                   <div class="form-group">
                     <label>CFI Expiration</label>
-                    <%= text_input f, :pilot_certificate_expires_at,
+                    <%= date_input f, :pilot_certificate_expires_at,
                       class: "form-control",
-                      value: format_date(input_value(f, :pilot_certificate_expires_at)),
+                      value: format_html5_date(input_value(f, :pilot_certificate_expires_at)),
                       placeholder: "MM/DD/YYYY" %>
                   </div>
                 </div>

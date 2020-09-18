@@ -15,6 +15,13 @@ defmodule FlightWeb.ViewHelpers do
     Flight.Date.format(date)
   end
 
+  def standard_date_format(date) when is_binary(date), do: date
+  def standard_date_format(nil), do: ""
+
+  def standard_date_format(date) do
+    Flight.Date.standard_format(date)
+  end
+
   def format_html5_date(date) when is_binary(date), do: date
   def format_html5_date(nil), do: ""
 

@@ -13,6 +13,22 @@
         </div>
         <%= form_for @changeset, "/instructor/students/#{@user.id}", [as: :user, method: "put", class: "form-horizontal", multipart: true], fn f -> %>
           <div class="card-body">
+          <%= if has_cirriculum?(@user) do %>
+            <div class="row">
+              <div id="inserted_at"
+                class="col-md-4">
+                <div class="form-group">
+                  <label>Start Date</label>
+                  <%= text_input f, :inserted_at,
+                    class: "form-control",
+                    value: standard_date_format(input_value(f, :inserted_at)),
+                    readonly: true
+                  %>
+                </div>
+              </div>
+            </div>
+          <%= end %>
+
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
@@ -123,7 +139,7 @@
                 <div class="col-md-4">
                   <div class="form-group">
                     <label>Emergency Contact No</label>
-                    <%= text_input f, :emergency_contact_no, class: "form-control", maxlength: "17" %>
+                    <%= text_input f, :emergency_contact_no, class: "form-control", maxlength: "10" %>
                     <%= full_error_tag f, :emergency_contact_no %>
                   </div>
                 </div>

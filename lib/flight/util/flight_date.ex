@@ -19,6 +19,10 @@ defmodule Flight.Date do
     Timex.format!(date, "{M}/{D}/{YYYY}")
   end
 
+  def standard_format(date) do
+    Timex.format!(date, "%d/%m/%Y", :strftime)
+  end
+
   def html5_format(date) do
     Timex.format!(date, "%Y-%m-%d", :strftime)
   end
