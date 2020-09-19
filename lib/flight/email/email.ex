@@ -54,18 +54,28 @@ defmodule Flight.Email do
     )
   end
 
-  def invoice_email(to, _invoice_no, path) when is_nil(to) or is_nil(path), do: :error
-  def invoice_email(to, invoice_no, path) do
-    attachment = Bamboo.Attachment.new(path, filename: "invoice-#{invoice_no}.pdf", content_type: "application/pdf")
+  def invoice_email(to, _invoice_no, html) when is_nil(to) or is_nil(html), do: :error
+  def invoice_email(to, invoice_no, html) do
     
     new_email()
     |> to(to)
     |> from("noreply@randonaviation.com")
     |> subject("Invoice# #{invoice_no} - Flight School Manager")
-    |> html_body("Invoice# #{invoice_no} - Flight School Manager")
-    |> put_attachment(attachment)
-    # |> html_body(invoice_html)
+    |> html_body(html)
   end 
+
+  # def invoice_email(to, _invoice_no, path) when is_nil(to) or is_nil(path), do: :error
+  # def invoice_email(to, invoice_no, path) do
+  #   attachment = Bamboo.Attachment.new(path, filename: "invoice-#{invoice_no}.pdf", content_type: "application/pdf")
+    
+  #   new_email()
+  #   |> to(to)
+  #   |> from("noreply@randonaviation.com")
+  #   |> subject("Invoice# #{invoice_no} - Flight School Manager")
+  #   |> html_body("Invoice# #{invoice_no} - Flight School Manager")
+  #   |> put_attachment(attachment)
+  #   # |> html_body(invoice_html)
+  # end 
 
   def invitation_link(%Invitation{} = invitation) do
     Application.get_env(:flight, :web_base_url) <> "/invitations/#{invitation.token}"
