@@ -35,7 +35,7 @@ config :flight, :user_token_salt, Map.fetch!(System.get_env(), "USER_TOKEN_SALT"
 config :logger, level: :info
 
 config :flight, Flight.Mailer,
-  adapter: Bamboo.SendgridAdapter,
+  adapter: Bamboo.SendGridAdapter,
   api_key: System.get_env("SENDGRID_API_KEY")
 
 config :stripity_stripe,
