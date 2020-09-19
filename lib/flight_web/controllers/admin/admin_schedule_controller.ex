@@ -9,7 +9,7 @@ defmodule FlightWeb.Admin.ScheduleController do
     aircrafts = Flight.Scheduling.visible_aircrafts(conn)
     simulators = Flight.Scheduling.visible_simulators(conn)
     rooms = Flight.SchoolAssets.visible_rooms(conn)
-
+    
     render(conn, "index.html", renters: renters, instructors: instructors, aircrafts: aircrafts, simulators: simulators, rooms: rooms)
   end
 

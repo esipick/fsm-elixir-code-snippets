@@ -123,17 +123,18 @@ export const itemsFromAppointment = (appointment, line_items, user_roles) => {
       item.tach_end = appointment.end_tach_time || item.tach_end;
       item.demo = appointment.demo
       
-      if (appointment.demo || user_roles.includes("admin") || user_roles.includes("dispatcher")) {
-        item.enable_rate = true
-        item.persist_rate = true // Do not let AircraftLineItem.jsx overwrite the rate with block rate and hour rate.
-      }
-
       if (appointment.end_hobbs_time > 0) {
         item.disable_flight_hours = true
         item.enable_rate = false
 
       } else {
         item.disable_flight_hours = false
+        item.enable_rate = true
+      }
+
+      if (user_roles.includes("admin") || user_roles.includes("dispatcher")) {
+        item.enable_rate = true
+        item.persist_rate = true // Do not let AircraftLineItem.jsx overwrite the rate with block rate and hour rate.
       }
 
       items.push(item); 
@@ -195,7 +196,7 @@ export const itemsFromInvoice = (invoice, user_roles) => {
 
   if (aircraft && (user_roles.includes("admin") || user_roles.includes("dispatcher"))) {
     aircraft.persist_rate = true // Do not let AircraftLineItem.jsx overwrite the rate with block rate and hour rate.
-    aircraft.enable_rate = false
+    aircraft.enable_rate = true
   }
 
   if (aircraft && aircraft.hobbs_end > 0) {aircraft.disable_flight_hours = true}
