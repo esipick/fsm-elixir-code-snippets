@@ -1,8 +1,8 @@
 .container {
     margin: auto;
     align-content: center;
-    padding-left: 10%;
-    padding-right: 10%;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 div.header-item-left {

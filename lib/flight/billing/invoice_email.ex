@@ -46,19 +46,39 @@ defmodule Flight.InvoiceEmail do
     end
 
     def deliver_email(invoice, school) do
-        assigns = %{
-            school: school,
-            base_url: Application.get_env(:flight, :web_base_url),
-            invoice: invoice
-        }
+        Task.start(fn ->
+            assigns = %{
+                school: school,
+                base_url: Application.get_env(:flight, :web_base_url),
+                invoice: invoice
+            }
 
-        if Enum.count(invoice.line_items) do
-            html = Flight.InvoiceEmail.render(assigns)
+            with true <- Enum.count(invoice.line_items) > 0,
+                html <- Flight.InvoiceEmail.render(assigns),
+                {:ok, pdf_path} <- pdf_from_html(invoice.id, html) do
+                    invoice.user.email
+                    |> Flight.Email.invoice_email(invoice.id, pdf_path)    
+                    |> Flight.Mailer.deliver_now
 
-            invoice.user.email
-            |> Flight.Email.invoice_email(invoice.id, html)
-            |> Flight.Mailer.deliver_later
-            File.write!("beautiful.html", html)
+                    File.rm!(pdf_path)
+            end
+        end)
+        # if Enum.count(invoice.line_items) do
+            
+
+        #     invoice.user.email
+        #     |> Flight.Email.invoice_email(invoice.id, html)
+        #     |> Flight.Mailer.deliver_later
+        #     File.write!("beautiful.html", html)
+        # end
+    end
+
+    def pdf_from_html(id, html) do
+        options = [format: "A4", print_background: true]
+        pdf_path = Path.absname("/tmp/#{id}-invoice.pdf")
+
+        with {:ok, _} <- PuppeteerPdf.Generate.from_string(html, pdf_path, options) do
+            {:ok, pdf_path}
         end
     end
 end
