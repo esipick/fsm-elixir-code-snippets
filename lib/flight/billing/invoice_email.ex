@@ -62,6 +62,7 @@ defmodule Flight.InvoiceEmail do
 
                     File.rm!(pdf_path)
             end
+            |> IO.inspect(label: "Email Delivery")
         end)
         # if Enum.count(invoice.line_items) do
             
