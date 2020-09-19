@@ -30,6 +30,53 @@ defmodule FlightWeb.Admin.UserView do
     end)
   end
 
+  def current_certificate_inputs do
+    [{"Student", "student"},
+      {"Sport", "sport"},
+      {"Recreational", "recreational"},
+      {"Private", "private"},
+      {"Commercial", "commercial"},
+      {"ATP", "atp"}]
+  end
+
+  def aircraft_categories_inputs do
+    [{"Airplane", "airplane"},
+      {"Rotocraft", "rotocraft"},
+      {"Powered Lift", "powered_lift"},
+      {"Glider", "glinder"},
+      {"Lighter Than Air", "lighter_than_air"}]
+  end
+
+  def pilot_class_inputs do
+    [{"SEL", "sel"},
+      {"SES", "ses"},
+      {"MEL", "mel"},
+      {"MES", "mes"},
+      {"Helicopter", "helicopter"},
+      {"Gyroplane", "gyroplane"},
+      {"Airship", "airship"},
+      {"Gas Balloon", "gas_balloon"},
+      {"Hot Air Balloon", "hot_air_balloon"}]
+  end
+
+  def pilot_ratings_inputs do
+    [{"Instrument Airplane", "instr_airplane"},
+      {"Instrument Helicopter", "instr_helicopter"},
+      {"Instrument Powered Lift Night (EASA)", "instr_powered_lift_night_easa"},
+      {"Small Unmanned Aircraft System", "small_unmanned_aircraft_system"}]
+  end
+
+  def pilot_endorsements_inputs do
+    [{"Tailwheel", "tailwheel"},
+      {"High Performance", "high_performance"},
+      {"Complex", "complex"},
+      {"Solo", "solo"},
+      {"Pressurized", "pressurized"},
+      {"Ground-tow", "ground_tow"},
+      {"Aero-tow", "aero_tow"},
+      {"Self-launch", "self_launch"}]
+  end
+
   def role_slugs_available_to_user(user) do
     slugs = Flight.Accounts.Role.available_role_slugs()
 

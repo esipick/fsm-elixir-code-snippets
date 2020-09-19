@@ -6,7 +6,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
   defstruct ~w(
     appointment id school payer_name amount_due amount_paid status payment_date
     editable title total tax_rate total_tax line_items transactions
-    amount_remainder created payment_method user_id bulk_transaction
+    amount_remainder created payment_method user_id bulk_transaction user
   )a
 
   def build(invoice) do
@@ -40,12 +40,42 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       total_tax: invoice.total_tax,
       line_items: invoice.line_items,
       transactions: transactions(invoice),
+      user: invoice.user,
       bulk_transaction:
         Optional.map(
           invoice.bulk_transaction,
           &TransactionStruct.build(&1)
         ),
       appointment: invoice.appointment
+    }
+  end
+
+  def build_skinny(invoice) do
+    invoice =
+      invoice
+      |> Repo.preload([
+        :transactions,
+        :line_items
+      ])
+
+    
+    %InvoiceStruct{
+      id: invoice.id,
+      user_id: invoice.user_id,
+      created: invoice.inserted_at,
+      amount_due: invoice.total_amount_due,
+      amount_paid: amount_paid(invoice),
+      amount_remainder: amount_remainder(invoice),
+      status: invoice.status,
+      payment_date: invoice.date,
+      payment_method: invoice.payment_option,
+      editable: editable(invoice),
+      title: title(invoice),
+      total: invoice.total,
+      tax_rate: invoice.tax_rate,
+      total_tax: invoice.total_tax,
+      line_items: invoice.line_items,
+      transactions: transactions(invoice),
     }
   end
 

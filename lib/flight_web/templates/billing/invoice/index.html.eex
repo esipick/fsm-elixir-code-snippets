@@ -32,9 +32,14 @@ function getPlainDate(start_at) {
           </ul>
 
           <div class="text-right">
+            <%= if can_send_bulk_invoice?(@conn) do %>
+              <a href="/billing/bulk_invoices/send_bulk_invoice" class="btn btn-primary">SEND BULK INVOICE</a>
+            <% end %>
+
             <%= if can_create_bulk_invoice?(@conn) do %>
               <a href="/billing/bulk_invoices/new" class="btn btn-primary">Bulk Payment</a>
             <% end %>
+
 
             <a href="/billing/invoices/new" class="btn btn-primary">New Invoice</a>
           </div>
@@ -116,6 +121,11 @@ function getPlainDate(start_at) {
                             Delete
                           </button>
                         <% end %>
+                      <% end %>
+                      <%= if can_send_invoice?(@conn, invoice) do %>
+                          <a href="/billing/invoices/send_invoice/<%= invoice.id %>" class="btn btn-primary btn-sm ml-1">
+                            SEND INVOICE
+                          </a>
                       <% end %>
                     </div>
                   </td>

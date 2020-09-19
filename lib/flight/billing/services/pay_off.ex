@@ -3,43 +3,45 @@ defmodule Flight.Billing.PayOff do
     PayTransaction
   }
 
-  def balance(nil, _transaction_attrs, _school_context), do: {:error, "Payment method not allowed for user."}
+  def balance(nil, _transaction_attrs, _school_context), do: {:error, "Payment method {Balance} not allowed for user."}
   def balance(user, transaction_attrs, school_context) do
     user_balance = user.balance
     total_amount_due = transaction_attrs[:total]
-  
-    if user_balance > 0 do
-      remainder = user_balance - total_amount_due
-      balance_enough = remainder >= 0
-      total = if balance_enough, do: total_amount_due, else: user_balance
+    remainder = user_balance - total_amount_due
+    balance_enough = remainder >= 0
 
-      transaction_attrs =
-        transaction_attrs
-        |> Map.merge(%{total: total, payment_option: :balance})
+    cond do
+      (user_balance > 0 && (balance_enough || !!user.stripe_customer_id)) ->
+          total = if balance_enough, do: total_amount_due, else: user_balance
 
-      case CreateTransaction.run(user, school_context, transaction_attrs) do
-        {:ok, transaction} ->
-          case PayTransaction.run(transaction) do
-            {:ok, result} ->
-              if balance_enough do
-                {:ok, :balance_enough, result}
-              else
-                {:ok, :balance_not_enough, abs(remainder), result}
+          transaction_attrs =
+            transaction_attrs
+            |> Map.merge(%{total: total, payment_option: :balance})
+    
+          case CreateTransaction.run(user, school_context, transaction_attrs) do
+            {:ok, transaction} ->
+              case PayTransaction.run(transaction) do
+                {:ok, result} ->
+                  if balance_enough do
+                    {:ok, :balance_enough, result}
+                  else
+                    {:ok, :balance_not_enough, abs(remainder), result}
+                  end
+    
+                {:error, changeset} ->
+                  {:error, changeset}
               end
-
+    
             {:error, changeset} ->
               {:error, changeset}
           end
-
-        {:error, changeset} ->
-          {:error, changeset}
-      end
-    else
-      {:error, :balance_is_empty}
+          
+      !!!user.stripe_customer_id -> {:error, "Payment method not available. Balance is less than the due amount and credit card is not added."}
+      true -> {:error, :balance_is_empty}        
     end
   end
 
-  def credit_card(%{stripe_customer_id: nil}, _, _), do: {:error, "Payment method not available for user. Please update the user profile and add a credit card."}
+  def credit_card(%{stripe_customer_id: nil}, _, _), do: {:error, "Payment method {CC} not available for user. Please update the user profile and add a credit card."}
   def credit_card(user, transaction_attrs, school_context) do
     case CreateTransaction.run(user, school_context, transaction_attrs) do
       {:ok, transaction} ->

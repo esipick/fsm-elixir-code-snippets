@@ -22,7 +22,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="apptTitle">Select Date</h5>
+        <h5 class="modal-title" id="dateSelect">Select Date</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
 
@@ -97,7 +97,21 @@
                 </div>
               </div>
             </div>
+
             <div class="row">
+              <label class="col-md-3 col-form-label">Asset *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="apptFor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Asset" placeholder="Asset">
+                    <option selected value="Aircraft">Aircraft</option>
+                    <option value="Simulator">Simulator</option>
+                    <option value="Room">Room</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div id="apptFieldAircraft" class="row">
               <label class="col-md-3 col-form-label">Aircraft *</label>
               <div class="col-md-9">
                 <div class="form-group">
@@ -110,6 +124,35 @@
                 </div>
               </div>
             </div>
+            
+            <div id="apptFieldSimulator" class="row">
+              <label class="col-md-3 col-form-label">Simulator *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="apptSimulator" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Simulator">
+                    <option value="">None</option>
+                    <%= for simulator <- @simulators do %>
+                      <option value="<%= simulator.id %>"><%= aircraft_display_name(simulator, :short) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div id="apptFieldRoom" class="row">
+              <label class="col-md-3 col-form-label">Room *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="apptRoom" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Room">
+                    <option value="">None</option>
+                    <%= for room <- @rooms do %>
+                      <option value="<%= room.id %>"><%= room.location %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
             <div class="row">
               <label class="col-md-3 col-form-label">Note</label>
               <div class="col-md-9">
@@ -128,6 +171,8 @@
                   <select id="unavailFor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Student" placeholder="Student">
                     <option selected value="Instructor">Instructor</option>
                     <option value="Aircraft">Aircraft</option>
+                    <option value="Simulator">Simulator</option>
+                    <option value="Room">Room</option>
                   </select>
                 </div>
               </div>
@@ -156,6 +201,33 @@
                 </div>
               </div>
             </div>
+
+            <div id="fieldSimulator" class="row">
+              <label class="col-md-3 col-form-label">Simulator *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="unavailSimulator" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Simulator">
+                    <%= for simulator <- @simulators do %>
+                      <option value="<%= simulator.id %>"><%= aircraft_display_name(simulator, :short) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div id="fieldRoom" class="row">
+              <label class="col-md-3 col-form-label">Room *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="unavailRoom" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Room">
+                    <%= for room <- @rooms do %>
+                      <option value="<%= room.id %>"><%= room.location %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+
             <div class="row"><label class="col-md-3 col-form-label">Start Time *</label>
               <div class="col-md-9">
                 <div class="form-group"><input id="unavailStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div>

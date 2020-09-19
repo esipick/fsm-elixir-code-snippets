@@ -25,12 +25,20 @@ defmodule FlightWeb.API.AppointmentController do
     aircrafts_available =
       Availability.aircraft_availability(start_at, end_at, excluded_appointment_ids, [], conn)
 
+    simulators_available = Enum.filter(aircrafts_available, &(&1.aircraft.simulator))
+    aircrafts_available = aircrafts_available -- simulators_available
+
+    rooms_available =
+      Availability.room_availability(start_at, end_at, excluded_appointment_ids, [], conn)
+
     render(
       conn,
       "availability.json",
       students_available: students_available,
       instructors_available: instructors_available,
-      aircrafts_available: aircrafts_available
+      aircrafts_available: aircrafts_available,
+      simulators_available: simulators_available,
+      rooms_available: rooms_available
     )
   end
 
@@ -169,8 +177,20 @@ defmodule FlightWeb.API.AppointmentController do
       else
         _ -> current_user.id
       end
-    owner_instructor_permisssions = Permission.new(:appointment_instructor, :modify, {:personal, owner_instructor_user_id})
+    
+    apnmt = conn.assigns[:appointment]
+    now = NaiveDateTime.utc_now()
 
+    restrict_modify =
+      if apnmt && apnmt.start_at != nil && apnmt.start_at < now, do: true, else: false
+
+    owner_instructor_permisssions = 
+      if conn.assigns[:appointment] && (start_at == nil or NaiveDateTime.utc_now() < start_at) && !restrict_modify do
+        Permission.new(:appointment_instructor, :modify, {:personal, owner_instructor_user_id})
+
+      else
+        Permission.new(:appointment_instructor, :view, {:personal, owner_instructor_user_id})
+      end
 
     instructor_user_id_from_appointment =
       case conn.assigns do
@@ -187,7 +207,13 @@ defmodule FlightWeb.API.AppointmentController do
         instructor_user_id_from_appointment
       end
 
-    instructor_permisssions = Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id})
+    instructor_permisssions = 
+      if restrict_modify do
+        Permission.new(:appointment_instructor, :view, {:personal, instructor_user_id})
+
+      else
+        Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id})
+      end
 
     cond do
       user_can?(current_user,

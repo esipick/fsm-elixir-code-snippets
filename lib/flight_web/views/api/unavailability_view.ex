@@ -35,11 +35,21 @@ defmodule FlightWeb.API.UnavailabilityView do
         Optional.map(
           unavailability.aircraft,
           &render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: &1)
+        ),
+      room:
+        Optional.map(
+          unavailability.room,
+          &render(FlightWeb.API.RoomView, "room.json", room: &1)
+        ),
+      simulator:
+        Optional.map(
+          unavailability.simulator,
+          &render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: &1)
         )
     }
   end
 
   def preload(unavailabilities) do
-    Flight.Repo.preload(unavailabilities, [:instructor_user, [aircraft: :inspections]])
+    Flight.Repo.preload(unavailabilities, [:instructor_user, :room, [aircraft: :inspections], [simulator: :inspections]])
   end
 end

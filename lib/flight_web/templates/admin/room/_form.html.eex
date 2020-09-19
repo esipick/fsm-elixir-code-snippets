@@ -39,7 +39,7 @@
       <div class="col-md-6">
         <div class="form-group">
           <label>Capacity (# of people) *</label>
-          <%= select f, :capacity, 1..20, class: "form-control selectpicker" %>
+          <%= number_input f, :capacity, class: "form-control", value: @changeset.data.capacity, min: 1, max: 500, step: "1" %>
           <%= full_error_tag f, :capacity %>
         </div>
       </div>
@@ -79,5 +79,27 @@ $(document).ready(function() {
     }
   });
 });
+$('#data_rate_per_hour').on('input', function(){
+
+  $('#data_rate_per_hour').val(pad($('#data_rate_per_hour').val()));
+});
+
+$('#data_block_rate_per_hour').on('input', function(){
+
+  $('#data_block_rate_per_hour').val(pad($('#data_block_rate_per_hour').val()));
+});
+//### Function to add leading zero(s) if starts with "."
+  function pad(num) {
+    var value = Number(num);
+    var res = num.split(".");
+    if(res[0].length == 0) {
+        value = "0."+num;
+    }
+    if(res[0].length == 0 && res[1].length > 0) {
+        value = "0"+num;
+    }
+  return value;
+  }
+//### END Function to add leading zero(s) if starts with "."
 </script>
 <% end %>

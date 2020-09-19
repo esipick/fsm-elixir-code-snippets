@@ -29,8 +29,12 @@
                 <td class="text-right"><a href="/admin/reports/detail?type=instructors" class="btn btn-primary btn-sm">view</a></td>
               </tr>
               <tr>
-                <td><b>Aircraft</b></span></td>
-                <td class="text-right"><a href="/admin/reports/detail?type=aircraft" class="btn btn-primary btn-sm">view</a></td>
+                <td><b>Aircrafts</b></span></td>
+                <td class="text-right"><a href="/admin/reports/detail?type=aircrafts" class="btn btn-primary btn-sm">view</a></td>
+              </tr>
+              <tr>
+                <td><b>Simulators</b></span></td>
+                <td class="text-right"><a href="/admin/reports/detail?type=simulators" class="btn btn-primary btn-sm">view</a></td>
               </tr>
               <!--
               <tr>

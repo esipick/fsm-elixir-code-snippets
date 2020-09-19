@@ -15,7 +15,7 @@
               <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :aircraft, do: "active" %>"
                   href="/admin/aircrafts"
-                  role="tablist" aria-expanded="false">Aircrafts</a>
+                  role="tablist" aria-expanded="false">Aircraft</a>
               </li>
               <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :simulator, do: "active" %>"
@@ -83,6 +83,7 @@
                         <div id="button-wrapper" class="d-flex justify-content-end">
                           <a href="/admin/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm ml-1">view</a>
                           <a href="/admin/aircrafts/<%= aircraft.id %>/logs" class="btn btn-primary btn-sm ml-1">logs</a>
+                          <a href="/admin/aircrafts/<%= aircraft.id %>/edit" class="btn btn-primary btn-sm ml-1">edit</a>
                           <button stype="button" type="button" class="btn btn-danger btn-sm ml-1 _delete_button" data-aircraft-id="<%= aircraft.id %>">delete</button>
                         </div>
                       </td>

@@ -1,4 +1,38 @@
 $(document).ready(function () {
+  $(function () {
+    $('table').tablesorter({
+        cssAsc: 'up',
+        cssDesc: 'down'
+    });
+  });
+
+  $('th').click(function(){
+    var table = $(this).parents('table').eq(0)
+    var rows = table.find('tr:gt(0)').toArray()
+    
+    if (rows.length > 0) {
+      rows.shift();
+    }
+
+    rows = rows.sort(comparer($(this).index()))
+    
+    console.log("here")
+
+    this.asc = !this.asc
+
+    if (!this.asc){rows = rows.reverse()}
+    for (var i = 0; i < rows.length; i++){table.append(rows[i])}
+  })
+  
+  function comparer(index) {
+      return function(a, b) {
+          var valA = getCellValue(a, index), valB = getCellValue(b, index)
+          return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB)
+      }
+  }
+  
+  function getCellValue(row, index){ return $(row).children('td').eq(index).text() }
+
   function initDataTable() {
     $('#datatable').DataTable({
       "paging": false,
@@ -7,6 +41,7 @@ $(document).ready(function () {
         [10, 25, 50, "All"]
       ],
       responsive: true,
+      bSort: false,
       language: {
         search: "_INPUT_",
         searchPlaceholder: "Search records",

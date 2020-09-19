@@ -54,7 +54,7 @@ defmodule Flight.Mixfile do
       {:jason, "~> 1.1"},
 
       # Flight dependencies
-      {:bamboo, "~> 0.8"},
+      {:bamboo, "~> 1.5"},
       {:bcrypt_elixir, "~> 1.0"},
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 4.0"},
@@ -77,7 +77,7 @@ defmodule Flight.Mixfile do
       {:react_phoenix, "~> 0.6.0"},
       {:fastglobal, "~> 1.0"},
       {:ecto, "~> 3.4.3", override: true},
-
+      {:puppeteer_pdf, "~> 1.0.3"},
       # Dev tools
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:wallaby, "~> 0.24.0", runtime: false, only: :test}

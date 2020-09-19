@@ -22,4 +22,10 @@ defmodule Flight.SchoolAssets do
     |> order_by([r], asc: [r.location])
     |> SchoolScope.scope_query(school_context)
   end
+
+  def visible_rooms(school_context) do
+    school_context
+    |> visible_room_query
+    |> Repo.all
+  end
 end

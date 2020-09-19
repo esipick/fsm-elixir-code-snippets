@@ -747,7 +747,7 @@ defmodule Flight.Billing do
         {:error, :no_stripe_account}
 
       !stripe_account.charges_enabled ->
-        {:error, :charges_disabled}
+        {:error, "You are not set up to receive charges"}
 
       true ->
         token_result =

@@ -11,9 +11,14 @@ class LowBalanceAlert extends PureComponent {
   }
 
   render() {
-    const { balance, total } = this.props;
+    const { balance, total, student } = this.props;
 
     const card_amount = ((total - balance) / 100).toFixed(2);
+
+    const shouldAddcc = student && !student.has_cc;
+
+    var okButtonTitle = "OK";
+    if (shouldAddcc) {okButtonTitle = "Add Credit Card";}
 
     return (
       <Modal
@@ -42,7 +47,7 @@ class LowBalanceAlert extends PureComponent {
               Cancel
             </button>
             <button className="btn btn-primary" onClick={this.props.onAccept}>
-              OK
+              ${okButtonTitle}
             </button>
           </div>
         </div>

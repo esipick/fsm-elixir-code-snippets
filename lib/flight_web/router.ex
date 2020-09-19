@@ -139,6 +139,7 @@ defmodule FlightWeb.Router do
 
     resources("/students", StudentController, only: [:index, :show, :edit, :update]) do
       post("/add_funds", StudentController, :add_funds)
+      put("/update_card", StudentController, :update_card)
     end
   end
 
@@ -152,8 +153,10 @@ defmodule FlightWeb.Router do
     ])
 
     resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show, :delete])
+    get("/invoices/send_invoice/:id", InvoiceController, :send_invoice)
     get("/checkout_success/", InvoiceController, :checkout_success)
     resources("/bulk_invoices", BulkInvoiceController, only: [:new])
+    get("/bulk_invoices/send_bulk_invoice", BulkInvoiceController, :send_bulk_invoice)
     resources("/transactions", TransactionController, only: [:index, :show])
   end
 
@@ -179,7 +182,7 @@ defmodule FlightWeb.Router do
     scope("/reports") do
       get("/detail", ReportsController, :detail)
     end
-    
+
     resources("/transactions", TransactionController, only: []) do
       post("/cancel", TransactionController, :cancel)
     end
@@ -285,6 +288,7 @@ defmodule FlightWeb.Router do
 
     get("/users/autocomplete", UserController, :autocomplete, as: :autocomplete)
     get("/users/by_role", UserController, :by_role, as: :by_role)
+    get("/users/students", UserController, :get_students)
 
     get("/zip_code/:id", UserController, :zip_code)
 
@@ -297,8 +301,11 @@ defmodule FlightWeb.Router do
       resources("/cards", CardController, only: [:create, :update, :delete])
     end
 
+    get("/simulators", AircraftController, :simulators)
+
     get("/aircrafts/autocomplete", AircraftController, :autocomplete, as: :autocomplete)
     resources("/aircrafts", AircraftController, only: [:index, :show])
+    resources("/rooms", RoomController, only: [:index])
 
     resources("/transactions", TransactionController, only: [:create, :index, :show]) do
       post("/approve", TransactionController, :approve)
@@ -351,6 +358,7 @@ defmodule FlightWeb.Router do
 
     resources("/invoices", InvoiceController, only: [:index, :show, :create, :update, :delete])
     resources("/bulk_invoices", BulkInvoiceController, only: [:create])
+    post("/bulk_invoices/send_bulk_invoice", BulkInvoiceController, :send_bulk_invoice)
 
     resources("/courses", CourseController, only: [:index])
 

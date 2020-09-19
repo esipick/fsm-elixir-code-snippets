@@ -9,7 +9,7 @@
         <th>Roles</th>
         <th>Phone #</th>
         <th>Email</th>
-        <th class="disabled-sorting text-right">&nbsp;</th>
+        <th class="text-center">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -23,15 +23,17 @@
           <td><a href="tel:<%= row.phone_number %>"><%= row.phone_number %></a></td>
           <td><a href="mailto:<%= row.email %>"><%= row.email %></a></td>
           <td class="text-right">
-            <%= if @tab == :main do %>
-              <a href="/admin/users/<%= row.user_id %>" class="btn btn-primary btn-sm">view</a>
-              <a href="/admin/users/<%= row.user_id %>/edit" class="btn btn-primary btn-sm">edit</a>
-              <button type="button" class="btn btn-danger btn-sm _delete_button" data-school-id="<%= row.user_id %>">
-                Delete
-              </button>
-            <% else %>
-              <a href="/admin/users/<%= row.user_id %>/restore?role=<%= @role %>&from_contacts=<%= @from_contacts%>" class="btn btn-primary btn-sm">Restore</a>
-            <% end %>
+            <div id="button-wrapper" class="d-flex justify-content-end">
+              <%= if @tab == :main do %>
+                <a href="/admin/users/<%= row.user_id %>" class="btn btn-primary btn-sm ml-1">view</a>
+                <a href="/admin/users/<%= row.user_id %>/edit" class="btn btn-primary btn-sm ml-1">edit</a>
+                <button type="button" class="btn btn-danger btn-sm ml-1 _delete_button" data-school-id="<%= row.user_id %>">
+                  Delete
+                </button>
+              <% else %>
+                <a href="/admin/users/<%= row.user_id %>/restore?role=<%= @role %>&from_contacts=<%= @from_contacts%>" class="btn btn-primary btn-sm">Restore</a>
+              <% end %>
+            </div>
           </td>
         </tr>
       <% end %>

@@ -7,13 +7,17 @@ defmodule FlightWeb.Instructor.ScheduleController do
     current_user = conn.assigns.current_user
     renters = Flight.Accounts.users_with_roles([Role.student(), Role.renter()], conn)
     instructors = Flight.Accounts.users_with_roles([Role.instructor()], conn)
-    aircrafts = Flight.Scheduling.visible_air_assets(conn)
+    aircrafts = Flight.Scheduling.visible_aircrafts(conn)
+    simulators = Flight.Scheduling.visible_simulators(conn)
+    rooms = Flight.SchoolAssets.visible_rooms(conn)
 
     render(conn, "index.html",
       renters: renters,
       instructors: instructors,
       aircrafts: aircrafts,
-      user_id: current_user.id
+      user_id: current_user.id,
+      simulators: simulators, 
+      rooms: rooms
     )
   end
 

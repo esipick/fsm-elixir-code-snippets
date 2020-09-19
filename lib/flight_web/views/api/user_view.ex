@@ -44,7 +44,31 @@ defmodule FlightWeb.API.UserView do
       stripe_account_id: nil,
       school_id: user.school_id,
       show_student_accounts_summary: user.school.show_student_accounts_summary,
-      show_student_flight_hours: user.school.show_student_flight_hours
+      show_student_flight_hours: user.school.show_student_flight_hours,
+
+      date_of_birth: user.date_of_birth,
+      gender: user.gender,
+      emergency_contact_no: user.emergency_contact_no,
+      d_license_no: user.d_license_no,
+      d_license_expires_at: user.d_license_expires_at,
+      d_license_country: user.d_license_country,
+      d_license_state: user.d_license_state,
+      passport_no: user.passport_no,
+      passport_expires_at: user.passport_expires_at,
+      passport_country: user.passport_country,
+      passport_issuer_name: user.passport_issuer_name,
+      last_faa_flight_review_at: user.last_faa_flight_review_at,
+      renter_policy_no: user.renter_policy_no,
+      renter_insurance_expires_at: user.renter_insurance_expires_at,
+
+      pilot_current_certificate: user.pilot_current_certificate,
+      pilot_aircraft_categories: user.pilot_aircraft_categories,
+      pilot_class: user.pilot_class,
+      pilot_ratings: user.pilot_ratings,
+      pilot_endorsements: user.pilot_endorsements,
+      pilot_certificate_number: user.pilot_certificate_number,
+      pilot_certificate_expires_at: user.pilot_certificate_expires_at
+
     }
   end
 
@@ -56,7 +80,8 @@ defmodule FlightWeb.API.UserView do
       last_name: user.last_name,
       balance: user.balance,
       billing_rate: user.billing_rate,
-      email: user.email
+      email: user.email,
+      has_cc: !!user.stripe_customer_id
     }
   end
 

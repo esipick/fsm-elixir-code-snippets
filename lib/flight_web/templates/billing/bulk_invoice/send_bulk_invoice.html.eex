@@ -1,0 +1,13 @@
+<div class="panel-header panel-header-sm"></div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div id="invoice-form">
+        <%= ReactPhoenix.ClientSide.react_component("Components.BulkInvoiceEmailForm", @props) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>

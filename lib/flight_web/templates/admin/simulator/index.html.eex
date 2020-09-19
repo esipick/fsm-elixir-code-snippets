@@ -14,7 +14,7 @@
               <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :aircraft, do: "active" %>"
                   href="/admin/aircrafts"
-                  role="tablist" aria-expanded="false">Aircrafts</a>
+                  role="tablist" aria-expanded="false">Aircraft</a>
               </li>
               <li class="nav-item col-xs-2">
                 <a class="nav-link <%= if @tab == :simulator, do: "active" %>"

@@ -18,7 +18,8 @@ import { itemsFromInvoice } from './line_items/line_item_utils';
 import LineItemsTable from './LineItemsTable';
 import LowBalanceAlert from './LowBalanceAlert';
 import ErrorAlert from './ErrorAlert';
-import {itemsFromAppointment} from './line_items/line_item_utils';
+import ConfirmAlert from './ConfirmAlert';
+import {itemsFromAppointment, containsSimulator} from './line_items/line_item_utils';
 
 import {
   BALANCE, CASH, CHECK, VENMO, MARK_AS_PAID, PAY,
@@ -34,14 +35,12 @@ class Form extends Component {
 
     this.formRef = null;
     const { creator, staff_member, appointment } = props;
-    const {stripe_account_id, pub_key} = props
     var {payment_method} = props
 
     const appointments = appointment ? [appointment] : [];
     payment_method = payment_method && this.getPaymentMethod(payment_method)
     payment_method = payment_method || {}
-    console.log(payment_method)
-    // if not staff member then its a student i suppose
+    
     this.state = {
       appointment,
       appointments,
@@ -57,6 +56,7 @@ class Form extends Component {
       error_alert_total_due_open: false,
       error_alert_total_tax_open: false,
       error_date_alert_open: false,
+      confirm_alert_open: false,
       balance_warning_open: false,
       balance_warning_accepted: false,
       payment_method: payment_method || {},
@@ -80,12 +80,18 @@ class Form extends Component {
     this.loadAppointments();
     this.loadAircrafts();
     this.loadInstructors();
+    this.loadRooms();
   }
 
   loadAircrafts = () => {
     return http.get({ url: '/api/aircrafts', headers: authHeaders() })
       .then(r => r.json())
-      .then(r => { this.setState({ aircrafts: r.data }); })
+      .then(r => { 
+        const simulators = r.data.filter(function(item){return item.simulator})
+        const aircrafts = r.data.filter(function(item){return !item.simulator})
+
+        this.setState({ aircrafts: aircrafts, simulators: simulators }); 
+      })
       .catch(err => {
         err.json().then(e => { console.warn(e); });
       });
@@ -100,6 +106,15 @@ class Form extends Component {
       });
   }
 
+  loadRooms = () => {
+    return http.get({ url: '/api/rooms', headers: authHeaders() })
+      .then(r => r.json())
+      .then(r => { this.setState({ rooms: r.data }); })
+      .catch(err => {
+        err.json().then(e => { console.warn(e); });
+      });
+  }
+
   loadInvoice = () => {
     this.setState({ invoice_loading: true });
 
@@ -108,7 +123,7 @@ class Form extends Component {
       headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
-        const invoice = itemsFromInvoice(r.data);
+        const invoice = itemsFromInvoice(r.data, this.props.user_roles);
         const demo = invoice.appointment ? invoice.appointment.demo : false
 
         this.setState({
@@ -157,7 +172,7 @@ class Form extends Component {
   loadStudents = () => {
     if (!this.props.staff_member) return;
 
-    return http.get({ url: '/api/users/by_role?role=student', headers: authHeaders() })
+    return http.get({ url: '/api/users?invoice_payee', headers: authHeaders() })
       .then(r => r.json())
       .then(r => { this.setState({ students: r.data }); })
       .catch(err => {
@@ -219,7 +234,7 @@ class Form extends Component {
   }
 
   setAppointment = (appointment) => {
-    const line_items = itemsFromAppointment(appointment, [])
+    const line_items = itemsFromAppointment(appointment, [], this.state.user_roles)
     this.setState({appointment})
     
     this.calculateTotal(line_items, (values) => {
@@ -365,10 +380,14 @@ class Form extends Component {
         console.warn(error_body);
         const { id = this.state.id, stripe_error = '', error = '', errors = {} } = error_body;
         const action = id ? 'edit' : 'create';
+        
+        const line_items = this.state.line_items || []
+        const isInstructorOnly = line_items.length == 1 && line_items[0].type === "instructor"
+
         this.setState({
           saving: false, id, action,
           stripe_error, error, errors,
-          error_alert_total_open: this.state.total <= 0
+          error_alert_total_open: !isInstructorOnly && this.state.total <= 0
         });
       });
     });
@@ -419,19 +438,24 @@ class Form extends Component {
       });
   }
 
+  confirmCloseAlert = () => {
+    this.setState({confirm_alert_open: true});
+  }
+
   submitForm = ({ pay_off }) => {
-    console.log("saving")
+    const line_items = this.state.line_items || []
+    const isInstructorOnly = line_items.length == 1 && line_items[0].type === "instructor"
 
     if (this.state.saving) return;
-    if (this.state.total <= 0) {
+    if (!isInstructorOnly && this.state.total <= 0) {
       this.setState({error_alert_total_open: true});
       return;
     }
-    if (this.state.total_amount_due <= 0) {
+    if (!isInstructorOnly && this.state.total_amount_due <= 0) {
       this.setState({error_alert_total_due_open: true});
       return;
     }
-    if (this.state.total_tax < 0) {
+    if (!isInstructorOnly &&this.state.total_tax < 0) {
       this.setState({error_alert_total_tax_open: true});
       return;
     }
@@ -444,7 +468,13 @@ class Form extends Component {
           }
           else{
             if (pay_off && (typeof(this.state.appointment) == "undefined" || (this.state.appointment) && Date.now() < Date.parse(moment.utc(this.state.appointment.start_at).add(+(moment().utcOffset()), 'm').format().split("Z")[0]))) {
-              this.setState({error_date_alert_open: true});
+              
+              var appointmentMsg = "Invoice associated with aircraft cannot be paid before the starting time of appointment."
+              if (containsSimulator(this.state.line_items)) {
+                appointmentMsg = "Invoice associated with simulator cannot be paid before the starting time of appointment."
+              }
+              
+              this.setState({error_date_alert_open: true, appointmentMsg: appointmentMsg});
               return;
             }
           }
@@ -503,10 +533,37 @@ class Form extends Component {
     this.setState({ error_date_alert_open: false });
   }
 
+  confirmAlert = () => {
+    this.setState({ confirm_alert_open: false });
+    const { id } = this.state;
+    const location = id ? `/billing/invoices/${id}` : `/billing/invoices`;
+    window.location = location;
+  }
+
+  rejectAlert = () => {
+    this.setState({ confirm_alert_open: false });
+  }
+
   acceptBalanceWarning = () => {
     this.setState({ balance_warning_open: false, balance_warning_accepted: true });
+    const {student, user_roles} = this.state;
+    const shouldAddcc = (student && !student.has_cc)
+    
+    if (shouldAddcc) {
+      var path = `/admin/users/${student.id}/edit`
 
-    this.saveInvoice({ pay_off: true });
+      if(user_roles && user_roles.includes("instructor")) {
+        path = `/instructor/students/${student.id}/edit`
+
+      } else if ( user_roles && user_roles.includes('student')) {
+        path = `/student/profile/edit`
+      }
+
+      window.location = path
+
+    } else {
+      this.saveInvoice({ pay_off: true });
+    }
   }
 
   userErrors = (errorText) => {
@@ -538,8 +595,8 @@ class Form extends Component {
 
   render() {
     const { custom_line_items, staff_member } = this.props;
-    const { aircrafts, appointment, appointment_loading, appointments,
-      instructors, date, errors, id, invoice_loading, line_items, payment_method, demo, sales_tax,
+    const { aircrafts, simulators, appointment, appointment_loading, appointments,
+      instructors, rooms, date, errors, id, invoice_loading, line_items, payment_method, demo, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
 
@@ -607,6 +664,7 @@ class Form extends Component {
                 <div className="form-group">
                   {!invoice_loading &&
                     <LineItemsTable aircrafts={aircrafts}
+                      simulators={simulators}
                       appointment={appointment}
                       student={student}
                       creator={this.props.creator}
@@ -614,6 +672,7 @@ class Form extends Component {
                       custom_line_items={custom_line_items}
                       errors={errors}
                       instructors={instructors}
+                      rooms={rooms}
                       line_items={line_items}
                       onChange={this.onLineItemsTableChange}
                       calculateTotal={this.calculateTotal}
@@ -623,7 +682,7 @@ class Form extends Component {
                       total_tax={total_tax}
                       current_user_id={this.state.current_user_id}
                       user_roles = {this.state.user_roles} />}
-                </div>
+              </div>
 
                 <div className="form-group">
                   <label>
@@ -647,8 +706,13 @@ class Form extends Component {
                     value="Save for later"
                     disabled={saving}
                     onClick={() => { this.submitForm({ pay_off: false }) }} />
+                  <input className="btn btn-default"
+                    type="button"
+                    value="Cancel"
+                    onClick={() => { this.confirmCloseAlert() }} />
 
                   {this.saveAndPayButton()}
+
                 </div>
 
                 <div className="form-group">
@@ -663,6 +727,7 @@ class Form extends Component {
           onClose={this.closeBalanceWarning}
           onAccept={this.acceptBalanceWarning}
           balance={student ? student.balance : 0}
+          student={student}
           total={total_amount_due}
         />
 
@@ -684,8 +749,16 @@ class Form extends Component {
 
       <ErrorAlert open={this.state.error_date_alert_open}
           onAccept={this.closeErrorDateAlert}
-          text="Invoice associated with aircraft cannot be paid before the starting time of appointment."
+          text={this.state.appointmentMsg}
       />
+
+
+      <ConfirmAlert open={this.state.confirm_alert_open}
+          onAccept={this.confirmAlert}
+          onReject={this.rejectAlert}
+          text="Changes will not be saved. Are you sure that you want to cancel! "
+      />
+
       </div>
     );
   }

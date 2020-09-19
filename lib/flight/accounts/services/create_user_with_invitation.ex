@@ -82,13 +82,15 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
       last_name: user.last_name,
       email: user.email,
       role_id: role.id,
-      user_id: user.id
+      user_id: user.id,
+      phone_number: Map.get(user, :phone_number)
     }
 
     create_invitation(attrs, school_context, false)
   end
 
   def create_invitation(attrs, school_context, require_uniq? \\ true) do
+    phone = Map.get(attrs, :phone_number) || "000-000-0000"
     changeset =
       %Invitation{}
       |> SchoolScope.school_changeset(school_context)
@@ -132,9 +134,9 @@ defmodule Flight.Accounts.CreateUserWithInvitation do
 
         params = 
           attrs
-          |> Map.take(["email", "first_name", "last_name", "school_id"])
-          |> Map.put("phone_number", "000-000-0000")
+          |> Map.take(["email", "first_name", "last_name", "school_id", "phone_number"])
           |> Map.put("password", password)
+          |> Map.put("phone_number", phone)
           |> Map.put("archived", false)
 
         user = if user, do: Repo.preload(user, :roles), else: %User{}

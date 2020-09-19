@@ -116,6 +116,14 @@ defmodule Flight.Scheduling do
     visible_air_assets_query(school_context) |> Repo.all()
   end
 
+  def visible_simulators(school_context) do
+    visible_simulator_query(school_context) |> Repo.all()
+  end
+
+  def visible_aircrafts(school_context) do
+    visible_aircraft_query(school_context) |> Repo.all()
+  end
+
   def visible_aircraft_count(school_context) do
     visible_aircraft_query(school_context)
     |> Repo.aggregate(:count, :id)
@@ -339,8 +347,10 @@ defmodule Flight.Scheduling do
         school_context
       ) do
     school = SchoolScope.get_school(school_context)
+    role = List.first(Repo.preload(modifying_user, :roles).roles)
+
     attrs =
-      if Map.get(attrs, :instructor_user_id) in [nil, ""] and Repo.preload(modifying_user, :roles).roles |> List.first |> Map.get(:slug)  == "instructor" do
+      if Map.get(attrs, :instructor_user_id) in [nil, ""] and Map.get(role, :slug)  == "instructor" do
         Map.put(attrs, "owner_user_id", modifying_user.id)
       else
         attrs
@@ -352,7 +362,7 @@ defmodule Flight.Scheduling do
       |> Appointment.changeset(attrs, school.timezone)
 
     is_create? = is_nil(appointment.id)
-    
+
     if changeset.valid? do
 
       {temp_changeset, appointment} = 
@@ -374,7 +384,8 @@ defmodule Flight.Scheduling do
       end_at = get_field(changeset, :end_at) # |> utc_to_walltime(school.timezone)
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
-      aircraft_id = get_field(changeset, :aircraft_id)
+      aircraft_id = get_field(changeset, :aircraft_id) || get_field(changeset, :simulator_id)
+      room_id = get_field(changeset, :room_id)
       _type = get_field(changeset, :type)
       
       excluded_appointment_ids =
@@ -383,6 +394,8 @@ defmodule Flight.Scheduling do
         else
           []
         end
+
+      # if appointment has started. do not let instructor and 
 
       status =
         if user_id && user_id != "" do
@@ -446,25 +459,53 @@ defmodule Flight.Scheduling do
 
           case status do
             :available -> changeset
-            other -> add_error(changeset, :aircraft, "is #{other}", status: status)
+            other -> 
+              key = if get_field(changeset, :simulator_id), do: :simulator, else: :aircraft
+
+              add_error(changeset, key, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+      changeset =
+        if room_id do
+
+          status =
+            Availability.room_status(
+              room_id,
+              start_at,
+              end_at,
+              excluded_appointment_ids,
+              [],
+              school_context
+            )
+
+          case status do
+            :available -> changeset
+            other -> 
+              add_error(changeset, :room, "is #{other}", status: status)
           end
         else
           changeset
         end
       
       new_aircraft_id = get_change(changeset, :aircraft_id) || get_field(changeset, :aircraft_id)
+      new_simulator_id = get_change(changeset, :simulator_id) || get_field(changeset, :simulator_id)
 
       {should_delete_item, changeset} = 
-        if appointment.aircraft_id != nil && appointment.aircraft_id != new_aircraft_id do
+        if (appointment.aircraft_id != nil && appointment.aircraft_id != new_aircraft_id) or
+          (appointment.simulator_id != nil && appointment.simulator_id != new_simulator_id) do
           changeset =
             changeset
             |> Appointment.changeset(%{start_tach_time: nil, end_tach_time: nil, start_hobbs_time: nil, end_hobbs_time: nil}, school.timezone)
+
           {true, changeset}
+
         else
           {false, changeset}
         end
-
-
+        
       case Repo.insert_or_update(changeset) do
         {:ok, appointment} ->
 
@@ -547,7 +588,7 @@ defmodule Flight.Scheduling do
         school_context
       ) do
     school = SchoolScope.get_school(school_context)
-
+    # school_context = Map.put(school_context, :school, school)
     changeset =
       unavailability
       |> SchoolScope.school_changeset(school)
@@ -556,7 +597,8 @@ defmodule Flight.Scheduling do
     if changeset.valid? do
       {:ok, _} = apply_action(changeset, :insert)
       instructor_user_id = get_field(changeset, :instructor_user_id)
-      aircraft_id = get_field(changeset, :aircraft_id)
+      aircraft_id = get_field(changeset, :aircraft_id) || get_field(changeset, :simulator_id)
+      room_id = get_field(changeset, :room_id)
 
       excluded_unavailability_ids = if unavailability.id, do: [unavailability.id], else: []
 
@@ -584,10 +626,12 @@ defmodule Flight.Scheduling do
           changeset
         end
 
+      start_at = get_field(changeset, :start_at) #|> utc_to_walltime(school.timezone)
+      end_at = get_field(changeset, :end_at) #|> utc_to_walltime(school.timezone)
+      
       changeset =
         if aircraft_id do
-          start_at = get_field(changeset, :start_at) |> utc_to_walltime(school.timezone)
-          end_at = get_field(changeset, :end_at) |> utc_to_walltime(school.timezone)
+
           status =
             Availability.aircraft_status(
               :unavailability,
@@ -601,7 +645,33 @@ defmodule Flight.Scheduling do
 
           case status do
             :available -> changeset
-            other -> add_error(changeset, :aircraft, "is #{other}", status: status)
+            other -> 
+              key = if get_field(changeset, :simulator_id), do: :simulator, else: :aircraft
+
+              add_error(changeset, key, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+      changeset =
+        if room_id do
+
+          status =
+            Availability.room_status(
+              :unavailability,
+              room_id,
+              start_at,
+              end_at,
+              excluded_unavailability_ids,
+              [],
+              school_context
+            )
+
+          case status do
+            :available -> changeset
+            other -> 
+              add_error(changeset, :room, "is #{other}", status: status)
           end
         else
           changeset

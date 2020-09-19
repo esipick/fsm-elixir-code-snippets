@@ -31,6 +31,20 @@ defmodule Flight.Accounts do
     |> Repo.all()
   end
 
+  def get_aircrafts_only(school_context) do
+    Flight.Scheduling.Aircraft
+    |> SchoolScope.scope_query(school_context)
+    |> where([u], u.simulator == false and u.archived == false)
+    |> Repo.all()
+  end
+
+  def get_simulators_only(school_context) do
+    Flight.Scheduling.Aircraft
+    |> SchoolScope.scope_query(school_context)
+    |> where([u], u.simulator == true and u.archived == false)
+    |> Repo.all()
+  end
+
   def get_school_user_by_id(id, school_context) do
     User
     |> SchoolScope.scope_query(school_context)
@@ -84,7 +98,7 @@ defmodule Flight.Accounts do
   end
 
   def roles_visible_to("renter") do
-    [:admin, :dispatcher]
+    [:admin, :dispatcher, :instructor]
   end
 
   def roles_visible_to("admin") do
@@ -115,6 +129,13 @@ defmodule Flight.Accounts do
   def get_user(id, school_context) do
     User
     |> default_users_query(school_context)
+    |> where([u], u.id == ^id)
+    |> Repo.one()
+  end
+
+  def get_user_regardless(id, school_context) do
+    User
+    |> all_users_query(school_context)
     |> where([u], u.id == ^id)
     |> Repo.one()
   end
@@ -545,7 +566,30 @@ defmodule Flight.Accounts do
       :medical_rating,
       :medical_expires_at,
       :certificate_number,
-      :inserted_at
+      :inserted_at,
+
+      :date_of_birth,
+      :gender,
+      :emergency_contact_no,
+      :d_license_no,
+      :d_license_expires_at,
+      :d_license_country,
+      :d_license_state,
+      :passport_no,
+      :passport_expires_at,
+      :passport_country,
+      :passport_issuer_name,
+      :last_faa_flight_review_at,
+      :renter_policy_no,
+      :renter_insurance_expires_at,
+
+      :pilot_current_certificate,
+      :pilot_aircraft_categories,
+      :pilot_class,
+      :pilot_ratings,
+      :pilot_endorsements,
+      :pilot_certificate_number,
+      :pilot_certificate_expires_at
     ]
   end
 
@@ -664,6 +708,14 @@ defmodule Flight.Accounts do
     from(
       u in query,
       where: u.archived == false,
+      order_by: u.last_name
+    )
+    |> SchoolScope.scope_query(school_context)
+  end
+
+  def all_users_query(query, school_context) do
+    from(
+      u in query,
       order_by: u.last_name
     )
     |> SchoolScope.scope_query(school_context)

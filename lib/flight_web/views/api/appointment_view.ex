@@ -4,7 +4,9 @@ defmodule FlightWeb.API.AppointmentView do
   def render("availability.json", %{
         students_available: students_available,
         instructors_available: instructors_available,
-        aircrafts_available: aircrafts_available
+        aircrafts_available: aircrafts_available,
+        simulators_available: simulators_available,
+        rooms_available: rooms_available
       }) do
     %{
       data: %{
@@ -28,6 +30,20 @@ defmodule FlightWeb.API.AppointmentView do
             FlightWeb.API.AppointmentView,
             "availability_aircraft.json",
             as: :availability_aircraft
+          ),
+        simulators:
+          render_many(
+            simulators_available,
+            FlightWeb.API.AppointmentView,
+            "availability_aircraft.json",
+            as: :availability_aircraft
+          ),
+        rooms: 
+          render_many(
+            rooms_available,
+            FlightWeb.API.AppointmentView,
+            "availability_room.json",
+            as: :availability_room
           )
       }
     }
@@ -51,6 +67,16 @@ defmodule FlightWeb.API.AppointmentView do
     }
   end
 
+  def render("availability_room.json", %{availability_room: room}) do
+    %{
+      user: %{
+        id: room.room.id,
+        first_name: room.room.location
+      },
+      status: room.status
+    }
+  end
+
   def render("show.json", %{appointment: appointment}) do
     %{
       data: render("appointment.json", appointment: appointment)
@@ -70,7 +96,6 @@ defmodule FlightWeb.API.AppointmentView do
   end
 
   def render("appointment.json", %{appointment: appointment}) do
-
     %{
       id: appointment.id,
       start_at: appointment.start_at, # utc response
@@ -95,6 +120,16 @@ defmodule FlightWeb.API.AppointmentView do
       end_tach_time: Map.get(appointment, :end_tach_time),
       start_hobbs_time: Map.get(appointment, :start_hobbs_time),
       end_hobbs_time: Map.get(appointment, :end_hobbs_time),
+      room:
+        Optional.map(
+          appointment.room,
+          &render(FlightWeb.API.RoomView, "room.json", room: &1)
+        ),
+      simulator:
+        Optional.map(
+          appointment.simulator,
+          &render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: &1)
+        ),
       aircraft:
         Optional.map(
           appointment.aircraft,
@@ -104,6 +139,6 @@ defmodule FlightWeb.API.AppointmentView do
   end
 
   def preload(appointments) do
-    Flight.Repo.preload(appointments, [:user, :instructor_user, [aircraft: :inspections]])
+      Flight.Repo.preload(appointments, [:user, :instructor_user, :room, [simulator: :inspections], [aircraft: :inspections]])
   end
 end

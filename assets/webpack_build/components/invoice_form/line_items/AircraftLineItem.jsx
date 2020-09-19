@@ -5,7 +5,7 @@ import Select from 'react-select';
 import Error from '../../common/Error';
 
 import {
-  DESCRIPTION_SELECT_OPTS, DEFAULT_TYPE, TYPES,
+  DESCRIPTION_SELECT_OPTS, DEFAULT_TYPE, TYPES, SIMULATOR_HOURS,
   NUMBER_INPUT_OPTS, DEFAULT_RATE, populateHobbsTach
 } from './line_item_utils';
 
@@ -25,7 +25,7 @@ class AircraftLineItem extends Component {
 
     const { creator, staff_member, line_item } = props;
     const { aircraft } = line_item;
-
+    
     this.state = {
       aircraft,
       line_item,
@@ -56,7 +56,8 @@ class AircraftLineItem extends Component {
   }
 
   setRate = (line_item) => {
-    if (line_item.demo && line_item.rate > 0) {      
+    
+    if ((line_item.demo || line_item.persist_rate) && line_item.rate > 0) {      
       this.calculateAmount(line_item)
       return
     }
@@ -82,7 +83,7 @@ class AircraftLineItem extends Component {
     const rate = floatValue >= MAX_INT ? MAX_INT : floatValue * 100;
     let line_item = Object.assign({}, this.state.line_item, { rate: rate});
 
-    if (!line_item.demo) {return}
+    if (!line_item.demo && !line_item.enable_rate) {return}
     this.setRate(line_item)
   }
 
@@ -98,11 +99,15 @@ class AircraftLineItem extends Component {
     this.props.onRemove(this.state.line_item.id);
   }
 
-  setAircraft = (aircraft) => {
+  setAircraft = (aircraft) => { 
     const rate = aircraft ? this.state.line_item.rate : DEFAULT_RATE;
     const aircraft_id = aircraft ? aircraft.id : null;
     const amount = rate * this.state.line_item.quantity;
-    const payload = { rate, aircraft_id, amount };
+    var payload = { rate, aircraft_id, amount };
+    
+    if (this.props.user_roles && (this.props.user_roles.includes("admin") || this.props.user_roles.includes("dispatcher"))) {
+      payload = { rate, aircraft_id, amount, enable_rate: true, persist_rate: true }
+    }
 
     const line_item = Object.assign(
       {}, this.state.line_item, payload, populateHobbsTach(aircraft)
@@ -118,15 +123,21 @@ class AircraftLineItem extends Component {
 
     disable_selection = disable_selection || !editable
 
+    var options = this.props.aircrafts
+
+    if (this.props.line_item.description === SIMULATOR_HOURS) {
+      options = this.props.simulators
+    }
+
     return (
       <div>
         <Select classNamePrefix="react-select"
-          getOptionLabel={(o) => o.tail_number}
+          getOptionLabel={(o) => o.tail_number || (o.make + ' ' + o.model)}
           getOptionValue={(o) => o.id}
           isClearable={true}
           isDisabled={disable_selection}
           onChange={this.setAircraft}
-          options={this.props.aircrafts}
+          options={options}
           placeholder="Tail #"
           value={aircraft} />
         <Error text={errors.aircraft_id} />
@@ -177,7 +188,7 @@ class AircraftLineItem extends Component {
     const hobbsErr = (this.props.line_item.errors || {}).aircraft_details || {};
     const hobbsWrapperClass = (hobbsErr.hobbs_start || hobbsErr.hobbs_end) ? 'lc-row-with-error' : '';
     const tachWrapperClass = (hobbsErr.tach_start || hobbsErr.tach_end) ? 'lc-row-with-error' : '';
-    
+
     return (
       <React.Fragment>
         <tr key={id} className={wrapperClass}>

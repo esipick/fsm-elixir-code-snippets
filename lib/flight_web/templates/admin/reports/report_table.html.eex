@@ -31,7 +31,7 @@
                 <thead>
                   <tr>
                     <%= for header <- @report_table.headers do %>
-                      <th><%= header %></th>
+                      <th class="noselect"><%= header %> <i class="fa fa-fw fa-sort" style="font-size:12px;color:gray"></i></th>
                     <% end %>
                   </tr>
                 </thead>
@@ -43,7 +43,8 @@
                           "students" -> render("_student_row.html", row: row)
                           "instructors" -> render("_instructor_row.html", row: row)
                           "renters" -> render("_renter_row.html", row: row)
-                          "aircraft" -> render("_aircraft_row.html", row: row)
+                          "aircrafts" -> render("_aircraft_row.html", row: row)
+                          "simulators" -> render("_aircraft_row.html", row: row)
                           "financials" -> render("_financial_row.html", row: row)
                         end
                       %>

@@ -39,6 +39,14 @@ defmodule FlightWeb.API.BulkInvoiceController do
     end
   end
 
+  def send_bulk_invoice(conn, %{"bulk_invoice" => %{"invoice_ids" => invoice_ids, "user_id" => user_id}}) when is_list(invoice_ids) do
+      Flight.Billing.Services.Utils.send_bulk_invoice_email(user_id, invoice_ids, conn)
+      
+      conn
+      |> put_status(201)
+      |> json(%{data: "success"})
+  end
+
   defp authorize_create(conn, _) do
     user = conn.assigns.current_user
 

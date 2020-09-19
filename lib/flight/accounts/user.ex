@@ -11,6 +11,30 @@ defmodule Flight.Accounts.User do
 
   schema "users" do
     field(:email, :string)
+
+    field(:date_of_birth, Flight.Date)
+    field(:gender, :string)
+    field(:emergency_contact_no, :string)
+    field(:d_license_no, :string)
+    field(:d_license_expires_at, Flight.Date)
+    field(:d_license_country, :string)
+    field(:d_license_state, :string)
+    field(:passport_no, :string)
+    field(:passport_expires_at, Flight.Date)
+    field(:passport_country, :string)
+    field(:passport_issuer_name, :string)
+    field(:last_faa_flight_review_at, Flight.Date)
+    field(:renter_policy_no, :string)
+    field(:renter_insurance_expires_at, Flight.Date)
+
+    field(:pilot_current_certificate, {:array, :string})
+    field(:pilot_aircraft_categories, {:array, :string})
+    field(:pilot_class, {:array, :string})
+    field(:pilot_ratings, {:array, :string})
+    field(:pilot_endorsements, {:array, :string})
+    field(:pilot_certificate_number, :string)
+    field(:pilot_certificate_expires_at, Flight.Date)
+
     field(:first_name, :string)
     field(:last_name, :string)
     field(:password, :string, virtual: true)
@@ -248,7 +272,30 @@ defmodule Flight.Accounts.User do
       :medical_rating,
       :medical_expires_at,
       :certificate_number,
-      :awards
+      :awards,
+
+      :date_of_birth,
+      :gender,
+      :emergency_contact_no,
+      :d_license_no,
+      :d_license_expires_at,
+      :d_license_country,
+      :d_license_state,
+      :passport_no,
+      :passport_expires_at,
+      :passport_country,
+      :passport_issuer_name,
+      :last_faa_flight_review_at,
+      :renter_policy_no,
+      :renter_insurance_expires_at,
+
+      :pilot_current_certificate,
+      :pilot_aircraft_categories,
+      :pilot_class,
+      :pilot_ratings,
+      :pilot_endorsements,
+      :pilot_certificate_number,
+      :pilot_certificate_expires_at
     ])
     |> cast_avatar(attrs)
     |> base_validations(nil, aircrafts, flyer_certificates, instructors)
@@ -280,7 +327,30 @@ defmodule Flight.Accounts.User do
       :certificate_number,
       :billing_rate,
       :pay_rate,
-      :awards
+      :awards,
+
+      :date_of_birth,
+      :gender,
+      :emergency_contact_no,
+      :d_license_no,
+      :d_license_expires_at,
+      :d_license_country,
+      :d_license_state,
+      :passport_no,
+      :passport_expires_at,
+      :passport_country,
+      :passport_issuer_name,
+      :last_faa_flight_review_at,
+      :renter_policy_no,
+      :renter_insurance_expires_at,
+
+      :pilot_current_certificate,
+      :pilot_aircraft_categories,
+      :pilot_class,
+      :pilot_ratings,
+      :pilot_endorsements,
+      :pilot_certificate_number,
+      :pilot_certificate_expires_at
     ])
     |> cast_avatar(attrs)
     |> base_validations(roles, aircrafts, flyer_certificates, instructors)

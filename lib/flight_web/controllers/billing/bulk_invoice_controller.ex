@@ -15,6 +15,18 @@ defmodule FlightWeb.Billing.BulkInvoiceController do
     render(conn, "new.html", props: props)
   end
 
+  def send_bulk_invoice(conn, params) do
+    success = Map.get(params, "success")
+
+    if success == "1" do
+      put_flash(conn, :success, "Bulk Invoice email Successfully sent.")
+      |> redirect(to: "/billing/bulk_invoices/send_bulk_invoice")
+
+    else
+      render(conn, "send_bulk_invoice.html", props: %{})
+    end
+   end
+
   defp authorize_modify(conn, _) do
     user = conn.assigns.current_user
 

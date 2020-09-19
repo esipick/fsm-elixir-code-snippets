@@ -109,22 +109,27 @@
                       <!-- <td>No</td>
                             <td>No</td>
                             <td class="text-muted">sent 4/11/18</td> -->
-                      <td class="button-wrapper text-right">
+                      <td class="text-right">
+                        <div id="button-wrapper" class="d-flex justify-content-end">
+                        <span class="btn btn-primary btn-sm ml-1">
                         <%= ReactPhoenix.ClientSide.react_component("Components.CopyLink",
                           %{
                             copy_link: Flight.Email.invitation_link(invitation),
                             button_text: "Copy Invitation Url",
                             message: "Invitation URL copied!"
                           }
-                        ) %>
+                        ) %></span>
                         <button
                                 type="button"
-                                class="btn btn-danger btn-sm _delete_button"
+                                class="btn btn-danger btn-sm ml-1 _delete_button"
                                 from_contacts = "<%= @from_contacts%>"
                                 data-invitation-id="<%= invitation.id %>">
                           Remove
                         </button>
-                        <a href="/admin/invitations/<%= invitation.id %>/resend?from_contacts=<%= @from_contacts %>" class="btn btn-sm btn-primary">Resend</a>
+                        <span class="btn btn-primary btn-sm ml-1">
+                        <a href="/admin/invitations/<%= invitation.id %>/resend?from_contacts=<%= @from_contacts %>" class="btn btn-primary btn-sm ml-1">Resend</a>
+                        </span>
+                      </div>
                       </td>
                     </tr>
                   <% end %>

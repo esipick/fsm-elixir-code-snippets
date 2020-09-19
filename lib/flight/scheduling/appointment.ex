@@ -3,6 +3,7 @@ defmodule Flight.Scheduling.Appointment do
 
   import Ecto.Changeset
   alias Flight.Scheduling
+  alias Flight.SchoolAssets.Room
 
   schema "appointments" do
     field(:end_at, :naive_datetime)
@@ -20,12 +21,17 @@ defmodule Flight.Scheduling.Appointment do
     field(:start_hobbs_time, Flight.HourTenth, null: true)
     field(:end_hobbs_time, Flight.HourTenth, null: true)
 
+    field(:simulator_id, :integer)
+    field(:room_id, :integer)
+
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:owner_user, Flight.Accounts.User)
     belongs_to(:user, Flight.Accounts.User)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
     belongs_to(:transaction, Flight.Billing.Transaction)
+    belongs_to(:simulator, Flight.Scheduling.Aircraft, foreign_key: :simulator_id, references: :id, define_field: false)
+    belongs_to(:room, Room, define_field: false)
 
     timestamps()
   end
@@ -72,6 +78,7 @@ defmodule Flight.Scheduling.Appointment do
     |> validate_user_instructor_different
     |> validate_either_instructor_or_aircraft_set
     |> validate_demo_aircraft_set
+    |> validate_assets
   end
 
   def update_transaction_changeset(appointment, attrs),
@@ -96,7 +103,8 @@ defmodule Flight.Scheduling.Appointment do
       get_field(changeset, :demo) ->
         changeset
 
-      get_field(changeset, :instructor_user_id) || get_field(changeset, :aircraft_id) ->
+      get_field(changeset, :instructor_user_id) || get_field(changeset, :aircraft_id) || 
+      get_field(changeset, :simulator_id) || get_field(changeset, :room_id) ->
         changeset
 
       true ->
@@ -137,6 +145,21 @@ defmodule Flight.Scheduling.Appointment do
       add_error(changeset, :end_at, "must come after start time.")
     else
       changeset
+    end
+  end
+
+  defp validate_assets(changeset) do
+    aircraft_id = get_field(changeset, :aircraft_id) || get_change(changeset, :aircraft_id)
+    simulator_id = get_field(changeset, :simulator_id) || get_change(changeset, :simulator_id)
+    room_id = get_field(changeset, :room_id) || get_change(changeset, :room_id) 
+
+    cond do
+      aircraft_id && simulator_id && room_id ->
+        add_error(changeset, :aircraft, " , Simulator and Room cannot be scheduled at a time.")
+      aircraft_id && simulator_id -> add_error(changeset, :aircraft, " and Simulator cannot be scheduled at a time.")
+      aircraft_id && room_id -> add_error(changeset, :aircraft, " and Room cannot be scheduled at a time.")
+      simulator_id && room_id -> add_error(changeset, :simulator, " and Room cannot be scheduled at a time.")
+      true -> changeset
     end
   end
 end

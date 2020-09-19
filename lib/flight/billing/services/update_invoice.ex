@@ -23,7 +23,8 @@ defmodule Flight.Billing.UpdateInvoice do
 
     line_items = Map.get(invoice_attribs, "line_items") || []
 
-    with false <- Utils.multiple_aircrafts?(line_items), 
+    with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
+      {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
       {:ok, invoice} <- update_invoice(invoice, invoice_attribs) do
         line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
 
@@ -33,17 +34,14 @@ defmodule Flight.Billing.UpdateInvoice do
           true -> :nothing
         end
 
-        # if invoice.appointment_id != nil do
-        #   Utils.update_aircraft(invoice, user)
-        # end
-
         if pay_off == true do
           CreateInvoice.pay(invoice, school_context)
         else
           {:ok, invoice}
         end
     else
-      true -> {:error, "An invoice can have only 1 aircraft hours."}
+      {:aircrafts, true} -> {:error, "An invoice can have a single item for Flight or Simulator Hours."}
+      {:rooms, true} -> {:error, "The same room cannot be added twice to an invoice."}
       error -> error
     end
   end

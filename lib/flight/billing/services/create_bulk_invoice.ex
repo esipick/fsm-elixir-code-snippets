@@ -10,8 +10,6 @@ defmodule Flight.Billing.CreateBulkInvoice do
     invoice_attrs = Map.merge(invoice_params, %{"school_id" => school.id})
     invoice_ids = invoice_params["invoice_ids"]
 
-    # IO.puts(Poison.encode!(invoice_attrs))
-
     case BulkInvoice.create(invoice_attrs) do
       {:ok, bulk_invoice} ->
         update_invoices(invoice_ids, bulk_invoice_id: bulk_invoice.id)
@@ -31,7 +29,8 @@ defmodule Flight.Billing.CreateBulkInvoice do
   def pay(bulk_invoice, school_context, invoice_ids) do
     case process_payment(bulk_invoice, school_context) do
       {:ok, bulk_invoice} ->
-        update_invoices(invoice_ids, status: 1)
+        {_, invoices} = update_invoices(invoice_ids, status: 1)
+        Flight.Billing.CreateInvoice.insert_bulk_invoice_line_items(bulk_invoice, invoices, school_context)
 
         {:ok, bulk_invoice}
 
@@ -102,11 +101,12 @@ defmodule Flight.Billing.CreateBulkInvoice do
   end
 
   defp school(school_context) do
+
     Flight.SchoolScope.get_school(school_context)
   end
 
   defp update_invoices(ids, update) do
-    from(i in Invoice, where: i.id in ^ids)
+    from(i in Invoice, select: i, where: i.id in ^ids)
     |> Repo.update_all(set: update)
   end
 end

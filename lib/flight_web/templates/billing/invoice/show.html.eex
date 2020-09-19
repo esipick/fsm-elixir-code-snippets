@@ -222,7 +222,7 @@ function getPlainDate(start_at) {
                   <script> document.write(
                   '<td class="text-nowrap">'+getPlainDate('<%= transaction.completed_at %>')+'</td>'
                   ); </script>
-                    <td><%= transaction.payment_method %></td>
+                    <td><%= if transaction.payment_method == :cheque, do: "check", else: transaction.payment_method %></td>
                   </tr>
                 <% end %>
 

@@ -1,6 +1,12 @@
 defmodule Flight.Billing.Services.Utils do
     alias Flight.Scheduling.{Appointment, Aircraft}
     alias Flight.Repo
+    alias Flight.Bills.Queries
+    alias Flight.Billing.{
+        Invoice,
+        InvoiceLineItem
+    }
+
 
     def aircraft_info_map(%{"line_items" => line_items}) do
         line_item = Enum.find(line_items, fn i -> Map.get(i, "type") == "aircraft" end) 
@@ -11,11 +17,28 @@ defmodule Flight.Billing.Services.Utils do
     end
     def aircraft_info_map(_), do: nil
 
-    def multiple_aircrafts?(nil), do: true
+    def multiple_aircrafts?(nil), do: {:aircrafts, false}
     def multiple_aircrafts?(line_items) do
         line_items = Enum.filter(line_items, fn i -> Map.get(i, "type") == "aircraft" || Map.get(i, :type) == :aircraft end) 
 
-        Enum.count(line_items) > 1
+        {:aircrafts, Enum.count(line_items) > 1}
+    end
+
+    def same_room_multiple_items?(nil), do: {:rooms, false}
+    def same_room_multiple_items?(line_items) do
+        {:rooms,
+        Enum.reduce(line_items, %{}, fn item, acc -> 
+            key = Map.get(item, "room_id") || Map.get(item, :room_id)
+            
+            if key do
+                rooms = Map.get(acc, key) || []
+                Map.put(acc, key, [item | rooms])
+            else
+                acc
+            end
+        end)
+        |> Map.values
+        |> Enum.any?(&(Enum.count(&1) > 1))}
     end
     
     def update_aircraft(invoice, user) do
@@ -107,5 +130,48 @@ defmodule Flight.Billing.Services.Utils do
                 tach_start != tach_end -> Flight.Log.record(:record_tach_time_change, info)
                 true -> :ok
             end
+    end
+
+    def send_bulk_invoice_email(nil, _invoice_ids, _context), do: :ok
+    def send_bulk_invoice_email(user_id, invoice_ids, %{assigns: %{current_user: %{school_id: school_id}}} = context) do
+        user = Flight.Accounts.dangerous_get_user(user_id)
+        school = Flight.SchoolScope.get_school(context)
+        payment_date = 
+            NaiveDateTime.utc_now()
+            |> Flight.Walltime.utc_to_walltime(school.timezone)
+            |> NaiveDateTime.to_date
+            
+        invoice =
+            %{ids: invoice_ids, user_id: user_id, school_id: school_id}
+            |> Queries.get_invoices_query 
+            |> Repo.all
+            |> Enum.filter(&(&1.total_amount_due > 0))
+            |> Enum.reduce(%{}, fn invoice, acc -> 
+                invoice = FlightWeb.Billing.InvoiceStruct.build_skinny(invoice)
+                total = Map.get(acc, :total) || 0
+                total_tax = Map.get(acc, :total_tax) || 0
+                amount_paid = Map.get(acc, :amount_paid) || 0
+                amount_remainder = Map.get(acc, :amount_remainder) || 0
+                amount_due = Map.get(acc, :amount_due) || 0
+                line_items = Map.get(acc, :line_items) || []
+
+                %{
+                    total: total + invoice.total,
+                    total_tax: total_tax + invoice.total_tax,
+                    amount_paid: amount_paid + invoice.amount_paid,
+                    amount_remainder: amount_remainder + invoice.amount_remainder,
+                    amount_due: amount_due + invoice.amount_due,
+                    line_items: line_items ++ invoice.line_items
+                }
+            end)
+            |> Map.put(:id, "N/A")
+            |> Map.put(:user, user)
+            |> Map.put(:payer_name, user.first_name <> " " <> user.last_name)
+            |> Map.put(:payment_date, payment_date)
+        
+        line_items = Map.get(invoice, :line_items) || []
+        line_items = Enum.sort(line_items, &(NaiveDateTime.compare(&1.inserted_at, &2.inserted_at) == :lt))
+        
+        Flight.InvoiceEmail.deliver_email(Map.put(invoice, :line_items, line_items), school)
     end
 end

@@ -10,6 +10,14 @@ defmodule FlightWeb.Billing.InvoiceView do
     InvoicePolicy.modify?(conn.assigns.current_user, invoice)
   end
 
+  def can_send_invoice?(conn, invoice) do
+    InvoicePolicy.send_invoice?(conn.assigns.current_user, invoice)
+  end
+
+  def can_send_bulk_invoice?(conn) do
+    InvoicePolicy.can_send_bulk_invoice?(conn.assigns.current_user)
+  end
+
   def can_delete_invoice?(conn, invoice) do
     InvoicePolicy.delete?(conn.assigns.current_user, invoice)
   end
@@ -21,7 +29,7 @@ defmodule FlightWeb.Billing.InvoiceView do
   end
 
   def line_item_notes(line_item) do
-    line_item = Flight.Repo.preload(line_item, [:instructor_user, :aircraft])
+    line_item = Flight.Repo.preload(line_item, [:instructor_user, :aircraft, :room])
 
     cond do
       line_item.type == :instructor && line_item.instructor_user ->
@@ -29,7 +37,10 @@ defmodule FlightWeb.Billing.InvoiceView do
 
       line_item.type == :aircraft && line_item.aircraft ->
         "Tail #: #{line_item.aircraft.tail_number}"
-
+      
+      line_item.type == :other && line_item.room ->
+        "Room #: #{inspect line_item.room.location}"
+        
       true ->
         ""
     end

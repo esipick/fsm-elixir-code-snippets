@@ -5,7 +5,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   alias Flight.Repo
   alias Flight.Billing.{Invoice, CalculateInvoice, CreateInvoice, UpdateInvoice}
 
-  @invoice_line_item_excluded_types ~w(aircraft instructor)a
+  @invoice_line_item_excluded_types ~w(aircraft instructor room)a
   @invoice_line_item_fields ~w(id description rate amount quantity creator_id type taxable deductible)a
 
   def run(appointment_id, params, school_context) do
@@ -73,7 +73,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   defp get_appointment(appointment_id) do
     Repo.get(Appointment, appointment_id)
-    |> Repo.preload([:user, :instructor_user, :aircraft])
+    |> Repo.preload([:user, :instructor_user, :aircraft, :room, :simulator])
   end
 
   def get_invoice_payload(appointment, params, school_context) do
@@ -86,17 +86,39 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         true -> nil
       end
 
-    %{
-      "school_id" => school.id,
-      "appointment_id" => appointment.id,
-      "user_id" => user_id,
-      "payer_name" => payer_name_from(appointment),
-      "demo" => appointment.demo,
-      "date" => NaiveDateTime.to_date(appointment.end_at),
-      "payment_option" => Map.get(params, "payment_option", "balance"),
-      "line_items" => line_items_from(appointment, params, current_user),
-      "appointment_updated_at" => appointment.updated_at
-    }
+    # %{
+    #   "school_id" => school.id,
+    #   "appointment_id" => appointment.id,
+    #   "user_id" => user_id,
+    #   "payer_name" => payer_name_from(appointment),
+    #   "demo" => appointment.demo,
+    #   "date" => NaiveDateTime.to_date(appointment.end_at),
+    #   "payment_option" => Map.get(params, "payment_option", "balance"),
+    #   "line_items" => line_items_from(appointment, params, current_user),
+    #   "appointment_updated_at" => appointment.updated_at
+    # }
+    
+    # default value for payment options is added as balance.
+
+    payload = 
+      %{
+        "school_id" => school.id,
+        "appointment_id" => appointment.id,
+        "user_id" => user_id,
+        "payer_name" => payer_name_from(appointment),
+        "demo" => appointment.demo,
+        "date" => NaiveDateTime.to_date(appointment.end_at),
+        "line_items" => line_items_from(appointment, params, current_user),
+        "appointment_updated_at" => appointment.updated_at
+      }
+
+    payment_option = Map.get(params, "payment_option")
+
+    cond do
+      appointment.demo && payment_option -> Map.put(payload, "payment_option", payment_option)
+      !appointment.demo -> Map.put(payload, "payment_option", Map.get(params, "payment_option", "balance"))
+      true -> payload
+    end
   end
 
   defp payer_name_from(appointment) do
@@ -108,7 +130,9 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
     [
       aircraft_item(appointment, duration, params, current_user),
-      instructor_item(appointment, duration, current_user)
+      simulator_item(appointment, duration, params, current_user),
+      instructor_item(appointment, duration, current_user),
+      room_item(appointment, 1, current_user)
     ]
     |> Enum.filter(fn x -> x end)
   end
@@ -149,6 +173,24 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     end
   end
 
+  def room_item(appointment, quantity, current_user) do
+    if room = appointment.room do
+      rate = room.rate_per_hour
+
+      %{
+        "description" => "Room",
+        "rate" => rate,
+        "quantity" => quantity,
+        "amount" => round(rate * quantity),
+        "type" => :room,
+        "room_id" => room.id,
+        "taxable" => false,
+        "deductible" => false,
+        "creator_id" => current_user.id
+      }
+    end
+  end
+
   def instructor_item(appointment, quantity, current_user) do
     if instructor = appointment.instructor_user do
       rate = instructor.billing_rate
@@ -162,6 +204,32 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "instructor_user_id" => instructor.id,
         "taxable" => false,
         "deductible" => false,
+        "creator_id" => current_user.id
+      }
+    end
+  end
+
+  def simulator_item(appointment, quantity, params \\ %{}, current_user) do
+    if appointment.simulator do
+      rate = appointment.simulator.rate_per_hour
+      hobbs_end = Map.get(params, "hobbs_time", nil)
+      tach_end = Map.get(params, "tach_time", nil)
+      simulator = appointment.simulator
+
+      %{
+        "description" => "Simulator Hours",
+        "rate" => rate,
+        "quantity" => quantity,
+        "amount" => round(rate * quantity),
+        "type" => :aircraft,
+        "aircraft_id" => simulator.id,
+        "taxable" => true,
+        "deductible" => false,
+        "hobbs_tach_used" => !!(hobbs_end || tach_end),
+        "hobbs_start" => simulator.last_hobbs_time,
+        "tach_start" => simulator.last_tach_time,
+        "hobbs_end" => hobbs_end,
+        "tach_end" => tach_end,
         "creator_id" => current_user.id
       }
     end

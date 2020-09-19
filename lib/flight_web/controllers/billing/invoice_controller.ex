@@ -44,12 +44,12 @@ defmodule FlightWeb.Billing.InvoiceController do
       |> Map.merge(%{action: "create", appointment: appointment})
 
     props =
-      if "student" in props.user_roles do
+      if "student" in props.user_roles or "renter" in props.user_roles do
         Map.put(props, :payment_method, :balance)
       else
         props
       end
-
+        
     render(conn, "new.html", props: props)
   end
 
@@ -70,6 +70,15 @@ defmodule FlightWeb.Billing.InvoiceController do
       user: conn.assigns.current_user,
       skip_shool_select: true
     )
+  end
+
+  def send_invoice(conn, %{"id" => id}) when not is_nil(id) do
+    invoice = Repo.get(Invoice, id)
+    Flight.InvoiceEmail.send_paid_invoice_email(invoice, conn)
+    
+    conn
+    |> put_flash(:success, "Invoice sent successfully")
+    |> redirect(to: "/billing/invoices")
   end
 
   def delete(conn, _) do
