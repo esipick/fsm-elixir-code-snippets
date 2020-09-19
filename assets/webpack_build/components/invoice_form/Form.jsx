@@ -535,7 +535,9 @@ class Form extends Component {
 
   confirmAlert = () => {
     this.setState({ confirm_alert_open: false });
-    window.location = `/billing/invoices`;
+    const { id } = this.state;
+    const location = id ? `/billing/invoices/${id}` : `/billing/invoices`;
+    window.location = location;
   }
 
   rejectAlert = () => {

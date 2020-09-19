@@ -156,8 +156,8 @@
                       <% end %>
                     <% end %>
                     <%= if Enum.any?(@user.instructors) do %>
-                      <a data-toggle="collapse" href="#show_instructors">Show >></a>
-                      <div id="show_instructors" class="panel-collapse collapse">
+                      <a href="#" id="click_show_instructors">>> Show</a>
+                      <div id="show_instructors" style="display: none;">
                       <%= for instructor <- @user.instructors do %>
                         <%= if instructor.archived do %>
                           <p><%= instructor.first_name %> <%= instructor.last_name %></p>
@@ -174,8 +174,8 @@
                   <div class="field">
                     <h3>Aircraft Name</h3>
                     <%= if Enum.any?(@user.aircrafts) do %>
-                      <a data-toggle="collapse" href="#show_aircrafts">Show >></a>
-                      <div id="show_aircrafts" class="panel-collapse collapse">
+                      <a href="#" id="click_show_aircrafts">>> Show</a>
+                      <div id="show_aircrafts" style="display: none;">
                       <%= for aircraft <- @user.aircrafts do %>
                         <%= if aircraft.archived do %>
                           <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
@@ -311,6 +311,15 @@
     </div>
   </div>
 </div>
+
+<script>
+ $('#click_show_aircrafts').click(function() {
+      $('#show_aircrafts').slideToggle();;
+    });
+ $('#click_show_instructors').click(function() {
+      $('#show_instructors').slideToggle();;
+    });
+</script>
 <!-- end content -->
 
 <script>

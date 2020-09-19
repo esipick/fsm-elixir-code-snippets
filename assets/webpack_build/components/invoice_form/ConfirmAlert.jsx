@@ -26,11 +26,11 @@ class ConfirmAlert extends PureComponent {
             {this.props.text}
           </div>
           <div className="balance-warning-dialog__controls">
-            <button className="btn btn-primary" onClick={this.props.onAccept}>
-              YES
-            </button>
             <button className="btn btn-danger" onClick={this.props.onReject}>
               NO
+            </button>
+            <button className="btn btn-primary" onClick={this.props.onAccept}>
+              YES
             </button>
           </div>
         </div>
