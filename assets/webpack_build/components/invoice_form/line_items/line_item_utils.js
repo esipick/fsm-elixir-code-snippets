@@ -104,7 +104,7 @@ export const itemsFromAppointment = (appointment, line_items, user_roles) => {
       if (!item) {
         item = fromRoom(appointment.room);
       }
-
+     
       items.push(item)
     }
 
