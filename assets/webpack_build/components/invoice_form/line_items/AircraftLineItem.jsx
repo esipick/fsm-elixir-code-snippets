@@ -119,7 +119,8 @@ class AircraftLineItem extends Component {
 
   aircraftSelect = (disable_selection) => {
     const { errors, editable } = this.props;
-    const { aircrafts_loading, aircraft } = this.state;
+    const { aircrafts_loading } = this.state;
+    var {aircraft} = this.state
 
     disable_selection = disable_selection || !editable
 
@@ -127,6 +128,10 @@ class AircraftLineItem extends Component {
 
     if (this.props.line_item.description === SIMULATOR_HOURS) {
       options = this.props.simulators
+      aircraft = aircraft && aircraft.simulator == false ? null : aircraft
+    
+    } else {
+      aircraft = aircraft && !aircraft.simulator ? aircraft : null
     }
 
     return (
