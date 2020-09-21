@@ -53,26 +53,26 @@ defmodule Flight.InvoiceEmail do
                 invoice: invoice
             }
 
-            # with true <- Enum.count(invoice.line_items) > 0,
-            #     html <- Flight.InvoiceEmail.render(assigns),
-            #     {:ok, pdf_path} <- pdf_from_html(invoice.id, html) do
-            #         invoice.user.email
-            #         |> Flight.Email.invoice_email(invoice.id, pdf_path)    
-            #         |> Flight.Mailer.deliver_now
+            with true <- Enum.count(invoice.line_items) > 0,
+                html <- Flight.InvoiceEmail.render(assigns),
+                {:ok, pdf_path} <- pdf_from_html(invoice.id, html) do
+                    invoice.user.email
+                    |> Flight.Email.invoice_email(invoice.id, pdf_path)    
+                    |> Flight.Mailer.deliver_now
 
-            #         File.rm!(pdf_path)
-            # end
-            # |> IO.inspect(label: "Email Delivery")
-            
-            user = invoice.user || %{}
-
-            if Enum.count(invoice.line_items) > 0 and Map.get(user, :email) do
-                html = Flight.InvoiceEmail.render(assigns)
-                invoice.user.email
-                |> Flight.Email.invoice_email(invoice.id, html)
-                |> Flight.Mailer.deliver_later
-                # File.write!("beautiful.html", html)
+                    File.rm!(pdf_path)
             end
+            |> IO.inspect(label: "Email Delivery")
+            
+            # user = invoice.user || %{}
+
+            # if Enum.count(invoice.line_items) > 0 and Map.get(user, :email) do
+            #     html = Flight.InvoiceEmail.render(assigns)
+            #     invoice.user.email
+            #     |> Flight.Email.invoice_email(invoice.id, html)
+            #     |> Flight.Mailer.deliver_later
+            #     # File.write!("beautiful.html", html)
+            # end
         end)
     end
 
