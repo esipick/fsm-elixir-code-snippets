@@ -17,7 +17,7 @@ class LowBalanceAlert extends PureComponent {
 
     const shouldAddcc = student && !student.has_cc;
 
-    var okButtonTitle = "OK";
+    var okButtonTitle = "CONTINUE";
     if (shouldAddcc) {okButtonTitle = "Add Credit Card";}
 
     return (
@@ -47,7 +47,7 @@ class LowBalanceAlert extends PureComponent {
               Cancel
             </button>
             <button className="btn btn-primary" onClick={this.props.onAccept}>
-              ${okButtonTitle}
+              {okButtonTitle}
             </button>
           </div>
         </div>
