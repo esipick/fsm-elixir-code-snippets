@@ -116,7 +116,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
     cond do
       payment_option -> Map.put(payload, "payment_option", payment_option)
-      !appointment.demo -> Map.put(payload, "payment_option", Map.get(params, "payment_option", "balance"))
+      # !appointment.demo -> Map.put(payload, "payment_option", Map.get(params, "payment_option", "balance"))
       true -> payload
     end
   end
