@@ -160,11 +160,15 @@ defmodule FlightWeb.API.AppointmentController do
     # Need 24 hrs update
     current_user = conn.assigns.current_user
     user_id_param = conn.params["data"] |> Optional.map(& &1["user_id"])
+    twenty_four_hours = 24 * 60 * 60
 
-    {user_id, start_at} =
+    {user_id, end_at} =
       with %Scheduling.Appointment{} = appointment <- conn.assigns[:appointment],
            true <- user_id_param == nil or appointment.owner_user_id != current_user.id do
-        {appointment.user_id, appointment.start_at}
+           end_at =
+              if appointment.end_at, do: NaiveDateTime.add(appointment.end_at, twenty_four_hours), else: nil
+
+        {appointment.user_id, end_at}
       else
         _ -> {user_id_param, nil}
       end
@@ -181,12 +185,14 @@ defmodule FlightWeb.API.AppointmentController do
     
     apnmt = conn.assigns[:appointment]
     now = NaiveDateTime.utc_now()
+    apnmt_end_at = # because end_at can be nil because of the with condition on line 164
+      if apnmt != nil && apnmt.end_at, do: NaiveDateTime.add(apnmt.end_at, twenty_four_hours), else: nil
 
     restrict_modify =
-      if apnmt && apnmt.start_at != nil && apnmt.start_at < now, do: true, else: false
+      if apnmt_end_at && apnmt_end_at < now, do: true, else: false
 
     owner_instructor_permisssions = 
-      if conn.assigns[:appointment] && (start_at == nil or NaiveDateTime.utc_now() < start_at) && !restrict_modify do
+      if conn.assigns[:appointment] && (end_at == nil or NaiveDateTime.utc_now() < end_at) && !restrict_modify do
         Permission.new(:appointment_instructor, :modify, {:personal, owner_instructor_user_id})
 
       else
@@ -225,7 +231,7 @@ defmodule FlightWeb.API.AppointmentController do
 
       user_can?(current_user,
         [Permission.new(:appointment_user, :modify, {:personal, user_id})]) -> #student
-          if (start_at == nil or NaiveDateTime.utc_now() < start_at) do
+          if (end_at == nil or NaiveDateTime.utc_now() < end_at) do
             conn
           else
             render_bad_time_request(conn)
