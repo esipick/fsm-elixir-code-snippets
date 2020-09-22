@@ -9,6 +9,8 @@ use Mix.Config
 config :flight, ecto_repos: [Flight.Repo]
 config :flight, :web_base_url, System.get_env("FLIGHT_WEB_BASE_URL") || "http://localhost:4000"
 
+config :puppeteer_pdf, exec_path: File.cwd!() <> "/assets/node_modules/.bin/puppeteer-pdf"
+
 # Configures the endpoint
 config :flight, FlightWeb.Endpoint,
   url: [host: "localhost"],
