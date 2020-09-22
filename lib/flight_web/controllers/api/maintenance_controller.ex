@@ -125,6 +125,19 @@ defmodule FlightWeb.API.MaintenanceController do
         json(conn, resp)
     end
 
+    def get_squawks(%{assigns: %{current_user: %{school_id: school_id}}} = conn, params) do
+      page = Map.get(params, "page")
+      per_page = Map.get(params, "per_page")
+      {sort_field, sort_order} = sort_params_from_params(params)
+      filter =
+        params
+        |> filter_from_params
+        |> Map.put(:school_id, school_id)
+
+      squawks = Squawks.get_all_squawks(page, per_page, sort_field, sort_order, filter)
+      json(conn, %{"result" => squawks})
+    end
+
     defp sort_params_from_params(params) do
       sort_field = 
         (Map.get(params, "sort_field") || "aircraft_name")

@@ -4,6 +4,7 @@ defmodule Flight.Inspections.Queries do
     alias Flight.Utils
     alias Flight.Scheduling.Aircraft
     alias Flight.Inspections.{
+        Squawk,
         CheckList,
         Maintenance,
         MaintenanceCheckList,
@@ -64,9 +65,29 @@ defmodule Flight.Inspections.Queries do
                 } 
 
         query
-        # |> paginate(page, per_page)
         |> sort_maintenance_by(sort_field, sort_order)
         |> filter_maintenance_by(filter)
+    end
+
+    def get_all_squawks_query(page, per_page, sort_field, sort_order, filter) do
+        query =
+            from s in Squawk,
+                inner_join: a in Aircraft, on: a.id == s.aircraft_id,
+                select: %{
+                    name: s.description,
+                    aircraft_id: a.id,
+                    maintenance_id: s.id,
+                    aircraft_make: a.make,
+                    aircraft_model: a.model,
+                    curr_tach_time: a.last_tach_time,
+                    due_date: s.created_at,
+                    resolved_at: s.resolved_at
+                }
+        
+        query
+        |> paginate(page, per_page)
+        |> sort_squawks_by(sort_field, sort_order)
+        |> filter_squawks_by(filter)
     end
 
     def get_all_checklists_query(page, per_page, sort_field, sort_order, filter) do
@@ -229,6 +250,61 @@ defmodule Flight.Inspections.Queries do
                 :school_id ->
                     from [m, _, _a] in query,
                         where: m.school_id == ^value
+
+                _ -> query
+            end
+        end)
+    end
+
+    defp sort_squawks_by(query, sort_field, sort_order) when is_nil(sort_field) or is_nil(sort_order), do: query
+    defp sort_squawks_by(query, sort_field, sort_order) do
+        case sort_field do
+            :aircraft_name ->
+                from [_s, a] in query,
+                    order_by: [{^sort_order, field(a, ^:model)}, {^sort_order, field(a, ^:make)}]
+
+            :status ->
+                from [s, _a] in query,
+                    order_by: [{^sort_order, s.resolved_at}]
+            
+            :name -> 
+                from [s, _a] in query,
+                    order_by: [{^sort_order, s.description}]
+            
+            :date -> 
+                from [s, _q] in query,
+                    order_by: [{^sort_order, s.created_at}]
+
+            :curr_tach_time ->
+                from [_s, a] in query,
+                    order_by: [{^sort_order, field(a, ^:last_tach_time)}]
+
+            _ -> query
+
+        end
+    end
+
+    defp filter_squawks_by(query, nil), do: query 
+    defp filter_squawks_by(query, filter) do
+        Enum.reduce(filter, query, fn({key, value}, query) -> 
+            case key do
+                :aircraft_id ->
+                    from [s, _a] in query,
+                        where: s.aircraft_id == ^value
+
+                :school_id ->
+                    from [s, _a] in query,
+                        where: s.school_id == ^value
+
+                :status -> 
+                    
+                    if value == "pending" do
+                        from [s, _a] in query,
+                            where: is_nil(s.resolved_at)
+                    else
+                        from [s, _a] in query,
+                            where: not is_nil(s.resolved_at)
+                    end
 
                 _ -> query
             end

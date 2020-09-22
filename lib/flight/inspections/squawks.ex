@@ -4,8 +4,14 @@ defmodule Flight.Squawks do
     alias Flight.Alerts
     alias Flight.Inspections.{
         Squawk,
+        Queries,
         SquawkAttachment
     }
+
+    def get_all_squawks(page, per_page, sort_field, sort_order, filter) do
+        Queries.get_all_squawks_query(page, per_page, sort_field, sort_order, filter)
+        |> Repo.all
+    end
 
     def create_squawk_and_notify(attrs) do
         roles = Map.get(attrs, "notify_roles")
