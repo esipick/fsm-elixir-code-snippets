@@ -36,6 +36,13 @@ defmodule FlightWeb.API.BulkInvoiceController do
         conn
         |> put_status(400)
         |> json(%{stripe_error: StripeHelper.human_error(error.message)})
+
+      {:error, msg} ->
+        conn
+        |> put_status(422)
+        |> json(%{
+          error: %{message: msg}
+        })
     end
   end
 

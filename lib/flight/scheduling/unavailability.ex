@@ -77,7 +77,7 @@ defmodule Flight.Scheduling.Unavailability do
       {_, y, _, _, "Aircraft"} when is_integer(y) -> changeset
       {x, _, _, _, "Instructor"} when is_integer(x) -> changeset
       {_, _, s, _, "Simulator"} when is_integer(s) -> changeset
-      {x, _, _, r, "Room"} when is_integer(r) -> changeset
+      {_x, _, _, r, "Room"} when is_integer(r) -> changeset
 
       {_, y, _s, _r, nil} when is_integer(y) -> changeset
       {x, _, _s, _r, nil} when is_integer(x) -> changeset

@@ -4,8 +4,8 @@ defmodule Flight.Log do
   alias Flight.Accounts.School
 
   alias Flight.Repo
-  alias Flight.SchoolScope
-  import Ecto.Changeset
+  # alias Flight.SchoolScope
+  # import Ecto.Changeset
   import Ecto.Query, warn: false
 
   def record(:record_tach_time_change, %{
@@ -69,7 +69,7 @@ defmodule Flight.Log do
     |> order_by([a], desc: [a.updated_at])
   end
 
-  def aircraft_logs_query(school_context, search_term \\ "") do
+  def aircraft_logs_query(_school_context, search_term \\ "") do
     AuditLog
     |> Flight.Scheduling.Search.AircraftLogs.run(search_term)
     # |> SchoolScope.scope_query(school_context)

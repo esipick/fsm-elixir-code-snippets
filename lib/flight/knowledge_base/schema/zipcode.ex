@@ -23,6 +23,6 @@ defmodule Flight.KnowledgeBase.ZipCode do
     def changeset(%ZipCode{} = changeset, params \\ %{}) do
         changeset
         |> cast(params, __MODULE__.__schema__(:fields))
-        |> validate_required(__MODULE__.required_fields)
+        |> validate_required(required_fields())
     end
 end
