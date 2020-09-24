@@ -599,7 +599,7 @@ $(document).ready(function () {
     $('#calendarNewModal').modal();
   };
 
-  function fsmCalendar(instructors, aircrafts, simulators, rooms, students, current_user) {   
+  function fsmCalendar(instructors, aircrafts, simulators, rooms, current_user) {   
     var resources = instructors.map(function (instructor) {
       return {
         id: "instructor:" + instructor.id,
@@ -636,14 +636,14 @@ $(document).ready(function () {
       }
     }))
 
-    resources = resources.concat(students.map(function (student) {
-      return {
-        id: "student:" + student.id,
-        type: "Students",
-        title: fullName(student), 
-        current_user: current_user
-      }
-    }))
+    // resources = resources.concat(students.map(function (student) {
+    //   return {
+    //     id: "student:" + student.id,
+    //     type: "Students",
+    //     title: fullName(student), 
+    //     current_user: current_user
+    //   }
+    // }))
 
     var today = new Date();
     var y = today.getFullYear();
@@ -719,7 +719,7 @@ $(document).ready(function () {
         var aircraftId = null;
         var simulatorId = null;
         var roomId = null;
-        var studentId = null;
+        // var studentId = null;
 
         if (resource) {
           var split = resource.id.split(":")
@@ -734,9 +734,10 @@ $(document).ready(function () {
             simulatorId = id
           } else if (type == "room") {
             roomId = id
-          } else if (type == "student") {
-            studentId = id
           }
+          //  else if (type == "student") {
+          //   studentId = id
+          // }
         }
 
         var eventType = "appt"; // setting default event type to appt
@@ -749,8 +750,8 @@ $(document).ready(function () {
           instructor_user_id: instructorId,
           aircraft_id: aircraftId,
           simulator_id: simulatorId,
-          room_id: roomId,
-          user_id: studentId
+          room_id: roomId
+          // user_id: studentId
         }
 
         if (resource.current_user && resource.current_user.roles.length == 1 && ["student", "renter"].includes(resource.current_user.roles[0])) {
@@ -895,9 +896,9 @@ $(document).ready(function () {
               resourceIds.push("room:" + appointment.room.id)
             }
             
-            if (appointment.user) {
-              resourceIds.push("student:" + appointment.user.id)
-            }
+            // if (appointment.user) {
+            //   resourceIds.push("student:" + appointment.user.id)
+            // }
 
             return {
               title: appointmentTitle(appointment),
@@ -947,13 +948,13 @@ $(document).ready(function () {
   }
 
   var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
-  var students = $.get({ url: "/api/users/students", headers: AUTH_HEADERS })
+  // var students = $.get({ url: "/api/users/students", headers: AUTH_HEADERS })
   var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: AUTH_HEADERS })
   var rooms = $.get({url: "/api/rooms" + addSchoolIdParam('?'), headers: AUTH_HEADERS})
 
   var current_user = $.get({ url: "/api/user_info", headers: AUTH_HEADERS })
 
-  Promise.all([users, aircrafts, rooms, current_user, students]).then(function (values) {
+  Promise.all([users, aircrafts, rooms, current_user]).then(function (values) {
     var instructors = values[0].data.filter(function (user) {
       return user.roles.indexOf("instructor") != -1
     });
@@ -961,7 +962,7 @@ $(document).ready(function () {
     const aircrafts = values[1].data.filter(function(item) {return !item.simulator})
     const simulators = values[1].data.filter(function(item) {return item.simulator})
 
-    fsmCalendar(instructors, aircrafts, simulators, values[2].data, values[4].data, values[3]);
+    fsmCalendar(instructors, aircrafts, simulators, values[2].data, values[3]);
   });
 
 
