@@ -142,10 +142,17 @@ defmodule Flight.Scheduling do
     |> Repo.one()
   end
 
+  def admin_update_aircraft(nil, _attrs), do: {:error, "Aircraft not found."}
   def admin_update_aircraft(aircraft, attrs) do
     aircraft
     |> Aircraft.admin_changeset(attrs)
     |> Repo.update()
+  end
+
+  def block_aircraft(id, block, school_context) do
+    id
+    |> get_aircraft(school_context)
+    |> admin_update_aircraft(%{blocked: block})
   end
 
   def archive_aircraft(%Aircraft{} = aircraft) do

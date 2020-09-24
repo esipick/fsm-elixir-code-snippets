@@ -119,7 +119,7 @@ defmodule FlightWeb.API.MaintenanceController do
             nil -> %{human_error: "Aircraft with id: #{aircraft_id} doesn't exists."}
             {:error, changeset} ->
               error = Errors.traverse(changeset) 
-              %{human_errors: [error]}
+              %{"human_errors" => [error]}
           end
 
         json(conn, resp)

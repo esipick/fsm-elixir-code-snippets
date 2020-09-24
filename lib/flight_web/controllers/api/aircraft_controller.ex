@@ -38,6 +38,18 @@ defmodule FlightWeb.API.AircraftController do
     render(conn, "autocomplete.json", aircrafts: aircrafts)
   end
 
+  def update_status(conn, %{"id" => id, "block" => block}) do
+    
+    with {:ok, _aircraft} <- Scheduling.block_aircraft(id, block, conn) do
+      json(conn, %{"result" => "success"})
+
+    else
+      {:error, changeset} ->
+        error = Flight.Ecto.Errors.traverse(changeset) 
+      json(conn, %{"human_errors" => [error]})
+    end
+  end
+
   def authorize_view_all(conn, _) do
     halt_unless_user_can?(conn, [Permission.new(:aircraft, :view, :all)])
   end

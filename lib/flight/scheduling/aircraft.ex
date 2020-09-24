@@ -22,6 +22,7 @@ defmodule Flight.Scheduling.Aircraft do
     field(:simulator, :boolean, default: false)
     field(:tail_number, :string)
     field(:archived, :boolean, default: false)
+    field(:blocked, :boolean, default: false)
     belongs_to(:school, Flight.Accounts.School)
     has_many(:inspections, Flight.Scheduling.Inspection)
     has_many(:audit_logs, Flight.Logs.AuditLog)
@@ -46,7 +47,8 @@ defmodule Flight.Scheduling.Aircraft do
       :last_hobbs_time,
       :rate_per_hour,
       :block_rate_per_hour,
-      :name
+      :name,
+      :blocked
     ])
     |> validate_required([
       :ifr_certified,

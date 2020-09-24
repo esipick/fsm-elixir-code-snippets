@@ -268,8 +268,9 @@ defmodule FlightWeb.Router do
     get("/maintenance/:id", MaintenanceController, :show)
     delete("/maintenance/:id", MaintenanceController, :delete)
 
-    get("aircrafts/:id/maintenance", MaintenanceController, :aircraft_maintenance)
-    delete("aircrafts/maintenance", MaintenanceController, :remove_aircrafts_from_maintenance)
+    get("/aircrafts/:id/maintenance", MaintenanceController, :aircraft_maintenance)
+    put("/aircrafts/:id/status", AircraftController, :update_status)
+    delete("/aircrafts/maintenance", MaintenanceController, :remove_aircrafts_from_maintenance)
 
     post("/checklists", CheckListController, :create)
     get("/checklists", CheckListController, :index)
