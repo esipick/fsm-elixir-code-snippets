@@ -157,6 +157,7 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   defp authorize_modify(conn, _) do
+    # Need 24 hrs update
     current_user = conn.assigns.current_user
     user_id_param = conn.params["data"] |> Optional.map(& &1["user_id"])
 
