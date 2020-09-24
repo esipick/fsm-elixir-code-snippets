@@ -113,7 +113,7 @@ defmodule FlightWeb.Admin.UserController do
   def edit(conn, params) do
     tab = Map.get(params, "tab") || "personal"
     user = conn.assigns.requested_user
-    aircrafts = Accounts.get_aircrafts(conn)
+    aircrafts = Accounts.get_aircrafts_only(conn)
     role = Accounts.role_for_slug("instructor")
     instructors = Queries.User.get_users_by_role(role, conn)
 

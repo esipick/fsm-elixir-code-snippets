@@ -1,9 +1,17 @@
 /* global $, swal, moment */
+var userInfo = null;
+var allInstructors = null;
+var allAircrafts = null;
+var allStudents = null;
 
 function userTitle(user) {
   if (!user) return '';
 
   return `${user.first_name} ${user.last_name}`;
+}
+
+function aircraftDisplayName(aircraft) {
+  return aircraft.tail_number ? (aircraft.make + " " + aircraft.tail_number) : (aircraft.make + " " +aircraft.model); 
 }
 
 function appointmentTitle(appointment) {
@@ -48,6 +56,62 @@ $(document).ready(function () {
   $('#fieldAircraft').hide(); // hide aircraft by default
   $('#fieldSimulator').hide(); // hide simulator by default
   $('#fieldRoom').hide(); // hide room by default
+
+
+  $("#apptAssignedInstBox").change(function() {
+    const userInstructorsIds = userInfo && userInfo.instructors;
+    var initVal = safeParseInt($('#apptInstructor').val());
+
+    pickerDidChangeStateForUser('#apptInstructor', this.checked, userInstructorsIds, allInstructors)
+    $('#apptInstructor').val(initVal).selectpicker("refresh")
+  });
+
+  $("#apptAssignedAircraftBox").change(function() {
+    const userAircraftIds = userInfo && userInfo.aircrafts;
+    var initVal = safeParseInt($('#apptAircraft').val());
+
+    pickerDidChangeStateForUser('#apptAircraft', this.checked, userAircraftIds, allAircrafts)
+    $('#apptAircraft').val(initVal).selectpicker("refresh")
+  });
+
+  $("#apptAssignedPersonBox").change(function() {
+    const userStudentIds = userInfo && userInfo.students;
+    var initVal = safeParseInt($('#apptStudent').val());
+
+    pickerDidChangeStateForUser('#apptStudent', this.checked, userStudentIds, allStudents)
+    $('#apptStudent').val(initVal).selectpicker("refresh")
+  });
+
+  function pickerDidChangeStateForUser(pickerId, checked, selectedItemIds, allItems) {    
+    const element = $(pickerId).empty().append($("<option />").val("").text("None"));
+
+    allItems.forEach(function(item){
+      var displayName = null;
+
+      if(item.last_hobbs_time) {
+        displayName = aircraftDisplayName(item)
+      
+      } else {
+        displayName = userTitle(item)
+      }
+
+      if (checked) {
+
+        if (selectedItemIds.includes(item.id)) {
+          element.append($("<option />").val(item.id).text(displayName));
+
+        } else {
+          element.append($("<option />").val(item.id).text(displayName).hide());
+        }
+
+      } else if (!checked) {
+        element.append($("<option />").val(item.id).text(displayName));
+      }
+    })
+
+    element.selectpicker("refresh")
+  }
+
 
   $('#unavailFor').on('change', function () {
     displayForUnavailability(this.value)
@@ -459,7 +523,35 @@ $(document).ready(function () {
 
   var openAppointmentModal = function (initialData) {
       appointmentOrUnavailabilityId = initialData.id;
+      const isStudent = userInfo.roles.includes("student")
+      const isInstructor = userInfo.roles.includes("instructor")
+
+      if (userInfo && userInfo.roles && isStudent) {
+        $("#apptAssignedPerson").hide()
+
+        $("#apptAssignedInstBox").prop("checked", true);
+        $("#apptAssignedAircraftBox").prop("checked", true);
+
+        const userInstructorsIds = userInfo && userInfo.instructors;
+        pickerDidChangeStateForUser('#apptInstructor', true, userInstructorsIds, allInstructors)
+
+        const userAircraftIds = userInfo && userInfo.aircrafts;
+        pickerDidChangeStateForUser('#apptAircraft', true, userAircraftIds, allAircrafts)
       
+      } else if (userInfo && userInfo.roles && isInstructor) {
+        $("#apptAssignedAircraft").hide()
+        $("#apptAssignedInstructor").hide()
+
+        $("#apptAssignedPersonBox").prop("checked", true);
+        const userStudentIds = userInfo && userInfo.students;
+        pickerDidChangeStateForUser('#apptStudent', true, userStudentIds, allStudents)
+
+      } else {
+        $("#apptAssignedPerson").hide()
+        $("#apptAssignedAircraft").hide()
+        $("#apptAssignedInstructor").hide()
+      }
+
       if (appointmentOrUnavailabilityId) {
         $('#apptTabs').hide()
         $('#btnDelete').show()
@@ -599,7 +691,12 @@ $(document).ready(function () {
     $('#calendarNewModal').modal();
   };
 
-  function fsmCalendar(instructors, aircrafts, simulators, rooms, current_user) {   
+  function fsmCalendar(instructors, aircrafts, simulators, rooms, students, current_user) {   
+    userInfo = current_user;
+    allInstructors = instructors;
+    allAircrafts = aircrafts;
+    allStudents = students;
+
     var resources = instructors.map(function (instructor) {
       return {
         id: "instructor:" + instructor.id,
@@ -948,21 +1045,21 @@ $(document).ready(function () {
   }
 
   var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
-  // var students = $.get({ url: "/api/users/students", headers: AUTH_HEADERS })
+  var students = $.get({ url: "/api/users/students", headers: AUTH_HEADERS })
   var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: AUTH_HEADERS })
   var rooms = $.get({url: "/api/rooms" + addSchoolIdParam('?'), headers: AUTH_HEADERS})
 
   var current_user = $.get({ url: "/api/user_info", headers: AUTH_HEADERS })
 
-  Promise.all([users, aircrafts, rooms, current_user]).then(function (values) {
+  Promise.all([users, aircrafts, rooms, current_user, students]).then(function (values) {
     var instructors = values[0].data.filter(function (user) {
       return user.roles.indexOf("instructor") != -1
     });
 
     const aircrafts = values[1].data.filter(function(item) {return !item.simulator})
     const simulators = values[1].data.filter(function(item) {return item.simulator})
-
-    fsmCalendar(instructors, aircrafts, simulators, values[2].data, values[3]);
+  
+    fsmCalendar(instructors, aircrafts, simulators, values[2].data, values[4].data, values[3]);
   });
 
 

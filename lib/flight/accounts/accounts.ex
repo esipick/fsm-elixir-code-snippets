@@ -15,6 +15,7 @@ defmodule Flight.Accounts do
     School,
     SchoolInvitation,
     StripeAccount,
+    UserInstructor,
     SchoolOnboarding
   }
 
@@ -52,7 +53,33 @@ defmodule Flight.Accounts do
     |> Repo.one()
   end
 
+  def dangerous_get_user(nil), do: nil
   def dangerous_get_user(id), do: Repo.get(User, id)
+  
+  # In db table user_instructors, records are saved such as the instructor id goes to user_id column and the user_id goes to instructor_id column
+  def get_student_instructor_ids(nil), do: []
+  def get_student_instructor_ids(student_id) do
+    UserInstructor
+    |> where([ui], ui.instructor_id == ^student_id and ui.user_id != ^student_id)
+    |> select([ui], ui.user_id)
+    |> Repo.all
+  end
+
+  def get_instructor_student_ids(nil), do: []
+  def get_instructor_student_ids(instructor_id) do
+    UserInstructor
+    |> where([ui], ui.user_id == ^instructor_id and ui.instructor_id != ^instructor_id)
+    |> select([ui], ui.instructor_id)
+    |> Repo.all
+  end
+
+  def get_main_instructor_student_ids(nil), do: []
+  def get_main_instructor_student_ids(instructor_id) do
+    User
+    |> select([u], u.id)
+    |> where([u], u.archived == false and u.main_instructor_id == ^instructor_id)
+    |> Repo.all
+  end
 
   def dangerous_get_active_user(id) do
     User

@@ -76,6 +76,11 @@
               <label class="col-md-3 col-form-label">Person *</label>
               <div class="col-md-9">
                 <div class="form-group">
+                  <div id= "apptAssignedPerson">
+                    <input type="checkbox" id="apptAssignedPersonBox" checked>
+                    <label>Assigned Person only</label>
+                  </div>
+
                   <select id="apptStudent" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Person Name" placeholder="Student">
                     <%= for renter <- @renters do %>
                       <option value="<%= renter.id %>"><%= display_name(renter) %></option>
@@ -88,6 +93,10 @@
               <label class="col-md-3 col-form-label">Instructor *</label>
               <div class="col-md-9">
                 <div class="form-group">
+                  <div id= "apptAssignedInstructor">
+                    <input type="checkbox" id="apptAssignedInstBox" checked>
+                    <label>Assigned Instructors only</label>
+                  </div>
                   <select id="apptInstructor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
                     <option value="">None</option>
                     <%= for instructor <- @instructors do %>
@@ -115,6 +124,11 @@
               <label class="col-md-3 col-form-label">Aircraft *</label>
               <div class="col-md-9">
                 <div class="form-group">
+                  <div id= "apptAssignedAircraft">
+                    <input type="checkbox" id="apptAssignedAircraftBox" checked>
+                    <label>Assigned Aircrafts only</label>
+                  </div>
+
                   <select id="apptAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Aircraft">
                     <option value="">None</option>
                     <%= for aircraft <- @aircrafts do %>
