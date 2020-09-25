@@ -7,6 +7,7 @@ defmodule Flight.Inspections.Queries do
         Squawk,
         CheckList,
         Maintenance,
+        SquawkAttachment,
         MaintenanceCheckList,
         AircraftMaintenance
     }
@@ -38,7 +39,8 @@ defmodule Flight.Inspections.Queries do
                     tach_time_remaining: m.tach_hours + am.start_tach_hours - a.last_tach_time,
                     days: fragment("DATE_PART('day', ?::timestamp - ?::timestamp)", m.due_date, m.ref_start_date),
                     days_remaining: fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", m.due_date)
-                } 
+                },
+                where: a.archived == false and a.simulator == false
 
         query
         |> paginate(page, per_page)
@@ -55,14 +57,17 @@ defmodule Flight.Inspections.Queries do
                     name: m.name,
                     aircraft_id: a.id,
                     maintenance_id: m.id,
-                    aircraft_make: a.make,
-                    aircraft_model: a.model,
+                    status: am.status,
+                    tach_hours: m.tach_hours,
+                    # aircraft_make: a.make,
+                    # aircraft_model: a.model,
                     curr_tach_time: a.last_tach_time,
                     due_date: m.due_date,
                     tach_time_remaining: m.tach_hours + am.start_tach_hours - a.last_tach_time,
                     days: fragment("DATE_PART('day', ?::timestamp - ?::timestamp)", m.due_date, m.ref_start_date),
                     days_remaining: fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", m.due_date)
-                } 
+                },
+                where: a.archived == false and a.simulator == false
 
         query
         |> sort_maintenance_by(sort_field, sort_order)
@@ -110,6 +115,14 @@ defmodule Flight.Inspections.Queries do
             where: mc.maintenance_id == ^m_id and mc.checklist_id in ^checklist_ids
     end
 
+    def squawk_attachment_query(id, squawk_id, school_id) do
+        query = 
+            from st in SquawkAttachment,
+                inner_join: s in Squawk, on: s.id == st.squawk_id,
+                select: st,
+                where: st.squawk_id == ^squawk_id and st.id == ^id and s.school_id == ^school_id
+    end
+
     defp paginate(query, page, per_page) when is_nil(page) or is_nil(per_page), do: query
     defp paginate(query, page, per_page) do
         from q in query,
@@ -134,6 +147,10 @@ defmodule Flight.Inspections.Queries do
                 :id ->
                     from q in query,
                         where: q.id == ^value
+
+                :squawk_id ->
+                    from q in query,
+                        where: q.squawk_id == ^value
 
                 _ -> query
             end
@@ -239,8 +256,8 @@ defmodule Flight.Inspections.Queries do
                             query   
                     end                    
 
-                :maintenance_name ->
-                    from [m, _, _a] in query,
+                :name ->
+                    from m in query,
                         where: ilike(m.name, ^"%#{value}%")
     
                 :aircraft_name ->

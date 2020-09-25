@@ -260,6 +260,8 @@ defmodule FlightWeb.Router do
 
     post("/maintenance/squawks", MaintenanceController, :create_squawk)
     get("/maintenance/squawks", MaintenanceController, :get_squawks)
+    get("/maintenance/squawks/:id", MaintenanceController, :get_squawk)
+    delete("/maintenance/squawk_attachments/:id", MaintenanceController, :delete_squawk_attachment)
     post("/maintenance", MaintenanceController, :create)
     post("/maintenance/add_checklist", MaintenanceController, :add_checklist)
     post("/maintenance/assign_aircrafts", MaintenanceController, :assign_aircrafts)

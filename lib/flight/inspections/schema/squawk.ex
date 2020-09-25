@@ -2,7 +2,11 @@ defmodule Flight.Inspections.Squawk do
     use Ecto.Schema
     import Ecto.Changeset
     
-    alias Flight.Inspections.Squawk
+    alias Flight.Inspections.{
+        Squawk,
+        SquawkAttachment
+    }
+
     alias Flight.Scheduling.Aircraft
 
     alias Flight.Accounts.{
@@ -28,6 +32,7 @@ defmodule Flight.Inspections.Squawk do
 
         belongs_to(:school, School)
         belongs_to(:aircraft, Aircraft)
+        has_many(:attachments, SquawkAttachment)
         belongs_to(:reported_by, User, define_field: false, foreign_key: :reported_by_id)
         belongs_to(:created_by, User, define_field: false, foreign_key: :created_by_id)
 

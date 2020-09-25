@@ -12,6 +12,17 @@ defmodule Flight.Squawks do
         Queries.get_all_squawks_query(page, per_page, sort_field, sort_order, filter)
         |> Repo.all
     end
+    
+    def get_squawk(id, school_id) do
+        Squawk
+        |> Repo.get_by(id: id, school_id: school_id)
+        |> Repo.preload([:attachments])
+        |> map_squawk_attachment_urls
+        |> case do
+            nil -> {:error, "Squawk with id not found."}
+            squawk -> {:ok, squawk}
+        end
+    end
 
     def create_squawk_and_notify(attrs) do
         roles = Map.get(attrs, "notify_roles")
@@ -27,6 +38,22 @@ defmodule Flight.Squawks do
                 {:error, error} -> Repo.rollback(error)
             end
         end)
+    end
+
+    def delete_squawk_attachment(id, squawk_id, school_id) do
+        query = 
+            Queries.squawk_attachment_query(id, squawk_id, school_id)
+    
+        with %{id: _} = attach <- Repo.get_by(query, []),
+            {:ok, _} <- Repo.delete(attach) do
+                Flight.SquawksUploader.delete({attach.attachment, attach})
+
+            {:ok, attach}
+
+        else
+            nil -> {:error, "Attachment not found."}
+            error -> error
+        end
     end
 
     defp upload_squawk_attachments(_, nil), do: {:ok, []}
@@ -54,5 +81,22 @@ defmodule Flight.Squawks do
         %Squawk{}
         |> Squawk.changeset(attrs)
         |> Repo.insert
+    end
+
+    defp map_squawk_attachment_urls(nil), do: nil
+    defp map_squawk_attachment_urls(squawk) do
+        attachments = 
+            Enum.map(squawk.attachments, fn item -> 
+                urls = Flight.SquawksUploader.urls({item.attachment, item})
+                urls = %{original: urls[:original], thumb: urls[:thumb]}
+                
+                item
+                |> Map.delete(:__struct__)
+                |> Map.merge(urls)
+            end)
+
+        squawk
+        |> Map.delete(:__struct__)
+        |> Map.put(:attachments, attachments)
     end
 end

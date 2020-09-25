@@ -70,9 +70,9 @@ defmodule FlightWeb.API.MaintenanceController do
     def aircraft_maintenance(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => aircraft_id} = params) do
       {sort_field, sort_order} = sort_params_from_params(params)
       filter =
-        params
-        |> filter_from_params
-        |> Map.put(:school_id, school_id)
+        %{school_id: school_id}
+        # |> filter_from_params
+        # |> Map.put(:school_id, school_id)
 
       with {:ok, maintenance} <- Inspections.get_aircraft_maintenance(aircraft_id, sort_field, sort_order, filter) do
         json(conn, %{"result" => maintenance})
@@ -102,7 +102,6 @@ defmodule FlightWeb.API.MaintenanceController do
     def create_squawk(%{assigns: %{
       current_user: %{school_id: school_id, id: user_id}}} = conn, attrs) do
         aircraft_id = Map.get(attrs, "aircraft_id")
-
         attrs =
             attrs
             |> Map.put("created_by_id", user_id)
@@ -138,6 +137,28 @@ defmodule FlightWeb.API.MaintenanceController do
       json(conn, %{"result" => squawks})
     end
 
+    def get_squawk(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => id} = params) do
+      
+      with {:ok, squawk} <- Squawks.get_squawk(id, school_id) do
+        json(conn, %{"result" => squawk})
+
+      else
+        {:error, error} -> json(conn, %{"human_errors" => [error]})
+      end
+    end
+
+    def delete_squawk_attachment(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => id, "squawk_id" => squawk_id}) do
+      with {:ok, attachment} <- Squawks.delete_squawk_attachment(id, squawk_id, school_id) do
+        json(conn, %{"result" => attachment})
+
+      else
+        {:error, error} -> 
+          error = Errors.traverse(error) 
+          json(conn, %{"human_errors" => [error]})
+      end
+    end
+    def delete_squawk_attachment(conn, _), do: json(conn, %{"human_errors" => ["squawk id required."]})
+
     defp sort_params_from_params(params) do
       sort_field = 
         (Map.get(params, "sort_field") || "aircraft_name")
@@ -168,7 +189,13 @@ defmodule FlightWeb.API.MaintenanceController do
           
           String.downcase(key) == "aircraft_id" ->
               Map.put(filter, :aircraft_id, value)
+          
+          String.downcase(key) == "name" ->
+            Map.put(filter, :name, value)
 
+          String.downcase(key) == "search_term" ->
+              Map.put(filter, :search_term, value)
+              
           true -> filter
         end 
       end)

@@ -18,13 +18,28 @@ defmodule Flight.Inspections do
         |> transform_maintenance
     end
 
+    def get_aircraft_maintenance(nil, _sort_field, _sort_order, _filter), do: {:error, "Invalid Aircraft id."}
     def get_aircraft_maintenance(aircraft_id, sort_field, sort_order, filter) do
         Repo.get(Aircraft, aircraft_id)
         |> case do
-            %{id: id} ->
+            %{id: id} = aircraft ->
                 filter = Map.put(filter, :aircraft_id, id)
+                maintenances =
+                    sort_field
+                    |> Queries.get_aircraft_maintenance(sort_order, filter) 
+                    |> Repo.all
+                    |> transform_maintenance
 
-                {:ok, Repo.all(Queries.get_aircraft_maintenance(sort_field, sort_order, filter))}
+                aircraft =
+                    aircraft
+                    |> Repo.preload([:squawks])
+                    |> Map.delete(:__struct__)
+                    |> Map.take(Aircraft.fields_to_cast() ++ [:squawks])
+                    |> Map.put(:maintenances, maintenances)
+                    |> Map.put(:nearest_tach_based, fetch_nearest(maintenances, :tach_time_remaining))
+                    |> Map.put(:nearest_time_based, fetch_nearest(maintenances, :days_remaining))
+
+                {:ok, aircraft}
 
             _ -> {:error, "Aircraft with id: #{aircraft_id} not found."}
         end
@@ -259,4 +274,10 @@ defmodule Flight.Inspections do
             Map.put(maintenance, :status_color, color)
     end
 
+    def fetch_nearest(maintenances, key) do
+        maintenances
+        |> Enum.filter(&(Map.get(&1, key) != nil))
+        |> Enum.sort(&(Map.get(&1, key) < Map.get(&2, key)))
+        |> Enum.take(3)
+    end
 end
