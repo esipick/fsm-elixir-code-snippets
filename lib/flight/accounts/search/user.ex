@@ -43,8 +43,7 @@ defmodule Flight.Accounts.Search.User do
   # end
 
   def run(query, search_term) do
-    normalized_term = 
-      if String.contains?(search_term, "@"), do: search_term, else: Utils.normalize(search_term)
+    normalized_term = Utils.normalize(search_term)
 
     case normalized_term do
       "" ->
@@ -56,7 +55,6 @@ defmodule Flight.Accounts.Search.User do
           fragment(
             "to_tsvector(
               'english',
-              u0.email || ' ' ||
               u0.first_name || ' ' ||
               u0.last_name || ' ' ||
               replace(u0.phone_number, '-', '') || ' ' ||
@@ -65,8 +63,9 @@ defmodule Flight.Accounts.Search.User do
               coalesce(u0.zipcode, ' ') || ' ' ||
               coalesce(u0.state, ' ')
             ) @@
-            to_tsquery(?)",
-            ^Utils.prefix_search(normalized_term)
+            to_tsquery(?) or u0.email ilike ?",
+            ^Utils.prefix_search(normalized_term),
+            ^"%#{search_term}%"
           )
         )
     end
