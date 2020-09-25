@@ -6,13 +6,15 @@
         <div class="card-header" data-background-color="gray">
           <div class="user-info">
             <div class=mobile>
+            <% regular_user = (Accounts.has_role?(@user, "student") or Accounts.has_role?(@user, "renter") ) %>
+            <%= url_role = if Accounts.has_role?(@user, "renter"), do: "renter", else: "student" %>
               <div class="photo">
                 <img src="<%= avatar_url(@conn, @user) %>"/>
               </div>
               <h2><%= @user.first_name %> <%= @user.last_name %></h2>
               <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
               <p class="enrolled"><small>Enrolled <%= display_date(@user.inserted_at, :student) %></small></p>
-              <a class="btn  btn-primary" href="/student/profile/edit">Edit Profile</a>
+                  <a class="btn  btn-primary" href="/<%= url_role %>/profile/edit">Edit Profile</a>
               <div class="contacts">
                 <div class="contact">
                   <img src="<%= static_path(@conn, "/images/phone.svg") %>"/>
@@ -44,7 +46,7 @@
               <div class="details">
                 <h2>
                   <%= @user.first_name %> <%= @user.last_name %>
-                   <a href="/student/profile/edit" class="edit">Edit Profile</a>
+                  <a href="/<%= url_role %>/profile/edit" class="edit">Edit Profile</a>
                 </h2>
                 <div class="contacts">
                   <a class="contact" href="tel:<%= @user.phone_number %>" title="<%= @user.phone_number %>">
@@ -63,7 +65,7 @@
                   <% end %>
                 </div>
 
-                <%= if has_cirriculum?(@user) do %>
+                <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
                   <div class="fields">
                     <div class="field">
                       <h3>Start Date</h3>
@@ -128,7 +130,7 @@
                  <% end %>
 
                 <div class="fields">
-                  <%= if has_cirriculum?(@user) do %>
+                  <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
                     <div class="field">
                       <h3>Flight Training # (FTN)</h3>
                       <p><%= @user.flight_training_number || "-" %></p>
@@ -152,7 +154,11 @@
                       <%= if @user.main_instructor.archived do %>
                         <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
                       <% else %>
-                        <p><a href="/admin/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
+                        <%= if regular_user do %>
+                          <p><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></p>
+                        <% else %>
+                          <p><a href="/admin/users/<%= @user.main_instructor_id %>"><%= @user.main_instructor.first_name %> <%= @user.main_instructor.last_name %></a></p>
+                        <% end %>
                       <% end %>
                     <% end %>
                     <%= if Enum.any?(@user.instructors) do %>
@@ -162,7 +168,11 @@
                         <%= if instructor.archived do %>
                           <p><%= instructor.first_name %> <%= instructor.last_name %></p>
                         <% else %>
-                          <p><a href="/admin/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
+                          <%= if regular_user do %>
+                            <p><%= instructor.first_name %> <%= instructor.last_name %></p>
+                          <% else %>
+                            <p><a href="/admin/users/<%= instructor.id %>"><%= instructor.first_name %> <%= instructor.last_name %></a></p>
+                          <% end %>
                         <% end %>
                       <% end %>
                       </div>
@@ -191,7 +201,7 @@
                 </div>
 
                 <div class="fields">
-                  <%= if has_cirriculum?(@user) do %>
+                  <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
                     <div class="field">
                       <h3>Certificate # (Pilot)</h3>
                       <p><%= @user.pilot_certificate_number  || "-" %></p>
@@ -215,7 +225,7 @@
           <div class=mobile>
             <div class="fields-container">
               <div class="fields top">
-                <%= if has_cirriculum?(@user) do %>
+                <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
                   <div class="field ftn">
                     <h3>Training # (FTN)</h3>
                     <p><%= @user.flight_training_number || "-" %></p>
@@ -286,9 +296,9 @@
             </div>
           </div>
           <nav class="tabs">
-            <a <%= if @tab == :billing, do: "class=active" %> href="/student/profile?tab=billing">Billing</a>
-            <a <%= if @tab == :schedule, do: "class=active" %> href="/student/profile?tab=schedule">Schedule</a>
-            <a <%= if @tab == :documents, do: "class=active" %> href="/student/profile?tab=documents">Documents</a>
+            <a <%= if @tab == :billing, do: "class=active" %> href="/<%= url_role %>/profile?tab=billing">Billing</a>
+            <a <%= if @tab == :schedule, do: "class=active" %> href="/<%= url_role %>/profile?tab=schedule">Schedule</a>
+            <a <%= if @tab == :documents, do: "class=active" %> href="/<%= url_role %>/profile?tab=documents">Documents</a>
           </nav>
         </div>
         <!-- end card-header -->

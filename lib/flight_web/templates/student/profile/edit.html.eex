@@ -8,13 +8,15 @@
   <div class="row">
     <div class="col-md-8 col-xs-12">
       <div class="card">
-        <%= form_for @changeset, "/student/profile", [as: :user, method: "put", class: "form-horizontal", multipart: true], fn f -> %>
+<%=
+  url = if Accounts.has_role?(@user, "renter"), do: "/renter/profile", else: "/student/profile"
+    form_for @changeset, url, [as: :user, method: "put", class: "form-horizontal", multipart: true], fn f -> %>
           <div class="card-body">
-          <%= if has_cirriculum?(@user) do %>
+          <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
             <div class="row">
               <div id="inserted_at"
                 class="col-md-4">
-                <div class="form-group">
+                <div class="form-g  roup">
                   <label>Start Date</label>
                   <%= text_input f, :inserted_at,
                     class: "form-control",
@@ -247,7 +249,7 @@
           <div class="card-footer ">
             <div class="row">
               <div class="col-md-12">
-                <a href="/student/profile" class="btn btn-fill btn-default mr-2">Cancel</a>
+                <a href=<%= url %> class="btn btn-fill btn-default mr-2">Cancel</a>
                 <input type="submit" class="btn btn-fill btn-primary" value="Save">
               </div>
             </div>
@@ -264,7 +266,7 @@
       "card_form.html",
       conn: @conn,
       user: @user,
-      update_url: "/student/profile/update_card",
+      update_url: "#{url}/update_card",
       stripe_error: @stripe_error
     )
   %>
@@ -272,7 +274,7 @@
 <!-- end content -->
 <%= if @user.avatar do %>
   <div style="display:none">
-    <%= form_tag "/student/profile", method: "put", id: "delete_avatar_form" do %>
+    <%= form_tag url, method: "put", id: "delete_avatar_form" do %>
       <input name="user[delete_avatar]" type="hidden" value="1">
     <% end %>
   </div>

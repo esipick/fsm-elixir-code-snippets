@@ -19,9 +19,9 @@
             pilot_url = "/admin/users/#{@user.id}/edit?tab=pilot"
           %>
         </div>
-        <div class="card-body" <%= if @tab != nil and @tab != "personal" and has_cirriculum?(@user) do %> style="display:none;" <% end%>>
+        <div class="card-body" <%= if @tab != nil and @tab != "personal" and (has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") ) do %> style="display:none;" <% end%>>
 
-        <%= if (@tab == nil or @tab == "personal") and has_cirriculum?(@user) do %>
+        <%= if (@tab == nil or @tab == "personal") and (has_cirriculum?(@user) or Accounts.has_role?(@user, "renter")) do %>
           <div class="d-flex justify-content-between mb-3">
             <ul class="nav nav-pills col-xs-12" role="tablist">
 
@@ -34,7 +34,7 @@
             </ul>
           </div>
         <% end%>
-          <%= if has_cirriculum?(@user) do %>
+          <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
             <div class="row">
               <div id="inserted_at"
                 class="col-md-4">
@@ -135,7 +135,7 @@
               </div>
             <% end %>
 
-            <%= if has_cirriculum?(@user) do %>
+            <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
 
               <div class="row">
                 <div class="col-md-4">
@@ -386,7 +386,7 @@
                   </div>
                 </div>
               <% end %>
-              <%= if Enum.any?(@instructors) and Accounts.has_role?(@user, "student") do %>
+              <%= if Enum.any?(@instructors) and (Accounts.has_role?(@user, "student") or Accounts.has_role?(@user, "renter")) do %>
                 <div class="row">
                   <div class="col-md-12">
                     <div class="form-group">
@@ -409,7 +409,7 @@
               <% end %>
           </div>
           <div class="card-body" <%= if (@tab == nil or @tab == "personal") do %> style="display:none;" <% end%>>
-            <%= if @tab != nil and @tab != "personal" and has_cirriculum?(@user) do %>
+            <%= if @tab != nil and @tab != "personal" and (has_cirriculum?(@user) or Accounts.has_role?(@user, "renter")) do %>
               <div class="d-flex justify-content-between mb-3" <%= if @tab == "personal" do %> style="display:none;" <% end%>>
                 <ul class="nav nav-pills col-xs-12" role="tablist">
 
