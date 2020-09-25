@@ -206,7 +206,9 @@
                       <h3>Certificate # (Pilot)</h3>
                       <p><%= @user.pilot_certificate_number  || "-" %></p>
                     </div>
+                  <% end %>
 
+                  <%= if has_cirriculum?(@user) do %>
                     <div class="field">
                       <h3>Cert/ Ratings</h3>
                       <%= if Enum.any?(@user.pilot_current_certificate) do %>
