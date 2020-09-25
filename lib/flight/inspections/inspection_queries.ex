@@ -28,6 +28,8 @@ defmodule Flight.Inspections.Queries do
                     name: m.name,
                     aircraft_id: a.id,
                     maintenance_id: m.id,
+                    status: am.status,
+                    tach_hours: m.tach_hours,
                     aircraft_make: a.make,
                     aircraft_model: a.model,
                     curr_tach_time: a.last_tach_time,

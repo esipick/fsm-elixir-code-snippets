@@ -15,6 +15,7 @@ defmodule Flight.Inspections do
     def get_all_maintenance(page, per_page, sort_field, sort_order, filter) do
         Queries.get_all_maintenance_query(page, per_page, sort_field, sort_order, filter)
         |> Repo.all
+        |> transform_maintenance
     end
 
     def get_aircraft_maintenance(aircraft_id, sort_field, sort_order, filter) do
@@ -221,4 +222,41 @@ defmodule Flight.Inspections do
             end 
         end)
     end
+
+    def transform_maintenance(maintenance) when is_list(maintenance) do
+        Enum.map(maintenance, &(transform_maintenance(&1)))
+    end
+
+    def transform_maintenance(%{
+        status: status,
+        tach_hours: tach_hours,
+        tach_time_remaining: remaining_tach_hours,
+        days: days,
+        days_remaining: remaining_days} = maintenance) do
+            tach_hours = tach_hours || 0
+            days = days || 0
+
+            remaining_percent =
+                cond do
+                    tach_hours > 0 and remaining_tach_hours <= 0 -> 0
+                    tach_hours > 0 and remaining_tach_hours > 0 -> remaining_tach_hours / tach_hours
+                    days > 0 and remaining_days <= 0 -> 0
+                    days > 0 and remaining_days > 0 -> remaining_days / days
+                    true -> 1
+                end
+
+            color =
+                cond do
+                    remaining_percent <= 0 -> "#ff1414"
+                    remaining_percent < 0.05 -> "#fffb14"
+                    remaining_percent < 0.1 -> "#ff8e14"
+                    remaining_percent < 0.2 -> "#14ff5f"
+                    true -> "#6ae6b4" # greater than 21
+                end
+
+            color = 
+                if status != "pending", do: "#28940a", else: color
+            Map.put(maintenance, :status_color, color)
+    end
+
 end
