@@ -16,8 +16,27 @@ defmodule Flight.Scheduling do
   import Flight.Auth.Permission, only: [permission_slug: 3]
   import Pipe
   import Flight.Walltime, only: [walltime_to_utc: 2, utc_to_walltime: 2]
+  alias Flight.Inspections
+
+  def admin_create_aircraft(%{"maintenance_ids" => m_ids } = attrs, %{
+      assigns: %{
+        current_user: %{school_id: school_id}}} = school_context) when is_list(m_ids) do
+    
+    Repo.transaction(fn -> 
+      with {:ok, %{
+          id: id, 
+          last_tach_time: tach_hours
+          } = aircraft} <- admin_create_aircraft(Map.delete(attrs, "maintenance_ids"), school_context),
+        {:ok, :done} <- Inspections.check_and_assign_aircraft_maintenance(id, m_ids, tach_hours, school_id) do
+          aircraft
+      else
+        {:error, changeset} -> Repo.rollback(changeset)
+      end
+    end)
+  end
 
   def admin_create_aircraft(attrs, school_context) do
+    IO.inspect(school_context)
     result =
       Map.merge(attrs, %{simulator: false})
       |> MapUtil.atomize_shallow()

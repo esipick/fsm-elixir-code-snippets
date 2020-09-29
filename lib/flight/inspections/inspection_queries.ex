@@ -152,6 +152,10 @@ defmodule Flight.Inspections.Queries do
                     from q in query,
                         where: q.squawk_id == ^value
 
+                :ids ->
+                    from q in query,
+                        where: q.id in ^value
+
                 _ -> query
             end
         end)

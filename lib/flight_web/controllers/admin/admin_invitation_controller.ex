@@ -151,7 +151,7 @@ defmodule FlightWeb.Admin.InvitationController do
     from_contacts =  conn.params["from_contacts"]
 
     cond do
-      invitation && invitation.accepted_at && user.archived ->
+      invitation && invitation.accepted_at && user && user.archived ->
         path =
           if from_contacts == "true" do
             "/admin/settings?tab=contact&role=user&inner_tab=archived#user_info"
@@ -167,7 +167,7 @@ defmodule FlightWeb.Admin.InvitationController do
         |> redirect(to: path)
         |> halt()
 
-      invitation && invitation.accepted_at && !user.archived ->
+      invitation && invitation.accepted_at && user && !user.archived ->
         path =
           if from_contacts == "true" do
             "/admin/settings?tab=contact&role=user#user_info"

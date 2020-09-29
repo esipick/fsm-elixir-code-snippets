@@ -3,8 +3,20 @@ defmodule FlightWeb.API.AircraftController do
 
   alias Flight.Scheduling
   alias Flight.Auth.Permission
+  alias Flight.Ecto.Errors
 
   plug(:authorize_view_all when action in [:autocomplete])
+  plug(:authorize_create when action in [:create])
+
+  def create(conn, %{"data" => aircraft_data}) when is_map(aircraft_data) do
+    case Scheduling.admin_create_aircraft(aircraft_data, conn) do
+      {:ok, aircraft} ->
+        json(conn, %{"result" => "success"})
+
+      {:error, changeset} ->
+          json(conn, %{human_errors: [Errors.traverse(changeset)]})
+    end
+  end
 
   def index(conn, _) do
     aircrafts =
@@ -52,5 +64,9 @@ defmodule FlightWeb.API.AircraftController do
 
   def authorize_view_all(conn, _) do
     halt_unless_user_can?(conn, [Permission.new(:aircraft, :view, :all)])
+  end
+
+  def authorize_create(conn, _) do
+    halt_unless_user_can?(conn, [Permission.new(:aircraft, :modify, :all)])
   end
 end

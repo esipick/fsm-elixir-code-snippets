@@ -18,6 +18,12 @@ defmodule Flight.Inspections do
         |> transform_maintenance
     end
 
+    def get_all_maintenances_only(filter) do
+        filter
+        |> Queries.get_maintenance_query
+        |> Repo.all
+    end
+
     def get_aircraft_maintenance(nil, _sort_field, _sort_order, _filter), do: {:error, "Invalid Aircraft id."}
     def get_aircraft_maintenance(aircraft_id, sort_field, sort_order, filter) do
         Repo.get(Aircraft, aircraft_id)
@@ -208,6 +214,28 @@ defmodule Flight.Inspections do
         |> Repo.delete_all(aircraft_ids)
 
         {:ok, :done}
+    end
+
+    def check_and_assign_aircraft_maintenance(_aircraft_id, [], tach_hours, school_id), do: {:ok, :done}
+    def check_and_assign_aircraft_maintenance(aircraft_id, m_ids, tach_hour, school_id) do
+        m_ids = Enum.uniq(m_ids)
+        found_ids = get_all_maintenances_only(%{ids: m_ids, school_id: school_id}) |> Enum.map( & &1.id)
+        diff = m_ids -- found_ids
+
+        with [] <- diff do
+            Enum.reduce_while(m_ids, {:ok, :done}, fn(m_id, _acc) -> 
+                aircraft_hour = %{"aircraft_id" => aircraft_id, "start_tach_hours" => tach_hour}
+
+                assign_maintenance_to_aircrafts(m_id, [aircraft_hour])
+                |> case do
+                    {:ok, :done} -> {:cont, {:ok, :done}}
+                    {:error, error} -> {:halt, {:error, error}}
+                end
+            end)
+        else
+            diff ->
+                {:error, "Maintenance " <> Enum.join(diff, ", ") <> " not found."}
+        end
     end
 
     def assign_maintenance_to_aircrafts_transaction(m_id, aircraft_hours) when is_map(aircraft_hours), do: assign_maintenance_to_aircrafts_transaction(m_id, [aircraft_hours])
