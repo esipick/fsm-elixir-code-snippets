@@ -66,7 +66,7 @@
                 </div>
 
                 <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
-                  <div class="fields">
+                  <div class="desktop">
                     <div class="field">
                       <h3>Start Date</h3>
                       <p id="start_date"></p>
@@ -129,7 +129,7 @@
                   </div>
                  <% end %>
 
-                <div class="fields">
+                <div class="desktop">
                   <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
                     <div class="field">
                       <h3>Flight Training # (FTN)</h3>
@@ -200,7 +200,7 @@
                   </div>
                 </div>
 
-                <div class="fields">
+                <div class="desktop">
                   <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
                     <div class="field">
                       <h3>Certificate # (Pilot)</h3>
