@@ -189,10 +189,10 @@ defmodule FlightWeb.API.AppointmentController do
       if apnmt != nil && apnmt.end_at, do: NaiveDateTime.add(apnmt.end_at, twenty_four_hours), else: nil
 
     restrict_modify =
-      if apnmt_end_at && apnmt_end_at < now, do: true, else: false
-
+      if apnmt_end_at && NaiveDateTime.compare(apnmt_end_at, now) == :lt, do: true, else: false
+    
     owner_instructor_permisssions = 
-      if conn.assigns[:appointment] && (end_at == nil or NaiveDateTime.utc_now() < end_at) && !restrict_modify do
+      if conn.assigns[:appointment] && (end_at == nil or NaiveDateTime.compare(end_at, now) == :gt) && !restrict_modify do
         Permission.new(:appointment_instructor, :modify, {:personal, owner_instructor_user_id})
 
       else
@@ -231,7 +231,8 @@ defmodule FlightWeb.API.AppointmentController do
 
       user_can?(current_user,
         [Permission.new(:appointment_user, :modify, {:personal, user_id})]) -> #student
-          if (end_at == nil or NaiveDateTime.utc_now() < end_at) do
+
+        if (end_at == nil or NaiveDateTime.compare(NaiveDateTime.utc_now(), end_at) == :lt) do
             conn
           else
             render_bad_time_request(conn)
