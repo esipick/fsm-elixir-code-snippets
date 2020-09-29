@@ -53,6 +53,17 @@ defmodule Flight.Accounts do
     |> Repo.one()
   end
 
+  def get_school_users_by_roles(school_id, roles) do
+    from(
+        u in User,
+        distinct: u.id,
+        inner_join: r in assoc(u, :roles),
+        where: u.archived == false and u.school_id == ^school_id,
+        where: r.slug in ^roles
+      )
+    |> Repo.all
+  end
+  
   def dangerous_get_user(nil), do: nil
   def dangerous_get_user(id), do: Repo.get(User, id)
   

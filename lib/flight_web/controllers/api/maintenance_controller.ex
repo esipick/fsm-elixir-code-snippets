@@ -3,12 +3,18 @@ defmodule FlightWeb.API.MaintenanceController do
 
     alias Flight.Ecto.Errors
     alias Flight.Inspections
+    alias Flight.Squawks
+    alias Flight.Scheduling
 
-    def create(%{assigns: %{current_user: %{school_id: school_id}}} = conn, 
+    def create(%{assigns: %{current_user: %{id: id, school_id: school_id}}} = conn, 
       %{"checklist_ids" => checklist_ids, "aircraft_hours" => aircraft_hours} = params) do
         alerts = Map.get(params, "alerts") || []
         alerts = Enum.map(alerts, &(Map.put(&1, "school_id", school_id)))
-        params = Map.put(params, "school_id", school_id)
+
+        params = 
+          params
+          |> Map.put("school_id", school_id)
+          |> Map.put("creator_id", id)
 
         with {:ok, changeset} <- Inspections.create_and_schedule_maintenance(aircraft_hours, checklist_ids, alerts, params) do
           json(conn, %{"result" => "success"})
@@ -51,7 +57,7 @@ defmodule FlightWeb.API.MaintenanceController do
     end
 
     def show(conn, %{"id" => maintenance_id}) do
-      #
+
       with {:ok, item} <- Inspections.get_maintenance_assoc(maintenance_id) do
         json(conn, %{"result" => item})
 
@@ -64,9 +70,9 @@ defmodule FlightWeb.API.MaintenanceController do
     def aircraft_maintenance(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => aircraft_id} = params) do
       {sort_field, sort_order} = sort_params_from_params(params)
       filter =
-        params
-        |> filter_from_params
-        |> Map.put(:school_id, school_id)
+        %{school_id: school_id}
+        # |> filter_from_params
+        # |> Map.put(:school_id, school_id)
 
       with {:ok, maintenance} <- Inspections.get_aircraft_maintenance(aircraft_id, sort_field, sort_order, filter) do
         json(conn, %{"result" => maintenance})
@@ -91,6 +97,67 @@ defmodule FlightWeb.API.MaintenanceController do
       {:ok, :done} = Inspections.remove_aircrafts_from_maintenance(m_id, aircraft_ids)
       json(conn, %{"result" => "success"})
     end
+
+    @desc "Squawks"
+    def create_squawk(%{assigns: %{
+      current_user: %{school_id: school_id, id: user_id}}} = conn, attrs) do
+        aircraft_id = Map.get(attrs, "aircraft_id")
+        attrs =
+            attrs
+            |> Map.put("created_by_id", user_id)
+            |> Map.put("school_id", school_id)
+
+        resp = 
+          with true <- aircraft_id != nil,
+            %{id: _} <- Scheduling.get_aircraft(aircraft_id, conn),
+            {:ok, _} <- Squawks.create_squawk_and_notify(attrs) do
+              %{"result" => "success"}
+
+          else
+            false -> %{human_error: "Aircraft with id is required"}
+            nil -> %{human_error: "Aircraft with id: #{aircraft_id} doesn't exists."}
+            {:error, changeset} ->
+              error = Errors.traverse(changeset) 
+              %{"human_errors" => [error]}
+          end
+
+        json(conn, resp)
+    end
+
+    def get_squawks(%{assigns: %{current_user: %{school_id: school_id}}} = conn, params) do
+      page = Map.get(params, "page")
+      per_page = Map.get(params, "per_page")
+      {sort_field, sort_order} = sort_params_from_params(params)
+      filter =
+        params
+        |> filter_from_params
+        |> Map.put(:school_id, school_id)
+
+      squawks = Squawks.get_all_squawks(page, per_page, sort_field, sort_order, filter)
+      json(conn, %{"result" => squawks})
+    end
+
+    def get_squawk(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => id} = params) do
+      
+      with {:ok, squawk} <- Squawks.get_squawk(id, school_id) do
+        json(conn, %{"result" => squawk})
+
+      else
+        {:error, error} -> json(conn, %{"human_errors" => [error]})
+      end
+    end
+
+    def delete_squawk_attachment(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => id, "squawk_id" => squawk_id}) do
+      with {:ok, attachment} <- Squawks.delete_squawk_attachment(id, squawk_id, school_id) do
+        json(conn, %{"result" => attachment})
+
+      else
+        {:error, error} -> 
+          error = Errors.traverse(error) 
+          json(conn, %{"human_errors" => [error]})
+      end
+    end
+    def delete_squawk_attachment(conn, _), do: json(conn, %{"human_errors" => ["squawk id required."]})
 
     defp sort_params_from_params(params) do
       sort_field = 
@@ -122,7 +189,13 @@ defmodule FlightWeb.API.MaintenanceController do
           
           String.downcase(key) == "aircraft_id" ->
               Map.put(filter, :aircraft_id, value)
+          
+          String.downcase(key) == "name" ->
+            Map.put(filter, :name, value)
 
+          String.downcase(key) == "search_term" ->
+              Map.put(filter, :search_term, value)
+              
           true -> filter
         end 
       end)

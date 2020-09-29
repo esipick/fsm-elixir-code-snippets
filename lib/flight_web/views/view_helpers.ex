@@ -298,7 +298,7 @@ defmodule FlightWeb.ViewHelpers do
     Phoenix.HTML.raw("<span class=\"badge #{class}\" #{tooltip}>#{text}</span>")
   end
 
-  def stripe_status_html(conn, stripe_account) do
+  def stripe_status_html(_conn, stripe_account) do
     {class, text, tooltip} =
       case Accounts.StripeAccount.status(stripe_account) do
         :running -> {"badge-success", "✔", ""}

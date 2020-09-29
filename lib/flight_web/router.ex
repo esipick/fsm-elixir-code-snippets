@@ -258,6 +258,10 @@ defmodule FlightWeb.Router do
   scope "/api", FlightWeb.API do
     pipe_through([:api, :api_authenticate])
 
+    post("/maintenance/squawks", MaintenanceController, :create_squawk)
+    get("/maintenance/squawks", MaintenanceController, :get_squawks)
+    get("/maintenance/squawks/:id", MaintenanceController, :get_squawk)
+    delete("/maintenance/squawk_attachments/:id", MaintenanceController, :delete_squawk_attachment)
     post("/maintenance", MaintenanceController, :create)
     post("/maintenance/add_checklist", MaintenanceController, :add_checklist)
     post("/maintenance/assign_aircrafts", MaintenanceController, :assign_aircrafts)
@@ -266,8 +270,9 @@ defmodule FlightWeb.Router do
     get("/maintenance/:id", MaintenanceController, :show)
     delete("/maintenance/:id", MaintenanceController, :delete)
 
-    get("aircrafts/:id/maintenance", MaintenanceController, :aircraft_maintenance)
-    delete("aircrafts/maintenance", MaintenanceController, :remove_aircrafts_from_maintenance)
+    get("/aircrafts/:id/maintenance", MaintenanceController, :aircraft_maintenance)
+    put("/aircrafts/:id/status", AircraftController, :update_status)
+    delete("/aircrafts/maintenance", MaintenanceController, :remove_aircrafts_from_maintenance)
 
     post("/checklists", CheckListController, :create)
     get("/checklists", CheckListController, :index)

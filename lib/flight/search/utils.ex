@@ -2,7 +2,6 @@ defmodule Flight.Search.Utils do
   @moduledoc """
   Common used helpers for full text search
   """
-
   @spec prefix_search(any()) :: String.t()
   def prefix_search(term) do
     term <> ":*"

@@ -4,6 +4,7 @@ defmodule Flight.Scheduling.Aircraft do
   import ValidationUtil
 
   alias Flight.Inspections.{
+    Squawk,
     Maintenance,
     AircraftMaintenance
   }
@@ -22,7 +23,9 @@ defmodule Flight.Scheduling.Aircraft do
     field(:simulator, :boolean, default: false)
     field(:tail_number, :string)
     field(:archived, :boolean, default: false)
+    field(:blocked, :boolean, default: false)
     belongs_to(:school, Flight.Accounts.School)
+    has_many(:squawks, Squawk)
     has_many(:inspections, Flight.Scheduling.Inspection)
     has_many(:audit_logs, Flight.Logs.AuditLog)
 
@@ -31,23 +34,13 @@ defmodule Flight.Scheduling.Aircraft do
     timestamps()
   end
 
+  def fields_to_cast, do: ~w(make model tail_number serial_number ifr_certified simulator equipment last_tach_time 
+  last_hobbs_time rate_per_hour block_rate_per_hour name blocked)a
+
   @doc false
   def changeset(aircraft, attrs) do
     aircraft
-    |> cast(attrs, [
-      :make,
-      :model,
-      :tail_number,
-      :serial_number,
-      :ifr_certified,
-      :simulator,
-      :equipment,
-      :last_tach_time,
-      :last_hobbs_time,
-      :rate_per_hour,
-      :block_rate_per_hour,
-      :name
-    ])
+    |> cast(attrs, fields_to_cast)
     |> validate_required([
       :ifr_certified,
       :simulator,

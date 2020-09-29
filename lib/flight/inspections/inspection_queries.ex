@@ -4,8 +4,10 @@ defmodule Flight.Inspections.Queries do
     alias Flight.Utils
     alias Flight.Scheduling.Aircraft
     alias Flight.Inspections.{
+        Squawk,
         CheckList,
         Maintenance,
+        SquawkAttachment,
         MaintenanceCheckList,
         AircraftMaintenance
     }
@@ -37,7 +39,8 @@ defmodule Flight.Inspections.Queries do
                     tach_time_remaining: m.tach_hours + am.start_tach_hours - a.last_tach_time,
                     days: fragment("DATE_PART('day', ?::timestamp - ?::timestamp)", m.due_date, m.ref_start_date),
                     days_remaining: fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", m.due_date)
-                } 
+                },
+                where: a.archived == false and a.simulator == false
 
         query
         |> paginate(page, per_page)
@@ -54,19 +57,42 @@ defmodule Flight.Inspections.Queries do
                     name: m.name,
                     aircraft_id: a.id,
                     maintenance_id: m.id,
-                    aircraft_make: a.make,
-                    aircraft_model: a.model,
+                    status: am.status,
+                    tach_hours: m.tach_hours,
+                    # aircraft_make: a.make,
+                    # aircraft_model: a.model,
                     curr_tach_time: a.last_tach_time,
                     due_date: m.due_date,
                     tach_time_remaining: m.tach_hours + am.start_tach_hours - a.last_tach_time,
                     days: fragment("DATE_PART('day', ?::timestamp - ?::timestamp)", m.due_date, m.ref_start_date),
                     days_remaining: fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", m.due_date)
-                } 
+                },
+                where: a.archived == false and a.simulator == false
 
         query
-        # |> paginate(page, per_page)
         |> sort_maintenance_by(sort_field, sort_order)
         |> filter_maintenance_by(filter)
+    end
+
+    def get_all_squawks_query(page, per_page, sort_field, sort_order, filter) do
+        query =
+            from s in Squawk,
+                inner_join: a in Aircraft, on: a.id == s.aircraft_id,
+                select: %{
+                    name: s.description,
+                    aircraft_id: a.id,
+                    maintenance_id: s.id,
+                    aircraft_make: a.make,
+                    aircraft_model: a.model,
+                    curr_tach_time: a.last_tach_time,
+                    due_date: s.created_at,
+                    resolved_at: s.resolved_at
+                }
+        
+        query
+        |> paginate(page, per_page)
+        |> sort_squawks_by(sort_field, sort_order)
+        |> filter_squawks_by(filter)
     end
 
     def get_all_checklists_query(page, per_page, sort_field, sort_order, filter) do
@@ -87,6 +113,14 @@ defmodule Flight.Inspections.Queries do
     def delete_checklist_from_maintenance_query(m_id, checklist_ids) do
         from mc in MaintenanceCheckList,
             where: mc.maintenance_id == ^m_id and mc.checklist_id in ^checklist_ids
+    end
+
+    def squawk_attachment_query(id, squawk_id, school_id) do
+        query = 
+            from st in SquawkAttachment,
+                inner_join: s in Squawk, on: s.id == st.squawk_id,
+                select: st,
+                where: st.squawk_id == ^squawk_id and st.id == ^id and s.school_id == ^school_id
     end
 
     defp paginate(query, page, per_page) when is_nil(page) or is_nil(per_page), do: query
@@ -113,6 +147,10 @@ defmodule Flight.Inspections.Queries do
                 :id ->
                     from q in query,
                         where: q.id == ^value
+
+                :squawk_id ->
+                    from q in query,
+                        where: q.squawk_id == ^value
 
                 _ -> query
             end
@@ -218,8 +256,8 @@ defmodule Flight.Inspections.Queries do
                             query   
                     end                    
 
-                :maintenance_name ->
-                    from [m, _, _a] in query,
+                :name ->
+                    from m in query,
                         where: ilike(m.name, ^"%#{value}%")
     
                 :aircraft_name ->
@@ -229,6 +267,61 @@ defmodule Flight.Inspections.Queries do
                 :school_id ->
                     from [m, _, _a] in query,
                         where: m.school_id == ^value
+
+                _ -> query
+            end
+        end)
+    end
+
+    defp sort_squawks_by(query, sort_field, sort_order) when is_nil(sort_field) or is_nil(sort_order), do: query
+    defp sort_squawks_by(query, sort_field, sort_order) do
+        case sort_field do
+            :aircraft_name ->
+                from [_s, a] in query,
+                    order_by: [{^sort_order, field(a, ^:model)}, {^sort_order, field(a, ^:make)}]
+
+            :status ->
+                from [s, _a] in query,
+                    order_by: [{^sort_order, s.resolved_at}]
+            
+            :name -> 
+                from [s, _a] in query,
+                    order_by: [{^sort_order, s.description}]
+            
+            :date -> 
+                from [s, _q] in query,
+                    order_by: [{^sort_order, s.created_at}]
+
+            :curr_tach_time ->
+                from [_s, a] in query,
+                    order_by: [{^sort_order, field(a, ^:last_tach_time)}]
+
+            _ -> query
+
+        end
+    end
+
+    defp filter_squawks_by(query, nil), do: query 
+    defp filter_squawks_by(query, filter) do
+        Enum.reduce(filter, query, fn({key, value}, query) -> 
+            case key do
+                :aircraft_id ->
+                    from [s, _a] in query,
+                        where: s.aircraft_id == ^value
+
+                :school_id ->
+                    from [s, _a] in query,
+                        where: s.school_id == ^value
+
+                :status -> 
+                    
+                    if value == "pending" do
+                        from [s, _a] in query,
+                            where: is_nil(s.resolved_at)
+                    else
+                        from [s, _a] in query,
+                            where: not is_nil(s.resolved_at)
+                    end
 
                 _ -> query
             end

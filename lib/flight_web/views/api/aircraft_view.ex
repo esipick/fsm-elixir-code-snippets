@@ -30,6 +30,7 @@ defmodule FlightWeb.API.AircraftView do
       last_hobbs_time: aircraft.last_hobbs_time,
       rate_per_hour: aircraft.rate_per_hour,
       block_rate_per_hour: aircraft.block_rate_per_hour,
+      blocked: aircraft.blocked,
       inspections:
         render_many(aircraft.inspections, AircraftView, "inspection.json", as: :inspection)
     }

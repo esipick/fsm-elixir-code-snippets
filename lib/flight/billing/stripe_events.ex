@@ -17,13 +17,13 @@ defmodule Flight.Billing.StripeEvents do
 
   def process(%Stripe.Event{
     type: "checkout.session.completed",
-    data: %{object: %Stripe.Session{} = session} = event}) do
+    data: %{object: %Stripe.Session{} = session}}) do
       update_invoice_status(session.id)
   end
 
   def process(%Stripe.Event{
     type: "payment_intent.succeeded",
-    data: %{object: %Stripe.PaymentIntent{} = session} = event}) do
+    data: %{object: %Stripe.PaymentIntent{} = session}}) do
       update_invoice_status(session.id)
   end
   
@@ -43,7 +43,7 @@ defmodule Flight.Billing.StripeEvents do
   defp update_invoice_status(session_id) do
     with %{appointment_id: apmnt_id} = invoice <- Flight.Billing.Invoice.get_by_session_id(session_id),
         {:ok, invoice} <- Flight.Billing.Invoice.paid_by_cc(invoice),
-        %{id: id} = appointment <- Flight.Repo.get(Appointment, apmnt_id) do
+        %{id: _id} = appointment <- Flight.Repo.get(Appointment, apmnt_id) do
           Flight.Billing.PayTransaction.pay_invoice_cc_transaction(invoice.id, session_id)
           Appointment.paid(appointment)
 
