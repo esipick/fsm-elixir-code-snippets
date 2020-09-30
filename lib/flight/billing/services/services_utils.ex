@@ -164,7 +164,7 @@ defmodule Flight.Billing.Services.Utils do
                     line_items: line_items ++ invoice.line_items
                 }
             end)
-            |> Map.put(:id, "N/A")
+            |> Map.put(:id, :rand.uniform(9999))
             |> Map.put(:user, user)
             |> Map.put(:payer_name, user.first_name <> " " <> user.last_name)
             |> Map.put(:payment_date, payment_date)
