@@ -997,14 +997,28 @@ $(document).ready(function () {
             //   resourceIds.push("student:" + appointment.user.id)
             // }
 
-            return {
-              title: appointmentTitle(appointment),
-              start: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm'),
-              end: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm'),
-              id: "appointment:" + appointment.id,
-              appointment: appointment,
-              resourceIds: resourceIds,
-              className: 'event-blue'
+            if (appointment.status == "paid") {
+              return {
+                title: appointmentTitle(appointment),
+                start: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm'),
+                end: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm'),
+                id: "appointment:" + appointment.id,
+                appointment: appointment,
+                resourceIds: resourceIds,
+                className: 'event-green'
+              }
+
+            } else {
+              return {
+                title: appointmentTitle(appointment),
+                start: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm'),
+                end: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm'),
+                id: "appointment:" + appointment.id,
+                appointment: appointment,
+                resourceIds: resourceIds,
+                className: 'event-blue'
+              }
+
             }
           })
 

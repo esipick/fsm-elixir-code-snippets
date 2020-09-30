@@ -721,6 +721,9 @@ fieldset[disabled] .fc button:hover {
 .fc-event.event-default {
   background: #e7e7f0;
 }
+.fc-event.event-green {
+  background: #2EBA45;
+}
 .fc-event.event-default .fc-title, .fc-event.event-default .fc-time{
   color: #444;
 }
