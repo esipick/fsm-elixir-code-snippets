@@ -155,14 +155,26 @@ defmodule Flight.Billing.Services.Utils do
                 amount_due = Map.get(acc, :amount_due) || 0
                 line_items = Map.get(acc, :line_items) || []
 
-                %{
-                    total: total + invoice.total,
-                    total_tax: total_tax + invoice.total_tax,
-                    amount_paid: amount_paid + invoice.amount_paid,
-                    amount_remainder: amount_remainder + invoice.amount_remainder,
-                    amount_due: amount_due + invoice.amount_due,
-                    line_items: line_items ++ invoice.line_items
-                }
+                if invoice.status == :paid do
+                    %{
+                        total: total + invoice.total,
+                        total_tax: total_tax + invoice.total_tax,
+                        amount_paid: amount_paid + invoice.amount_due,
+                        amount_remainder: amount_remainder + 0,
+                        amount_due: amount_due + invoice.amount_due,
+                        line_items: line_items ++ invoice.line_items
+                    }
+                    
+                else
+                    %{
+                        total: total + invoice.total,
+                        total_tax: total_tax + invoice.total_tax,
+                        amount_paid: amount_paid + invoice.amount_paid,
+                        amount_remainder: amount_remainder + invoice.amount_remainder,
+                        amount_due: amount_due + invoice.amount_due,
+                        line_items: line_items ++ invoice.line_items
+                    }
+                end
             end)
             |> Map.put(:id, :rand.uniform(9999))
             |> Map.put(:user, user)

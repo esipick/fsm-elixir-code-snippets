@@ -66,7 +66,7 @@ class BulkInvoiceEmailForm extends Component {
     this.setState({ invoices_loading: true });
 
     http.get({
-      url: '/api/invoices?skip_pagination=true&status=0&user_id=' + student.id + addSchoolIdParam('&'),
+      url: '/api/invoices?skip_pagination=true&user_id=' + student.id + addSchoolIdParam('&'),
       headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
@@ -210,7 +210,7 @@ class BulkInvoiceEmailForm extends Component {
   invoicesTableHeaders = () => {
     return (
       <div className="row bulk-invoice__invoice">
-        <div className="col-md-3 col-xs-3 bulk-invoice__invoice-item">
+        <div className="col-md-2 col-xs-3 bulk-invoice__invoice-item">
           <div className="checkbox">
             <input checked={this.state.all_invoices_selected}
               id="all-invoices-selected"
@@ -219,9 +219,10 @@ class BulkInvoiceEmailForm extends Component {
             <label htmlFor="all-invoices-selected" />
           </div>
         </div>
-        <div className="col-md-3 col-xs-3 bulk-invoice__invoice-item">ID</div>
-        <div className="col-md-3 col-xs-3 bulk-invoice__invoice-item">Date</div>
-        <div className="col-md-3 col-xs-3 bulk-invoice__invoice-item">Amount Due</div>
+        <div className="col-md-2 col-xs-3 bulk-invoice__invoice-item">ID</div>
+        <div className="col-md-2 col-xs-3 bulk-invoice__invoice-item">Status</div>
+        <div className="col-md-2 col-xs-3 bulk-invoice__invoice-item">Date</div>
+        <div className="col-md-2 col-xs-3 bulk-invoice__invoice-item">Amount Due</div>
       </div>
     )
   }
