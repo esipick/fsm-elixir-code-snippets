@@ -84,6 +84,23 @@ defmodule Flight.Accounts do
     |> Repo.all
   end
 
+  def delete_user_instructor(user_id, instructor_id) when is_nil(user_id) or is_nil(instructor_id), do: {:ok, :done}
+  def delete_user_instructor(user_id, instructor_id) do
+    from(ui in UserInstructor, where: ui.user_id == ^instructor_id and ui.instructor_id == ^user_id)
+    |> Repo.delete_all
+  end
+
+  def insert_user_instructor(user_id, instructor_id) when is_nil(user_id) or is_nil(instructor_id), do: {:error, "Invalid User or Instructor."}
+  def insert_user_instructor(user_id, instructor_id) do
+
+    with nil <- Repo.get_by(UserInstructor, instructor_id: user_id, user_id: instructor_id) do
+      %UserInstructor{}
+      |> UserInstructor.changeset(%{user_id: instructor_id, instructor_id: user_id})
+      |> Repo.insert
+    end
+  end
+
+
   def get_main_instructor_student_ids(nil), do: []
   def get_main_instructor_student_ids(instructor_id) do
     User
@@ -249,6 +266,16 @@ defmodule Flight.Accounts do
        ) do
     user =
       Repo.preload(user, [:roles, :aircrafts, :flyer_certificates, :instructors, :main_instructor])
+    
+    instructor_ids = instructor_ids || []
+    instructor_ids =
+      if user.main_instructor_id != nil do
+        [user.main_instructor_id | instructor_ids]
+
+      else
+        instructor_ids
+      end
+      |> Enum.uniq
 
     {valid_roles?, roles} =
       if role_slugs do
@@ -393,12 +420,23 @@ defmodule Flight.Accounts do
           |> Repo.update()
 
         case result do
-          {:ok, user} ->
+          {:ok, updated_user} ->
             if attrs["delete_avatar"] == "1" and avatar do
-              Flight.AvatarUploader.delete({avatar, user})
+              Flight.AvatarUploader.delete({avatar, updated_user})
+            end
+            
+            instructor_exists = user.main_instructor_id != nil
+            is_main_instructor_updated? = updated_user.main_instructor_id != user.main_instructor_id 
+
+            if is_main_instructor_updated? && instructor_exists do
+              delete_user_instructor(user.id, user.main_instructor_id)
             end
 
-            {:ok, user}
+            if is_main_instructor_updated? do
+              insert_user_instructor(user.id, updated_user.main_instructor_id)
+            end
+
+            {:ok, updated_user}
 
           error ->
             error

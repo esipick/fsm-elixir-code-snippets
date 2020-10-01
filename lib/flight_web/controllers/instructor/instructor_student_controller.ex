@@ -194,7 +194,7 @@ defmodule FlightWeb.Instructor.StudentController do
         _ -> nil
       end
 
-    case Accounts.admin_update_user_profile(
+     case Accounts.admin_update_user_profile(
            conn.assigns.requested_user,
            user_form,
            nil,
