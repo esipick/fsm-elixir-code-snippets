@@ -275,7 +275,7 @@ class BulkInvoiceForm extends Component {
                   <label>
                     Invoices
                   </label>
-                  { invoices.length ? this.invoicesTableHeaders() : null}
+                  { invoices.length ? this.invoicesTableHeaders() : student ? <h6 style={{ color: "red" }}> No pending invoices</h6> : null}
                   <div>
                     { invoices.map(invoice =>
                         <Invoice key={invoice.id} onSelect={this.onInvoiceSelect} {...invoice} />
