@@ -475,22 +475,22 @@ class Form extends Component {
           }
           else{
             if (!this.state.hobb_tach_warning_accepted &&
-                ( (this.state.line_items[increment].hobbs_end - this.state.line_items[increment].hobbs_start) > 12 ||
-                ( this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 12 ) ) {
+                ( (this.state.line_items[increment].hobbs_end - this.state.line_items[increment].hobbs_start) > 120 ||
+                ( this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 120 ) ) {
 
               var warningMsg = ""
 
-              if ( (this.state.line_items[increment].hobbs_end - this.state.line_items[increment].hobbs_start) > 12 &&
-                (this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 12 ) {
+              if ( (this.state.line_items[increment].hobbs_end - this.state.line_items[increment].hobbs_start) > 120 &&
+                (this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 120 ) {
                 warningMsg = "Your Hobbs and Tach end time is more than 12 hours greater than your start time. Are you sure that this is correct?"
               }
-              else if ((this.state.line_items[increment].hobbs_end - this.state.line_items[increment].hobbs_start) > 12) {
+              else if ((this.state.line_items[increment].hobbs_end - this.state.line_items[increment].hobbs_start) > 120) {
                 warningMsg = "Your Hobbs end time is more than 12 hours greater than your start time. Are you sure that this is correct?"
               }
-              else if ((this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 12) {
+              else if ((this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 120) {
                 warningMsg = "Your Tach end time is more than 12 hours greater than your start time. Are you sure that this is correct?"
               }
-
+              console.log(this.state.line_items[increment])
               this.showHobbTachWarning(warningMsg)
                 return;
             }
