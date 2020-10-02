@@ -157,7 +157,6 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   defp authorize_modify(conn, _) do
-    # Need 24 hrs update
     current_user = conn.assigns.current_user
     user_id_param = conn.params["data"] |> Optional.map(& &1["user_id"])
     twenty_four_hours = 24 * 60 * 60
@@ -186,10 +185,14 @@ defmodule FlightWeb.API.AppointmentController do
     apnmt = conn.assigns[:appointment]
     now = NaiveDateTime.utc_now()
     apnmt_end_at = # because end_at can be nil because of the with condition on line 164
-      if apnmt != nil && apnmt.end_at, do: NaiveDateTime.add(apnmt.end_at, twenty_four_hours), else: nil
+      if apnmt != nil && apnmt.end_at != nil, do: NaiveDateTime.add(apnmt.end_at, twenty_four_hours), else: nil
+      
+    IO.inspect(apnmt, label: "Appointment")
 
     restrict_modify =
       if apnmt_end_at && NaiveDateTime.compare(apnmt_end_at, now) == :lt, do: true, else: false
+
+    IO.inspect(restrict_modify, label: "Restrict Modify")
     
     owner_instructor_permisssions = 
       if conn.assigns[:appointment] && (end_at == nil or NaiveDateTime.compare(end_at, now) == :gt) && !restrict_modify do
@@ -231,7 +234,7 @@ defmodule FlightWeb.API.AppointmentController do
 
       user_can?(current_user,
         [Permission.new(:appointment_user, :modify, {:personal, user_id})]) -> #student
-
+            IO.inspect(end_at, label: "End At")
         if (end_at == nil or NaiveDateTime.compare(NaiveDateTime.utc_now(), end_at) == :lt) do
             conn
           else
