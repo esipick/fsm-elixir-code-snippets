@@ -17,6 +17,7 @@ import { itemsFromInvoice } from './line_items/line_item_utils';
 
 import LineItemsTable from './LineItemsTable';
 import LowBalanceAlert from './LowBalanceAlert';
+import ConfirmHobbTachAlert from './ConfirmHobbTachAlert';
 import ErrorAlert from './ErrorAlert';
 import ConfirmAlert from './ConfirmAlert';
 import {itemsFromAppointment, containsSimulator} from './line_items/line_item_utils';
@@ -58,6 +59,8 @@ class Form extends Component {
       error_date_alert_open: false,
       confirm_alert_open: false,
       balance_warning_open: false,
+      hobb_tach_warning_open: false,
+      hobb_tach_warning_accepted: false,
       balance_warning_accepted: false,
       payment_method: payment_method || {},
       line_items: [],
@@ -308,7 +311,7 @@ class Form extends Component {
 
   setPaymentMethod = (option) => { this.setState({ payment_method: option }); }
 
-  onLineItemsTableChange = (values) => { this.setState(values); }
+  onLineItemsTableChange = (values) => { this.setState(values); this.setState({ hobb_tach_warning_accepted: false });}
 
   payload = () => {
     const {
@@ -349,6 +352,12 @@ class Form extends Component {
     if (open) this.setState({ balance_warning_open: true });
 
     return open;
+  }
+
+  showHobbTachWarning = (warningMsg) => {
+    if ( warningMsg != "" ) {
+      this.setState({hobb_tach_warning_open: true, warningMsg: warningMsg});
+    }
   }
 
   saveInvoice = ({ pay_off }) => {
@@ -465,6 +474,27 @@ class Form extends Component {
             return;
           }
           else{
+            if (!this.state.hobb_tach_warning_accepted &&
+                ( (this.state.line_items[increment].hobbs_end - this.state.line_items[increment].hobbs_start) > 12 ||
+                ( this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 12 ) ) {
+
+              var warningMsg = ""
+
+              if ( (this.state.line_items[increment].hobbs_end - this.state.line_items[increment].hobbs_start) > 12 &&
+                (this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 12 ) {
+                warningMsg = "Your Hobbs and Tach end time is more than 12 hours greater than your start time. Are you sure that this is correct?"
+              }
+              else if ((this.state.line_items[increment].hobbs_end - this.state.line_items[increment].hobbs_start) > 12) {
+                warningMsg = "Your Hobbs end time is more than 12 hours greater than your start time. Are you sure that this is correct?"
+              }
+              else if ((this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 12) {
+                warningMsg = "Your Tach end time is more than 12 hours greater than your start time. Are you sure that this is correct?"
+              }
+
+              this.showHobbTachWarning(warningMsg)
+                return;
+            }
+
             if (pay_off && (typeof(this.state.appointment) == "undefined" || (this.state.appointment) && Date.now() < Date.parse(moment.utc(this.state.appointment.start_at).add(+(moment().utcOffset()), 'm').format().split("Z")[0]))) {
               
               var appointmentMsg = "Invoice associated with aircraft cannot be paid before the starting time of appointment."
@@ -513,6 +543,15 @@ class Form extends Component {
 
   closeBalanceWarning = () => {
     this.setState({ balance_warning_open: false });
+  }
+
+  closeHobbTachWarning = () => {
+    this.setState({ hobb_tach_warning_open: false });
+  }
+
+  acceptHobbTachWarning = () => {
+    this.setState({ hobb_tach_warning_accepted: true});
+    this.setState({ hobb_tach_warning_open: false });
   }
 
   closeTotalErrorAlert = () => {
@@ -727,6 +766,12 @@ class Form extends Component {
           balance={student ? student.balance : 0}
           student={student}
           total={total_amount_due}
+        />
+
+        <ConfirmHobbTachAlert open={this.state.hobb_tach_warning_open}
+          onReject={this.closeHobbTachWarning}
+          onAccept={this.acceptHobbTachWarning}
+          text={this.state.warningMsg}
         />
 
       <ErrorAlert open={this.state.error_alert_total_open}
