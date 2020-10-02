@@ -9,7 +9,7 @@ import './styles.css';
 import { authHeaders, addSchoolIdParam } from '../utils';
 import Error from '../common/Error';
 
-import Invoice from './Invoice';
+import Invoice from './emailInvoice';
 
 import { PAYMENT_OPTIONS, DEFAULT_PAYMENT_OPTION, BALANCE } from '../invoice_form/constants';
 
