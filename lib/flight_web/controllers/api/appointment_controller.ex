@@ -162,8 +162,8 @@ defmodule FlightWeb.API.AppointmentController do
     twenty_four_hours = 24 * 60 * 60
 
     {user_id, end_at} =
-      with %Scheduling.Appointment{} = appointment <- conn.assigns[:appointment],
-           true <- user_id_param == nil or appointment.owner_user_id != current_user.id do
+      with %Scheduling.Appointment{} = appointment <- conn.assigns[:appointment] do
+          #  true <- user_id_param == nil or appointment.owner_user_id != current_user.id do
            end_at =
               if appointment.end_at, do: NaiveDateTime.add(appointment.end_at, twenty_four_hours), else: nil
 
@@ -230,7 +230,6 @@ defmodule FlightWeb.API.AppointmentController do
 
       user_can?(current_user,
         [Permission.new(:appointment_user, :modify, {:personal, user_id})]) -> #student
-            IO.inspect(end_at, label: "End At")
         if (end_at == nil or NaiveDateTime.compare(NaiveDateTime.utc_now(), end_at) == :lt) do
             conn
           else
@@ -244,7 +243,7 @@ defmodule FlightWeb.API.AppointmentController do
 
   defp render_bad_time_request(
          conn,
-         message \\ "You are not authorized to change this appointment after starting time. Please talk to your assigned Instructor, Dispatcher or school's Admin."
+         message \\ "You are not authorized to change an appointment after 24 hours of its end time. Please talk to your assigned Instructor, Dispatcher or school's Admin."
        ) do
     conn
     |> put_status(401)
