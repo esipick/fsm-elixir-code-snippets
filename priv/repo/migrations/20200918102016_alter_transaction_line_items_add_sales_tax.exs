@@ -7,7 +7,7 @@ defmodule Flight.Repo.Migrations.AlterTransactionLineItemAddSalesTax do
     end
   end
 
-  def up do
+  def down do
     alter table(:transaction_line_items) do
       remove :total_tax
     end

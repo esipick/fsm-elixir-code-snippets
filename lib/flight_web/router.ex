@@ -225,7 +225,7 @@ defmodule FlightWeb.Router do
     end
 
     resources("/aircrafts", AircraftController) do
-      get("logs", AircraftController, :logs)
+      get("/logs", AircraftController, :logs)
       resources("/inspections", InspectionController, only: [:create, :new])
     end
 
@@ -273,6 +273,8 @@ defmodule FlightWeb.Router do
     get("/aircrafts/:id/maintenance", MaintenanceController, :aircraft_maintenance)
     put("/aircrafts/:id/status", AircraftController, :update_status)
     delete("/aircrafts/maintenance", MaintenanceController, :remove_aircrafts_from_maintenance)
+    post("/maintenance/attachments", MaintenanceController, :create_aircraft_maintenance_attachment)
+    delete("/maintenance/attachments/:id", MaintenanceController, :delete_aircraft_maintenance_attachment)
 
     post("/checklists", CheckListController, :create)
     get("/checklists", CheckListController, :index)
@@ -379,6 +381,6 @@ defmodule FlightWeb.Router do
   end
 
   if Mix.env() == :dev do
-    forward("/email_inbox", Bamboo.EmailPreviewPlug)
+    # forward("/email_inbox", Bamboo.EmailPreviewPlug)
   end
 end

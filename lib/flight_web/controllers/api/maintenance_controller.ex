@@ -16,7 +16,7 @@ defmodule FlightWeb.API.MaintenanceController do
           |> Map.put("school_id", school_id)
           |> Map.put("creator_id", id)
 
-        with {:ok, changeset} <- Inspections.create_and_schedule_maintenance(aircraft_hours, checklist_ids, alerts, params) do
+        with {:ok, _changeset} <- Inspections.create_and_schedule_maintenance(aircraft_hours, checklist_ids, alerts, params) do
           json(conn, %{"result" => "success"})
         else
           {:error, error} ->
@@ -34,7 +34,7 @@ defmodule FlightWeb.API.MaintenanceController do
       end
     end
   
-    def assign_aircrafts(conn, %{"maintenance_id" => m_id, "aircrafts" => aircrafts} = params) do
+    def assign_aircrafts(conn, %{"maintenance_id" => m_id, "aircraft_hours" => aircrafts}) do
       with  {:ok, :done} <- Inspections.assign_maintenance_to_aircrafts_transaction(m_id, aircrafts) do
         json(conn, %{"result" => "success"})
 
@@ -83,7 +83,7 @@ defmodule FlightWeb.API.MaintenanceController do
     end
 
     def delete(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => id}) do
-      with {:ok, changeset} <- Inspections.delete_maintenance(id, school_id) do
+      with {:ok, _changeset} <- Inspections.delete_maintenance(id, school_id) do
         json(conn, %{"result" => "success"})
 
       else
@@ -98,7 +98,29 @@ defmodule FlightWeb.API.MaintenanceController do
       json(conn, %{"result" => "success"})
     end
 
-    @desc "Squawks"
+    def create_aircraft_maintenance_attachment(conn, %{"aircraft_maintenance_id" => am_id, "items" => items}) do
+      with {:ok, _attachments} <- Inspections.upload_aircraft_maintenance_attachments(am_id, items) do
+        json(conn, %{"result" => "success"})
+
+      else
+        {:error, changeset} ->
+            error = Errors.traverse(changeset) 
+            json(conn, %{human_errors: [error]})
+      end
+    end
+
+    def delete_aircraft_maintenance_attachment(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => id}) do
+      with {:ok, _} <- Inspections.delete_aircraft_maintenance_attachment(id, school_id) do
+        json(conn, %{"result" => "success"})
+
+      else
+        {:error, changeset} ->
+            error = Errors.traverse(changeset) 
+            json(conn, %{human_errors: [error]})
+      end
+    end
+
+    @doc "Squawks"
     def create_squawk(%{assigns: %{
       current_user: %{school_id: school_id, id: user_id}}} = conn, attrs) do
         aircraft_id = Map.get(attrs, "aircraft_id")
@@ -137,7 +159,7 @@ defmodule FlightWeb.API.MaintenanceController do
       json(conn, %{"result" => squawks})
     end
 
-    def get_squawk(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => id} = params) do
+    def get_squawk(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => id}) do
       
       with {:ok, squawk} <- Squawks.get_squawk(id, school_id) do
         json(conn, %{"result" => squawk})

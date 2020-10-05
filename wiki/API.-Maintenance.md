@@ -125,18 +125,20 @@ POST /api/maintenance
 Example request (JSON):
 ```json
 {
-"checklist_ids": ["edac28ec-fdc1-473e-90eb-51d3d9ae5d72"], 
-"name": "6th Annual Inspection",
+"checklist_ids": ["10f76955-03fe-43e9-923e-f377b9cb8add", "b0161061-3fd5-4484-a386-de2ce7993427"], 
+"name": "Annual Inspection",
 "description": "This inspection is due every 1 year and should be carried out regularly.",
-"tach_hours": 100,
-"no_of_months": 0,
+"tach_hours": 0,
+"no_of_months": 12,
 "aircraft_hours": [{
   		"aircraft_id": 2,
-  		"start_tach_hours": 220
+  		"due_tach_hours": 220,
+  		"due_date": "2021-01-01 00:00:00"
 	},
     {
   		"aircraft_id": 1,
-  		"start_tach_hours": 250
+  		"due_tach_hours": 250,
+      	"due_date": "2020-11-01 00:00:00"
 	}],
  "alerts": [{
 	"name": "Event Alert",
@@ -237,13 +239,15 @@ Example Request (JSON):
 ```json
 {
   "maintenance_id": "8d25cc5b-600c-41e9-a7e6-6f6fa01598d6",
-  "aircrafts": [{
+  "aircraft_hours": [{
   		"aircraft_id": 2,
-  		"start_tach_hours": 220
+  		"due_tach_hours": 220,
+      "dur_date": "2021-01-01 00:00:00"
 	  },
     {
   		"aircraft_id": 1,
-  		"start_tach_hours": 250
+  		"due_tach_hours": 250,
+      "dur_date": "2021-01-01 00:00:00"
 	}]
 }
 ```

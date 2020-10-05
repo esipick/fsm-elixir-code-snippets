@@ -10,7 +10,7 @@ defmodule FlightWeb.API.AircraftController do
 
   def create(conn, %{"data" => aircraft_data}) when is_map(aircraft_data) do
     case Scheduling.admin_create_aircraft(aircraft_data, conn) do
-      {:ok, aircraft} ->
+      {:ok, _aircraft} ->
         json(conn, %{"result" => "success"})
 
       {:error, changeset} ->

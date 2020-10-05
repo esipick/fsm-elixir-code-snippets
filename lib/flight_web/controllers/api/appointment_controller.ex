@@ -187,12 +187,8 @@ defmodule FlightWeb.API.AppointmentController do
     apnmt_end_at = # because end_at can be nil because of the with condition on line 164
       if apnmt != nil && apnmt.end_at != nil, do: NaiveDateTime.add(apnmt.end_at, twenty_four_hours), else: nil
       
-    IO.inspect(apnmt, label: "Appointment")
-
     restrict_modify =
       if apnmt_end_at && NaiveDateTime.compare(apnmt_end_at, now) == :lt, do: true, else: false
-
-    IO.inspect(restrict_modify, label: "Restrict Modify")
     
     owner_instructor_permisssions = 
       if conn.assigns[:appointment] && (end_at == nil or NaiveDateTime.compare(end_at, now) == :gt) && !restrict_modify do

@@ -6,7 +6,6 @@ defmodule FlightWeb.API.InvoiceController do
   alias Flight.Auth.Permission
   alias Flight.Repo
   alias FlightWeb.{ViewHelpers, Pagination, StripeHelper}
-  alias Flight.Scheduling
   alias Flight.Billing.{
     CalculateInvoice,
     CreateInvoice,

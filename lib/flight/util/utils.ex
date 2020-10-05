@@ -2,13 +2,14 @@ defmodule Flight.Utils do
     @secs_in_a_day 86000
 
     def add_months(%NaiveDateTime{} = date, no_of_months) do
-        total_days = no_of_days_by_adding_months(date, no_of_months)
-        due_date = NaiveDateTime.add(date, total_days * @secs_in_a_day)
+        Timex.shift(date, months: no_of_months)
+        # total_days = no_of_days_by_adding_months(date, no_of_months)
+        # due_date = NaiveDateTime.add(date, total_days * @secs_in_a_day)
         
-        date
-        |> Map.put(:year, due_date.year)
-        |> Map.put(:month, due_date.month)
-        |> Map.put(:day, due_date.day)
+        # date
+        # |> Map.put(:year, due_date.year)
+        # |> Map.put(:month, due_date.month)
+        # |> Map.put(:day, due_date.day)
     end
 
     def no_of_days_by_adding_months(%NaiveDateTime{}, 0), do: 0

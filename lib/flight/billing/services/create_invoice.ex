@@ -221,7 +221,7 @@ defmodule Flight.Billing.CreateInvoice do
     create_transaction_items(aircraft, instructor, invoice, school_context, transaction)
   end
 
-  defp create_transaction_items(aircraft, instructor, invoice, school_context, transaction \\ nil)
+  # defp create_transaction_items(aircraft, instructor, invoice, school_context, transaction \\ nil)
   defp create_transaction_items(aircraft, instructor, _, _, _) when is_nil(aircraft) and is_nil(instructor), do: nil
   defp create_transaction_items(aircraft, instructor, %{id: invoice_id, tax_rate: tax_rate}, school_context, transaction) do
 

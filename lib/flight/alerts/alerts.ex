@@ -38,9 +38,9 @@ defmodule Flight.Alerts do
         end
     end
 
-    defp create_alert(attrs) do
-        %Alert{}
-        |> Alert.changeset(attrs)
-        |> Repo.insert    
-    end
+    # defp create_alert(attrs) do
+    #     %Alert{}
+    #     |> Alert.changeset(attrs)
+    #     |> Repo.insert    
+    # end
 end

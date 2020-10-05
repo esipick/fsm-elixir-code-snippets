@@ -50,16 +50,15 @@ defmodule Flight.Inspections.Squawk do
 
     defp validate_role_inclusion(%Ecto.Changeset{valid?: true, changes: %{notify_roles: nil}} = changeset), do: changeset
     defp validate_role_inclusion(%Ecto.Changeset{valid?: true, changes: %{notify_roles: roles}} = changeset) do
-        roles = 
-            Enum.reduce_while(roles, changeset, fn (role, changeset) -> 
-                norm_role = role || ""
+        Enum.reduce_while(roles, changeset, fn (role, changeset) -> 
+            norm_role = role || ""
 
-                if norm_role in @roles do
-                    {:cont, changeset}
-                else
-                    {:halt, add_error(changeset, :send_to_role, "#{inspect role} is not a valid role")}
-                end
-            end)
+            if norm_role in @roles do
+                {:cont, changeset}
+            else
+                {:halt, add_error(changeset, :send_to_role, "#{inspect role} is not a valid role")}
+            end
+        end)
     end
 
     defp validate_role_inclusion(changeset), do: changeset

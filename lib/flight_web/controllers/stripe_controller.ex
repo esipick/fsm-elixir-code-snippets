@@ -1,7 +1,7 @@
 defmodule FlightWeb.API.StripeController do
   use FlightWeb, :controller
 
-  def stripe_events(conn, params) do
+  def stripe_events(conn, _params) do
     payload = conn.assigns.raw_body
     header = List.first(get_req_header(conn, "stripe-signature"))
     secret = Application.get_env(:flight, :stripe_webhook_secret)

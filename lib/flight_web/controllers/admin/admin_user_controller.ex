@@ -4,7 +4,7 @@ defmodule FlightWeb.Admin.UserController do
   alias Flight.{Accounts, Billing, Repo, Scheduling, Queries}
   alias Flight.Auth.Permission
   alias FlightWeb.StripeHelper
-  alias FlightWeb.Admin.InvitationController
+  # alias FlightWeb.Admin.InvitationController
 
   import Flight.Auth.Authorization
 
@@ -13,22 +13,22 @@ defmodule FlightWeb.Admin.UserController do
   plug(:authorize_admin when action in [:index])
   plug(:protect_admin_users when action in [:show, :edit, :update])
 
-  def index(conn, %{"role" => "user" = role, "tab" => "archived"} = params) do
+  def index(conn, %{"role" => "user" = _role, "tab" => "archived"} = params) do
     {template, assigns} = Flight.UserRolesUtils.process(conn, false, params)
     render(conn, template, assigns)
   end
 
-  def index(conn, %{"role" => role_slug, "tab" => "archived"} = params) do
+  def index(conn, %{"role" => _role_slug, "tab" => "archived"} = params) do
     {template, assigns} = Flight.UserRolesUtils.process(conn, false, params)
     render(conn, template, assigns)
   end
 
-  def index(conn, %{"role" => "user" = role} = params) do
+  def index(conn, %{"role" => "user" = _role} = params) do
     {template, assigns} = Flight.UserRolesUtils.process(conn, false, params)
     render(conn, template, assigns)
   end
 
-  def index(conn, %{"role" => role_slug} = params) do
+  def index(conn, %{"role" => _role_slug} = params) do
     {template, assigns} = Flight.UserRolesUtils.process(conn, false, params)
     render(conn, template, assigns)
   end
@@ -186,12 +186,11 @@ defmodule FlightWeb.Admin.UserController do
           (Map.get(params, "pilot_endorsements") || %{})
           |> Map.keys
 
-        user_form =
-          user_form
-          |> Map.put("pilot_aircraft_categories", pilot_aircraft_categories)
-          |> Map.put("pilot_class", pilot_class)
-          |> Map.put("pilot_ratings", pilot_ratings)
-          |> Map.put("pilot_endorsements", pilot_endorsements)
+        user_form
+        |> Map.put("pilot_aircraft_categories", pilot_aircraft_categories)
+        |> Map.put("pilot_class", pilot_class)
+        |> Map.put("pilot_ratings", pilot_ratings)
+        |> Map.put("pilot_endorsements", pilot_endorsements)
       else
         user_form
       end

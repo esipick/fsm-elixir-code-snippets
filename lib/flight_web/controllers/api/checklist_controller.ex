@@ -37,7 +37,7 @@ defmodule FlightWeb.API.CheckListController do
     end
 
     def delete(conn, %{"id" => id}) do
-        with {:ok, changeset} <- Inspections.delete_checklist(id) do
+        with {:ok, _changeset} <- Inspections.delete_checklist(id) do
             json(conn, %{"result" => "success"})
         else
             {:error, changeset} ->

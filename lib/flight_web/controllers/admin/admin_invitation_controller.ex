@@ -141,7 +141,7 @@ defmodule FlightWeb.Admin.InvitationController do
     end
   end
 
-  defp check_invitation(conn, params) do
+  defp check_invitation(conn, _params) do
     email = conn.params["data"]["email"]
     invitation = Accounts.get_invitation_for_email(email, conn)
     user = Accounts.get_user_by_email(email)

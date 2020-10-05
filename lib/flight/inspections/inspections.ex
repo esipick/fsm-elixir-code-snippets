@@ -3,6 +3,7 @@ defmodule Flight.Inspections do
 
     alias Flight.Scheduling.Aircraft
     alias Flight.Ecto.Errors
+    alias Flight.Inspections.AircraftMaintenanceAttachment
     alias Flight.Inspections.{
         Queries,
         CheckList,
@@ -38,12 +39,12 @@ defmodule Flight.Inspections do
 
                 aircraft =
                     aircraft
-                    |> Repo.preload([:squawks])
+                    # |> Repo.preload([:squawks])
                     |> Map.delete(:__struct__)
                     |> Map.take(Aircraft.fields_to_cast() ++ [:squawks])
-                    |> Map.put(:maintenances, maintenances)
-                    |> Map.put(:nearest_tach_based, fetch_nearest(maintenances, :tach_time_remaining))
-                    |> Map.put(:nearest_time_based, fetch_nearest(maintenances, :days_remaining))
+                    # |> Map.put(:maintenances, maintenances)
+                    # |> Map.put(:next_maintenance, fetch_nearest(maintenances, :tach_time_remaining))
+                    # |> Map.put(:previous_maintenance, fetch_nearest(maintenances, :days_remaining))
 
                 {:ok, aircraft}
 
@@ -76,7 +77,7 @@ defmodule Flight.Inspections do
         Repo.transaction(fn -> 
             with {:ok, %{id: id} = maintenance} <- create_maintenance(params),
                 {:ok, :done} <- add_alerts_to_maintenance(maintenance, alerts),
-                {:ok, :done} <- assign_maintenance_to_aircrafts(id, aircraft_hours) do
+                {:ok, :done} <- assign_maintenance_to_aircrafts(maintenance, aircraft_hours) do
                 add_checklists_to_maintenance(id, checklist_ids)
     
                 {:ok, maintenance}
@@ -208,6 +209,52 @@ defmodule Flight.Inspections do
         end
     end
 
+    def upload_aircraft_maintenance_attachments(nil, _), do: {:error, "Invalid Aircraft Maintenance Id."}
+    def upload_aircraft_maintenance_attachments(_am_id, []), do: {:ok, []}
+    def upload_aircraft_maintenance_attachments(am_id, attachments) when is_map(attachments) do
+        upload_aircraft_maintenance_attachments(am_id, [attachments])
+        |> case do
+            {:ok, attachments} -> {:ok, List.first(attachments)}
+            error -> error
+        end
+    end
+    def upload_aircraft_maintenance_attachments(am_id, attachments) do
+        
+        with %{id: _} <- Repo.get(AircraftMaintenance, am_id) do
+            Enum.reduce_while(attachments, {:ok, []}, fn item, {:ok, acc} ->
+                title = Map.get(item, :title)
+                attachment = Map.get(item, :attachment) || item
+
+                %AircraftMaintenanceAttachment{}
+                |> AircraftMaintenanceAttachment.changeset(%{aircraft_maintenance_id: am_id, title: title, attachment: attachment})
+                |> Repo.insert
+                |> case do
+                    {:ok, changeset} -> {:cont, {:ok, [changeset | acc]}}
+                    error -> {:halt, error}
+                end
+            end)
+
+        else
+            nil -> {:error, "Aircraft Maintenance not found."}
+        end
+    end
+
+    def delete_aircraft_maintenance_attachment(id, school_id) do
+        query = 
+            Queries.get_aircraft_maintenance_attachment_query(%{id: id, attachment_school_id: school_id})
+        
+        with %{id: _} = attach <- Repo.get_by(query, []),
+            {:ok, _} <- Repo.delete(attach) do
+                Flight.AircraftMaintenanceUploader.delete({attach.attachment, attach})
+
+            {:ok, attach}
+
+        else
+            nil -> {:error, "Attachment not found."}
+            error -> error
+        end
+    end
+
     def remove_aircrafts_from_maintenance(_maintenance_id, []), do: {:ok, :done}
     def remove_aircrafts_from_maintenance(maintenance_id, aircraft_ids) do
         Queries.delete_aircrafts_from_maintenance_query(maintenance_id, aircraft_ids)
@@ -216,17 +263,22 @@ defmodule Flight.Inspections do
         {:ok, :done}
     end
 
-    def check_and_assign_aircraft_maintenance(_aircraft_id, [], tach_hours, school_id), do: {:ok, :done}
+    def check_and_assign_aircraft_maintenance(_aircraft_id, [], _tach_hours, _school_id), do: {:ok, :done}
     def check_and_assign_aircraft_maintenance(aircraft_id, m_ids, tach_hour, school_id) do
         m_ids = Enum.uniq(m_ids)
-        found_ids = get_all_maintenances_only(%{ids: m_ids, school_id: school_id}) |> Enum.map( & &1.id)
+        maintenances = 
+            get_all_maintenances_only(%{ids: m_ids, school_id: school_id})
+            |> Enum.reduce(%{}, fn(item, acc) -> Map.put(acc, item.id, item) end)
+        
+        found_ids = Map.keys(maintenances)
         diff = m_ids -- found_ids
 
         with [] <- diff do
             Enum.reduce_while(m_ids, {:ok, :done}, fn(m_id, _acc) -> 
                 aircraft_hour = %{"aircraft_id" => aircraft_id, "start_tach_hours" => tach_hour}
+                maintenance = Map.get(maintenances, m_id) || m_id
 
-                assign_maintenance_to_aircrafts(m_id, [aircraft_hour])
+                assign_maintenance_to_aircrafts(maintenance, [aircraft_hour])
                 |> case do
                     {:ok, :done} -> {:cont, {:ok, :done}}
                     {:error, error} -> {:halt, {:error, error}}
@@ -239,31 +291,61 @@ defmodule Flight.Inspections do
     end
 
     def assign_maintenance_to_aircrafts_transaction(m_id, aircraft_hours) when is_map(aircraft_hours), do: assign_maintenance_to_aircrafts_transaction(m_id, [aircraft_hours])
-    def assign_maintenance_to_aircrafts_transaction(m_id, aircraft_hours) do
+    def assign_maintenance_to_aircrafts_transaction(m_id, aircraft_hours) do        
         Repo.transaction(fn -> 
-            assign_maintenance_to_aircrafts(m_id, aircraft_hours)
-            |> case do
-                {:error, error} -> Repo.rollback(error)
-                {:ok, result} -> result
+            with {:ok, maintenance} <- get_maintenance(%{id: m_id}),
+                {:ok, result} <- assign_maintenance_to_aircrafts(maintenance, aircraft_hours) do
+                result
+            else
+                {:error, error} -> Repo.rollback(error) 
             end
         end)
     end
+    
+    defp assign_maintenance_to_aircrafts(%Maintenance{
+        id: m_id, 
+        tach_hours: tach_hours, 
+        no_of_months: months, 
+        school_id: school_id}, aircraft_hours) do 
+        
+            now = NaiveDateTime.truncate(NaiveDateTime.utc_now, :second)
+            {key, duration} = 
+                if tach_hours != nil && tach_hours > 0, do: {"due_date", tach_hours}, else: {"due_tach_hours", months}
+            
+            ids = Enum.map(aircraft_hours, & Map.get(&1, "aircraft_id"))
+            aircrafts_map =
+                %{ids: ids, school_id: school_id}
+                |> Queries.get_all_aircrafts_query 
+                |> Repo.all
+                |> Enum.reduce(%{}, fn(%{id: id, last_tach_time: tach_hours}, acc) -> Map.put(acc, id, tach_hours) end)
 
-    defp assign_maintenance_to_aircrafts(m_id, aircraft_hours) do 
-        aircraft_hours
-        |> MapSet.new
-        |> MapSet.to_list
-        |> Enum.reduce_while({:ok, :done}, fn(item, _acc) -> 
-            %AircraftMaintenance{}
-            |> AircraftMaintenance.changeset(Map.put(item, "maintenance_id", m_id))
-            |> Repo.insert
-            |> case do
-                {:ok, _} -> {:cont, {:ok, :done}}
-                {:error, changeset} -> 
-                    error = Flight.Ecto.Errors.traverse(changeset)
-                    {:halt, {:error, error}}
-            end 
-        end)
+            aircraft_hours
+            |> MapSet.new
+            |> MapSet.to_list
+            |> Enum.map(fn %{"aircraft_id" => aircraft_id} = item -> 
+                item
+                |> Map.put("duration", duration)
+                |> Map.put("current_tach_hours", Map.get(aircrafts_map, aircraft_id))
+                |> Map.delete(key)
+            end)
+            |> Enum.reduce_while({:ok, :done}, fn(item, _acc) -> 
+                %AircraftMaintenance{}
+                |> AircraftMaintenance.changeset(Map.put(item, "maintenance_id", m_id))
+                |> Repo.insert
+                |> case do
+                    {:ok, _} -> {:cont, {:ok, :done}}
+                    {:error, changeset} -> 
+                        error = Flight.Ecto.Errors.traverse(changeset)
+                        {:halt, {:error, error}}
+                end 
+            end)
+    end
+
+    defp assign_maintenance_to_aircrafts(nil, _aircraft_hours), do: {:error, "Invalid Maintenance Id."}
+    defp assign_maintenance_to_aircrafts(m_id, aircraft_hours) do
+        with {:ok, maintenance} <- get_maintenance(%{id: m_id}) do
+            assign_maintenance_to_aircrafts(maintenance, aircraft_hours)
+        end
     end
 
     def transform_maintenance(maintenance) when is_list(maintenance) do

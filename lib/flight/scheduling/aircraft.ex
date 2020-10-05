@@ -40,7 +40,7 @@ defmodule Flight.Scheduling.Aircraft do
   @doc false
   def changeset(aircraft, attrs) do
     aircraft
-    |> cast(attrs, fields_to_cast)
+    |> cast(attrs, fields_to_cast())
     |> validate_required([
       :ifr_certified,
       :simulator,

@@ -9,7 +9,8 @@ defmodule Flight.Inspections.Queries do
         Maintenance,
         SquawkAttachment,
         MaintenanceCheckList,
-        AircraftMaintenance
+        AircraftMaintenance,
+        AircraftMaintenanceAttachment
     }
 
     def get_maintenance_query(filter) do
@@ -36,9 +37,9 @@ defmodule Flight.Inspections.Queries do
                     aircraft_model: a.model,
                     curr_tach_time: a.last_tach_time,
                     due_date: m.due_date,
-                    tach_time_remaining: m.tach_hours + am.start_tach_hours - a.last_tach_time,
+                    tach_time_remaining: am.due_tach_hours - a.last_tach_time,
                     days: fragment("DATE_PART('day', ?::timestamp - ?::timestamp)", m.due_date, m.ref_start_date),
-                    days_remaining: fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", m.due_date)
+                    days_remaining: fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", am.due_date)
                 },
                 where: a.archived == false and a.simulator == false
 
@@ -63,9 +64,9 @@ defmodule Flight.Inspections.Queries do
                     # aircraft_model: a.model,
                     curr_tach_time: a.last_tach_time,
                     due_date: m.due_date,
-                    tach_time_remaining: m.tach_hours + am.start_tach_hours - a.last_tach_time,
+                    tach_time_remaining: am.due_tach_hours - a.last_tach_time,
                     days: fragment("DATE_PART('day', ?::timestamp - ?::timestamp)", m.due_date, m.ref_start_date),
-                    days_remaining: fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", m.due_date)
+                    days_remaining: fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", am.due_date)
                 },
                 where: a.archived == false and a.simulator == false
 
@@ -110,17 +111,34 @@ defmodule Flight.Inspections.Queries do
             where: am.maintenance_id == ^m_id and am.aircraft_id in ^aircraft_ids
     end
 
+    def get_aircraft_maintenance_attachment_query(filter) do
+        query = 
+            from ama in AircraftMaintenanceAttachment,
+                inner_join: am in AircraftMaintenance, on: ama.aircraft_maintenance_id == am.id,
+                inner_join: m in Maintenance, on: am.maintenance_id == m.id, 
+                select: ama
+
+        filter_by(query, filter)
+    end
+
     def delete_checklist_from_maintenance_query(m_id, checklist_ids) do
         from mc in MaintenanceCheckList,
             where: mc.maintenance_id == ^m_id and mc.checklist_id in ^checklist_ids
     end
 
     def squawk_attachment_query(id, squawk_id, school_id) do
-        query = 
-            from st in SquawkAttachment,
-                inner_join: s in Squawk, on: s.id == st.squawk_id,
-                select: st,
-                where: st.squawk_id == ^squawk_id and st.id == ^id and s.school_id == ^school_id
+        from st in SquawkAttachment,
+            inner_join: s in Squawk, on: s.id == st.squawk_id,
+            select: st,
+            where: st.squawk_id == ^squawk_id and st.id == ^id and s.school_id == ^school_id
+    end
+
+    def get_all_aircrafts_query(filter) do
+        query =
+            from a in Aircraft,
+                select: a
+
+        filter_by(query, filter)
     end
 
     defp paginate(query, page, per_page) when is_nil(page) or is_nil(per_page), do: query
@@ -156,6 +174,10 @@ defmodule Flight.Inspections.Queries do
                     from q in query,
                         where: q.id in ^value
 
+                :attachment_school_id -> 
+                    from [_, _, m] in query,
+                        where: m.school_id == ^value
+
                 _ -> query
             end
         end)
@@ -179,19 +201,19 @@ defmodule Flight.Inspections.Queries do
 
             :days_remaining ->
                 sort_order = if sort_order == :asc, do: :asc_nulls_last, else: :desc_nulls_last
-                from [m, _, _a] in query,
-                    order_by: [{^sort_order, fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", m.due_date)}]
+                from [_m, am, _a] in query,
+                    order_by: [{^sort_order, fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", am.due_date)}]
 
             :tach_time_remaining ->
                 sort_order = if sort_order == :asc, do: :asc_nulls_last, else: :desc_nulls_last
                 
-                from [m, am, a] in query,
-                    order_by: [{^sort_order, fragment("? + ? - ?", m.tach_hours, am.start_tach_hours, a.last_tach_time)}]
+                from [_m, am, a] in query,
+                    order_by: [{^sort_order, fragment("? - ?", am.due_tach_hours, a.last_tach_time)}]
 
             :due_date ->
                 sort_order = if sort_order == :asc, do: :asc_nulls_last, else: :desc_nulls_last
-                from [m, _am, _a] in query,
-                    order_by: [{^sort_order, m.due_date}]
+                from [_m, am, _a] in query,
+                    order_by: [{^sort_order, am.due_date}]
 
             _ -> query
         end
@@ -210,29 +232,20 @@ defmodule Flight.Inspections.Queries do
                         where: am.status == ^value
                 
                 :urgency -> # #can only be applied when status is pending, [extream, high, normal, low, lowest]
-                    perc = 
+                    {low_perc, high_perc} = 
                         case value do
-                            "extream" -> 0
-                            "high" -> 0.05
-                            "normal" -> 0.10
-                            "low" -> 0.20
-                            _ -> 1.0
+                            "extream" -> {0, 0}
+                            "high" -> {0.01, 0.05}
+                            "normal" -> {0.09, 0.10}
+                            "low" -> {0.11, 0.20}
+                            _ -> {0.21, 1000000.0}
                         end
                     
-                    if value == "lowest" do
-                        # greater than or equal to 21 %
-                        perc = 0.21
-                        from [m, am, a] in query,
-                        where: (m.tach_hours > 0 and fragment("((?+?-?)::float/?::float)>=?", m.tach_hours, am.start_tach_hours, a.last_tach_time, m.tach_hours, ^perc)) or
-                                (not is_nil(m.due_date) and not is_nil(m.ref_start_date) and 
-                                fragment("(DATE_PART('day',?::timestamp-now()::timestamp)/DATE_PART('day',?::timestamp-?::timestamp))>=?", m.due_date, m.due_date, m.ref_start_date, ^perc))
+                    from [m, am, a] in query,
+                        where: (m.tach_hours > 0 and fragment("((?-?)::float/?::float) BETWEEN ? AND ?", am.due_tach_hours, a.last_tach_time, m.tach_hours, ^low_perc, ^high_perc)) or
+                            (not is_nil(am.due_date) and not is_nil(am.start_date) and 
+                            fragment("(DATE_PART('day',?::timestamp-now()::timestamp)/DATE_PART('day',?::timestamp-?::timestamp)) BETWEEN ? AND ?", am.due_date, am.due_date, am.start_date, ^low_perc, ^high_perc))
 
-                    else
-                        from [m, am, a] in query,
-                        where: (m.tach_hours > 0 and fragment("((?+?-?)::float/?::float)<=?", m.tach_hours, am.start_tach_hours, a.last_tach_time, m.tach_hours, ^perc)) or
-                                (not is_nil(m.due_date) and not is_nil(m.ref_start_date) and 
-                                fragment("(DATE_PART('day',?::timestamp-now()::timestamp)/DATE_PART('day',?::timestamp-?::timestamp))<=?", m.due_date, m.due_date, m.ref_start_date, ^perc))
-                    end
                 :occurance ->
                     now = NaiveDateTime.utc_now()
                     # can be any_time, past_week, past_month, past_year, current_week, current_month, current_year. "1596561995-1596562995"
@@ -251,11 +264,12 @@ defmodule Flight.Inspections.Queries do
                     status = Map.get(filter, :status) || "pending"
                     cond do
                         status == "pending" && start_date ->
-                            from [m, _, _] in  query,
-                                where: m.due_date >= ^start_date and m.due_date <= ^end_date
+                            from [m, am, _] in  query,
+                                where: am.due_date >= ^start_date and am.due_date <= ^end_date
+
                         status == "completed" && start_date ->
                             from [_m, am, _] in  query,
-                                where: am.end_time >= ^start_date and am.end_time <= ^end_date 
+                                where: am.end_et >= ^start_date and am.end_et <= ^end_date 
                         true ->
                             query   
                     end                    
