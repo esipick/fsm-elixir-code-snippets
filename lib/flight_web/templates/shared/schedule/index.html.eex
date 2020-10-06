@@ -54,12 +54,24 @@
       </div>
 
       <div class="modal-body">
-        <ul id="apptTabs" class="nav nav-pills nav-pills-primary" role="tablist">
+        <%# <ul id="apptTabs" class="nav nav-pills nav-pills-primary" role="tablist">
           <li class="nav-item"><a id="navAppt" class="nav-link active" data-toggle="tab" href="#" role="tablist">Appointment</a></li>
           <li class="nav-item"><a id="navUnavail" class="nav-link" data-toggle="tab" href="#" role="tablist">Unavailability</a></li>
           <li class="nav-item"><a id="navDemoAppt" class="nav-link" data-toggle="tab" href="#" role="tablist">Demo Flight</a></li>
-        </ul>
+        </ul> %>
         <div class="tab-content mt-2 mb-2">
+            <div class="row">
+              <label class="col-md-3 col-form-label">Type *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="apptType" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Appointment Type" placeholder="Appointment Type">
+                    <%= for type <- @types do %>
+                      <option value="<%= type %>"><%= appointment_type(type) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
 
           <div class="tab-pane active" id="appointmentForm">
             <div class="row"><label class="col-md-3 col-form-label">Start Time *</label>

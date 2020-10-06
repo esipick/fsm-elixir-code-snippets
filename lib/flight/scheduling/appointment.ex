@@ -11,7 +11,7 @@ defmodule Flight.Scheduling.Appointment do
     field(:note, :string)
     field(:payer_name, :string)
     field(:demo, :boolean, default: false)
-    field(:type, :string, default: "lesson")
+    field(:type, :string, default: "none")
     field(:status, InvoiceStatusEnum, default: :pending)
     field(:archived, :boolean, default: false)
 
@@ -35,6 +35,8 @@ defmodule Flight.Scheduling.Appointment do
 
     timestamps()
   end
+
+  def types(), do: ["none", "solo_flight", "demo_flight", "check_ride", "instructor_led", "unavailable", "meeting", "lesson"]
 
   def __test_changeset(appointment, attrs, timezone) do
     appointment
@@ -74,6 +76,9 @@ defmodule Flight.Scheduling.Appointment do
       :school_id,
       :type
     ])
+    |> normalize_type
+    |> validate_inclusion(:type, types())
+    |> check_demo_flight
     |> validate_end_at_after_start_at
     |> validate_user_instructor_different
     |> validate_either_instructor_or_aircraft_set
@@ -97,6 +102,21 @@ defmodule Flight.Scheduling.Appointment do
     |> Scheduling.apply_utc_timezone(:start_at, timezone)
     |> Scheduling.apply_utc_timezone(:end_at, timezone)
   end
+
+  def normalize_type(%Ecto.Changeset{valid?: true, changes: %{type: type}} = changeset) do
+    type = type || "none"
+    type = 
+        type
+        |> String.downcase
+
+    put_change(changeset, :type, type)
+  end
+  def normalize_type(changeset), do: changeset
+
+  def check_demo_flight(%Ecto.Changeset{valid?: true, changes: %{type: "demo_flight"}} = changeset) do
+    put_change(changeset, :demo, true)
+  end
+  def check_demo_flight(changeset), do: changeset
 
   defp validate_either_instructor_or_aircraft_set(changeset) do
     cond do

@@ -3,12 +3,14 @@ import shortid from 'shortid';
 export const FLIGHT_HOURS = "Flight Hours";
 export const SIMULATOR_HOURS = "Simulator Hours"
 export const INSTRUCTOR_HOURS = "Instructor Hours";
+export const DEMO_FLIGHT = "Demo Flight"
 export const ROOM = "Room"
 
 export const DEFAULT_TYPE = "other";
 export const TYPES = {
   [FLIGHT_HOURS]: "aircraft",
   [SIMULATOR_HOURS]: "aircraft",
+  [DEMO_FLIGHT]: "aircraft",
   [ROOM]: "room",
   [INSTRUCTOR_HOURS]: "instructor"
 }
@@ -16,6 +18,7 @@ export const TYPES = {
 export const DESCRIPTION_OPTS = [
   {label: FLIGHT_HOURS, value: FLIGHT_HOURS, taxable: true, deductible: false},
   {label: SIMULATOR_HOURS, value: SIMULATOR_HOURS, taxable: true, deductible: false},
+  {label: DEMO_FLIGHT, value: DEMO_FLIGHT, taxable: true, deductible: false},
   {label: INSTRUCTOR_HOURS, value: INSTRUCTOR_HOURS, taxable: false, deductible: false},
   {label: ROOM, value: ROOM, taxable: false, deductible: false}
 ];
@@ -113,7 +116,7 @@ export const itemsFromAppointment = (appointment, line_items, user_roles) => {
 
       if (!item) {
         item = appointment.aircraft || appointment.simulator
-        item = fromAircraft(item)
+        item = fromAircraft(item, appointment.type)
       }       
       
       item.hobbs_start = appointment.start_hobbs_time || item.hobbs_start;
@@ -135,6 +138,10 @@ export const itemsFromAppointment = (appointment, line_items, user_roles) => {
       if (user_roles.includes("admin") || user_roles.includes("dispatcher")) {
         item.enable_rate = true
         item.persist_rate = true // Do not let AircraftLineItem.jsx overwrite the rate with block rate and hour rate.
+      }
+
+      if(item.demo) {
+        item.enable_rate = false;
       }
 
       items.push(item); 
@@ -162,11 +169,14 @@ const instructorItem = (instructor_user, duration) => {
   });
 }
 
-const fromAircraft = (aircraft, duration) => {
+const fromAircraft = (aircraft, type, duration) => {
+  var desc = FLIGHT_HOURS;
+  if (type === "demo_flight") {desc = DEMO_FLIGHT}
+  
   return new LineItemRecord({
     quantity: duration,
     rate: aircraft.rate_per_hour,
-    description: aircraft.simulator ? SIMULATOR_HOURS : FLIGHT_HOURS,
+    description: aircraft.simulator ? SIMULATOR_HOURS : desc,
     aircraft,
     taxable: true,
     deductible: false
@@ -200,6 +210,8 @@ export const itemsFromInvoice = (invoice, user_roles) => {
   }
 
   if (aircraft && aircraft.hobbs_end > 0) {aircraft.disable_flight_hours = true}
+
+  if (aircraft.description === DEMO_FLIGHT) {aircraft.enable_rate = false}
   
   if (index < invoice.line_items.length) {
     invoice.line_items[index] = aircraft

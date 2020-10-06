@@ -144,6 +144,58 @@ $(document).ready(function () {
     }
   }
 
+  var eventType = "appt";
+
+  $('#apptType').on('change', function() {
+    switch(this.value) {
+      case "demo_flight":        
+        demoFlightView(true);
+        regularView(false);
+        unavailabilityView(false); 
+        eventType = "demoAppt";
+        break;
+
+      case "unavailable":
+        unavailabilityView(true);
+        demoFlightView(false);
+        regularView(false);
+        eventType = "unavail"
+        break;
+
+      default:
+        regularView(true);
+        unavailabilityView(false);
+        demoFlightView(false);
+        eventType = "appt";
+        break;
+
+    }
+  })
+
+  function regularView(show) {
+    if (show) {
+      $('#appointmentForm.tab-pane').addClass("active");  
+    } else {
+      $('#appointmentForm.tab-pane').removeClass("active");
+    }
+  }
+
+  function demoFlightView(show) {
+    if (show) {
+      $('#demoAppointmentForm.tab-pane').addClass("active");  
+    } else {
+      $('#demoAppointmentForm.tab-pane').removeClass("active");
+    }
+  }
+
+  function unavailabilityView(show) {
+    if (show) {
+      $('#unavailabilityForm.tab-pane').addClass("active");  
+    } else {
+      $('#unavailabilityForm.tab-pane').removeClass("active");
+    }
+  }
+
   $('#apptFor').on('change', function () {
     displayForAppointment(this.value)
   });
@@ -176,32 +228,32 @@ $(document).ready(function () {
     }
   }
 
-  var eventType = "appt";
+
   var appointmentId = null;
   var appointmentOrUnavailabilityId = null;
 
   // change event type based on user choice
-  $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    var id = $(e.target).get(0).id
-
-    if (id == "navAppt") {
-      $('#appointmentForm.tab-pane').addClass("active");
-      $('#unavailabilityForm.tab-pane').removeClass("active")
-      $('#demoAppointmentForm.tab-pane').removeClass("active")
-      eventType = "appt";
-    }
-    else if (id == "navDemoAppt") {
-      $('#appointmentForm.tab-pane').removeClass("active")
-      $('#unavailabilityForm.tab-pane').removeClass("active")
-      $('#demoAppointmentForm.tab-pane').addClass("active");
-      eventType = "demoAppt";
-    } else {
-      $('#appointmentForm.tab-pane').removeClass("active")
-      $('#unavailabilityForm.tab-pane').addClass("active")
-      $('#demoAppointmentForm.tab-pane').removeClass("active")
-      eventType = "unavail"
-    }
-  })
+  // $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+  //   var id = $(e.target).get(0).id
+    
+  //   if (id == "navAppt") {
+  //     $('#appointmentForm.tab-pane').addClass("active");
+  //     $('#unavailabilityForm.tab-pane').removeClass("active")
+  //     $('#demoAppointmentForm.tab-pane').removeClass("active")
+  //     eventType = "appt";
+  //   }
+  //   else if (id == "navDemoAppt") {
+  //     $('#appointmentForm.tab-pane').removeClass("active")
+  //     $('#unavailabilityForm.tab-pane').removeClass("active")
+  //     $('#demoAppointmentForm.tab-pane').addClass("active");
+  //     eventType = "demoAppt";
+  //   } else {
+  //     $('#appointmentForm.tab-pane').removeClass("active")
+  //     $('#unavailabilityForm.tab-pane').addClass("active")
+  //     $('#demoAppointmentForm.tab-pane').removeClass("active")
+  //     eventType = "unavail"
+  //   }
+  // })
 
   $('#unavailInstructor').on('change', function (e) {
     $('#unavailAircraft').val(null).selectpicker("refresh")
@@ -277,7 +329,7 @@ $(document).ready(function () {
       var eventAircraft = safeParseInt($('#apptAircraft').val());
       var eventSimulator = safeParseInt($('#apptSimulator').val());
       var eventRoom = safeParseInt($('#apptRoom').val());
-
+      var eventApptType = $('#apptType').val();
 
       var eventStart = (moment.utc($('#apptStart').val()).add(-(moment().utcOffset()), 'm')).format()
       var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment().utcOffset()), 'm')).format()
@@ -292,7 +344,7 @@ $(document).ready(function () {
         simulator_id: eventSimulator,
         room_id: eventRoom,
         note: eventNote,
-        type: "lesson"
+        type: eventApptType
       };
 
       if (appointmentOrUnavailabilityId) {
@@ -316,6 +368,7 @@ $(document).ready(function () {
 
       var eventInstructor = safeParseInt($('#demoApptInstructor').val());
       var eventAircraft = safeParseInt($('#demoApptAircraft').val());
+      var eventApptType = $('#apptType').val();
 
       var eventStart = (moment.utc($('#demoApptStart').val()).add(-(moment().utcOffset()), 'm')).format()
       var eventEnd = (moment.utc($('#demoApptEnd').val()).add(-(moment().utcOffset()), 'm')).format()
@@ -330,7 +383,7 @@ $(document).ready(function () {
         instructor_user_id: eventInstructor,
         aircraft_id: eventAircraft,
         note: eventNote,
-        type: "lesson"
+        type: eventApptType
       };
 
       if (appointmentOrUnavailabilityId) {
@@ -553,10 +606,13 @@ $(document).ready(function () {
       }
 
       if (appointmentOrUnavailabilityId) {
-        $('#apptTabs').hide()
+        $('#apptType').attr('disabled', true)
+        $('#apptType').val(initialData.type).selectpicker("refresh");
         $('#btnDelete').show()
+ 
       } else {
-        $('#apptTabs').show()
+        $('#apptType').attr('disabled', false)
+        $('#apptType').val('none').selectpicker("refresh");
         $('#btnDelete').hide()
       }
 
@@ -885,7 +941,8 @@ $(document).ready(function () {
             simulator_id: simulator_id,
             room_id: room_id,
             note: calEvent.unavailability.note,
-            id: calEvent.unavailability.id
+            id: calEvent.unavailability.id,
+            type: "unavailable"
           })
           return;
         } else if (calEvent.appointment.demo) {
@@ -913,6 +970,7 @@ $(document).ready(function () {
             aircraft_id: aircraft_id,
             note: appointment.note,
             demo: appointment.demo,
+            type: appointment.type,
             payer_name: payerTitle(appointment),
             id: appointment.id
           })
@@ -950,7 +1008,8 @@ $(document).ready(function () {
             note: appointment.note,
             user_id: appointment.user ? appointment.user.id : null,
             user_name: appointmentTitle(appointment),
-            id: appointment.id
+            id: appointment.id,
+            type: appointment.type
           })
         }
 

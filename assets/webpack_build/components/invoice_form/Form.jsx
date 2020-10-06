@@ -616,7 +616,7 @@ class Form extends Component {
    
     return (
       <div className={classnames('invoice-select-wrapper', errors.user_id ? 'with-error' : '')}>
-        <CreatableSelect placeholder="Person Name"
+        <CreatableSelect placeholder="Search or Type to create a new user"
           isClearable
           isValidNewOption={this.isGuestNameValid}
           onCreateOption={this.createGuestPayer}

@@ -5,8 +5,8 @@ import Select from 'react-select';
 import Error from '../../common/Error';
 
 import {
-  DESCRIPTION_SELECT_OPTS, DEFAULT_TYPE, TYPES, SIMULATOR_HOURS,
-  NUMBER_INPUT_OPTS, DEFAULT_RATE, populateHobbsTach
+  DESCRIPTION_SELECT_OPTS, DEFAULT_TYPE, TYPES, SIMULATOR_HOURS, FLIGHT_HOURS,
+  NUMBER_INPUT_OPTS, DEFAULT_RATE, populateHobbsTach, DEMO_FLIGHT
 } from './line_item_utils';
 
 const MAX_INT = 2147483647;
@@ -103,10 +103,14 @@ class AircraftLineItem extends Component {
     const rate = aircraft ? this.state.line_item.rate : DEFAULT_RATE;
     const aircraft_id = aircraft ? aircraft.id : null;
     const amount = rate * this.state.line_item.quantity;
-    var payload = { rate, aircraft_id, amount };
-    
+    var payload = { rate, aircraft_id, amount, enable_rate: false };
+
     if (this.props.user_roles && (this.props.user_roles.includes("admin") || this.props.user_roles.includes("dispatcher"))) {
       payload = { rate, aircraft_id, amount, enable_rate: true, persist_rate: true }
+    }
+
+    if (this.state.line_item.description === DEMO_FLIGHT) {
+      payload.enable_rate = false
     }
 
     const line_item = Object.assign(

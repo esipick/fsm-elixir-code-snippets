@@ -10,6 +10,7 @@ defmodule FlightWeb.Student.ScheduleController do
     aircrafts = Flight.Scheduling.visible_aircrafts(conn)
     simulators = Flight.Scheduling.visible_simulators(conn)
     rooms = Flight.SchoolAssets.visible_rooms(conn)
+    types = Flight.Scheduling.Appointment.types()
 
     render(conn, "index.html",
       renters: renters,
@@ -17,7 +18,8 @@ defmodule FlightWeb.Student.ScheduleController do
       aircrafts: aircrafts,
       user_id: current_user.id,
       simulators: simulators, 
-      rooms: rooms
+      rooms: rooms,
+      types: types
     )
   end
 

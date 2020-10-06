@@ -7,5 +7,6 @@
     instructor_user_id: @user_id,
     simulators: @simulators,
     rooms: @rooms,
+    types: @types,
     student_id: nil)
 %>

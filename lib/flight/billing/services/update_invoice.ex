@@ -40,7 +40,7 @@ defmodule Flight.Billing.UpdateInvoice do
           {:ok, invoice}
         end
     else
-      {:aircrafts, true} -> {:error, "An invoice can have a single item for Flight or Simulator Hours."}
+      {:aircrafts, true} -> {:error, "An invoice can have a single item for Flight, Demo Flight or Simulator Hours."}
       {:rooms, true} -> {:error, "The same room cannot be added twice to an invoice."}
       error -> error
     end

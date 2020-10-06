@@ -147,7 +147,34 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     Map.put(invoice_params, "line_items", custom_line_items)
   end
 
-  def aircraft_item(appointment, quantity, params \\ %{}, current_user) do
+  def aircraft_item(appointment, quantity, params \\ %{}, current_user)
+  def aircraft_item(%{demo: true} = appointment, quantity, params, current_user) do
+    if appointment.aircraft do
+      rate = appointment.aircraft.rate_per_hour
+      hobbs_end = Map.get(params, "hobbs_time", nil)
+      tach_end = Map.get(params, "tach_time", nil)
+      aircraft = appointment.aircraft
+
+      %{
+        "description" => "Demo Flight",
+        "rate" => rate,
+        "quantity" => quantity,
+        "amount" => round(rate * quantity),
+        "type" => :aircraft,
+        "aircraft_id" => aircraft.id,
+        "taxable" => true,
+        "deductible" => false,
+        "hobbs_tach_used" => !!(hobbs_end || tach_end),
+        "hobbs_start" => aircraft.last_hobbs_time,
+        "tach_start" => aircraft.last_tach_time,
+        "hobbs_end" => hobbs_end,
+        "tach_end" => tach_end,
+        "creator_id" => current_user.id
+      }
+    end
+  end
+
+  def aircraft_item(appointment, quantity, params, current_user) do
     if appointment.aircraft do
       rate = appointment.aircraft.rate_per_hour
       hobbs_end = Map.get(params, "hobbs_time", nil)

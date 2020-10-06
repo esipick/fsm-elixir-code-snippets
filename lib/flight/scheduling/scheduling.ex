@@ -401,7 +401,7 @@ defmodule Flight.Scheduling do
         end
       
       changeset =
-       temp_changeset
+      temp_changeset
        |> Appointment.changeset(%{}, school.timezone)
       
       {:ok, _} = apply_action(changeset, :insert)

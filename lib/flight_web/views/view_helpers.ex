@@ -284,6 +284,14 @@ defmodule FlightWeb.ViewHelpers do
     "#{user.first_name} #{user.last_name}"
   end
 
+  def appointment_type(type) do
+    type
+    |> String.replace("_", " ")
+    |> String.split 
+    |> Enum.map(&String.capitalize/1)
+    |> Enum.join(" ")
+  end
+
   def display_phone_number(number) do
     Flight.Format.display_phone_number(number)
   end
