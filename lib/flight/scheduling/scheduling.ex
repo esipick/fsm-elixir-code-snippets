@@ -540,13 +540,13 @@ defmodule Flight.Scheduling do
           end
 
           Mondo.Task.start(fn ->
-            if Enum.count(changeset.changes) > 0 do
+#            if Enum.count(changeset.changes) > 0 do
               if is_create? do
                 send_created_notifications(appointment, modifying_user)
               else
                 send_changed_notifications(appointment, modifying_user)
               end
-            end
+#            end
           end)
 
           {:ok, appointment}
