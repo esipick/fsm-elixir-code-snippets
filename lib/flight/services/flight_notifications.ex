@@ -1,9 +1,12 @@
 defmodule Flight.PushNotifications do
   import Flight.Walltime
+
+  alias Flight.Repo
   alias Mondo.PushNotification
   alias Flight.Accounts.{User}
 
   def appointment_in_1_hour_notification(%User{} = user, appointment) do
+    user = Repo.preload(user, :school)
     %PushNotification{
       title: "Appointment Reminder",
       body:
