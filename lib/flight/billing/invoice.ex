@@ -65,7 +65,7 @@ defmodule Flight.Billing.Invoice do
     |> validate_required(@required_fields)
     |> validate_required_inclusion(@payer_fields)
     |> validate_appointment_is_valid
-    |> validate_payment_option
+    # |> validate_payment_option
 #    |> validate_number(:total_amount_due, greater_than: 0)
     |> validate_number(:total_tax, greater_than_or_equal_to: 0)
 #    |> validate_number(:total, greater_than: 0)

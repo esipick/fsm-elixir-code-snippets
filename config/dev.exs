@@ -35,7 +35,7 @@ config :stripity_stripe,
   connect_client_id: "ca_DGcV6SWq1ghyws1HwmcAHLgPldcHNisy"
 
 config :flight, :stripe_publishable_key, "pk_test_PKZCFv4SUII1gBu5wTeYw5OV"
-config :flight, :stripe_webhook_secret, "whsec_GRniVd07D9yl84sImiK3ijoy1JE6gqwf"
+config :flight, :stripe_webhook_secret, "whsec_IgVFTyMuy8E9PAZ5HmOFBJPpgWAz82yP"
 config :flight, :stripe_livemode, false
 
 case(Map.fetch(System.get_env(), "SUPERADMIN_IDS")) do
@@ -93,14 +93,29 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :flight, Flight.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "dev",
+  password: "asdf",
   database: "flight_dev",
   hostname: "localhost",
   pool_size: 10
 
+# config :flight, Flight.Repo,
+#   username: "bgxmltqexmsbbt",
+#   password: "f745da74c253a3ff78fc4a7728e6612d8fb3dd16e1923943e02c554a294fa2dc",
+#   database: "d3lugdu8a44rbb",
+#   hostname: "ec2-174-129-22-84.compute-1.amazonaws.com",
+#   queue_interval: 3000_000,
+#   port: 5432,
+#   pool_size: 10,
+#   ssl: true
+
+
 config :flight, :user_token_salt, "gwfyeA8B5"
 
-config :flight, Flight.Mailer, adapter: Bamboo.LocalAdapter
+# config :flight, Flight.Mailer, adapter: Bamboo.LocalAdapter
+
+config :flight, Flight.Mailer,
+  adapter: Bamboo.SendGridAdapter,
+  api_key: "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"
 
 config :appsignal, :config, active: false
