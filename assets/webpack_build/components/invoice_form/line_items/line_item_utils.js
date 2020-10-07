@@ -229,6 +229,10 @@ export const containsSimulator = (line_items) => {
   return line_items.find(function(item) {return item.description === SIMULATOR_HOURS})
 }
 
+export const containsDemoFlight = (line_items) => {
+  return line_items.find(function(item) {return item.description === DEMO_FLIGHT})
+}
+
 function findItem(line_items, type){
   const existing_items = line_items || []
   return existing_items.find(function(item) {return item.type == type})

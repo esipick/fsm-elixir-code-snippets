@@ -20,7 +20,7 @@ import LowBalanceAlert from './LowBalanceAlert';
 import ConfirmHobbTachAlert from './ConfirmHobbTachAlert';
 import ErrorAlert from './ErrorAlert';
 import ConfirmAlert from './ConfirmAlert';
-import {itemsFromAppointment, containsSimulator} from './line_items/line_item_utils';
+import {itemsFromAppointment, containsSimulator, containsDemoFlight} from './line_items/line_item_utils';
 
 import {
   BALANCE, CASH, CHECK, VENMO, MARK_AS_PAID, PAY,
@@ -633,9 +633,12 @@ class Form extends Component {
   render() {
     const { custom_line_items, staff_member } = this.props;
     const { aircrafts, simulators, appointment, appointment_loading, appointments,
-      instructors, rooms, date, errors, id, invoice_loading, line_items, payment_method, demo, sales_tax,
+      instructors, rooms, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
+
+    var {demo} = this.state;
+    if (!demo && containsDemoFlight(line_items)) { demo = true} 
 
     return (
       <div className="card">

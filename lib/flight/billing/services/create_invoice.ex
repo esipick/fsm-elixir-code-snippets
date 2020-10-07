@@ -93,7 +93,10 @@ defmodule Flight.Billing.CreateInvoice do
 
     case invoice.payment_option do
       :balance -> pay_off_balance(invoice, school_context)
-      :cc -> pay_off_cc(invoice, school_context, x_device)
+      :cc -> 
+        is_demo = is_demo_invoice?(invoice)
+        pay_off_cc(invoice, school_context, is_demo, x_device)
+      
       _ -> pay_off_manually(invoice, school_context)
     end
   end
@@ -114,18 +117,20 @@ defmodule Flight.Billing.CreateInvoice do
         Invoice.paid(invoice)
 
       {:ok, :balance_not_enough, remainder, _} ->
-        pay_off_cc(invoice, school_context, nil, remainder)
+        is_demo = is_demo_invoice?(invoice)
+        pay_off_cc(invoice, school_context, is_demo, nil, remainder)
 
       {:error, :balance_is_empty} ->
-        pay_off_cc(invoice, school_context, nil, total_amount_due)
+        is_demo = is_demo_invoice?(invoice)
+        pay_off_cc(invoice, school_context, is_demo, nil, total_amount_due)
 
       {:error, changeset} ->
         {:error, changeset}
     end
   end
 
-  defp pay_off_cc(%Invoice{appointment: %Appointment{demo: true}} = invoice, 
-    %{assigns: %{current_user: %{school_id: school_id}}} = school_context, "ios") do
+  defp pay_off_cc(invoice, 
+    %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, "ios") do
     Flight.StripeSinglePayment.get_payment_intent_secret(invoice, school_id)
     |> case do
       {:ok, %{intent_id: id} = session} -> 
@@ -139,8 +144,8 @@ defmodule Flight.Billing.CreateInvoice do
     end
   end
 
-  defp pay_off_cc(%Invoice{appointment: %Appointment{demo: true}} = invoice, 
-    %{assigns: %{current_user: %{school_id: school_id}}} = school_context, _) do
+  defp pay_off_cc(invoice, 
+    %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, _) do
     Flight.StripeSinglePayment.get_stripe_session(invoice, school_id)
     |> case do
       {:ok, session} -> 
@@ -154,7 +159,7 @@ defmodule Flight.Billing.CreateInvoice do
     end
   end
 
-  defp pay_off_cc(invoice, school_context, _, amount \\ nil) do
+  defp pay_off_cc(invoice, school_context, _, _, amount \\ nil) do
     amount = amount || invoice.total_amount_due
 
     transaction_attrs =
@@ -296,5 +301,10 @@ defmodule Flight.Billing.CreateInvoice do
     }
 
     Map.put(form, :instructor_details, details)
+  end
+
+  def is_demo_invoice?(%Invoice{appointment: %Appointment{demo: demo}}), do: demo
+  def is_demo_invoice?(invoice) do
+    Enum.find(invoice.line_items, fn item -> item.description == "Demo Flight" end) != nil
   end
 end
