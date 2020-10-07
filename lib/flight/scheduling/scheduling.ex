@@ -543,7 +543,8 @@ defmodule Flight.Scheduling do
 #            if Enum.count(changeset.changes) > 0 do
               if is_create? do
                 send_created_notifications(appointment, modifying_user)
-              else
+              end
+              if Enum.count(changeset.changes) > 0 and !is_create? do
                 send_changed_notifications(appointment, modifying_user)
               end
 #            end
