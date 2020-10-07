@@ -65,6 +65,7 @@ defmodule Flight.Billing.Invoice do
     |> validate_required(@required_fields)
     |> validate_required_inclusion(@payer_fields)
     |> validate_appointment_is_valid
+    |> validate_payment_option
 #    |> validate_number(:total_amount_due, greater_than: 0)
     |> validate_number(:total_tax, greater_than_or_equal_to: 0)
 #    |> validate_number(:total, greater_than: 0)
@@ -112,6 +113,18 @@ defmodule Flight.Billing.Invoice do
       changeset
     end
   end
+
+  def validate_payment_option(%Ecto.Changeset{valid?: true} = changeset) do
+    user_id = get_change(changeset, :user_id) || get_field(changeset, :user_id)
+    payment_option = get_change(changeset, :payment_option) || get_field(changeset, :payment_option)
+
+    if user_id == nil and payment_option in [nil, :balance] do
+      add_error(changeset, :payment_option, "is invalid.")
+    else
+      changeset
+    end
+  end
+  def validate_payment_option(changeset), do: changeset
 
   def archive(%Flight.Billing.Invoice{} = invoice) do
     if !invoice.archived do
