@@ -42,10 +42,17 @@ defmodule Flight.Billing.StripeEvents do
 
   defp update_invoice_status(session_id) do
     with %{appointment_id: apmnt_id} = invoice <- Flight.Billing.Invoice.get_by_session_id(session_id),
-        {:ok, invoice} <- Flight.Billing.Invoice.paid_by_cc(invoice),
-        %{id: _id} = appointment <- Flight.Repo.get(Appointment, apmnt_id) do
+        {:ok, invoice} <- Flight.Billing.Invoice.paid_by_cc(invoice) do
+
+          if apmnt_id != nil do
+            Flight.Repo.get(Appointment, apmnt_id)
+            |> case do
+              %{id: _id} = appointment -> Appointment.paid(appointment)
+                _ -> nil
+            end
+          end
+
           Flight.Billing.PayTransaction.pay_invoice_cc_transaction(invoice.id, session_id)
-          Appointment.paid(appointment)
 
     else
       _ -> {:error, "Couldn't update appointment status"}
