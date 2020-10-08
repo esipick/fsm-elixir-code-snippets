@@ -80,11 +80,21 @@ defmodule FlightWeb.API.InvoiceController do
   end
 
   def create(conn, %{"invoice" => invoice_params}) do
-    CreateInvoice.run(invoice_params, conn)
+    # validating changeset here because iOS calls invoice_from_appointment API with empty body
+    # which calls createInvoice.run to create an invoice with default payment_option balance
+    # while we want to check payment_option in this API.
+
+    %Invoice{}
+    |> Invoice.payment_options_changeset(invoice_params)
+    |> case do
+      %Ecto.Changeset{valid?: true} ->
+        CreateInvoice.run(invoice_params, conn)
+      
+      changeset -> {:error, changeset}
+    end
     |> render_created_invoice(conn)
   end
 
-  
   def update(conn, %{"invoice" => invoice_params}) do
     invoice_params = Map.put(invoice_params, "is_visible", true)
     case UpdateInvoice.run(conn.assigns.invoice, invoice_params, conn) do

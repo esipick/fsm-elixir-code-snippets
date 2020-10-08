@@ -71,6 +71,12 @@ defmodule Flight.Billing.Invoice do
 #    |> validate_number(:total, greater_than: 0)
   end
 
+  def payment_options_changeset(%Invoice{} = invoice, attrs) do
+    invoice
+    |> cast(attrs, [:payment_option])
+    |> validate_payment_option
+  end
+
   def paid(%Invoice{} = invoice) do
     change(invoice, status: :paid) |> Repo.update()
   end
@@ -119,7 +125,7 @@ defmodule Flight.Billing.Invoice do
     payment_option = get_change(changeset, :payment_option) || get_field(changeset, :payment_option)
 
     if user_id == nil and payment_option in [nil, :balance] do
-      add_error(changeset, :payment_option, "is invalid.")
+      add_error(changeset, :payment_option, "A valid payment option is required.")
     else
       changeset
     end

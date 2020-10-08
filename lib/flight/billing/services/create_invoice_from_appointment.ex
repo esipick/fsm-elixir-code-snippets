@@ -86,20 +86,6 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         true -> nil
       end
 
-    # %{
-    #   "school_id" => school.id,
-    #   "appointment_id" => appointment.id,
-    #   "user_id" => user_id,
-    #   "payer_name" => payer_name_from(appointment),
-    #   "demo" => appointment.demo,
-    #   "date" => NaiveDateTime.to_date(appointment.end_at),
-    #   "payment_option" => Map.get(params, "payment_option", "balance"),
-    #   "line_items" => line_items_from(appointment, params, current_user),
-    #   "appointment_updated_at" => appointment.updated_at
-    # }
-    
-    # default value for payment options is added as balance.
-
     payload = 
       %{
         "school_id" => school.id,
