@@ -256,6 +256,26 @@ function getPlainDate(start_at) {
   </div>
 </div>
 
+<!--
+<embed
+  type="application/pdf"
+  style="display: none"
+  src="https://avatars-randon-aviation-staging.s3.amazonaws.com/uploads/prod/invoices/4602/invoice.pdf/4602-invoice.pdf"
+  id="invoiceFrame"
+  width="100%"
+  height="100%"
+/>
+-->
+<!--
+<iframe
+  style="display: none"
+        src=""
+        id="invoiceFrame"
+            frameborder="0" style="border:0;"
+                width="300" height="300">
+    </iframe>
+-->
+
 <%= if can_modify_invoice?(@conn, @invoice) do %>
   <%= render FlightWeb.Admin.PartialView,
             "_shared_delete_form.html",
@@ -263,11 +283,13 @@ function getPlainDate(start_at) {
               path: "/billing/invoices/",
               attribute: "invoice"} %>
 <% end %>
-
+<%= render(FlightWeb.SharedView, "loader.html") %>
 <%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
 
 <script>
-function printInvoice() { 
+window.onload = $('#loader').hide();
+function printInvoice() {
+  $('#loader').show();
   let AUTH_HEADERS = { "Authorization": window.fsm_token };
   let url = "/api/invoices/<%= @invoice.id %>/as_pdf"
 
@@ -277,23 +299,16 @@ function printInvoice() {
     console.log(resp.url)
 
     if (resp.url) {
-      var printWindow = window.open(
-          resp.url, 
-          'Print', 
-          'left=200', 
-          'top=200', 
-          'width=950', 
-          'height=500', 
-          'toolbar=0', 
-          'resizable=0'
-      );
-      printWindow.addEventListener('load', function() {
-          printWindow.print();
-          printWindow.close();
+      $('#invoiceFrame').attr('src', resp.url)
+      let objFra = window.open(resp.url);
+      $('#loader').hide();
+
+      objFra.addEventListener('load', function() {
+        objFra.contentWindow.focus();
+        objFra.contentWindow.print();
+        objFra.close();
       }, true);
     }
-
-
 
     document.getElementById("printButton").disabled = false
   })
