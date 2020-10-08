@@ -383,7 +383,7 @@ class Form extends Component {
         console.log(data)
         if (pay_off && data.session_id && data.connect_account && data.pub_key) {
 
-          if (!data.user_id && http_method == 'post') {
+          if (http_method == 'post') {
             localStorage.setItem('invoice_id', data.id)
           }
 
@@ -648,8 +648,15 @@ class Form extends Component {
       saving, stripe_error, student, total, total_amount_due, total_tax
     } = this.state;
 
+    const isGuest = student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined"
+    
     var {demo} = this.state;
     if (!demo && containsDemoFlight(line_items)) { demo = true} 
+
+    if (!isGuest) {
+      demo = false
+    }
+
 
     return (
       <div className="card">

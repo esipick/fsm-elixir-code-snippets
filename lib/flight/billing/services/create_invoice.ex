@@ -305,6 +305,16 @@ defmodule Flight.Billing.CreateInvoice do
 
   def is_demo_invoice?(%Invoice{appointment: %Appointment{demo: demo}}), do: demo
   def is_demo_invoice?(invoice) do
-    Enum.find(invoice.line_items, fn item -> item.description == "Demo Flight" end) != nil
+    demo = 
+      Enum.find(invoice.line_items, fn item -> item.description == "Demo Flight" end) != nil
+    user = Map.get(invoice, :user) || %{}
+    has_cc = Map.get(user, :stripe_customer_id) != nil
+    
+    if demo && has_cc do
+      false
+
+    else
+      demo
+    end  
   end
 end
