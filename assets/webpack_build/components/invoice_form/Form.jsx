@@ -42,6 +42,12 @@ class Form extends Component {
     payment_method = payment_method && this.getPaymentMethod(payment_method)
     payment_method = payment_method || {}
     
+    let id = localStorage.getItem('invoice_id')
+    if  (id && !props.id) {
+      localStorage.removeItem('invoice_id')
+      window.location = `/billing/invoices/${id}/edit`;
+    }
+    
     this.state = {
       appointment,
       appointments,
@@ -374,8 +380,13 @@ class Form extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
-
+        console.log(data)
         if (pay_off && data.session_id && data.connect_account && data.pub_key) {
+
+          if (!data.user_id && http_method == 'post') {
+            localStorage.setItem('invoice_id', data.id)
+          }
+
           this.stripeCheckout(data.session_id, data.connect_account, data.pub_key)
           return;
         }
@@ -490,7 +501,7 @@ class Form extends Component {
               else if ((this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 120) {
                 warningMsg = "Your Tach end time is more than 12 hours greater than your start time. Are you sure that this is correct?"
               }
-              console.log(this.state.line_items[increment])
+
               this.showHobbTachWarning(warningMsg)
                 return;
             }
