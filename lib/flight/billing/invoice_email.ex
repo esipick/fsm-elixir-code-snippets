@@ -47,33 +47,27 @@ defmodule Flight.InvoiceEmail do
 
     def deliver_email(invoice, school) do
         Task.start(fn ->
-            assigns = %{
-                school: school,
-                base_url: Application.get_env(:flight, :web_base_url),
-                invoice: invoice
-            }
+            with {:ok, pdf_path} <- convert_to_pdf(invoice, school) do
+                invoice.user.email
+                |> Flight.Email.invoice_email(invoice.id, pdf_path)    
+                |> Flight.Mailer.deliver_now
 
-            with true <- Enum.count(invoice.line_items) > 0,
-                html <- Flight.InvoiceEmail.render(assigns),
-                {:ok, pdf_path} <- pdf_from_html(invoice.id, html) do
-                    invoice.user.email
-                    |> Flight.Email.invoice_email(invoice.id, pdf_path)    
-                    |> Flight.Mailer.deliver_now
-
-                    File.rm!(pdf_path)
+                File.rm!(pdf_path)
             end
-            |> IO.inspect(label: "Email Delivery")
-            
-            # user = invoice.user || %{}
-
-            # if Enum.count(invoice.line_items) > 0 and Map.get(user, :email) do
-            #     html = Flight.InvoiceEmail.render(assigns)
-            #     invoice.user.email
-            #     |> Flight.Email.invoice_email(invoice.id, html)
-            #     |> Flight.Mailer.deliver_later
-            #     # File.write!("beautiful.html", html)
-            # end
         end)
+    end
+
+    def convert_to_pdf(invoice, school) do
+        assigns = %{
+            school: school,
+            base_url: Application.get_env(:flight, :web_base_url),
+            invoice: invoice
+        }
+        
+        with true <- Enum.count(invoice.line_items) > 0,
+            html <- Flight.InvoiceEmail.render(assigns) do
+                pdf_from_html(invoice.id, html)
+        end
     end
 
     def pdf_from_html(id, html) do

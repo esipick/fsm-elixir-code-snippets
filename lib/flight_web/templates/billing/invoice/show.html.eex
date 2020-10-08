@@ -18,6 +18,8 @@ function getPlainDate(start_at) {
       <div class="card">
         <div class="card-header">
           <div class="text-right">
+            <button id="printButton" class="btn btn-primary" onclick="printInvoice()">Print</button>
+
             <%= if can_modify_invoice?(@conn, @invoice) do %>
               <%= if @invoice.status == :pending do %>
                 <a href="/billing/invoices/<%= @invoice.id %>/edit#save_and_pay" class="btn btn-primary">
@@ -263,3 +265,37 @@ function getPlainDate(start_at) {
 <% end %>
 
 <%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
+
+<script>
+function printInvoice() { 
+  let AUTH_HEADERS = { "Authorization": window.fsm_token };
+  let url = "/api/invoices/<%= @invoice.id %>/as_pdf"
+
+  document.getElementById("printButton").disabled = true
+
+  $.get({url: url, headers: AUTH_HEADERS}).then(function(resp) {
+    console.log(resp.url)
+
+    if (resp.url) {
+      var printWindow = window.open(
+          resp.url, 
+          'Print', 
+          'left=200', 
+          'top=200', 
+          'width=950', 
+          'height=500', 
+          'toolbar=0', 
+          'resizable=0'
+      );
+      printWindow.addEventListener('load', function() {
+          printWindow.print();
+          printWindow.close();
+      }, true);
+    }
+
+
+
+    document.getElementById("printButton").disabled = false
+  })
+}
+</script>

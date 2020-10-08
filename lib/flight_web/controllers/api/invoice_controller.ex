@@ -131,6 +131,18 @@ defmodule FlightWeb.API.InvoiceController do
     end
   end
 
+  def get_invoice_pdf(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => id}) do
+      with {:ok, url} <- Flight.Bills.get_invoice_url(id, school_id) do
+        json(conn, %{"url" => url})
+
+      else
+        {:error, error} ->
+          conn
+        |> put_status(422)
+        |> json(%{error: %{message: error}})
+      end
+  end
+
   def show(conn, _params) do
     invoice =
       Repo.preload(conn.assigns.invoice, [:line_items, :user, :school, :appointment], force: true)

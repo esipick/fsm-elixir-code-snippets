@@ -352,6 +352,7 @@ defmodule FlightWeb.Router do
 
     get("/invoices/appointments", InvoiceController, :appointments, as: :appointments)
     get("/invoices/payment_options", InvoiceController, :payment_options, as: :payment_options)
+    get("/invoices/:id/as_pdf", InvoiceController, :get_invoice_pdf)
 
     get("/invoices/from_appointment/:appointment_id", InvoiceController, :get_from_appointment,
       as: :get_from_appointment
