@@ -69,8 +69,8 @@ defmodule Flight.Billing.CreateInvoice do
         end
 
         insert_transaction_line_items(invoice, school_context)
-        
-        if invoice.user_id do
+
+        if invoice.user_id && invoice.status == :paid do
           Flight.InvoiceEmail.send_paid_invoice_email(invoice, school_context)
         end
 
@@ -134,6 +134,7 @@ defmodule Flight.Billing.CreateInvoice do
     Flight.StripeSinglePayment.get_payment_intent_secret(invoice, school_id)
     |> case do
       {:ok, %{intent_id: id} = session} -> 
+        Flight.Bills.delete_invoice_pending_transactions(invoice.id, invoice.user_id, school_id)
         transaction_attrs = transaction_attributes(invoice)
         CreateTransaction.run(invoice.user, school_context, transaction_attrs)
 
@@ -149,6 +150,7 @@ defmodule Flight.Billing.CreateInvoice do
     Flight.StripeSinglePayment.get_stripe_session(invoice, school_id)
     |> case do
       {:ok, session} -> 
+        Flight.Bills.delete_invoice_pending_transactions(invoice.id, invoice.user_id, school_id)
         transaction_attrs = transaction_attributes(invoice)
         CreateTransaction.run(invoice.user, school_context, transaction_attrs)
 
@@ -219,7 +221,7 @@ defmodule Flight.Billing.CreateInvoice do
     {:ok, :done}
   end
 
-  defp insert_transaction_line_items(invoice, school_context, transaction \\ nil) do
+  def insert_transaction_line_items(invoice, school_context, transaction \\ nil) do
     aircraft = Enum.find(invoice.line_items, &(&1.aircraft_id != nil && &1.type == :aircraft))
     instructor = Enum.find(invoice.line_items, &(&1.instructor_user_id != nil && &1.type == :instructor))
     
@@ -238,7 +240,7 @@ defmodule Flight.Billing.CreateInvoice do
 
     transaction = transaction || Flight.Queries.Transaction.get_invoice_transaction(invoice_id)
     
-    with %{id: id} <- transaction do
+    with %{id: id, state: "completed"} <- transaction do
       insert_instructor_transaction_item(instructor_line_item, instructor_details, id)
       insert_aircraft_transaction_item(aircraft_line_item, aircraft_details, id)
     end

@@ -57,4 +57,16 @@ defmodule Flight.Bills do
             _ -> {:error, "Couldn't print invoice for id: #{id}"}
         end
     end
+
+    def delete_invoice_pending_transactions(invoice_id, user_id, school_id) do
+        filter = %{
+            invoice_id: invoice_id,
+            school_id: school_id,
+            user_id: user_id,
+            state: "pending"
+        }
+
+        Queries.select_transactions_query(filter)
+        |> Repo.delete_all
+    end
 end

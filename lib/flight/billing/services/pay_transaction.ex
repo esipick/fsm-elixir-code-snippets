@@ -27,6 +27,24 @@ defmodule Flight.Billing.PayTransaction do
     end
   end
 
+  def pay_demo_invoice_cc_transaction(invoice_id, user_id) do
+    filter =
+      if user_id != nil do
+        [invoice_id: invoice_id, user_id: user_id]
+
+      else
+        [invoice_id: invoice_id]
+      end
+
+
+    with %{id: _id} = trans <- Repo.get_by(Transaction, filter) do
+      complete_transaction(trans)
+      
+    else
+      nil -> {:error, "Transaction not found."}
+    end
+  end
+
   def pay_invoice_cc_transaction(invoice_id, session_id) do
     _attribs = %{
       "stripe_charge_id" => session_id

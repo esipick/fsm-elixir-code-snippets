@@ -221,9 +221,13 @@ function getPlainDate(start_at) {
                     <td><%= currency(transaction.amount_due) %></td>
                     <td><%= currency(transaction.amount_paid) %></td>
                     <td><%= transaction.state %></td>
-                  <script> document.write(
-                  '<td class="text-nowrap">'+getPlainDate('<%= transaction.completed_at %>')+'</td>'
-                  ); </script>
+                    <%= if transaction.completed_at != nil do %>
+                      <script> document.write(
+                      '<td class="text-nowrap">'+getPlainDate('<%= transaction.completed_at %>')+'</td>'
+                      ); </script>
+                    <% else %>
+                      <td> </td>
+                    <% end %>
                     <td><%= if transaction.payment_method == :cheque, do: "check", else: transaction.payment_method %></td>
                   </tr>
                 <% end %>

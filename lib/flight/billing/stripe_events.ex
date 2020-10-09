@@ -1,6 +1,10 @@
 defmodule Flight.Billing.StripeEvents do
   alias Flight.Accounts.{StripeAccount}
   alias Flight.Scheduling.Appointment
+  alias Flight.Billing.{
+    CreateInvoice,
+    PayTransaction
+  }
   
   def process(%Stripe.Event{
         type: "account.updated",
@@ -52,8 +56,10 @@ defmodule Flight.Billing.StripeEvents do
             end
           end
 
-          Flight.Billing.PayTransaction.pay_invoice_cc_transaction(invoice.id, session_id)
-
+          with {:ok, transaction} <- PayTransaction.pay_demo_invoice_cc_transaction(invoice.id, invoice.user_id) do
+            invoice = Flight.Repo.preload(invoice, [:line_items])
+            CreateInvoice.insert_transaction_line_items(invoice, %{school_id: invoice.school_id}, transaction)
+          end
     else
       _ -> {:error, "Couldn't update appointment status"}
     end
