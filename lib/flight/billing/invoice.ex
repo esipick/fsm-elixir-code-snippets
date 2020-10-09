@@ -73,7 +73,7 @@ defmodule Flight.Billing.Invoice do
 
   def payment_options_changeset(%Invoice{} = invoice, attrs) do
     invoice
-    |> cast(attrs, [:payment_option])
+    |> cast(attrs, __MODULE__.__schema__(:fields))
     |> validate_payment_option
   end
 
@@ -123,6 +123,8 @@ defmodule Flight.Billing.Invoice do
   def validate_payment_option(%Ecto.Changeset{valid?: true} = changeset) do
     user_id = get_change(changeset, :user_id) || get_field(changeset, :user_id)
     payment_option = get_change(changeset, :payment_option) || get_field(changeset, :payment_option)
+    
+    IO.inspect(changeset, label: "Changeset")
 
     if user_id == nil and payment_option in [nil, :balance] do
       add_error(changeset, :payment_option, "A valid payment option is required.")
