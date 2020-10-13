@@ -313,7 +313,6 @@ function printInvoice() {
         objFra.close();
       }, true);
     }
-
     document.getElementById("printButton").disabled = false
   })
 }

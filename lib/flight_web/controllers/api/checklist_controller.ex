@@ -51,4 +51,26 @@ defmodule FlightWeb.API.CheckListController do
 
         json(conn, %{"result" => "success"})
     end
+
+    def update_status( conn, attrs) do
+        # user can? mechanic
+
+        with {:ok, _} <- Inspections.upsert_checklist_details(attrs) do
+            json(conn, %{"result" => true})
+        
+        else
+            {:error, error} ->
+                json(conn, %{human_errors: [Errors.traverse(error)]})
+        end
+    end
+
+    def create_checklist_line_items(conn, attrs) do
+        with {:ok, _} <- Inspections.create_checklist_line_items(attrs) do
+            json(conn, %{"result" => true})
+
+        else
+            {:error, error} ->
+                json(conn, %{human_errors: [Errors.traverse(error)]})
+        end
+    end
 end

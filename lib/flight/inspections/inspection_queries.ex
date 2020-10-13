@@ -8,6 +8,8 @@ defmodule Flight.Inspections.Queries do
         CheckList,
         Maintenance,
         SquawkAttachment,
+        CheckListDetails,
+        CheckListLineItem,
         MaintenanceCheckList,
         AircraftMaintenance,
         AircraftMaintenanceAttachment
@@ -49,6 +51,32 @@ defmodule Flight.Inspections.Queries do
         |> filter_maintenance_by(filter)
     end
 
+    def get_aircraft_maintenance_query(filter) do
+        query = 
+            from m in Maintenance,
+                inner_join: am in AircraftMaintenance, on: am.maintenance_id == m.id,
+                inner_join: a in Aircraft, on: a.id == am.aircraft_id,
+                select: %{
+                    name: m.name,
+                    aircraft_id: a.id,
+                    maintenance_id: m.id,
+                    status: am.status,
+                    tach_hours: m.tach_hours,
+                    # aircraft_make: a.make,
+                    # aircraft_model: a.model,
+                    curr_tach_time: a.last_tach_time,
+                    due_date: m.due_date,
+                    tach_time_remaining: am.due_tach_hours - a.last_tach_time,
+                    days: fragment("DATE_PART('day', ?::timestamp - ?::timestamp)", m.due_date, m.ref_start_date),
+                    days_remaining: fragment("DATE_PART('day', ?::timestamp - now()::timestamp)", am.due_date)
+                },
+                where: a.archived == false and a.simulator == false
+
+        query
+        |> filter_maintenance_by(filter)
+        
+    end
+
     def get_aircraft_maintenance(sort_field, sort_order, filter) do
         query = 
             from m in Maintenance,
@@ -80,7 +108,8 @@ defmodule Flight.Inspections.Queries do
             from s in Squawk,
                 inner_join: a in Aircraft, on: a.id == s.aircraft_id,
                 select: %{
-                    name: s.description,
+                    title: s.title,
+                    description: s.description,
                     aircraft_id: a.id,
                     maintenance_id: s.id,
                     aircraft_make: a.make,
@@ -133,12 +162,47 @@ defmodule Flight.Inspections.Queries do
             where: st.squawk_id == ^squawk_id and st.id == ^id and s.school_id == ^school_id
     end
 
+    def validate_aircraft_checklist_maintenance_query(mc_id, am_id) do
+        from mc in MaintenanceCheckList,
+            inner_join: am in AircraftMaintenance, on: am.maintenance_id == mc.maintenance_id,
+            select: %{maintenance_id: mc.maintenance_id},
+            where: mc.id == ^mc_id and am.id == ^am_id
+    end
+
     def get_all_aircrafts_query(filter) do
         query =
             from a in Aircraft,
                 select: a
 
         filter_by(query, filter)
+    end
+
+    def get_checklist_query(m_id, aircraft_id) do
+        from c in CheckList,
+            inner_join: mc in MaintenanceCheckList, on: mc.checklist_id == c.id,
+            inner_join: am in AircraftMaintenance, on: am.maintenance_id == mc.maintenance_id,
+            select: %{
+                name: c.name,
+                maintenance_checklist_id: mc.id,
+                aircraft_maintenance_id: am.id
+            },
+            where: mc.maintenance_id == ^m_id and am.aircraft_id == ^aircraft_id and is_nil(am.start_et) # wanna get pending maintenance checklists
+    end
+
+    def get_checklist_items_query(filter) do
+        query = 
+            from cd in CheckListDetails,
+                left_join: cli in CheckListLineItem, on: cli.checklist_details_id == cd.id,
+                select: %{
+                    maintenance_checklist_id: cd.maintenance_checklist_id,
+                    aircraft_maintenance_id: cd.aircraft_maintenance_id,
+                    status: cd.status,
+                    line_items: fragment("array_agg(?)", cli.part_name)
+                },
+                group_by: cd.id
+
+        query
+        |> filter_by(filter)
     end
 
     defp paginate(query, page, per_page) when is_nil(page) or is_nil(per_page), do: query
@@ -177,6 +241,14 @@ defmodule Flight.Inspections.Queries do
                 :attachment_school_id -> 
                     from [_, _, m] in query,
                         where: m.school_id == ^value
+
+                :maintenance_checklist_ids -> 
+                    from q in query,
+                        where: q.maintenance_checklist_id in ^value
+
+                :aircraft_maintenance_ids ->
+                    from q in query,
+                        where: q.aircraft_maintenance_id in ^value
 
                 _ -> query
             end
@@ -285,6 +357,10 @@ defmodule Flight.Inspections.Queries do
                 :school_id ->
                     from [m, _, _a] in query,
                         where: m.school_id == ^value
+
+                :id ->
+                    from q in query,
+                        where: q.id == ^value
 
                 _ -> query
             end

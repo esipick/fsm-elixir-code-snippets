@@ -67,6 +67,18 @@ defmodule FlightWeb.API.MaintenanceController do
       end
     end
 
+    def details(%{assigns: %{current_user: %{school_id: school_id}}} = conn, 
+      %{"id" => m_id, "aircraft_id" => aircraft_id}) do
+    
+      with {:ok, maintenance} <- Inspections.get_maintenance_details(m_id, aircraft_id, school_id) do
+        json(conn, %{"result" => maintenance})
+
+      else
+        {:error, error} ->
+          json(conn, %{human_errors: [error]})
+      end
+    end
+
     def aircraft_maintenance(%{assigns: %{current_user: %{school_id: school_id}}} = conn, %{"id" => aircraft_id} = params) do
       {sort_field, sort_order} = sort_params_from_params(params)
       filter =

@@ -151,7 +151,7 @@ defmodule FlightWeb.Router do
       :admin_metrics_namespace,
       :complete_onboarding
     ])
-
+      
     resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show, :delete])
     get("/invoices/send_invoice/:id", InvoiceController, :send_invoice)
     get("/checkout_success/", InvoiceController, :checkout_success)
@@ -268,6 +268,7 @@ defmodule FlightWeb.Router do
 
     get("/maintenance", MaintenanceController, :get)
     get("/maintenance/:id", MaintenanceController, :show)
+    get("/maintenance/:id/details", MaintenanceController, :details)
     delete("/maintenance/:id", MaintenanceController, :delete)
 
     get("/aircrafts/:id/maintenance", MaintenanceController, :aircraft_maintenance)
@@ -279,6 +280,11 @@ defmodule FlightWeb.Router do
     post("/checklists", CheckListController, :create)
     get("/checklists", CheckListController, :index)
     get("/checklists/categories", CheckListController, :categories)
+
+    post("/checklists/status", CheckListController, :update_status)
+    post("/checklists/line_items", CheckListController, :create_checklist_line_items)
+
+
 
     delete("/checklists/", CheckListController, :delete)
     delete("/checklists/maintenance", CheckListController, :delete_checklist_from_maintenance)
