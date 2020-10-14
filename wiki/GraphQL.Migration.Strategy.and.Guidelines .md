@@ -1,7 +1,7 @@
 # GraphQL migration strategy and guidelines:
 
 
-1. Integrate Absinthe for GraphQL.
+1. Integrate Absinthe, GraphQL implementation for Elixir that will handle running GraphQL queries submitted via Phoenix. https://www.howtographql.com/graphql-elixir/0-introduction/
 
 2. Avoid the database queries in Authorization as its costly and it runs for every request. (Put School id in authorization token, that will help in avoiding querying)
 
