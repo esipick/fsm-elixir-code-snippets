@@ -64,29 +64,31 @@ defmodule Flight.StripeSinglePayment do
 
     defp map_line_items(nil, _tax_rate), do: []
     defp map_line_items(line_items, tax_rate) do
-        line_items = Enum.filter(line_items, &(&1.rate > 0))
+        line_items = Enum.filter(line_items, &(&1.rate > 0 && &1.quantity > 0))
 
         Enum.reduce(line_items, {[], 0}, fn(item, acc) ->
             {line_items, total} = acc
-            
+            rate = item.quantity * item.rate
+            quantity = 
+                if item.quantity < 1, do: 1, else: item.quantity
+
             {total, rate } =
                 if item.taxable do
-                    rate = round(item.quantity) * item.rate
                     tax = escape_scientific_notation(rate * tax_rate) / 100
 
                     rate = rate + tax
                     total = total + rate
 
-                    {total, rate / round(item.quantity)}
+                    {total, rate / round(quantity)}
 
                 else
-                    total = total + (round(item.quantity) * item.rate)
+                    total = total + (round(quantity) * item.rate)
                     {total, item.rate}
                 end
 
             item = 
                 %{
-                    "quantity" => round(item.quantity),
+                    "quantity" => round(quantity),
                     "currency" => "usd",
                     "amount" => escape_scientific_notation(rate),
                     "name" => item.description
