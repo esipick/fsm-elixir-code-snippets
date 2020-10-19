@@ -1,6 +1,10 @@
 defmodule Flight.Auth.Authorization do
   import Flight.Auth.Permission
 
+  def is_admin?(user) do
+    user_can?(user, [Flight.Auth.Permission.new(:admins, :modify, :all)])
+  end
+
   def staff_member?(user) do
     user_can?(user, [Flight.Auth.Permission.new(:staff, :access, :all)])
   end

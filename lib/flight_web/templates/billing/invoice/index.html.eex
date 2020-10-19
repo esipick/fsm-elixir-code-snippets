@@ -112,21 +112,21 @@ function getPlainDate(start_at) {
                   <td><%= if invoice.payment_method == :cheque, do: "check", else: invoice.payment_method %></td>
                   <td class="text-right">
                     <div id="button-wrapper" class="d-flex justify-content-end">
-                      <%= if can_modify_invoice?(@conn, invoice) do %>
-                        <a href="/billing/invoices/<%= invoice.id %>/edit/#save_and_pay" class="btn btn-primary btn-sm ml-1">
-                          EDIT
-                        </a>
-                        <%= if can_delete_invoice?(@conn, invoice) do %>
-                          <button stype="button" class="btn btn-danger btn-sm ml-1 _delete_button" data-invoice-id="<%= invoice.id %>">
-                            Delete
-                          </button>
-                        <% end %>
-                      <% end %>
                       <%= if can_send_invoice?(@conn, invoice) do %>
                           <a href="/billing/invoices/send_invoice/<%= invoice.id %>" class="btn btn-primary btn-sm ml-1">
                             SEND INVOICE
                           </a>
                       <% end %>
+                      <%= if can_modify_invoice?(@conn, invoice) do %>
+                        <a href="/billing/invoices/<%= invoice.id %>/edit/#save_and_pay" class="btn btn-primary btn-sm ml-1">
+                          EDIT
+                        </a>
+                      <% end %>
+                        <%= if can_delete_invoice?(@conn, invoice) do %>
+                          <button stype="button" class="btn btn-danger btn-sm ml-1 _delete_button" data-invoice-id="<%= invoice.id %>">
+                            Delete
+                          </button>
+                        <% end %>
                     </div>
                   </td>
                 </tr>
