@@ -116,6 +116,146 @@ defmodule FlightWeb.UserForm do
     }
   end
 
+  def item(user, :passport_expires_at) do
+    %Item{
+      key: :passport_expires_at,
+      name: "Passport Expiration",
+      type: :date,
+      value: user.passport_expires_at,
+      order: 75
+    }
+  end
+
+  def item(user, :d_license_expires_at) do
+    %Item{
+      key: :d_license_expires_at,
+      name: "License Expiration",
+      type: :date,
+      value: user.d_license_expires_at,
+      order: 80
+    }
+  end
+
+  def item(user, :renter_policy_no) do
+    %Item{
+      key: :renter_policy_no,
+      name: "Renter Policy #",
+      type: :string,
+      value: user.renter_policy_no,
+      order: 85
+    }
+  end
+
+  def item(user, :date_of_birth) do
+    %Item{
+      key: :date_of_birth,
+      name: "Date of Birth",
+      type: :date,
+      value: user.date_of_birth,
+      order: 90
+    }
+  end
+
+  def item(user, :passport_country) do
+    %Item{
+      key: :passport_country,
+      name: "Passport Country",
+      type: :string,
+      value: user.passport_country,
+      order: 95
+    }
+  end
+
+  def item(user, :passport_issuer_name) do
+    %Item{
+      key: :passport_issuer_name,
+      name: "Passport Issuer",
+      type: :string,
+      value: user.passport_issuer_name,
+      order: 100
+    }
+  end
+
+  def item(user, :last_faa_flight_review_at) do
+    %Item{
+      key: :last_faa_flight_review_at,
+      name: "Last Faa Flight Review",
+      type: :date,
+      value: user.last_faa_flight_review_at,
+      order: 105
+    }
+  end
+
+  def item(user, :renter_insurance_expires_at) do
+    %Item{
+      key: :renter_insurance_expires_at,
+      name: "Renter Insurance Expiration",
+      type: :date,
+      value: user.renter_insurance_expires_at,
+      order: 110
+    }
+  end
+
+  def item(user, :passport_no) do
+    %Item{
+      key: :passport_no,
+      name: "Passport #",
+      type: :string,
+      value: user.passport_no,
+      order: 115
+    }
+  end
+
+  def item(user, :d_license_no) do
+    %Item{
+      key: :d_license_no,
+      name: "Driving License #",
+      type: :string,
+      value: user.d_license_no,
+      order: 120
+    }
+  end
+
+  def item(user, :d_license_country) do
+    %Item{
+    key: :d_license_country,
+    name: "Driving License Country",
+    type: :string,
+    value: user.d_license_country,
+    order: 125
+    }
+  end
+
+  def item(user, :gender) do
+    %Item{
+    key: :gender,
+    name: "Gender",
+    type: :string,
+    value: user.gender,
+    order: 130
+    }
+  end
+
+  def item(user, :emergency_contact_no) do
+    %Item{
+      key: :emergency_contact_no,
+      name: "Emergency Contact #",
+      type: :string,
+      value: user.emergency_contact_no,
+      order: 135
+    }
+  end
+
+  def item(user, :d_license_state) do
+    %Item{
+      key: :d_license_state,
+      name: "Driving License State",
+      type: :string,
+      value: user.d_license_state,
+      order: 140
+    }
+  end
+
   def human_readable_medical_rating(nil), do: nil
 
   def human_readable_medical_rating(medical_rating) when is_binary(medical_rating) do
