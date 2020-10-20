@@ -9,7 +9,7 @@
 
 4. Make new modules for GraphQL resolvers and core modules, Reuse methods from existing implementation but it would be best if we replicate them in the new modules especially when change is required for GraphQL. That way we make sure that existing apps won't break.
 
-5. Though out the application we have seen that there is no use of database transaction, that will cause problems when we have a bigger user roles and more scenarios and failures will occur. Take care of database transactions for new implementation and when encounter an implementation where transaction should be used but isn't, Fix that.
+5. Through out the application we have seen that there is no use of database transaction. That will cause problems when we have a bigger user roles and more scenarios and failures will occur. Take care of database transactions for new implementation and when encounter an implementation where transaction should be used but isn't, Fix that.
 
 6. Avoid querying all database records and thoughtfully implement listing APIs especially in cases when querying related data for lists. Instead of using preload functions, get related data for all records with joins or a separate query, whichever is suitable.
 
