@@ -1,8 +1,13 @@
 <script>
 function getPlainDate(start_at) {
-  var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
-  var date = date_time.format('YYYY-MM-DD')
-  return date;
+  if (start_at) {
+    var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
+    var date = date_time.format('YYYY-MM-DD')
+    return date;
+  }
+  else {
+    return "";
+  }
 }
 </script>
 <div class="tab-pane detail-list list-billing" id="link2">
