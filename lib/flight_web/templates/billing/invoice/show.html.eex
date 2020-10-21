@@ -280,7 +280,7 @@ function getPlainDate(start_at) {
     </iframe>
 -->
 
-<%= if can_modify_invoice?(@conn, @invoice) do %>
+<%= if can_delete_invoice?(@conn, @invoice) do %>
   <%= render FlightWeb.Admin.PartialView,
             "_shared_delete_form.html",
             %{message: "This invoice and all of its information will be archived and removed from the system.",
