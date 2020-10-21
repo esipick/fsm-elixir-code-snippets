@@ -1,8 +1,13 @@
 <script>
   function getLocalTime(dt) {
-    var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
-    var time = date_time.format('YYYY-MM-DD hh:mm:ss A')
-    return time;
+    if (dt) {
+      var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+      var time = date_time.format('YYYY-MM-DD hh:mm:ss A')
+      return time;
+    }
+    else {
+      return "";
+    }
   }
 </script>
 
