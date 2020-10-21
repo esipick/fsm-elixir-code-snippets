@@ -659,13 +659,13 @@ defmodule Flight.Accounts do
       :renter_policy_no,
       :renter_insurance_expires_at,
 
-      :pilot_current_certificate,
-      :pilot_aircraft_categories,
-      :pilot_class,
-      :pilot_ratings,
-      :pilot_endorsements,
-      :pilot_certificate_number,
-      :pilot_certificate_expires_at
+#      :pilot_current_certificate,
+#      :pilot_aircraft_categories,
+#      :pilot_class,
+#      :pilot_ratings,
+#      :pilot_endorsements,
+#      :pilot_certificate_number,
+#      :pilot_certificate_expires_at
     ]
   end
 

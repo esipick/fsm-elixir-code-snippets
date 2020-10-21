@@ -1,15 +1,26 @@
 <script>
   function getLocalUserAppointmentDate(dt) {
-    var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
-    var date = new Date(date_time);
-    date = date.toLocaleString('default', { weekday: 'long' })+' '+date.toLocaleString('default', { month: 'long' })+ date_time.format(' DD, YYYY')
-    return date;
+    if (dt){
+      var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+      var date = new Date(date_time);
+      date = date.toLocaleString('default', { weekday: 'long' })+' '+date.toLocaleString('default', { month: 'long' })+ date_time.format(' DD, YYYY')
+      return date;
+    }
+    else {
+      return "";
+    }
   }
+
   function getLocalUserAppointmentDateTime(dt) {
-    var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
-    var date = new Date(date_time);
-    var d_time = date_time.format('D ')+date.toLocaleString('default', { month: 'long' })+date_time.format(' h:mmA')
-    return d_time;
+    if (dt){
+      var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+      var date = new Date(date_time);
+      var d_time = date_time.format('D ')+date.toLocaleString('default', { month: 'long' })+date_time.format(' h:mmA')
+      return d_time;
+    }
+    else {
+      return "";
+    }
   }
 </script>
 <%= if Enum.any?(@appointments) do %>

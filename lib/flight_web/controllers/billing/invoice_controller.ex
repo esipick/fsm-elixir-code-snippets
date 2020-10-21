@@ -174,7 +174,7 @@ defmodule FlightWeb.Billing.InvoiceController do
 
   defp check_archived_invoice(%{assigns: %{invoice: %{archived: true}}} = conn, _) do
     conn
-    |> put_flash(:error, "Invoice has already been removed.")
+    |> put_flash(:error, "Invoice has been removed.")
     |> redirect(to: "/billing/invoices")
   end
 

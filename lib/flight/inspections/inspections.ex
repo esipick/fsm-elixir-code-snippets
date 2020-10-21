@@ -8,7 +8,9 @@ defmodule Flight.Inspections do
         Queries,
         CheckList,
         Maintenance,
+        CheckListDetails,
         MaintenanceAlert,
+        CheckListLineItem,
         AircraftMaintenance,
         MaintenanceCheckList
     }
@@ -381,13 +383,139 @@ defmodule Flight.Inspections do
 
             color = 
                 if status != "pending", do: "#28940a", else: color
+            
             Map.put(maintenance, :status_color, color)
     end
 
-    def fetch_nearest(maintenances, key) do
-        maintenances
-        |> Enum.filter(&(Map.get(&1, key) != nil))
-        |> Enum.sort(&(Map.get(&1, key) < Map.get(&2, key)))
-        |> Enum.take(3)
+    def get_maintenance_details(maintenance_id, aircraft_id, school_id) do
+        %{
+            id: maintenance_id,
+            aircraft_id: aircraft_id,
+            school_id: school_id
+        }
+        |> Queries.get_aircraft_maintenance_query
+        |> Ecto.Query.first
+        |> Repo.one
+        |> case do
+            nil -> {:error, "Maintenance not found for aircraft id: #{aircraft_id}"}
+            maintenance ->
+                checklists = get_checklists(maintenance_id, aircraft_id)
+
+                {:ok, Map.put(maintenance, :checklists, checklists)}
+        end
     end
+    # Flight.Inspections.get_checklists("fd651355-f6f4-4839-9c1b-179a7316e726", 1)
+    def get_checklists(maintenance_id, aircraft_id) do
+        checklists =
+            maintenance_id
+            |> Queries.get_checklist_query(aircraft_id)
+            |> Repo.all
+
+        mc_ids = Enum.map(checklists, & &1.maintenance_checklist_id)
+        am_ids = Enum.map(checklists, & &1.aircraft_maintenance_id)
+
+        items_map = 
+            mc_ids
+            |> get_checklist_line_items(am_ids)
+            |> Enum.map(fn %{line_items: li} = item -> 
+                line_items = Enum.filter(li, & &1 != nil) 
+                Map.put(item, :line_items, line_items)
+            end)
+            |> Enum.group_by(& &1.maintenance_checklist_id <> &1.aircraft_maintenance_id)
+
+        checklists =
+            Enum.map(checklists, fn %{maintenance_checklist_id: mc_id, aircraft_maintenance_id: am_id} = checklist -> 
+                detail_map = Map.get(items_map, mc_id <> am_id) || [%{status: "pending", line_items: []}]
+                detail_map = List.first(detail_map)
+
+                Map.merge(checklist, detail_map)
+            end)
+    end
+
+    defp get_checklist_line_items([], _am_ids), do: []
+    defp get_checklist_line_items(_mc_ids, []), do: []
+    defp get_checklist_line_items(mc_ids, am_ids) do
+        %{
+            maintenance_checklist_ids: mc_ids,
+            aircraft_maintenance_ids: am_ids
+        }
+        |> Queries.get_checklist_items_query
+        |> Repo.all
+    end
+
+    def upsert_checklist_details(%{
+        "maintenance_checklist_id" => mc_id, 
+        "aircraft_maintenance_id" => am_id} = attrs) do
+            Repo.get_by(CheckListDetails, maintenance_checklist_id: mc_id, aircraft_maintenance_id: am_id)
+            |> case do
+               nil -> insert_checklist_details(attrs)
+               changeset -> update_checklist_details(changeset, attrs) 
+            end
+    end
+
+    def create_checklist_line_items(%{
+        "maintenance_checklist_id" => mc_id, 
+        "aircraft_maintenance_id" => am_id, "items" => items}) do
+            Repo.get_by(CheckListDetails, maintenance_checklist_id: mc_id, aircraft_maintenance_id: am_id)
+            |> case do
+                nil -> {:error, "CheckList not found."}
+                %{id: id} ->
+                    items
+                    |> Enum.map(&(Map.put(&1, "checklist_details_id", id)))
+                    |> create_all_checklist_items
+            end
+    end
+    def create_checklist_line_items(_), do: {:error, "Invalid input."}
+
+    defp insert_checklist_details(%{
+        "maintenance_checklist_id" => mc_id, "aircraft_maintenance_id" => am_id} = attrs) do
+        
+        Queries.validate_aircraft_checklist_maintenance_query(mc_id, am_id)
+        |> Repo.all
+        |> case do
+            [] -> {:error, "Maintenance Mismatch: The checklist and aircraft maitenance belongs to different events."}
+            _ ->
+                %CheckListDetails{}
+                |> CheckListDetails.changeset(attrs)
+                |> Repo.insert
+        end
+    end
+
+    defp update_checklist_details(%CheckListDetails{} = changeset, attrs) do
+        changeset
+        |> CheckListDetails.changeset(attrs)
+        |> Repo.update
+    end
+
+    defp create_all_checklist_items(items) do
+
+        Enum.reduce_while(items, {:ok, []}, fn item, acc -> 
+            %CheckListLineItem{}
+            |> CheckListLineItem.changeset(item)
+            |> case do
+                %Ecto.Changeset{valid?: true} = changeset -> 
+                    {:ok, acc} = acc
+                    item = changeset.changes
+                    {:cont, {:ok, [item | acc]}}
+
+                changeset -> 
+                    {:halt, {:error, changeset}}
+            end
+        end)
+        |> case do
+            {:ok, []} -> {:ok, :done}
+            {:ok, items} ->
+                Repo.insert_all(CheckListLineItem, items)
+                {:ok, :done}
+
+            error -> error 
+        end
+    end
+
+    # def fetch_nearest(maintenances, key) do
+    #     maintenances
+    #     |> Enum.filter(&(Map.get(&1, key) != nil))
+    #     |> Enum.sort(&(Map.get(&1, key) < Map.get(&2, key)))
+    #     |> Enum.take(3)
+    # end
 end

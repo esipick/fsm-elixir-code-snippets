@@ -1,8 +1,13 @@
 <script>
 function getPlainDate(start_at) {
-  var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
-  var date = date_time.format('YYYY-MM-DD')
-  return date;
+  if (start_at){
+    var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
+    var date = date_time.format('YYYY-MM-DD')
+    return date;
+  }
+  else {
+    return "";
+  }
 }
 </script>
 
@@ -75,15 +80,25 @@ function getPlainDate(start_at) {
                         <tr>
                         <script>
                           function getDate(start_at) {
-                            var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
-                            var date = new Date(date_time);
-                            date = date.toLocaleString('default', { month: 'long' })+ date_time.format(' DD, YYYY')
-                            return date;
+                            if (start_at) {
+                              var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
+                              var date = new Date(date_time);
+                              date = date.toLocaleString('default', { month: 'long' })+ date_time.format(' DD, YYYY')
+                              return date;
+                            }
+                            else {
+                              return "";
+                            }
                           }
                           function getLocalTime(dt) {
-                            var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
-                            var time = date_time.format('hh:mmA')
-                            return time;
+                            if(dt){
+                              var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+                              var time = date_time.format('hh:mmA')
+                              return time;
+                            }
+                            else {
+                              return "";
+                            }
                           }
                           document.write('<td>'+getDate('<%=@invoice.appointment.start_at %>')+'</td>');
                           document.write('<td>'+getLocalTime('<%=@invoice.appointment.start_at %>')+' - '+getLocalTime('<%=@invoice.appointment.end_at %>')+'</td>');
@@ -280,7 +295,7 @@ function getPlainDate(start_at) {
     </iframe>
 -->
 
-<%= if can_modify_invoice?(@conn, @invoice) do %>
+<%= if can_delete_invoice?(@conn, @invoice) do %>
   <%= render FlightWeb.Admin.PartialView,
             "_shared_delete_form.html",
             %{message: "This invoice and all of its information will be archived and removed from the system.",
@@ -313,7 +328,6 @@ function printInvoice() {
         objFra.close();
       }, true);
     }
-
     document.getElementById("printButton").disabled = false
   })
 }

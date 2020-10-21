@@ -18,6 +18,7 @@ defmodule Flight.Inspections.Squawk do
 
     @primary_key {:id, :binary_id, autogenerate: true}
     schema "squawks" do
+        field(:title, :string, null: false)
         field(:description, :string, null: false)
         field(:severity, SquawkSeverityEnum, default: :ground)
         
@@ -39,13 +40,15 @@ defmodule Flight.Inspections.Squawk do
         timestamps([inserted_at: :created_at])
     end
 
-    defp required_fields(), do: ~w(description reported_by_id created_by_id school_id aircraft_id)a
+    defp required_fields(), do: ~w(title description reported_by_id created_by_id school_id aircraft_id)a
 
     def changeset(%Squawk{} = changeset, params \\ %{}) do
         changeset
         |> cast(params, __MODULE__.__schema__(:fields))
         |> validate_required(required_fields())
         |> validate_role_inclusion()
+        |> foreign_key_constraint(:reported_by_id, name: :squawks_reported_by_id_fkey, message: "Reported by user not found.")
+        |> foreign_key_constraint(:aircraft_id, name: :squawks_aircraft_id_fkey, message: "Aircraft not found.")
     end
 
     defp validate_role_inclusion(%Ecto.Changeset{valid?: true, changes: %{notify_roles: nil}} = changeset), do: changeset
