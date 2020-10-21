@@ -137,10 +137,13 @@ function getPlainDate(start_at) {
           <%= if @page.total_pages > 1 do %>
             <div class="row">
               <div class="col-md-10">
-                <%= pagination_links @conn,
-                  @page,
-                  path: &billing_invoice_path/3,
-                  page_size: @page.page_size
+                <%= pagination_links @conn, @page,
+                    search: Map.get(@params, "search", nil),
+                    status: Map.get(@params, "status", nil),
+                    start_date: Map.get(@params, "start_date", nil),
+                    end_date: Map.get(@params, "end_date", nil),
+                    path: &billing_invoice_path/3,
+                    page_size: @page.page_size
                 %>
               </div>
 
