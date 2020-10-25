@@ -81,12 +81,16 @@ defmodule FlightWeb.Billing.InvoiceController do
     |> redirect(to: "/billing/invoices")
   end
 
-  def delete(conn, _) do
+  def delete(conn, params) do
     Invoice.archive(conn.assigns.invoice)
+    search = Map.get(params, "search", nil)
+    status = Map.get(params, "status", nil)
+    start_date = Map.get(params, "start_date", nil)
+    end_date = Map.get(params, "end_date", nil)
 
     conn
     |> put_flash(:success, "Invoice was successfully deleted.")
-    |> redirect(to: "/billing/invoices")
+    |> redirect(to:  "/billing/invoices?search=#{search}&start_date=#{start_date}&end_date=#{end_date}&status=#{status}")
   end
 
   defp get_invoice(conn, _) do

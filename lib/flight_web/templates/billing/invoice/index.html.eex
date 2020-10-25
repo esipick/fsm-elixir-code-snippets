@@ -171,10 +171,25 @@ function getPlainDate(start_at) {
   require("js/admin/datetimepicker.js")
 </script>
 
-<%= render FlightWeb.Admin.PartialView,
-          "_shared_delete_form.html",
-          %{message: "This invoice and all of its information will be archived and removed from the system.",
-            path: "/billing/invoices/",
-            attribute: "invoice"} %>
+<div style="display:none">
+  <%= form_tag "/billing/invoices/:pending:", method: "delete", id: "delete_form" do %>
+  <% end %>
+</div>
 
-<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
+<script>
+$(document).ready(function() {
+  $('._delete_button').on('click', function() {
+    var id = $(this).attr('<%= "data-invoice-id" %>')
+
+    var path = '/billing/invoices/' + id+'?search=<%= Map.get(@params, "search", nil)%>&start_date=<%= Map.get(@params, "start_date", nil)%>&end_date=<%= Map.get(@params, "end_date", nil)%>&status=<%= Map.get(@params, "status", nil)%>'
+
+    var shouldDelete = confirm("This invoice and all of its information will be archived and removed from the system.")
+    if (shouldDelete) {
+      var form = $('#delete_form')[0]
+      form.action = path
+      form.submit()
+    }
+  });
+});
+</script>
+
