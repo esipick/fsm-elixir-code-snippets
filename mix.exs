@@ -78,6 +78,9 @@ defmodule Flight.Mixfile do
       {:fastglobal, "~> 1.0"},
       {:ecto, "~> 3.4.3", override: true},
       {:puppeteer_pdf, "~> 1.0.3"},
+      {:absinthe, "~> 1.4"},
+      {:absinthe_plug, "~> 1.4"},
+      {:poison, "~> 2.1.0", override: true},
       # Dev tools
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:wallaby, "~> 0.24.0", runtime: false, only: :test}

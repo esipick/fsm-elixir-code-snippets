@@ -244,6 +244,7 @@ defmodule FlightWeb.Router do
   ###
   # API Routes
   ###
+
   scope "/api", FlightWeb.API do
     post("/stripe_events", StripeController, :stripe_events)
     get("/ios_app_version", IosAppVersionController, :index)
@@ -385,6 +386,13 @@ defmodule FlightWeb.Router do
         )
       end
     end
+  end
+
+  scope "/api" do
+    pipe_through :api
+
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+      schema: FlightWeb.GraphQL.Schema
   end
 
   if Mix.env() == :dev do
