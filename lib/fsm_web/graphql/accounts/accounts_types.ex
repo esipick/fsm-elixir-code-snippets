@@ -11,7 +11,7 @@ defmodule FlightWeb.GraphQL.Accounts.AccountsTypes do
     # MUTATIONS
     object :accounts_mutations do
       field :login, :session do
-        arg :email_or_id, non_null(:string)
+        arg :email, non_null(:string)
         arg :password, non_null(:string)
         resolve &AccountsResolvers.login/3
       end
