@@ -16,11 +16,6 @@ defmodule FSM.Accounts do
       %User{archived: false} ->
         case check_password(user, password) do
           {:ok, user} ->
-
-            Logger.debug("________________________________")
-            Logger.debug("________________________________")
-            Logger.debug("________________________________")
-            Logger.debug(inspect(user))
             user =
               user
               |> FlightWeb.API.UserView.show_preload()
@@ -28,13 +23,13 @@ defmodule FSM.Accounts do
             {:ok, %{user: user, token: FlightWeb.AuthenticateApiUser.token(user)}}
 
           {:error, _} ->
-            {:error, %{human_errors: ["Invalid email or password."]}}
+            {:error, "Invalid email or password."}
         end
 
       _ ->
         Comeonin.Bcrypt.dummy_checkpw()
 
-        {:ok, %{human_errors: ["Invalid email or password."]}}
+        {:error, "Invalid email or password."}
     end
   end
 
