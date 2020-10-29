@@ -16,13 +16,13 @@ defmodule FlightWeb.GraphQL.Schema do
       import_fields :accounts_mutations
     end
   
-    # exectute changeset error middleware for each mutation
-    def middleware(middleware, _field, %{identifier: :mutation}) do
-      middleware ++ [Middleware.ChangesetErrors]
-    end
+    # # exectute changeset error middleware for each mutation
+    # def middleware(middleware, _field, %{identifier: :mutation}) do
+    #   middleware ++ [Middleware.ChangesetErrors]
+    # end
   
-    def middleware(middleware, _field, _object) do
-      middleware
-    end
+    # def middleware(middleware, _field, _object) do
+    #   middleware
+    # end
   end
   
