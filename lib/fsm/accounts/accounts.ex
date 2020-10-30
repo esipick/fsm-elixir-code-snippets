@@ -33,6 +33,11 @@ defmodule Fsm.Accounts do
     end
   end
 
+  def get_user(id) do
+    user = 
+    Fsm.Accounts.UserQueries.get_user_with_roles(id)
+    |> Repo.one
+  end
   defp get_user_by_email(email) when is_nil(email) or email == "", do: nil
 
   defp get_user_by_email(email) do
