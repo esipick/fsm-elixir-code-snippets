@@ -1,4 +1,4 @@
-defmodule FlightWeb.GraphQL.Middleware.ChangesetErrors do
+defmodule FsmWeb.GraphQL.Middleware.ChangesetErrors do
   @behaviour Absinthe.Middleware
 
   def call(resolution, _) do

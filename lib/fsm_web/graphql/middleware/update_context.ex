@@ -1,4 +1,4 @@
-defmodule FlightWeb.GraphQL.Middleware.UpdateContext do
+defmodule FsmWeb.GraphQL.Middleware.UpdateContext do
   @behaviour Absinthe.Middleware
 
   def call(%{value: %{user: user}} = resolution, _) do

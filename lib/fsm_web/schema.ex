@@ -1,8 +1,9 @@
-defmodule FlightWeb.GraphQL.Schema do
+defmodule FsmWeb.GraphQL.Schema do
     use Absinthe.Schema
   
-    import_types FlightWeb.GraphQL.Accounts.AccountsTypes
-  
+    import_types FsmWeb.GraphQL.Accounts.AccountsTypes
+    import_types FsmWeb.GraphQL.Transactions.TransactionsTypes
+    
     query do
       @desc "say hello"
       field :say_hello, :string do
@@ -10,10 +11,12 @@ defmodule FlightWeb.GraphQL.Schema do
       end
 
       import_fields :accounts_queries
+      import_fields :transactions_queries
     end
   
     mutation do
       import_fields :accounts_mutations
+      import_fields :transactions_mutations
     end
   
     # # exectute changeset error middleware for each mutation

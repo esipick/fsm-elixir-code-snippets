@@ -1,4 +1,4 @@
-defmodule FlightWeb.GraphQL.Middleware.Authorize do
+defmodule FsmWeb.GraphQL.Middleware.Authorize do
   @behaviour Absinthe.Middleware
 
   require Logger

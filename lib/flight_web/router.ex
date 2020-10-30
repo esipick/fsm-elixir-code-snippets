@@ -393,7 +393,7 @@ defmodule FlightWeb.Router do
     pipe_through :api
 
     forward "/graphiql", Absinthe.Plug.GraphiQL,
-      schema: FlightWeb.GraphQL.Schema
+      schema: FsmWeb.GraphQL.Schema
   end
 
   if Mix.env() == :dev do

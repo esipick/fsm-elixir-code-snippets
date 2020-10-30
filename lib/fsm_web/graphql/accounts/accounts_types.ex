@@ -1,8 +1,8 @@
-defmodule FlightWeb.GraphQL.Accounts.AccountsTypes do
+defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     use Absinthe.Schema.Notation
-
-    alias FlightWeb.GraphQL.Middleware
-    alias FlightWeb.GraphQL.Accounts.AccountsResolvers
+  
+    alias FsmWeb.GraphQL.Middleware
+    alias FsmWeb.GraphQL.Accounts.AccountsResolvers
   
     #Enum
     # QUERIES
