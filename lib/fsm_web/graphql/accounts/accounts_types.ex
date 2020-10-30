@@ -1,11 +1,18 @@
 defmodule FlightWeb.GraphQL.Accounts.AccountsTypes do
     use Absinthe.Schema.Notation
-  
+
+    alias FlightWeb.GraphQL.Middleware
     alias FlightWeb.GraphQL.Accounts.AccountsResolvers
   
     #Enum
     # QUERIES
     object :accounts_queries do
+      @desc "Get User by id."
+      field :user, :user do
+        arg :id, :id
+        middleware Middleware.Authorize
+        resolve &AccountsResolvers.get_system/3
+      end
     end
   
     # MUTATIONS
@@ -13,6 +20,7 @@ defmodule FlightWeb.GraphQL.Accounts.AccountsTypes do
       field :login, :session do
         arg :email, non_null(:string)
         arg :password, non_null(:string)
+#        middleware Middleware.Authorize
         resolve &AccountsResolvers.login/3
       end
     end
