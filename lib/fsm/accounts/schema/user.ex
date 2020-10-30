@@ -1,4 +1,4 @@
-defmodule FSM.Accounts.User do
+defmodule Fsm.Accounts.User do
     use Ecto.Schema
     use Waffle.Ecto.Schema
   

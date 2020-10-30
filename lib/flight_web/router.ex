@@ -55,6 +55,7 @@ defmodule FlightWeb.Router do
 
   pipeline :api do
     plug(:accepts, ["json"])
+    plug FlightWeb.Context
   end
 
   pipeline :complete_onboarding do

@@ -1,9 +1,9 @@
-defmodule FSM.Accounts do
+defmodule Fsm.Accounts do
   import Ecto.Query, warn: false
 
   alias Flight.Repo
 
-  alias FSM.Accounts.User
+  alias Fsm.Accounts.User
 
   require Logger
 
@@ -20,7 +20,7 @@ defmodule FSM.Accounts do
               user
               |> FlightWeb.API.UserView.show_preload()
 
-            {:ok, %{user: user, token: FlightWeb.AuthenticateApiUser.token(user)}}
+            {:ok, %{user: user, token: FlightWeb.Fsm.AuthenticateApiUser.token(user)}}
 
           {:error, _} ->
             {:error, "Invalid email or password."}
