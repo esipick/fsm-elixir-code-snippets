@@ -27,7 +27,6 @@ defmodule FlightWeb.Context do
     {:ok, id, password_token} <- user_id_from_token(token),
     user <- Fsm.Accounts.get_user(id) do
     Logger.info fn -> "context user: #{inspect user}" end
-      # Logger.metadata([user_id: id, role: user_role, remote_ip: remote_ip])
       %{current_user: user}
     else
       _ ->
