@@ -63,8 +63,6 @@ defmodule FlightWeb.Endpoint do
     signing_salt: "rP/4UMR4"
   )
 
-  plug CORSPlug
-
   plug(FlightWeb.Router)
 
   @doc """
