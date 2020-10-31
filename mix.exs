@@ -81,7 +81,7 @@ defmodule Flight.Mixfile do
       {:absinthe, "~> 1.4"},
       {:absinthe_plug, "~> 1.4"},
       {:poison, "~> 2.1.0", override: true},
-      {:cors_plug, "~> 1.5"},
+      {:cors_plug, "~> 2.0"},
       # Dev tools
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:wallaby, "~> 0.24.0", runtime: false, only: :test}

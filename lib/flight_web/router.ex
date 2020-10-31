@@ -54,6 +54,8 @@ defmodule FlightWeb.Router do
   end
 
   pipeline :api do
+#    plug CORSPlug, origin: ["http://localhost:8100", "http://127.0.0.1:8100"]
+    plug CORSPlug, origin: "*"
     plug(:accepts, ["json"])
     plug FlightWeb.Context
   end
