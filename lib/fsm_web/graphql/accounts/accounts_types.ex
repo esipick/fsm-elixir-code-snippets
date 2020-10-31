@@ -7,11 +7,23 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     #Enum
     # QUERIES
     object :accounts_queries do
-      @desc "Get User by id."
-      field :user, :user do
-        arg :id, :id
+#      @desc "Get User by id."
+#      field :user, :user do
+#        arg :id, :id
+#        middleware Middleware.Authorize
+#        resolve &AccountsResolvers.get_system/3
+#      end
+
+      @desc "List all users"
+      field :all_users, list_of(non_null(:user)) do
+        #        arg :page, :integer, default_value: 1
+        #        arg :per_page, :integer, default_value: 100
+        #        arg :sort_field, :user_fields
+        #        arg :sort_order, :user_order_by
+        #        arg :filter, :user_filter
+
         middleware Middleware.Authorize
-        resolve &AccountsResolvers.get_system/3
+        resolve &AccountsResolvers.all_users/3
       end
     end
   
