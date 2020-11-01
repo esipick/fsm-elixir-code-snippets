@@ -9,4 +9,10 @@ defmodule Fsm.Transactions.TransactionsQueries do
       from t in Transaction,
       select: t
     end
+
+    def transactions_by_user_id(user_id) do
+      from t in Transaction,
+      select: t,
+      where: t.user_id == ^user_id
+    end
   end

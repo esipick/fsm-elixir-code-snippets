@@ -3,10 +3,11 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
     alias FsmWeb.GraphQL.Middleware
     alias FsmWeb.GraphQL.Transactions.TransactionsResolvers
   
+    #user roles 1: admin, 2:dispatcher
     # QUERIES
     object :transactions_queries do
       field :all_transaction_history, list_of(:transaction) do
-        middleware Middleware.Authorize
+        middleware Middleware.Authorize, [:admin, :dispatcher, :student, :renter]
         resolve &TransactionsResolvers.get_all_transactions/3
       end
     end
@@ -21,6 +22,7 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
     enum :payment_options, values: [:balance, :cc, :cash, :cheque, :venmo ]
     # balance: 0, cc: 1, cash: 2, cheque: 3,venmo: 4
     object :transaction do
+      field :id, :integer 
       field :paid_by_balance, :integer 
       field :paid_by_charge, :integer 
       field :paid_by_cash, :integer 
