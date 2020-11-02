@@ -10,13 +10,13 @@ defmodule Fsm.Accounts.AccountsQueries do
 
     require Logger
 
-    def get_user(user_id) do
+    def get_user_query(user_id) do
       from u in User,
       select: u,
       where: u.id == ^user_id
     end
 
-    def get_user_with_roles(user_id) do
+    def get_user_with_roles_query(user_id) do
         from u in User,
             inner_join: ur in UserRole, on: ur.user_id == u.id,
             inner_join: r in Role, on: r.id == ur.role_id,
