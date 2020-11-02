@@ -5,8 +5,8 @@ defmodule Fsm.Transactions do
     alias Fsm.Transactions.TransactionsQueries
     require Logger
   
-    def get_all_transactions() do
-        TransactionsQueries.all_transactions_query()
+    def get_transactions(user_id, page, per_page, sort_field, sort_order, filter, context) do
+        TransactionsQueries.list_transactions_query(user_id, page, per_page, sort_field, sort_order, filter, context)
         |> Repo.all
         |> case do
             nil ->
@@ -14,18 +14,6 @@ defmodule Fsm.Transactions do
             data ->
                 {:ok, data}
         end
-    end
-
-    def get_transactions_by_user_id(user_id) do
-        TransactionsQueries.transactions_by_user_id(user_id)
-        |> Repo.all
-        |> case do
-            nil ->
-                {:ok, nil}
-            data ->
-                {:ok, data}
-        end
-    end
-  
+    end  
   end
   

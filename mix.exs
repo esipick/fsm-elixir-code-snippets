@@ -80,7 +80,7 @@ defmodule Flight.Mixfile do
       {:puppeteer_pdf, "~> 1.0.3"},
       {:absinthe, "~> 1.4"},
       {:absinthe_plug, "~> 1.4"},
-      {:poison, "~> 2.1.0", override: true},
+      # {:poison, "~> 2.1.0", override: true},
       {:cors_plug, "~> 2.0"},
       # Dev tools
       {:faker, "~> 0.12", only: [:dev, :test]},
