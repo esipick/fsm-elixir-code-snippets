@@ -3,6 +3,7 @@ defmodule FsmWeb.GraphQL.Schema do
   
     import_types FsmWeb.GraphQL.Accounts.AccountsTypes
     import_types FsmWeb.GraphQL.Transactions.TransactionsTypes
+    import_types FsmWeb.GraphQL.Documents.DocumentsTypes
     
     query do
       @desc "say hello"
@@ -12,11 +13,13 @@ defmodule FsmWeb.GraphQL.Schema do
 
       import_fields :accounts_queries
       import_fields :transactions_queries
+      import_fields :documents_queries
     end
   
     mutation do
       import_fields :accounts_mutations
       import_fields :transactions_mutations
+      import_fields :documents_mutations
     end
   
     # # exectute changeset error middleware for each mutation
