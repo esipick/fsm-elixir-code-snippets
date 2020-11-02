@@ -318,5 +318,5 @@ defmodule Flight.Billing.CreateInvoice do
     else
       demo
     end  
-Pleas  end
+  end
 end
