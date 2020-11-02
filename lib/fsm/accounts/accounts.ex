@@ -37,7 +37,13 @@ defmodule Fsm.Accounts do
 
   def get_user(id) do
     user =
-      AccountsQueries.get_user_with_roles(id)
+      AccountsQueries.get_user_query(id)
+      |> Repo.one
+  end
+
+  def get_user_with_roles(id) do
+    user =
+      AccountsQueries.get_user_with_roles_query(id)
       |> Repo.one
   end
 
