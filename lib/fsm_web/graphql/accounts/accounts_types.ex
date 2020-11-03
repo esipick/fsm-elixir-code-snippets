@@ -12,13 +12,20 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     # QUERIES
     object :accounts_queries do
 
-      @desc "Get user by id."
+      @desc "Get current user"
       field :user, :user do
         middleware Middleware.Authorize
+        resolve &AccountsResolvers.get_current_user/3
+      end
+
+      @desc "Get user by id (:admin, :dispatcher, :instructor)"
+      field :get_user, :user do
+        arg :id, non_null(:id)
+        middleware Middleware.Authorize, [:admin, :dispatcher, :instructor]
         resolve &AccountsResolvers.get_user/3
       end
 
-      @desc "List all users"
+      @desc "List all users (:admin, :dispatcher)"
       field :list_users, list_of(non_null(:user)) do
         arg :page, :integer, default_value: 1
         arg :per_page, :integer, default_value: 100
@@ -90,7 +97,12 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
       field :awards, :string  
       field :archived, :boolean
       field :stripe_customer_id, :string  
-      field :avatar, :string
+      field :avatar, :avatar_type
+  end
+
+  object :avatar_type do
+    field :original, :string
+    field :thumb, :string
   end
 
   input_object :user_filters do

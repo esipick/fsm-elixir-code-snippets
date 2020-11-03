@@ -5,7 +5,7 @@ defmodule Fsm.Accounts.User do
     import Ecto.Changeset
   
     alias __MODULE__
-    alias Flight.AvatarUploader
+    alias Fsm.AvatarUploader
   
     @avatar_size 5_000_000
   
