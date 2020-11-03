@@ -658,7 +658,8 @@ $(document).ready(function () {
       $('#apptFor').val(assetType).selectpicker("refresh");
 
 
-    if (initialData.type == "unavailability") {
+    if (initialData.type == "unavailability" || initialData.type == "unavailable") {
+      eventType = "unavail"
       $('#btnInvoice').hide()
       $('#navUnavail').tab("show")
       
