@@ -68,16 +68,16 @@ defmodule Fsm.Transactions.TransactionsQueries do
 
         :start_date ->
           from(g in query,
-            where: g.inserted_at <= ^value
+            where: g.inserted_at >= ^value
           )
 
         :end_date ->
           from(g in query,
-            where: g.inserted_at > ^value)
+            where: g.inserted_at < ^value)
             
-        :end_date ->
+        :status ->
           from(g in query,
-            where: g.inserted_at > ^value)
+            where: g.state == ^value)
 
         _ ->
           query
@@ -90,9 +90,19 @@ defmodule Fsm.Transactions.TransactionsQueries do
   end
 
   def search(query, %{search_criteria: search_criteria, search_term: search_term}) do
-    from(s in query,
-      where: ilike(s.title, ^"%#{search_term}%")
-    )
+    case search_criteria do
+      :first_name ->
+        from(s in query,
+        where: ilike(s.first_name, ^"%#{search_term}%"))
+      :last_name ->
+        from(s in query,
+        where: ilike(s.last_name, ^"%#{search_term}%")
+      )
+      _->
+        query
+
+    end
+    
   end
 
   def search(query, _) do
