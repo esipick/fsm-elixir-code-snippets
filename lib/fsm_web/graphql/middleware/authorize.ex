@@ -29,17 +29,14 @@ defmodule FsmWeb.GraphQL.Middleware.Authorize do
 
   defp correct_role(_, []), do: true
   defp correct_role(%{roles: [role]}, roles) when is_list(roles) do
-    Enum.find(roles, &(&1 == String.to_atom(role))) != nil
+    Enum.find(roles, &(&1 == role)) != nil
   end
   defp correct_role(%{roles: user_roles}, roles) when is_list(roles) and is_list(user_roles) do
-    user_roles = Enum.map(user_roles, fn(aa)-> String.to_atom(aa) end) #convert to atoms list
     not_common = user_roles -- roles
     common = user_roles -- not_common
     Enum.count(common) > 0
   end
   defp correct_role(%{roles: user_roles}, role) when is_list(user_roles) do
-    user_roles = Enum.map(user_roles, fn(aa)-> String.to_atom(aa) end) #convert to atoms list
-
     role in user_roles
   end
   defp correct_role(_, :any), do: true

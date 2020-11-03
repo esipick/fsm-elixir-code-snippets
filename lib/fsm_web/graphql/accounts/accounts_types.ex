@@ -18,14 +18,14 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         resolve &AccountsResolvers.get_current_user/3
       end
 
-      @desc "Get user by id (:admin, :dispatcher, :instructor)"
+      @desc "Get user by id ('admin', 'dispatcher', 'instructor')"
       field :get_user, :user do
         arg :id, non_null(:id)
-        middleware Middleware.Authorize, [:admin, :dispatcher, :instructor]
+        middleware Middleware.Authorize, ["admin", "dispatcher", "instructor"]
         resolve &AccountsResolvers.get_user/3
       end
 
-      @desc "List all users (:admin, :dispatcher)"
+      @desc "List all users ('admin', 'dispatcher')"
       field :list_users, list_of(non_null(:user)) do
         arg :page, :integer, default_value: 1
         arg :per_page, :integer, default_value: 100
@@ -33,7 +33,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         arg :sort_order, :order_by
         arg :filter, :user_filters
 
-        middleware Middleware.Authorize, [:admin, :dispatcher]
+        middleware Middleware.Authorize, ["admin", "dispatcher"]
         resolve &AccountsResolvers.list_users/3
       end
     end
@@ -55,7 +55,6 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     end
 
     object :user do
-      
       field :id, :integer
       field :email, :string
   
@@ -100,7 +99,8 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
       field :archived, :boolean
       field :stripe_customer_id, :string  
       field :avatar, :avatar_type
-  end
+      field :roles, list_of(:string)
+    end
 
   object :avatar_type do
     field :original, :string

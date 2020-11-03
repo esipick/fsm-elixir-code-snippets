@@ -48,22 +48,19 @@ defmodule Fsm.Accounts do
   end
 
   def list_users(page, per_page, sort_field, sort_order, filter, context) do
-    from(u in User)
-    |> sort_by(sort_field, sort_order)
-    |> sort_by(:first_name, sort_order)
-    |> filter(filter)
-    |> search(filter)
-    |> paginate(page, per_page)
-    |> SchoolScope.scope_query(context)
+    AccountsQueries.list_users_query(page, per_page, sort_field, sort_order, filter, context)
     |> Repo.all()
   end
 
   defp get_user_by_email(email) when is_nil(email) or email == "", do: nil
 
   defp get_user_by_email(email) do
-    User
-    |> where([u], u.email == ^String.downcase(email))
-    |> Repo.one()
+    user =
+      AccountsQueries.get_user_by_email_query(email)
+      |> Repo.one()
+
+    (Map.get(user, :user) || %{})
+    |> Map.merge(%{roles: Map.get(user, :roles)})
   end
 
   defp check_password(user, password) do

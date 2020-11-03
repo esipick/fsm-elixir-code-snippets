@@ -27,10 +27,6 @@ defmodule FlightWeb.Context do
     {:ok, id, password_token} <- user_id_from_token(token),
     user <- Fsm.Accounts.get_user_with_roles(id) do
       current_user = %{id: user.id, school_id: Map.get(user, :school_id), roles: user.roles}
-      Logger.info fn -> "context user: #{inspect current_user}" end
-      Enum.map(user.roles, fn (role) ->
-        Logger.info fn -> "role: #{inspect role}" end
-      end)
 #      Logger.info fn -> "roles: #{inspect user.roles}" end
       %{current_user: current_user}
     else
