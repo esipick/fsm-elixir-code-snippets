@@ -55,6 +55,8 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     end
 
     object :user do
+      
+      field :id, :integer
       field :email, :string
   
       field :date_of_birth, :string
