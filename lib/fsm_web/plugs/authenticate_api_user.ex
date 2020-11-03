@@ -50,7 +50,7 @@ defmodule FlightWeb.Fsm.AuthenticateApiUser do
   def token(user, context \\ FlightWeb.Endpoint) do
     Phoenix.Token.sign(context, Application.get_env(:flight, :user_token_salt), %{
       user_id: user.id,
-#      role: user.role,
+      roles: user.roles,
 #      school_id: user.school_id,
 #      tz: user.timezone,
       token: user.password_token

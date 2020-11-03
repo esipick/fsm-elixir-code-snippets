@@ -12,8 +12,31 @@ defmodule Fsm.Accounts.AccountsQueries do
 
     def get_user_query(user_id) do
       from u in User,
-      select: u,
-      where: u.id == ^user_id
+        inner_join: ur in UserRole, on: ur.user_id == u.id,
+        inner_join: r in Role, on: r.id == ur.role_id,
+        select: %{user: u,
+        roles: fragment("array_agg(?)", r.slug)},
+        group_by: u.id,
+        where: u.id == ^user_id
+    end
+
+    def get_user_by_email_query(email) do
+      from u in User,
+        inner_join: ur in UserRole, on: ur.user_id == u.id,
+        inner_join: r in Role, on: r.id == ur.role_id,
+        select: %{user: u,
+          roles: fragment("array_agg(?)", r.slug)},
+        group_by: u.id,
+        where: u.email == ^String.downcase(email)
+    end
+
+    def get_all_users_query do
+      from u in User,
+        inner_join: ur in UserRole, on: ur.user_id == u.id,
+        inner_join: r in Role, on: r.id == ur.role_id,
+        select: %{user: u,
+          roles: fragment("array_agg(?)", r.slug)},
+        group_by: u.id
     end
 
     def get_user_with_roles_query(user_id) do
@@ -35,6 +58,7 @@ defmodule Fsm.Accounts.AccountsQueries do
             renter_policy_no: u.renter_policy_no  ,
             first_name: u.first_name,
             last_name: u.last_name,
+            archived: u.archived,
             school_id: u.school_id,
             roles: fragment("array_agg(?)", r.slug)},
             group_by: u.id,
@@ -42,7 +66,7 @@ defmodule Fsm.Accounts.AccountsQueries do
     end
 
     def list_users_query(page, per_page, sort_field, sort_order, filter, school_context) do
-      from(u in User)
+      get_all_users_query()
       |> SchoolScope.scope_query(school_context)
       |> sort_by(sort_field, sort_order)
       |> sort_by(:first_name, sort_order)

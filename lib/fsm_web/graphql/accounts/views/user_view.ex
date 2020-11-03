@@ -1,8 +1,13 @@
 defmodule FsmWeb.GraphQL.Accounts.UserView do
 
   def map(user) when is_map(user) do
+    roles = Map.get(user, :roles)
+    user = (Map.get(user, :user) || %{})
+
     Map.merge(user,
-      %{avatar: avatar_urls_map(user)}
+      %{avatar: avatar_urls_map(user),
+      roles: roles
+      }
     )
   end
 
