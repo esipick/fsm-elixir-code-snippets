@@ -33,7 +33,12 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsTypes do
   object :document do
     field(:expires_at, :string)
     field(:title, :string)
-    field(:file, :string)
+    field(:file, :file)
+  end  
+  
+  object :file do
+    field(:updated_at, :string)
+    field(:file_name, :string)
   end
 
   input_object :documents_filters do
