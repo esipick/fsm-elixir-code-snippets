@@ -7,7 +7,6 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
   enum(:transaction_order_by, values: [:desc, :asc])
   enum(:transaction_search_criteria, values: [:first_name, :last_name])
   enum(:transaction_sort_fields, values: [:id, :first_name, :last_name])
-  enum(:transaction_status, values: [:completed, :pending, :canceled, :failed])
   # user roles 1: admin, 2:dispatcher
   # QUERIES
   object :transactions_queries do
@@ -18,7 +17,7 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
       arg(:sort_order, :transaction_order_by)
       arg(:filter, :transactions_filters)
 
-      middleware(Middleware.Authorize, [:admin, :dispatcher, :student, :renter])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "student", "renter"])
       resolve(&TransactionsResolvers.get_all_transactions/3)
     end
   end
@@ -53,9 +52,9 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
   input_object :transactions_filters do
     field(:id, :integer)
     field(:start_date, :string)
-    field(:status, :transaction_status)
+    field(:status, :string)
     field(:end_date, :string)
-    field(:search_criteria, :document_search_criteria)
+    field(:search_criteria, :transaction_search_criteria)
     field(:search_term, :string)
   end
 end
