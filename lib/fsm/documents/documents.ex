@@ -39,6 +39,23 @@ defmodule Fsm.Documents do
     DocumentUploader.url({document.file, document}, :original, signed: true)
   end
 
+  def delete_document(id, user_id) do
+    document = Repo.get_by(Fsm.Schema.Document, %{id: id, user_id: user_id})
+
+    if document do
+      document
+      |> Repo.delete
+      |> case do
+        {:ok, _} -> 
+          DocumentUploader.delete({document.file, document})
+          {:ok, :deleted}
+        _-> {:error, :failed}
+      end
+    else
+      {:error, :not_found}
+    end
+  end
+
   def update_document(id, params, user_id) do
     document =
     Repo.get(Document, id)
