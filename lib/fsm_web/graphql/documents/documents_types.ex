@@ -31,6 +31,12 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsTypes do
       middleware Middleware.Authorize, ["admin", "dispatcher"]
       resolve &DocumentsResolvers.update_document/3
     end
+
+    field :delete_document, :string do
+      arg :document_id, non_null(:integer)
+      middleware Middleware.Authorize, ["admin", "dispatcher"]
+      resolve &DocumentsResolvers.delete_document/3
+    end
   end
 
   # TYPES

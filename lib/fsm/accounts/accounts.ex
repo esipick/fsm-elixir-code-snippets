@@ -55,12 +55,15 @@ defmodule Fsm.Accounts do
   defp get_user_by_email(email) when is_nil(email) or email == "", do: nil
 
   defp get_user_by_email(email) do
-    user =
       AccountsQueries.get_user_by_email_query(email)
       |> Repo.one()
-
-    (Map.get(user, :user) || %{})
-    |> Map.merge(%{roles: Map.get(user, :roles)})
+      |> case do
+          nil -> 
+            nil
+          user ->
+            (Map.get(user, :user) || %{})
+            |> Map.merge(%{roles: Map.get(user, :roles)})
+        end
   end
 
   defp check_password(user, password) do
