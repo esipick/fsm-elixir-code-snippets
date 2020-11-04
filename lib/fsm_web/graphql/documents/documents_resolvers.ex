@@ -24,5 +24,9 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsResolvers do
            {:error, error}
       end
     end
+
+    def delete_document(parent, args, context) do
+      
+    end
   end
     
