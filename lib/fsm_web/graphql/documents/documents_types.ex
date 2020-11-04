@@ -51,8 +51,9 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsTypes do
   end
 
   input_object :file_input do
-    field(:name, :string)
-    field(:url, :string)
+    field(:content_type, :string)
+    field(:filename, :string)
+    field(:path, :string)
   end
 
   # objects

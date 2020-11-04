@@ -57,6 +57,8 @@ defmodule Fsm.Documents do
   end
 
   def update_document(id, params, user_id) do
+    %Plug.Upload{}
+    |> IO.inspect
     document =
     Repo.get(Document, id)
     |> case do
@@ -64,9 +66,9 @@ defmodule Fsm.Documents do
         document -> 
             changeset = Fsm.Schema.Document.changeset(document, params)
             changeset =
-            case params["file"] do
+            case params["file_input"] do
                 %Plug.Upload{} -> 
-                    changeset |> Document.file_changeset(params)
+                    changeset |> Document.file_changeset(params) |> IO.inspect
                 _ -> changeset
             end
     
