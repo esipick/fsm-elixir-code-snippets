@@ -28,12 +28,14 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsTypes do
   object :documents_mutations do
     field :update_document, :document do
       arg :document_input, non_null(:document_input)
+      arg :user_id, non_null(:integer)
       middleware Middleware.Authorize, ["admin", "dispatcher"]
       resolve &DocumentsResolvers.update_document/3
     end
 
     field :delete_document, :string do
       arg :document_id, non_null(:integer)
+      arg :user_id, non_null(:integer)
       middleware Middleware.Authorize, ["admin", "dispatcher"]
       resolve &DocumentsResolvers.delete_document/3
     end

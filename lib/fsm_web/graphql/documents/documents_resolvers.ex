@@ -14,9 +14,10 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsResolvers do
       {:ok, documents}
     end
 
-    def update_document(parent, args, %{context: %{current_user: %{id: user_id}}} = context) do
+    def update_document(parent, args, %{context: %{current_user: user}} = context) do
       document = Map.get(args, :document_input)
-      id = Map.get(document, :id)
+      id = Map.get(document, :document)
+      user_id = Map.get(args, :user_id)
       case Documents.update_document(id, document, user_id) do
         {:ok, document} ->
           {:ok, document}
@@ -25,8 +26,10 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsResolvers do
       end
     end
 
-    def delete_document(parent, args, context) do
-      
+    def delete_document(parent, args, %{context: %{current_user: user}} = context) do
+      id = Map.get(args, :document_id)
+      user_id = Map.get(args, :user_id)
+      Documents.delete_document(id, user_id)
     end
   end
     
