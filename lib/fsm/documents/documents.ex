@@ -57,32 +57,22 @@ defmodule Fsm.Documents do
   end
 
   def update_document(id, params, user_id) do
-    %Plug.Upload{}
-    |> IO.inspect
     document =
     Repo.get(Document, id)
     |> case do
         nil -> {:error, :document_not_found}
         document -> 
             changeset = Fsm.Schema.Document.changeset(document, params)
-            changeset =
-            case params["file_input"] do
-                %Plug.Upload{} -> 
-                    changeset |> Document.file_changeset(params) |> IO.inspect
-                _ -> changeset
-            end
     
             changeset
             |> Repo.update()
             |> case do
                 {:ok, new_document} ->
-                    if new_document.file.file_name != document.file.file_name,
-                    do: DocumentUploader.delete({document.file, document})
+
                     new_document = %{
                     expires_at: new_document.expires_at,
-                    file: %{name: new_document.file.file_name, url: get_file_url(new_document)},
                     id: new_document.id,
-                    title: new_document.title || new_document.file.file_name
+                    title: new_document.title
                         }
                     {:ok, new_document}
     
