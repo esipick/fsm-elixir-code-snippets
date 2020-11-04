@@ -13,5 +13,16 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsResolvers do
       documents = Documents.list_documents(user_id, page, per_page, sort_field, sort_order, filter, context)
       {:ok, documents}
     end
+
+    def update_document(parent, args, %{context: %{current_user: %{id: user_id}}} = context) do
+      document = Map.get(args, :document_input)
+      id = Map.get(document, :id)
+      case Documents.update_document(id, document, user_id) do
+        {:ok, document} ->
+          {:ok, document}
+        {:error, error} ->
+           {:error, error}
+      end
+    end
   end
     
