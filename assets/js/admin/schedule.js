@@ -162,6 +162,13 @@ $(document).ready(function () {
         eventType = "unavail"
         break;
 
+      case "unavailability":
+        unavailabilityView(true);
+        demoFlightView(false);
+        regularView(false);
+        eventType = "unavail"
+        break;
+
       default:
         regularView(true);
         unavailabilityView(false);
@@ -659,6 +666,9 @@ $(document).ready(function () {
 
 
     if (initialData.type == "unavailability" || initialData.type == "unavailable") {
+      regularView(false);
+      unavailabilityView(true);
+      demoFlightView(false);
       eventType = "unavail"
       $('#btnInvoice').hide()
       $('#navUnavail').tab("show")
@@ -670,6 +680,10 @@ $(document).ready(function () {
       }
     }
     else if (initialData.type == "demoAppointment"){
+      demoFlightView(true);
+      regularView(false);
+      unavailabilityView(false);
+      eventType = "demoAppt";
       appointmentId = initialData.id;
       if (appointmentId) {
         $('#btnInvoice').show()
@@ -684,6 +698,11 @@ $(document).ready(function () {
         $('#apptTitle').text("Create New")
       }
     } else {
+      regularView(true);
+      unavailabilityView(false);
+      demoFlightView(false);
+      eventType = "appt";
+
       appointmentId = initialData.id;
       if (appointmentId) {
         $('#btnInvoice').show()
