@@ -10,7 +10,7 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
   # user roles 1: admin, 2:dispatcher
   # QUERIES
   object :transactions_queries do
-    field :all_transaction_history, list_of(:transaction) do
+    field :all_bills, list_of(:invoice) do
       arg(:page, :integer, default_value: 1)
       arg(:per_page, :integer, default_value: 100)
       arg(:sort_field, :transaction_sort_fields)
@@ -29,17 +29,38 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
   # TYPES
   # Enum
   enum(:payment_options, values: [:balance, :cc, :cash, :cheque, :venmo])
+  enum(:status, values: [:paid, :pending, :failed])
   # balance: 0, cc: 1, cash: 2, cheque: 3,venmo: 4
-  object :transaction do
+
+  object :invoice do
     field(:id, :integer)
-    field(:paid_by_balance, :integer)
-    field(:paid_by_charge, :integer)
-    field(:paid_by_cash, :integer)
-    field(:paid_by_check, :integer)
-    field(:paid_by_venmo, :integer)
+      field(:date, :string)
+      field(:total, :integer)
+      field(:tax_rate, :string)
+      field(:total_tax, :integer)
+      field(:total_amount_due, :string)
+      field(:status, :status)
+      field(:payment_option, :payment_options)
+      field(:payer_name, :string)
+      field(:demo, :boolean)
+      field(:archived, :boolean)
+      field(:is_visible, :boolean)
+      field(:archived_at, :string)
+      field(:appointment_updated_at, :string)
+      # field(:aircraft_info, :string)
+      field(:session_id, :string)
+      field(:transactions, list_of(:transactions))
+  end
+
+  object :transactions do
+    field(:paid_by_balance, :string)
+    field(:paid_by_charge, :string)
+    field(:paid_by_cash, :string)
+    field(:paid_by_check, :string)
+    field(:paid_by_venmo, :string)
     field(:state, :string)
     field(:stripe_charge_id, :string)
-    field(:total, :integer)
+    field(:total, :string)
     field(:type, :string)
     field(:first_name, :string)
     field(:last_name, :string)
@@ -47,6 +68,7 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
     field(:completed_at, :string)
     field(:error_message, :string)
     field(:payment_option, :string)
+    field(:creator_user_id, :string)  
   end
 
   input_object :transactions_filters do
