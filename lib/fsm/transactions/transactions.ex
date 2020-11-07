@@ -42,7 +42,7 @@ defmodule Fsm.Transactions do
                         total_amount_due: i.total_amount_due,
                         status: i.status,
                         payment_option: i.payment_option,
-                        payer_name: i.payer_name,
+                        payer_name: payer_name(i),
                         demo: i.demo,
                         archived: i.archived,
                         is_visible: i.is_visible,
@@ -56,5 +56,21 @@ defmodule Fsm.Transactions do
                 {:ok, data}
         end
     end  
+
+    defp payer_name(invoice) do
+        user = Map.get(invoice, :user)
+        Map.get(invoice, :payer_name)  
+        |> payer_name(user) 
+    end
+
+    defp payer_name(payer_name, user) when payer_name == nil do
+        user_first_name = Map.get(user, :first_name)
+        user_last_name = Map.get(user, :last_name)
+        user_first_name<>" "<>user_last_name
+    end
+
+    defp payer_name(payer_name, _user) when payer_name != nil do
+        payer_name
+    end
   end
   

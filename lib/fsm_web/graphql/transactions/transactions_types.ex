@@ -13,9 +13,9 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
     field :all_bills, list_of(:invoice) do
       arg(:page, :integer, default_value: 1)
       arg(:per_page, :integer, default_value: 100)
-      arg(:sort_field, :transaction_sort_fields)
-      arg(:sort_order, :transaction_order_by)
-      arg(:filter, :transactions_filters)
+      # arg(:sort_field, :transaction_sort_fields)
+      # arg(:sort_order, :transaction_order_by)
+      # arg(:filter, :transactions_filters)
 
       middleware(Middleware.Authorize, ["admin", "dispatcher", "student", "renter"])
       resolve(&TransactionsResolvers.get_all_transactions/3)
