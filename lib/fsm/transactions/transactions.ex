@@ -12,6 +12,47 @@ defmodule Fsm.Transactions do
             nil ->
                 {:ok, nil}
             data ->
+                data = Enum.map(data, fn i -> 
+                    transactions = Map.get(i, :transactions)
+                    |> Enum.map(fn transaction ->  %{
+                        id: Map.get(transaction, "id"),
+                        total: Map.get(transaction, "total"), 
+                        paid_by_balance: Map.get(transaction, "paid_by_balance"), 
+                        paid_by_charge: Map.get(transaction, "paid_by_charge"), 
+                        stripe_charge_id: Map.get(transaction, "stripe_charge_id"), 
+                        state: Map.get(transaction, "state"), 
+                        creator_user_id: Map.get(transaction, "creator_user_id"),
+                        completed_at: Map.get(transaction, "completed_at"), 
+                        type: Map.get(transaction, "type"), 
+                        first_name: Map.get(transaction, "first_name"), 
+                        last_name: Map.get(transaction, "last_name"), 
+                        email: Map.get(transaction, "email"), 
+                        paid_by_cash: Map.get(transaction, "paid_by_cash"), 
+                        paid_by_check: Map.get(transaction, "paid_by_check"), 
+                        paid_by_venmo: Map.get(transaction, "paid_by_venmo"), 
+                        payment_option: Map.get(transaction, "payment_option")} 
+                    end)
+
+                    %{
+                        id: i.id,
+                        date: i.date,
+                        total: i.total,
+                        tax_rate: i.tax_rate,
+                        total_tax: i.total_tax,
+                        total_amount_due: i.total_amount_due,
+                        status: i.status,
+                        payment_option: i.payment_option,
+                        payer_name: i.payer_name,
+                        demo: i.demo,
+                        archived: i.archived,
+                        is_visible: i.is_visible,
+                        archived_at: i.archived_at,
+                        appointment_updated_at: i.appointment_updated_at,
+                        # aircraft_info: i.aircraft_info,
+                        session_id: i.session_id,
+                        transactions: transactions
+                        }
+                    end)
                 {:ok, data}
         end
     end  

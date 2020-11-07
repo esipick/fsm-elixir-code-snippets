@@ -26,7 +26,7 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsTypes do
 
   # MUTATIONS
   object :documents_mutations do
-    field :update_document, :document do
+    field :update_document, :document_output do
       arg :document_input, non_null(:document_input)
       arg :user_id, non_null(:integer)
       middleware Middleware.Authorize, ["admin", "dispatcher"]
@@ -47,15 +47,14 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsTypes do
     field(:id, non_null(:integer))
     field(:expires_at, :string)
     field(:title, :string)
-    field(:file_input, :file_input)
-  end
-
-  input_object :file_input do
-    field(:name, :string)
-    field(:url, :string)
   end
 
   # objects
+  object :document_output do
+    field(:id, non_null(:integer))
+    field(:expires_at, :string)
+    field(:title, :string)
+  end 
   object :document do
     field(:id, non_null(:integer))
     field(:expires_at, :string)
