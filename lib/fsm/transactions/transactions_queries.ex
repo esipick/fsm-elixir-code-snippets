@@ -15,6 +15,7 @@ defmodule Fsm.Transactions.TransactionsQueries do
   def all_transactions_query() do
     from i in Invoice,
         inner_join: t in Transaction, on: i.id == t.invoice_id,
+        inner_join: u in User, on: i.user_id == u.id,
         select: %{
           id: i.id,
           date: i.date,
@@ -32,20 +33,19 @@ defmodule Fsm.Transactions.TransactionsQueries do
           appointment_updated_at: i.appointment_updated_at,
           # aircraft_info: i.aircraft_info,
           session_id: i.session_id,
-          transactions: fragment("array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?))", t.id, t.total, t.paid_by_balance, t.paid_by_charge, t.stripe_charge_id, t.state, t.creator_user_id, t.completed_at, t.type, t.first_name, t.last_name, t.email, t.paid_by_cash, t.paid_by_check, t.paid_by_venmo, t.payment_option)
-        },
-        group_by: i.id
+          transactions: fragment("array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?))", t.id, t.total, t.paid_by_balance, t.paid_by_charge, t.stripe_charge_id, t.state, t.creator_user_id, t.completed_at, t.type, t.first_name, t.last_name, t.email, t.paid_by_cash, t.paid_by_check, t.paid_by_venmo, t.payment_option),
+          user: u
+          },
+        group_by: [i.id, u.id]
   end
 
 
   def all_transactions_query(user_id) do
     from i in Invoice,
         inner_join: t in Transaction, on: i.id == t.invoice_id,
-        # inner_join: u in User, on: u.id == t.user_id,
+        inner_join: u in User, on: i.user_id == u.id,
         select: %{
           id: i.id,
-          # first_name: fragment("array_agg(?)", u.first_name),
-          # last_name: fragment("array_agg(?)", u.last_name),
           date: i.date,
           total: i.total,
           tax_rate: i.tax_rate,
@@ -61,9 +61,10 @@ defmodule Fsm.Transactions.TransactionsQueries do
           appointment_updated_at: i.appointment_updated_at,
           # aircraft_info: i.aircraft_info,
           session_id: i.session_id,
-          transactions: fragment("array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?))", t.id, t.total, t.paid_by_balance, t.paid_by_charge, t.stripe_charge_id, t.state, t.creator_user_id, t.completed_at, t.type, t.first_name, t.last_name, t.email, t.paid_by_cash, t.paid_by_check, t.paid_by_venmo, t.payment_option)
-        },
-        group_by: i.id,
+          transactions: fragment("array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?))", t.id, t.total, t.paid_by_balance, t.paid_by_charge, t.stripe_charge_id, t.state, t.creator_user_id, t.completed_at, t.type, t.first_name, t.last_name, t.email, t.paid_by_cash, t.paid_by_check, t.paid_by_venmo, t.payment_option),
+          user: u
+          },
+        group_by: [i.id, u.id],
         where: i.user_id == ^user_id
   end
     
