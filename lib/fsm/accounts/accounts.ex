@@ -47,6 +47,17 @@ defmodule Fsm.Accounts do
       |> Repo.one
   end
 
+  def get_user_count(role, school_context) do
+    from(
+      u in User,
+      where: u.archived == false,
+      inner_join: r in assoc(u, :roles),
+      where: r.id == ^role.id
+    )
+    |> SchoolScope.scope_query(school_context)
+    |> Repo.aggregate(:count, :id)
+  end
+
   def list_users(page, per_page, sort_field, sort_order, filter, context) do
     AccountsQueries.list_users_query(page, per_page, sort_field, sort_order, filter, context)
     |> Repo.all()
