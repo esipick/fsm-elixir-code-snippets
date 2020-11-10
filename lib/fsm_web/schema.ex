@@ -4,7 +4,9 @@ defmodule FsmWeb.GraphQL.Schema do
     import_types FsmWeb.GraphQL.Accounts.AccountsTypes
     import_types FsmWeb.GraphQL.Transactions.TransactionsTypes
     import_types FsmWeb.GraphQL.Documents.DocumentsTypes
-    
+    import_types FsmWeb.GraphQL.Scheduling.SchedulingTypes
+    import_types FsmWeb.GraphQL.Dashboard.DashboardTypes
+
     query do
       @desc "say hello"
       field :say_hello, :string do
@@ -14,12 +16,16 @@ defmodule FsmWeb.GraphQL.Schema do
       import_fields :accounts_queries
       import_fields :transactions_queries
       import_fields :documents_queries
+      import_fields :scheduling_queries
+      import_fields :dashboard_queries
     end
   
     mutation do
       import_fields :accounts_mutations
       import_fields :transactions_mutations
       import_fields :documents_mutations
+      import_fields :scheduling_mutations
+      import_fields :dashboard_mutations
     end
   
     # # exectute changeset error middleware for each mutation
