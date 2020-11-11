@@ -36,7 +36,7 @@ defmodule Fsm.Documents do
   end
 
   def get_file_url(document) do
-    DocumentUploader.url({document.file, document})
+    DocumentUploader.url({document.file, document}, signed: true)
   end
 
   def delete_document(id, user_id) do
