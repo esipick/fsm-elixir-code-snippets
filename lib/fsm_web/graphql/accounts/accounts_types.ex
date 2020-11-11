@@ -4,7 +4,6 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     alias FsmWeb.GraphQL.Middleware
     alias FsmWeb.GraphQL.Accounts.AccountsResolvers
 
-    enum :order_by, values: [:desc, :asc]
     enum :user_search_criteria, values: [:first_name, :last_name, :email]
     enum :user_sort_fields, values: [:first_name, :last_name, :email]
 

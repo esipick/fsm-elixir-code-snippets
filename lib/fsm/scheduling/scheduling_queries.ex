@@ -14,7 +14,11 @@ defmodule Fsm.Scheduling.SchedulingQueries do
     require Logger
 
     def get_appointments_query do
-      from(a in Appointment)
+      from a in Appointment,
+          left_join: u in User, on: a.user_id == u.id,
+          left_join: i in User, on: a.instructor_user_id == i.id,
+          left_join: ar in Aircraft, on: a.aircraft_id == ar.id,
+          select: %{appointment: a, user: u, instructor: i, aircraft: ar}
     end
 
     def list_appointments_query(page, per_page, sort_field, sort_order, filter, school_context) do

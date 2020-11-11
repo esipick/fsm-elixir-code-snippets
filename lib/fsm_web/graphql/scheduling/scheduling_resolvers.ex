@@ -1,7 +1,7 @@
 defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
 
   alias Fsm.Scheduling
-#  alias FsmWeb.GraphQL.Scheduling.SchedulingView
+  alias FsmWeb.GraphQL.Scheduling.AppointmentView
   alias FsmWeb.GraphQL.Log
 
 #  def login(_parent, %{email: email, password: password} = params, resolution) do
@@ -37,6 +37,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     filter = Map.get(args, :filter) || %{}
     response =
       Scheduling.list_aircraft_appointments(page, per_page, sort_field, sort_order, filter, context)
+      |> AppointmentView.map
 
     resp = {:ok, response}
     Log.response(resp, __ENV__.function, :info)
@@ -51,6 +52,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     filter = Map.get(args, :filter) || %{}
     response =
       Scheduling.list_appointments(page, per_page, sort_field, sort_order, filter, context)
+      |> AppointmentView.map
 
     resp = {:ok, response}
     Log.response(resp, __ENV__.function, :info)

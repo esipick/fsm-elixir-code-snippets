@@ -33,7 +33,7 @@ defmodule Fsm.Scheduling do
   # List Appointments
   ##
   def list_appointments(page, per_page, sort_field, sort_order, filter, school_context) do
-    resp  =
+
       SchedulingQueries.list_appointments_query(page, per_page, sort_field, sort_order, filter, school_context)
       |> Repo.all()
 
