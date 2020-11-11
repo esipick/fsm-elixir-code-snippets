@@ -54,6 +54,7 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsTypes do
     field(:id, non_null(:integer))
     field(:expires_at, :string)
     field(:title, :string)
+    field(:file, :file)
   end 
   object :document do
     field(:id, non_null(:integer))
