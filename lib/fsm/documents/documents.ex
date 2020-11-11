@@ -36,7 +36,7 @@ defmodule Fsm.Documents do
   end
 
   def get_file_url(document) do
-    DocumentUploader.url({document.file, document}, :original, signed: true)
+    DocumentUploader.url({document.file, document})
   end
 
   def delete_document(id, user_id) do
@@ -72,7 +72,11 @@ defmodule Fsm.Documents do
                     new_document = %{
                     expires_at: new_document.expires_at,
                     id: new_document.id,
-                    title: new_document.title
+                    title: new_document.title,
+                    file: %{
+                      name: document.file.file_name,
+                      url: get_file_url(new_document)
+                    }
                         }
                     {:ok, new_document}
     
