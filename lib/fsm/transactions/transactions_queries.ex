@@ -89,9 +89,7 @@ defmodule Fsm.Transactions.TransactionsQueries do
       ) do
     list_bills_query(user_id)
     |> SchoolScope.scope_query(school_context)
-    # |> sort_by(sort_field, sort_order)
     |> filter(filter)
-    # |> search(filter)
     |> paginate(page, per_page)
   end
 
