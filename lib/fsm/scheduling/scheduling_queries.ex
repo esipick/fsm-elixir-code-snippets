@@ -18,6 +18,7 @@ defmodule Fsm.Scheduling.SchedulingQueries do
           left_join: u in User, on: a.user_id == u.id,
           left_join: i in User, on: a.instructor_user_id == i.id,
           left_join: ar in Aircraft, on: a.aircraft_id == ar.id,
+          where: a.archived == false,
           select: %{appointment: a, user: u, instructor: i, aircraft: ar}
     end
 

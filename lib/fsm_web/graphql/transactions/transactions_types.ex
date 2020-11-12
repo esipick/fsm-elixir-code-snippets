@@ -10,12 +10,12 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
   # user roles 1: admin, 2:dispatcher
   # QUERIES
   object :transactions_queries do
-    field :all_bills, list_of(:invoice) do
+    field :list_bills, list_of(:invoice) do
       arg(:page, :integer, default_value: 1)
       arg(:per_page, :integer, default_value: 100)
       # arg(:sort_field, :transaction_sort_fields)
       # arg(:sort_order, :transaction_order_by)
-      # arg(:filter, :transactions_filters)
+      arg(:filter, :transactions_filters)
 
       middleware(Middleware.Authorize, ["admin", "dispatcher", "student", "renter"])
       resolve(&TransactionsResolvers.get_all_transactions/3)
@@ -47,6 +47,7 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
       field(:is_visible, :boolean)
       field(:archived_at, :string)
       field(:appointment_updated_at, :string)
+      field(:appointment_id, :integer)
       # field(:aircraft_info, :string)
       field(:session_id, :string)
       field(:transactions, list_of(:transactions))
@@ -72,11 +73,11 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
   end
 
   input_object :transactions_filters do
-    field(:id, :integer)
-    field(:start_date, :string)
-    field(:status, :string)
-    field(:end_date, :string)
-    field(:search_criteria, :transaction_search_criteria)
-    field(:search_term, :string)
+    field(:appointment_id, :integer)
+    # field(:start_date, :string)
+    # field(:status, :string)
+    # field(:end_date, :string)
+    # field(:search_criteria, :transaction_search_criteria)
+    # field(:search_term, :string)
   end
 end
