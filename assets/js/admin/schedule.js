@@ -1102,6 +1102,19 @@ $(document).ready(function () {
               }
 
             } else {
+              var color_class = 'event-blue'
+              if (appointment.type === "instructor_led") {
+                color_class = 'event-light-blue'
+              } else if (appointment.type === "demo_flight") {
+                color_class = "event-yellow"
+              } else if (appointment.type === "solo_flight") {
+                color_class = "event-red"
+              } else if (appointment.type === "meeting") {
+                color_class = "event-light-green"
+              } else if (appointment.type === "check_ride") {
+                color_class = "event-purple"
+              }
+
               return {
                 title: appointmentTitle(appointment),
                 start: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm'),
@@ -1109,7 +1122,7 @@ $(document).ready(function () {
                 id: "appointment:" + appointment.id,
                 appointment: appointment,
                 resourceIds: resourceIds,
-                className: 'event-blue'
+                className: color_class
               }
 
             }

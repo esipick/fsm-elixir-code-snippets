@@ -724,6 +724,21 @@ fieldset[disabled] .fc button:hover {
 .fc-event.event-green {
   background: #2EBA45;
 }
+.fc-event.event-light-blue {
+  background: #2AA9E8;
+}
+.fc-event.event-red {
+  background: #FF595E;
+}
+.fc-event.event-yellow {
+  background: #FFCA3A;
+}
+.fc-event.event-light-green {
+  background: #8AC926;
+}
+.fc-event.event-purple {
+  background: #6A4C93;
+}
 .fc-event.event-default .fc-title, .fc-event.event-default .fc-time{
   color: #444;
 }
