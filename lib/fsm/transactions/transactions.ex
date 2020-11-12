@@ -6,7 +6,7 @@ defmodule Fsm.Transactions do
     require Logger
   
     def get_transactions(user_id, page, per_page, sort_field, sort_order, filter, context) do
-        TransactionsQueries.list_transactions_query(user_id, page, per_page, sort_field, sort_order, filter, context)
+        TransactionsQueries.list_bills_query(user_id, page, per_page, sort_field, sort_order, filter, context)
         |> Repo.all
         |> case do
             nil ->
@@ -48,6 +48,7 @@ defmodule Fsm.Transactions do
                         is_visible: i.is_visible,
                         archived_at: i.archived_at,
                         appointment_updated_at: i.appointment_updated_at,
+                        appointment_id: i.appointment_id,
                         # aircraft_info: i.aircraft_info,
                         session_id: i.session_id,
                         transactions: transactions

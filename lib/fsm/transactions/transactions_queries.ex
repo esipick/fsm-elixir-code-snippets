@@ -12,7 +12,7 @@ defmodule Fsm.Transactions.TransactionsQueries do
   require Logger
 
 
-  def all_transactions_query() do
+  def list_bills_query() do
     from i in Invoice,
         inner_join: t in Transaction, on: i.id == t.invoice_id,
         inner_join: u in User, on: i.user_id == u.id,
@@ -31,6 +31,7 @@ defmodule Fsm.Transactions.TransactionsQueries do
           is_visible: i.is_visible,
           archived_at: i.archived_at,
           appointment_updated_at: i.appointment_updated_at,
+          appointment_id: i.appointment_id,
           # aircraft_info: i.aircraft_info,
           session_id: i.session_id,
           transactions: fragment("array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?))", t.id, t.total, t.paid_by_balance, t.paid_by_charge, t.stripe_charge_id, t.state, t.creator_user_id, t.completed_at, t.type, t.first_name, t.last_name, t.email, t.paid_by_cash, t.paid_by_check, t.paid_by_venmo, t.payment_option),
@@ -40,7 +41,7 @@ defmodule Fsm.Transactions.TransactionsQueries do
   end
 
 
-  def all_transactions_query(user_id) do
+  def list_bills_query(user_id) do
     from i in Invoice,
         inner_join: t in Transaction, on: i.id == t.invoice_id,
         inner_join: u in User, on: i.user_id == u.id,
@@ -68,16 +69,16 @@ defmodule Fsm.Transactions.TransactionsQueries do
         where: i.user_id == ^user_id
   end
     
-  def list_transactions_query(nil, page, per_page, sort_field, sort_order, filter, school_context) do
-    all_transactions_query()
+  def list_bills_query(nil, page, per_page, sort_field, sort_order, filter, school_context) do
+    list_bills_query()
     |> SchoolScope.scope_query(school_context)
     # |> sort_by(sort_field, sort_order)
-    # |> filter(filter)
+    |> filter(filter)
     # |> search(filter)
     |> paginate(page, per_page)
   end
 
-  def list_transactions_query(
+  def list_bills_query(
         user_id,
         page,
         per_page,
@@ -86,10 +87,10 @@ defmodule Fsm.Transactions.TransactionsQueries do
         filter,
         school_context
       ) do
-    all_transactions_query(user_id)
+    list_bills_query(user_id)
     |> SchoolScope.scope_query(school_context)
     # |> sort_by(sort_field, sort_order)
-    # |> filter(filter)
+    |> filter(filter)
     # |> search(filter)
     |> paginate(page, per_page)
   end
@@ -113,24 +114,10 @@ defmodule Fsm.Transactions.TransactionsQueries do
 
     Enum.reduce(filter, query, fn {key, value}, query ->
       case key do
-        :id ->
+        :appointment_id ->
           from(g in query,
-            where: g.id == ^value
+            where: g.appointment_id == ^value
           )
-
-        :start_date ->
-          from(g in query,
-            where: g.date >= ^value
-          )
-
-        :end_date ->
-          from(g in query,
-            where: g.date < ^value)
-            
-        :status ->
-          from(g in query,
-            where: g.state == ^value)
-
         _ ->
           query
       end
