@@ -613,13 +613,27 @@ $(document).ready(function () {
       }
 
       if (appointmentOrUnavailabilityId) {
-        $('#apptType').attr('disabled', true)
-        $('#apptType').val(initialData.type).selectpicker("refresh");
+        $('#apptType').attr('disabled', true);
+
+        var initialDataType = initialData.type;
+        if (initialDataType === "none") {
+          var o = new Option("None", "none");
+          $(o).html("None");
+          $("#apptType").append(o);
+          $('#apptType').val(initialDataType).selectpicker("refresh");
+        } else if (initialDataType === "lesson") {
+          var o = new Option("Lesson", "none");
+          $(o).html("Lesson");
+          $("#apptType").append(o);
+          $('#apptType').val(initialDataType).selectpicker("refresh");
+        } else {
+          $('#apptType').val(initialDataType).selectpicker("refresh");
+        }
         $('#btnDelete').show()
  
       } else {
         $('#apptType').attr('disabled', false)
-        $('#apptType').val('none').selectpicker("refresh");
+        $('#apptType').val('instructor_led').selectpicker("refresh");
         $('#btnDelete').hide()
       }
 

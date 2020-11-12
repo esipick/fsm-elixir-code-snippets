@@ -36,7 +36,7 @@ defmodule Flight.Scheduling.Appointment do
     timestamps()
   end
 
-  def types(), do: ["none", "solo_flight", "demo_flight", "check_ride", "instructor_led", "unavailable", "meeting", "lesson"]
+  def types(), do: ["solo_flight", "demo_flight", "check_ride", "instructor_led", "unavailable", "meeting"]
 
   def __test_changeset(appointment, attrs, timezone) do
     appointment
