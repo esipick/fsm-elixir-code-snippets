@@ -1,7 +1,7 @@
-defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
+defmodule FsmWeb.GraphQL.Billing.BillingTypes do
   use Absinthe.Schema.Notation
   alias FsmWeb.GraphQL.Middleware
-  alias FsmWeb.GraphQL.Transactions.TransactionsResolvers
+  alias FsmWeb.GraphQL.Billing.BillingResolvers
 
   #Enums
   enum(:transaction_order_by, values: [:desc, :asc])
@@ -9,7 +9,7 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
   enum(:transaction_sort_fields, values: [:id, :first_name, :last_name])
   # user roles 1: admin, 2:dispatcher
   # QUERIES
-  object :transactions_queries do
+  object :billing_queries do
     field :list_bills, list_of(:invoice) do
       arg(:page, :integer, default_value: 1)
       arg(:per_page, :integer, default_value: 100)
@@ -18,12 +18,19 @@ defmodule FsmWeb.GraphQL.Transactions.TransactionsTypes do
       arg(:filter, :transactions_filters)
 
       middleware(Middleware.Authorize, ["admin", "dispatcher", "student", "renter"])
-      resolve(&TransactionsResolvers.get_all_transactions/3)
+      resolve(&BillingResolvers.get_all_transactions/3)
     end
   end
 
   # MUTATIONS
-  object :transactions_mutations do
+  object :billing_mutations do
+    field :add_funds, :string do
+      arg :amount, non_null(:string)
+      arg :user_id, non_null(:string)
+      arg :description, non_null(:string)
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "student", "renter"])
+      resolve &BillingResolvers.add_funds/3
+    end
   end
 
   # TYPES

@@ -1,4 +1,4 @@
-defmodule Fsm.Transactions.TransactionsQueries do
+defmodule Fsm.Billing.BillingQueries do
   @moduledoc false
 
   import Ecto.Query, warn: false
@@ -8,6 +8,9 @@ defmodule Fsm.Transactions.TransactionsQueries do
   alias Fsm.Accounts.User
   alias Fsm.Invoice
   alias Fsm.Role
+  alias Fsm.Accounts.AccountsQueries
+  alias Fsm.Billing.TransactionLineItem
+
 
   require Logger
 
@@ -39,7 +42,6 @@ defmodule Fsm.Transactions.TransactionsQueries do
           },
         group_by: [i.id, u.id]
   end
-
 
   def list_bills_query(user_id) do
     from i in Invoice,
