@@ -28,8 +28,15 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       arg :amount, non_null(:string)
       arg :user_id, non_null(:string)
       arg :description, non_null(:string)
-      middleware(Middleware.Authorize, ["admin", "dispatcher", "student", "renter"])
+      middleware(Middleware.Authorize, ["admin"])
       resolve &BillingResolvers.add_funds/3
+    end
+
+    field :add_credit_card, :string do
+      arg :stripe_token, non_null(:string)
+      arg :user_id, non_null(:string)
+      middleware(Middleware.Authorize, ["admin"])
+      resolve &BillingResolvers.add_credit_card/3
     end
   end
 

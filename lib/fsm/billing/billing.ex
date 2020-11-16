@@ -84,6 +84,44 @@ defmodule Fsm.Billing do
     |> payer_name(user)
   end
 
+  def create_stripe_customer(email, stripe_token) do
+    Stripe.Customer.create(
+      %{email: email}
+      |> Pipe.pass_unless(stripe_token, &Map.put(&1, :card, stripe_token))
+    )
+  end
+
+  def add_credit_card(stripe_token, user_id) do
+    %{roles: _roles, user: user} = Accounts.get_user(user_id)
+    case user.stripe_customer_id do
+      nil ->
+        case create_stripe_customer(user.email, stripe_token) do
+          {:ok, customer} ->
+            user
+            |> User.stripe_customer_changeset(%{stripe_customer_id: customer.id})
+            |> Repo.update()
+            |> case do
+              {:ok, _} ->
+                {:ok, :success}
+              _->
+                {:error, :failed}
+            end
+
+          error ->
+            {:error, :faild}
+        end
+
+      customer_id ->
+        Stripe.Customer.update(customer_id, %{source: stripe_token})
+        |> case do
+          {:ok, _customer} ->
+            {:ok, :success}
+          _-> 
+            {:error, :failed}
+        end
+    end
+  end
+
   defp payer_name(payer_name, user) when payer_name == nil do
     user_first_name = Map.get(user, :first_name)
     user_last_name = Map.get(user, :last_name)
