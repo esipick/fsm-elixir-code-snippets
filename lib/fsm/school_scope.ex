@@ -32,6 +32,11 @@ defmodule Fsm.SchoolScope do
     end
   end
 
+  def school_changeset(struct, school_context) do
+    %{struct | school_id: school_id(school_context)}
+    |> Ecto.Changeset.cast(%{}, [:school_id])
+    |> Ecto.Changeset.validate_required([:school_id])
+  end
 #  def get_school(%School{} = school), do: school
 #
 #  def get_school(%{params: %{"school_id" => school_id}, request_path: "/api/" <> _}) do
