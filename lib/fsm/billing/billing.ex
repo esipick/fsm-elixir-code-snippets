@@ -69,7 +69,8 @@ defmodule Fsm.Billing do
               appointment_id: i.appointment_id,
               # aircraft_info: i.aircraft_info,
               session_id: i.session_id,
-              transactions: transactions
+              transactions: transactions,
+              inserted_at: i.inserted_at
             }
           end)
 

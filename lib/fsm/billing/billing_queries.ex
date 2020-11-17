@@ -37,6 +37,7 @@ defmodule Fsm.Billing.BillingQueries do
           appointment_id: i.appointment_id,
           # aircraft_info: i.aircraft_info,
           session_id: i.session_id,
+          inserted_at: i.inserted_at,
           transactions: fragment("array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?))", t.id, t.total, t.paid_by_balance, t.paid_by_charge, t.stripe_charge_id, t.state, t.creator_user_id, t.completed_at, t.type, t.first_name, t.last_name, t.email, t.paid_by_cash, t.paid_by_check, t.paid_by_venmo, t.payment_option),
           user: u
           },
@@ -62,6 +63,7 @@ defmodule Fsm.Billing.BillingQueries do
           is_visible: i.is_visible,
           archived_at: i.archived_at,
           appointment_updated_at: i.appointment_updated_at,
+          inserted_at: i.inserted_at,
           # aircraft_info: i.aircraft_info,
           session_id: i.session_id,
           transactions: fragment("array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?))", t.id, t.total, t.paid_by_balance, t.paid_by_charge, t.stripe_charge_id, t.state, t.creator_user_id, t.completed_at, t.type, t.first_name, t.last_name, t.email, t.paid_by_cash, t.paid_by_check, t.paid_by_venmo, t.payment_option),
