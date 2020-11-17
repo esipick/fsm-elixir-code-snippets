@@ -61,6 +61,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       field(:is_visible, :boolean)
       field(:archived_at, :string)
       field(:appointment_updated_at, :string)
+      field(:inserted_at, :string)
       field(:appointment_id, :integer)
       # field(:aircraft_info, :string)
       field(:session_id, :string)
