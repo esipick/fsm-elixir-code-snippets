@@ -23,6 +23,11 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
         Billing.add_funds(%{user_id: id}, %{amount: amount, description: description, user_id: requested_user_id})
     end
 
+    def fetch_card(parent, args, %{context: %{current_user: %{school_id: school_id, roles: roles, id: id}}} = context) do
+        user_id = Map.get(args, :user_id)
+        Billing.fetch_card(user_id)
+    end
+
     def add_credit_card(parent, args, %{context: %{current_user: %{school_id: school_id, roles: roles, id: id}}} = context) do
         stripe_token = Map.get(args, :stripe_token)
         user_id = Map.get(args, :user_id)
