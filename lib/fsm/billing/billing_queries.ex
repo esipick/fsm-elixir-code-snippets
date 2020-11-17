@@ -74,7 +74,7 @@ defmodule Fsm.Billing.BillingQueries do
   def list_bills_query(nil, page, per_page, sort_field, sort_order, filter, school_context) do
     list_bills_query()
     |> SchoolScope.scope_query(school_context)
-    # |> sort_by(sort_field, sort_order)
+    |> sort_by(sort_field, sort_order)
     |> filter(filter)
     # |> search(filter)
     |> paginate(page, per_page)
