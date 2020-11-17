@@ -20,6 +20,13 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       middleware(Middleware.Authorize, ["admin", "dispatcher", "student", "renter"])
       resolve(&BillingResolvers.get_all_transactions/3)
     end
+
+    field :fetch_card, :card do
+      arg(:user_id, :integer)
+
+      middleware(Middleware.Authorize, ["admin"])
+      resolve(&BillingResolvers.fetch_card/3)
+    end
   end
 
   # MUTATIONS
@@ -45,6 +52,18 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
   enum(:payment_options, values: [:balance, :cc, :cash, :cheque, :venmo])
   enum(:status, values: [:paid, :pending, :failed])
   # balance: 0, cc: 1, cash: 2, cheque: 3,venmo: 4
+
+  object :card do
+    field(:address_zip, :string)
+    field(:address_zip_check, :string)
+    field(:brand, :string)
+    field(:country, :string)
+    field(:cvc_check, :string)
+    field(:exp_year, :string)
+    field(:exp_month, :string)
+    field(:last4, :string)
+    field(:object, :string)
+  end
 
   object :invoice do
     field(:id, :integer)

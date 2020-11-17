@@ -573,4 +573,21 @@ defmodule Fsm.Billing do
         :charge
     end
   end
+
+  def fetch_card(user_id) do
+    with %{roles: _roles, user: user} <- Accounts.get_user(user_id) do
+      if user.stripe_customer_id do
+        case Stripe.Customer.retrieve(user.stripe_customer_id) do
+          {:ok, customer} ->
+            source = Enum.find(customer.sources.data, fn s -> s.id == customer.default_source end)
+            {:ok, source}
+          _ ->
+            {:error, :not_found}
+        end
+      end
+    else
+      _->
+        {:error, :failed}
+    end
+  end
 end
