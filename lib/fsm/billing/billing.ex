@@ -20,7 +20,7 @@ defmodule Fsm.Billing do
       filter,
       context
     )
-    |> Repo.all()
+    |> Repo.all
     |> case do
       nil ->
         {:ok, nil}
@@ -30,6 +30,7 @@ defmodule Fsm.Billing do
           Enum.map(data, fn i ->
             transactions =
               Map.get(i, :transactions)
+              |> Enum.reject(fn transaction -> Map.get(transaction, "id") == nil end)
               |> Enum.map(fn transaction ->
                 %{
                   id: Map.get(transaction, "id"),
