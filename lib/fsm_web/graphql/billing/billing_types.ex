@@ -88,6 +88,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
   end
 
   object :transactions do
+    field(:id, :integer)
     field(:paid_by_balance, :string)
     field(:paid_by_charge, :string)
     field(:paid_by_cash, :string)
