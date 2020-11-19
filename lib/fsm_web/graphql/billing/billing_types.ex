@@ -108,6 +108,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
 
   input_object :transactions_filters do
     field(:appointment_id, :integer)
+    field(:id, :integer)
     # field(:start_date, :string)
     # field(:status, :string)
     # field(:end_date, :string)
