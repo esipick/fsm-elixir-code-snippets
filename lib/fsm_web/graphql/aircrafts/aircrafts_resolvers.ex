@@ -1,27 +1,13 @@
-defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
+defmodule FsmWeb.GraphQL.Aircrafts.AircraftResolvers do
 
-  alias Fsm.Accounts
+  alias Fsm.Aircrafts
   alias FsmWeb.GraphQL.Accounts.UserView
   alias FsmWeb.GraphQL.Log
 
-  def login(_parent, %{email: email, password: password} = params, resolution) do
-    resp = Accounts.api_login(%{"email" => email, "password"=> password} )
 
-    Log.response(resp, __ENV__.function, :info)
-  end
-
-  def get_current_user(parent, _args, %{context: %{current_user: %{id: id}}}=context) do
+  def get_aircraft(parent, args, %{context: %{current_user: %{id: id}}}=context) do
     user =
-      Accounts.get_user(id)
-      |> UserView.map
-
-    resp = {:ok, user}
-    Log.response(resp, __ENV__.function)
-  end
-
-  def get_user(parent, args, %{context: %{current_user: %{id: id}}}=context) do
-    user =
-      Accounts.get_user(args.id)
+      Aircrafts.get_aircraft(args.id)
       |> UserView.map
 
     resp = {:ok, user}

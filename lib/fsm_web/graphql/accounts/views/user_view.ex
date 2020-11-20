@@ -21,6 +21,12 @@ defmodule FsmWeb.GraphQL.Accounts.UserView do
     users
   end
 
+  defp avatar_urls_map(%{avatar: %{file_name: avatar}} = user)
+       when avatar != nil do
+    urls = Flight.AvatarUploader.urls({avatar, user})
+    %{original: urls[:original], thumb: urls[:thumb]}
+  end
+
   defp avatar_urls_map(%{avatar: avatar} = user)
        when avatar != nil do
     urls = Flight.AvatarUploader.urls({avatar, user})

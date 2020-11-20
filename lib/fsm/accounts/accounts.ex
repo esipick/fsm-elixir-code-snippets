@@ -77,6 +77,245 @@ defmodule Fsm.Accounts do
         end
   end
 
+  def admin_update_user_profile(
+        %User{} = user,
+        attrs
+#        ,role_slugs,
+#        aircrafts,
+#        flyer_certificate_slugs,
+#        instructors
+      ) do
+    update_user_profile(
+      user,
+      attrs, nil, nil, nil, nil,
+#      role_slugs,
+#      aircrafts,
+#      flyer_certificate_slugs,
+#      instructors,
+      &User.admin_update_changeset/6
+    )
+  end
+
+  defp update_user_profile(
+         user,
+         attrs, nil, nil, nil, nil,
+#         role_slugs,
+#         aircraft_ids,
+#         flyer_certificate_slugs,
+#         instructor_ids,
+         changeset_func
+       ) do
+#    user =
+#      Repo.preload(user, [:roles, :aircrafts, :flyer_certificates, :instructors, :main_instructor])
+#
+#    instructor_ids = instructor_ids || []
+#    instructor_ids =
+#      if user.main_instructor_id != nil do
+#        [user.main_instructor_id | instructor_ids]
+#
+#      else
+#        instructor_ids
+#      end
+#      |> Enum.uniq
+#
+#    {valid_roles?, roles} =
+#      if role_slugs do
+#        roles = Repo.all(from(r in Role, where: r.slug in ^role_slugs))
+#        valid_roles? = Enum.count(role_slugs) == Enum.count(roles)
+#        {valid_roles?, roles}
+#      else
+#        {true, nil}
+#      end
+#
+#    {valid_aircrafts?, aircrafts, invalid_aircraft_ids} =
+#      case aircraft_ids do
+#        nil ->
+#          {true, nil, []}
+#
+#        [] ->
+#          {true, [], []}
+#
+#        aircraft_ids ->
+#          aircrafts =
+#            Repo.all(from(r in Flight.Scheduling.Aircraft, where: r.id in ^aircraft_ids))
+#
+#          invalid_aircraft_ids =
+#            Enum.filter(aircraft_ids, fn id ->
+#              aircraft = Enum.find(aircrafts, fn aircraft -> aircraft.id == id end)
+#              aircraft.archived
+#            end)
+#
+#          valid_aircrafts? =
+#            Enum.count(aircraft_ids) == Enum.count(aircrafts) and invalid_aircraft_ids == []
+#
+#          {valid_aircrafts?, aircrafts, invalid_aircraft_ids}
+#      end
+#
+#    {valid_certs?, certs} =
+#      if flyer_certificate_slugs do
+#        certs = Repo.all(from(c in FlyerCertificate, where: c.slug in ^flyer_certificate_slugs))
+#        valid_certs? = Enum.count(flyer_certificate_slugs) == Enum.count(certs)
+#        {valid_certs?, certs}
+#      else
+#        {true, nil}
+#      end
+#
+#    {valid_instructors?, instructors, invalid_instructor_ids} =
+#      case instructor_ids do
+#        nil ->
+#          {true, nil, []}
+#
+#        [] ->
+#          {true, [], []}
+#
+#        instructor_ids ->
+#          instructors = Repo.all(from(r in User, where: r.id in ^instructor_ids))
+#
+#          invalid_instructor_ids =
+#            Enum.filter(instructor_ids, fn id ->
+#              instructor = Enum.find(instructors, fn instructor -> instructor.id == id end)
+#              instructor.archived
+#            end)
+#
+#          valid_instructors? =
+#            Enum.count(instructor_ids) == Enum.count(instructors) and invalid_instructor_ids == []
+#
+#          {valid_instructors?, instructors, invalid_instructor_ids}
+#      end
+#
+#    valid_main_instructor? =
+#      case attrs["main_instructor_id"] do
+#        id when id in ["", nil] ->
+#          true
+#
+#        id ->
+#          main_instructor = Repo.one(from(r in User, where: r.id == ^id))
+#          !main_instructor.archived and id != user.id
+#      end
+
+    avatar = user.avatar
+
+#    cond do
+#      !valid_roles? ->
+#        {:error,
+#          Ecto.Changeset.add_error(
+#            changeset_func.(user, attrs, [], [], [], []),
+#            :roles,
+#            "are not all known: #{Enum.join(role_slugs, ", ")}"
+#          )}
+#
+#      !valid_aircrafts? ->
+#        message =
+#          case invalid_aircraft_ids do
+#            [] ->
+#              "are not all known: #{Enum.join(role_slugs, ", ")}"
+#
+#            invalid_aircraft_ids ->
+#              "should be active: #{Enum.join(invalid_aircraft_ids, ", ")}"
+#          end
+#
+#        {:error,
+#          Ecto.Changeset.add_error(
+#            changeset_func.(user, attrs, [], [], [], []),
+#            :aircrafts,
+#            message
+#          )}
+#
+#      !valid_certs? ->
+#        {:error,
+#          Ecto.Changeset.add_error(
+#            changeset_func.(user, attrs, [], [], [], []),
+#            :flyer_certificates,
+#            "are not all known: #{Enum.join(flyer_certificate_slugs, ", ")}"
+#          )}
+#
+#      !valid_instructors? ->
+#        message =
+#          case invalid_instructor_ids do
+#            [] ->
+#              "are not all known: #{Enum.join(role_slugs, ", ")}"
+#
+#            invalid_instructor_ids ->
+#              "should be active: #{Enum.join(invalid_instructor_ids, ", ")}"
+#          end
+#
+#        {:error,
+#          Ecto.Changeset.add_error(
+#            changeset_func.(user, attrs, [], [], [], []),
+#            :instructors,
+#            message
+#          )}
+#
+#      !valid_main_instructor? ->
+#        {:error,
+#          Ecto.Changeset.add_error(
+#            changeset_func.(user, attrs, [], [], [], []),
+#            :main_instructor_id,
+#            "should be active"
+#          )}
+
+#      true ->
+        result =
+          user
+          |> changeset_func.(attrs, nil, nil, nil, nil
+#              ,roles, aircrafts, certs, instructors
+                            )
+          |> Repo.update()
+#
+        case result do
+          {:ok, updated_user} ->
+#            if attrs["delete_avatar"] == "1" and avatar do
+#              Flight.AvatarUploader.delete({avatar, updated_user})
+#            end
+#
+#            instructor_exists = user.main_instructor_id != nil
+#            is_main_instructor_updated? = updated_user.main_instructor_id != user.main_instructor_id
+#
+#            if is_main_instructor_updated? && instructor_exists do
+#              delete_user_instructor(user.id, user.main_instructor_id)
+#            end
+#
+#            if is_main_instructor_updated? do
+#              insert_user_instructor(user.id, updated_user.main_instructor_id)
+#            end
+#
+            updated_user
+
+          error ->
+            error
+        end
+#    end
+  end
+
+#  def update_user(id, params) do
+#    user =
+#      Repo.get(User, id)
+#      |> case do
+#           nil -> {:error, :user_not_found}
+#           user ->
+#             changeset = Fsm.Accounts.User.changeset(user, params)
+#
+#             changeset
+#             |> Repo.update()
+##             |> case do
+##                  {:ok, new_user} ->
+##
+##                    new_user = %{
+##                      id: new_user.id,
+##                      title: new_user.title,
+##                      file: %{
+##                        name: user.file.file_name,
+##                        url: get_file_url(user)
+##                      }
+##                    }
+##                    {:ok, new_user}
+##
+##                  result ->
+##                    result
+##                end
+#         end
+#  end
+
   defp check_password(user, password) do
     Comeonin.Bcrypt.check_pass(user, password)
   end

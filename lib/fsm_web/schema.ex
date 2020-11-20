@@ -8,6 +8,7 @@ defmodule FsmWeb.GraphQL.Schema do
     import_types FsmWeb.GraphQL.Dashboard.DashboardTypes
     import_types FsmWeb.GraphQL.Aircrafts.AircraftsTypes
     import_types FsmWeb.GraphQL.Common.CommonTypes
+    import_types Absinthe.Plug.Types
 
     query do
       @desc "say hello"

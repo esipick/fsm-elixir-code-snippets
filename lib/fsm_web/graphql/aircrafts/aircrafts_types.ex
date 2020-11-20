@@ -15,7 +15,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
       field :get_aircraft, :aircraft do
         arg :id, non_null(:id)
         middleware Middleware.Authorize, ["admin", "dispatcher", "instructor"]
-        resolve &AccountsResolvers.get_aircraft/3
+        resolve &AircraftsResolvers.get_aircraft/3
       end
 
       @desc "List all aircrafts ('admin', 'dispatcher')"
@@ -27,7 +27,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
         arg :filter, :user_filters
 
         middleware Middleware.Authorize, ["admin", "dispatcher"]
-        resolve &AccountsResolvers.list_aircrafts/3
+        resolve &AircraftsResolvers.list_aircrafts/3
       end
     end
   
