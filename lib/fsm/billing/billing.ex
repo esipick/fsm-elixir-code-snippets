@@ -75,7 +75,7 @@ defmodule Fsm.Billing do
             }
           end)
 
-        {:ok, data}
+        {:ok, %{invoices: data, page: page}}
     end
   end
 
