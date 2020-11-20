@@ -1,4 +1,4 @@
-defmodule FsmWeb.GraphQL.Aircrafts.AircraftResolvers do
+defmodule FsmWeb.GraphQL.Aircrafts.AircraftsResolvers do
 
   alias Fsm.Aircrafts
   alias FsmWeb.GraphQL.Accounts.UserView
