@@ -10,7 +10,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
   # user roles 1: admin, 2:dispatcher
   # QUERIES
   object :billing_queries do
-    field :list_bills, list_of(:invoice) do
+    field :list_bills, :billing_data do
       arg(:page, :integer, default_value: 1)
       arg(:per_page, :integer, default_value: 100)
       # arg(:sort_field, :transaction_sort_fields)
@@ -45,6 +45,13 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       middleware(Middleware.Authorize, ["admin"])
       resolve &BillingResolvers.add_credit_card/3
     end
+
+  #   field :update_invoice, :string do
+  #     arg :pay_off, non_null(:boolean)
+  #     arg :invoice, non_null(:invoice)
+  #     middleware(Middleware.Authorize, ["admin"])
+  #     resolve &BillingResolvers.update_invoice/3
+  #   end
   end
 
   # TYPES
@@ -63,6 +70,12 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:exp_month, :string)
     field(:last4, :string)
     field(:object, :string)
+  end
+
+  object :billing_data do
+    field(:invoices, list_of(:invoice))
+    field(:page, :integer)
+
   end
 
   object :invoice do
@@ -106,6 +119,44 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:payment_option, :string)
     field(:creator_user_id, :string)  
   end
+
+  # input_object :line_item do
+  #   field(:appointment_id, :integer)
+  #   field(:date, :string)
+  #   field(:ignore_last_time, :boolean)
+  #   field(:is_visible, :boolean)
+  #   field(:payer_name, :string)
+  #   field(:payment_option, :string)
+  #   field(:tax_rate, :string)
+  #   field(:total, :string)
+  #   field(:total_amount_due, :string)
+  #   field(:total_tax, :string)
+  #   field(:user_id, :string)
+
+  # end
+
+  # input_object :line_item do
+  #   field(:id, :integer)
+  #   field(:user_id, :integer)
+  #   field(:aircraft, :string)
+  #   field(:aircraft_id, :integer)
+  #   field(:amount, :integer)
+  #   field(:deductible, :boolean)
+  #   field(:creator_id, :integer)
+  #   field(:description, :string)
+  #   field(:hobbs_end, :string)
+  #   field(:hobbs_start, :string)
+  #   field(:hobbs_tach_used, :boolean)
+  #   field(:instructor_user, :string)
+  #   field(:instructor_user_id, :integer)
+  #   field(:quantity, :integer)
+  #   field(:rate, :integer)
+  #   field(:room, :string)
+  #   field(:room_id, :integer)
+  #   # field(:aircraft_info, :string)
+  #   field(:tach_end, :string)
+  #   field(:tach_start, :string)
+  # end
 
   input_object :transactions_filters do
     field(:appointment_id, :integer)
