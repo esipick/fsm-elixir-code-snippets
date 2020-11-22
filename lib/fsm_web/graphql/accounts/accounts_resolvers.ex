@@ -51,6 +51,8 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
       Accounts.get_user(id)
       |> UserView.map
     user_input = Map.get(args, :user_input)
+    avatar = Map.get(user_input, :avatar_binary) || Map.get(user_input, :avatar)
+    user_input = Map.put(user_input, :avatar, avatar)
 
     Accounts.admin_update_user_profile(requested_user,user_input)
 

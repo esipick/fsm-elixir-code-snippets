@@ -163,6 +163,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
 #    field :archived, :boolean
 #    field :stripe_customer_id, :string
     field :avatar, :upload
+    field :avatar_binary, :string
 #    field :roles, list_of(:string)
   end
 
