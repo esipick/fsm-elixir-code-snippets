@@ -3,7 +3,7 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
 
     import Ecto.Query, warn: false
 
-    alias Fsm.Aircrafts.Aircraft
+    alias Fsm.Scheduling.Aircraft
     alias Fsm.Accounts.UserRole
     alias Fsm.Accounts.Role
     alias Fsm.SchoolScope
