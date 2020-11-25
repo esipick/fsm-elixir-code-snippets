@@ -63,6 +63,11 @@ defmodule Fsm.Accounts do
     |> Repo.all()
   end
 
+  def list_instructors(page, per_page, sort_field, sort_order, filter, context) do
+    AccountsQueries.list_instructors_query(page, per_page, sort_field, sort_order, filter, context)
+    |> Repo.all()
+  end
+
   defp get_user_by_email(email) when is_nil(email) or email == "", do: nil
 
   defp get_user_by_email(email) do

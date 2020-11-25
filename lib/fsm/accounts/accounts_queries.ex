@@ -39,6 +39,15 @@ defmodule Fsm.Accounts.AccountsQueries do
         group_by: u.id
     end
 
+    def get_all_instructors_query do
+      from u in User,
+        inner_join: ur in UserRole, on: ur.user_id == u.id,
+        inner_join: r in Role, on: r.id == ur.role_id,
+        where: r.slug == ^"instructor",
+        select: %{user: u,
+          roles: (r.slug)}
+    end
+
     def get_user_with_roles_query(user_id) do
         from u in User,
             inner_join: ur in UserRole, on: ur.user_id == u.id,
@@ -67,6 +76,16 @@ defmodule Fsm.Accounts.AccountsQueries do
 
     def list_users_query(page, per_page, sort_field, sort_order, filter, school_context) do
       get_all_users_query()
+      |> SchoolScope.scope_query(school_context)
+      |> sort_by(sort_field, sort_order)
+      |> sort_by(:first_name, sort_order)
+      |> filter(filter)
+      |> search(filter)
+      |> paginate(page, per_page)
+    end
+
+    def list_instructors_query(page, per_page, sort_field, sort_order, filter, school_context) do
+      get_all_instructors_query()
       |> SchoolScope.scope_query(school_context)
       |> sort_by(sort_field, sort_order)
       |> sort_by(:first_name, sort_order)

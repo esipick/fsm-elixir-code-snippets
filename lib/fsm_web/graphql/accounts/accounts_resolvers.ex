@@ -5,6 +5,8 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
   alias FsmWeb.GraphQL.Accounts.UserView
   alias FsmWeb.GraphQL.Log
 
+  require Logger
+
   def login(_parent, %{email: email, password: password} = params, resolution) do
     resp = Accounts.api_login(%{"email" => email, "password"=> password} )
 
@@ -43,7 +45,22 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
     resp = {:ok, users}
     Log.response(resp, __ENV__.function, :info)
   end
-require Logger
+
+  def list_instructors(parent, args, %{context: %{current_user: %{id: user_id, school_id: school_id}}}=context) do
+    page = Map.get(args, :page)
+    per_page = Map.get(args, :per_page)
+
+    sort_field = Map.get(args, :sort_field) || :inserted_at
+    sort_order = Map.get(args, :sort_order) || :desc
+    filter = Map.get(args, :filter) || %{}
+    users =
+      Accounts.list_instructors(page, per_page, sort_field, sort_order, filter, context)
+      |> UserView.map
+
+    resp = {:ok, users}
+    Log.response(resp, __ENV__.function, :info)
+  end
+
   def update_user(parent, args,
 #        %{context: %{current_user: %{id: id}}} =
           context) do

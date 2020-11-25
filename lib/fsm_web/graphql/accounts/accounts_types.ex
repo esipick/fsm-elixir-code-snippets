@@ -36,6 +36,18 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         middleware Middleware.Authorize, ["admin", "dispatcher"]
         resolve &AccountsResolvers.list_users/3
       end
+
+      @desc "List all instructors ('admin', 'dispatcher')"
+      field :list_instructors, list_of(non_null(:user)) do
+        arg :page, :integer, default_value: 1
+        arg :per_page, :integer, default_value: 100
+        arg :sort_field, :user_sort_fields
+        arg :sort_order, :order_by
+        arg :filter, :user_filters
+
+        middleware Middleware.Authorize, ["admin", "dispatcher"]
+        resolve &AccountsResolvers.list_instructors/3
+      end
     end
   
     # MUTATIONS
