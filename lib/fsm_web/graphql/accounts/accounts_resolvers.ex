@@ -1,6 +1,7 @@
 defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
 
   alias Fsm.Accounts
+  alias Fsm.Accounts.User
   alias FsmWeb.GraphQL.Accounts.UserView
   alias FsmWeb.GraphQL.Log
 
@@ -42,25 +43,32 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
     resp = {:ok, users}
     Log.response(resp, __ENV__.function, :info)
   end
-
+require Logger
   def update_user(parent, args,
 #        %{context: %{current_user: %{id: id}}} =
           context) do
     id = args.id
+
     requested_user =
       Accounts.get_user(id)
       |> UserView.map
+
     user_input = Map.get(args, :user_input)
     avatar = Map.get(user_input, :avatar_binary) || Map.get(user_input, :avatar)
     user_input = Map.put(user_input, :avatar, avatar)
 
-    Accounts.admin_update_user_profile(requested_user,user_input)
-
     resp =
-      {:ok,
-        Accounts.get_user(id)
-        |> UserView.map
-      }
+      Accounts.admin_update_user_profile(requested_user,user_input)
+      |> case do
+        %User{} ->
+          {:ok,
+            Accounts.get_user(id)
+            |> UserView.map
+          }
+        error ->
+          Logger.info fn -> "Update User Error: #{inspect error}" end
+          {:error, "Unable to update user"}
+      end
 
     Log.response(resp, __ENV__.function, :info)
 

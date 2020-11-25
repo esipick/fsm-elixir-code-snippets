@@ -261,8 +261,8 @@ defmodule Fsm.Accounts do
 #              ,roles, aircrafts, certs, instructors
                             )
           |> Repo.update()
-#
-        case result do
+
+    case result do
           {:ok, updated_user} ->
 #            if attrs["delete_avatar"] == "1" and avatar do
 #              Flight.AvatarUploader.delete({avatar, updated_user})
