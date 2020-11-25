@@ -24,7 +24,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
         arg :per_page, :integer, default_value: 100
         arg :sort_field, :user_sort_fields
         arg :sort_order, :order_by
-        arg :filter, :user_filters
+        arg :filter, :aircraft_filters
 
         middleware Middleware.Authorize, ["admin", "dispatcher"]
         resolve &AircraftsResolvers.list_aircrafts/3
