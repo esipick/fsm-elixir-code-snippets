@@ -21,10 +21,10 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsResolvers do
     sort_field = Map.get(args, :sort_field) || :inserted_at
     sort_order = Map.get(args, :sort_order) || :desc
     filter = Map.get(args, :filter) || %{}
-    users =
+    aircrafts =
       Aircrafts.list_aircrafts(page, per_page, sort_field, sort_order, filter, context)
 
-    resp = {:ok, users}
+    resp = {:ok, %{aircrafts: aircrafts, page: page}}
     Log.response(resp, __ENV__.function, :info)
   end
 end
