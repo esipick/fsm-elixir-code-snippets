@@ -59,6 +59,16 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
       field :archived, :boolean
       field :blocked, :boolean
       field :school_id, :integer
+      field :inspections, list_of(non_null(:inspection)) do
+        resolve &AircraftsResolvers.get_inspections/3
+      end
+    end
+
+    object :inspection do
+      field(:name, :string)
+      field(:type, :string)
+      field(:date_value, :string)
+      field(:number_value, :integer)
     end
 
   input_object :aircraft_filters do

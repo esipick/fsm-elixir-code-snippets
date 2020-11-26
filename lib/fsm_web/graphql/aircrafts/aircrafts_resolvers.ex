@@ -27,5 +27,9 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsResolvers do
     resp = {:ok, %{aircrafts: aircrafts, page: page}}
     Log.response(resp, __ENV__.function, :info)
   end
+
+  def get_inspections(parent, _args, _context) do
+    {:ok, parent |> Flight.Repo.preload(:inspections)}
+  end
 end
   
