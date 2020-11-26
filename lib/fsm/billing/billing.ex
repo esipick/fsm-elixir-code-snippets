@@ -3,12 +3,25 @@ defmodule Fsm.Billing do
 
   alias Flight.Repo
   alias Fsm.Billing.BillingQueries
-  alias Fsm.Transaction
+  alias Fsm.Billing.Transaction
   alias Fsm.Billing.TransactionLineItem
   alias Fsm.Accounts 
   alias Fsm.SchoolScope
   alias Fsm.Accounts.User
+  alias Fsm.Billing.Invoice
+  alias Fsm.Billing.CreateInvoice
   require Logger
+
+  def create_invoice(invoice_params, pay_off, school_id, user_id) do
+    %Invoice{}
+    |> Invoice.payment_options_changeset(invoice_params)
+    |> case do
+      %Ecto.Changeset{valid?: true} ->
+          CreateInvoice.run(invoice_params, pay_off, school_id, user_id)
+      
+      changeset -> {:error, changeset}
+    end
+  end
 
   def get_transactions(user_id, page, per_page, sort_field, sort_order, filter, context) do
     BillingQueries.list_bills_query(

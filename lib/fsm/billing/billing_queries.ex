@@ -3,10 +3,10 @@ defmodule Fsm.Billing.BillingQueries do
 
   import Ecto.Query, warn: false
 
-  alias Fsm.Transaction
+  alias Fsm.Billing.Transaction
   alias Fsm.SchoolScope
   alias Fsm.Accounts.User
-  alias Fsm.Invoice
+  alias Fsm.Billing.Invoice
   alias Fsm.Role
   alias Fsm.Accounts.AccountsQueries
   alias Fsm.Billing.TransactionLineItem

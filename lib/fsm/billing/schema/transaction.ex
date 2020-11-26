@@ -1,4 +1,4 @@
-defmodule Fsm.Transaction do
+defmodule Fsm.Billing.Transaction do
     use Ecto.Schema
     import Ecto.Changeset
   

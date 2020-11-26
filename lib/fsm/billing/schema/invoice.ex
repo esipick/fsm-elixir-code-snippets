@@ -1,4 +1,4 @@
-defmodule Fsm.Invoice do
+defmodule Fsm.Billing.Invoice do
     use Ecto.Schema
     import Ecto.Changeset
     import ValidationUtil

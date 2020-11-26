@@ -37,15 +37,11 @@ defmodule Fsm.SchoolScope do
     |> Ecto.Changeset.cast(%{}, [:school_id])
     |> Ecto.Changeset.validate_required([:school_id])
   end
-#  def get_school(%School{} = school), do: school
-#
-#  def get_school(%{params: %{"school_id" => school_id}, request_path: "/api/" <> _}) do
-#    Flight.Repo.get(School, school_id(school_id))
-#  end
-#
-#  def get_school(school_context) do
-#    Flight.Repo.get(School, school_id(school_context))
-#  end
+ def get_school(%School{} = school), do: school
+
+ def get_school(school_context) do
+   Flight.Repo.get(School, school_id(school_context))
+ end
 
   def school_id(%{context: %{current_user: %{school_id: school_id}=current_user}}) do
     case Flight.Accounts.is_superadmin?(current_user) do
