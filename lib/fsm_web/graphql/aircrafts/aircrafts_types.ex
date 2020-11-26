@@ -19,7 +19,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
       end
 
       @desc "List all aircrafts ('admin', 'dispatcher')"
-      field :list_aircrafts, list_of(non_null(:aircraft)) do
+      field :list_aircrafts, :aircraft_data do
         arg :page, :integer, default_value: 1
         arg :per_page, :integer, default_value: 100
         arg :sort_field, :user_sort_fields
@@ -36,6 +36,11 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
     end
   
     # TYPES
+
+    object :aircraft_data do
+      field :aircrafts, list_of(non_null(:aircraft))
+      field :page, :integer
+    end
 
     object :aircraft do
       field :id, :integer
