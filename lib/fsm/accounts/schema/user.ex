@@ -83,7 +83,7 @@ defmodule Fsm.Accounts.User do
   
       timestamps()
     end
-  
+
     @doc false
     def cast_avatar(user, attrs) do
       attrs =
@@ -102,7 +102,7 @@ defmodule Fsm.Accounts.User do
         end
   
       attr = :avatar
-  
+
       case attrs[attr] do
         nil ->
           user
@@ -142,6 +142,70 @@ defmodule Fsm.Accounts.User do
               |> validate_avatar_binary_size(binary)
               |> cast_attachments(attrs, [attr])
   
+            _ ->
+              user
+              |> add_error(:avatar, "must be valid base64 encoded binary image")
+          end
+      end
+    end
+
+    @doc false
+    def cast_avatar_if_exit(user, attrs) do
+      attrs =
+        for {key, value} <- attrs, into: %{} do
+          if is_atom(key) do
+            {key, value}
+          else
+            {String.to_atom(key), value}
+          end
+        end
+
+      attrs =
+        case attrs[:delete_avatar] do
+          "1" -> Map.put(attrs, :avatar, nil)
+          _ -> attrs
+        end
+
+      attr = :avatar
+
+      case attrs[attr] do
+        nil ->
+          user
+
+        %Plug.Upload{} = upload ->
+          extname =
+            upload.filename
+            |> Path.extname()
+            |> String.downcase()
+
+          upload =
+            upload
+            |> Map.put(:filename, Ecto.UUID.generate() <> extname)
+
+          attrs =
+            attrs
+            |> Map.put(:avatar, upload)
+
+          user
+          |> validate_avatar_file_size(upload.path)
+          |> cast_attachments(attrs, [attr])
+
+        base64_binary ->
+          case base64_binary |> Base.decode64(ignore: :whitespace) do
+            {:ok, binary} ->
+              extname = ".#{ExImageInfo.seems?(binary)}"
+
+              attrs =
+                Map.put(attrs, attr, %{
+                  filename: Ecto.UUID.generate() <> extname,
+                  binary: binary
+                })
+
+              user
+              |> validate_avatar_format(extname)
+              |> validate_avatar_binary_size(binary)
+              |> cast_attachments(attrs, [attr])
+
             _ ->
               user
               |> add_error(:avatar, "must be valid base64 encoded binary image")
@@ -352,7 +416,7 @@ defmodule Fsm.Accounts.User do
         :pilot_certificate_number,
         :pilot_certificate_expires_at
       ])
-      |> cast_avatar(attrs)
+      |> cast_avatar_if_exit(attrs)
       |> base_validations(roles, aircrafts, flyer_certificates, instructors)
     end
   
