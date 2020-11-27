@@ -169,9 +169,9 @@ defmodule Fsm.Billing.DetailedTransactionForm.AircraftDetails do
     alias Fsm.Billing.{
       Transaction,
       TransactionLineItem,
-      AircraftLineItemDetail,
-      InstructorLineItemDetail
+      AircraftLineItemDetail
     }
+    alias Flight.Billing.InstructorLineItemDetail
   
     alias Fsm.Billing.TransactionForm.{CustomUser}
     alias Fsm.Billing.DetailedTransactionForm.{AircraftDetails, InstructorDetails}
