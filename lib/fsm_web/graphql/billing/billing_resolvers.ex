@@ -64,4 +64,20 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
         pay_off = Map.get(args, :pay_off)
         Billing.create_invoice(invoice, pay_off, school_id, id)
   end
+
+  def update_invoice(
+        parent,
+        args,
+        %{context: %{current_user: %{school_id: school_id, roles: roles, id: id}}} = context
+      ) do
+        invoice = Map.get(args, :invoice)
+        pay_off = Map.get(args, :pay_off)
+        Billing.update_invoice(invoice, pay_off, school_id, id)
+        |> case do
+          {:error, message} ->
+            {:error, message}
+          data ->
+            {:ok, data}
+        end
+  end
 end

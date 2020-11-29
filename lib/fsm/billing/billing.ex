@@ -10,6 +10,8 @@ defmodule Fsm.Billing do
   alias Fsm.Accounts.User
   alias Fsm.Billing.Invoice
   alias Fsm.Billing.CreateInvoice
+  alias Fsm.Billing.UpdateInvoice
+  alias Fsm.Billing.PaymentError
   require Logger
 
   def create_invoice(invoice_params, pay_off, school_id, user_id) do
@@ -20,6 +22,54 @@ defmodule Fsm.Billing do
           CreateInvoice.run(invoice_params, pay_off, school_id, user_id)
       
       changeset -> {:error, changeset}
+    end
+  end
+
+  def update_invoice(invoice_params, pay_off, school_id, user_id) do
+    invoice_params = Map.put(invoice_params, :is_visible, true)
+    case UpdateInvoice.run(invoice_params, pay_off, school_id, user_id) do
+      {:ok, invoice} ->
+        session_info = Map.take(invoice, [:session_id, :connect_account, :pub_key])
+        
+        invoice =
+          Repo.get(Invoice, invoice.id)
+          |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
+          |> Map.merge(session_info)
+
+       {:error, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
+
+        {:error, :update_error}
+
+       {:error, %Ecto.Changeset{} = changeset} ->
+
+        {:error, :update_error}
+
+       {:error, %Stripe.Error{} = error} ->
+        # status = Map.get(error.extra, :http_status) || 422
+
+        # {{conn
+        # |> put_status(status)
+        # |> json(%{stripe_error: StripeHelper.human_error(error)})}}
+        {:error, StripeHelper.human_error(error)}
+
+      {:error, %PaymentError{} = error} ->
+
+        # conn
+        # |> put_status(400)
+        # |> json(%{stripe_error: StripeHelper.human_error(error.message)})
+        {:error, StripeHelper.human_error(error.message)}
+
+      {:error, msg} ->
+        message = 
+        if(is_map(msg)) do
+          Map.get(msg, :message)
+        else
+          msg
+        end
+        {:error, message}
+        # conn
+        # |> put_status(422)
+        # |> json(%{error: %{message: msg}})
     end
   end
 
@@ -604,4 +654,12 @@ defmodule Fsm.Billing do
         {:error, :failed}
     end
   end
+
+  def get_invoice(invoice_id) do
+    invoice = Repo.get(Invoice, invoice_id) 
+    |> Repo.preload(:line_items) 
+    |> Repo.preload(:user)
+    |> Repo.preload(:appointment)
+  end
+  
 end

@@ -4,12 +4,16 @@ defmodule Fsm.Billing.CreateInvoice do
     alias Flight.Repo
     alias Fsm.Accounts.User
     alias Fsm.Accounts
-    alias Flight.Billing.{Invoice, LineItemCreator, PayOff}
+    alias Fsm.Billing.Invoice
+    alias Fsm.Billing.LineItemCreator
+    alias Flight.Billing.PayOff
     alias FlightWeb.Billing.InvoiceStruct
     alias Flight.Scheduling.{Appointment}
     alias Flight.Billing.Services.Utils
     alias Flight.Billing.TransactionLineItem
     alias Flight.Billing.InvoiceLineItem
+
+    require Logger
   
     def run(invoice_params, pay_off, school_id, user_id) do
       pay_off = pay_off || false
@@ -113,15 +117,14 @@ defmodule Fsm.Billing.CreateInvoice do
       transaction_attrs =
         transaction_attributes(invoice)
         |> Map.merge(%{total: total_amount_due})
-  
+
       case PayOff.balance(invoice.user, transaction_attrs, school_context) do
         {:ok, :balance_enough, _} ->
           Invoice.paid(invoice)
-  
         {:ok, :balance_not_enough, remainder, _} ->
           is_demo = is_demo_invoice?(invoice)
           pay_off_cc(invoice, school_context, is_demo, nil, remainder)
-  
+
         {:error, :balance_is_empty} ->
           is_demo = is_demo_invoice?(invoice)
           pay_off_cc(invoice, school_context, is_demo, nil, total_amount_due)
@@ -178,7 +181,6 @@ defmodule Fsm.Billing.CreateInvoice do
   
     defp pay_off_manually(invoice, school_context) do
       transaction_attrs = transaction_attributes(invoice)
-  
       case PayOff.manually(invoice.user, transaction_attrs, school_context) do
         {:ok, _} -> Invoice.paid(invoice)
         {:error, changeset} -> {:error, changeset}
