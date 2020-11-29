@@ -49,9 +49,16 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
 
     field :create_invoice, :invoice do
       arg :pay_off, non_null(:boolean)
-      arg :invoice, non_null(:invoice_input)
+      arg :invoice, non_null(:create_invoice_input)
       middleware(Middleware.Authorize, ["admin"])
       resolve &BillingResolvers.create_invoice/3
+    end
+
+    field :update_invoice, :invoice do
+      arg :pay_off, non_null(:boolean)
+      arg :invoice, non_null(:update_invoice_input)
+      middleware(Middleware.Authorize, ["admin"])
+      resolve &BillingResolvers.update_invoice/3
     end
   end
 
@@ -143,13 +150,29 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
 
   end
 
-  input_object :invoice_input do
+  input_object :create_invoice_input do
     field(:appointment_id, :integer)
     field(:date, :string)
     field(:ignore_last_time, :boolean)
     field(:is_visible, :boolean)
     field(:payer_name, :string)
-    field(:payment_option, :string)
+    field(:payment_option, :payment_options)
+    field(:tax_rate, :integer)
+    field(:total, :integer)
+    field(:total_amount_due, :integer)
+    field(:total_tax, :integer)
+    field(:user_id, :integer)
+    field(:line_items, list_of(:line_item))
+  end
+
+  input_object :update_invoice_input do
+    field(:id, :integer)
+    field(:appointment_id, :integer)
+    field(:date, :string)
+    field(:ignore_last_time, :boolean)
+    field(:is_visible, :boolean)
+    field(:payer_name, :string)
+    field(:payment_option, :payment_options)
     field(:tax_rate, :integer)
     field(:total, :integer)
     field(:total_amount_due, :integer)
