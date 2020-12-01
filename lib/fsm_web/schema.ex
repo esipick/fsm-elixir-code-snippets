@@ -9,6 +9,7 @@ defmodule FsmWeb.GraphQL.Schema do
     import_types FsmWeb.GraphQL.Aircrafts.AircraftsTypes
     import_types FsmWeb.GraphQL.Billing.InvoicesTypes
     import_types FsmWeb.GraphQL.SchoolAssets.SchoolAssetsTypes
+    import_types FsmWeb.GraphQL.School.SchoolTypes
     import_types FsmWeb.GraphQL.Common.CommonTypes
     import_types Absinthe.Plug.Types
 
@@ -26,6 +27,7 @@ defmodule FsmWeb.GraphQL.Schema do
       import_fields :aircrafts_queries
       import_fields :invoices_queries
       import_fields :school_assets_queries
+      import_fields :school_queries
       import_fields :common_queries
     end
   
