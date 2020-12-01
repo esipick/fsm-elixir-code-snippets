@@ -17,6 +17,8 @@ defmodule Fsm.Aircrafts do
   def list_aircrafts(page, per_page, sort_field, sort_order, filter, context) do
     AircraftsQueries.list_aircrafts_query(page, per_page, sort_field, sort_order, filter, context)
     |> Repo.all()
+    |> Repo.preload([:inspections])
+
   end
 
   defp sort_by(query, nil, nil) do
