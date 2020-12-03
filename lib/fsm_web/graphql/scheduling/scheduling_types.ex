@@ -51,12 +51,11 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
   # MUTATIONS
   object :scheduling_mutations do
-#      field :create_appointment, :appointment do
-#        arg :email, non_null(:string)
-#        arg :password, non_null(:string)
-##        middleware Middleware.Authorize
-#        resolve &SchedulingResolvers.create_appointment/3
-#      end
+     field :create_appointment, :appointment do
+       arg :appointment, :appointment_input
+       middleware Middleware.Authorize, ["admin", "dispatcher"]
+       resolve &SchedulingResolvers.create_appointment/3
+     end
   end
   
   # TYPES
@@ -91,6 +90,21 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :instructor, :user
     field :aircraft, :aircraft
 
+  end
+
+  input_object :appointment_input do
+    field :aircraft_id, :integer 
+    field :demo, :boolean
+    field :end_at, :string 
+    field :instructor_user_id, :integer
+    field :note, :string
+    field :payer_name, :string 
+    field :start_at, :string  
+    field :type, :string
+    field :user_id, :string
+    field :note, :string 
+    field :room_id, :integer
+    field :simulator_id, :integer  
   end
 
   input_object :appointment_filters do
