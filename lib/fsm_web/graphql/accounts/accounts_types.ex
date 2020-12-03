@@ -128,6 +128,10 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
 
   input_object :user_filters do
     field :archived, :boolean
+    field :search, list_of(:search_input)
+  end
+
+  input_object :search_input do
     field :search_criteria, :user_search_criteria
     field :search_term, :string
   end
