@@ -58,8 +58,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
      end
 
      field :edit_appointment, :appointment do
-      arg :appointment_id, :integer
-      arg :appointment, :appointment_input
+      arg :appointment, :edit_appointment_input
       middleware Middleware.Authorize, ["admin", "dispatcher"]
       resolve &SchedulingResolvers.create_appointment/3
     end
@@ -116,6 +115,20 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :payer_name, :string 
     field :start_at, :string  
     field :type, :string
+    field :user_id, :integer
+    field :room_id, :integer
+    field :simulator_id, :integer  
+  end
+
+  input_object :edit_appointment_input do
+    field :id, :integer 
+    field :aircraft_id, :integer 
+    field :demo, :boolean
+    field :end_at, :string 
+    field :instructor_user_id, :integer
+    field :note, :string
+    field :payer_name, :string 
+    field :start_at, :string  
     field :user_id, :integer
     field :room_id, :integer
     field :simulator_id, :integer  
