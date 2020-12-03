@@ -74,6 +74,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   
   # TYPES
   object :appointment do
+    field :id, :integer
     field :end_at, :string
     field :start_at, :string
     field :note, :string
