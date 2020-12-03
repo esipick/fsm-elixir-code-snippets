@@ -80,7 +80,7 @@ defmodule Fsm.Accounts.AccountsQueries do
       |> sort_by(sort_field, sort_order)
       |> sort_by(:first_name, sort_order)
       |> filter(filter)
-      |> search(filter)
+      |> multiple_search(Map.get(filter, :search))
       |> paginate(page, per_page)
     end
 
@@ -90,7 +90,7 @@ defmodule Fsm.Accounts.AccountsQueries do
       |> sort_by(sort_field, sort_order)
       |> sort_by(:first_name, sort_order)
       |> filter(filter)
-      |> search(filter)
+      |> multiple_search(Map.get(filter, :search))
       |> paginate(page, per_page)
     end
 
@@ -136,14 +136,26 @@ defmodule Fsm.Accounts.AccountsQueries do
     end
 
 
-    def search(query, %{search_criteria: _, search_term: ""}) do
+    defp multiple_search(query, nil) do
       query
     end
 
-    def search(query, %{search_criteria: search_criteria, search_term: search_term}) do
+    defp multiple_search(query, search) do
+      count = Enum.count(search)
+      search(query, search, count)
+    end
+
+    def search(query, _, count) when count == 0 do
+      query
+    end
+
+    def search(query, search_items, count) when count > 0 do
+      search_item = Enum.fetch!(search_items, count-1)
+      search_criteria = Map.get(search_item, :search_criteria)
+      search_term = Map.get(search_item, :search_term)
       case search_criteria do
         :first_name ->
-          from s in query,
+            from s in query,
                where: ilike(s.first_name, ^"%#{search_term}%")
 
         :last_name ->
@@ -157,10 +169,7 @@ defmodule Fsm.Accounts.AccountsQueries do
         _ ->
           query
       end
-    end
-
-    def search(query, _) do
-      query
+      |> search(search_items, count-1)
     end
 
     def paginate(query, 0, 0) do
