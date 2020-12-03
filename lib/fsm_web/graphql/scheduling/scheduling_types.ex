@@ -74,6 +74,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   
   # TYPES
   object :appointment do
+    field :id, :integer
     field :end_at, :string
     field :start_at, :string
     field :note, :string
@@ -115,7 +116,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :payer_name, :string 
     field :start_at, :string  
     field :type, :string
-    field :user_id, :string
+    field :user_id, :integer
     field :room_id, :integer
     field :simulator_id, :integer  
   end
