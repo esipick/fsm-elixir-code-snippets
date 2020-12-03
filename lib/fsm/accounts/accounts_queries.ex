@@ -166,6 +166,9 @@ defmodule Fsm.Accounts.AccountsQueries do
           from s in query,
                where: ilike(s.email, ^"%#{search_term}%")
 
+        :full_name ->
+          from s in query,
+            where: ilike(fragment("concat(?, ' ', ?)", s.first_name, s.last_name), ^"%#{search_term}%")
         _ ->
           query
       end
