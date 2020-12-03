@@ -93,7 +93,7 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
       case search_criteria do
         :name ->
           from s in query,
-               where: ilike(s.name, ^"%#{search_term}%")
+            where: ilike(s.name, ^"%#{search_term}%") or ilike(s.make, ^"%#{search_term}%")
 
         :make ->
           from s in query,
