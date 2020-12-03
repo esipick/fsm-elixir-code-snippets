@@ -33,7 +33,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
   end
 
   def delete_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
-    true
+    {:ok, true}
   end
 
   def list_aircraft_appointments(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
