@@ -75,10 +75,6 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
     field :ifr_certified, :boolean
     field :simulator, :boolean
     field :blocked, :boolean
-    field :search, list_of(:aircraft_search_input)
-  end
-
-  input_object :aircraft_search_input do
     field :search_criteria, :aircraft_search_criteria
     field :search_term, :string
   end

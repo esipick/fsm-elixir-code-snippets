@@ -28,6 +28,14 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
 #    Log.response(resp, __ENV__.function)
 #  end
 
+  def create_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    
+  end
+
+  def delete_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    true
+  end
+
   def list_aircraft_appointments(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
     page = Map.get(args, :page)
     per_page = Map.get(args, :per_page)

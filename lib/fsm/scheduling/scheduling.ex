@@ -18,6 +18,25 @@ defmodule Fsm.Scheduling do
   import Fsm.Walltime, only: [walltime_to_utc: 2, utc_to_walltime: 2]
   alias Flight.Inspections
 
+
+  # def create_appointment(context, appointment_data}) do
+  #   case Flight.Scheduling.insert_or_update_appointment(
+  #          %Scheduling.Appointment{},
+  #          appointment_data,
+  #          Repo.preload(conn.assigns.current_user, :school),
+  #          conn
+  #        ) do
+  #     {:ok, appointment} ->
+  #       appointment = FlightWeb.API.AppointmentView.preload(appointment)
+  #       render(conn, "show.json", appointment: appointment)
+
+  #     {:error, changeset} ->
+  #       conn
+  #       |> put_status(400)
+  #       |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
+  #   end
+  # end
+
   ##
   # List Appointments
   ##
