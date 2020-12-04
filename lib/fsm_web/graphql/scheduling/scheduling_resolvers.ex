@@ -29,7 +29,8 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
 #  end
 
   def create_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
-    {:error, :failed}
+    appointment = Map.get(args, :appointment)
+    Scheduling.create_appointment(context, appointment)
   end
 
   def delete_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
