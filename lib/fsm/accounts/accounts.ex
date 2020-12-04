@@ -59,7 +59,8 @@ defmodule Fsm.Accounts do
   end
 
   def list_users(page, per_page, sort_field, sort_order, filter, context) do
-    AccountsQueries.list_users_query(page, per_page, sort_field, sort_order, filter, context)
+    roles = Map.get(filter, :roles)
+    AccountsQueries.list_users_query(page, per_page, sort_field, sort_order, filter, context, roles)
     |> Repo.all()
   end
 
