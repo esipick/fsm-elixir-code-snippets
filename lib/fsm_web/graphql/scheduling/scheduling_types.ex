@@ -60,7 +60,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
      field :edit_appointment, :appointment do
       arg :appointment, :edit_appointment_input
       middleware Middleware.Authorize, ["admin", "dispatcher"]
-      resolve &SchedulingResolvers.create_appointment/3
+      resolve &SchedulingResolvers.edit_appointment/3
     end
 
     field :delete_appointment, :string do
