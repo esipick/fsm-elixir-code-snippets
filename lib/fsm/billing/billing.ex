@@ -648,6 +648,8 @@ defmodule Fsm.Billing do
           _ ->
             {:error, :not_found}
         end
+      else
+        {:error, :not_found}
       end
     else
       _->
