@@ -39,7 +39,8 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
   end
 
   def delete_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
-    {:ok, true}
+    appointment_id = Map.get(args, :appointment_id)
+    Scheduling.delete_appointment(context, appointment_id)
   end
 
   def list_aircraft_appointments(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
