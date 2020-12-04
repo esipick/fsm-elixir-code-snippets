@@ -8,6 +8,7 @@ defmodule Fsm.Scheduling do
     Unavailability
   }
 
+  alias Flight.Scheduling
   alias Fsm.Accounts
   alias Flight.Auth.Permission
 
@@ -22,6 +23,33 @@ defmodule Fsm.Scheduling do
   import Fsm.Walltime, only: [walltime_to_utc: 2, utc_to_walltime: 2]
   alias Flight.Inspections
 
+
+  def get_appointment(appointment_id) do
+    Repo.get(Appointment, appointment_id)  
+  end
+
+  def update_appointment(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, appointment_data) do
+    appointment = get_appointment(Map.get(appointment_data, :id))
+    %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
+    context = %{assigns: %{current_user: current_user}, school_id: school_id}
+
+    if !Flight.Auth.Authorization.user_can?(current_user, [Permission.new(:appointment, :modify, :all)]) && Scheduling.Appointment.is_paid?(appointment) do
+      {:error, :not_authorized}
+    else
+      case insert_or_update_appointment(
+             appointment,
+             appointment_data,
+             Repo.preload(context.assigns.current_user, :school),
+             context
+           ) do
+        {:ok, appointment} ->
+          {:ok, appointment} 
+
+        {:error, changeset} ->
+          {:error, :failed} 
+      end
+    end
+  end
 
   def send_changed_notifications(appointment, modifying_user) do
     appointment = Repo.preload(appointment, [:user, :instructor_user])
@@ -306,7 +334,6 @@ defmodule Fsm.Scheduling do
         {:ok, appointment}
 
       {:error, changeset} ->
-        IO.inspect(changeset)
         {:error, :failed}
     end
   end
