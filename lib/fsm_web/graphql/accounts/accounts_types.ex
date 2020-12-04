@@ -5,6 +5,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     alias FsmWeb.GraphQL.Accounts.AccountsResolvers
 
     enum :user_search_criteria, values: [:first_name, :last_name, :email, :full_name]
+    enum :roles, values: ["student", "renter", "instructor"]
     enum :user_sort_fields, values: [:first_name, :last_name, :email]
     enum :user_gender, values: ["Male", "Female"]
 
@@ -129,6 +130,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
   input_object :user_filters do
     field :archived, :boolean
     field :search, list_of(:search_input)
+    field :roles, list_of(:roles)
   end
 
   input_object :search_input do
