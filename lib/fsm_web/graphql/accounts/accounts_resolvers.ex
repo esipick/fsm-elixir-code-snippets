@@ -5,6 +5,10 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
   alias FsmWeb.GraphQL.Accounts.UserView
   alias FsmWeb.GraphQL.Log
 
+
+  import Flight.Auth.Authorization
+  alias Flight.Auth.Permission
+
   require Logger
 
   def login(_parent, %{email: email, password: password} = params, resolution) do
@@ -62,7 +66,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
   end
 
   def update_user(parent, args,
-#        %{context: %{current_user: %{id: id}}} =
+        %{context: %{current_user: current_user}} =
           context) do
     id = args.id
 
@@ -74,8 +78,33 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
     avatar = Map.get(user_input, :avatar_binary) || Map.get(user_input, :avatar)
     user_input = Map.put(user_input, :avatar, avatar)
 
+    role_slugs = #params["role_slugs"]
+      Map.get(args, :role_slugs)
+
+    role_slugs =
+      with true <- is_list(role_slugs) do
+        if user_can?(%User{id: current_user.id, school_id: current_user.school_id}, modify_admin_permission()) do
+          role_slugs
+        else
+          Enum.filter(role_slugs, fn p -> p != "admin" end)
+        end
+      else
+        "" ->
+          %{}
+
+        _ ->
+          nil
+      end
+
+    role_slugs =
+      if role_slugs not in ["", %{}, nil, []] do
+        role_slugs
+      else
+        nil
+      end
+
     resp =
-      Accounts.admin_update_user_profile(requested_user,user_input)
+      Accounts.admin_update_user_profile(requested_user,user_input, role_slugs)
       |> case do
         %User{} ->
           {:ok,
@@ -202,6 +231,10 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
 #          tab: tab
 #        )
 #    end
+  end
+
+  defp modify_admin_permission() do
+    [Permission.new(:admins, :modify, :all)]
   end
 end
   

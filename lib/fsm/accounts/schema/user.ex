@@ -243,12 +243,12 @@ defmodule Fsm.Accounts.User do
       |> put_pass_hash()
     end
   
-    def create_user_with_role_changeset(user, attrs, roles) do
-      user
-      |> create_changeset(attrs)
-      |> archive_changeset(attrs)
-      |> base_validations(roles)
-    end
+#    def create_user_with_role_changeset(user, attrs, roles) do
+#      user
+#      |> create_changeset(attrs)
+#      |> archive_changeset(attrs)
+#      |> base_validations(roles)
+#    end
   
     def initial_user_changeset(user, attrs) do
       user
@@ -275,31 +275,31 @@ defmodule Fsm.Accounts.User do
       |> cast(attrs, [:password_token])
     end
   
-    def __test_changeset(user, attrs, instructors \\ nil, aircrafts \\ nil) do
-      user
-      |> cast(attrs, [
-        :email,
-        :first_name,
-        :last_name,
-        :password,
-        :phone_number,
-        :balance,
-        :stripe_customer_id,
-        :main_instructor_id
-      ])
-      |> cast_avatar(attrs)
-      |> validate_required([
-        :email,
-        :first_name,
-        :last_name,
-        :phone_number,
-        :password,
-        :balance,
-        :school_id
-      ])
-      |> base_validations(nil, aircrafts, nil, instructors)
-      |> put_pass_hash()
-    end
+#    def __test_changeset(user, attrs, instructors \\ nil, aircrafts \\ nil) do
+#      user
+#      |> cast(attrs, [
+#        :email,
+#        :first_name,
+#        :last_name,
+#        :password,
+#        :phone_number,
+#        :balance,
+#        :stripe_customer_id,
+#        :main_instructor_id
+#      ])
+#      |> cast_avatar(attrs)
+#      |> validate_required([
+#        :email,
+#        :first_name,
+#        :last_name,
+#        :phone_number,
+#        :password,
+#        :balance,
+#        :school_id
+#      ])
+#      |> base_validations(nil, aircrafts, nil, instructors)
+#      |> put_pass_hash()
+#    end
   
     def stripe_customer_changeset(user, attrs) do
       user
@@ -312,66 +312,62 @@ defmodule Fsm.Accounts.User do
       |> cast(attrs, [:archived, :password_token])
     end
   
-    def api_update_changeset(
-          user,
-          attrs,
-          _roles,
-          aircrafts,
-          flyer_certificates,
-          instructors
-        ) do
-      user
-      |> cast(attrs, [
-        :email,
-        :first_name,
-        :last_name,
-        :password,
-        :phone_number,
-        :address_1,
-        :city,
-        :state,
-        :zipcode,
-        :main_instructor_id,
-        :flight_training_number,
-        :medical_rating,
-        :medical_expires_at,
-        :certificate_number,
-        :awards,
-  
-        :date_of_birth,
-        :gender,
-        :emergency_contact_no,
-        :d_license_no,
-        :d_license_expires_at,
-        :d_license_country,
-        :d_license_state,
-        :passport_no,
-        :passport_expires_at,
-        :passport_country,
-        :passport_issuer_name,
-        :last_faa_flight_review_at,
-        :renter_policy_no,
-        :renter_insurance_expires_at,
-  
-        :pilot_current_certificate,
-        :pilot_aircraft_categories,
-        :pilot_class,
-        :pilot_ratings,
-        :pilot_endorsements,
-        :pilot_certificate_number,
-        :pilot_certificate_expires_at
-      ])
-      |> cast_avatar(attrs)
-      |> base_validations(nil, aircrafts, flyer_certificates, instructors)
-    end
+#    def api_update_changeset(
+#          user,
+#          attrs,
+#          _roles,
+#          aircrafts,
+#          flyer_certificates,
+#          instructors
+#        ) do
+#      user
+#      |> cast(attrs, [
+#        :email,
+#        :first_name,
+#        :last_name,
+#        :password,
+#        :phone_number,
+#        :address_1,
+#        :city,
+#        :state,
+#        :zipcode,
+#        :main_instructor_id,
+#        :flight_training_number,
+#        :medical_rating,
+#        :medical_expires_at,
+#        :certificate_number,
+#        :awards,
+#
+#        :date_of_birth,
+#        :gender,
+#        :emergency_contact_no,
+#        :d_license_no,
+#        :d_license_expires_at,
+#        :d_license_country,
+#        :d_license_state,
+#        :passport_no,
+#        :passport_expires_at,
+#        :passport_country,
+#        :passport_issuer_name,
+#        :last_faa_flight_review_at,
+#        :renter_policy_no,
+#        :renter_insurance_expires_at,
+#
+#        :pilot_current_certificate,
+#        :pilot_aircraft_categories,
+#        :pilot_class,
+#        :pilot_ratings,
+#        :pilot_endorsements,
+#        :pilot_certificate_number,
+#        :pilot_certificate_expires_at
+#      ])
+#      |> cast_avatar(attrs)
+#      |> base_validations(nil, aircrafts, flyer_certificates, instructors)
+#    end
   
     def admin_update_changeset(
           user,
-          attrs,
-          roles,
-          aircrafts,
-          flyer_certificates,
-          instructors
+          attrs
         ) do
       user
       |> cast(attrs, [
@@ -417,8 +413,63 @@ defmodule Fsm.Accounts.User do
         :pilot_certificate_expires_at
       ])
       |> cast_avatar_if_exit(attrs)
-      |> base_validations(roles, aircrafts, flyer_certificates, instructors)
+      |> base_validations
     end
+
+#    def admin_update_changeset(
+#          user,
+#          attrs,
+#          roles,
+#          aircrafts,
+#          flyer_certificates,
+#          instructors
+#        ) do
+#      user
+#      |> cast(attrs, [
+#        :email,
+#        :first_name,
+#        :last_name,
+#        :password,
+#        :phone_number,
+#        :address_1,
+#        :city,
+#        :state,
+#        :zipcode,
+#        :main_instructor_id,
+#        :flight_training_number,
+#        :medical_rating,
+#        :medical_expires_at,
+#        :certificate_number,
+#        :billing_rate,
+#        :pay_rate,
+#        :awards,
+#
+#        :date_of_birth,
+#        :gender,
+#        :emergency_contact_no,
+#        :d_license_no,
+#        :d_license_expires_at,
+#        :d_license_country,
+#        :d_license_state,
+#        :passport_no,
+#        :passport_expires_at,
+#        :passport_country,
+#        :passport_issuer_name,
+#        :last_faa_flight_review_at,
+#        :renter_policy_no,
+#        :renter_insurance_expires_at,
+#
+#        :pilot_current_certificate,
+#        :pilot_aircraft_categories,
+#        :pilot_class,
+#        :pilot_ratings,
+#        :pilot_endorsements,
+#        :pilot_certificate_number,
+#        :pilot_certificate_expires_at
+#      ])
+#      |> cast_avatar_if_exit(attrs)
+#      |> base_validations(roles, aircrafts, flyer_certificates, instructors)
+#    end
   
     def regular_user_accessible_fields() do
       [
@@ -466,11 +517,7 @@ defmodule Fsm.Accounts.User do
     end
   
     def base_validations(
-          changeset,
-          roles \\ nil,
-          aircrafts \\ nil,
-          flyer_certificates \\ nil,
-          instructors \\ nil
+          changeset
         ) do
       changeset
       |> validate_required([:email, :first_name, :last_name])
@@ -503,14 +550,54 @@ defmodule Fsm.Accounts.User do
       |> validate_number(:billing_rate, greater_than_or_equal_to: 0)
       |> validate_number(:pay_rate, greater_than_or_equal_to: 0)
       |> normalize_phone_number()
-      |> Pipe.pass_unless(roles, &put_assoc(&1, :roles, roles))
-      |> Pipe.pass_unless(aircrafts, &put_assoc(&1, :aircrafts, aircrafts))
-      |> Pipe.pass_unless(
-        flyer_certificates,
-        &put_assoc(&1, :flyer_certificates, flyer_certificates)
-      )
-      |> Pipe.pass_unless(instructors, &put_assoc(&1, :instructors, instructors))
     end
+
+#    def base_validations(
+#          changeset,
+#          roles \\ nil,
+#          aircrafts \\ nil,
+#          flyer_certificates \\ nil,
+#          instructors \\ nil
+#        ) do
+#      changeset
+#      |> validate_required([:email, :first_name, :last_name])
+#      |> update_change(:first_name, &String.trim/1)
+#      |> update_change(:last_name, &String.trim/1)
+#      |> trim_email()
+#      |> unique_constraint(:email, message: "already exist")
+#      |> validate_length(:roles, min: 1)
+#      |> validate_password(:password)
+#      |> validate_format(
+#        :phone_number,
+#        Flight.Format.phone_number_regex(),
+#        message: "must be in the format: 555-555-5555"
+#      )
+#      |> validate_format(
+#        :zipcode,
+#        Flight.Format.zipcode_regex(),
+#        message: "must be in the format: 12345 or 12345-6789"
+#      )
+#      |> validate_format(
+#        :flight_training_number,
+#        Flight.Format.ftn_regex(),
+#        message: "must be in the format: A1234567"
+#      )
+#      |> validate_format(
+#        :email,
+#        Flight.Format.email_regex(),
+#        message: "must be in a valid format"
+#      )
+#      |> validate_number(:billing_rate, greater_than_or_equal_to: 0)
+#      |> validate_number(:pay_rate, greater_than_or_equal_to: 0)
+#      |> normalize_phone_number()
+#      |> Pipe.pass_unless(roles, &put_assoc(&1, :roles, roles))
+#      |> Pipe.pass_unless(aircrafts, &put_assoc(&1, :aircrafts, aircrafts))
+#      |> Pipe.pass_unless(
+#        flyer_certificates,
+#        &put_assoc(&1, :flyer_certificates, flyer_certificates)
+#      )
+#      |> Pipe.pass_unless(instructors, &put_assoc(&1, :instructors, instructors))
+#    end
   
     def balance_changeset(user, attrs) do
       user

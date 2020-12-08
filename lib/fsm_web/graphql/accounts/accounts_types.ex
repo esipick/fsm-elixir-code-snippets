@@ -5,7 +5,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     alias FsmWeb.GraphQL.Accounts.AccountsResolvers
 
     enum :user_search_criteria, values: [:first_name, :last_name, :email, :full_name]
-    enum :roles, values: ["student", "renter", "instructor"]
+    enum :roles, values: ["admin", "dispatcher","student", "renter", "instructor"]
     enum :user_sort_fields, values: [:first_name, :last_name, :email]
     enum :user_gender, values: ["Male", "Female"]
 
@@ -62,6 +62,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
 
       field :update_user, :user do
         arg :user_input, non_null(:user_input)
+        arg :role_slugs, list_of(non_null(:roles))
         arg :id, non_null(:integer)
         middleware Middleware.Authorize, ["admin", "dispatcher"]
         resolve &AccountsResolvers.update_user/3

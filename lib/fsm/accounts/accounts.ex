@@ -4,6 +4,8 @@ defmodule Fsm.Accounts do
   alias Flight.Repo
 
   alias Fsm.Accounts.User
+  alias Flight.Accounts.Role
+  alias Flight.Accounts.UserRole
   alias Fsm.Accounts.AccountsQueries
   alias Fsm.SchoolScope
 
@@ -85,31 +87,33 @@ defmodule Fsm.Accounts do
 
   def admin_update_user_profile(
         %User{} = user,
-        attrs
-#        ,role_slugs,
-#        aircrafts,
+        attrs,
+        role_slugs
+#        ,aircrafts,
 #        flyer_certificate_slugs,
 #        instructors
       ) do
     update_user_profile(
       user,
-      attrs, nil, nil, nil, nil,
-#      role_slugs,
+      attrs,
+      role_slugs, nil, nil, nil
+#  ,
 #      aircrafts,
 #      flyer_certificate_slugs,
 #      instructors,
-      &User.admin_update_changeset/6
+#      &User.admin_update_changeset/3
     )
   end
 
   defp update_user_profile(
          user,
-         attrs, nil, nil, nil, nil,
-#         role_slugs,
+         attrs,
+         role_slugs, nil, nil, nil
+#           ,
 #         aircraft_ids,
 #         flyer_certificate_slugs,
 #         instructor_ids,
-         changeset_func
+#         changeset_func
        ) do
 #    user =
 #      Repo.preload(user, [:roles, :aircrafts, :flyer_certificates, :instructors, :main_instructor])
@@ -124,14 +128,14 @@ defmodule Fsm.Accounts do
 #      end
 #      |> Enum.uniq
 #
-#    {valid_roles?, roles} =
-#      if role_slugs do
-#        roles = Repo.all(from(r in Role, where: r.slug in ^role_slugs))
-#        valid_roles? = Enum.count(role_slugs) == Enum.count(roles)
-#        {valid_roles?, roles}
-#      else
-#        {true, nil}
-#      end
+    {valid_roles?, roles} =
+      if role_slugs do
+        roles = Repo.all(from(r in Role, where: r.slug in ^role_slugs))
+        valid_roles? = Enum.count(role_slugs) == Enum.count(roles)
+        {valid_roles?, roles}
+      else
+        {true, nil}
+      end
 #
 #    {valid_aircrafts?, aircrafts, invalid_aircraft_ids} =
 #      case aircraft_ids do
@@ -263,13 +267,28 @@ defmodule Fsm.Accounts do
 #      true ->
         result =
           user
-          |> changeset_func.(attrs, nil, nil, nil, nil
-#              ,roles, aircrafts, certs, instructors
+          |> User.admin_update_changeset(attrs
+#            , roles, aircrafts, certs, instructors
                             )
           |> Repo.update()
 
     case result do
           {:ok, updated_user} ->
+            if role_slugs not in [nil, "", []] do
+              with {_count, nil} <- from(ui in UserRole, where: ui.user_id == ^user.id)
+                                    |> Repo.delete_all(),
+                    role_ids <- AccountsQueries.get_all_user_role_ids_query(user.id, role_slugs)
+                                |> Repo.all(),
+              user_role_ids <- Enum.map(role_ids, fn x -> Map.put(x, :user_id, user.id) end),
+                   {_, _} = Repo.insert_all(UserRole, user_role_ids)
+                  do
+                updated_user
+              end
+
+            else
+              updated_user
+            end
+
 #            if attrs["delete_avatar"] == "1" and avatar do
 #              Flight.AvatarUploader.delete({avatar, updated_user})
 #            end
@@ -285,7 +304,7 @@ defmodule Fsm.Accounts do
 #              insert_user_instructor(user.id, updated_user.main_instructor_id)
 #            end
 #
-            updated_user
+
 
           error ->
             error
