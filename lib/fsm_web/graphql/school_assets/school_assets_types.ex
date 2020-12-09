@@ -22,6 +22,7 @@ defmodule FsmWeb.GraphQL.SchoolAssets.SchoolAssetsTypes do
   # TYPES
 
   object :room do
+    field :id, :integer
     field :capacity, :integer
     field :location, :string
     field :block_rate_per_hour, :integer
