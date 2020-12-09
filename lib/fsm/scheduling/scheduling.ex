@@ -212,19 +212,19 @@ defmodule Fsm.Scheduling do
       # if appointment has started. do not let instructor and 
 
       status = :available
-        # if user_id && user_id != "" do
-        #   Availability.user_with_permission_status(
-        #     Permission.permission_slug(:appointment_user, :modify, :personal),
-        #     user_id,
-        #     start_at,
-        #     end_at,
-        #     excluded_appointment_ids,
-        #     [],
-        #     school_context
-        #   )
-        # else
-        #   :available
-        # end
+         if user_id && user_id != "" do
+           Availability.user_with_permission_status(
+             Permission.permission_slug(:appointment_user, :modify, :personal),
+             user_id,
+             start_at,
+             end_at,
+             excluded_appointment_ids,
+             [],
+             school_context
+           )
+         else
+           :available
+         end
 
       changeset =
         case status do
@@ -240,15 +240,15 @@ defmodule Fsm.Scheduling do
       changeset =
         if instructor_user_id do
           status = :available
-            # Availability.user_with_permission_status(
-            #   Permission.permission_slug(:appointment_instructor, :modify, :personal),
-            #   instructor_user_id,
-            #   start_at,
-            #   end_at,
-            #   excluded_appointment_ids,
-            #   [],
-            #   school_context
-            # )
+             Availability.user_with_permission_status(
+               Permission.permission_slug(:appointment_instructor, :modify, :personal),
+               instructor_user_id,
+               start_at,
+               end_at,
+               excluded_appointment_ids,
+               [],
+               school_context
+             )
 
           case status do
             :available -> changeset
