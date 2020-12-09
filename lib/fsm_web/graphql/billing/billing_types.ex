@@ -139,7 +139,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:hobbs_start, :integer)
     field(:id, :string)
     field(:persist_rate, :boolean)
-    field(:quantity, :integer)
+    field(:quantity, :float)
     field(:rate, :integer)
     field(:tach_end, :integer)
     field(:tach_start, :integer)
