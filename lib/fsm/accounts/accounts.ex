@@ -11,6 +11,12 @@ defmodule Fsm.Accounts do
 
   require Logger
 
+  def user_changeset(user, attrs, school_context) do
+    user
+    |> SchoolScope.school_changeset(school_context)
+    |> User.create_changeset(attrs)
+  end
+
   def api_login(%{"email" => email, "password" => password}) do
 
     case user = get_user_by_email(email) do
@@ -35,6 +41,15 @@ defmodule Fsm.Accounts do
 
         {:error, "Invalid email or password."}
     end
+  end
+
+  def get_role(role_id, :id) do
+    Repo.get(Role, role_id)
+  end
+
+  def get_role(role_slug, :slug) do
+    AccountsQueries.get_role_by_slug_query(role_slug)
+    |> Repo.one
   end
 
   def get_user(id) do
@@ -71,9 +86,9 @@ defmodule Fsm.Accounts do
     |> Repo.all()
   end
 
-  defp get_user_by_email(email) when is_nil(email) or email == "", do: nil
+  def get_user_by_email(email) when is_nil(email) or email == "", do: nil
 
-  defp get_user_by_email(email) do
+  def get_user_by_email(email) do
       AccountsQueries.get_user_by_email_query(email)
       |> Repo.one()
       |> case do
@@ -104,7 +119,7 @@ defmodule Fsm.Accounts do
 #      &User.admin_update_changeset/3
     )
   end
-
+  
   defp update_user_profile(
          user,
          attrs,

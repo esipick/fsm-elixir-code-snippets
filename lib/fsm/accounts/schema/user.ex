@@ -243,12 +243,12 @@ defmodule Fsm.Accounts.User do
       |> put_pass_hash()
     end
   
-#    def create_user_with_role_changeset(user, attrs, roles) do
-#      user
-#      |> create_changeset(attrs)
-#      |> archive_changeset(attrs)
-#      |> base_validations(roles)
-#    end
+   def create_user_with_role_changeset(user, attrs, roles) do
+     user
+     |> create_changeset(attrs)
+     |> archive_changeset(attrs)
+     |> base_validations(roles)
+   end
   
     def initial_user_changeset(user, attrs) do
       user
@@ -552,52 +552,52 @@ defmodule Fsm.Accounts.User do
       |> normalize_phone_number()
     end
 
-#    def base_validations(
-#          changeset,
-#          roles \\ nil,
-#          aircrafts \\ nil,
-#          flyer_certificates \\ nil,
-#          instructors \\ nil
-#        ) do
-#      changeset
-#      |> validate_required([:email, :first_name, :last_name])
-#      |> update_change(:first_name, &String.trim/1)
-#      |> update_change(:last_name, &String.trim/1)
-#      |> trim_email()
-#      |> unique_constraint(:email, message: "already exist")
-#      |> validate_length(:roles, min: 1)
-#      |> validate_password(:password)
-#      |> validate_format(
-#        :phone_number,
-#        Flight.Format.phone_number_regex(),
-#        message: "must be in the format: 555-555-5555"
-#      )
-#      |> validate_format(
-#        :zipcode,
-#        Flight.Format.zipcode_regex(),
-#        message: "must be in the format: 12345 or 12345-6789"
-#      )
-#      |> validate_format(
-#        :flight_training_number,
-#        Flight.Format.ftn_regex(),
-#        message: "must be in the format: A1234567"
-#      )
-#      |> validate_format(
-#        :email,
-#        Flight.Format.email_regex(),
-#        message: "must be in a valid format"
-#      )
-#      |> validate_number(:billing_rate, greater_than_or_equal_to: 0)
-#      |> validate_number(:pay_rate, greater_than_or_equal_to: 0)
-#      |> normalize_phone_number()
-#      |> Pipe.pass_unless(roles, &put_assoc(&1, :roles, roles))
-#      |> Pipe.pass_unless(aircrafts, &put_assoc(&1, :aircrafts, aircrafts))
-#      |> Pipe.pass_unless(
-#        flyer_certificates,
-#        &put_assoc(&1, :flyer_certificates, flyer_certificates)
-#      )
-#      |> Pipe.pass_unless(instructors, &put_assoc(&1, :instructors, instructors))
-#    end
+   def base_validations(
+         changeset,
+         roles \\ nil,
+         aircrafts \\ nil,
+         flyer_certificates \\ nil,
+         instructors \\ nil
+       ) do
+     changeset
+     |> validate_required([:email, :first_name, :last_name])
+     |> update_change(:first_name, &String.trim/1)
+     |> update_change(:last_name, &String.trim/1)
+     |> trim_email()
+     |> unique_constraint(:email, message: "already exist")
+     |> validate_length(:roles, min: 1)
+     |> validate_password(:password)
+     |> validate_format(
+       :phone_number,
+       Flight.Format.phone_number_regex(),
+       message: "must be in the format: 555-555-5555"
+     )
+     |> validate_format(
+       :zipcode,
+       Flight.Format.zipcode_regex(),
+       message: "must be in the format: 12345 or 12345-6789"
+     )
+     |> validate_format(
+       :flight_training_number,
+       Flight.Format.ftn_regex(),
+       message: "must be in the format: A1234567"
+     )
+     |> validate_format(
+       :email,
+       Flight.Format.email_regex(),
+       message: "must be in a valid format"
+     )
+     |> validate_number(:billing_rate, greater_than_or_equal_to: 0)
+     |> validate_number(:pay_rate, greater_than_or_equal_to: 0)
+     |> normalize_phone_number()
+     |> Pipe.pass_unless(roles, &put_assoc(&1, :roles, roles))
+     |> Pipe.pass_unless(aircrafts, &put_assoc(&1, :aircrafts, aircrafts))
+     |> Pipe.pass_unless(
+       flyer_certificates,
+       &put_assoc(&1, :flyer_certificates, flyer_certificates)
+     )
+     |> Pipe.pass_unless(instructors, &put_assoc(&1, :instructors, instructors))
+   end
   
     def balance_changeset(user, attrs) do
       user
