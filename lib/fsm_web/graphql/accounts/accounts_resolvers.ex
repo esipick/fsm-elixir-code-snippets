@@ -253,18 +253,9 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
            role
          ) do
       {:ok, user} ->
-        # user =
-        #   user
-        #   |> FlightWeb.API.UserView.show_preload()
-
-        # render(conn, "show.json", user: user)
-
         {:ok, user}
 
       {:error, %Ecto.Changeset{errors: [email: {message, _}]} = changeset} ->
-        # conn
-        # |> put_status(400)
-        # |> json(%{human_errors: FlightWeb.ViewHelpers.human_error_messages(changeset)})
         {:error, message}
       {:error, _} ->
         {:error, :failed}

@@ -83,6 +83,17 @@ defmodule Fsm.Accounts.CreateUserWithInvitation do
     create_invitation(attrs, school_context, false)
   end
 
+  def keys_to_strings(key_map) when is_map(key_map) do
+    for {key, val} <- key_map, into: %{}, do: {Atom.to_string(key), keys_to_strings(val)}
+  end
+
+  def keys_to_strings(list) when is_list(list) do
+    list
+    |> Enum.map(&keys_to_strings/1)
+  end
+
+  def keys_to_strings(value), do: value
+
   def create_invitation(attrs, %{assigns: %{current_user: %{id: id, roles: roles ,school_id: school_id}}, school_id: school_id} = school_context, require_uniq? \\ true) do
     phone = Map.get(attrs, :phone_number) || "000-000-0000"
 
@@ -134,17 +145,18 @@ defmodule Fsm.Accounts.CreateUserWithInvitation do
           |> Map.put(:password, password)
           |> Map.put(:phone_number, phone)
           |> Map.put(:archived, false)
+          |> keys_to_strings
 
         user = if user, do: Repo.preload(user, :roles), else: %User{}
+
 
         user_changeset =
         user
         |> SchoolScope.school_changeset(school_context)
-        |> User.create_user_with_role_changeset(params, roles)
+        |> User.admin_update_changeset(attrs)
 
         Repo.transaction(fn ->
-          with {:ok, user} <- save_user(user_changeset, user),
-               {:ok, invitation} <-
+          with  {:ok, invitation} <-
                  Repo.insert(Ecto.Changeset.put_change(changeset, :user_id, user.id)) do
                   Accounts.send_invitation_email(invitation)
 
