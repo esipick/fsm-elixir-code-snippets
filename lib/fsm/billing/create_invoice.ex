@@ -23,10 +23,10 @@ defmodule Fsm.Billing.CreateInvoice do
 
       line_items = LineItemCreator.populate_creator(Map.get(invoice_params, :line_items), current_user)
       aircraft_info = Utils.aircraft_info_map(invoice_params)
-  
+
       invoice_attrs =
         Map.merge(
-  
+
           invoice_params,
           %{
             school_id: school.id,
@@ -35,18 +35,18 @@ defmodule Fsm.Billing.CreateInvoice do
             aircraft_info: aircraft_info
           }
         )
-  
+
       with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
           {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
           {:ok, invoice} <- Invoice.create(invoice_attrs) do
             line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
-  
+
             cond do
               invoice.appointment_id != nil -> Utils.update_aircraft(invoice, current_user)
               line_item != nil -> Utils.update_aircraft(line_item.aircraft_id, line_item,current_user)
               true -> :nothing
             end
-    
+
             if pay_off == true do
               case pay(invoice, school_context) do
                 {:ok, invoice} -> {:ok, invoice}
@@ -54,7 +54,7 @@ defmodule Fsm.Billing.CreateInvoice do
               end
             else
               {:ok, invoice}
-            end  
+            end
       else
         {:aircrafts, true} -> {:error, "An invoice can have a single item for Flight, Demo Flight or Simulator Hours."}
         {:rooms, true} -> {:error, "The same room cannot be added twice to an invoice."}

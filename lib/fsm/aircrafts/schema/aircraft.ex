@@ -1,4 +1,4 @@
-defmodule Flight.Aircrafts.Aircraft do
+defmodule Fsm.Aircrafts.Aircraft do
   use Ecto.Schema
   import Ecto.Changeset
   import ValidationUtil
