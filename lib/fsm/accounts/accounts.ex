@@ -8,6 +8,7 @@ defmodule Fsm.Accounts do
   alias Flight.Accounts.UserRole
   alias Fsm.Accounts.AccountsQueries
   alias Fsm.SchoolScope
+  alias Fsm.Email
 
   require Logger
 
@@ -84,6 +85,11 @@ defmodule Fsm.Accounts do
   def list_instructors(page, per_page, sort_field, sort_order, filter, context) do
     AccountsQueries.list_instructors_query(page, per_page, sort_field, sort_order, filter, context)
     |> Repo.all()
+  end
+
+  def send_invitation_email(invitation) do
+    Fsm.Email.invitation_email(invitation)
+    |> Flight.Mailer.deliver_later()
   end
 
   def get_user_by_email(email) when is_nil(email) or email == "", do: nil
