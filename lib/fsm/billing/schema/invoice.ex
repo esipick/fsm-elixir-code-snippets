@@ -6,7 +6,8 @@ defmodule Fsm.Billing.Invoice do
     alias __MODULE__
     alias Flight.Repo
     alias Flight.Accounts.{User, School}
-    alias Flight.Billing.{Transaction, InvoiceLineItem}
+    alias Flight.Billing.{Transaction}
+    alias Fsm.Billing.InvoiceLineItem
     alias Flight.Scheduling.Appointment
   
     @required_fields ~w(
@@ -48,7 +49,7 @@ defmodule Fsm.Billing.Invoice do
   
       timestamps()
     end
-  
+
     def create(attrs) do
       Invoice.changeset(%Invoice{}, attrs) |> Repo.insert()
     end
