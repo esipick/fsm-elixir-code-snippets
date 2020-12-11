@@ -8,19 +8,24 @@ defmodule Fsm.Accounts.CreateUserWithInvitation do
   def run(
         attrs,
         current_user,
-        role_slugs,
+        role,
         aircrafts \\ [],
         instructors \\ [],
         requires_stripe_account? \\ true,
         stripe_token \\ nil
       ) do
     main_instructor_id = Map.get(attrs, "main_instructor_id")
-
     school_context = %{assigns: %{current_user: current_user}, school_id: current_user.school_id}
 
     with {:ok, user} = payload <-
-           create_user(attrs, school_context, requires_stripe_account?, stripe_token) do
-      create_invitation_from_user(user, role_slugs, school_context)
+           create_user(attrs, school_context, requires_stripe_account?, stripe_token),
+           %User{} <-
+            Accounts.admin_update_user_profile(
+              user,
+              %{"main_instructor_id" => main_instructor_id},
+              [role.slug]
+            ) do
+      create_invitation_from_user(user, role, school_context)
       payload
     else
       error ->
@@ -78,14 +83,14 @@ defmodule Fsm.Accounts.CreateUserWithInvitation do
     create_invitation(attrs, school_context, false)
   end
 
-  def create_invitation(attrs, school_context, require_uniq? \\ true) do
+  def create_invitation(attrs, %{assigns: %{current_user: %{id: id, roles: roles ,school_id: school_id}}, school_id: school_id} = school_context, require_uniq? \\ true) do
     phone = Map.get(attrs, :phone_number) || "000-000-0000"
 
+    context = %{context: %{current_user: %{school_id: school_id, id: id}}}
     changeset =
       %Invitation{}
-      |> SchoolScope.school_changeset(school_context)
+      |> SchoolScope.school_changeset(context)
       |> Invitation.create_changeset(attrs)
-
     # school =
     #   School
     #   |> Repo.get(SchoolScope.school_id(school_context))
@@ -120,6 +125,7 @@ defmodule Fsm.Accounts.CreateUserWithInvitation do
         # role_id = Map.get(attrs, "role_id") || Map.get(attrs, :role_id)
         role = Accounts.get_role(role_id, :id)
         roles = if role, do: [role], else: []
+
         password = Flight.Random.hex(10)
 
         params =
@@ -132,9 +138,9 @@ defmodule Fsm.Accounts.CreateUserWithInvitation do
         user = if user, do: Repo.preload(user, :roles), else: %User{}
 
         user_changeset =
-          user
-          |> SchoolScope.school_changeset(school_context)
-          |> User.create_user_with_role_changeset(params, roles)
+        user
+        |> SchoolScope.school_changeset(school_context)
+        |> User.create_user_with_role_changeset(params, roles)
 
         Repo.transaction(fn ->
           with {:ok, user} <- save_user(user_changeset, user),
