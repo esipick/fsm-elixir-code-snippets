@@ -80,4 +80,19 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
             {:ok, data}
         end
   end
+
+  def invoice_payment_option_enum(%{payment_option: payment_option}, _, _) do
+    {:ok, %{
+        0 => "BALANCE",
+        1 => "CC",
+        2 => "CASH",
+        3 => "CHEQUE",
+        4 => "VENMO"
+      }
+      |> Map.get(payment_option)}
+  end
+
+  def invoice_payment_option_enum(_, _, _) do
+    {:ok, ""}
+  end
 end
