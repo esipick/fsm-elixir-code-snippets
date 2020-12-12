@@ -120,9 +120,13 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
            Accounts.get_user(id)
            |> UserView.map()}
 
-        error ->
-          Logger.info(fn -> "Update User Error: #{inspect(error)}" end)
-          {:error, "Unable to update user"}
+      {:error, error} ->
+        Logger.error(fn -> "Update User Error: #{inspect(error)}" end)
+        format_error(error)
+
+      error ->
+        Logger.error(fn -> "Update User Error: #{inspect(error)}" end)
+        {:error, "Unable to update user"}
       end
 
     Log.response(resp, __ENV__.function, :info)
@@ -237,6 +241,17 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
     #          tab: tab
     #        )
     #    end
+  end
+
+  def format_error(changeset) do
+    errors = changeset.errors
+             |> Enum.map(fn({key, {value, context}}) ->
+      details = context |> Enum.map(fn({a, b}) ->
+        %{"#{a}": b}
+      end)
+      [message: "#{key} #{value}", details: details]
+    end)
+    {:error, errors}
   end
 
   def create_user(parent, args, %{context: %{current_user: current_user}} = context) do
