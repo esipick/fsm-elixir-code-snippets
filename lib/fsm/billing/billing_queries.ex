@@ -16,7 +16,7 @@ defmodule Fsm.Billing.BillingQueries do
   def list_bills_query() do
     from(i in Invoice,
       left_join: t in Transaction,
-      on: i.id == t.invoice_id,
+      on: (i.id == t.invoice_id or i.bulk_invoice_id == t.bulk_invoice_id),
       left_join: u in User,
       on: i.user_id == u.id,
       select: %{
@@ -40,7 +40,7 @@ defmodule Fsm.Billing.BillingQueries do
         inserted_at: i.inserted_at,
         transactions:
           fragment(
-            "array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?))",
+            "array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?, 'inserted_at', ?))",
             t.id,
             t.total,
             t.paid_by_balance,
@@ -56,7 +56,8 @@ defmodule Fsm.Billing.BillingQueries do
             t.paid_by_cash,
             t.paid_by_check,
             t.paid_by_venmo,
-            t.payment_option
+            t.payment_option,
+            t.inserted_at
           ),
         user: u
       },
@@ -68,7 +69,7 @@ defmodule Fsm.Billing.BillingQueries do
   def list_bills_query(user_id) do
     from(i in Invoice,
       inner_join: t in Transaction,
-      on: i.id == t.invoice_id,
+      on: (i.id == t.invoice_id or i.bulk_invoice_id == t.bulk_invoice_id),
       inner_join: u in User,
       on: i.user_id == u.id,
       select: %{
@@ -91,7 +92,7 @@ defmodule Fsm.Billing.BillingQueries do
         session_id: i.session_id,
         transactions:
           fragment(
-            "array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?))",
+            "array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?, 'inserted_at', ?))",
             t.id,
             t.total,
             t.paid_by_balance,
@@ -107,7 +108,8 @@ defmodule Fsm.Billing.BillingQueries do
             t.paid_by_cash,
             t.paid_by_check,
             t.paid_by_venmo,
-            t.payment_option
+            t.payment_option,
+            t.inserted_at
           ),
         user: u
       },

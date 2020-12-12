@@ -125,7 +125,8 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:completed_at, :string)
     field(:error_message, :string)
     field(:payment_option, :string)
-    field(:creator_user_id, :string)  
+    field(:creator_user_id, :string)
+    field(:inserted_at, :string)
   end
 
 

@@ -111,7 +111,8 @@ defmodule Fsm.Billing do
                   paid_by_cash: Map.get(transaction, "paid_by_cash"),
                   paid_by_check: Map.get(transaction, "paid_by_check"),
                   paid_by_venmo: Map.get(transaction, "paid_by_venmo"),
-                  payment_option: Map.get(transaction, "payment_option")
+                  payment_option: Map.get(transaction, "payment_option"),
+                  inserted_at: Map.get(transaction, "inserted_at")
                 }
               end)
 
