@@ -106,6 +106,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       # field(:aircraft_info, :string)
       field(:session_id, :string)
       field(:transactions, list_of(:transactions))
+      field(:line_items, list_of(:line_item))
   end
 
   object :transactions do
@@ -131,8 +132,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:inserted_at, :string)
   end
 
-
-  input_object :line_item do
+  object :line_item do
     field(:aircraft_id, :integer)
     field(:amount, :integer)
     field(:deductible, :boolean)
@@ -149,8 +149,25 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:taxable, :boolean)
     field(:type, :string)
     field(:instructor_user_id, :integer)
+  end
 
-
+  input_object :line_item_input do
+    field(:aircraft_id, :integer)
+    field(:amount, :integer)
+    field(:deductible, :boolean)
+    field(:description, :string)
+    field(:enable_rate, :boolean)
+    field(:hobbs_end, :integer)
+    field(:hobbs_start, :integer)
+    field(:id, :string)
+    field(:persist_rate, :boolean)
+    field(:quantity, :float)
+    field(:rate, :integer)
+    field(:tach_end, :integer)
+    field(:tach_start, :integer)
+    field(:taxable, :boolean)
+    field(:type, :string)
+    field(:instructor_user_id, :integer)
   end
 
   input_object :create_invoice_input do
@@ -165,7 +182,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:total_amount_due, :integer)
     field(:total_tax, :integer)
     field(:user_id, :integer)
-    field(:line_items, list_of(:line_item))
+    field(:line_items, list_of(:line_item_input))
   end
 
   input_object :update_invoice_input do
@@ -181,7 +198,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:total_amount_due, :integer)
     field(:total_tax, :integer)
     field(:user_id, :integer)
-    field(:line_items, list_of(:line_item))
+    field(:line_items, list_of(:line_item_input))
   end
 
   input_object :transactions_filters do

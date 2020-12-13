@@ -94,6 +94,7 @@ defmodule Fsm.Billing do
             transactions =
               Map.get(i, :transactions)
               |> Enum.reject(fn transaction -> Map.get(transaction, "id") == nil end)
+              |> Enum.uniq_by(fn transaction -> Map.get(transaction, "id") end)
               |> Enum.map(fn transaction ->
                 %{
                   id: Map.get(transaction, "id"),
@@ -116,6 +117,36 @@ defmodule Fsm.Billing do
                 }
               end)
 
+
+            line_items =
+              Map.get(i, :line_items)
+              |> Enum.reject(fn line_item -> Map.get(line_item, "id") == nil end)
+              |> Enum.uniq_by(fn line_item -> Map.get(line_item, "id") end)
+              |> Enum.map(fn line_item ->
+                %{
+                  id: Map.get(line_item, "id"),
+                  invoice_id: Map.get(line_item, "invoice_id"),
+                  description: Map.get(line_item, "description"),
+                  rate: Map.get(line_item, "rate"),
+                  quantity: Map.get(line_item, "quantity"),
+                  amount: Map.get(line_item, "amount"),
+                  inserted_at: Map.get(line_item, "inserted_at"),
+                  updated_at: Map.get(line_item, "updated_at"),
+                  instructor_user_id: Map.get(line_item, "instructor_user_id"),
+                  type: Map.get(line_item, "type"),
+                  aircraft_id: Map.get(line_item, "aircraft_id"),
+                  hobbs_start: Map.get(line_item, "hobbs_start"),
+                  hobbs_end: Map.get(line_item, "hobbs_end"),
+                  tach_start: Map.get(line_item, "tach_start"),
+                  tach_end: Map.get(line_item, "tach_end"),
+                  hobbs_tach_used: Map.get(line_item, "hobbs_tach_used"),
+                  taxable: Map.get(line_item, "taxable"),
+                  deductible: Map.get(line_item, "deductible"),
+                  creator_id: Map.get(line_item, "creator_id"),
+                  room_id: Map.get(line_item, "room_id")
+                }
+              end)
+
             %{
               id: i.id,
               date: i.date,
@@ -135,6 +166,7 @@ defmodule Fsm.Billing do
               # aircraft_info: i.aircraft_info,
               session_id: i.session_id,
               transactions: transactions,
+              line_items: line_items,
               inserted_at: i.inserted_at
             }
           end)

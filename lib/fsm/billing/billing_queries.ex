@@ -10,6 +10,7 @@ defmodule Fsm.Billing.BillingQueries do
   alias Fsm.Role
   alias Fsm.Accounts.AccountsQueries
   alias Fsm.Billing.TransactionLineItem
+  alias Fsm.Billing.InvoiceLineItem
 
   require Logger
 
@@ -17,6 +18,8 @@ defmodule Fsm.Billing.BillingQueries do
     from(i in Invoice,
       left_join: t in Transaction,
       on: (i.id == t.invoice_id or i.bulk_invoice_id == t.bulk_invoice_id),
+      left_join: ili in InvoiceLineItem,
+      on: (i.id == ili.invoice_id),
       left_join: u in User,
       on: i.user_id == u.id,
       select: %{
@@ -38,6 +41,30 @@ defmodule Fsm.Billing.BillingQueries do
         # aircraft_info: i.aircraft_info,
         session_id: i.session_id,
         inserted_at: i.inserted_at,
+        line_items:
+          fragment(
+            "array_agg(json_build_object('id', ?, 'invoice_id', ?, 'description', ?, 'rate', ?, 'quantity', ?, 'amount', ?, 'inserted_at', ?, 'updated_at', ?, 'instructor_user_id', ?, 'type', ?, 'aircraft_id', ?, 'hobbs_start', ?, 'hobbs_end', ?, 'tach_start', ?, 'tach_end', ?, 'hobbs_tach_used', ?, 'taxable', ?, 'deductible', ?, 'creator_id', ?, 'room_id', ?))",
+            ili.id,
+            ili.invoice_id,
+            ili.description,
+            ili.rate,
+            ili.quantity,
+            ili.amount,
+            ili.inserted_at,
+            ili.updated_at,
+            ili.instructor_user_id,
+            ili.type,
+            ili.aircraft_id,
+            ili.hobbs_start,
+            ili.hobbs_end,
+            ili.tach_start,
+            ili.tach_end,
+            ili.hobbs_tach_used,
+            ili.taxable,
+            ili.deductible,
+            ili.creator_id,
+            ili.room_id
+          ),
         transactions:
           fragment(
             "array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?, 'inserted_at', ?))",
@@ -68,8 +95,10 @@ defmodule Fsm.Billing.BillingQueries do
 
   def list_bills_query(user_id) do
     from(i in Invoice,
-      inner_join: t in Transaction,
+      left_join: t in Transaction,
       on: (i.id == t.invoice_id or i.bulk_invoice_id == t.bulk_invoice_id),
+      inner_join: ili in InvoiceLineItem,
+      on: (i.id == ili.invoice_id),
       inner_join: u in User,
       on: i.user_id == u.id,
       select: %{
@@ -90,6 +119,30 @@ defmodule Fsm.Billing.BillingQueries do
         inserted_at: i.inserted_at,
         # aircraft_info: i.aircraft_info,
         session_id: i.session_id,
+        line_items:
+          fragment(
+            "array_agg(json_build_object('id', ?, 'invoice_id', ?, 'description', ?, 'rate', ?, 'quantity', ?, 'amount', ?, 'inserted_at', ?, 'updated_at', ?, 'instructor_user_id', ?, 'type', ?, 'aircraft_id', ?, 'hobbs_start', ?, 'hobbs_end', ?, 'tach_start', ?, 'tach_end', ?, 'hobbs_tach_used', ?, 'taxable', ?, 'deductible', ?, 'creator_id', ?, 'room_id', ?))",
+            ili.id,
+            ili.invoice_id,
+            ili.description,
+            ili.rate,
+            ili.quantity,
+            ili.amount,
+            ili.inserted_at,
+            ili.updated_at,
+            ili.instructor_user_id,
+            ili.type,
+            ili.aircraft_id,
+            ili.hobbs_start,
+            ili.hobbs_end,
+            ili.tach_start,
+            ili.tach_end,
+            ili.hobbs_tach_used,
+            ili.taxable,
+            ili.deductible,
+            ili.creator_id,
+            ili.room_id
+          ),
         transactions:
           fragment(
             "array_agg(json_build_object('id', ?, 'total', ?, 'paid_by_balance', ?, 'paid_by_charge', ?, 'stripe_charge_id', ?, 'state', ?, 'creator_user_id', ?, 'completed_at', ?, 'type', ?, 'first_name', ?, 'last_name', ?, 'email', ?, 'paid_by_cash', ?, 'paid_by_check', ?, 'paid_by_venmo', ?, 'payment_option', ?, 'inserted_at', ?))",

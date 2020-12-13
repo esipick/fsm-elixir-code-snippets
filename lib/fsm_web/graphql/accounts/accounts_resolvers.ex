@@ -10,7 +10,18 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
   require Logger
 
   def login(_parent, %{email: email, password: password} = params, resolution) do
-    resp = Accounts.api_login(%{"email" => email, "password" => password})
+    resp =
+      Accounts.api_login(%{"email" => email, "password" => password})
+      |> case do
+           {:ok, res} -> {:ok, res}
+           {:error, error} ->
+             format_error(error)
+
+           error ->
+             Logger.error(fn -> "Login User Error: #{inspect(error)}" end)
+             {:error, "Unable to login user"}
+         end
+
 
     Log.response(resp, __ENV__.function, :info)
   end
@@ -243,8 +254,17 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
     #    end
   end
 
-  def format_error(changeset) do
-    errors = changeset.errors
+  def format_error(%{human_errors: human_errors}=changeset) do
+    errors = human_errors
+             |> Enum.map(fn(value) ->
+      [message: "#{value}"]
+      end)
+
+    {:error, errors}
+  end
+
+  def format_error(%{errors: errors} = changeset) do
+    errors = errors
              |> Enum.map(fn({key, {value, context}}) ->
       details = context |> Enum.map(fn({a, b}) ->
         %{"#{a}": b}
@@ -252,6 +272,10 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
       [message: "#{key} #{value}", details: details]
     end)
     {:error, errors}
+  end
+
+  def format_error(changeset) do
+    changeset
   end
 
   def create_user(parent, args, %{context: %{current_user: current_user}} = context) do
