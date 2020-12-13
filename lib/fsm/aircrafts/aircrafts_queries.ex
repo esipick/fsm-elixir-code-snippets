@@ -13,11 +13,13 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
     def get_aircraft_query(aircraft_id) do
       from ar in Aircraft,
         select: ar,
+        where: ar.archived == false,
         where: ar.id == ^aircraft_id
     end
 
     def get_all_aircrafts_query do
       from ar in Aircraft,
+        where: ar.archived == false,
         select: ar
     end
 
