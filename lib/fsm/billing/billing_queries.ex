@@ -11,6 +11,7 @@ defmodule Fsm.Billing.BillingQueries do
   alias Fsm.Accounts.AccountsQueries
   alias Fsm.Billing.TransactionLineItem
   alias Fsm.Billing.InvoiceLineItem
+  alias Fsm.Aircrafts.Aircraft
 
   require Logger
 
@@ -20,6 +21,8 @@ defmodule Fsm.Billing.BillingQueries do
       on: (i.id == t.invoice_id or i.bulk_invoice_id == t.bulk_invoice_id),
       left_join: ili in InvoiceLineItem,
       on: (i.id == ili.invoice_id),
+      left_join: ac in Aircraft,
+      on: (ac.id == ili.aircraft_id),
       left_join: u in User,
       on: i.user_id == u.id,
       select: %{
@@ -43,7 +46,7 @@ defmodule Fsm.Billing.BillingQueries do
         inserted_at: i.inserted_at,
         line_items:
           fragment(
-            "array_agg(json_build_object('id', ?, 'invoice_id', ?, 'description', ?, 'rate', ?, 'quantity', ?, 'amount', ?, 'inserted_at', ?, 'updated_at', ?, 'instructor_user_id', ?, 'type', ?, 'aircraft_id', ?, 'hobbs_start', ?, 'hobbs_end', ?, 'tach_start', ?, 'tach_end', ?, 'hobbs_tach_used', ?, 'taxable', ?, 'deductible', ?, 'creator_id', ?, 'room_id', ?))",
+            "array_agg(json_build_object('id', ?, 'invoice_id', ?, 'description', ?, 'rate', ?, 'quantity', ?, 'amount', ?, 'inserted_at', ?, 'updated_at', ?, 'instructor_user_id', ?, 'type', ?, 'aircraft_id', ?, 'hobbs_start', ?, 'hobbs_end', ?, 'tach_start', ?, 'tach_end', ?, 'hobbs_tach_used', ?, 'taxable', ?, 'deductible', ?, 'creator_id', ?, 'room_id', ?, 'tail_number', ?))",
             ili.id,
             ili.invoice_id,
             ili.description,
@@ -63,7 +66,8 @@ defmodule Fsm.Billing.BillingQueries do
             ili.taxable,
             ili.deductible,
             ili.creator_id,
-            ili.room_id
+            ili.room_id,
+            ac.tail_number
           ),
         transactions:
           fragment(

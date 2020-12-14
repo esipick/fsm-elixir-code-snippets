@@ -135,6 +135,7 @@ defmodule Fsm.Billing do
                   instructor_user_id: Map.get(line_item, "instructor_user_id"),
                   type: Map.get(line_item, "type"),
                   aircraft_id: Map.get(line_item, "aircraft_id"),
+                  tail_number: Map.get(line_item, "tail_number"),
                   hobbs_start: Map.get(line_item, "hobbs_start"),
                   hobbs_end: Map.get(line_item, "hobbs_end"),
                   tach_start: Map.get(line_item, "tach_start"),
