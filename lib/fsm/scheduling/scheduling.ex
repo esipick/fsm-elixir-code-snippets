@@ -398,10 +398,29 @@ defmodule Fsm.Scheduling do
   end
 
   ##
-  # List Appointments
+  # List Aircraft Appointments
   ##
   def list_aircraft_appointments(page, per_page, sort_field, sort_order, params, school_context) do
     filter = Map.put(params, :aircraft_id_is_not_null, true)
+
+    SchedulingQueries.list_appointments_query(
+      page,
+      per_page,
+      sort_field,
+      sort_order,
+      filter,
+      school_context
+    )
+    |> Repo.all()
+
+    #    |> FlightWeb.API.AppointmentView.preload()
+  end
+
+  ##
+  # List Room Appointments
+  ##
+  def list_room_appointments(page, per_page, sort_field, sort_order, params, school_context) do
+    filter = Map.put(params, :room_id_is_not_null, true)
 
     SchedulingQueries.list_appointments_query(
       page,

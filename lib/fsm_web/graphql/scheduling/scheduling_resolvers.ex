@@ -58,6 +58,21 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     Log.response(resp, __ENV__.function, :info)
   end
 
+  def list_room_appointments(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    page = Map.get(args, :page)
+    per_page = Map.get(args, :per_page)
+
+    sort_field = Map.get(args, :sort_field) || :inserted_at
+    sort_order = Map.get(args, :sort_order) || :desc
+    filter = Map.get(args, :filter) || %{}
+    response =
+      Scheduling.list_room_appointments(page, per_page, sort_field, sort_order, filter, context)
+      |> AppointmentView.map
+
+    resp = {:ok, response}
+    Log.response(resp, __ENV__.function, :info)
+  end
+
   def list_appointments(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
     page = Map.get(args, :page)
     per_page = Map.get(args, :per_page)

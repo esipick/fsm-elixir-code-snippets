@@ -82,6 +82,10 @@ defmodule Fsm.Scheduling.SchedulingQueries do
             from a in query,
                  where: a.aircraft_id == ^value
 
+          :room_id ->
+            from a in query,
+                 where: a.room_id == ^value
+
           :archived ->
             from a in query,
                  where: a.archived == ^value
@@ -119,6 +123,10 @@ defmodule Fsm.Scheduling.SchedulingQueries do
           :aircraft_id_is_not_null ->
             from a in query,
                 where: not is_nil(a.aircraft_id)
+
+          :room_id_is_not_null ->
+            from a in query,
+                where: not is_nil(a.room_id)
 
           :status ->
             from a in query,

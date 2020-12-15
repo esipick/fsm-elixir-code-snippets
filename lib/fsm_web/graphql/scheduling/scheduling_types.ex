@@ -36,6 +36,18 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       resolve &SchedulingResolvers.list_aircraft_appointments/3
     end
 
+    @desc "List all room appointments ('admin', 'dispatcher')"
+    field :list_room_appointments, list_of(non_null(:appointment)) do
+      arg :page, :integer, default_value: 1
+      arg :per_page, :integer, default_value: 100
+      arg :sort_field, :user_sort_fields
+      arg :sort_order, :order_by
+      arg :filter, :appointment_filters
+
+      middleware Middleware.Authorize, ["admin", "dispatcher"]
+      resolve &SchedulingResolvers.list_room_appointments/3
+    end
+
     @desc "List all appointments ('admin', 'dispatcher')"
     field :list_appointments, list_of(non_null(:appointment)) do
       arg :page, :integer, default_value: 1
@@ -142,6 +154,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :aircraft_id, :integer
     field :archived, :boolean
     field :school_id, :integer
+    field :room_id, :integer
     field :demo, :boolean
     field :upcoming, :boolean
     field :past, :boolean
