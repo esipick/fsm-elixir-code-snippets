@@ -144,7 +144,8 @@ defmodule Fsm.Billing do
                   taxable: Map.get(line_item, "taxable"),
                   deductible: Map.get(line_item, "deductible"),
                   creator_id: Map.get(line_item, "creator_id"),
-                  room_id: Map.get(line_item, "room_id")
+                  room_id: Map.get(line_item, "room_id"),
+                  instructor_name: Map.get(line_item, "instructor_name")
                 }
               end)
 

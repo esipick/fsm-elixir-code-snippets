@@ -150,6 +150,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:taxable, :boolean)
     field(:type, :string)
     field(:instructor_user_id, :integer)
+    field(:instructor_name, :string)
   end
 
   input_object :line_item_input do
