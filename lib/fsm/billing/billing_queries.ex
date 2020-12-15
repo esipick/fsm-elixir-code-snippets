@@ -96,7 +96,7 @@ defmodule Fsm.Billing.BillingQueries do
         user: u
       },
       group_by: [i.id, u.id],
-      where: i.archived == false
+      where: i.archived == false and i.is_visible == true
     )
   end
 
@@ -174,7 +174,7 @@ defmodule Fsm.Billing.BillingQueries do
         user: u
       },
       group_by: [i.id, u.id],
-      where: i.user_id == ^user_id
+      where: i.user_id == ^user_id and i.archived == false and i.is_visible == true
     )
   end
 
