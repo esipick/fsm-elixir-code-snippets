@@ -294,10 +294,13 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
       {:ok, user} ->
         {:ok, user}
 
-      {:error, %Ecto.Changeset{errors: [email: {message, _}]} = changeset} ->
-        {:error, message}
-      {:error, _} ->
-        {:error, :failed}
+      {:error, error} ->
+        Logger.error(fn -> "Create User Error: #{inspect(error)}" end)
+        format_error(error)
+
+      error ->
+        Logger.error(fn -> "Create User Error: #{inspect(error)}" end)
+        {:error, "Unable to create user"}
     end
   end
 
