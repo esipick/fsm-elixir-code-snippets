@@ -8,6 +8,7 @@ defmodule Fsm.Scheduling.SchedulingQueries do
     alias Fsm.Accounts.Role
     alias Fsm.Scheduling.Appointment
     alias Fsm.Scheduling.Aircraft
+    alias Fsm.SchoolAssets.Room
 
     alias Fsm.SchoolScope
 
@@ -18,8 +19,9 @@ defmodule Fsm.Scheduling.SchedulingQueries do
           left_join: u in User, on: a.user_id == u.id,
           left_join: i in User, on: a.instructor_user_id == i.id,
           left_join: ar in Aircraft, on: a.aircraft_id == ar.id,
+          left_join: r in Room, on: a.aircraft_id == r.id,
           where: a.archived == false,
-          select: %{appointment: a, user: u, instructor: i, aircraft: ar}
+          select: %{appointment: a, user: u, instructor: i, aircraft: ar, room: r}
     end
 
     def list_appointments_query(page, per_page, sort_field, sort_order, filter, school_context) do
