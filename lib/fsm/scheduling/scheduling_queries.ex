@@ -20,8 +20,9 @@ defmodule Fsm.Scheduling.SchedulingQueries do
           left_join: i in User, on: a.instructor_user_id == i.id,
           left_join: ar in Aircraft, on: a.aircraft_id == ar.id,
           left_join: r in Room, on: a.aircraft_id == r.id,
+          left_join: s in Aircraft, on: a.simulator_id == s.id,
           where: a.archived == false,
-          select: %{appointment: a, user: u, instructor: i, aircraft: ar, room: r}
+          select: %{appointment: a, user: u, instructor: i, aircraft: ar, room: r, simulator: s}
     end
 
     def list_appointments_query(page, per_page, sort_field, sort_order, filter, school_context) do

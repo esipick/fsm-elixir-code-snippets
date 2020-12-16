@@ -62,6 +62,26 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
       field :inspections, list_of(non_null(:inspection))
     end
 
+    object :simulator do
+      field :id, :integer
+      field :ifr_certified, :boolean
+      field :last_tach_time, :integer
+      field :last_hobbs_time, :integer
+      field :name, :string
+      field :make, :string
+      field :model, :string
+      field :block_rate_per_hour, :integer
+      field :rate_per_hour, :integer
+      field :serial_number, :string
+      field :equipment, :string
+      field :simulator, :boolean
+      field :tail_number, :string
+      field :archived, :boolean
+      field :blocked, :boolean
+      field :school_id, :integer
+      field :inspections, list_of(non_null(:inspection))
+    end
+
     object :inspection do
       field(:name, :string)
       field(:type, :string)
