@@ -15,7 +15,7 @@ defmodule Fsm.Accounts.AccountsQueries do
         inner_join: ur in UserRole, on: ur.user_id == u.id,
         inner_join: r in Role, on: r.id == ur.role_id,
         select: %{user: u,
-        roles: fragment("array_agg(?)", r.slug)},
+        roles: fragment("array_agg(? ORDER BY ? ASC)", r.slug, r.slug)},
         group_by: u.id,
         where: u.id == ^user_id
     end
@@ -37,7 +37,7 @@ defmodule Fsm.Accounts.AccountsQueries do
         inner_join: ur in UserRole, on: ur.user_id == u.id,
         inner_join: r in Role, on: r.id == ur.role_id,
         select: %{user: u,
-          roles: fragment("array_agg(?)", r.slug)},
+          roles: fragment("array_agg(? ORDER BY ? ASC)", r.slug, r.slug)},
         group_by: u.id,
         where: u.email == ^String.downcase(email)
     end
@@ -47,7 +47,7 @@ defmodule Fsm.Accounts.AccountsQueries do
         inner_join: ur in UserRole, on: ur.user_id == u.id,
         inner_join: r in Role, on: r.id == ur.role_id,
         select: %{user: u,
-          roles: fragment("array_agg(?)", r.slug)},
+          roles: fragment("array_agg(? ORDER BY ? ASC)", r.slug, r.slug)},
         group_by: u.id
     end
 
@@ -57,7 +57,9 @@ defmodule Fsm.Accounts.AccountsQueries do
         inner_join: r in Role, on: r.id == ur.role_id,
         where: r.slug in ^roles,
         select: %{user: u,
-          roles: (r.slug)}
+#        order_by: r.slug,
+          roles: fragment("array_agg(? ORDER BY ? ASC)", r.slug, r.slug)},
+        group_by: u.id
     end
 
     def get_all_instructors_query do
@@ -66,7 +68,8 @@ defmodule Fsm.Accounts.AccountsQueries do
         inner_join: r in Role, on: r.id == ur.role_id,
         where: r.slug == ^"instructor",
         select: %{user: u,
-          roles: (r.slug)}
+          roles: fragment("array_agg(? ORDER BY ? ASC)", r.slug, r.slug)},
+        group_by: u.id
     end
 
     def get_user_with_roles_query(user_id) do
@@ -90,7 +93,7 @@ defmodule Fsm.Accounts.AccountsQueries do
             last_name: u.last_name,
             archived: u.archived,
             school_id: u.school_id,
-            roles: fragment("array_agg(?)", r.slug)},
+            roles: fragment("array_agg(? ORDER BY ? ASC)", r.slug, r.slug)},
             group_by: u.id,
             where: u.id == ^user_id
     end
