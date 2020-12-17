@@ -34,7 +34,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         arg :sort_order, :order_by
         arg :filter, :user_filters
 
-        middleware Middleware.Authorize, ["admin", "dispatcher"]
+        middleware Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student"]
         resolve &AccountsResolvers.list_users/3
       end
 
