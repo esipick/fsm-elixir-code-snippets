@@ -17,14 +17,14 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       arg(:sort_order, :transaction_order_by)
       arg(:filter, :transactions_filters)
 
-      middleware(Middleware.Authorize, ["admin", "dispatcher", "student", "renter"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher","instructor", "student", "renter"])
       resolve(&BillingResolvers.get_all_transactions/3)
     end
 
     field :fetch_card, :card do
       arg(:user_id, :integer)
 
-      middleware(Middleware.Authorize, ["admin"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher","instructor", "student", "renter"])
       resolve(&BillingResolvers.fetch_card/3)
     end
   end
@@ -35,14 +35,14 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       arg :amount, non_null(:string)
       arg :user_id, non_null(:string)
       arg :description, non_null(:string)
-      middleware(Middleware.Authorize, ["admin"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "instructor" ])
       resolve &BillingResolvers.add_funds/3
     end
 
     field :add_credit_card, :string do
       arg :stripe_token, non_null(:string)
       arg :user_id, non_null(:string)
-      middleware(Middleware.Authorize, ["admin"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student"])
       resolve &BillingResolvers.add_credit_card/3
     end
 
@@ -50,14 +50,14 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field :create_invoice, :invoice do
       arg :pay_off, non_null(:boolean)
       arg :invoice, non_null(:create_invoice_input)
-      middleware(Middleware.Authorize, ["admin"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student" ])
       resolve &BillingResolvers.create_invoice/3
     end
 
     field :update_invoice, :invoice do
       arg :pay_off, non_null(:boolean)
       arg :invoice, non_null(:update_invoice_input)
-      middleware(Middleware.Authorize, ["admin"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student"])
       resolve &BillingResolvers.update_invoice/3
     end
   end
