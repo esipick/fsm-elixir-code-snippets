@@ -13,7 +13,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
     sort_order = Map.get(args, :sort_order) || :desc
     filter = Map.get(args, :filter) || %{}
 
-    if "admin" in roles or "dispatcher" in roles do
+    if "admin" in roles or "dispatcher" in roles or "instructor" in roles do
       Billing.get_transactions(nil, page, per_page, sort_field, sort_order, filter, context)
     else
       Billing.get_transactions(id, page, per_page, sort_field, sort_order, filter, context)
