@@ -14,6 +14,7 @@ defmodule Fsm.Scheduling do
 
   alias Fsm.Scheduling.Appointment
   alias Fsm.Scheduling.SchedulingQueries
+  alias FsmWeb.ViewHelpers
 
   alias Flight.Repo
   alias Fsm.SchoolScope
@@ -25,7 +26,7 @@ defmodule Fsm.Scheduling do
 
 
   def get_appointment(appointment_id) do
-    Repo.get(Appointment, appointment_id)  
+    Repo.get(Appointment, appointment_id)
   end
 
   defp delete_appointment(appointment, user, context) do
@@ -47,7 +48,7 @@ defmodule Fsm.Scheduling do
       delete_appointment(appointment, current_user, context)
     else
       if Scheduling.Appointment.is_paid?(appointment) do
-        {:error, :paid_appointment}
+        {:error, "Can't delete paid appointment. Please contact administrator to re-schedule or delete the content."}
       else
         instructor_user_id = Map.get(appointment, :instructor_user_id)
         owner_user_id = Map.get(appointment, :owner_user_id)
@@ -81,7 +82,7 @@ defmodule Fsm.Scheduling do
                            ] ++ owner_instructor_permission) do
           delete_appointment(appointment, current_user, context)
         else
-          {:error, :associated_with_other_user}
+          {:error, "Can't delete appointment associated with other user."}
         end
       end
     end
@@ -93,7 +94,7 @@ defmodule Fsm.Scheduling do
     context = %{assigns: %{current_user: current_user}, school_id: school_id}
 
     if !Flight.Auth.Authorization.user_can?(current_user, [Permission.new(:appointment, :modify, :all)]) && Scheduling.Appointment.is_paid?(appointment) do
-      {:error, :not_authorized}
+      {:error, "Can't modify paid appointment. Please contact administrator to re-schedule or update the content."}
     else
       case insert_or_update_appointment(
              appointment,
@@ -105,7 +106,7 @@ defmodule Fsm.Scheduling do
           {:ok, appointment} 
 
         {:error, changeset} ->
-          {:error, :failed} 
+          {:error, FsmWeb.ViewHelpers.human_error_messages(changeset)}
       end
     end
   end

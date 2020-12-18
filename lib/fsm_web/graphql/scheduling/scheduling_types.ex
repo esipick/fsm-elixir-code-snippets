@@ -24,7 +24,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 #        resolve &SchedulingResolvers.get_appointment/3
 #      end
 
-    @desc "List all aircraft appointments ('admin', 'dispatcher')"
+    @desc "List all aircraft appointments"
     field :list_aircraft_appointments, list_of(non_null(:appointment)) do
       arg :page, :integer, default_value: 1
       arg :per_page, :integer, default_value: 100
@@ -32,11 +32,11 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       arg :sort_order, :order_by
       arg :filter, :appointment_filters
 
-      middleware Middleware.Authorize, ["admin", "dispatcher"]
+      middleware Middleware.Authorize
       resolve &SchedulingResolvers.list_aircraft_appointments/3
     end
 
-    @desc "List all room appointments ('admin', 'dispatcher')"
+    @desc "List all room appointments"
     field :list_room_appointments, list_of(non_null(:appointment)) do
       arg :page, :integer, default_value: 1
       arg :per_page, :integer, default_value: 100
@@ -44,11 +44,11 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       arg :sort_order, :order_by
       arg :filter, :appointment_filters
 
-      middleware Middleware.Authorize, ["admin", "dispatcher"]
+      middleware Middleware.Authorize
       resolve &SchedulingResolvers.list_room_appointments/3
     end
 
-    @desc "List all appointments ('admin', 'dispatcher')"
+    @desc "List all appointments ('all')"
     field :list_appointments, list_of(non_null(:appointment)) do
       arg :page, :integer, default_value: 1
       arg :per_page, :integer, default_value: 100
@@ -56,7 +56,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       arg :sort_order, :order_by
       arg :filter, :appointment_filters
 
-      middleware Middleware.Authorize, ["admin", "dispatcher"]
+      middleware Middleware.Authorize
       resolve &SchedulingResolvers.list_appointments/3
     end
   end

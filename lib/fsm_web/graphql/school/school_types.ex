@@ -10,7 +10,7 @@ defmodule FsmWeb.GraphQL.School.SchoolTypes do
     object :school_queries do
       @desc "Get school"
       field :get_school, :school do  
-        middleware(Middleware.Authorize, ["admin", "dispatcher"])
+        middleware(Middleware.Authorize)
         resolve(&SchoolResolvers.get_school/3)
       end
     end

@@ -11,14 +11,14 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
     # QUERIES
     object :aircrafts_queries do
 
-      @desc "Get aircraft by id ('admin', 'dispatcher', 'instructor')"
+      @desc "Get aircraft by id ('all')"
       field :get_aircraft, :aircraft do
         arg :id, non_null(:id)
-        middleware Middleware.Authorize, ["admin", "dispatcher", "instructor"]
+        middleware Middleware.Authorize
         resolve &AircraftsResolvers.get_aircraft/3
       end
 
-      @desc "List all aircrafts ('admin', 'dispatcher')"
+      @desc "List all aircrafts ('all')"
       field :list_aircrafts, :aircraft_data do
         arg :page, :integer, default_value: 1
         arg :per_page, :integer, default_value: 100
@@ -26,7 +26,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
         arg :sort_order, :order_by
         arg :filter, :aircraft_filters
 
-        middleware Middleware.Authorize, ["admin", "dispatcher"]
+        middleware Middleware.Authorize
         resolve &AircraftsResolvers.list_aircrafts/3
       end
     end
