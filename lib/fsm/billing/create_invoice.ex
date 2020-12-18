@@ -50,7 +50,7 @@ defmodule Fsm.Billing.CreateInvoice do
             if pay_off == true do
               case pay(invoice, school_context) do
                 {:ok, invoice} -> {:ok, invoice}
-                {:error, error} -> {:error, invoice.id, error}
+                {:error, error} -> {:error, "Invoice Id:" <> inspect(invoice.id)<> " " <> error.message}
               end
             else
               {:ok, invoice}
@@ -152,6 +152,7 @@ defmodule Fsm.Billing.CreateInvoice do
   
     defp pay_off_cc(invoice, 
       %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, _) do
+
       Flight.StripeSinglePayment.get_stripe_session(invoice, school_id)
       |> case do
         {:ok, session} -> 
@@ -167,6 +168,7 @@ defmodule Fsm.Billing.CreateInvoice do
     end
   
     defp pay_off_cc(invoice, school_context, _, _, amount \\ nil) do
+
       amount = amount || invoice.total_amount_due
   
       transaction_attrs =

@@ -42,7 +42,7 @@ defmodule Fsm.Accounts.AccountsQueries do
         where: u.email == ^String.downcase(email)
     end
 
-    def get_all_users_query do
+    def get_all_users_query() do
       from u in User,
         inner_join: ur in UserRole, on: ur.user_id == u.id,
         inner_join: r in Role, on: r.id == ur.role_id,
@@ -108,8 +108,8 @@ defmodule Fsm.Accounts.AccountsQueries do
       |> paginate(page, per_page)
     end
 
-    def list_users_query(page, per_page, sort_field, sort_order, filter, school_context, roles) do
-      get_all_users_query(roles)
+    def list_users_query(page, per_page, sort_field, sort_order, filter, school_context, role_filter) do
+      get_all_users_query(role_filter)
       |> SchoolScope.scope_query(school_context)
       |> sort_by(sort_field, sort_order)
       |> sort_by(:first_name, sort_order)

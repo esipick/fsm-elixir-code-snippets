@@ -76,10 +76,51 @@ defmodule Fsm.Accounts do
     |> Repo.aggregate(:count, :id)
   end
 
-  def list_users(page, per_page, sort_field, sort_order, filter, context) do
-    roles = Map.get(filter, :roles)
-    AccountsQueries.list_users_query(page, per_page, sort_field, sort_order, filter, context, roles)
+  def roles_visible_to("student") do
+    []
+  end
+
+  def roles_visible_to("instructor") do
+    ["student"]
+  end
+
+  def roles_visible_to("renter") do
+    []
+  end
+
+  def roles_visible_to("admin") do
+    ["admin", "student", "renter", "instructor", "dispatcher"]
+  end
+
+  def roles_visible_to("dispatcher") do
+    ["student", "renter", "instructor", "dispatcher"]
+  end
+
+  defp get_visible_roles(roles_visible, nil) do
+    roles_visible
+  end
+
+  defp get_visible_roles(roles_visible, roles_filter) do
+    roles_visible -- roles_visible -- roles_filter
+  end
+
+  def list_users(page, per_page, sort_field, sort_order, filter, %{context: %{current_user: %{id: user_id, school_id: school_id, roles: roles}}} = context) do
+
+    user = get_user_with_roles(user_id)
+
+    roles_filter = Map.get(filter, :roles)
+    roles_visible = Enum.fetch!(roles, 0) 
+                    |> roles_visible_to
+
+    allowed_roles = get_visible_roles(roles_visible, roles_filter)
+    users = AccountsQueries.list_users_query(page, per_page, sort_field, sort_order, filter, context, allowed_roles)
     |> Repo.all()
+
+    if Enum.find(users, &(&1.user.id == user.id)) do
+      users
+    else
+      [user | users]
+    end
   end
 
   def list_instructors(page, per_page, sort_field, sort_order, filter, context) do
