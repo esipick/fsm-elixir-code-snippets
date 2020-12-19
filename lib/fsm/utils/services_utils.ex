@@ -6,7 +6,7 @@ defmodule Fsm.Billing.Services.Utils do
         Invoice,
         InvoiceLineItem
     }
-
+    alias Flight.Bills.Queries
 
     def aircraft_info_map(%{"line_items" => line_items}) do
         line_item = Enum.find(line_items, fn i -> Map.get(i, "type") == "aircraft" end) 

@@ -164,8 +164,9 @@ defmodule Fsm.Billing.DetailedTransactionForm.AircraftDetails do
   
     import Ecto.Changeset
     import Fsm.Billing.TransactionFormHelpers
-  
-  
+
+
+    alias Fsm.Billing
     alias Fsm.Billing.{
       Transaction,
       TransactionLineItem,

@@ -53,6 +53,20 @@ defmodule Fsm.Accounts do
     |> Repo.one
   end
 
+  def get_user(id, school_context) do
+    User
+    |> default_users_query(school_context)
+    |> where([u], u.id == ^id)
+    |> Repo.one()
+  end
+
+  def get_user_regardless(id, school_context) do
+    User
+    |> all_users_query(school_context)
+    |> where([u], u.id == ^id)
+    |> Repo.one()
+  end
+
   def get_user(id) do
     user =
       AccountsQueries.get_user_query(id)
@@ -63,6 +77,23 @@ defmodule Fsm.Accounts do
     user =
       AccountsQueries.get_user_with_roles_query(id)
       |> Repo.one
+  end
+
+  def default_users_query(query, school_context) do
+    from(
+      u in query,
+      where: u.archived == false,
+      order_by: u.last_name
+    )
+    |> SchoolScope.scope_query(school_context)
+  end
+
+  def all_users_query(query, school_context) do
+    from(
+      u in query,
+      order_by: u.last_name
+    )
+    |> SchoolScope.scope_query(school_context)
   end
 
   def get_user_count(role, school_context) do

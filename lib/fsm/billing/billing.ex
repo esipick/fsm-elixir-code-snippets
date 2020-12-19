@@ -12,7 +12,66 @@ defmodule Fsm.Billing do
   alias Fsm.Billing.CreateInvoice
   alias Fsm.Billing.UpdateInvoice
   alias Fsm.Billing.PaymentError
-  require Logger
+  alias Fsm.Billing.AircraftLineItemDetail
+  alias Flight.Billing.InstructorLineItemDetail
+
+  def aircraft_cost!(%AircraftLineItemDetail{} = detail) do
+    {:ok, amount} = aircraft_cost(detail)
+    amount
+  end
+
+  def aircraft_cost(%AircraftLineItemDetail{} = detail) do
+    aircraft_cost(
+      detail.hobbs_start,
+      detail.hobbs_end,
+      detail.rate,
+      detail.fee_percentage
+    )
+  end
+
+  def aircraft_cost(hobbs_start, hobbs_end, rate, _fee_percentage) when is_nil(hobbs_start) or is_nil(hobbs_end) or is_nil(rate), do: {:ok, 0}
+  def aircraft_cost(hobbs_start, hobbs_end, rate, fee_percentage) do
+    cond do
+      hobbs_end <= hobbs_start ->
+        {:error, :invalid_hobbs_interval}
+
+      true ->
+        {:ok,
+          (rate * (1 + fee_percentage) * ((hobbs_end - hobbs_start) / 10.0))
+          |> trunc()}
+    end
+  end
+
+  def aircraft_cost!(hobbs_start, hobbs_end, rate, _fee_percentage) when is_nil(hobbs_start) or is_nil(hobbs_end) or is_nil(rate), do: 0
+  def aircraft_cost!(hobbs_start, hobbs_end, rate, fee_percentage) do
+    case aircraft_cost(hobbs_start, hobbs_end, rate, fee_percentage) do
+      {:ok, amount} -> amount
+      {:error, reason} -> raise ArgumentError, "Failed to compute aircraft cost: #{reason}"
+    end
+  end
+
+  def instructor_cost!(%InstructorLineItemDetail{} = detail) do
+    {:ok, amount} = instructor_cost(detail)
+    amount
+  end
+
+  def instructor_cost(%InstructorLineItemDetail{} = detail) do
+    instructor_cost(detail.billing_rate, detail.hour_tenths)
+  end
+
+  def instructor_cost(rate, tenths_of_an_hour) do
+    cond do
+      tenths_of_an_hour <= 0 -> {:error, :invalid_hours}
+      true -> {:ok, (rate * (tenths_of_an_hour / 10.0)) |> trunc()}
+    end
+  end
+
+  def instructor_cost!(rate, tenths_of_an_hour) do
+    case instructor_cost(rate, tenths_of_an_hour) do
+      {:ok, amount} -> amount
+      {:error, reason} -> raise ArgumentError, "Failed to compute instructor cost: #{reason}"
+    end
+  end
 
   def create_invoice(invoice_params, pay_off, school_id, user_id) do
     %Invoice{}
@@ -50,14 +109,14 @@ defmodule Fsm.Billing do
         # {{conn
         # |> put_status(status)
         # |> json(%{stripe_error: StripeHelper.human_error(error)})}}
-        {:error, StripeHelper.human_error(error)}
+        {:error, FlightWeb.StripeHelper.human_error(error)}
 
       {:error, %PaymentError{} = error} ->
 
         # conn
         # |> put_status(400)
         # |> json(%{stripe_error: StripeHelper.human_error(error.message)})
-        {:error, StripeHelper.human_error(error.message)}
+        {:error, FlightWeb.StripeHelper.human_error(error.message)}
 
       {:error, msg} ->
         message = 

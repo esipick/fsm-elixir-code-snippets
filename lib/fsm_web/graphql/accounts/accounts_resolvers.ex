@@ -3,6 +3,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
   alias Fsm.Accounts.User
   alias FsmWeb.GraphQL.Accounts.UserView
   alias FsmWeb.GraphQL.Log
+  alias Fsm.Accounts.Role
 
   import Flight.Auth.Authorization
   alias Flight.Auth.Permission

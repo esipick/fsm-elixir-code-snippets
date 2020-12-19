@@ -458,6 +458,18 @@ defmodule Fsm.Scheduling do
     |> Repo.all()
   end
 
+  def aircraft_query(school_context, search_term \\ "") do
+    Aircraft
+    |> Flight.Scheduling.Search.Aircraft.run(search_term)
+    |> SchoolScope.scope_query(school_context)
+  end
+
+  def get_aircraft(id, school_context) do
+    aircraft_query(school_context)
+    |> where([a], a.id == ^id)
+    |> Repo.one()
+  end
+
   def apply_utc_timezone(changeset, key, timezone) do
     case get_change(changeset, key) do
       nil -> changeset
