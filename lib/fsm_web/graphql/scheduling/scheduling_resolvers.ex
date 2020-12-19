@@ -69,8 +69,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
       Scheduling.list_room_appointments(page, per_page, sort_field, sort_order, filter, context)
       |> AppointmentView.map
 
-    resp = {:ok, response}
-    Log.response(resp, __ENV__.function, :info)
+    {:ok, response}
   end
 
   def list_appointments(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do

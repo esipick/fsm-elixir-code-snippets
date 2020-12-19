@@ -14,19 +14,40 @@ defmodule Fsm.Scheduling.SchedulingQueries do
 
     require Logger
 
-    def get_appointments_query do
+    def get_appointments_query(_context, :all) do
+      from a in Appointment,
+           left_join: u in User, on: a.user_id == u.id,
+           left_join: i in User, on: a.instructor_user_id == i.id,
+           left_join: ar in Aircraft, on: a.aircraft_id == ar.id,
+           left_join: r in Room, on: a.room_id == r.id,
+           left_join: s in Aircraft, on: a.simulator_id == s.id,
+           where: a.archived == false,
+           select: %{appointment: a, user: u, instructor: i, aircraft: ar, room: r, simulator: s}
+    end
+
+    def get_appointments_query(%{context: %{current_user: %{school_id: school_id, roles: roles, id: id}}}=context, _) do
       from a in Appointment,
           left_join: u in User, on: a.user_id == u.id,
           left_join: i in User, on: a.instructor_user_id == i.id,
           left_join: ar in Aircraft, on: a.aircraft_id == ar.id,
           left_join: r in Room, on: a.room_id == r.id,
           left_join: s in Aircraft, on: a.simulator_id == s.id,
-          where: a.archived == false,
+          where: a.archived == false and (a.user_id == ^id),
           select: %{appointment: a, user: u, instructor: i, aircraft: ar, room: r, simulator: s}
     end
 
-    def list_appointments_query(page, per_page, sort_field, sort_order, filter, school_context) do
-      get_appointments_query()
+    defp show_appointments(roles) do
+      if is_list(roles) and roles != [] and
+         (Enum.member?(roles, "admin") or Enum.member?(roles, "dispatcher") or Enum.member?(roles, "instructor")) do
+        :all
+
+      else
+        :personal
+      end
+    end
+
+    def list_appointments_query(page, per_page, sort_field, sort_order, filter, %{context: %{current_user: %{roles: roles}}} = school_context) do
+      get_appointments_query(school_context, show_appointments(roles))
       |> SchoolScope.scope_query(school_context)
       |> sort_by(sort_field, sort_order)
       |> sort_by(:start_at, sort_order)

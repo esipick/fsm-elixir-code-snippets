@@ -65,19 +65,19 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   object :scheduling_mutations do
      field :create_appointment, :appointment do
        arg :appointment, :appointment_input
-       middleware Middleware.Authorize, ["admin", "dispatcher"]
+       middleware Middleware.Authorize
        resolve &SchedulingResolvers.create_appointment/3
      end
 
      field :edit_appointment, :appointment do
       arg :appointment, :edit_appointment_input
-      middleware Middleware.Authorize, ["admin", "dispatcher"]
+      middleware Middleware.Authorize
       resolve &SchedulingResolvers.edit_appointment/3
     end
 
     field :delete_appointment, :string do
       arg :appointment_id, :integer
-      middleware Middleware.Authorize, ["admin", "dispatcher"]
+      middleware Middleware.Authorize
       resolve &SchedulingResolvers.delete_appointment/3
     end
   end
