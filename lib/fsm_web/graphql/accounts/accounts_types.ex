@@ -71,7 +71,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         arg :user_input, non_null(:user_input)
         arg :role_slugs, list_of(non_null(:roles))
         arg :id, non_null(:integer)
-        middleware Middleware.Authorize, ["admin", "dispatcher"]
+        middleware Middleware.Authorize
         resolve &AccountsResolvers.update_user/3
       end
     end
