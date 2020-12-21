@@ -127,13 +127,13 @@ defmodule Fsm.Accounts do
     roles_visible
   end
 
-  defp get_visible_roles(roles_visible, roles_filter) do
-    roles_visible -- roles_visible -- roles_filter
+  defp get_visible_roles(roles_list_1, roles_list_2) do
+    roles_list_1 -- (roles_list_1 -- roles_list_2)
   end
 
   def list_users(page, per_page, sort_field, sort_order, filter, %{context: %{current_user: %{id: user_id, school_id: school_id, roles: roles}}} = context) do
 
-    user = get_user_with_roles(user_id)
+    user = get_user(user_id)
 
     roles_filter = Map.get(filter, :roles)
     roles_visible = Enum.fetch!(roles, 0) 
@@ -143,10 +143,10 @@ defmodule Fsm.Accounts do
     users = AccountsQueries.list_users_query(page, per_page, sort_field, sort_order, filter, context, allowed_roles)
     |> Repo.all()
 
-    if Enum.find(users, &(&1.user.id == user.id)) do
+    if Enum.find(users, &(&1.user.id == user.user.id)) != nil or get_visible_roles(allowed_roles, user.roles) == [] or Map.get(filter, :search) != nil do
       users
     else
-      [user | users]
+        users ++ [user]
     end
   end
 
