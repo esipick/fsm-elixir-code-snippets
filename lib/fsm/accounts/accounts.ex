@@ -107,24 +107,20 @@ defmodule Fsm.Accounts do
     |> Repo.aggregate(:count, :id)
   end
 
-  def roles_visible_to("student") do
+#  def roles_visible_to("student") do
+#    ["admin", "dispatcher", "instructor"]
+#  end
+
+  def roles_visible_to(nil) do
     []
   end
 
-  def roles_visible_to("instructor") do
-    ["student"]
-  end
-
-  def roles_visible_to("renter") do
+  def roles_visible_to([]) do
     []
   end
 
-  def roles_visible_to("admin") do
-    ["admin", "student", "renter", "instructor", "dispatcher"]
-  end
-
-  def roles_visible_to("dispatcher") do
-    ["student", "renter", "instructor", "dispatcher"]
+  def roles_visible_to(_) do
+    ["admin", "dispatcher", "instructor", "student", "renter"]
   end
 
   defp get_visible_roles(roles_visible, nil) do
