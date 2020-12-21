@@ -37,13 +37,13 @@ defmodule Fsm.Scheduling.SchedulingQueries do
     end
 
     defp show_appointments(roles) do
-      if is_list(roles) and roles != [] and
-         (Enum.member?(roles, "admin") or Enum.member?(roles, "dispatcher") or Enum.member?(roles, "instructor")) do
+#      if is_list(roles) and roles != [] and
+#         (Enum.member?(roles, "admin") or Enum.member?(roles, "dispatcher") or Enum.member?(roles, "instructor")) do
         :all
 
-      else
-        :personal
-      end
+#      else
+#        :personal
+#      end
     end
 
     def list_appointments_query(page, per_page, sort_field, sort_order, filter, %{context: %{current_user: %{roles: roles}}} = school_context) do
