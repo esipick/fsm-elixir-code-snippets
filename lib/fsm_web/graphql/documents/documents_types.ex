@@ -19,7 +19,7 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsTypes do
       arg(:sort_order, :document_order_by)
       arg(:filter, :documents_filters)
 
-      middleware(Middleware.Authorize, ["admin", "dispatcher", "student", "renter"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "instructor", "student", "renter"])
       resolve(&DocumentsResolvers.list_documents/3)
     end
   end
