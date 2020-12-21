@@ -10,13 +10,24 @@ config :flight, FlightWeb.Endpoint,
 config :logger, level: :warn
 
 # Configure your database
+#config :flight, Flight.Repo,
+#  username: "admin",
+#  password: "123456",
+#  database: "flight_test",
+#  hostname: "localhost",
+#  pool: Ecto.Adapters.SQL.Sandbox,
+#  ownership_timeout: 600_000
+
+# Connect to staging database
 config :flight, Flight.Repo,
-  username: "dev",
-  password: "asdf",
-  database: "flight_test",
-  hostname: "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox,
-  ownership_timeout: 600_000
+  username: "bgxmltqexmsbbt",
+  password: "f745da74c253a3ff78fc4a7728e6612d8fb3dd16e1923943e02c554a294fa2dc",
+  database: "d3lugdu8a44rbb",
+  hostname: "ec2-174-129-22-84.compute-1.amazonaws.com",
+  queue_interval: 3000_000,
+  port: 5432,
+  pool_size: 10,
+  ssl: true
 
 config :bcrypt_elixir, log_rounds: 4
 

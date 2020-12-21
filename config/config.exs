@@ -67,6 +67,11 @@ case(Map.fetch(System.get_env(), "AWS_S3_BUCKET")) do
   _ ->
     config :waffle,
       storage: Waffle.Storage.Local
+
+    config :waffle,
+           bucket: "avatars-randon-aviation-staging",
+           storage: Waffle.Storage.S3,
+           virtual_host: true
 end
 
 config :flight, :push_service_client, Mondo.PushService.Client

@@ -123,6 +123,7 @@ defmodule Fsm.Billing.BillingQueries do
         is_visible: i.is_visible,
         archived_at: i.archived_at,
         appointment_updated_at: i.appointment_updated_at,
+        appointment_id: i.appointment_id,
         inserted_at: i.inserted_at,
         # aircraft_info: i.aircraft_info,
         session_id: i.session_id,
