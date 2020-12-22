@@ -394,7 +394,9 @@ defmodule Fsm.Scheduling do
         {:ok, appointment}
 
       {:error, changeset} ->
-        {:error, :failed}
+        error_messages = FsmWeb.ViewHelpers.human_error_messages(changeset)
+        
+        {:error, error_messages}
     end
   end
 
