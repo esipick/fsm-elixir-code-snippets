@@ -276,7 +276,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
   end
 
   def format_error(changeset) do
-    changeset
+    {:error, changeset}
   end
 
   def create_user(parent, args, %{context: %{current_user: current_user}} = context) do
