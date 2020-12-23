@@ -199,6 +199,7 @@ defmodule Fsm.Billing.BillingQueries do
       ) do
     list_bills_query(user_id)
     |> SchoolScope.scope_query(school_context)
+    |> sort_by(sort_field, sort_order)
     |> filter(filter)
     |> paginate(page, per_page)
   end
