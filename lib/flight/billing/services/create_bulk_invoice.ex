@@ -29,7 +29,7 @@ defmodule Flight.Billing.CreateBulkInvoice do
   def pay(bulk_invoice, school_context, invoice_ids) do
     case process_payment(bulk_invoice, school_context) do
       {:ok, bulk_invoice} ->
-        {_, invoices} = update_invoices(invoice_ids, status: 1)
+        {_, invoices} = update_invoices(invoice_ids, [status: 1, payment_option: bulk_invoice.payment_option])
         Flight.Billing.CreateInvoice.insert_bulk_invoice_line_items(bulk_invoice, invoices, school_context)
 
         {:ok, bulk_invoice}
