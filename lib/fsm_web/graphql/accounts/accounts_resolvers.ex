@@ -68,7 +68,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
   def list_instructors(
         parent,
         args,
-        %{context: %{current_user: %{id: user_id, school_id: school_id}}} = context
+        context
       ) do
     page = Map.get(args, :page)
     per_page = Map.get(args, :per_page)
