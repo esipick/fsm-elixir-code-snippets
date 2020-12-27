@@ -86,5 +86,28 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     resp = {:ok, response}
     Log.response(resp, __ENV__.function, :info)
   end
+
+  def list_unavailabilities(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+#    page = Map.get(args, :page)
+#    per_page = Map.get(args, :per_page)
+#
+#    sort_field = Map.get(args, :sort_field) || :inserted_at
+#    sort_order = Map.get(args, :sort_order) || :desc
+    filter = Map.get(args, :filter) || %{}
+    params = %{
+                "from" => Map.get(filter, :from),
+                "to" => Map.get(filter, :to),
+                "start_at_after" => Map.get(filter, :start_at_after),
+                "instructor_user_id" => Map.get(filter, :instructor_user_id),
+                "aircraft_id" => Map.get(filter, :aircraft_id)
+            }
+
+    response =
+      Scheduling.list_unavailabilities(params, context)
+#      |> FlightWeb.API.UnavailabilityView.preload()
+
+    resp = {:ok, response}
+    Log.response(resp, __ENV__.function, :info)
+  end
 end
   

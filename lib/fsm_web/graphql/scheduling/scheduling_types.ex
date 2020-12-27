@@ -59,6 +59,14 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       middleware Middleware.Authorize
       resolve &SchedulingResolvers.list_appointments/3
     end
+
+    @desc "List all unavailabilities"
+    field :list_unavailabilities, list_of(non_null(:unavailability)) do
+      arg :filter, :unavailability_filters
+
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.list_unavailabilities/3
+    end
   end
 
   # MUTATIONS
@@ -120,6 +128,34 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
   end
 
+  object :unavailability do
+    field :simulator_id, :integer
+    field :room_id, :integer
+
+    field :school_id, :integer
+    field :instructor_user_id, :integer
+    field :owner_user_id, :integer
+    field :user_id, :integer
+    field :aircraft_id, :integer
+
+
+    field :available, :boolean
+    field :type, :string
+    field :note, :string
+    field :end_at, :string
+    field :start_at, :string
+    field :belongs, :string
+
+    field(:simulator_id, :integer)
+    field(:room_id, :integer)
+#    field :user, :user
+#    field :instructor, :user
+#    field :aircraft, :aircraft
+#    field :room, :room
+#    field :simulator, :simulator
+
+  end
+
   input_object :appointment_input do
     field :aircraft_id, :integer 
     field :demo, :boolean
@@ -165,6 +201,15 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :status, :string
     field :search_criteria, :appointment_search_criteria
     field :search_term, :string
+  end
+
+  input_object :unavailability_filters do
+    field :instructor_user_id, :integer
+    field :aircraft_id, :integer
+
+    field :from, :string
+    field :to, :string
+    field :start_at_after, :string
   end
 end
   

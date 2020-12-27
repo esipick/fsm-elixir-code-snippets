@@ -455,6 +455,46 @@ defmodule Fsm.Scheduling do
     #    |> FlightWeb.API.AppointmentView.preload()
   end
 
+  def list_unavailabilities(options, school_context) do
+
+    from_value =
+      case NaiveDateTime.from_iso8601(options["from"] || "") do
+        {:ok, date} -> date
+        _ -> nil
+      end
+
+    to_value =
+      case NaiveDateTime.from_iso8601(options["to"] || "") do
+        {:ok, date} -> date
+        _ -> nil
+      end
+
+    start_at_after_value =
+      case NaiveDateTime.from_iso8601(options["start_at_after"] || "") do
+        {:ok, date} -> date
+        _ -> nil
+      end
+
+    instructor_user_id_value = options["instructor_user_id"]
+    aircraft_id_value = options["aircraft_id"]
+
+    from(a in Unavailability)
+    |> SchoolScope.scope_query(school_context)
+    |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at >= ^start_at_after_value))
+    |> pass_unless(
+         from_value && to_value,
+         &Availability.overlap_query(&1, from_value, to_value)
+       )
+    |> pass_unless(aircraft_id_value, &where(&1, [a], a.aircraft_id == ^aircraft_id_value))
+    |> pass_unless(
+         instructor_user_id_value,
+         &from(a in &1, where: a.instructor_user_id == ^instructor_user_id_value)
+       )
+      # |> limit(200)
+    |> order_by([a], desc: a.start_at)
+    |> Repo.all()
+  end
+
   def visible_air_assets(school_context) do
     SchedulingQueries.visible_air_assets_query(school_context)
     |> Repo.all()
