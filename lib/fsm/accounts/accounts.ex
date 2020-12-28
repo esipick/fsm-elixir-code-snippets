@@ -44,6 +44,34 @@ defmodule Fsm.Accounts do
     end
   end
 
+  def set_password(user, password) do
+    user
+    |> User.update_password_changeset(%{password: password})
+    |> Repo.update()
+  end
+
+  def update_password(user, %{password: password, new_password: new_password}) do
+    with {:ok, user} <- check_password(user, password),
+         %{valid?: true} = user <- User.update_password_changeset(user, %{password: new_password}) do
+      user
+      |> set_password(new_password)
+    else
+      {:error, %{} = changeset} ->
+        {:error, changeset}
+
+      {:error, erroree} ->
+        {:error,
+          %Ecto.Changeset{
+            valid?: false,
+            errors: [password: {"is invalid", []}],
+            types: %{password: :string}
+          }}
+
+      changeset ->
+        {:error, changeset}
+    end
+  end
+
   def get_role(role_id, :id) do
     Repo.get(Role, role_id)
   end

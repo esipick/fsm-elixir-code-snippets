@@ -11,20 +11,16 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
   require Logger
 
   def login(_parent, %{email: email, password: password} = params, resolution) do
-    resp =
-      Accounts.api_login(%{"email" => email, "password" => password})
-      |> case do
-           {:ok, res} -> {:ok, res}
-           {:error, error} ->
-             format_error(error)
+    Accounts.api_login(%{"email" => email, "password" => password})
+    |> case do
+         {:ok, res} -> {:ok, res}
+         {:error, error} ->
+           format_error(error)
 
-           error ->
-             Logger.error(fn -> "Login User Error: #{inspect(error)}" end)
-             {:error, "Unable to login user"}
-         end
-
-
-    Log.response(resp, __ENV__.function, :info)
+         error ->
+           Logger.error(fn -> "Login User Error: #{inspect(error)}" end)
+           {:error, "Unable to login user"}
+       end
   end
 
   def get_current_user(parent, _args, %{context: %{current_user: %{id: id}}} = context) do
@@ -32,8 +28,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
       Accounts.get_user(id)
       |> UserView.map()
 
-    resp = {:ok, user}
-    Log.response(resp, __ENV__.function)
+    {:ok, user}
   end
 
   def get_user(parent, args, %{context: %{current_user: %{id: id}}} = context) do
@@ -41,8 +36,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
       Accounts.get_user(args.id)
       |> UserView.map()
 
-    resp = {:ok, user}
-    Log.response(resp, __ENV__.function)
+    {:ok, user}
   end
 
   def list_users(
@@ -253,6 +247,88 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
     #          tab: tab
     #        )
     #    end
+  end
+
+  def change_password(_parent, params, %{context: %{current_user: %{id: user_id}}} = context) do
+    current_user =
+      Accounts.get_user(user_id)
+      |> UserView.map()
+
+    case Fsm.Accounts.update_password(current_user, params) do
+      {:ok, _user} ->
+        user =
+          current_user
+          |> FlightWeb.API.UserView.show_preload()
+
+        {:ok, user}
+
+      {:error, changeset} ->
+        {:error, FsmWeb.ViewHelpers.human_error_messages(changeset)}
+    end
+  end
+
+  defp check_user(email) do
+    user = Flight.Accounts.get_user_by_email(email)
+
+    cond do
+      user && user.archived ->
+        {:error, "Account is suspended. Please contact your school administrator to reinstate it."}
+
+      user && !user.archived ->
+        {:ok, reset} = Flight.Accounts.create_password_reset(user)
+
+        reset
+        |> Flight.Repo.preload(:user)
+        |> Flight.Email.reset_password_email()
+        |> Flight.Mailer.deliver_later()
+
+        {:ok, "Please check your email for password reset instructions."}
+
+      user == nil ->
+        {:error, "This email is not registered"}
+    end
+  end
+
+  def forgot_submit(_parent, %{email: email}, _context) do
+    cond do
+      email == "" ->
+        {:error, "Please enter your email"}
+
+      String.match?(email, Flight.Format.email_regex()) ->
+        check_user(email)
+
+      true ->
+        {:error, "Invalid email format"}
+    end
+  end
+
+  def reset(_parent, %{token: token}, _context) do
+    case Flight.Accounts.get_password_reset_from_token(token || "") do
+      %{} = reset ->
+        {:ok, reset}
+
+      _ ->
+        {:error, "The reset link you clicked is either expired or invalid. Please attempt to reset your password again by entering your email."}
+    end
+  end
+
+  def reset_submit(_parent, %{token: token, password: password, password_confirmation: confirmation}, _context) do
+    case Flight.Accounts.get_password_reset_from_token(token || "") do
+      %{} = reset ->
+        password = String.trim(password)
+        confirmation = String.trim(confirmation)
+
+        case password == confirmation do
+          true ->
+            Accounts.set_password(reset.user, password)
+
+          false ->
+            {:error, "Password and confirmation didn't match. Please try again."}
+        end
+
+      _ ->
+        {:error, "The reset link you clicked is either expired or invalid. Please attempt to reset your password again by entering your email."}
+    end
   end
 
   def format_error(%{human_errors: human_errors}=changeset) do

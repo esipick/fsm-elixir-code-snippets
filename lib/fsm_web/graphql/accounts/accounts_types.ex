@@ -60,6 +60,33 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         resolve &AccountsResolvers.login/3
       end
 
+      field :forgot_password, :string do
+        arg :email, non_null(:string)
+#        middleware Middleware.Authorize
+        resolve &AccountsResolvers.forgot_submit/3
+      end
+
+      field :change_password, :user do
+        arg :password, non_null(:string)
+        arg :new_password, non_null(:string)
+        middleware Middleware.Authorize
+        resolve &AccountsResolvers.change_password/3
+      end
+
+      field :verify_reset_password_token, :session do
+        arg :token, non_null(:string)
+#        middleware Middleware.Authorize
+        resolve &AccountsResolvers.reset/3
+      end
+
+      field :reset_password, :user do
+        arg :token, non_null(:string)
+        arg :password, non_null(:string)
+        arg :password_confirmation, non_null(:string)
+#        middleware Middleware.Authorize
+        resolve &AccountsResolvers.reset_submit/3
+      end
+
       field :create_user, :user do
         arg :user_input, non_null(:user_input)
         arg :role_slug, non_null(:roles)
