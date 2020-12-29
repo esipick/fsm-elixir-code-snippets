@@ -25,15 +25,95 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
         args,
         %{context: %{current_user: %{school_id: school_id, roles: roles, id: id}}} = context
       ) do
+
+    IO.inspect("#{inspect args} requested by id(#{id}) on #{inspect DateTime.utc_now()}", label: "Add Funds Request: ")
     amount = Map.get(args, :amount)
+    charge_payment_method = Map.get(args, :payment_method)
     description = Map.get(args, :description)
     requested_user_id = Map.get(args, :user_id)
 
-    Billing.add_funds(%{user_id: id}, %{
-      amount: amount,
-      description: description,
-      user_id: requested_user_id
-    })
+    case charge_payment_method do
+      :cash ->
+        Billing.add_funds(%{user_id: id}, %{
+          amount: amount,
+          description: description,
+          user_id: requested_user_id
+        })
+
+      _ ->
+        %{roles: _roles, user: current_user} = Fsm.Accounts.get_user(id)
+
+          Stripe.Customer.retrieve(current_user.stripe_customer_id)
+          |> case do
+               {:ok, %Stripe.Customer{sources: %Stripe.List{data: [%Stripe.Card{id: stripe_customer, exp_month: exp_month, exp_year: exp_year} =card | _]}}} ->
+                 with {:ok, parsed_amount} <- parse_amount(amount),
+                      {:ok, expiry_date} <- Date.new(exp_year, exp_month, 28),
+                      true <- Date.diff(expiry_date, Date.utc_today()) > 0
+                  do
+                   Stripe.PaymentIntent.create(%{
+                     amount: parsed_amount,
+                     currency: "USD",
+                     customer: current_user.stripe_customer_id,
+                     payment_method_types: ["card"],
+                     off_session: true,
+                     confirm: true
+                   })
+                   |> case do
+                      {:ok, %Stripe.PaymentIntent{status: "succeeded"}=resp} ->
+                        Billing.add_funds(%{user_id: id}, %{
+                          amount: amount,
+                          description: description,
+                          user_id: requested_user_id
+                        })
+
+                      {:error, %Stripe.Error{extra: %{message: message, param: param}}} ->
+                        {:error, "Stripe Error in parameter '#{param}': #{message}"}
+
+                      {:error, %Stripe.Error{extra: %{raw_error: %{"message" => message, "param" => param}}}} ->
+                        {:error, "Stripe Error in parameter '#{param}': #{message}"}
+
+                      {:error, %Stripe.Error{extra: %{message: message}}} ->
+                        {:error, "Stripe Error: #{message}"}
+
+                      {:error, %Stripe.Error{message: message}} ->
+                        {:error, "Stripe Error: #{message}"}
+
+                      {:error, error} ->
+                        {:error, "Stripe Raw Error: #{error}"}
+
+
+                      _ ->
+                        {:error, "Something went wrong! Unable to add funds using card in user profile. Please update another card in profile or check amount and try again"}
+                      end
+
+                 else
+                 resp ->
+                    if !resp do
+                        {:error, "Card Expired! Please attach valid card in user profile"}
+                    else
+                        {:error, "Please attach valid amount to add funds"}
+                    end
+
+                 end
+               _ ->
+                 {:error, "Please attach valid card in user profile"}
+             end
+    end
+  end
+
+  def parse_amount(str) when is_binary(str) do
+    case Float.parse(String.replace(str, ~r/,/, "")) do
+      {float, _} -> {:ok, (float * 100) |> trunc()}
+      :error -> {:error, :invalid}
+    end
+  end
+
+  def parse_amount(num) when is_float(num) or is_integer(num) do
+    {:ok, (num * 100) |> trunc()}
+  end
+
+  def parse_amount(_) do
+    {:error, :invalid}
   end
 
   def fetch_card(
