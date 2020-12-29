@@ -34,11 +34,15 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
 
     case charge_payment_method do
       :cash ->
-        Billing.add_funds(%{user_id: id}, %{
-          amount: amount,
-          description: description,
-          user_id: requested_user_id
-        })
+        if "admin" in roles or "dispatcher" in roles do
+          Billing.add_funds(%{user_id: id}, %{
+            amount: amount,
+            description: description,
+            user_id: requested_user_id
+          })
+        else
+          {:error, "Only 'admin' and 'dispatcher' can add funds using 'cash' payment method"}
+        end
 
       _ ->
         %{roles: _roles, user: current_user} = Fsm.Accounts.get_user(id)
