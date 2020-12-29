@@ -33,6 +33,18 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     Scheduling.create_appointment(context, appointment)
   end
 
+  def create_unavailability(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    unavailability = Map.get(args, :unavailability)
+    Scheduling.insert_or_update_unavailability(context, unavailability)
+    |> case do
+      {:error, changeset} ->
+        error_messages = FsmWeb.ViewHelpers.human_error_messages(changeset)
+        {:error, error_messages}
+      changeset ->
+        changeset
+    end
+  end
+
   def edit_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
     appointment = Map.get(args, :appointment)
     Scheduling.update_appointment(context, appointment)

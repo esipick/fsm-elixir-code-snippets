@@ -5,6 +5,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   alias FsmWeb.GraphQL.Scheduling.SchedulingResolvers
 
   enum :appointment_search_criteria, values: [:payer_name]
+  enum :belongs, values: ["Instructor", "Simulator", "Room", "Aircraft"]
   enum :appointment_sort_fields, values: [:first_name, :last_name, :email]
 
   #Enum
@@ -71,6 +72,12 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
   # MUTATIONS
   object :scheduling_mutations do
+    field :create_unavailability, :unavailability do
+      arg :unavailability, :unavailability_input
+      middleware Middleware.Authorize, ["admin"]
+      resolve &SchedulingResolvers.create_unavailability/3
+    end
+
      field :create_appointment, :appointment do
        arg :appointment, :appointment_input
        middleware Middleware.Authorize
@@ -154,6 +161,18 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 #    field :room, :room
 #    field :simulator, :simulator
 
+  end
+
+  input_object :unavailability_input do
+    field :simulator_id, :integer
+    field :room_id, :integer
+
+    field :instructor_user_id, :integer
+    field :aircraft_id, :integer
+    field :belongs, :belongs
+    field :note, :string
+    field :end_at, :string
+    field :start_at, :string
   end
 
   input_object :appointment_input do

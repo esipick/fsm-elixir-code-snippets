@@ -455,6 +455,84 @@ defmodule Fsm.Scheduling do
     #    |> FlightWeb.API.AppointmentView.preload()
   end
 
+  def insert_or_update_unavailability(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, attrs) do
+    school = Fsm.SchoolScope.get_school(school_id)
+    %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
+    school_context = %{assigns: %{current_user: current_user}, params: %{"school_id" => inspect(school_id)}, request_path: "/api/", school_id: inspect(school_id)}
+    unavailability = %Unavailability{}
+    changeset =
+      unavailability
+      |> SchoolScope.school_changeset(school)
+      |> Unavailability.changeset(attrs, school.timezone)
+      
+    if changeset.valid? do
+      {:ok, _} = apply_action(changeset, :insert)
+      instructor_user_id = get_field(changeset, :instructor_user_id)
+      aircraft_id = get_field(changeset, :aircraft_id) || get_field(changeset, :simulator_id)
+      room_id = get_field(changeset, :room_id)
+      
+      excluded_unavailability_ids = if unavailability.id, do: [unavailability.id], else: []
+
+      changeset =
+        if instructor_user_id do
+        start_at = get_field(changeset, :start_at) # utc time for instructor
+        end_at = get_field(changeset, :end_at) # utc time for instructor
+        status =
+          Availability.user_with_permission_status( :unavailability, Permission.permission_slug(:appointment_instructor, :modify, :personal),
+          instructor_user_id,
+          start_at,
+          end_at,
+          [],
+          excluded_unavailability_ids,
+          school_context
+        )
+        case status do
+          :available -> changeset
+          other -> add_error(changeset, :instructor, "is #{other}", status: status)
+        end
+        else
+        changeset
+        end
+      
+        start_at = get_field(changeset, :start_at) #|> utc_to_walltime(school.timezone)
+        end_at = get_field(changeset, :end_at) #|> utc_to_walltime(school.timezone)
+  
+        changeset =
+        if aircraft_id do
+          status =
+            Availability.aircraft_status(:unavailability, aircraft_id, start_at, end_at, [], excluded_unavailability_ids, school_context
+        )
+        
+          case status do
+          :available -> changeset
+          other -> 
+            key = if get_field(changeset, :simulator_id), do: :simulator, else: :aircraft
+            add_error(changeset, key, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+        changeset =
+        if room_id do
+          status =
+            Availability.room_status( :unavailability, room_id, start_at, end_at, excluded_unavailability_ids, [], school_context)
+
+          case status do
+            :available -> changeset
+            other -> 
+              add_error(changeset, :room, "is #{other}", status: status)
+          end
+        else
+        changeset
+        end
+
+      Repo.insert_or_update(changeset)
+    else
+      {:error, changeset}
+    end
+  end
+  
   def list_unavailabilities(options, school_context) do
 
     from_value =
