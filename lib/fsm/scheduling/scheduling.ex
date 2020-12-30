@@ -458,7 +458,7 @@ defmodule Fsm.Scheduling do
   def insert_or_update_unavailability(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, attrs) do
     school = Fsm.SchoolScope.get_school(school_id)
     %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
-    school_context = %{assigns: %{current_user: current_user}, params: %{"school_id" => inspect(school_id)}, request_path: "/api/", school_id: inspect(school_id)}
+    school_context = %Plug.Conn{assigns: %{current_user: current_user}, params: %{"school_id" => inspect(school_id)}, request_path: "/api/"}
     unavailability = %Unavailability{}
     changeset =
       unavailability
