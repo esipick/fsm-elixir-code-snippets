@@ -77,6 +77,11 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       middleware Middleware.Authorize, ["admin"]
       resolve &SchedulingResolvers.create_unavailability/3
     end
+    field :edit_unavailability, :unavailability do
+      arg :unavailability, :edit_unavailability_input
+      middleware Middleware.Authorize, ["admin"]
+      resolve &SchedulingResolvers.create_unavailability/3
+    end
 
      field :create_appointment, :appointment do
        arg :appointment, :appointment_input
@@ -136,6 +141,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   end
 
   object :unavailability do
+    field :id, :integer
     field :simulator_id, :integer
     field :room_id, :integer
 
@@ -164,6 +170,19 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   end
 
   input_object :unavailability_input do
+    field :simulator_id, :integer
+    field :room_id, :integer
+
+    field :instructor_user_id, :integer
+    field :aircraft_id, :integer
+    field :belongs, :belongs
+    field :note, :string
+    field :end_at, :string
+    field :start_at, :string
+  end
+
+  input_object :edit_unavailability_input do
+    field :id, :integer
     field :simulator_id, :integer
     field :room_id, :integer
 
