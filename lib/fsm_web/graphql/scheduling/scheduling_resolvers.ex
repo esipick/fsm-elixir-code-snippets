@@ -1,6 +1,7 @@
 defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
 
   alias Fsm.Scheduling
+  alias Flight.Scheduling.Unavailability
   alias FsmWeb.GraphQL.Scheduling.AppointmentView
   alias FsmWeb.GraphQL.Log
 
@@ -35,7 +36,21 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
 
   def create_unavailability(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
     unavailability = Map.get(args, :unavailability)
-    Scheduling.insert_or_update_unavailability(context, unavailability)
+    Scheduling.insert_or_update_unavailability(context, %Unavailability{}, unavailability)
+    |> case do
+      {:error, changeset} ->
+        error_messages = FsmWeb.ViewHelpers.human_error_messages(changeset)
+        {:error, error_messages}
+      changeset ->
+        changeset
+    end
+  end
+
+  def edit_unavailability(parent, %{id: id}= args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    unavailability_attrs = Map.get(args, :unavailability)
+    unavailability = Flight.Repo.get(Unavailability, id)
+
+    Scheduling.insert_or_update_unavailability(context, unavailability, unavailability_attrs)
     |> case do
       {:error, changeset} ->
         error_messages = FsmWeb.ViewHelpers.human_error_messages(changeset)
