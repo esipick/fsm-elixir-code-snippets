@@ -15,6 +15,7 @@ defmodule Fsm.Scheduling do
   alias Fsm.Scheduling.Appointment
   alias Fsm.Scheduling.SchedulingQueries
   alias FsmWeb.ViewHelpers
+  alias FsmWeb.GraphQL.Scheduling.AppointmentView
 
   alias Flight.Repo
   alias Fsm.SchoolScope
@@ -27,6 +28,13 @@ defmodule Fsm.Scheduling do
 
   def get_appointment(appointment_id) do
     Repo.get(Appointment, appointment_id)
+  end
+
+  def get_appointment_full_object(appointment_id) do
+    SchedulingQueries.get_appointment_query(appointment_id)
+    |> Ecto.Query.first
+    |> Repo.one
+    |> AppointmentView.map
   end
 
   defp delete_appointment(appointment, user, context) do
@@ -103,6 +111,7 @@ defmodule Fsm.Scheduling do
              context
            ) do
         {:ok, appointment} ->
+          appointment = get_appointment_full_object(Map.get(appointment_data, :id))
           {:ok, appointment} 
 
         {:error, changeset} ->
