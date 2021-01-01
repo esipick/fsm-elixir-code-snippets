@@ -91,7 +91,7 @@ defmodule Fsm.Billing.CreateInvoice do
     defp process_payment(%{total_amount_due: due_amount} = invoice, _school_context) when due_amount <= 0 do
       Invoice.paid(invoice)
     end
-  
+
     defp process_payment(invoice, school_context) do
       x_device = Enum.into(Map.get(school_context, :req_headers) || [], %{})
       x_device = x_device["X-Device"] || x_device["x-device"] || ""
@@ -99,7 +99,7 @@ defmodule Fsm.Billing.CreateInvoice do
   
       case invoice.payment_option do
         :balance -> pay_off_balance(invoice, school_context)
-        :cc -> 
+        :cc ->
           is_demo = is_demo_invoice?(invoice)
           pay_off_cc(invoice, school_context, is_demo, x_device)
         
@@ -150,19 +150,38 @@ defmodule Fsm.Billing.CreateInvoice do
       end
     end
   
-    defp pay_off_cc(invoice, 
-      %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, _) do
+    defp pay_off_cc(%{stripe_token: stripe_token} = invoice,
+      %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, _) when not is_nil(stripe_token) do
 
-      Flight.StripeSinglePayment.get_stripe_session(invoice, school_id)
+      Flight.StripeSinglePayment.charge_stripe_token(invoice, school_id)
       |> case do
-        {:ok, session} -> 
+        {:ok, session} ->
           Flight.Bills.delete_invoice_pending_transactions(invoice.id, invoice.user_id, school_id)
+          invoice = Map.merge(invoice, %{payment_option: :cc, status: :paid})
           transaction_attrs = transaction_attributes(invoice)
+          transaction_attrs = Map.merge(transaction_attrs, %{state: "completed"})
           CreateTransaction.run(invoice.user, school_context, transaction_attrs)
   
           Invoice.save_invoice(invoice, session)
           {:ok, Map.merge(invoice, session)}
   
+        error -> error
+      end
+    end
+
+    defp pay_off_cc(invoice,
+      %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, _) do
+
+      Flight.StripeSinglePayment.get_stripe_session(invoice, school_id)
+      |> case do
+        {:ok, session} ->
+          Flight.Bills.delete_invoice_pending_transactions(invoice.id, invoice.user_id, school_id)
+          transaction_attrs = transaction_attributes(invoice)
+          CreateTransaction.run(invoice.user, school_context, transaction_attrs)
+
+          Invoice.save_invoice(invoice, session)
+          {:ok, Map.merge(invoice, session)}
+
         error -> error
       end
     end
@@ -323,7 +342,7 @@ defmodule Fsm.Billing.CreateInvoice do
   
       else
         demo
-      end  
+      end
     end
   end
   

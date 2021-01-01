@@ -26,6 +26,30 @@ defmodule Flight.StripeSinglePayment do
         end    
     end
 
+    def charge_stripe_token(_invoice, nil), do: {:error, "School id not identified."}
+    def charge_stripe_token(invoice, school_id) do
+        {line_items, total_amount} = map_line_items(invoice.line_items, invoice.tax_rate)
+
+        info =
+        %{
+            source: Map.get(invoice, :stripe_token),
+            application_fee: application_fee(total_amount),
+            currency: "usd",
+            amount: round(total_amount)
+        }
+        Logger.info fn -> "Param info: #{inspect info}" end
+
+        with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id),
+            {:ok, %{id: id}} <- Stripe.Charge.create(info, connect_account: acc_id) do
+                pub_key = FlightWeb.StripeHelper.stripe_key()
+                {:ok, %{session_id: id, connect_account: acc_id, pub_key: pub_key}}
+
+        else
+            nil -> {:error, "Stripe Account not added for this school."}
+            error -> error
+        end
+    end
+
     def create_session(account_id, info) do
         %{
             "mode" => "payment",

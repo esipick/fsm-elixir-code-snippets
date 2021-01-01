@@ -192,6 +192,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
   input_object :update_invoice_input do
     field(:id, :integer)
     field(:appointment_id, :integer)
+    field(:stripe_token, :string)
     field(:date, :string)
     field(:ignore_last_time, :boolean)
     field(:is_visible, :boolean)

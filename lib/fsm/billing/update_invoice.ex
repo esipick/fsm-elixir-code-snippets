@@ -5,7 +5,7 @@ defmodule Fsm.Billing.UpdateInvoice do
     alias Fsm.Billing.Services.Utils
     alias Fsm.Billing  
     alias Fsm.Accounts
-  
+
     def run(invoice_input, pay_off, school_id, user_id) do
         pay_off = pay_off || false
         invoice_id = Map.get(invoice_input, :id)
@@ -31,7 +31,7 @@ defmodule Fsm.Billing.UpdateInvoice do
         school_context = %Plug.Conn{assigns: %{current_user: current_user}}
         invoice_attribs = invoice_attrs(invoice_params, current_user)
         aircraft_info = Utils.aircraft_info_map(invoice_params)
-      
+
       {:ok, invoice_attribs} = Flight.Billing.CalculateInvoice.run(invoice_attribs, school_context)
   
       {invoice_attribs, update_hours} = 
@@ -56,6 +56,14 @@ defmodule Fsm.Billing.UpdateInvoice do
           end
   
           if pay_off == true do
+
+            invoice =
+              if Map.get(invoice_input, :stripe_token) not in [nil, ""] do
+                Map.put(invoice, :stripe_token, Map.get(invoice_input, :stripe_token))
+
+              else
+                invoice_params
+              end
             CreateInvoice.pay(invoice, school_context)
           else
             {:ok, invoice}
