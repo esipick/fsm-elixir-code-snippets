@@ -74,14 +74,21 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   object :scheduling_mutations do
     field :create_unavailability, :unavailability do
       arg :unavailability, :unavailability_input
-      middleware Middleware.Authorize, ["admin"]
+      middleware Middleware.Authorize, ["admin", "dispatcher"]
       resolve &SchedulingResolvers.create_unavailability/3
     end
+
     field :edit_unavailability, :unavailability do
-      arg :id, :integer
+      arg :id, non_null(:integer)
       arg :unavailability, :unavailability_input
-      middleware Middleware.Authorize, ["admin"]
+      middleware Middleware.Authorize, ["admin", "dispatcher"]
       resolve &SchedulingResolvers.edit_unavailability/3
+    end
+
+    field :delete_unavailability, :boolean do
+      arg :id, non_null(:integer)
+      middleware Middleware.Authorize, ["admin", "dispatcher"]
+      resolve &SchedulingResolvers.delete_unavailability/3
     end
 
      field :create_appointment, :appointment do

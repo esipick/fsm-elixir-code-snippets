@@ -60,6 +60,10 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     end
   end
 
+  def delete_unavailability(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Scheduling.delete_unavailability(args.id, context)
+  end
+
   def edit_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
     appointment = Map.get(args, :appointment)
     Scheduling.update_appointment(context, appointment)

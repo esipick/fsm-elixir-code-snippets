@@ -540,6 +540,31 @@ defmodule Fsm.Scheduling do
       {:error, changeset}
     end
   end
+
+  def get_unavailability(id, school_context) do
+    Unavailability
+    |> SchoolScope.scope_query(school_context)
+    |> where([a], a.id == ^id)
+    |> Repo.one()
+  end
+
+  def delete_unavailability(id, school_context) do
+    unavailability = get_unavailability(id, school_context)
+
+    if not is_nil unavailability do
+      Repo.delete(unavailability)
+      |> case do
+       {:ok, _} ->
+         {:ok, true}
+       {:error, error} ->
+         {:error, error}
+       _->
+         {:ok, false}
+       end
+    else
+      {:error, "Unavailability not found"}
+    end
+  end
   
   def list_unavailabilities(options, school_context) do
 
