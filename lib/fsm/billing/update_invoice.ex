@@ -62,7 +62,7 @@ defmodule Fsm.Billing.UpdateInvoice do
                 Map.put(invoice, :stripe_token, Map.get(invoice_input, :stripe_token))
 
               else
-                invoice_params
+                invoice
               end
             CreateInvoice.pay(invoice, school_context)
           else
