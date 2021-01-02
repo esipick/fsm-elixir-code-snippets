@@ -48,8 +48,17 @@ defmodule Fsm.Billing.CreateInvoice do
             end
 
             if pay_off == true do
+              invoice =
+                if Map.get(invoice_params, :stripe_token) not in [nil, ""] do
+                  Map.put(invoice, :stripe_token, Map.get(invoice_params, :stripe_token))
+
+                else
+                  invoice
+                end
               case pay(invoice, school_context) do
-                {:ok, invoice} -> {:ok, invoice}
+                {:ok, invoice} ->
+                  Invoice.paid(invoice)
+                  {:ok, invoice}
                 {:error, error} -> {:error, "Invoice Id:" <> inspect(invoice.id)<> " " <> error.message}
               end
             else
@@ -165,7 +174,8 @@ defmodule Fsm.Billing.CreateInvoice do
           Invoice.save_invoice(invoice, session)
           {:ok, Map.merge(invoice, session)}
   
-        error -> error
+        error ->
+          error
       end
     end
 

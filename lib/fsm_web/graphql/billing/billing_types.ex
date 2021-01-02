@@ -157,6 +157,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
 
   input_object :line_item_input do
     field(:aircraft_id, :integer)
+    field(:room_id, :integer)
     field(:amount, :integer)
     field(:deductible, :boolean)
     field(:description, :string)
@@ -176,8 +177,10 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
 
   input_object :create_invoice_input do
     field(:appointment_id, :integer)
+    field(:stripe_token, :string)
     field(:date, :string)
     field(:ignore_last_time, :boolean)
+    field(:demo, :boolean)
     field(:is_visible, :boolean)
     field(:payer_name, :string)
     field(:payment_option, :payment_options)
@@ -196,6 +199,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:date, :string)
     field(:ignore_last_time, :boolean)
     field(:is_visible, :boolean)
+    field(:demo, :boolean)
     field(:payer_name, :string)
     field(:payment_option, :payment_options)
     field(:tax_rate, :integer)
