@@ -106,8 +106,12 @@ defmodule Fsm.Billing.BillingQueries do
       on: (i.id == t.invoice_id or i.bulk_invoice_id == t.bulk_invoice_id),
       inner_join: ili in InvoiceLineItem,
       on: (i.id == ili.invoice_id),
+      left_join: ac in Aircraft,
+      on: (ac.id == ili.aircraft_id),
       inner_join: u in User,
       on: i.user_id == u.id,
+      left_join: instructor in User,
+      on: ili.instructor_user_id == instructor.id,
       select: %{
         id: i.id,
         date: i.date,
@@ -129,7 +133,7 @@ defmodule Fsm.Billing.BillingQueries do
         session_id: i.session_id,
         line_items:
           fragment(
-            "array_agg(json_build_object('id', ?, 'invoice_id', ?, 'description', ?, 'rate', ?, 'quantity', ?, 'amount', ?, 'inserted_at', ?, 'updated_at', ?, 'instructor_user_id', ?, 'type', ?, 'aircraft_id', ?, 'hobbs_start', ?, 'hobbs_end', ?, 'tach_start', ?, 'tach_end', ?, 'hobbs_tach_used', ?, 'taxable', ?, 'deductible', ?, 'creator_id', ?, 'room_id', ?))",
+            "array_agg(json_build_object('id', ?, 'invoice_id', ?, 'description', ?, 'rate', ?, 'quantity', ?, 'amount', ?, 'inserted_at', ?, 'updated_at', ?, 'instructor_user_id', ?, 'type', ?, 'aircraft_id', ?, 'hobbs_start', ?, 'hobbs_end', ?, 'tach_start', ?, 'tach_end', ?, 'hobbs_tach_used', ?, 'taxable', ?, 'deductible', ?, 'creator_id', ?, 'room_id', ?, 'tail_number', ?, 'instructor_name', ?))",
             ili.id,
             ili.invoice_id,
             ili.description,
@@ -149,7 +153,9 @@ defmodule Fsm.Billing.BillingQueries do
             ili.taxable,
             ili.deductible,
             ili.creator_id,
-            ili.room_id
+            ili.room_id,
+            ac.tail_number,
+            fragment("concat(?, ' ', ?)", instructor.first_name, instructor.last_name)
           ),
         transactions:
           fragment(
