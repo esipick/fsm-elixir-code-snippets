@@ -42,14 +42,19 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     unavailability = Map.get(args, :unavailability)
     school = Repo.get(School, school_id)
     unavailability =
-      case (Map.get(unavailability, :start_at) || "") |> NaiveDateTime.from_iso8601 do
-           {:ok, start_at} -> Map.put(unavailability, :start_at, walltime_to_utc(start_at, school.timezone))
-           _ -> unavailability
-      end
-    unavailability =
-      case (Map.get(unavailability, :end_at) || "") |> NaiveDateTime.from_iso8601 do
-           {:ok, end_at} -> Map.put(unavailability, :end_at, walltime_to_utc(end_at, school.timezone))
-           _ -> unavailability
+      if Map.get(unavailability, :aircraft_id) not in [nil, ""] or Map.get(unavailability, :simulator_id) not in [nil, ""] do
+        unavailability =
+          case (Map.get(unavailability, :start_at) || "") |> NaiveDateTime.from_iso8601 do
+               {:ok, start_at} -> Map.put(unavailability, :start_at, walltime_to_utc(start_at, school.timezone))
+               _ -> unavailability
+          end
+
+        case (Map.get(unavailability, :end_at) || "") |> NaiveDateTime.from_iso8601 do
+             {:ok, end_at} -> Map.put(unavailability, :end_at, walltime_to_utc(end_at, school.timezone))
+             _ -> unavailability
+        end
+      else
+        unavailability
       end
 
     Scheduling.insert_or_update_unavailability(context, %Unavailability{}, unavailability)
