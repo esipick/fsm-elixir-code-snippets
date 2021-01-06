@@ -53,7 +53,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
              {:ok, end_at} -> Map.put(unavailability, :end_at, walltime_to_utc(end_at, school.timezone))
              _ -> unavailability
         end
-      else 
+      else
         unavailability
       end
 
