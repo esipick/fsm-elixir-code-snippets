@@ -513,7 +513,10 @@ defmodule Fsm.Scheduling do
         
           case status do
           :available -> changeset
-          other -> 
+          :unavailable ->
+            key = if get_field(changeset, :simulator_id), do: :simulator, else: :aircraft
+            add_error(changeset, key, "already have unavailability within the given time range", status: status)
+          other ->
             key = if get_field(changeset, :simulator_id), do: :simulator, else: :aircraft
             add_error(changeset, key, "is #{other}", status: status)
           end
@@ -528,13 +531,14 @@ defmodule Fsm.Scheduling do
 
           case status do
             :available -> changeset
-            other -> 
+            :unavailable ->
+              add_error(changeset, :room, "already have unavailability within the given time range", status: status)
+            other ->
               add_error(changeset, :room, "is #{other}", status: status)
           end
         else
         changeset
         end
-
       Repo.insert_or_update(changeset)
     else
       {:error, changeset}

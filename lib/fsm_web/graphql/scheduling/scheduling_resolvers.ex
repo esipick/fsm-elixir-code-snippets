@@ -2,8 +2,12 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
 
   alias Fsm.Scheduling
   alias Flight.Scheduling.Unavailability
+  alias Flight.Accounts.School
   alias FsmWeb.GraphQL.Scheduling.AppointmentView
   alias FsmWeb.GraphQL.Log
+  alias Flight.Repo
+
+  import Fsm.Walltime, only: [walltime_to_utc: 2, utc_to_walltime: 2]
 
 #  def login(_parent, %{email: email, password: password} = params, resolution) do
 #    resp = Accounts.api_login(%{"email" => email, "password"=> password} )
@@ -36,6 +40,18 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
 
   def create_unavailability(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
     unavailability = Map.get(args, :unavailability)
+    school = Repo.get(School, school_id)
+    unavailability =
+      case (Map.get(unavailability, :start_at) || "") |> NaiveDateTime.from_iso8601 do
+           {:ok, start_at} -> Map.put(unavailability, :start_at, walltime_to_utc(start_at, school.timezone))
+           _ -> unavailability
+      end
+    unavailability =
+      case (Map.get(unavailability, :end_at) || "") |> NaiveDateTime.from_iso8601 do
+           {:ok, end_at} -> Map.put(unavailability, :end_at, walltime_to_utc(end_at, school.timezone))
+           _ -> unavailability
+      end
+
     Scheduling.insert_or_update_unavailability(context, %Unavailability{}, unavailability)
     |> case do
       {:error, changeset} ->
