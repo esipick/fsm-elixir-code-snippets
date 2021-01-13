@@ -85,7 +85,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         arg :password_confirmation, non_null(:string)
 #        middleware Middleware.Authorize
         resolve &AccountsResolvers.reset_submit/3
-      end
+      end 
 
       field :create_user, :user do
         arg :user_input, non_null(:user_input)
