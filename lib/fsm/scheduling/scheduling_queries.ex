@@ -128,21 +128,51 @@ defmodule Fsm.Scheduling.SchedulingQueries do
                  where: a.demo == ^value
 
           :upcoming ->
+            {from, to} =
+              case filter do
+                %{from: from, to: to} ->
+                  {from, to}
+
+                %{from: from} ->
+                  {from, NaiveDateTime.add(NaiveDateTime.utc_now(),2678400)}
+
+                %{to: to} ->
+                  {NaiveDateTime.add(NaiveDateTime.utc_now(),-2678400), to}
+
+                _ ->
+                  {NaiveDateTime.add(NaiveDateTime.utc_now(),-2678400), NaiveDateTime.add(NaiveDateTime.utc_now(),2678400)}
+              end
+
             if value do
               from a in query,
-                   where: a.start_at >= ^NaiveDateTime.utc_now()
+                   where: (a.start_at >= ^NaiveDateTime.utc_now() and a.start_at <= ^to)
             else
               from a in query,
-                   where: a.start_at < ^NaiveDateTime.utc_now()
+                   where: (a.start_at < ^NaiveDateTime.utc_now() and a.start_at >= ^from)
             end
 
           :past ->
+            {from, to} =
+              case filter do
+                %{from: from, to: to} ->
+                  {from, to}
+
+                %{from: from} ->
+                  {from, NaiveDateTime.add(NaiveDateTime.utc_now(),2678400)}
+
+                %{to: to} ->
+                  {NaiveDateTime.add(NaiveDateTime.utc_now(),-2678400), to}
+
+                _ ->
+                  {NaiveDateTime.add(NaiveDateTime.utc_now(),-2678400), NaiveDateTime.add(NaiveDateTime.utc_now(),2678400)}
+              end
+
             if value do
               from a in query,
-                   where: a.start_at < ^NaiveDateTime.utc_now()
+                   where: a.start_at < ^NaiveDateTime.utc_now() and a.start_at >= ^from
             else
               from a in query,
-                   where: a.start_at >= ^NaiveDateTime.utc_now()
+                   where: a.start_at >= ^NaiveDateTime.utc_now() and a.start_at <= ^to
             end
 
           :from ->

@@ -228,8 +228,8 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :demo, :boolean
     field :upcoming, :boolean
     field :past, :boolean
-    field :from, :string
-    field :to, :string
+    field :from, :naive_datetime
+    field :to, :naive_datetime
     field :type, :string
     field :status, :string
     field :search_criteria, :appointment_search_criteria
