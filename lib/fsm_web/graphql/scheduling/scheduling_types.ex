@@ -240,9 +240,9 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :instructor_user_id, :integer
     field :aircraft_id, :integer
 
-    field :from, :string
-    field :to, :string
-    field :start_at_after, :string
+    field :from, :naive_datetime
+    field :to, :naive_datetime
+    field :start_at_after, :naive_datetime
   end
 end
   

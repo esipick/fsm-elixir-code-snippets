@@ -572,23 +572,11 @@ defmodule Fsm.Scheduling do
   
   def list_unavailabilities(options, school_context) do
 
-    from_value =
-      case NaiveDateTime.from_iso8601(options["from"] || "") do
-        {:ok, date} -> date
-        _ -> nil
-      end
+    from_value = Map.get(options, "from")
 
-    to_value =
-      case NaiveDateTime.from_iso8601(options["to"] || "") do
-        {:ok, date} -> date
-        _ -> nil
-      end
+    to_value = Map.get(options, "to")
 
-    start_at_after_value =
-      case NaiveDateTime.from_iso8601(options["start_at_after"] || "") do
-        {:ok, date} -> date
-        _ -> nil
-      end
+    start_at_after_value = Map.get(options, "start_at_after")
 
     instructor_user_id_value = options["instructor_user_id"]
     aircraft_id_value = options["aircraft_id"]
