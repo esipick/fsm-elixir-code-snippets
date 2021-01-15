@@ -8,6 +8,8 @@ defmodule FlightWeb.Context do
 
   def call(conn, _) do
     context = build_context(conn)
+    Map.get(conn, :params)
+    |> IO.inspect(label: "REQUEST params")
     IO.inspect(context, label: "context")
     Absinthe.Plug.put_options(conn, context: context)
   end
