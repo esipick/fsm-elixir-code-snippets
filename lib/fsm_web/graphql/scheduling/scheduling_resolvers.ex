@@ -34,11 +34,13 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
 #  end
 
   def create_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Log.request(args, __ENV__.function)
     appointment = Map.get(args, :appointment)
     Scheduling.create_appointment(context, appointment)
   end
 
   def create_unavailability(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Log.request(args, __ENV__.function)
     unavailability = Map.get(args, :unavailability)
     school = Repo.get(School, school_id)
     unavailability =
@@ -68,6 +70,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
   end
 
   def edit_unavailability(parent, %{id: id}= args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Log.request(args, __ENV__.function)
     unavailability_attrs = Map.get(args, :unavailability)
     unavailability = Flight.Repo.get(Unavailability, id)
 
@@ -82,20 +85,24 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
   end
 
   def delete_unavailability(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Log.request(args, __ENV__.function)
     Scheduling.delete_unavailability(args.id, context)
   end
 
   def edit_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Log.request(args, __ENV__.function)
     appointment = Map.get(args, :appointment)
     Scheduling.update_appointment(context, appointment)
   end
 
   def delete_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Log.request(args, __ENV__.function)
     appointment_id = Map.get(args, :appointment_id)
     Scheduling.delete_appointment(context, appointment_id)
   end
 
   def list_aircraft_appointments(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Log.request(args, __ENV__.function)
     page = Map.get(args, :page)
     per_page = Map.get(args, :per_page)
 
@@ -111,6 +118,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
   end
 
   def list_room_appointments(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Log.request(args, __ENV__.function)
     page = Map.get(args, :page)
     per_page = Map.get(args, :per_page)
 
@@ -125,6 +133,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
   end
 
   def list_appointments(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Log.request(args, __ENV__.function)
     page = Map.get(args, :page)
     per_page = Map.get(args, :per_page)
 
@@ -140,6 +149,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
   end
 
   def list_unavailabilities(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Log.request(args, __ENV__.function)
 #    page = Map.get(args, :page)
 #    per_page = Map.get(args, :per_page)
 #
