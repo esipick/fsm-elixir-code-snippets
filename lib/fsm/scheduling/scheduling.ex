@@ -99,7 +99,7 @@ defmodule Fsm.Scheduling do
   def update_appointment(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, appointment_data) do
     appointment = get_appointment(Map.get(appointment_data, :id))
     %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
-    context = %{assigns: %{current_user: current_user}, school_id: school_id}
+    context = %{assigns: %{current_user: current_user}, school_id: school_id, params: %{"school_id" => to_string(school_id)}, request_path: "/api/appointments"}
 
     if !Flight.Auth.Authorization.user_can?(current_user, [Permission.new(:appointment, :modify, :all)]) && Scheduling.Appointment.is_paid?(appointment) do
       {:error, "Can't modify paid appointment. Please contact administrator to re-schedule or update the content."}
