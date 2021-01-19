@@ -50,7 +50,7 @@ defmodule Fsm.Scheduling do
   def delete_appointment(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, appointment_id) do
     appointment = get_appointment(appointment_id)
     %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
-    context = %{assigns: %{current_user: current_user}, school_id: school_id}
+    context = %{assigns: %{current_user: current_user}, school_id: school_id, params: %{"school_id" => to_string(school_id)}, request_path: "/api/appointments"}
 
     if Flight.Auth.Authorization.user_can?(current_user, [Permission.new(:appointment, :modify, :all)]) do
       delete_appointment(appointment, current_user, context)
@@ -392,7 +392,7 @@ defmodule Fsm.Scheduling do
   def create_appointment(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, appointment_data) do
     %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
     school = Fsm.SchoolScope.get_school(school_id)
-    context = %{assigns: %{current_user: current_user}, school_id: school_id}
+    context = %{assigns: %{current_user: current_user}, school_id: school_id, params: %{"school_id" => to_string(school_id)}, request_path: "/api/appointments"}
     case insert_or_update_appointment(
            %Appointment{},
            appointment_data,

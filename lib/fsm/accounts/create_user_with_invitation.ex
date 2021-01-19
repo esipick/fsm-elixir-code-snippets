@@ -15,7 +15,7 @@ defmodule Fsm.Accounts.CreateUserWithInvitation do
         stripe_token \\ nil
       ) do
     main_instructor_id = Map.get(attrs, "main_instructor_id")
-    school_context = %{assigns: %{current_user: current_user}, school_id: current_user.school_id}
+    school_context = %{assigns: %{current_user: current_user}, school_id: current_user.school_id, params: %{"school_id" => to_string(current_user.school_id)}, request_path: "/api/users"}
 
     with {:ok, user} = payload <-
            create_user(attrs, school_context, requires_stripe_account?, stripe_token),
