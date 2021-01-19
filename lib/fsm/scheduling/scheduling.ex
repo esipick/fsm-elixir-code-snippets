@@ -584,8 +584,6 @@ defmodule Fsm.Scheduling do
     from(a in Unavailability)
     |> SchoolScope.scope_query(school_context)
     |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at >= ^start_at_after_value))
-    |> pass_unless(from_value, &where(&1, [a], a.start_at >= ^from_value))
-    |> pass_unless(to_value, &where(&1, [a], a.end_at <= ^to_value))
     |> pass_unless(
          from_value && to_value,
          &Availability.overlap_query(&1, from_value, to_value)
