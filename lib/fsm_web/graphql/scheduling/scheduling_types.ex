@@ -52,7 +52,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     @desc "List all appointments ('all')"
     field :list_appointments, list_of(non_null(:appointment)) do
       arg :page, :integer, default_value: 1
-      arg :per_page, :integer, default_value: 100
+      arg :per_page, :integer, default_value: 1000
       arg :sort_field, :appointment_sort_fields
       arg :sort_order, :order_by
       arg :filter, :appointment_filters
