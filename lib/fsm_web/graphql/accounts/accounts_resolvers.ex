@@ -290,6 +290,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
   end
 
   def forgot_submit(_parent, %{email: email}, _context) do
+    email = String.trim(email)
     cond do
       email == "" ->
         {:error, "Please enter your email"}
