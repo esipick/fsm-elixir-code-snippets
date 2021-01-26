@@ -92,23 +92,12 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
-#config :flight, Flight.Repo,
-#  username: "admin",
-#  password: "123456",
-#  database: "flight_dev",
-#  hostname: "localhost",
-#  pool_size: 10
-
-# Connect to staging database
 config :flight, Flight.Repo,
-  username: "bgxmltqexmsbbt",
-  password: "f745da74c253a3ff78fc4a7728e6612d8fb3dd16e1923943e02c554a294fa2dc",
-  database: "d3lugdu8a44rbb",
-  hostname: "ec2-174-129-22-84.compute-1.amazonaws.com",
-  queue_interval: 3000_000,
-  port: 5432,
-  pool_size: 10,
-  ssl: true
+  username: "admin",
+  password: "123456",
+  database: "flight_dev",
+  hostname: "localhost",
+  pool_size: 10
 
 config :flight, :user_token_salt, "gwfyeA8B5"
 

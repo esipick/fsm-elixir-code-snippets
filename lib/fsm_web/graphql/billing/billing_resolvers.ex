@@ -54,41 +54,47 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
                       {:ok, expiry_date} <- Date.new(exp_year, exp_month, 28),
                       true <- Date.diff(expiry_date, Date.utc_today()) > 0
                   do
-                   Stripe.PaymentIntent.create(%{
-                     amount: parsed_amount,
-                     currency: "USD",
-                     customer: current_user.stripe_customer_id,
-                     payment_method_types: ["card"],
-                     off_session: true,
-                     confirm: true
-                   })
-                   |> case do
-                      {:ok, %Stripe.PaymentIntent{status: "succeeded"}=resp} ->
-                        Billing.add_funds(%{user_id: id}, %{
-                          amount: amount,
-                          description: description,
-                          user_id: requested_user_id
-                        })
+                   with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id) do
+                     Stripe.PaymentIntent.create(%{
+                       amount: parsed_amount,
+                       currency: "USD",
+                       customer: current_user.stripe_customer_id,
+                       payment_method_types: ["card"],
+                       off_session: true,
+                       confirm: true
+                     }, [connect_account: acc_id])
+                     |> case do
+                        {:ok, %Stripe.PaymentIntent{status: "succeeded"}=resp} ->
+                          Billing.add_funds(%{user_id: id}, %{
+                            amount: amount,
+                            description: description,
+                            user_id: requested_user_id
+                          })
 
-                      {:error, %Stripe.Error{extra: %{message: message, param: param}}} ->
-                        {:error, "Stripe Error in parameter '#{param}': #{message}"}
+                        {:error, %Stripe.Error{extra: %{message: message, param: param}}} ->
+                          {:error, "Stripe Error in parameter '#{param}': #{message}"}
 
-                      {:error, %Stripe.Error{extra: %{raw_error: %{"message" => message, "param" => param}}}} ->
-                        {:error, "Stripe Error in parameter '#{param}': #{message}"}
+                        {:error, %Stripe.Error{extra: %{raw_error: %{"message" => message, "param" => param}}}} ->
+                          {:error, "Stripe Error in parameter '#{param}': #{message}"}
 
-                      {:error, %Stripe.Error{extra: %{message: message}}} ->
-                        {:error, "Stripe Error: #{message}"}
+                        {:error, %Stripe.Error{extra: %{message: message}}} ->
+                          {:error, "Stripe Error: #{message}"}
 
-                      {:error, %Stripe.Error{message: message}} ->
-                        {:error, "Stripe Error: #{message}"}
+                        {:error, %Stripe.Error{message: message}} ->
+                          {:error, "Stripe Error: #{message}"}
 
-                      {:error, error} ->
-                        {:error, "Stripe Raw Error: #{error}"}
+                        {:error, error} ->
+                          {:error, "Stripe Raw Error: #{error}"}
 
 
-                      _ ->
-                        {:error, "Something went wrong! Unable to add funds using card in user profile. Please update another card in profile or check amount and try again"}
-                      end
+                        _ ->
+                          {:error, "Something went wrong! Unable to add funds using card in user profile. Please update another card in profile or check amount and try again"}
+                        end
+
+                   else
+                     nil -> {:error, "Stripe Account not added for this school."}
+                     error -> error
+                   end
 
                  else
                  resp ->
