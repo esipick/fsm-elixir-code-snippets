@@ -47,6 +47,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
       _ ->
         %{roles: _roles, user: current_user} = Fsm.Accounts.get_user(id)
 
+        if Map.get(current_user, :stripe_customer_id) not in [nil, "", " "] do
           Stripe.Customer.retrieve(current_user.stripe_customer_id)
           |> case do
                {:ok,
@@ -145,6 +146,9 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
 
                  {:error, "Please attach valid card in user profile"}
              end
+          else
+            {:error, "Invalid user's stripe customer id"}
+          end
     end
   end
 
