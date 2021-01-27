@@ -49,22 +49,54 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
 
           Stripe.Customer.retrieve(current_user.stripe_customer_id)
           |> case do
-               {:ok, %Stripe.Customer{sources: %Stripe.List{data: [%Stripe.Card{id: stripe_customer, exp_month: exp_month, exp_year: exp_year} =card | _]}}} ->
+               {:ok,
+                 %Stripe.Customer{sources: %Stripe.List{data: [%Stripe.Card{id: stripe_customer, exp_month: exp_month, exp_year: exp_year} =card | _]},
+                 default_source: source_id}
+               } ->
                  with {:ok, parsed_amount} <- parse_amount(amount),
                       {:ok, expiry_date} <- Date.new(exp_year, exp_month, 28),
                       true <- Date.diff(expiry_date, Date.utc_today()) > 0
                   do
-                   with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id) do
-                     Stripe.PaymentIntent.create(%{
-                       amount: parsed_amount,
-                       currency: "USD",
-                       customer: current_user.stripe_customer_id,
-                       payment_method_types: ["card"],
-                       off_session: true,
-                       confirm: true
-                     }, [connect_account: acc_id])
+
+                   with acc_id <- Map.get(Billing.get_stripe_account_by_school_id(school_id), :stripe_account_id),
+                        true <- acc_id != nil do
+
+                   token_result =
+                     if current_user do
+                       token =
+                         Stripe.Token.create(
+                           %{customer: current_user.stripe_customer_id, card: source_id},
+                           connect_account: acc_id
+                         )
+
+                       case token do
+                         {:ok, token} -> {:ok, token.id}
+                         error -> error
+                       end
+                     else
+                       {:ok, source_id}
+                     end
+                 resp =
+                   case token_result do
+                     {:ok, token_id} ->
+                       Stripe.Charge.create(
+                         %{
+                           source: token_id,
+#                           application_fee: application_fee_for_total(parsed_amount),
+                           currency: "usd",
+                           receipt_email: current_user.email,
+                           amount: parsed_amount
+                         },
+                         connect_account: acc_id
+                       )
+
+                     error ->
+                       error
+                   end
+
+                   resp
                      |> case do
-                        {:ok, %Stripe.PaymentIntent{status: "succeeded"}=resp} ->
+                        {:ok, %Stripe.Charge{status: "succeeded"}=resp} ->
                           Billing.add_funds(%{user_id: id}, %{
                             amount: amount,
                             description: description,
@@ -87,13 +119,16 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
                           {:error, "Stripe Raw Error: #{error}"}
 
 
-                        _ ->
+                        error ->
+                        Logger.info fn -> "Stripe Charge Error: #{inspect error}" end
                           {:error, "Something went wrong! Unable to add funds using card in user profile. Please update another card in profile or check amount and try again"}
                         end
 
                    else
                      nil -> {:error, "Stripe Account not added for this school."}
-                     error -> error
+                     error ->
+                       Logger.info fn -> "Stripe Account for school Error: #{inspect error}" end
+                       error
                    end
 
                  else
@@ -105,7 +140,9 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
                     end
 
                  end
-               _ ->
+               error ->
+                 Logger.info fn -> "Stripe Error: #{inspect error}" end
+
                  {:error, "Please attach valid card in user profile"}
              end
     end
