@@ -3,7 +3,9 @@ defmodule Fsm.Dashboard do
   alias Fsm.{Accounts, Scheduling}
 
   alias Flight.Repo
+  alias Fsm.IonicAppVersion
 
+  import Ecto.Query, warn: false
   ##
   # List Roles Count Stats
   ##
@@ -31,6 +33,70 @@ defmodule Fsm.Dashboard do
         count: Enum.count(aircrafts)
       }
     ]
+  end
+
+  ##
+  # Latest Ionic App version
+  ##
+  def latest_app_version do
+    get_latest_app_version
+#    validate_version(version)
+#    |> case do
+#         {:ok, int_version} -> {:ok, Map.put(version_map, :int_version, int_version)}
+#         error -> error
+#       end
+  end
+#require Logger
+#  def validate_version(version) do
+#    parts =
+#      version
+#      |> String.split(".", trim: true)
+#      |> Enum.take(3)
+#
+#      Logger.info fn -> "{version, parts}: #{inspect {version, parts}}" end
+#
+#    int_version(parts, Enum.count(parts))
+#  end
+#
+#  defp int_version(parts, parts_count) when parts_count == 3 do
+#
+#    Enum.reduce_while(parts, {:ok, ""}, fn part, {:ok, acc} ->
+#      part
+#      |> normalize_part(String.length(part))
+#      |> case do
+#           {:ok, part} -> {:cont, {:ok, acc <> part}}
+#           {:error, error} -> {:halt, {:error, error}}
+#         end
+#    end)
+#    |> case do
+#         {:ok, num} ->
+#           {int_version, _} = Integer.parse(num)
+#           {:ok, int_version}
+#
+#         error -> error
+#       end
+#  end
+#
+#  defp int_version(version, _), do: {:error, "invalid version: #{Enum.join(version, ".")}. version should be in xxx.yyy.zzz format, where x, y, z are numbers."}
+#
+#  defp normalize_part(part, part_count) when part_count > 0 and part_count <= 3 do
+#    part
+#    |> String.pad_leading(3, "0")
+#    |> Integer.parse
+#    |> case do
+#         {_, ""} -> {:ok, String.pad_leading(part, 3, "0")}
+#         _ -> {:error, "Version format is not valid. version should be in xxx.yyy.zzz format, where x, y, z are numbers."}
+#       end
+#  end
+#  defp normalize_part(_part, _part_count), do: {:error, "Version format is not valid. version should be in xxx.yyy.zzz format, where x, y, z are numbers."}
+
+  ##
+  # Get Latest App version
+  ##
+  def get_latest_app_version do
+      Ecto.Query.from(v in IonicAppVersion, order_by: [desc: v.created_at], limit: 1)
+      |> Ecto.Query.first
+      |> Repo.one() || %{version: "4.0.26", int_version: 4000026, created_at: "2020-01-28 22:00:00", updated_at: "2020-01-28 22:00:00"}
   end
 
 #  ##

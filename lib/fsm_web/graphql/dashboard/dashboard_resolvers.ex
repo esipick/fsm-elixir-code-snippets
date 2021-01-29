@@ -10,5 +10,12 @@ defmodule FsmWeb.GraphQL.Dashboard.DashboardResolvers do
     resp = {:ok, response}
     Log.response(resp, __ENV__.function, :info)
   end
+
+  def latest_app_version(parent, _args, _context) do
+    response = Dashboard.latest_app_version()
+
+    resp = {:ok, response}
+    Log.response(resp, __ENV__.function, :info)
+  end
 end
   

@@ -12,6 +12,9 @@ defmodule FsmWeb.GraphQL.Dashboard.DashboardTypes do
       middleware Middleware.Authorize, ["admin", "dispatcher"]
       resolve &DashboardResolvers.list_roles_counts/3
     end
+    field :latest_app_version, non_null(:app_version) do
+      resolve &DashboardResolvers.latest_app_version/3
+    end
   end
 
   # MUTATIONS
@@ -28,6 +31,13 @@ defmodule FsmWeb.GraphQL.Dashboard.DashboardTypes do
   object :roles_count do
     field :title, :string
     field :count, :integer
+  end
+
+  object :app_version do
+    field :version, non_null(:string)
+    field :int_version, non_null(:integer)
+    field :created_at, non_null(:string)
+    field :updated_at, non_null(:string)
   end
 end
   
