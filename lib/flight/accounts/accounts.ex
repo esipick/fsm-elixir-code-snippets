@@ -521,6 +521,14 @@ defmodule Flight.Accounts do
       {:error, %{} = changeset} ->
         {:error, changeset}
 
+      {:error, "invalid password"} ->
+        {:error,
+          %Ecto.Changeset{
+            valid?: false,
+            errors: [current_password: {"is invalid", []}],
+            types: %{current_password: :string}
+          }}
+
       {:error, _} ->
         {:error,
          %Ecto.Changeset{
