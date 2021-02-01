@@ -1,4 +1,5 @@
 defmodule Fsm.Accounts do
+  use FlightWeb, :controller
   import Ecto.Query, warn: false
 
   alias Flight.Repo
@@ -9,6 +10,8 @@ defmodule Fsm.Accounts do
   alias Fsm.Accounts.AccountsQueries
   alias Fsm.SchoolScope
   alias Fsm.Email
+
+  alias Flight.Auth.Permission
 
   require Logger
 
@@ -48,6 +51,16 @@ defmodule Fsm.Accounts do
     user
     |> User.update_password_changeset(%{password: password})
     |> Repo.update()
+  end
+
+  def create_push_token(user_id, token, platform) do
+    case resp = Flight.Notifications.update_push_token(%{"token" => token, "platform" => platform}, user_id) do
+    {:ok, _} ->
+        {:ok, true}
+
+      {:error, changeset} ->
+        FlightWeb.ViewHelpers.human_error_messages(changeset)
+    end
   end
 
   def update_password(user, %{password: password, new_password: new_password}) do
@@ -465,6 +478,15 @@ defmodule Fsm.Accounts do
 ##                end
 #         end
 #  end
+
+  def authorize_modify(modifier_user_id, user_id) do
+    %{roles: _roles, user: current_user} = get_user(modifier_user_id)
+    conn = %Plug.Conn{assigns: %{current_user: current_user}}
+    halt_unless_user_can?(conn, [
+      Permission.new(:push_token, :modify, {:personal, user_id}),
+      Permission.new(:push_token, :modify, :all)
+    ])
+  end
 
   defp check_password(user, password) do
     Comeonin.Bcrypt.check_pass(user, password)

@@ -73,6 +73,14 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         resolve &AccountsResolvers.change_password/3
       end
 
+      field :create_push_token, :boolean do
+        arg :user_id, non_null(:integer)
+        arg :token, non_null(:string)
+        arg :platform, non_null(:string)
+        middleware Middleware.Authorize
+        resolve &AccountsResolvers.create_push_token/3
+      end
+
       field :verify_reset_password_token, :session do
         arg :token, non_null(:string)
 #        middleware Middleware.Authorize
