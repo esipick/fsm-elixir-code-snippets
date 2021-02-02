@@ -195,7 +195,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     per_page = Map.get(args, :per_page)
 
     sort_field = Map.get(args, :sort_field) || :start_at
-    sort_order = Map.get(args, :sort_order) || :desc
+    sort_order = Map.get(args, :sort_order) || :asc
     filter = Map.get(args, :filter) || %{}
     response =
       Scheduling.list_appointments(page, per_page, sort_field, sort_order, filter, context)
