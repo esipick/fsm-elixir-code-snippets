@@ -1,10 +1,12 @@
 defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
+  import Flight.Auth.Authorization
 
   alias Fsm.Scheduling
   alias Flight.Scheduling.Unavailability
   alias Flight.Accounts.School
   alias FsmWeb.GraphQL.Scheduling.AppointmentView
   alias FsmWeb.GraphQL.Log
+  alias Flight.Auth.Permission
   alias Flight.Repo
 
   import Fsm.Walltime, only: [walltime_to_utc: 2, utc_to_walltime: 2]
@@ -39,7 +41,8 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     Scheduling.create_appointment(context, appointment)
   end
 
-  def create_unavailability(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+  def create_unavailability(parent, args, %{context: %{current_user: %{id: modifier_user_id, school_id: school_id}}}=context) do
+    with %{resp_body: nil} <- authorize_modify(args, context) do
     Log.request(args, __ENV__.function)
     unavailability = Map.get(args, :unavailability)
     school = Repo.get(School, school_id)
@@ -68,25 +71,79 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
         changeset
     end
   end
+  end
+
+  defp authorize_modify(args, %{context: %{current_user: %{id: modifier_user_id}}}=context) do
+    %{roles: _roles, user: current_user} = Fsm.Accounts.get_user(modifier_user_id)
+    id = Map.get(args, :id)
+    unavailability =
+      Map.get(args, :id)
+      |> Scheduling.get_unavailability(context)
+    conn = %Plug.Conn{assigns: %{current_user: current_user, unavailability: unavailability}}
+    instructor_user_id_from_unavailability =
+      case conn.assigns do
+        %{unavailability: %{instructor_user_id: id}} -> id
+        _ -> nil
+      end
+
+    instructor_user_id =
+      (Map.get(args, :unavailability)) |> Optional.map(& &1[:instructor_user_id]) ||
+        instructor_user_id_from_unavailability
+
+    cond do
+      parse_to_boolean(instructor_user_id) ->
+        if user_can?(conn.assigns.current_user, [
+          Permission.new(:unavailability_instructor, :modify, {:personal, instructor_user_id}),
+          Permission.new(:unavailability_instructor, :modify, :all),
+          Permission.new(:unavailability, :modify, :all)
+        ]) do
+          conn
+        else
+          {:error, "unauthorized"}
+        end
+
+      user_can?(conn.assigns.current_user, [
+        Permission.new(:unavailability_aircraft, :modify, :all),
+        Permission.new(:unavailability_instructor, :modify, :all),
+        Permission.new(:unavailability, :modify, :all)
+      ]) ->
+        conn
+
+      true ->
+        {:error, "unauthorized"}
+    end
+  end
+
+  defp parse_to_boolean(instructor_user_id) do
+    case instructor_user_id do
+      nil -> nil
+      "" -> nil
+      _ -> true
+    end
+  end
 
   def edit_unavailability(parent, %{id: id}= args, %{context: %{current_user: %{school_id: school_id}}}=context) do
-    Log.request(args, __ENV__.function)
-    unavailability_attrs = Map.get(args, :unavailability)
-    unavailability = Flight.Repo.get(Unavailability, id)
+    with %{resp_body: nil} <- authorize_modify(args, context) do
+      Log.request(args, __ENV__.function)
+      unavailability_attrs = Map.get(args, :unavailability)
+      unavailability = Flight.Repo.get(Unavailability, id)
 
-    Scheduling.insert_or_update_unavailability(context, unavailability, unavailability_attrs)
-    |> case do
-      {:error, changeset} ->
-        error_messages = FsmWeb.ViewHelpers.human_error_messages(changeset)
-        {:error, error_messages}
-      changeset ->
-        changeset
+      Scheduling.insert_or_update_unavailability(context, unavailability, unavailability_attrs)
+      |> case do
+        {:error, changeset} ->
+          error_messages = FsmWeb.ViewHelpers.human_error_messages(changeset)
+          {:error, error_messages}
+        changeset ->
+          changeset
+      end
     end
   end
 
   def delete_unavailability(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
-    Log.request(args, __ENV__.function)
-    Scheduling.delete_unavailability(args.id, context)
+    with %{resp_body: nil} <- authorize_modify(args, context) do
+      Log.request(args, __ENV__.function)
+      Scheduling.delete_unavailability(args.id, context)
+    end
   end
 
   def edit_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do

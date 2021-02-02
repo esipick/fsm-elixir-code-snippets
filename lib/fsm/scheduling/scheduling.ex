@@ -545,6 +545,10 @@ defmodule Fsm.Scheduling do
     end
   end
 
+  def get_unavailability(nil, school_context) do
+   %{}
+  end
+
   def get_unavailability(id, school_context) do
     Unavailability
     |> SchoolScope.scope_query(school_context)
