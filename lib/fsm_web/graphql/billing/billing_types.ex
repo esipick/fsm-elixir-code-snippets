@@ -137,6 +137,10 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
   object :line_item do
     field(:aircraft_id, :integer)
     field(:tail_number, :string)
+    field(:model, :string)
+    field(:make, :string)
+    field(:aircraft_simulator_name, :string)
+    field(:simulator, :boolean)
     field(:amount, :integer)
     field(:deductible, :boolean)
     field(:description, :string)
