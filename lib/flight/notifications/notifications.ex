@@ -6,26 +6,36 @@ defmodule Flight.Notifications do
 
   def update_push_token(%{"token" => token, "platform" => platform}, user_id) do
     existing_token = push_token(token, platform)
-
     if existing_token do
       existing_token
       |> PushToken.changeset(%{user_id: user_id})
       |> Repo.update()
     else
-      {:ok, endpoint_arn} =
         case platform do
-          "ios" -> Mondo.PushService.create_ios_endpoint(token)
+          "ios" ->
+            Mondo.PushService.create_ios_endpoint(token)
+            |> case do
+                 {:error, {:http_error, 400, %{message: "Invalid parameter: Token Reason: iOS device tokens must be no more than 400 hexadecimal characters"}}} ->
+                   Mondo.PushService.create_android_endpoint(token)
+                 resp ->
+                   resp
+               end
           "android" -> Mondo.PushService.create_android_endpoint(token)
         end
-
-      %PushToken{}
-      |> PushToken.changeset(%{
-        token: token,
-        platform: platform,
-        endpoint_arn: endpoint_arn,
-        user_id: user_id
-      })
-      |> Repo.insert()
+        |> case do
+             {:ok, endpoint_arn} ->
+               %PushToken{}
+               |> PushToken.changeset(%{
+                 token: token,
+                 platform: platform,
+                 endpoint_arn: endpoint_arn,
+                 user_id: user_id
+               })
+               |> Repo.insert()
+             {:error, {:http_error, 400, %{message: message}}} -> {:error, message}
+             error ->
+              error
+           end
     end
   end
 

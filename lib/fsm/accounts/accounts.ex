@@ -55,11 +55,14 @@ defmodule Fsm.Accounts do
 
   def create_push_token(user_id, token, platform) do
     case resp = Flight.Notifications.update_push_token(%{"token" => token, "platform" => platform}, user_id) do
-    {:ok, _} ->
-        {:ok, true}
+      {:ok, _} ->
+          {:ok, true}
 
-      {:error, changeset} ->
+      {:error, %Ecto.Changeset{errors: _errors, changes: _changes, types: _types} = changeset} ->
         FlightWeb.ViewHelpers.human_error_messages(changeset)
+
+      error ->
+        error
     end
   end
 

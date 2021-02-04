@@ -268,8 +268,6 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
   end
 
   def create_push_token(_parent, params, %{context: %{current_user: %{id: user_id}}} = context) do
-    allowed = Fsm.Accounts.authorize_modify(user_id, params.user_id)
-    Logger.info fn -> "allowed: #{inspect allowed}" end
     with %{resp_body: nil} <- Fsm.Accounts.authorize_modify(user_id, params.user_id) do
       Fsm.Accounts.create_push_token(params.user_id, params.token, params.platform)
 
