@@ -38,7 +38,9 @@ defmodule Flight.Scheduling.Unavailability do
       :belongs
     ])
     |> validate_required([:start_at, :end_at, :available, :type, :school_id])
-    |> apply_utc_timezone_changeset(attrs, timezone)
+#    |> apply_utc_timezone_changeset(attrs, timezone)
+    |> remove_seconds_from_start_at
+    |> remove_seconds_from_end_at
     |> validate_inclusion(:type, ["time_off"])
     |> validate_resources
   end
@@ -60,9 +62,32 @@ defmodule Flight.Scheduling.Unavailability do
     ])
     |> validate_required([:start_at, :end_at, :available, :type, :school_id])
 #    |> apply_utc_timezone_changeset(attrs, timezone)
+    |> remove_seconds_from_start_at
+    |> remove_seconds_from_end_at
     |> validate_end_at_after_start_at
     |> validate_inclusion(:type, ["time_off"])
     |> validate_resources
+  end
+
+
+  defp remove_seconds_from_start_at(changeset) do
+    with %Ecto.Changeset{valid?: true, changes: %{start_at: start_at}} <- changeset,
+         {{year, month, day}, {hour, minute, _seconds}} <- NaiveDateTime.to_erl(start_at),
+         {:ok, start_at} <- NaiveDateTime.from_erl({{year, month, day}, {hour, minute, 00}})do
+      put_change(changeset, :start_at, start_at)
+    else
+      _ -> changeset
+    end
+  end
+
+  defp remove_seconds_from_end_at(changeset) do
+    with %Ecto.Changeset{valid?: true, changes: %{end_at: end_at}} <- changeset,
+         {{year, month, day}, {hour, minute, _seconds}} <- NaiveDateTime.to_erl(end_at),
+         {:ok, end_at} <- NaiveDateTime.from_erl({{year, month, day}, {hour, minute, 00}})do
+      put_change(changeset, :end_at, end_at)
+    else
+      _ -> changeset
+    end
   end
 
   def validate_resources(changeset) do

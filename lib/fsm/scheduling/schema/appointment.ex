@@ -60,6 +60,8 @@ defmodule Fsm.Scheduling.Appointment do
       :type
     ])
     |> apply_utc_timezone_changeset(timezone)
+    |> remove_seconds_from_start_at
+    |> remove_seconds_from_end_at
     |> validate_end_at_after_start_at
     |> validate_user_instructor_different
     |> validate_either_instructor_or_aircraft_set
@@ -79,6 +81,8 @@ defmodule Fsm.Scheduling.Appointment do
     |> normalize_type
     |> validate_inclusion(:type, types())
     |> check_demo_flight
+    |> remove_seconds_from_start_at
+    |> remove_seconds_from_end_at
     |> validate_end_at_after_start_at
     |> validate_user_instructor_different
     |> validate_either_instructor_or_aircraft_set
@@ -112,6 +116,26 @@ defmodule Fsm.Scheduling.Appointment do
     put_change(changeset, :type, type)
   end
   def normalize_type(changeset), do: changeset
+
+  defp remove_seconds_from_start_at(changeset) do
+    with %Ecto.Changeset{valid?: true, changes: %{start_at: start_at}} <- changeset,
+         {{year, month, day}, {hour, minute, _seconds}} <- NaiveDateTime.to_erl(start_at),
+         {:ok, start_at} <- NaiveDateTime.from_erl({{year, month, day}, {hour, minute, 00}})do
+      put_change(changeset, :start_at, start_at)
+    else
+      _ -> changeset
+    end
+  end
+
+  defp remove_seconds_from_end_at(changeset) do
+    with %Ecto.Changeset{valid?: true, changes: %{end_at: end_at}} <- changeset,
+    {{year, month, day}, {hour, minute, _seconds}} <- NaiveDateTime.to_erl(end_at),
+    {:ok, end_at} <- NaiveDateTime.from_erl({{year, month, day}, {hour, minute, 00}})do
+      put_change(changeset, :end_at, end_at)
+    else
+      _ -> changeset
+    end
+  end
 
   def check_demo_flight(%Ecto.Changeset{valid?: true, changes: %{type: "demo_flight"}} = changeset) do
     put_change(changeset, :demo, true)
