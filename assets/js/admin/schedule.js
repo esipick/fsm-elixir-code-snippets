@@ -419,12 +419,8 @@ $(document).ready(function () {
       var eventStart;
       var eventEnd;
       if (eventInstructor){
-        eventStart = (moment.utc($('#unavailStart').val()).add(-(moment().utcOffset()), 'm')).format()
-        eventEnd = (moment.utc($('#unavailEnd').val()).add(-(moment().utcOffset()), 'm')).format()
-      }
-      else { //eventAircraft
-        eventStart = moment($('#unavailStart').val()).format()
-        eventEnd = moment($('#unavailEnd').val()).format()
+        eventStart = (moment.utc($('#unavailStart').val()).add(-(moment().utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+        eventEnd = (moment.utc($('#unavailEnd').val()).add(-(moment().utcOffset()), 'm')).set({second:0,millisecond:0}).format()
       }
       var eventNote = $('#unavailNote').val()
 
@@ -438,6 +434,7 @@ $(document).ready(function () {
         note: eventNote,
         belongs: eventFor
       };
+
 
       var promise;
 

@@ -59,7 +59,7 @@ defmodule Flight.Scheduling.Unavailability do
       :belongs
     ])
     |> validate_required([:start_at, :end_at, :available, :type, :school_id])
-    |> apply_utc_timezone_changeset(attrs, timezone)
+#    |> apply_utc_timezone_changeset(attrs, timezone)
     |> validate_end_at_after_start_at
     |> validate_inclusion(:type, ["time_off"])
     |> validate_resources
