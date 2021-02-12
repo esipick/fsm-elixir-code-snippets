@@ -338,8 +338,9 @@ $(document).ready(function () {
       var eventRoom = safeParseInt($('#apptRoom').val());
       var eventApptType = $('#apptType').val();
 
-      var eventStart = (moment.utc($('#apptStart').val()).add(-(moment().utcOffset()), 'm')).format()
-      var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment().utcOffset()), 'm')).format()
+      var eventStart = (moment.utc($('#apptStart').val()).add(-(moment().utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+      var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment().utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+
       var eventNote = $('#apptNote').val()
 
       var eventData = {
