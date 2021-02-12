@@ -418,10 +418,9 @@ $(document).ready(function () {
 
       var eventStart;
       var eventEnd;
-      if (eventInstructor){
         eventStart = (moment.utc($('#unavailStart').val()).add(-(moment().utcOffset()), 'm')).set({second:0,millisecond:0}).format()
         eventEnd = (moment.utc($('#unavailEnd').val()).add(-(moment().utcOffset()), 'm')).set({second:0,millisecond:0}).format()
-      }
+
       var eventNote = $('#unavailNote').val()
 
       var eventData = {
