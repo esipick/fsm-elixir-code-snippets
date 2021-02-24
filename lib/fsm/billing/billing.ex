@@ -256,6 +256,7 @@ defmodule Fsm.Billing do
     )
   end
 
+require Logger
   def add_credit_card(stripe_token, user_id) do
     %{roles: _roles, user: user} = Accounts.get_user(user_id)
     case user.stripe_customer_id do
@@ -272,8 +273,9 @@ defmodule Fsm.Billing do
                 {:error, :failed}
             end
 
-          %Stripe.Error{} = error ->
-            {:error, FlightWeb.StripeHelper.human_error(error)}
+            {:error, %Stripe.Error{} = error} ->
+              Logger.error(fn -> "Stripe Error >> add_credit_card: #{inspect(error)}" end)
+              {:error, FlightWeb.StripeHelper.human_error(error)}
 
           error ->
             {:error, :failed}
