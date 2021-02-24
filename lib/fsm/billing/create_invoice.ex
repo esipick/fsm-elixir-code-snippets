@@ -166,12 +166,12 @@ defmodule Fsm.Billing.CreateInvoice do
       |> case do
         {:ok, session} ->
           Flight.Bills.delete_invoice_pending_transactions(invoice.id, invoice.user_id, school_id)
+          oldInvoice = invoice
           invoice = Map.merge(invoice, %{payment_option: :cc, status: :paid})
           transaction_attrs = transaction_attributes(invoice)
           transaction_attrs = Map.merge(transaction_attrs, %{state: "completed"})
           CreateTransaction.run(invoice.user, school_context, transaction_attrs)
-  
-          Invoice.save_invoice(invoice, session)
+          Invoice.save_invoice(oldInvoice,  Map.merge(%{payment_option: :cc, status: :paid},session))
           {:ok, Map.merge(invoice, session)}
   
         error ->
@@ -355,4 +355,3 @@ defmodule Fsm.Billing.CreateInvoice do
       end
     end
   end
-  
