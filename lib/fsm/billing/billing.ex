@@ -268,12 +268,15 @@ defmodule Fsm.Billing do
             |> case do
               {:ok, _} ->
                 {:ok, :success}
-              _->
+              error->
                 {:error, :failed}
             end
 
+          %Stripe.Error{} = error ->
+            {:error, FlightWeb.StripeHelper.human_error(error)}
+
           error ->
-            {:error, :faild}
+            {:error, :failed}
         end
 
       customer_id ->
@@ -281,8 +284,12 @@ defmodule Fsm.Billing do
         |> case do
           {:ok, _customer} ->
             {:ok, :success}
-          _-> 
-            {:error, :failed}
+
+           %Stripe.Error{} = error ->
+             {:error, FlightWeb.StripeHelper.human_error(error)}
+
+           error ->
+             {:error, :failed}
         end
     end
   end
