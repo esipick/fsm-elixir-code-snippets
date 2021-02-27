@@ -55,7 +55,12 @@ defmodule Flight.Billing.CalculateInvoice do
 
   defp calculate_line_items(invoice_attrs, school_context) do
     Enum.map(invoice_attrs["line_items"], fn x ->
-      calculate_line_item(x, invoice_attrs, school_context)
+      x
+      |> Enum.map(fn {k, v} ->
+        if is_atom(k), do: {Atom.to_string(k), v}, else: {k, v}
+      end)
+      |> Enum.into(%{})
+      |> calculate_line_item(invoice_attrs, school_context)
     end)
   end
 
