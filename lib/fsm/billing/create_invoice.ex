@@ -169,7 +169,7 @@ defmodule Fsm.Billing.CreateInvoice do
           oldInvoice = invoice
           invoice = Map.merge(invoice, %{payment_option: :cc, status: :paid})
           transaction_attrs = transaction_attributes(invoice)
-          transaction_attrs = Map.merge(transaction_attrs, %{state: "completed"})
+          transaction_attrs = Map.merge(transaction_attrs, %{state: "completed", completed_at: NaiveDateTime.utc_now()})
           CreateTransaction.run(invoice.user, school_context, transaction_attrs)
           Invoice.save_invoice(oldInvoice,  Map.merge(%{payment_option: :cc, status: :paid},session))
           {:ok, Map.merge(invoice, session)}
