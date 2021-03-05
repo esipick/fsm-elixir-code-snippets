@@ -79,7 +79,7 @@ defmodule Flight.Billing do
       DetailedTransactionForm.to_transaction(form, :block, school_context)
 
     user =
-        if form.user_id do
+        if Map.get(form, :user_id) do
           Flight.Accounts.get_user(form.user_id, school_context)
         end
 

@@ -13,6 +13,7 @@ defmodule Fsm.Billing.UpdateInvoice do
         invoice_params = %{
           "id" => Map.get(invoice_input, :id),
           "appointment_id" => Map.get(invoice_input, :appointment_id),
+          "demo" => Map.get(invoice_input, :demo) || invoice.demo,
           "date" => Map.get(invoice_input, :date),
           "ignore_last_time" => Map.get(invoice_input, :ignore_last_time),
           "is_visible" => Map.get(invoice_input, :is_visible),

@@ -93,12 +93,21 @@ defmodule Flight.Billing.CalculateInvoice do
       |> MapUtil.atomize_shallow()
       |> Map.merge(%{ignore_last_time: invoice["ignore_last_time"]})
 
-    detailed_params = %{
-      aircraft_details: aircraft_details,
-      appointment_id: invoice["appointment_id"],
-      creator_user_id: current_user.id,
-      user_id: invoice["user_id"] || current_user.id
-    }
+    detailed_params =
+      if invoice["demo"] do
+        %{
+          aircraft_details: aircraft_details,
+          appointment_id: invoice["appointment_id"],
+          creator_user_id: current_user.id
+        }
+      else
+        %{
+          aircraft_details: aircraft_details,
+          appointment_id: invoice["appointment_id"],
+          creator_user_id: current_user.id,
+          user_id: invoice["user_id"] || current_user.id
+        }
+      end
 
     line_item
     |> calculate_from_hobbs_tach(detailed_params, school_context)
