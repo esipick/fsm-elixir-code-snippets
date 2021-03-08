@@ -203,7 +203,6 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:date, :string)
     field(:ignore_last_time, :boolean)
     field(:is_visible, :boolean)
-    field(:demo, :boolean)
     field(:payer_name, :string)
     field(:payment_option, :payment_options)
     field(:tax_rate, :integer)

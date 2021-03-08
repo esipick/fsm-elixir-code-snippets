@@ -93,8 +93,15 @@ defmodule Flight.Billing.CalculateInvoice do
       |> MapUtil.atomize_shallow()
       |> Map.merge(%{ignore_last_time: invoice["ignore_last_time"]})
 
+    demo =
+      with {:ok, apmnt} <- Flight.Scheduling.get_appointment_dangrous(invoice["appointment_id"]) do
+        Map.get(apmnt, :demo) || false
+      else
+        _ ->
+          false
+      end
     detailed_params =
-      if invoice["demo"] do
+      if demo do
         %{
           aircraft_details: aircraft_details,
           appointment_id: invoice["appointment_id"],
