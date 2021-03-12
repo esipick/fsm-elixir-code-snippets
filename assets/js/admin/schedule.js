@@ -1,5 +1,4 @@
 /* global $, swal, moment */
-console.log('dddddddddddddddddddddddd')
 var userInfo = null;
 var allInstructors = null;
 var allAircrafts = null;
@@ -780,7 +779,6 @@ $(document).ready(function () {
   };
 
   function fsmCalendar(instructors, aircrafts, simulators, rooms, students, current_user) {
-    console.log("vvvv")
     userInfo = current_user;
     allInstructors = instructors;
     allAircrafts = aircrafts;
@@ -1146,7 +1144,6 @@ $(document).ready(function () {
             if (unavailability.room) {
               resourceIds.push("room:" + unavailability.room.id)
             }
-console.log("aaaaaaaaaaaaaa")
             return {
               title: "Unavailable",
               start: moment.utc(unavailability.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
