@@ -338,8 +338,8 @@ $(document).ready(function () {
       var eventRoom = safeParseInt($('#apptRoom').val());
       var eventApptType = $('#apptType').val();
 
-      var eventStart = (moment.utc($('#apptStart').val()).add(-(moment().utcOffset()), 'm')).set({second:0,millisecond:0}).format()
-      var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment().utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+      var eventStart = (moment.utc($('#apptStart').val()).add(-(moment().utcOffset()), 'm').add(moment().isDST() ? 1 : 0, 'hours')).set({second:0,millisecond:0}).format()
+      var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment().utcOffset()), 'm').add(moment().isDST() ? 1 : 0, 'hours')).set({second:0,millisecond:0}).format()
 
       var eventNote = $('#apptNote').val()
 
@@ -378,8 +378,8 @@ $(document).ready(function () {
       var eventAircraft = safeParseInt($('#demoApptAircraft').val());
       var eventApptType = $('#apptType').val();
 
-      var eventStart = (moment.utc($('#demoApptStart').val()).add(-(moment().utcOffset()), 'm')).format()
-      var eventEnd = (moment.utc($('#demoApptEnd').val()).add(-(moment().utcOffset()), 'm')).format()
+      var eventStart = (moment.utc($('#demoApptStart').val()).add(-(moment().utcOffset()), 'm').add(moment().isDST() ? 1 : 0, 'hours')).format()
+      var eventEnd = (moment.utc($('#demoApptEnd').val()).add(-(moment().utcOffset()), 'm').add(moment().isDST() ? 1 : 0, 'hours')).format()
       var eventNote = $('#demoApptNote').val()
 
       var eventData = {
