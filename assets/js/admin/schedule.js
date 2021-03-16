@@ -338,8 +338,8 @@ $(document).ready(function () {
       var eventRoom = safeParseInt($('#apptRoom').val());
       var eventApptType = $('#apptType').val();
 
-      var eventStart = (moment.utc($('#apptStart').val()).add(-(moment().utcOffset()), 'm').add(moment().isDST() ? 1 : 0, 'hours')).set({second:0,millisecond:0}).format()
-      var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment().utcOffset()), 'm').add(moment().isDST() ? 1 : 0, 'hours')).set({second:0,millisecond:0}).format()
+      var eventStart = (moment.utc($('#apptStart').val()).add(-(moment().utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+      var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment().utcOffset()), 'm')).set({second:0,millisecond:0}).format()
 
       var eventNote = $('#apptNote').val()
 
@@ -378,8 +378,8 @@ $(document).ready(function () {
       var eventAircraft = safeParseInt($('#demoApptAircraft').val());
       var eventApptType = $('#apptType').val();
 
-      var eventStart = (moment.utc($('#demoApptStart').val()).add(-(moment().utcOffset()), 'm').add(moment().isDST() ? 1 : 0, 'hours')).format()
-      var eventEnd = (moment.utc($('#demoApptEnd').val()).add(-(moment().utcOffset()), 'm').add(moment().isDST() ? 1 : 0, 'hours')).format()
+      var eventStart = (moment.utc($('#demoApptStart').val()).add(-(moment().utcOffset()), 'm')).format()
+      var eventEnd = (moment.utc($('#demoApptEnd').val()).add(-(moment().utcOffset()), 'm')).format()
       var eventNote = $('#demoApptNote').val()
 
       var eventData = {
@@ -965,8 +965,8 @@ $(document).ready(function () {
 
           openAppointmentModal({
             type: "unavailability",
-            start_at: moment.utc(calEvent.unavailability.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
-            end_at: moment.utc(calEvent.unavailability.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
+            start_at: moment.utc(calEvent.unavailability.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
+            end_at: moment.utc(calEvent.unavailability.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
             instructor_user_id: instructor_user_id,
             aircraft_id: aircraft_id,
             simulator_id: simulator_id,
@@ -982,9 +982,9 @@ $(document).ready(function () {
           if (appointment.instructor_user) {
             instructor_user_id = appointment.instructor_user.id
           }
-          
+
           var aircraft_id = null;
-          
+
           if (appointment.aircraft) {
             aircraft_id = appointment.aircraft.id
           }
@@ -995,8 +995,8 @@ $(document).ready(function () {
 
           openAppointmentModal({
             type: "demoAppointment",
-            start_at: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
-            end_at: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
+            start_at: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
+            end_at: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
             instructor_user_id: instructor_user_id,
             aircraft_id: aircraft_id,
             note: appointment.note,
@@ -1024,14 +1024,14 @@ $(document).ready(function () {
           if (appointment.simulator){
             simulator_id = appointment.simulator.id;
           }
-          
+
           if( appointment.status == "paid") {
             alert("This appointment has been successfully paid!");
           }
-          
+
           openAppointmentModal({
-            start_at: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
-            end_at: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
+            start_at: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
+            end_at: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
             instructor_user_id: instructor_user_id,
             aircraft_id: aircraft_id,
             simulator_id: simulator_id,
@@ -1049,11 +1049,11 @@ $(document).ready(function () {
       // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
       events: function (start, end, timezone, callback) {
 
-        var startStr = (moment(start).add(-(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours')).toISOString();
-        var endStr = (moment(end).add(-(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours')).toISOString();
+        var startStr = (moment(start).add(-(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours')).toISOString();
+        var endStr = (moment(end).add(-(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours')).toISOString();
 
         var paramStr = addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr;
-      
+
         var appointmentsPromise = $.get({
           url: "/api/appointments?" + paramStr,
           headers: AUTH_HEADERS
@@ -1083,7 +1083,7 @@ $(document).ready(function () {
             if (appointment.room) {
               resourceIds.push("room:" + appointment.room.id)
             }
-            
+
             // if (appointment.user) {
             //   resourceIds.push("student:" + appointment.user.id)
             // }
@@ -1091,8 +1091,8 @@ $(document).ready(function () {
             if (appointment.status == "paid") {
               return {
                 title: appointmentTitle(appointment),
-                start: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
-                end: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
+                start: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
+                end: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
                 id: "appointment:" + appointment.id,
                 appointment: appointment,
                 resourceIds: resourceIds,
@@ -1115,8 +1115,8 @@ $(document).ready(function () {
 
               return {
                 title: appointmentTitle(appointment),
-                start: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
-                end: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
+                start: moment.utc(appointment.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
+                end: moment.utc(appointment.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
                 id: "appointment:" + appointment.id,
                 appointment: appointment,
                 resourceIds: resourceIds,
@@ -1146,8 +1146,8 @@ $(document).ready(function () {
             }
             return {
               title: "Unavailable",
-              start: moment.utc(unavailability.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
-              end: moment.utc(unavailability.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 1 : 0, 'hours'),
+              start: moment.utc(unavailability.start_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
+              end: moment.utc(unavailability.end_at).add(+(moment().utcOffset()), 'm').subtract(moment().isDST() ? 0 : 1, 'hours'),
               id: "unavailability:" + unavailability.id,
               unavailability: unavailability,
               resourceIds: resourceIds,
