@@ -419,8 +419,8 @@ $(document).ready(function () {
       var eventStart;
       var eventEnd;
 
-        eventStart = (moment.utc($('#unavailStart').val()).add(-(moment(('#unavailStart').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
-        eventEnd = (moment.utc($('#unavailEnd').val()).add(-(moment(('#unavailEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+        eventStart = (moment.utc($('#unavailStart').val()).add(-(moment($('#unavailStart').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+        eventEnd = (moment.utc($('#unavailEnd').val()).add(-(moment($('#unavailEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
 
       var eventNote = $('#unavailNote').val()
 
@@ -1051,8 +1051,8 @@ $(document).ready(function () {
       // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
       events: function (start, end, timezone, callback) {
 
-        var startStr = (moment(start).add(-(moment().utcOffset()), 'm')).toISOString();
-        var endStr = (moment(end).add(-(moment().utcOffset()), 'm')).toISOString();
+        var startStr = (moment(start).add(-(moment(start).utcOffset()), 'm')).toISOString();
+        var endStr = (moment(end).add(-(moment(end).utcOffset()), 'm')).toISOString();
 
         var paramStr = addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr;
 
