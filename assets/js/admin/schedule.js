@@ -1051,8 +1051,8 @@ $(document).ready(function () {
       // color classes: [ event-blue | event-azure | event-green | event-orange | event-red ]
       events: function (start, end, timezone, callback) {
 
-        var startStr = (moment(start).add(-(moment(start).utcOffset()), 'm')).toISOString();
-        var endStr = (moment(end).add(-(moment(end).utcOffset()), 'm')).toISOString();
+        var startStr = (moment(start).add(-(moment().utcOffset()), 'm')).toISOString();
+        var endStr = (moment(end).add(-(moment().utcOffset()), 'm')).toISOString();
 
         var paramStr = addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr;
 
