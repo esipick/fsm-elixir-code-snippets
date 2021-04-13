@@ -226,6 +226,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :school_id, :integer
     field :room_id, :integer
     field :demo, :boolean
+    field :assigned, :boolean
     field :upcoming, :boolean
     field :past, :boolean
     field :from, :naive_datetime
@@ -243,6 +244,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :from, :naive_datetime
     field :to, :naive_datetime
     field :start_at_after, :naive_datetime
+    field :assigned, :boolean
   end
 end
   
