@@ -219,7 +219,6 @@ defmodule Fsm.Scheduling.SchedulingQueries do
     end
 
     defp filter(query, %{assigned: true}=filter, %{context: %{current_user: %{id: user_id}}}=school_context) do
-   Logger.info fn -> "%{assigned: true}" end
       queri =
         from(a in query,
           inner_join: ui in UserInstructor, on: ui.instructor_id == a.instructor_user_id and ui.user_id == ^user_id,

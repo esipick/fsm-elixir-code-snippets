@@ -7,6 +7,7 @@ defmodule Fsm.Accounts.AccountsQueries do
     alias Fsm.Accounts.UserRole
     alias Fsm.Accounts.Role
     alias Fsm.SchoolScope
+    alias Flight.Accounts.UserInstructor
 
     require Logger
 
@@ -123,7 +124,7 @@ defmodule Fsm.Accounts.AccountsQueries do
       |> SchoolScope.scope_query(school_context)
       |> sort_by(sort_field, sort_order)
       |> sort_by(:first_name, sort_order)
-      |> filter(filter)
+      |> filter(filter, school_context)
       |> multiple_search(Map.get(filter, :search))
       |> paginate(page, per_page)
     end
@@ -169,6 +170,16 @@ defmodule Fsm.Accounts.AccountsQueries do
       end)
     end
 
+    defp filter(query, %{assigned: true}=filter, %{context: %{current_user: %{id: user_id}}}=school_context) do
+      queri =
+        from(a in query,
+        inner_join: ui in UserInstructor, on: ui.instructor_id == a.id and ui.user_id == ^user_id)
+      filter(queri, filter)
+    end
+
+    defp filter(query, filter, school_context) do
+      filter(query, filter)
+    end
 
     defp multiple_search(query, nil) do
       query
