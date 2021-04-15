@@ -92,6 +92,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
   input_object :aircraft_filters do
     field :id, :integer
     field :archived, :boolean
+    field :assigned, :boolean
     field :ifr_certified, :boolean
     field :simulator, :boolean
     field :blocked, :boolean

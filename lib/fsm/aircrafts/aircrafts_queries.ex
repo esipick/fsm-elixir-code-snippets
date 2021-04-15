@@ -7,6 +7,7 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
     alias Fsm.Accounts.UserRole
     alias Fsm.Accounts.Role
     alias Fsm.SchoolScope
+    alias Flight.Accounts.UserAircraft
 
     require Logger
 
@@ -28,7 +29,7 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
       |> SchoolScope.scope_query(school_context)
       |> sort_by(sort_field, sort_order)
       |> sort_by(:name, sort_order)
-      |> filter(filter)
+      |> filter(filter, school_context)
       |> search(filter)
       |> paginate(page, per_page)
     end
@@ -86,6 +87,16 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
       end)
     end
 
+    defp filter(query, %{assigned: true}=filter, %{context: %{current_user: %{id: user_id}}}=school_context) do
+      queri =
+        from(a in query,
+          inner_join: ua in UserAircraft, on: ua.aircraft_id == a.id and ua.user_id == ^user_id)
+      filter(queri, filter)
+    end
+
+    defp filter(query, filter, school_context) do
+      filter(query, filter)
+    end
 
     def search(query, %{search_criteria: _, search_term: ""}) do
       query

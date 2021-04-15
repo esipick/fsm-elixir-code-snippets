@@ -10,6 +10,9 @@ defmodule Fsm.Scheduling.SchedulingQueries do
     alias Fsm.Scheduling.Aircraft
     alias Fsm.SchoolAssets.Room
 
+    alias Flight.Accounts.UserInstructor
+    alias Flight.Accounts.UserAircraft
+
     alias Fsm.SchoolScope
 
     require Logger
@@ -62,7 +65,7 @@ defmodule Fsm.Scheduling.SchedulingQueries do
       |> SchoolScope.scope_query(school_context)
       |> sort_by(sort_field, sort_order)
       |> sort_by(:start_at, sort_order)
-      |> filter(filter)
+      |> filter(filter, school_context)
       |> search(filter)
       |> paginate(page, per_page)
     end
@@ -215,6 +218,18 @@ defmodule Fsm.Scheduling.SchedulingQueries do
       end)
     end
 
+    defp filter(query, %{assigned: true}=filter, %{context: %{current_user: %{id: user_id}}}=school_context) do
+   Logger.info fn -> "%{assigned: true}" end
+      queri =
+        from(a in query,
+          inner_join: ui in UserInstructor, on: ui.instructor_id == a.instructor_user_id and ui.user_id == ^user_id,
+          inner_join: ua in UserAircraft, on: ua.aircraft_id == a.aircraft_id and ua.user_id == ^user_id)
+      filter(queri, filter)
+    end
+
+    defp filter(query, filter, school_context) do
+      filter(query, filter)
+    end
 
     def search(query, %{search_criteria: _, search_term: ""}) do
       query
