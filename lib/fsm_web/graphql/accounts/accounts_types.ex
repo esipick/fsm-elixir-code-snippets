@@ -172,6 +172,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
 
   input_object :user_filters do
     field :archived, :boolean
+    field :assigned, :boolean
     field :search, list_of(:search_input)
     field :roles, list_of(:roles)
   end
