@@ -90,7 +90,8 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
     defp filter(query, %{assigned: true}=filter, %{context: %{current_user: %{id: user_id}}}=school_context) do
       queri =
         from(a in query,
-          inner_join: ua in UserAircraft, on: ua.aircraft_id == a.id and ua.user_id == ^user_id)
+          left_join: ua in UserAircraft, on: ua.aircraft_id == a.id,
+          where: ua.user_id == ^user_id)
       filter(queri, filter)
     end
 
