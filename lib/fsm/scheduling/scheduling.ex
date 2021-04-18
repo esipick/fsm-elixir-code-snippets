@@ -8,6 +8,8 @@ defmodule Fsm.Scheduling do
     Unavailability
   }
 
+  alias Flight.Accounts.UserAircraft
+  alias Flight.Accounts.UserInstructor
   alias Flight.Scheduling
   alias Fsm.Accounts
   alias Flight.Auth.Permission
@@ -343,6 +345,14 @@ defmodule Fsm.Scheduling do
 
       case Repo.insert_or_update(changeset) do
         {:ok, appointment} ->
+          assign_instructor_to_user = user_id not in ["", nil] && instructor_user_id not in ["", nil]
+          assign_aircraft_to_user = user_id not in ["", nil] && aircraft_id not in ["", nil]
+          if assign_instructor_to_user do
+            Repo.insert(%UserInstructor{user_id: user_id, instructor_id: instructor_user_id}, on_conflict: :nothing)
+          end
+          if assign_aircraft_to_user do
+            Repo.insert(%UserAircraft{user_id: user_id, aircraft_id: aircraft_id}, on_conflict: :nothing)
+          end
           if should_delete_item do
             Flight.Bills.delete_appointment_aircraft(appointment.id, appointment.aircraft_id)
           end
