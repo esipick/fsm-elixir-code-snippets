@@ -39,7 +39,7 @@ defmodule Fsm.Dashboard do
   # Latest Ionic App version
   ##
   def latest_app_version do
-    get_latest_app_version
+    get_latest_app_version()
 #    validate_version(version)
 #    |> case do
 #         {:ok, int_version} -> {:ok, Map.put(version_map, :int_version, int_version)}
@@ -96,7 +96,7 @@ defmodule Fsm.Dashboard do
   def get_latest_app_version do
       Ecto.Query.from(v in IonicAppVersion, order_by: [desc: v.created_at], limit: 1)
       |> Ecto.Query.first
-      |> Repo.one() || %{version: "4.0.26", int_version: 4000026, created_at: "2020-01-28 22:00:00", updated_at: "2020-01-28 22:00:00"}
+      |> Repo.one() || %{version: "4.0.28", int_version: 4000028, android_version: "4.0.28", android_int_version: 4000028, ios_version: "4.0.28", ios_int_version: 4000028, created_at: "2020-01-28 22:00:00", updated_at: "2020-01-28 22:00:00"}
   end
 
 #  ##

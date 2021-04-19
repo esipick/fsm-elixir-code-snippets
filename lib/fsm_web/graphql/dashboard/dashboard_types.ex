@@ -36,6 +36,10 @@ defmodule FsmWeb.GraphQL.Dashboard.DashboardTypes do
   object :app_version do
     field :version, non_null(:string)
     field :int_version, non_null(:integer)
+    field :android_version, non_null(:string)
+    field :android_int_version, non_null(:integer)
+    field :ios_version, non_null(:string)
+    field :ios_int_version, non_null(:integer)
     field :created_at, non_null(:string)
     field :updated_at, non_null(:string)
   end
