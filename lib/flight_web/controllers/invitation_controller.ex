@@ -9,6 +9,7 @@ defmodule FlightWeb.InvitationController do
   plug(:forward_to_success_if_accepted when action in [:accept, :accept_submit])
   plug(:forward_to_accept_if_not_accepted when action in [:accept_success])
 
+
   def accept(conn, _params) do
     invitation = Repo.preload(conn.assigns.invitation, [:user])
     changeset = Accounts.Invitation.user_create_changeset(invitation)
@@ -57,7 +58,7 @@ defmodule FlightWeb.InvitationController do
   end
 
   defp get_invitation(conn, _) do
-    invitation = Accounts.get_invitation_for_token(conn.params["token"])
+    invitation = Accounts.get_invitation_for_token(conn.query_params["token"])
 
     if invitation do
       assign(conn, :invitation, invitation |> Flight.Repo.preload([:role, :school]))

@@ -78,11 +78,11 @@ defmodule Flight.Email do
   end 
 
   def invitation_link(%Invitation{} = invitation) do
-    Application.get_env(:flight, :web_base_url) <> "/invitations/#{invitation.token}"
+    Application.get_env(:flight, :web_base_url) <> "/invitations?token=#{invitation.token}"
   end
 
   def school_invitation_link(%SchoolInvitation{} = invitation) do
-    Application.get_env(:flight, :web_base_url) <> "/school_invitations/#{invitation.token}"
+    Application.get_env(:flight, :web_base_url) <> "/school_invitations?token=#{invitation.token}"
   end
 
   def password_reset_link(%Flight.Accounts.PasswordReset{} = reset) do

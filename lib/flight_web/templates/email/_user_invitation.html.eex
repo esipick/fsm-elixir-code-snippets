@@ -26,7 +26,7 @@ You&#39;ve been invited to join <%= @company_name %> as a new <%= @role %>. Foll
                 <div style="text-align: center;">
 
 
-                  <h6><a href="https://itunes.apple.com/nz/app/flight-school-manager/id1079676025?mt=8" target="_blank">Get The iOSApp</a>></h6>
+                  <h6><a href="https://itunes.apple.com/nz/app/flight-school-manager/id1079676025?mt=8" target="_blank">Get The iOSApp</a></h6>
     <br />
     </div>
 

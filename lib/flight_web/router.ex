@@ -73,11 +73,11 @@ defmodule FlightWeb.Router do
     pipe_through([:browser, :no_layout])
 
     get("/", PageController, :index)
-    get("/invitations/:token", InvitationController, :accept)
+    get("/invitations", InvitationController, :accept)
     get("/invitations/:token/success", InvitationController, :accept_success)
     post("/invitations/:token", InvitationController, :accept_submit)
 
-    get("/school_invitations/:token", SchoolInvitationController, :accept)
+    get("/school_invitations", SchoolInvitationController, :accept)
     post("/school_invitations/:token", SchoolInvitationController, :accept_submit)
 
     get("/forgot_password", PasswordController, :forgot)
