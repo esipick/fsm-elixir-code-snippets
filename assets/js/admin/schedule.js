@@ -24,6 +24,7 @@ function payerTitle(appointment) {
 
 $(document).ready(function () {
   var showMySchedules = false
+  var showMyAssigned = false
   var AUTH_HEADERS = { "Authorization": window.fsm_token };
   var meta_roles = document.head.querySelector('meta[name="roles"]');
 
@@ -865,12 +866,33 @@ $(document).ready(function () {
       }
     }
 
+    if (current_user && current_user.roles.includes("student")) {
+      customButtons.myAssigned = {
+        text: 'Assigned',
+        click: function () {
+          showMyAssigned = !showMyAssigned;
+          var classToRemove = 'fc-state-active'
+          var classToAdd = 'fc-state-default'
+
+          if (showMyAssigned) {
+            classToRemove = 'fc-state-default'
+            classToAdd = 'fc-state-active'
+          }
+
+          $('#fullCalendar button.fc-mySchedules-button').addClass(classToAdd);
+          $('#fullCalendar button.fc-mySchedules-button').removeClass(classToRemove);
+
+          $calendar.fullCalendar('rerenderEvents');
+        }
+      }
+    }
+
     $calendar.fullCalendar({
       viewRender: function (view, element) { },
       header: {
         left: 'title,chooseDateButton',
         center: 'timelineDay,timelineWeek,timelineMonth',
-        right: 'prev,next,today,customDate,mySchedules'
+        right: 'prev,next,today,customDate,mySchedules,myAssigned'
       },
       customButtons: customButtons,
       resourceGroupField: "type",
@@ -894,6 +916,7 @@ $(document).ready(function () {
       },
       eventRender: function eventRender( event, element, view ) {
         if (!showMySchedules) {return true}
+        if (!showMyAssigned) {return true}
         var id = event.appointment && event.appointment.instructor_user && event.appointment.instructor_user.id
         if (!id) {
           id = event.unavailability && event.unavailability.instructor_user && event.unavailability.instructor_user.id
