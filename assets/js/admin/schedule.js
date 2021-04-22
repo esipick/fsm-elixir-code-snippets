@@ -870,19 +870,19 @@ $(document).ready(function () {
       customButtons.myAssigned = {
         text: 'Assigned',
         click: function () {
-          showMyAssigned = !showMyAssigned;
           var classToRemove = 'fc-state-active'
           var classToAdd = 'fc-state-default'
-
-          if (showMyAssigned) {
-            classToRemove = 'fc-state-default'
-            classToAdd = 'fc-state-active'
+          var assigned = $('.fc-myAssigned-button').val()
+          if (assigned == 'true'){
+            $('.fc-myAssigned-button').addClass(classToAdd);
+            $('.fc-myAssigned-button').removeClass(classToRemove);
+            $('.fc-myAssigned-button').val('false')
+          } else {
+            $('.fc-myAssigned-button').val('true')
+            $('.fc-myAssigned-button').removeClass(classToAdd);
+            $('.fc-myAssigned-button').addClass(classToRemove);
           }
-
-          $('#fullCalendar button.fc-mySchedules-button').addClass(classToAdd);
-          $('#fullCalendar button.fc-mySchedules-button').removeClass(classToRemove);
-
-          $calendar.fullCalendar('rerenderEvents');
+          $calendar.fullCalendar('refetchEvents');
         }
       }
     }
@@ -916,7 +916,6 @@ $(document).ready(function () {
       },
       eventRender: function eventRender( event, element, view ) {
         if (!showMySchedules) {return true}
-        if (!showMyAssigned) {return true}
         var id = event.appointment && event.appointment.instructor_user && event.appointment.instructor_user.id
         if (!id) {
           id = event.unavailability && event.unavailability.instructor_user && event.unavailability.instructor_user.id
@@ -1076,9 +1075,10 @@ $(document).ready(function () {
 
         var startStr = (moment(start).add(-(moment().utcOffset()), 'm')).toISOString();
         var endStr = (moment(end).add(-(moment().utcOffset()), 'm')).toISOString();
+        var paramAssigned = $('.fc-myAssigned-button').val()
+        paramAssigned = (typeof (paramAssigned) === "undefined" || paramAssigned === "" || paramAssigned === " ") ? "" : "&assigned=" + paramAssigned
 
-        var paramStr = addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr;
-
+        var paramStr = addSchoolIdParam('', '&') + "from=" + startStr + "&to=" + endStr + paramAssigned;
         var appointmentsPromise = $.get({
           url: "/api/appointments?" + paramStr,
           headers: AUTH_HEADERS
@@ -1187,10 +1187,10 @@ $(document).ready(function () {
     });
   }
 
-  var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
-  var students = $.get({ url: "/api/users/students", headers: AUTH_HEADERS })
-  var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: AUTH_HEADERS })
-  var rooms = $.get({url: "/api/rooms" + addSchoolIdParam('?'), headers: AUTH_HEADERS})
+    var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
+    var students = $.get({ url: "/api/users/students", headers: AUTH_HEADERS })
+    var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: AUTH_HEADERS })
+    var rooms = $.get({url: "/api/rooms" + addSchoolIdParam('?'), headers: AUTH_HEADERS})
 
   var current_user = $.get({ url: "/api/user_info", headers: AUTH_HEADERS })
 

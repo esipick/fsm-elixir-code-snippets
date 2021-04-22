@@ -263,7 +263,7 @@ defmodule Flight.Scheduling do
   # Appointment
   ##
 
-  def get_appointments(options, school_context) do
+  def get_appointments(options, %{assigns: %{current_user: %{id: user_id}}} = school_context) do
 
     from_value =
       case NaiveDateTime.from_iso8601(options["from"] || "") do
@@ -286,6 +286,7 @@ defmodule Flight.Scheduling do
     user_id_value = options["user_id"]
     instructor_user_id_value = options["instructor_user_id"]
     aircraft_id_value = options["aircraft_id"]
+    assigned_value = if !!options["assigned"] and options["assigned"] not in [false, "false", "", " ", nil], do: options["assigned"], else: ""
 
     from(a in Appointment, where: a.archived == false)
     |> SchoolScope.scope_query(school_context)
@@ -299,6 +300,14 @@ defmodule Flight.Scheduling do
     |> pass_unless(
       instructor_user_id_value,
       &from(a in &1, where: a.instructor_user_id == ^instructor_user_id_value)
+   )
+    |> pass_unless(assigned_value,
+       &from(a in &1,
+        distinct: a.id,
+        left_join: ui in UserInstructor, on: ui.instructor_id == a.instructor_user_id,
+        left_join: ua in UserAircraft, on: ua.aircraft_id == a.aircraft_id,
+        where: ui.user_id == ^user_id or ua.user_id == ^user_id or a.user_id == ^user_id
+      )
     )
     |> pass_unless(options["status"], &where(&1, [a], a.status == ^options["status"]))
     # |> limit(200)
