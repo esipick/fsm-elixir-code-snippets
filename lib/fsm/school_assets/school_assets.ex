@@ -4,8 +4,8 @@ defmodule Fsm.SchoolAssets do
   alias Flight.Repo
   alias Fsm.SchoolAssets.SchoolAssetsQueries
 
-  def list_rooms(conn) do
-    SchoolAssetsQueries.list_rooms_query(conn)
+  def list_rooms(page, per_page, sort_field, sort_order, filter, conn) do
+    SchoolAssetsQueries.list_rooms_query(page, per_page, sort_field, sort_order, filter, conn)
     |> Repo.all
   end
 end
