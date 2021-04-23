@@ -66,6 +66,10 @@ defmodule Fsm.Accounts do
     end
   end
 
+  def delete_push_token(user_id, token, platform) do
+    Flight.Notifications.delete_push_token(%{"token" => token, "platform" => platform}, user_id)
+  end
+
   def update_password(user, %{password: password, new_password: new_password}) do
     with {:ok, user} <- check_password(user, password),
          %{valid?: true} = user <- User.update_password_changeset(user, %{password: new_password}) do

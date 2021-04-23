@@ -4,6 +4,23 @@ defmodule Flight.Notifications do
 
   import Ecto.Query, warn: false
 
+  def delete_push_token(%{"token" => token, "platform" => platform}, user_id) do
+    existing_token = get_push_token(token, platform, user_id)
+    if existing_token do
+      Repo.delete(existing_token)
+      |> case do
+           {:ok, _} ->
+             {:ok, true}
+           {:error, error} ->
+             {:error, error}
+           _->
+             {:ok, false}
+         end
+    else
+      {:error, "Token doesn't exist or is already deleted"}
+    end
+  end
+
   def update_push_token(%{"token" => token, "platform" => platform}, user_id) do
     existing_token = push_token(token, platform)
     if existing_token do
@@ -39,8 +56,15 @@ defmodule Flight.Notifications do
     end
   end
 
+
   def push_token(token, platform) when platform in ["ios", "android"] do
     Ecto.Query.from(t in PushToken, where: t.token == ^token and t.platform == ^platform)
+    |> Repo.one()
+  end
+
+  defp get_push_token(token, platform, user_id) do
+    Ecto.Query.from(t in PushToken, where: t.token == ^token and t.user_id == ^user_id and t.platform == ^platform)
+    |> Ecto.Query.first
     |> Repo.one()
   end
 end
