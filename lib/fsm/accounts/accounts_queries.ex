@@ -173,8 +173,8 @@ defmodule Fsm.Accounts.AccountsQueries do
     defp filter(query, %{assigned: true}=filter, %{context: %{current_user: %{id: user_id}}}=school_context) do
       queri =
         from(a in query,
-        left_join: ui in UserInstructor, on: ui.instructor_id == a.id,
-        where: ui.user_id == ^user_id)
+        left_join: ui in UserInstructor, on: ui.instructor_id == a.id or ui.user_id == a.id,
+        where: ui.user_id == ^user_id or ui.instructor_id == ^user_id)
       filter(queri, filter)
     end
 

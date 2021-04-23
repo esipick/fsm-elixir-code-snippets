@@ -304,9 +304,9 @@ defmodule Flight.Scheduling do
     |> pass_unless(assigned_value,
        &from(a in &1,
         distinct: a.id,
-        left_join: ui in UserInstructor, on: ui.instructor_id == a.instructor_user_id,
+        left_join: ui in UserInstructor, on: (ui.instructor_id == a.instructor_user_id or ui.user_id == a.instructor_user_id),
         left_join: ua in UserAircraft, on: ua.aircraft_id == a.aircraft_id,
-        where: ui.user_id == ^user_id or ua.user_id == ^user_id or a.user_id == ^user_id
+        where: ui.user_id == ^user_id or ui.instructor_id == ^user_id or ua.user_id == ^user_id or a.user_id == ^user_id
       )
     )
     |> pass_unless(options["status"], &where(&1, [a], a.status == ^options["status"]))
