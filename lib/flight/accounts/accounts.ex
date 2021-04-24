@@ -735,17 +735,17 @@ defmodule Flight.Accounts do
     end
   end
 
-  def users_with_role_query(%{slug: "user"}, search_term, school_context) do
+  def users_with_role_query(%{slug: "user"}, search_term, from_date, to_date, school_context) do
     User
-    |> Flight.Accounts.Search.User.run(search_term)
+    |> Flight.Accounts.Search.User.run(search_term, from_date, to_date)
     |> default_users_query(school_context)
     |> preload(:roles)
   end
 
-  def users_with_role_query(role, search_term, school_context) do
+  def users_with_role_query(role, search_term, from_date, to_date, school_context) do
     role
     |> Ecto.assoc(:users)
-    |> Flight.Accounts.Search.User.run(search_term)
+    |> Flight.Accounts.Search.User.run(search_term, from_date, to_date)
     |> default_users_query(school_context)
   end
 
@@ -756,17 +756,17 @@ defmodule Flight.Accounts do
     )
   end
 
-  def archived_users_with_role_query(%{slug: "user"}, search_term, school_context) do
+  def archived_users_with_role_query(%{slug: "user"}, search_term, from_date, to_date, school_context) do
     User
-    |> Flight.Accounts.Search.User.run(search_term)
+    |> Flight.Accounts.Search.User.run(search_term, from_date, to_date)
     |> archived_users_query(school_context)
     |> preload(:roles)
   end
 
-  def archived_users_with_role_query(role, search_term, school_context) do
+  def archived_users_with_role_query(role, search_term, from_date, to_date, school_context) do
     role
     |> Ecto.assoc(:users)
-    |> Flight.Accounts.Search.User.run(search_term)
+    |> Flight.Accounts.Search.User.run(search_term, from_date, to_date)
     |> archived_users_query(school_context)
   end
 

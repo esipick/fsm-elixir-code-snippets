@@ -17,7 +17,7 @@ defmodule FlightWeb.Instructor.StudentController do
         do: Map.put(page_params, :instructor_id, conn.assigns.current_user.id),
         else: page_params
 
-    data = FlightWeb.Admin.UserListData.build(conn, "student", page_params, search_term, nil)
+    data = FlightWeb.Admin.UserListData.build(conn, "student", page_params, search_term, "", "", nil)
     message = params["search"] && set_message(params["search"])
 
     render(conn, "index.html",

@@ -29,24 +29,27 @@ defmodule Flight.UserRolesUtils do
     def process(conn, from_contacts, %{"role" => "user" = role, "tab" => "archived"} = params) do
         role_slug = %{slug: role}
         search_term = Map.get(params, "search", "")
+        from_date = Map.get(params, "from_date", "")
+        to_date = Map.get(params, "to_date", "")
         page_params = FlightWeb.Pagination.params(params)
 
-        data =
-            FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, :archived)
+        data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, from_date, to_date, :archived)
 
-        message = params["search"] && set_message(params["search"])
+        message = ""#params["search"] && set_message(params["search"])
 
         {"users.html", [data: data, message: message, from_contacts: from_contacts, tab: :archived]}
     end
 
     def process(conn, from_contacts, %{"role" => role_slug, "tab" => "archived"} = params) do
         search_term = Map.get(params, "search", "")
+        from_date = Map.get(params, "from_date", "")
+        to_date = Map.get(params, "to_date", "")
         page_params = FlightWeb.Pagination.params(params)
 
         data =
-        FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, :archived)
+        FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, from_date, to_date, :archived)
 
-        message = params["search"] && set_message(params["search"])
+        message = ""#params["search"] && set_message(params["search"])
 
         {"index.html", [data: data, message: message, from_contacts: from_contacts, tab: :archived]}
     end
@@ -54,9 +57,11 @@ defmodule Flight.UserRolesUtils do
     def process(conn, from_contacts,  %{"role" => "user" = role} = params) do
         role_slug = %{slug: role}
         search_term = Map.get(params, "search", "")
+        from_date = Map.get(params, "from_date", "")
+        to_date = Map.get(params, "to_date", "")
         page_params = FlightWeb.Pagination.params(params)
-        data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, nil)
-        message = params["search"] && set_message(params["search"])
+        data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, from_date, to_date, nil)
+        message = ""#params["search"] && set_message(params["search"])
         available_user_roles = Accounts.get_user_roles(conn)
 
         {"users.html", [ data: data,
@@ -70,9 +75,11 @@ defmodule Flight.UserRolesUtils do
 
     def process(conn, from_contacts, %{"role" => role_slug} = params) do
         search_term = Map.get(params, "search", "")
+        from_date = Map.get(params, "from_date", "")
+        to_date = Map.get(params, "to_date", "")
         page_params = FlightWeb.Pagination.params(params)
-        data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, nil)
-        message = params["search"] && set_message(params["search"])
+        data = FlightWeb.Admin.UserListData.build(conn, role_slug, page_params, search_term, from_date, to_date, nil)
+        message = ""#params["search"] && set_message(params["search"])
     
         {"index.html",
           [data: data,
