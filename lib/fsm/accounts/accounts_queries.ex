@@ -114,7 +114,7 @@ defmodule Fsm.Accounts.AccountsQueries do
       |> SchoolScope.scope_query(school_context)
       |> sort_by(sort_field, sort_order)
       |> sort_by(:first_name, sort_order)
-      |> filter(filter)
+      |> filter(filter, school_context)
       |> multiple_search(Map.get(filter, :search))
       |> paginate(page, per_page)
     end
