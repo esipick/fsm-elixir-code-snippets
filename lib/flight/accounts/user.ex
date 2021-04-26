@@ -77,7 +77,7 @@ defmodule Flight.Accounts.User do
 
     many_to_many(:instructors, User,
       join_through: "user_instructors",
-      join_keys: [instructor_id: :id, user_id: :id],
+      join_keys: [user_id: :id, instructor_id: :id],
       on_replace: :delete
     )
 
