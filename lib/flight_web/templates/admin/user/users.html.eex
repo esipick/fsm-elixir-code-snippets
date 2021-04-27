@@ -166,18 +166,64 @@
           <%= if @data.user_table_data.page.total_pages > 1 do %>
             <div class="row">
               <div class="col-md-10">
-                <%= if String.trim(@data.search_term) == "" do %>
-                  <%= pagination_links @conn,
-                    @data.user_table_data.page,
-                    role: @data.role.slug,
-                    page_size: @data.user_table_data.page.page_size,
-                    tab: @tab
-                  %>
-                <% else %>
+              <%= cond do %>
+                <% (String.trim(@data.search_term) != "" && String.trim(@data.from_date) == "" && String.trim(@data.to_date) != "") -> %>
                   <%= pagination_links @conn,
                     @data.user_table_data.page,
                     role: @data.role.slug,
                     search: @data.search_term,
+                    to_date: @data.to_date,
+                    page_size: @data.user_table_data.page.page_size,
+                    tab: @tab
+                  %>
+                <% (String.trim(@data.search_term) == "" && String.trim(@data.from_date) == "" && String.trim(@data.to_date) != "") -> %>
+                  <%= pagination_links @conn,
+                    @data.user_table_data.page,
+                    role: @data.role.slug,
+                    to_date: @data.to_date,
+                    page_size: @data.user_table_data.page.page_size,
+                    tab: @tab
+                  %>
+                <% (String.trim(@data.search_term) == "" && String.trim(@data.from_date) != "" && String.trim(@data.to_date) != "") -> %>
+                  <%= pagination_links @conn,
+                    @data.user_table_data.page,
+                    role: @data.role.slug,
+                    from_date: @data.from_date,
+                    to_date: @data.to_date,
+                    page_size: @data.user_table_data.page.page_size,
+                    tab: @tab
+                  %>
+                <% (String.trim(@data.search_term) != "" && String.trim(@data.from_date) != "" && String.trim(@data.to_date) != "") -> %>
+                  <%= pagination_links @conn,
+                    @data.user_table_data.page,
+                    role: @data.role.slug,
+                    search: @data.search_term,
+                    from_date: @data.from_date,
+                    to_date: @data.to_date,
+                    page_size: @data.user_table_data.page.page_size,
+                    tab: @tab
+                  %>
+                <% (String.trim(@data.search_term) != "" && String.trim(@data.from_date) == "" && String.trim(@data.to_date) == "") -> %>
+                  <%= pagination_links @conn,
+                    @data.user_table_data.page,
+                    role: @data.role.slug,
+                    search: @data.search_term,
+                    page_size: @data.user_table_data.page.page_size,
+                    tab: @tab
+                  %>
+                <% (String.trim(@data.search_term) != "" && String.trim(@data.from_date) != "" && String.trim(@data.to_date) == "") -> %>
+                  <%= pagination_links @conn,
+                    @data.user_table_data.page,
+                    role: @data.role.slug,
+                    search: @data.search_term,
+                    from_date: @data.from_date,
+                    page_size: @data.user_table_data.page.page_size,
+                    tab: @tab
+                  %>
+                <% true -> %>
+                <%= pagination_links @conn,
+                    @data.user_table_data.page,
+                    role: @data.role.slug,
                     page_size: @data.user_table_data.page.page_size,
                     tab: @tab
                   %>
