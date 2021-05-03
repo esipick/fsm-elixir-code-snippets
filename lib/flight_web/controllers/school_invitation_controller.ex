@@ -28,7 +28,7 @@ defmodule FlightWeb.SchoolInvitationController do
   end
 
   defp get_invitation(conn, _) do
-    invitation = Accounts.get_school_invitation_for_token(conn.query_params["token"])
+    invitation = Accounts.get_school_invitation_for_token(conn.query_params["token"] || conn.params["token"])
 
     if invitation do
       assign(conn, :invitation, invitation)
