@@ -106,7 +106,8 @@ defmodule Fsm.Scheduling do
             id: user_id
           }
         }
-      }=context, appointment_data
+      }=context,
+      appointment_data
     ) do
 
       appointment = get_appointment(Map.get(appointment_data, :id))
