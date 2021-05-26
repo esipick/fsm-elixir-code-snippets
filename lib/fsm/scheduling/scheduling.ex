@@ -98,26 +98,53 @@ defmodule Fsm.Scheduling do
     end
   end
   
-  def update_appointment(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, appointment_data) do
-    appointment = get_appointment(Map.get(appointment_data, :id))
-    %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
-    context = %{assigns: %{current_user: current_user}, school_id: school_id, params: %{"school_id" => to_string(school_id)}, request_path: "/api/appointments"}
+  def update_appointment(
+      %{
+        context: %{
+          current_user: %{
+            school_id: school_id,
+            id: user_id
+          }
+        }
+      }=context, appointment_data
+    ) do
 
-    if !Flight.Auth.Authorization.user_can?(current_user, [Permission.new(:appointment, :modify, :all)]) && Scheduling.Appointment.is_paid?(appointment) do
+      appointment = get_appointment(Map.get(appointment_data, :id))
+      
+      %{ roles: _roles, user: current_user } = Accounts.get_user(user_id)
+
+      context = %{
+        assigns: %{ current_user: current_user },
+        school_id: school_id,
+        params: %{
+          "school_id" => to_string(school_id)
+        },
+        request_path: "/api/appointments"
+      }
+
+    if !Flight.Auth.Authorization.user_can?(current_user, [Permission.new(:appointment, :modify, :all)])
+        && Scheduling.Appointment.is_paid?(appointment)
+    do
       {:error, "Can't modify paid appointment. Please contact administrator to re-schedule or update the content."}
     else
-      case insert_or_update_appointment(
-             appointment,
-             appointment_data,
-             Repo.preload(context.assigns.current_user, :school),
-             context
-           ) do
-        {:ok, appointment} ->
-          appointment = get_appointment_full_object(Map.get(appointment_data, :id))
-          {:ok, appointment} 
+      # this is to make sure if user is already archived, don't proceed further
+      # to update an appointment
+      if current_user.archived do
+        {:error, "Something went wrong, Please contact administrator"}
+      else
+        case insert_or_update_appointment(
+              appointment,
+              appointment_data,
+              Repo.preload(context.assigns.current_user, :school),
+              context
+            ) do
+          {:ok, appointment} ->
+            appointment = get_appointment_full_object(Map.get(appointment_data, :id))
+            {:ok, appointment} 
 
-        {:error, changeset} ->
-          {:error, FsmWeb.ViewHelpers.human_error_messages(changeset)}
+          {:error, changeset} ->
+            {:error, FsmWeb.ViewHelpers.human_error_messages(changeset)}
+        end
       end
     end
   end
