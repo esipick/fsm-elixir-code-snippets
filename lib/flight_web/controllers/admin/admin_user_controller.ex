@@ -305,19 +305,40 @@ defmodule FlightWeb.Admin.UserController do
 
   def delete(conn, params) do
     user = conn.assigns.requested_user
-    Accounts.archive_user(user)
 
-    conn =
-      conn
-      |> put_flash(:success, "Successfully archived #{user.first_name} #{user.last_name}")
+    # check "student" role
+    roles = Enum.map(user.roles, &(&1.slug))
     
-    cond do
-      params["from_contacts"] == "true" -> 
-        redirect(conn, to: "/admin/settings?tab=contact&role=#{params["role"]}&page=#{params["page"]}#user_info")
+    has_paid_appointments_in_future  = if "student" in roles do
+        # get paid appointment here
+        # get the count of future paid appointments
 
-      params["role"] -> redirect(conn, to: "/admin/users?role=#{params["role"]}&page=#{params["page"]}")
+        count = 0
+        
+        # return
+        count > 0
+    end
 
-      true -> redirect(conn, to: "/admin/dashboard")
+    if has_paid_appointments_in_future do
+      conn
+      |> put_flash(:error, "This user cannot be archived, #{user.first_name} #{user.last_name} has paid appointments in near future.")
+      |> redirect(to: "/admin/users?role=user")
+      |> halt()
+    else
+
+      Accounts.archive_user(user)
+      conn =
+        conn
+        |> put_flash(:success, "Successfully archived #{user.first_name} #{user.last_name}")
+      
+      cond do
+        params["from_contacts"] == "true" -> 
+          redirect(conn, to: "/admin/settings?tab=contact&role=#{params["role"]}&page=#{params["page"]}#user_info")
+
+        params["role"] -> redirect(conn, to: "/admin/users?role=#{params["role"]}&page=#{params["page"]}")
+
+        true -> redirect(conn, to: "/admin/dashboard")
+      end
     end
   end
 
