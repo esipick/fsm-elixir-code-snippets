@@ -4,6 +4,7 @@ defmodule FlightWeb.Admin.UserController do
   alias Flight.{Accounts, Billing, Repo, Scheduling, Queries}
   alias Flight.Auth.Permission
   alias FlightWeb.StripeHelper
+  alias Flight.Queries.Appointment
   # alias FlightWeb.Admin.InvitationController
 
   import Flight.Auth.Authorization
@@ -306,17 +307,18 @@ defmodule FlightWeb.Admin.UserController do
   def delete(conn, params) do
     user = conn.assigns.requested_user
 
-    # check "student" role
     roles = Enum.map(user.roles, &(&1.slug))
     
     has_paid_appointments_in_future  = if "student" in roles do
-        # get paid appointment here
-        # get the count of future paid appointments
-
-        count = 0
-        
-        # return
-        count > 0
+  
+        future_appointments = Appointment.get_paid_appointments(conn, %{ user_id: user.id })
+          |> Enum.filter(fn appointment -> 
+            Map.get(appointment, :end_at)
+              |> NaiveDateTime.to_date()
+              |> Timex.after?(Timex.today())
+          end)
+ 
+        length(future_appointments) > 0
     end
 
     if has_paid_appointments_in_future do
