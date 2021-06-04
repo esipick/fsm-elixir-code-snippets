@@ -28,4 +28,16 @@ defmodule Flight.Queries.Appointment do
     |> pass_unless(params["user_id"], &where(&1, [a], a.user_id == ^params["user_id"]))
     |> Repo.all()
   end
+
+  def get_paid_appointments(school_context, params = %{}) do
+
+    user_id = Map.get(params, "user_id")
+
+    from(a in Appointment, order_by: [desc: a.end_at])
+      |> where([a], a.archived == false)
+      |> where([a], a.status == "paid")
+      |> pass_unless(user_id, &where(&1, [a], a.user_id == ^user_id))
+      |> Repo.all()
+  end
+
 end

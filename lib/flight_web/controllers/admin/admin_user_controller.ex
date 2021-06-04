@@ -4,6 +4,7 @@ defmodule FlightWeb.Admin.UserController do
   alias Flight.{Accounts, Billing, Repo, Scheduling, Queries}
   alias Flight.Auth.Permission
   alias FlightWeb.StripeHelper
+  alias Flight.Queries.Appointment
   # alias FlightWeb.Admin.InvitationController
 
   import Flight.Auth.Authorization
@@ -305,19 +306,41 @@ defmodule FlightWeb.Admin.UserController do
 
   def delete(conn, params) do
     user = conn.assigns.requested_user
-    Accounts.archive_user(user)
 
-    conn =
-      conn
-      |> put_flash(:success, "Successfully archived #{user.first_name} #{user.last_name}")
+    roles = Enum.map(user.roles, &(&1.slug))
     
-    cond do
-      params["from_contacts"] == "true" -> 
-        redirect(conn, to: "/admin/settings?tab=contact&role=#{params["role"]}&page=#{params["page"]}#user_info")
+    has_paid_appointments_in_future  = if "student" in roles do
+  
+        future_appointments = Appointment.get_paid_appointments(conn, %{ user_id: user.id })
+          |> Enum.filter(fn appointment -> 
+            Map.get(appointment, :end_at)
+              |> NaiveDateTime.to_date()
+              |> Timex.after?(Timex.today())
+          end)
+ 
+        length(future_appointments) > 0
+    end
 
-      params["role"] -> redirect(conn, to: "/admin/users?role=#{params["role"]}&page=#{params["page"]}")
+    if has_paid_appointments_in_future do
+      conn
+      |> put_flash(:error, "This user cannot be archived, #{user.first_name} #{user.last_name} has paid appointments in near future.")
+      |> redirect(to: "/admin/users?role=user")
+      |> halt()
+    else
 
-      true -> redirect(conn, to: "/admin/dashboard")
+      Accounts.archive_user(user)
+      conn =
+        conn
+        |> put_flash(:success, "Successfully archived #{user.first_name} #{user.last_name}")
+      
+      cond do
+        params["from_contacts"] == "true" -> 
+          redirect(conn, to: "/admin/settings?tab=contact&role=#{params["role"]}&page=#{params["page"]}#user_info")
+
+        params["role"] -> redirect(conn, to: "/admin/users?role=#{params["role"]}&page=#{params["page"]}")
+
+        true -> redirect(conn, to: "/admin/dashboard")
+      end
     end
   end
 
