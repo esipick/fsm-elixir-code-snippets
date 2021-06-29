@@ -57,7 +57,7 @@ defmodule Fsm.Scheduling do
     if Flight.Auth.Authorization.user_can?(current_user, [Permission.new(:appointment, :modify, :all)]) do
       delete_appointment(appointment, current_user, context)
     else
-      if Scheduling.Appointment.is_paid?(appointment) do
+      if Scheduling.Appointment.is_paid?(appointment) or current_user.archived do
         {:error, "Can't delete paid appointment. Please contact administrator to re-schedule or delete the content."}
       else
         instructor_user_id = Map.get(appointment, :instructor_user_id)
