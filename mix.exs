@@ -77,6 +77,7 @@ defmodule Flight.Mixfile do
       {:react_phoenix, "~> 0.6.0"},
       {:fastglobal, "~> 1.0"},
       {:ecto, "~> 3.4.3", override: true},
+      {:ecto_soft_delete, "~> 2.0.2"},
       {:puppeteer_pdf, "~> 1.0.3"},
       {:absinthe, "~> 1.4"},
       {:absinthe_plug, "~> 1.4"},

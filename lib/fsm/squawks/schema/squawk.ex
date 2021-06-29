@@ -1,4 +1,4 @@
-defmodule Fboss.Squawks.Squawk do
+defmodule Fsm.Squawks.Squawk do
     use Ecto.Schema
     import Ecto.Changeset
     import Ecto.SoftDelete.Schema
@@ -10,7 +10,7 @@ defmodule Fboss.Squawks.Squawk do
       field :system_affected, SystemAffected
       field :description, :string
       field :resolved, :boolean
-    #   has_many(:attachments, Fboss.Attachments.Attachment)
+      has_many(:attachments, Fsm.Attachments.Attachment)
       belongs_to(:user, User)
   
       soft_delete_schema()
