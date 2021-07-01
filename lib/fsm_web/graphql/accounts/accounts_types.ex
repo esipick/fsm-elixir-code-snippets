@@ -123,6 +123,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     object :session do
         field :user, non_null(:user)
         field :token, non_null(:string)
+        field :school, non_null(:school)
     end
 
     object :user do

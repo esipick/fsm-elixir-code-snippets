@@ -10,6 +10,7 @@ defmodule Fsm.Accounts do
   alias Fsm.Accounts.AccountsQueries
   alias Fsm.SchoolScope
   alias Fsm.Email
+  alias Fsm.School
 
   alias Flight.Auth.Permission
 
@@ -34,7 +35,18 @@ defmodule Fsm.Accounts do
               user
               |> FlightWeb.API.UserView.show_preload()
 
-            {:ok, %{user: user, token: FlightWeb.Fsm.AuthenticateApiUser.token(user)}}
+            roles = Map.get(user, :roles)
+        
+            is_admin = roles |> Enum.any?(fn x -> x === "admin" end)
+
+            school = case School.get_school(user.school_id) do
+              {:ok, school} -> school
+              _ -> %{}
+            end
+
+            school = if is_admin, do: Map.put(school, :name, "Flight Manager School"), else: school
+
+            {:ok, %{ user: user,  token: FlightWeb.Fsm.AuthenticateApiUser.token(user), school: school }}
 
           {:error, _} ->
             {:error, "Invalid email or password."}
