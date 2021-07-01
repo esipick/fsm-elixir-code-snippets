@@ -37,14 +37,12 @@ defmodule Fsm.Accounts do
 
             roles = Map.get(user, :roles)
         
-            is_admin = roles |> Enum.any?(fn x -> x === "admin" end)
-
             school = case School.get_school(user.school_id) do
               {:ok, school} -> school
               _ -> %{}
             end
 
-            school = if is_admin, do: Map.put(school, :name, "Flight Manager School"), else: school
+            school = if "admin" in roles, do: Map.put(school, :name, "Flight Manager School"), else: school
 
             {:ok, %{ user: user,  token: FlightWeb.Fsm.AuthenticateApiUser.token(user), school: school }}
 
