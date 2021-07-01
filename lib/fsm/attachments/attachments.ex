@@ -1,4 +1,4 @@
-defmodule Fboss.Attachments do
+defmodule Fsm.Attachments do
   @moduledoc """
   The Attachments context.
   """

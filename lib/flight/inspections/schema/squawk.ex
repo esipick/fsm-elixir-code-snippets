@@ -28,8 +28,7 @@ defmodule Flight.Inspections.Squawk do
         field(:reported_by_id, :id, null: false)
         field(:created_by_id, :id, null: false)
 
-        field(:notify_roles, {:array, :string}, null: tru
-        field(:e)
+        field(:notify_roles, {:array, :string}, null: true)
         field(:notes, :string, null: true)
 
         belongs_to(:school, School)

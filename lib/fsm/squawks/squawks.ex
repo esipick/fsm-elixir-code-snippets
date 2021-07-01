@@ -22,7 +22,7 @@ defmodule Fsm.Squawks do
     def get_unresolved_squawk(id) do
       query =  from s in Squawk,
                     left_join: at in Attachment, on: at.squawk_id == s.id and   is_nil(at.deleted_at),
-                    where: s.id == ^id and is_nil(s.deleted_at) and s.resolved == false,••••••••••
+                    where: s.id == ^id and is_nil(s.deleted_at) and s.resolved == false,
                     preload: [attachments: at]
       Repo.one(query)
     end

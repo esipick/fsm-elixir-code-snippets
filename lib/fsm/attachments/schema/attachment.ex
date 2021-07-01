@@ -1,4 +1,4 @@
-defmodule Fboss.Attachments.Attachment do
+defmodule Fsm.Attachments.Attachment do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.SoftDelete.Schema
