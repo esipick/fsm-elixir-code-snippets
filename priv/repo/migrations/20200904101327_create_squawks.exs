@@ -1,24 +1,21 @@
-defmodule Flight.Repo.Migrations.CreateSquawks do
+defmodule Flight.Repo.Migrations.CreateSquawksTable do
   use Ecto.Migration
+  import Ecto.SoftDelete.Migration
 
   def change do
-    create table(:squawks, primary_key: false) do
-      add(:id, :binary_id, primary_key: true)
+    SquawkSeverity.create_type
+    create table(:squawks) do
+      add :title, :string
+      add :severity, SquawkSeverity.type()
+      add :description, :text
+      add :resolved, :boolean, default: false
+      add(:user_id, references(:users, on_delete: :nothing), null: true)
 
-      add(:description, :string, null: false)
-      add(:severity, :integer, default: 0)
-      add(:reported_at, :naive_datetime, default: fragment("now()"))
-      add(:resolved_at, :naive_datetime)
+      soft_delete_columns()
+      timestamps()
 
-      add(:aircraft_id, references(:aircrafts, type: :id, on_delete: :delete_all))
-      add(:reported_by_id, references(:users, type: :id, on_delete: :nothing))
-      add(:created_by_id, references(:users, type: :id, on_delete: :nothing))
-      add(:school_id, references(:schools, type: :id, on_delete: :delete_all))
-
-      add(:notify_roles, {:array, :string}, null: true)
-      add(:notes, :string, null: true)
-
-      timestamps([inserted_at: :created_at, default: fragment("now()")])
     end
+
+    create(index(:squawks, [:title]))
   end
 end
