@@ -31,7 +31,6 @@ defmodule Flight.Inspections.Squawk do
         field(:notify_roles, {:array, :string}, null: tru
         field(:e)
         field(:notes, :string, null: true)
-        field(:resolved, :boolean, default: false)
 
         belongs_to(:school, School)
         belongs_to(:aircraft, Aircraft)
