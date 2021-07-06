@@ -1,7 +1,8 @@
 defmodule FsmWeb.GraphQL.Squawks.SquawksTypes do
     use Absinthe.Schema.Notation
-
-    alias FbossWeb.GraphQL.Squawks.SquawksResolvers
+  
+    alias FsmWeb.GraphQL.Middleware
+    alias FsmWeb.GraphQL.Squawks.SquawksResolvers
 
     enum :squawk_severity, values: [:monitor, :warning, :grounded]
     enum :system_affected, values: [:fuselage, :cockpit ,:wing, :tail, :engine, :propeller, :landing_gear]
@@ -9,7 +10,7 @@ defmodule FsmWeb.GraphQL.Squawks.SquawksTypes do
     object :squawks_queries do
         @desc "Get Squawk"
         field :get_squawk, :squawk_data do
-            arg :inspection_id, non_null(:id)
+            arg :id, non_null(:id)
             resolve &AquawksResolvers.get_squawk/3
         end
 
