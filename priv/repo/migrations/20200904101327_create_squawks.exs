@@ -4,9 +4,11 @@ defmodule Flight.Repo.Migrations.CreateSquawksTable do
 
   def change do
     SquawkSeverity.create_type
+    SystemAffected.create_type
     create table(:squawks) do
       add :title, :string
       add :severity, SquawkSeverity.type()
+      add(:system_affected, SystemAffected.type())
       add :description, :text
       add :resolved, :boolean, default: false
       add(:user_id, references(:users, on_delete: :nothing), null: true)
