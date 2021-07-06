@@ -9,9 +9,9 @@ defmodule FsmWeb.GraphQL.Squawks.SquawksTypes do
     # Queries
     object :squawks_queries do
         @desc "Get Squawk"
-        field :get_squawk, :squawk_data do
+        field :get_squawk, :squawk do
             arg :id, non_null(:id)
-            resolve &AquawksResolvers.get_squawk/3
+            resolve &SquawksResolvers.get_squawk/3
         end
 
         @desc "Get squawks"

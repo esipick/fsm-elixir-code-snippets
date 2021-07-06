@@ -4,10 +4,18 @@ defmodule FsmWeb.GraphQL.Squawks.SquawksResolvers do
     alias FsmWeb.GraphQL.EctoHelpers
     require Logger
 
+    def get_squawk(_parent, %{id: squawk_id}, %{context: %{current_user: current_user}}) do
+        squawk = Squawks.get_squawk(squawk_id)
+        {:ok, %{squawk: squawk}}
+    end
+
+    def get_squawk(_parent, _args, _context), do: @not_authenticated
+
     def get_squawks(_parent, args, %{context: %{current_user: current_user}}) do
         squawks = Squawks.get_squawks(current_user.id)
         resp = {:ok, %{squawks: squawks}}
     end
+    
     def get_squawks(_parent, _args, _context), do: @not_authenticated
 
     def update_squawk(_parent, args, %{context: %{current_user: current_user}}) do
