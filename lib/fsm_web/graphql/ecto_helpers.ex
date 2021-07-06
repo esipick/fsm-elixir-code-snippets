@@ -1,4 +1,4 @@
-defmodule FbossWeb.GraphQL.EctoHelpers do
+defmodule FsmWeb.GraphQL.EctoHelpers do
     alias Ecto.Changeset
 
     require Logger
