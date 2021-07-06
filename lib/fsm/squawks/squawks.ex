@@ -4,7 +4,7 @@ defmodule Fsm.Squawks do
     """
   
     import Ecto.Query, warn: false
-    alias Fsm.Repo
+    alias Flight.Repo
     require Logger
     alias Fsm.Squawks.Squawk
     alias Fsm.Attachments.Attachment
