@@ -3,6 +3,7 @@ defmodule Flight.Repo.Migrations.CreateSquawksTable do
   import Ecto.SoftDelete.Migration
 
   def change do
+
     SquawkSeverity.create_type
     SystemAffected.create_type
     create table(:squawks) do
