@@ -13,11 +13,11 @@ defmodule Flight.Inspections.SquawkAttachment do
     @allowed_file_types ["image/png", "image/jpeg"]
 
     schema "squawk_attachments" do
-        field(:attachment, SquawksUploader.Type)
 
-        belongs_to(:squawk, Squawk, type: :binary_id)
+      field(:attachment, SquawksUploader.Type)
+      belongs_to(:squawk, Squawk, type: :binary_id)
 
-        timestamps([inserted_at: :created_at])
+      timestamps([inserted_at: :created_at])
     end 
 
     defp required_fields(), do: ~w(attachment squawk_id)a

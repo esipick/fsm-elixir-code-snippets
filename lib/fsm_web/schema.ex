@@ -11,6 +11,7 @@ defmodule FsmWeb.GraphQL.Schema do
     import_types FsmWeb.GraphQL.SchoolAssets.SchoolAssetsTypes
     import_types FsmWeb.GraphQL.School.SchoolTypes
     import_types FsmWeb.GraphQL.Common.CommonTypes
+    import_types FsmWeb.GraphQL.Squawks.SquawksTypes
     import_types Absinthe.Plug.Types
     import_types Absinthe.Type.Custom
 
@@ -30,6 +31,7 @@ defmodule FsmWeb.GraphQL.Schema do
       import_fields :school_assets_queries
       import_fields :school_queries
       import_fields :common_queries
+      import_fields :squawks_queries
     end
   
     mutation do
@@ -42,6 +44,7 @@ defmodule FsmWeb.GraphQL.Schema do
       import_fields :invoices_mutations
       import_fields :school_assets_mutations
       import_fields :common_mutations
+      import_fields :squawks_mutations
     end
   
     # # exectute changeset error middleware for each mutation
