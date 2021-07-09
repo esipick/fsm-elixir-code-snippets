@@ -4,6 +4,8 @@ defmodule Flight.Repo.Migrations.CreateSquawksTable do
 
   def change do
 
+    drop_if_exists table("squawks")
+
     SquawkSeverity.create_type
     SystemAffected.create_type
     create table(:squawks) do

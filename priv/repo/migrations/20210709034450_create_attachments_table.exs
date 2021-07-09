@@ -3,6 +3,9 @@ defmodule Flight.Repo.Migrations.CreateAttachmentsTable do
   import Ecto.SoftDelete.Migration
 
   def change do
+
+    drop_if_exists table("attachments")
+
     DocumentType.create_type
     AttachmentType.create_type
     create table(:attachments) do
