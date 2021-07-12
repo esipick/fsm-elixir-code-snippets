@@ -6,7 +6,7 @@ defmodule FsmWeb.GraphQL.Squawks.SquawksResolvers do
 
     def get_squawk(_parent, %{id: squawk_id}, %{context: %{current_user: current_user}}) do
         squawk = Squawks.get_squawk(squawk_id)
-        {:ok, %{squawk: squawk}}
+        {:ok, squawk}
     end
 
     def get_squawk(_parent, _args, _context), do: @not_authenticated
