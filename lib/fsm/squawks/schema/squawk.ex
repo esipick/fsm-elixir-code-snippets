@@ -3,6 +3,7 @@ defmodule Fsm.Squawks.Squawk do
     import Ecto.Changeset
     import Ecto.SoftDelete.Schema
     alias Fsm.Accounts.User
+    alias Fsm.Aircrafts.Aircraft
     
     schema "squawks" do
       field :title, :string
@@ -12,6 +13,7 @@ defmodule Fsm.Squawks.Squawk do
       field :resolved, :boolean
       has_many(:attachments, Fsm.Attachments.Attachment)
       belongs_to(:user, User)
+      belongs_to(:aircraft, Aircraft)
   
       soft_delete_schema()
       timestamps()
