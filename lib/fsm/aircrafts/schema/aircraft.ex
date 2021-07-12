@@ -4,7 +4,6 @@ defmodule Fsm.Aircrafts.Aircraft do
   import ValidationUtil
 
   alias Flight.Inspections.{
-    Squawk,
     Maintenance,
     AircraftMaintenance
   }

@@ -59,6 +59,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
       field :archived, :boolean
       field :blocked, :boolean
       field :school_id, :integer
+      field :squawks, list_of(non_null(:squawk))
       field :inspections, list_of(non_null(:inspection))
     end
 
