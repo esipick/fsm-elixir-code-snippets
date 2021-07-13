@@ -91,7 +91,7 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
       queri =
         from(a in query,
           left_join: ua in UserAircraft, on: ua.aircraft_id == a.id,
-          where: a.simulator == true or (ua.user_id == ^user_id and a.simulator == false))
+          where: ua.user_id==^user_id)
       filter(queri, filter)
     end
 
