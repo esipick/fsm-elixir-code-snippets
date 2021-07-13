@@ -93,6 +93,7 @@ defmodule FsmWeb.GraphQL.Squawks.SquawksTypes do
         field :description, :string
         field :system_affected, :system_affected
         field :resolved, :boolean
+        field :aircraft_id, :integer
         field :attachments, list_of(:squawk_image)
     end
 

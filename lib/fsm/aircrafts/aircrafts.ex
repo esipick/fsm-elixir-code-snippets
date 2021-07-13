@@ -12,12 +12,13 @@ defmodule Fsm.Aircrafts do
   def get_aircraft(id) do
       AircraftsQueries.get_aircraft_query(id)
       |> Repo.one
+      |> Repo.preload(:squawks)
   end
 
   def list_aircrafts(page, per_page, sort_field, sort_order, filter, context) do
     AircraftsQueries.list_aircrafts_query(page, per_page, sort_field, sort_order, filter, context)
     |> Repo.all()
-    |> Repo.preload([:inspections])
+    |> Repo.preload([:inspections, :squawks])
 
   end
 
