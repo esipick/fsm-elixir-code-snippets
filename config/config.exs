@@ -46,9 +46,11 @@ config :flight, :aws_credentials,
   access_key: aws_access_key,
   secret_key: aws_secret_key
 
-config :ex_aws, :s3,
+config :ex_aws,
   access_key_id: aws_access_key,
-  secret_access_key: aws_secret_key,
+  secret_access_key: aws_secret_key
+
+config :ex_aws_s3, :s3,
   bucket_name: System.get_env("AWS_S3_BUCKET") || "staging-flight-boss"
 
 case(Map.fetch(System.get_env(), "AWS_S3_BUCKET")) do

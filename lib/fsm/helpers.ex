@@ -17,7 +17,7 @@ defmodule Fsm.Helpers do
     end
 
     def get_s3_object_url(filename) do
-        bucket = Application.get_env(:ex_aws, :s3)[:bucket_name]
+        bucket = Application.get_env(:ex_aws_s3, :s3)[:bucket_name]
         "https://" <> bucket <> ".s3.amazonaws.com/" <> filename
     end
 
