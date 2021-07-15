@@ -3,7 +3,7 @@ defmodule Fsm.Squawks.Squawk do
     import Ecto.Changeset
     import Ecto.SoftDelete.Schema
     alias Fsm.Accounts.User
-    alias Fsm.Aircrafts.Aircraft
+    alias Fsm.Scheduling.Aircraft
     
     schema "squawks" do
       field :title, :string
@@ -22,6 +22,6 @@ defmodule Fsm.Squawks.Squawk do
     @doc false
     def changeset(squawk, attrs) do
       squawk
-      |> cast(attrs, [:title, :severity, :description, :resolved,:system_affected, :user_id])
+      |> cast(attrs, [:title, :severity, :description, :resolved,:system_affected, :user_id, :aircraft_id])
     end
 end

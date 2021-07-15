@@ -65,7 +65,7 @@ defmodule FsmWeb.GraphQL.Squawks.SquawksTypes do
         field :severity, :squawk_severity
         field :description, :string
         field :system_affected, :system_affected
-
+        field :aircraft_id, :integer
     end
 
     input_object :squawk_image_input do
