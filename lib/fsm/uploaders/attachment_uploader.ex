@@ -3,7 +3,7 @@ defmodule Fsm.AttachmentUploader do
   Returns a presigned url for file uploads
   """
   def get_presigned_url(inspection_id, file_ext) do
-    bucket = Application.get_env(:ex_aws, :s3)[:bucket_name]
+    bucket = Application.get_env(:ex_aws_s3, :s3)[:bucket_name]
     # max 20MB
     file_upload_max_size_in_bytes = System.get_env("FILE_UPLOAD_MAX_SIZE_IN_BYTES") || 20_000_000
     filename = Fsm.Helpers.make_attachment_filename(inspection_id, file_ext)
