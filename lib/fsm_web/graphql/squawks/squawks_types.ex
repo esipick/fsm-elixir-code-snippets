@@ -16,6 +16,7 @@ defmodule FsmWeb.GraphQL.Squawks.SquawksTypes do
 
         @desc "Get squawks"
         field :get_squawks, :squawk_data do
+            arg :aircraft_id, :integer
             resolve &SquawksResolvers.get_squawks/3
         end
     end
