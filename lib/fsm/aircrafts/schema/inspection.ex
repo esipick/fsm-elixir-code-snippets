@@ -21,7 +21,7 @@ defmodule Fsm.Aircrafts.Inspection do
       field :next_inspection, :naive_datetime, virtual: true
 
 
-      # belongs_to :aircraft, Fsm.Aircrafts.Aircraft
+      belongs_to :aircraft, Fsm.Scheduling.Aircraft
       # has_many(:inspection_data, Fsm.Aircrafts.InspectionData)
       # has_many(:attachments, Fsm.Attachments.Attachment)
       # belongs_to(:aircraft_engine, Fsm.Aircrafts.Engine)
