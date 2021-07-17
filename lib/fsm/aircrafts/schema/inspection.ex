@@ -1,81 +1,40 @@
 defmodule Fsm.Aircrafts.Inspection do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.SoftDelete.Schema
 
   schema "inspections" do
-    field(:name, :string)
-    field(:type, :string)
-    field(:date_value, Flight.Date)
-    field(:number_value, :integer)
-    belongs_to(:aircraft, Fsm.Aircrafts.Aircraft)
+      field :name, :string
+      field :type, :string
+      field :updated, :boolean, default: false
+      field :is_completed, :boolean, default: false
+      field :note, :string
+      field :is_repeated, :boolean
+      field :repeat_every_days, :integer
+      field :date_tach, DateTachEnum
+      field :is_notified, :boolean, default: false
+      field :is_email_notified, :boolean, default: false
+      field :is_system_defined, :boolean
+      field :completed_at, :naive_datetime
 
-    timestamps()
+      field :tach_hours, :float, virtual: true
+      field :next_inspection, :naive_datetime, virtual: true
+
+
+      # belongs_to :aircraft, Fsm.Aircrafts.Aircraft
+      # has_many(:inspection_data, Fsm.Aircrafts.InspectionData)
+      # has_many(:attachments, Fsm.Attachments.Attachment)
+      # belongs_to(:aircraft_engine, Fsm.Aircrafts.Engine)
+
+      soft_delete_schema()
+      timestamps()
   end
 
   @doc false
   def changeset(inspection, attrs) do
-    inspection
-    |> cast(attrs, [:type, :date_value, :number_value, :aircraft_id, :name])
-    |> validate_required([:type, :name, :aircraft_id])
-    |> validate_inclusion(:type, ["date", "tach"])
-    |> validate_by_type()
-  end
-
-  def validate_by_type(changeset) do
-    validate_by_type(changeset, get_field(changeset, :type))
-  end
-
-  def validate_by_type(changeset, type) do
-    case type do
-      "date" -> date_validations(changeset)
-      "tach" -> tach_validations(changeset)
-      _ -> raise "Unknown inspection type attempting validation: #{type}"
-    end
-  end
-
-  def date_validations(changeset) do
-    changeset
-    |> validate_number_nil()
-  end
-
-  def tach_validations(changeset) do
-    changeset
-    |> validate_date_nil()
-  end
-
-  def validate_number_nil(changeset) do
-    if get_field(changeset, :number_value) do
-      add_error(changeset, :number_value, "must be nil")
-    else
-      changeset
-    end
-  end
-
-  def validate_date_nil(changeset) do
-    if get_field(changeset, :date_value) do
-      add_error(changeset, :date_value, "must be nil")
-    else
-      changeset
-    end
-  end
-
-  def to_specific(inspection) do
-    case inspection.type do
-      "date" ->
-        %Flight.Scheduling.DateInspection{
-          name: inspection.name,
-          expiration: inspection.date_value,
-          aircraft_id: inspection.aircraft_id,
-          id: inspection.id
-        }
-
-      "tach" ->
-        %Flight.Scheduling.TachInspection{
-          name: inspection.name,
-          tach_time: inspection.number_value,
-          aircraft_id: inspection.aircraft_id,
-          id: inspection.id
-        }
-    end
+      inspection
+      |> cast(attrs, [:name,:type, :updated, :is_completed, :aircraft_id, :date_tach, :is_repeated, :repeat_every_days, :is_notified, :is_email_notified, :is_system_defined, :aircraft_engine_id, :completed_at])
+      |> validate_required([:name,:type, :aircraft_id])
+      # |> cast_assoc(:inspection_data)
   end
 end
