@@ -9,7 +9,6 @@ defmodule Fsm.Inspections do
     import Ecto.SoftDelete.Query
     alias Fsm.Scheduling.Aircraft
     alias Fsm.Aircrafts.InspectionQueries
-    # alias Fsm.Accounts.AccountQueries
     alias Fsm.Aircrafts.AircraftQueries
 
     alias Fsm.Aircrafts.Inspection

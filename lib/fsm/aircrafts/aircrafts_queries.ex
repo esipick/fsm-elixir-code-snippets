@@ -8,7 +8,7 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
     alias Fsm.Accounts.Role
     alias Fsm.SchoolScope
     alias Flight.Accounts.UserAircraft
-
+    alias Fsm.Aircrafts.Engine
     require Logger
 
     def get_aircraft_query(aircraft_id) do
@@ -148,4 +148,24 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
            limit: ^size,
            offset: ^((page-1) * size)
     end
+
+        @doc """
+    Returns query to get aircraft by user_id and aircraft_id
+    """
+    def get_user_aircraft_query(user_id, aircraft_id) do
+      from a in Aircraft,
+          select: a,
+          where: a.id == ^aircraft_id and a.user_id == ^user_id
+    end
+
+    @doc """
+    Returns query to get aircraft engine which has is_tachometer as true
+    """
+    def get_tach_engine_query(aircraft_id) do
+        from e in Engine,
+            inner_join: a in Aircraft, on: a.id == e.aircraft_id,
+            select: e,
+            where: a.id == ^aircraft_id and e.is_tachometer == true
+    end
+
 end
