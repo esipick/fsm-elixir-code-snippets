@@ -23,7 +23,7 @@ defmodule Fsm.Aircrafts.Inspection do
 
       belongs_to :aircraft, Fsm.Scheduling.Aircraft
       has_many(:inspection_data, Fsm.Aircrafts.InspectionData)
-      # has_many(:attachments, Fsm.Attachments.Attachment)
+      has_many(:attachments, Fsm.Attachments.Attachment)
       # belongs_to(:aircraft_engine, Fsm.Aircrafts.Engine)
 
       soft_delete_schema()
