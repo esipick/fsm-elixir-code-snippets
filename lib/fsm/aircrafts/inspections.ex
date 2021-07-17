@@ -421,37 +421,4 @@ defmodule Fsm.Inspections do
         |> Repo.one
     end
 
-    @doc """
-    Send notifications for upcoming inspections
-    """
-    def send_inspection_notifications() do
-        user_inspections = find_inspections_with_due_notifications()
-
-        Enum.each(user_inspections, fn(u) -> 
-            send_inspection_notification(u)
-        end)
-    end
-
-
-    @doc """
-    Returns inspections which require notifications for user
-
-    ## Examples
-        iex> find_inspections_with_due_notifications({%User{}, %Settings{}})
-        {%User{}, [{%Inspection{}, %InspectionData{}}]}
-    """
-    def find_inspections_with_due_notifications({user, %{days_before: days_before}}) do
-        all_pending_inspections = InspectionQueries.get_upcoming_inspections_query(user.id)
-        |> Repo.all()
-
-        inspections_due_notifications = Enum.filter(all_pending_inspections, fn({insp, data}) ->
-            days_left = Date.utc_today
-            |> Date.diff(data.t_date)
-            |> abs
-
-            days_left <= days_before
-        end)
-
-        {user, inspections_due_notifications}
-    end
 end

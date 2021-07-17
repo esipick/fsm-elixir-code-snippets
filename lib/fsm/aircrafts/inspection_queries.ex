@@ -44,6 +44,11 @@ defmodule Fsm.Aircrafts.InspectionQueries do
                 on: a.id == i.aircraft_id,
             inner_join: u in User,
                 on: a.user_id == u.id,
+            # inner_join: s in Setting,
+            #     on: s.user_id == u.id and
+            #         s.enable_in_app_notification == true and
+            #         id.t_date >= fragment("now()::date") and
+            #         id.t_date <= fragment("(now()::timestamp::date + interval '1 day' * ?)::date", s.days_before),
             select: %{inspection: i, inspection_data: id, aircraft: a, user: u},
             where: id.class_name == "next_inspection" and not is_nil id.t_date
     end
@@ -61,10 +66,13 @@ defmodule Fsm.Aircrafts.InspectionQueries do
                 on: a.id == i.aircraft_id,
             inner_join: u in User,
                 on: a.user_id == u.id,
+            # inner_join: s in Setting,
+            #     on: s.user_id == u.id and
+            #         s.enable_in_app_notification == true,
             inner_join: ae in Engine,
                 on: ae.aircraft_id == a.id and
-                    id.t_float >= ae.engine_tach_start and
-                    id.t_float <= (ae.engine_tach_start + s.tach_hours_before),
+                    id.t_float >= ae.engine_tach_start, # and
+                    # id.t_float <= (ae.engine_tach_start + s.tach_hours_before),
             select: %{inspection: i, inspection_data: id, user: u, aircraft: a, aircraft_engine: ae},
             where: id.class_name == "next_inspection" and not is_nil id.t_float
     end
@@ -82,6 +90,11 @@ defmodule Fsm.Aircrafts.InspectionQueries do
                 on: a.id == i.aircraft_id,
             inner_join: u in User,
                 on: a.user_id == u.id,
+            # inner_join: s in Setting,
+            #     on: s.user_id == u.id and
+            #         s.enable_in_app_notification == true and
+            #         id.t_date >= fragment("now()::date"), # and
+            #         id.t_date <= fragment("(now()::timestamp::date + interval '1 day' * ?)::date", s.days_before),
             select: %{inspection: i, inspection_data: id, aircraft: a, user: u},
             where: id.class_name == "next_inspection" and not is_nil id.t_date
     end
@@ -99,10 +112,13 @@ defmodule Fsm.Aircrafts.InspectionQueries do
                 on: a.id == i.aircraft_id,
             inner_join: u in User,
                 on: a.user_id == u.id,
+            # inner_join: s in Setting,
+            #     on: s.user_id == u.id and
+            #         s.enable_in_app_notification == true,
             inner_join: ae in Engine,
                 on: ae.aircraft_id == a.id and
-                    id.t_float >= ae.engine_tach_start and
-                    id.t_float <= (ae.engine_tach_start + s.tach_hours_before),
+                    id.t_float >= ae.engine_tach_start,
+                    # id.t_float <= (ae.engine_tach_start + s.tach_hours_before),
             select: %{inspection: i, inspection_data: id, user: u, aircraft: a, aircraft_engine: ae},
             where: id.class_name == "next_inspection" and not is_nil id.t_float
     end
