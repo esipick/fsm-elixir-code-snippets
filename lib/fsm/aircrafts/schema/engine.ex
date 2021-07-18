@@ -12,6 +12,7 @@ defmodule Fsm.Aircrafts.Engine do
       field :engine_position, EnginePosition
   
       belongs_to :aircraft, Fsm.Scheduling.Aircraft
+      has_many(:inspections, Fsm.Aircrafts.Inspection)
   
       timestamps()
     end
