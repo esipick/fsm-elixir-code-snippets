@@ -3,6 +3,7 @@ defmodule Fsm.Attachments.Attachment do
   import Ecto.Changeset
   import Ecto.SoftDelete.Schema
   alias Fsm.Accounts.User
+  
   schema "attachments" do
     field :url, :string
     field :file_name, :string

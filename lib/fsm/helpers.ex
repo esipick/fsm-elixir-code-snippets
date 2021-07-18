@@ -12,8 +12,8 @@ defmodule Fsm.Helpers do
         |> binary_part(0, length)
     end
 
-    def make_attachment_filename(inspection_id, file_ext) do
-        "attachment_" <> to_string(inspection_id) <> "_" <> url_safe_rand_string(6) <> "." <> file_ext
+    def make_attachment_filename(resource_id, file_ext) do
+        "attachment_" <> to_string(resource_id) <> "_" <> url_safe_rand_string(6) <> "." <> file_ext
     end
 
     def get_s3_object_url(filename) do
