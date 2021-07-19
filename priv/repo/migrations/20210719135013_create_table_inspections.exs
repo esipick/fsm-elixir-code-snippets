@@ -1,10 +1,10 @@
 defmodule Flight.Repo.Migrations.CreateTableInspections do
-  use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.SoftDelete.Schema
+  use Ecto.Migration
+  import Ecto.SoftDelete.Migration
 
   def change do
-    drop_if_exists(table("inspections"))
+
+    drop_if_exists table("inspections")
 
     DateTachEnum.create_type()
 
@@ -20,6 +20,7 @@ defmodule Flight.Repo.Migrations.CreateTableInspections do
       add(:is_notified, :boolean, default: false)
       add(:is_email_notified, :boolean)
       add(:is_system_defined, :boolean)
+
       add(:completed_at, :naive_datetime)
 
       add(:aircraft_id, references(:aircrafts, on_delete: :nothing))
