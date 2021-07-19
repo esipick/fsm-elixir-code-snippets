@@ -1,16 +1,12 @@
 defmodule FsmWeb.GraphQL.Aircrafts.AircraftsResolvers do
 
   alias Fsm.Aircrafts
-  alias FsmWeb.GraphQL.Accounts.UserView
   alias FsmWeb.GraphQL.Log
 
 
   def get_aircraft(parent, args, %{context: %{current_user: %{id: id}}}=context) do
-    user =
-      Aircrafts.get_aircraft(args.id)
-      |> UserView.map
-
-    resp = {:ok, user}
+    aircraft = Aircrafts.get_aircraft(args.id)
+    resp = {:ok, aircraft}
     Log.response(resp, __ENV__.function)
   end
 
