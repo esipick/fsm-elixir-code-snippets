@@ -68,12 +68,17 @@ defmodule Fsm.Squawks do
          end
     end
   
-    def get_squawks(user_id) do
-      query =  from s in Squawk,
-           left_join: at in Attachment, on: at.squawk_id == s.id and   is_nil(at.deleted_at),
-           where: s.user_id == ^user_id and is_nil(s.deleted_at) and s.resolved == false,
-           preload: [attachments: at]
-      Repo.all(query)
+    def get_squawks({aircraft_id, user_id}) do
+
+      case aircraft_id do
+        nil -> []
+        _ -> 
+          query = from s in Squawk,
+          left_join: at in Attachment, on: at.squawk_id == s.id and   is_nil(at.deleted_at),
+          where: s.aircraft_id == ^aircraft_id and is_nil(s.deleted_at) and s.resolved == false,
+          preload: [attachments: at]  
+          Repo.all(query)
+      end
     end
   
     def update_squawk(squawk, attrs) do
