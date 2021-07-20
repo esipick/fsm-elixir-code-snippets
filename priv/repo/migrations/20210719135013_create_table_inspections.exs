@@ -4,10 +4,9 @@ defmodule Flight.Repo.Migrations.CreateTableInspections do
 
   def change do
 
-    drop_if_exists table("inspections")
+    rename table("inspections"), to: table("old_inspections")
 
     DateTachEnum.create_type()
-
     create table(:inspections) do
       add(:name, :string)
       add(:type, :string)

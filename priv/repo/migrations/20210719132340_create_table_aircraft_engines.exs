@@ -3,7 +3,7 @@ defmodule Flight.Repo.Migrations.CreateTableAircraftEngines do
 
   def change do
     EnginePosition.create_type
-    create table(:aircarft_engines) do
+    create table(:aircraft_engines) do
       add(:engine_make, :string)
       add(:engine_model, :string)
       add(:engine_serial, :string)
