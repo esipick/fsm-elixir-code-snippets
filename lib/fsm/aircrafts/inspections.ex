@@ -9,7 +9,7 @@ defmodule Fsm.Inspections do
     import Ecto.SoftDelete.Query
     alias Fsm.Scheduling.Aircraft
     alias Fsm.Aircrafts.InspectionQueries
-    alias Fsm.Aircrafts.AircraftQueries
+    alias Fsm.Aircrafts.AircraftsQueries
 
     alias Fsm.Aircrafts.Inspection
     alias Fsm.Aircrafts.InspectionData
@@ -55,7 +55,7 @@ defmodule Fsm.Inspections do
         inspection_data_query = from(t in InspectionData, order_by: [asc: t.sort])
         query =
           from i in Inspection,
-            inner_join: a in Aircraft, on: a.user_id == ^user_id and i.aircraft_id == a.id,
+            inner_join: a in Aircraft, on: i.aircraft_id == a.id,
             where: i.aircraft_id == ^aircraft_id,
             select: i
         inspections = query
@@ -290,7 +290,7 @@ defmodule Fsm.Inspections do
         case should_repeat_inspection do
             true ->
                 last_inspection_date = DateTime.utc_now()
-                engine_tach_start  =  AircraftQueries.get_tach_engine_query(inspection.aircraft_id)
+                engine_tach_start  =  AircraftsQueries.get_tach_engine_query(inspection.aircraft_id)
                 |> Repo.one()
                 |> case do
                        nil ->
@@ -369,12 +369,14 @@ defmodule Fsm.Inspections do
     end
 
     def add_inspection(attrs \\ %{},current_user) do
-        engine = AircraftQueries.get_tach_engine_query(attrs.aircraft_id) |> Repo.one()
+        engine = AircraftsQueries.get_tach_engine_query(attrs.aircraft_id) |> Repo.one() || %{}
+
+        engine_id = Map.get(engine, :id)
 
         inspectionAttrs =
           attrs
             |> Map.put(:is_system_defined, false)
-            |> Map.put(:aircraft_engine_id, engine.id)
+            |> Map.put(:aircraft_engine_id, engine_id)
             |> Map.merge(%{user_id: current_user.id})
             |> Map.merge(%{inspection_data: attrs.inspection_data |> map_inspection_data_value_to_field})
 
