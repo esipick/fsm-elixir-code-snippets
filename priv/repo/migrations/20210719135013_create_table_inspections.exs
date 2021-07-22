@@ -10,7 +10,7 @@ defmodule Flight.Repo.Migrations.CreateTableInspections do
     create table(:inspections) do
       add(:name, :string)
       add(:type, :string)
-      add(:update, :boolean, default: false)
+      add(:updated, :boolean, default: false)
       add(:is_completed, :boolean, default: false)
       add(:note, :string)
       add(:is_repeated, :boolean)
@@ -23,7 +23,7 @@ defmodule Flight.Repo.Migrations.CreateTableInspections do
       add(:completed_at, :naive_datetime)
 
       add(:aircraft_id, references(:aircrafts, on_delete: :nothing))
-      add(:engine_id, references(:aircraft_engines, on_delete: :nothing))
+      add(:aircraft_engine_id, references(:aircraft_engines, on_delete: :nothing))
 
       soft_delete_columns()
       timestamps()
