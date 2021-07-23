@@ -84,4 +84,21 @@ defmodule FsmWeb.GraphQL.Aircrafts.InspectionsResolvers do
   end
 
   def add_inspection(_parent, _args, _context), do: @not_authenticated
+
+  @doc """
+  delete inspection
+  """
+  def delete_inspection(_parent, %{id: id}, %{context: %{current_user: current_user}}) do
+    EctoHelpers.action_wrapped(fn ->
+      case Inspections.get_user_custom_inspection_query(id, current_user.id) do
+        nil ->
+          {:error, "Inspection not found or trying to delete system defined inspection."}
+
+        inspection ->
+          Inspections.delete_inspection(inspection)
+      end
+    end)
+  end
+
+  def delete_inspection(_parent, _args, _context), do: @not_authenticated
 end
