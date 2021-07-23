@@ -7,10 +7,11 @@ defmodule Fsm.Aircrafts.InspectionQueries do
     alias Fsm.Aircrafts.Inspection
     alias Fsm.Aircrafts.InspectionData
     alias Fsm.Aircrafts.Engine
+    alias Flight.Accounts.UserAircraft
 
     def get_user_inspection_query(user_id, inspection_id) do
         from u in User,
-            inner_join: a in Aircraft, on: a.user_id == u.id,
+            inner_join: a in UserAircraft, on: a.user_id == u.id,
             inner_join: i in Inspection, on: i.aircraft_id == a.id,
             select: u,
             where: i.id == ^inspection_id and u.id == ^user_id
@@ -25,7 +26,7 @@ defmodule Fsm.Aircrafts.InspectionQueries do
             inner_join: i in Inspection, on: i.id == d.inspection_id
                 and i.is_completed == false
                 and i.is_notified == false,
-            inner_join: a in Aircraft, on: a.id == i.aircraft_id
+            inner_join: a in UserAircraft, on: a.aircraft_id == i.aircraft_id
                 and a.user_id == ^user_id,
             select: {i, d},
             where: d.class_name == "next_inspection" and not is_nil(d.t_date)
@@ -62,8 +63,8 @@ defmodule Fsm.Aircrafts.InspectionQueries do
                 on: i.id == id.inspection_id and
                     i.is_completed == false and
                     i.is_notified == false,
-            inner_join: a in Aircraft,
-                on: a.id == i.aircraft_id,
+            inner_join: a in UserAircraft,
+                on: a.aircraft_id == i.aircraft_id,
             inner_join: u in User,
                 on: a.user_id == u.id,
             # inner_join: s in Setting,
@@ -86,8 +87,8 @@ defmodule Fsm.Aircrafts.InspectionQueries do
                 on: i.id == id.inspection_id and
                     i.is_completed == false and
                     i.is_email_notified == false,
-            inner_join: a in Aircraft,
-                on: a.id == i.aircraft_id,
+            inner_join: a in UserAircraft,
+                on: a.aircraft_id == i.aircraft_id,
             inner_join: u in User,
                 on: a.user_id == u.id,
             # inner_join: s in Setting,
@@ -108,8 +109,8 @@ defmodule Fsm.Aircrafts.InspectionQueries do
                 on: i.id == id.inspection_id and
                     i.is_completed == false and
                     i.is_email_notified == false,
-            inner_join: a in Aircraft,
-                on: a.id == i.aircraft_id,
+            inner_join: a in UserAircraft,
+                on: a.aircraft_id == i.aircraft_id,
             inner_join: u in User,
                 on: a.user_id == u.id,
             # inner_join: s in Setting,
