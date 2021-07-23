@@ -1,6 +1,4 @@
 defmodule Fsm.Aircrafts.AircraftsQueries do
-    @moduledoc false
-
     import Ecto.Query, warn: false
 
     alias Fsm.Scheduling.Aircraft
@@ -9,6 +7,7 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
     alias Fsm.SchoolScope
     alias Flight.Accounts.UserAircraft
     alias Fsm.Aircrafts.Engine
+    alias Flight.Accounts.UserAircraft
     require Logger
 
     def get_aircraft_query(aircraft_id) do
@@ -154,8 +153,9 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
     """
     def get_user_aircraft_query(user_id, aircraft_id) do
       from a in Aircraft,
+          inner_join: u in UserAircraft, on: a.id == u.aircraft_id,
           select: a,
-          where: a.id == ^aircraft_id and a.user_id == ^user_id
+          where: a.id == ^aircraft_id and u.user_id == ^user_id
     end
 
     @doc """
