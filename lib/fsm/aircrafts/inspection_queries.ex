@@ -41,8 +41,8 @@ defmodule Fsm.Aircrafts.InspectionQueries do
                 on: i.id == id.inspection_id and
                     i.is_completed == false and
                     i.is_notified == false,
-            inner_join: a in Aircraft,
-                on: a.id == i.aircraft_id,
+            inner_join: a in UserAircraft,
+                on: a.aircraft_id == i.aircraft_id,
             inner_join: u in User,
                 on: a.user_id == u.id,
             # inner_join: s in Setting,
