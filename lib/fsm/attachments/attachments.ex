@@ -11,16 +11,6 @@ defmodule Fsm.Attachments do
   alias Fsm.Attachments.Attachment
   import Ecto.SoftDelete.Query
 
-  @doc """
-  Returns the Attachment.
-
-  ## Examples
-
-      iex> get_attachment()
-      [%Attachment{}, ...]
-
-  """
-
   def get_inspection_attachments(inspection_id) do
     Attachment
     |> where(inspection_id: ^inspection_id)
@@ -28,9 +18,23 @@ defmodule Fsm.Attachments do
     |> Repo.all()
   end
 
+  def get_squawk_attachments(squawk_id) do
+    Attachment
+    |> where(squawk_id: ^squawk_id)
+    |> with_undeleted
+    |> Repo.all()
+  end
+
   def get_attachment(id) do
     Attachment
     |> where(id: ^id)
+    |> with_undeleted
+    |> Repo.one()
+  end
+
+  def get_attachments(user_id) do
+    Attachment
+    |> where(user_id: ^user_id)
     |> with_undeleted
     |> Repo.one()
   end
