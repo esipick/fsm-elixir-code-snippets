@@ -301,6 +301,7 @@
             <a <%= if @tab == :billing, do: "class=active" %> href="/<%= url_role %>/profile?tab=billing">Billing</a>
             <a <%= if @tab == :schedule, do: "class=active" %> href="/<%= url_role %>/profile?tab=schedule">Schedule</a>
             <a <%= if @tab == :documents, do: "class=active" %> href="/<%= url_role %>/profile?tab=documents">Documents</a>
+            <a id="click_navigate_to_lms" class="active" href="#">Visit LMS</a>
           </nav>
         </div>
         <!-- end card-header -->
@@ -331,6 +332,53 @@
  $('#click_show_instructors').click(function() {
       $('#show_instructors').slideToggle();;
     });
+
+
+  $('#click_navigate_to_lms').click(async function(e){
+    e.preventDefault()
+
+    const email = '<%= @user.email%>'
+    const firstName = '<%= @user.first_name%>'
+    const lastName = '<%= @user.last_name%>'
+
+    // Todo: we need to get ws token from backend
+    // Best way to store against school and then load into current login user
+    const wstoken = 'cc29db912cb125b6d916a7415b37e2da'
+    const wsfunction = 'auth_userkey_request_login_url'
+    const moodlewsrestformat = 'json'
+
+    const requestOptions = {
+      method: 'GET',
+      mode: 'cors',
+      headers: {}
+    }
+
+    const response = await fetch(
+     `https://lms.randonaviation.com/webservice/rest/server.php?
+wstoken=${wstoken}&
+wsfunction=${wsfunction}&
+moodlewsrestformat=${moodlewsrestformat}&
+user[email]=${email}&
+user[username]=${email}&
+user[firstname]=${firstName}&
+user[lastname]=${lastName}`,
+      requestOptions
+    )
+    .then(res => res.json())
+    .then(data => {
+        const { loginurl } = data
+
+        if(loginurl) {
+            console.log(loginurl)
+            // to preserve current session, just replace url 
+            window.location.href=loginurl
+            // window.location.replace(loginurl)
+        } else {
+            window.alert("There's some problem. Please try again")
+        }
+    });
+  });
+
 </script>
 <!-- end content -->
 
