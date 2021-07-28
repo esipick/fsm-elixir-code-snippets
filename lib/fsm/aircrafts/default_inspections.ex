@@ -10,7 +10,7 @@ defmodule Fsm.Aircrafts.DefaultInspections do
                 type: "VFR",
                 updated: false,
                 is_completed: false,
-                date_tach: "date",
+                date_tach: :date,
                 is_system_defined: true,
                 inspection_data: [
                     last_inspection(1),
@@ -24,7 +24,7 @@ defmodule Fsm.Aircrafts.DefaultInspections do
                 type: "VFR",
                 updated: false,
                 is_completed: false,
-                date_tach: "date",
+                date_tach: :date,
                 is_system_defined: true,
                 inspection_data: [
                     last_inspection(1),
@@ -38,7 +38,7 @@ defmodule Fsm.Aircrafts.DefaultInspections do
                 type: "VFR",
                 updated: false,
                 is_completed: false,
-                date_tach: "tach",
+                date_tach: :tach,
                 is_system_defined: true,
                 inspection_data: [
                     last_inspection(1),
@@ -52,7 +52,7 @@ defmodule Fsm.Aircrafts.DefaultInspections do
                 type: "VFR",
                 updated: false,
                 is_completed: false,
-                date_tach: "date",
+                date_tach: :date,
                 is_system_defined: true,
                 inspection_data: [
                     last_inspection(1),
@@ -66,7 +66,7 @@ defmodule Fsm.Aircrafts.DefaultInspections do
                 type: "VFR",
                 updated: false,
                 is_completed: false,
-                date_tach: "date",
+                date_tach: :date,
                 is_system_defined: true,
                 inspection_data: [
                     last_inspection(1),
@@ -80,7 +80,7 @@ defmodule Fsm.Aircrafts.DefaultInspections do
                 type: "IFR",
                 updated: false,
                 is_completed: false,
-                date_tach: "date",
+                date_tach: :date,
                 is_system_defined: true,
                 inspection_data: [
                     last_inspection(1),
@@ -92,7 +92,7 @@ defmodule Fsm.Aircrafts.DefaultInspections do
                 type: "IFR",
                 updated: false,
                 is_completed: false,
-                date_tach: "date",
+                date_tach: :date,
                 is_system_defined: true,
                 inspection_data: [
                     current_date(1),
@@ -110,7 +110,7 @@ defmodule Fsm.Aircrafts.DefaultInspections do
                 type: "IFR",
                 updated: false,
                 is_completed: false,
-                date_tach: "date",
+                date_tach: :date,
                 is_system_defined: true,
                 inspection_data: [
                     last_inspection(1),

@@ -1,7 +1,6 @@
 defmodule Fsm.Aircrafts.InspectionData do
     use Ecto.Schema
     import Ecto.Changeset
-
     require Logger
 
     schema "inspection_data" do

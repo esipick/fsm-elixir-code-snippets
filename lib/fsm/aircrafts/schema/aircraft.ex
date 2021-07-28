@@ -8,6 +8,7 @@ defmodule Fsm.Aircrafts.Aircraft do
     AircraftMaintenance
   }
 
+  
   schema "aircrafts" do
     field(:ifr_certified, :boolean, default: false)
     field(:last_tach_time, Flight.HourTenth, default: 0)
@@ -25,7 +26,8 @@ defmodule Fsm.Aircrafts.Aircraft do
     field(:blocked, :boolean, default: false)
     belongs_to(:school, Flight.Accounts.School)
     has_many(:squawks, Fsm.Squawks.Squawk)
-    has_many(:inspections, Fsm.Aircratfts.Inspection)
+    has_many(:inspections, Fsm.Aircrafts.Inspection)
+    has_many(:engines, Fsm.Aircrafts.Engine)
     has_many(:audit_logs, Flight.Logs.AuditLog)
 
     many_to_many(:maintenance, Maintenance, join_through: AircraftMaintenance)

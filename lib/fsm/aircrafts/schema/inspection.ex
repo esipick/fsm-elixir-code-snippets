@@ -37,4 +37,9 @@ defmodule Fsm.Aircrafts.Inspection do
       |> validate_required([:name,:type, :aircraft_id])
       |> cast_assoc(:inspection_data)
   end
+
+  def new_changeset() do
+    changeset(%Fsm.Aircrafts.Inspection{}, %{})
+  end
+
 end
