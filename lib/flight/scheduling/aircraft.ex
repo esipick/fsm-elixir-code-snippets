@@ -4,7 +4,6 @@ defmodule Flight.Scheduling.Aircraft do
   import ValidationUtil
 
   alias Flight.Inspections.{
-    Squawk,
     Maintenance,
     AircraftMaintenance
   }
@@ -25,8 +24,9 @@ defmodule Flight.Scheduling.Aircraft do
     field(:archived, :boolean, default: false)
     field(:blocked, :boolean, default: false)
     belongs_to(:school, Flight.Accounts.School)
-    has_many(:squawks, Squawk)
-    has_many(:inspections, Flight.Scheduling.Inspection)
+    has_many(:squawks, Fsm.Squawks.Squawk)
+    has_many(:inspections, Fsm.Aircrafts.Inspection)
+    has_many(:engines, Fsm.Aircrafts.Engine)
     has_many(:audit_logs, Flight.Logs.AuditLog)
 
     many_to_many(:maintenance, Maintenance, join_through: AircraftMaintenance)
