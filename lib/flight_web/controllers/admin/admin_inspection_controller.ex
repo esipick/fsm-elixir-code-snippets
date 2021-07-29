@@ -5,13 +5,20 @@ defmodule FlightWeb.Admin.InspectionController do
   plug(:get_inspection when action in [:edit, :update, :delete])
 
   alias Flight.Scheduling
-  alias Flight.Scheduling.{Aircraft, DateInspection, TachInspection, Inspection}
+  alias Flight.Scheduling.{Aircraft, DateInspection, TachInspection}
   alias Flight.Repo
+  alias Fsm.Aircrafts.Inspection
+  alias Fsm.Inspections
 
   def create(conn, %{"date_inspection" => date_inspection_data}) do
     data = Map.put(date_inspection_data, "aircraft_id", conn.assigns.aircraft.id)
+    data = Map.put(data, "date_tach", :date)
 
-    case Scheduling.create_date_inspection(data) do
+    # we have to pass current user, but there's no linkage
+    # exists between user and inspection
+    user = conn.assigns.current_user
+
+    case Inspections.add_inspection(data, user) do
       {:ok, inspection} ->
         redirect_to_asset(conn, inspection)
 
@@ -29,8 +36,11 @@ defmodule FlightWeb.Admin.InspectionController do
 
   def create(conn, %{"tach_inspection" => tach_inspection_data}) do
     data = Map.put(tach_inspection_data, "aircraft_id", conn.assigns.aircraft.id)
+    data = Map.put(data, "date_tach", :tach)
 
-    case Scheduling.create_tach_inspection(data) do
+    user = conn.assigns.current_user
+
+    case Inspections.add_inspection(data, user) do
       {:ok, inspection} ->
         redirect_to_asset(conn, inspection)
 
@@ -47,11 +57,13 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   def new(conn, %{"type" => type}) do
-    {form_type, changeset} =
+    form_type = 
       case type do
-        "date" -> {:date, Scheduling.DateInspection.new_changeset()}
-        "tach" -> {:tach, Scheduling.TachInspection.new_changeset()}
+        "date" -> :date
+        "tach" -> :tach
       end
+
+    changeset = Inspection.new_changeset()
 
     render(
       conn,
@@ -75,10 +87,10 @@ defmodule FlightWeb.Admin.InspectionController do
     {changeset, form_type} =
       case conn.assigns.inspection.type do
         "date" ->
-          {DateInspection.changeset(Inspection.to_specific(conn.assigns.inspection), %{}), :date}
+          {Inspection.changeset(Inspection.to_specific(conn.assigns.inspection), %{}), :date}
 
         "tach" ->
-          {TachInspection.changeset(Inspection.to_specific(conn.assigns.inspection), %{}), :tach}
+          {Inspection.changeset(Inspection.to_specific(conn.assigns.inspection), %{}), :tach}
       end
 
     render(
@@ -92,6 +104,9 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   def update(conn, %{"inspection" => inspection_data}) do
+
+    user = conn.assigns.current_user
+
     case Scheduling.update_inspection(conn.assigns.inspection, inspection_data) do
       {:ok, inspection} ->
         aircraft = Repo.preload(inspection, :aircraft).aircraft
@@ -107,7 +122,7 @@ defmodule FlightWeb.Admin.InspectionController do
           "edit.html",
           inspection: conn.assigns.inspection,
           changeset: changeset,
-          form_type: String.to_atom(conn.assigns.inspection.type)
+          form_type: String.to_atom(conn.assigns.inspection.date_tach)
         )
     end
   end
