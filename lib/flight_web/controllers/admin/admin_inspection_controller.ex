@@ -210,7 +210,7 @@ defmodule FlightWeb.Admin.InspectionController do
 
   def delete(conn, _) do
     inspection = conn.assigns.inspection
-    Scheduling.delete_inspection!(inspection)
+    Inspections.delete_inspection(inspection)
 
     aircraft = conn.assigns.inspection.aircraft
     namespace = asset_namespace(aircraft)
