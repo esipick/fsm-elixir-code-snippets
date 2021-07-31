@@ -87,6 +87,28 @@ defmodule Fsm.Inspections do
         end)
     end
 
+    def get_inspections(user_id, aircraft_id) do
+        inspection_data_query = from(t in InspectionData, order_by: [asc: t.sort])
+        query =
+          from i in Inspection,
+            inner_join: a in Aircraft, on: i.aircraft_id == a.id,
+            where: i.aircraft_id == ^aircraft_id,
+            select: i
+
+        inspections = query
+            |> with_undeleted
+            |> Repo.all
+            |> Repo.preload([[inspection_data: inspection_data_query], :attachments])
+            
+        Enum.map(inspections, fn(is) ->
+            changed_data = Enum.map(is.inspection_data, fn(d) -> 
+                %{d | value: InspectionData.value_from_t_field(d)}
+            end)
+    
+            %{is | inspection_data: changed_data}
+        end)
+    end
+
     def paginate(query, 0, 0) do
         query
     end

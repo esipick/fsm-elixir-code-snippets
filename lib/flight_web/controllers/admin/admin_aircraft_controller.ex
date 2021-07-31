@@ -4,6 +4,7 @@ defmodule FlightWeb.Admin.AircraftController do
   alias Flight.Scheduling
   alias Flight.Scheduling.Aircraft
   alias Flight.Repo
+  alias Fsm.Inspections
 
   import FlightWeb.Admin.AssetsHelper
 
@@ -34,10 +35,13 @@ defmodule FlightWeb.Admin.AircraftController do
   end
 
   def show(conn, _params) do
-    aircraft = Repo.preload(conn.assigns.aircraft, :inspections)
+    aircraft = conn.assigns.aircraft
+    user = conn.assigns.current_user
+
+    inspections = Inspections.get_inspections(user.id, aircraft.id)
 
     conn
-    |> render("show.html", aircraft: aircraft, skip_shool_select: true)
+    |> render("show.html", aircraft: aircraft, inspections: inspections, skip_shool_select: true)
   end
 
   def logs(conn, params) do
