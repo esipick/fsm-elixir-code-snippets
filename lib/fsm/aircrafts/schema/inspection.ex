@@ -18,7 +18,8 @@ defmodule Fsm.Aircrafts.Inspection do
       field :completed_at, :naive_datetime
 
       field :tach_hours, :float, virtual: true
-      field :next_inspection, :naive_datetime, virtual: true
+      field :last_inspection, InspectionDataType, virtual: true
+      field :next_inspection, InspectionDataType, virtual: true
 
 
       belongs_to :aircraft, Fsm.Scheduling.Aircraft
