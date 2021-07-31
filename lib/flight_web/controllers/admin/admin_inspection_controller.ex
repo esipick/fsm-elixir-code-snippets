@@ -134,21 +134,43 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   def edit(conn, _params) do
-    {changeset, form_type} =
-      case conn.assigns.inspection.type do
-        "date" ->
-          {Inspection.changeset(Inspection.to_specific(conn.assigns.inspection), %{}), :date}
 
-        "tach" ->
-          {Inspection.changeset(Inspection.to_specific(conn.assigns.inspection), %{}), :tach}
-      end
+    form_type = conn.assigns.inspection.date_tach
+    
+    # using case here to make sure to handle
+    # future requests for :tach and :date
+    inspection_data = case form_type do
+      :date ->
+        conn.assigns.inspection.inspection_data
+          |> Enum.reduce(%{}, fn(item, agg) ->
+              if item.class_name === "last_inspection" do
+                Map.put(agg, :last_inspection, item.value)
+              else
+                Map.put(agg, :next_inspection, item.value)
+              end
+          end)
+      :tach ->
+        conn.assigns.inspection.inspection_data
+          |> Enum.reduce(%{}, fn(item, agg) ->
+            if item.class_name === "last_inspection" do
+              Map.put(agg, :last_inspection, item.value)
+            else
+              Map.put(agg, :next_inspection, item.value)
+            end
+          end)
+    end
+
+    inspection = Map.merge(conn.assigns.inspection, inspection_data)
+
+    changeset = Inspection.new_changeset()
 
     render(
       conn,
       "edit.html",
-      inspection: conn.assigns.inspection,
+      inspection: inspection,
+      inspection_data: inspection_data,
       changeset: changeset,
-      form_type: form_type,
+      form_type: conn.assigns.inspection.date_tach,
       skip_shool_select: true
     )
   end
@@ -209,7 +231,7 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   defp get_inspection(conn, _) do
-    inspection = Scheduling.get_inspection(conn.params["id"])
+    inspection = Inspections.get_inspection_by_inspection_id(conn.params["id"])
 
     if inspection do
       aircraft = Scheduling.get_visible_air_asset(inspection.aircraft_id, conn)
