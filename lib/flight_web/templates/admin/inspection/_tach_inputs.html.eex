@@ -6,10 +6,10 @@
 
 <div class="form-group">
   <label>Last Inspection Tach Time</label>
-  <%= number_input @f, :tach_hours, class: "form-control", value: display_hour_tenths(@changeset.data.tach_hours), step: "0.1" %>
+  <%= text_input @f, :last_inspection, class: "form-control" %>
 </div>
 
 <div class="form-group">
   <label>Next Inspection Tach Time</label>
-  <%= number_input @f, :tach_hours, class: "form-control", value: display_hour_tenths(@changeset.data.tach_hours), step: "0.1" %>
+  <%= text_input @f, :next_inspection, class: "form-control" %>
 </div>

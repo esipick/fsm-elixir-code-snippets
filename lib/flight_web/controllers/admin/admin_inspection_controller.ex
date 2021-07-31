@@ -11,16 +11,39 @@ defmodule FlightWeb.Admin.InspectionController do
   alias Fsm.Inspections
 
   def create(conn, %{"date_inspection" => date_inspection_data}) do
-    data = Map.put(date_inspection_data, "aircraft_id", conn.assigns.aircraft.id)
-    data = Map.put(data, "date_tach", :date)
 
-    # we have to pass current user, but there's no linkage
-    # exists between user and inspection
     user = conn.assigns.current_user
 
-    case Inspections.add_inspection(data, user) do
+    last_inspection_data = %{
+      type: :date,
+      name: Map.get(date_inspection_data, "name"),
+      class_name: "last_inspection",
+      t_date: :date,
+      value: Map.get(date_inspection_data, "last_inspection")
+    }
+
+    next_inspection_data = %{
+      type: :date,
+      name: Map.get(date_inspection_data, "name"),
+      class_name: "next_inspection",
+      t_date: :date,
+      value: Map.get(date_inspection_data, "next_inspection")
+    }
+
+    inspection = %{
+      type: Map.get(date_inspection_data, "type"),
+      name: Map.get(date_inspection_data, "name"),
+      aircraft_id: conn.assigns.aircraft.id,
+      date_tach: :date,
+      inspection_data: [
+        last_inspection_data,
+        next_inspection_data,
+      ]
+    }
+
+    case Inspections.add_inspection(inspection, user) do
       {:ok, inspection} ->
-        redirect_to_asset(conn, inspection)
+          redirect_to_asset(conn, inspection)
 
       {:error, changeset} ->
         render(
@@ -35,12 +58,39 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   def create(conn, %{"tach_inspection" => tach_inspection_data}) do
-    data = Map.put(tach_inspection_data, "aircraft_id", conn.assigns.aircraft.id)
-    data = Map.put(data, "date_tach", :tach)
-
     user = conn.assigns.current_user
 
-    case Inspections.add_inspection(data, user) do
+
+    last_inspection_type  = Map.get(tach_inspection_data, "last_inspection") |> get_inspection_value_type()
+    next_inspection_type  = Map.get(tach_inspection_data, "next_inspection") |> get_inspection_value_type()
+
+    last_inspection_data = %{
+      type: last_inspection_type,
+      name: Map.get(tach_inspection_data, "name"),
+      class_name: "last_inspection",
+      value: Map.get(tach_inspection_data, "last_inspection")
+    }
+
+    next_inspection_data = %{
+      type: next_inspection_type,
+      name: Map.get(tach_inspection_data, "name"),
+      class_name: "next_inspection",
+      value: Map.get(tach_inspection_data, "next_inspection")
+    }
+
+
+    inspection = %{
+      type: Map.get(tach_inspection_data, "type"),
+      name: Map.get(tach_inspection_data, "name"),
+      aircraft_id: conn.assigns.aircraft.id,
+      date_tach: :tach,
+      inspection_data: [
+        get_merged_inspection_data(last_inspection_type, last_inspection_data),
+        get_merged_inspection_data(next_inspection_type, next_inspection_data),
+      ]
+    }
+
+    case Inspections.add_inspection(inspection, user) do
       {:ok, inspection} ->
         redirect_to_asset(conn, inspection)
 
@@ -202,4 +252,40 @@ defmodule FlightWeb.Admin.InspectionController do
   defp asset_namespace(aircraft) do
     (Aircraft.display_name(aircraft) |> String.downcase()) <> "s"
   end
+
+  defp get_inspection_value_type (val) do
+    if(val === nil or val === "") do
+      :string
+    else
+      case Integer.parse(val) do
+        {:error}  ->
+          :string
+        {int_val, int_rest} ->
+          case int_rest === "" do
+            true -> :integer
+            false ->
+              case Float.parse(val) do
+                {:error}  ->
+                  :string
+                {float_val, float_rest} ->
+                  if float_rest === "", do: :float, else: :string
+              end
+          end
+      end
+    end
+  end
+
+  defp  get_merged_inspection_data(type, inspection_data) do
+    case type do
+      :float ->
+        Map.put(inspection_data, :t_float, type)
+      :integer ->
+        Map.put(inspection_data, :t_int, type)
+      :string ->
+        Map.put(inspection_data, :t_str, type)
+      _ ->
+        Map.put(inspection_data, :t_str, :string)
+    end
+  end
+
 end
