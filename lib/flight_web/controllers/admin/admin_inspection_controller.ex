@@ -144,31 +144,40 @@ defmodule FlightWeb.Admin.InspectionController do
         conn.assigns.inspection.inspection_data
           |> Enum.reduce(%{}, fn(item, agg) ->
               if item.class_name === "last_inspection" do
-                Map.put(agg, :last_inspection, item.value)
+                Map.put(agg, :last_inspection, Date.to_iso8601(item.t_date))
               else
-                Map.put(agg, :next_inspection, item.value)
+                Map.put(agg, :next_inspection, Date.to_iso8601(item.t_date))
               end
           end)
       :tach ->
         conn.assigns.inspection.inspection_data
           |> Enum.reduce(%{}, fn(item, agg) ->
+
+            value = case item.type do
+              :integer ->
+                item.t_int
+              :float ->
+                item.t_float
+              :string ->
+                item.t_str
+            end
+
             if item.class_name === "last_inspection" do
-              Map.put(agg, :last_inspection, item.value)
+              Map.put(agg, :last_inspection, value)
             else
-              Map.put(agg, :next_inspection, item.value)
+              Map.put(agg, :next_inspection, value)
             end
           end)
     end
 
     inspection = Map.merge(conn.assigns.inspection, inspection_data)
 
-    changeset = Inspection.new_changeset()
+    changeset = Inspection.changeset(inspection, %{})
 
     render(
       conn,
       "edit.html",
       inspection: inspection,
-      inspection_data: inspection_data,
       changeset: changeset,
       form_type: conn.assigns.inspection.date_tach,
       skip_shool_select: true
