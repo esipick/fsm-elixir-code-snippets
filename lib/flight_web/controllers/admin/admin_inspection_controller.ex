@@ -58,7 +58,6 @@ defmodule FlightWeb.Admin.InspectionController do
   def create(conn, %{"tach_inspection" => tach_inspection_data}) do
     user = conn.assigns.current_user
 
-
     last_inspection_type  = Map.get(tach_inspection_data, "last_inspection") |> get_inspection_value_type()
     next_inspection_type  = Map.get(tach_inspection_data, "next_inspection") |> get_inspection_value_type()
 
@@ -152,7 +151,7 @@ defmodule FlightWeb.Admin.InspectionController do
           |> Enum.reduce(%{}, fn(item, agg) ->
 
             value = case item.type do
-              :integer ->
+              :int ->
                 item.t_int
               :float ->
                 item.t_float
@@ -291,7 +290,7 @@ defmodule FlightWeb.Admin.InspectionController do
           :string
         {int_val, int_rest} ->
           case int_rest === "" do
-            true -> :integer
+            true -> :int
             false ->
               case Float.parse(val) do
                 {:error}  ->
@@ -308,7 +307,7 @@ defmodule FlightWeb.Admin.InspectionController do
     case type do
       :float ->
         Map.put(inspection_data, :t_float, type)
-      :integer ->
+      :int ->
         Map.put(inspection_data, :t_int, type)
       :string ->
         Map.put(inspection_data, :t_str, type)

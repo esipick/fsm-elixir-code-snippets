@@ -35,7 +35,7 @@ defmodule Fsm.Aircrafts.Inspection do
   @doc false
   def changeset(inspection, attrs) do
       inspection
-      |> cast(attrs, [:name,:type, :updated, :is_completed, :aircraft_id, :date_tach, :is_repeated, :repeat_every_days, :is_notified, :is_email_notified, :is_system_defined, :aircraft_engine_id, :completed_at])
+      |> cast(attrs, [:name,:type, :updated, :is_completed, :aircraft_id, :date_tach, :is_repeated, :repeat_every_days, :is_notified, :is_email_notified, :is_system_defined, :aircraft_engine_id, :user_id, :completed_at])
       |> validate_required([:name,:type, :aircraft_id])
       |> cast_assoc(:inspection_data)
   end
