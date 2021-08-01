@@ -60,7 +60,7 @@
                       <th>Name</th>
                       <th>Type</th>
                       <th>Date/Tach</th>
-                     <th class="text-right"><a href="/admin/simulators/<%= @simulator.id %>/inspections/new"
+                      <th class="text-right"><a href="/admin/simulators/<%= @aircraft.id %>/inspections/new" class="btn btn-primary btn-sm">Add New</a></th>
                     </tr>
                   </thead>
                   <tbody>

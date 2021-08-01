@@ -92,7 +92,7 @@ defmodule Fsm.Inspections do
         query =
           from i in Inspection,
             inner_join: a in Aircraft, on: i.aircraft_id == a.id,
-            where: i.aircraft_id == ^aircraft_id,
+            where: i.aircraft_id == ^aircraft_id and i.user_id == ^user_id,
             select: i
 
         inspections = query
