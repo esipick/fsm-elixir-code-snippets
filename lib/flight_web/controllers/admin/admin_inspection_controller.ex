@@ -184,14 +184,50 @@ defmodule FlightWeb.Admin.InspectionController do
   def update(conn, %{"inspection" => inspection_data}) do
 
     user = conn.assigns.current_user
+    inspection = conn.assigns.inspection
 
-    case Scheduling.update_inspection(conn.assigns.inspection, inspection_data) do
+    inspection_data_list = case inspection.date_tach do
+      :date ->
+        [
+          %{
+            type: :date,
+            name: Map.get(inspection_data, "name"),
+            class_name: "last_inspection",
+            value: Map.get(inspection_data, "last_inspection")
+          },
+          %{
+            type: :date,
+            name: Map.get(inspection_data, "name"),
+            class_name: "next_inspection",
+            value: Map.get(inspection_data, "next_inspection")
+          }
+        ]
+      :tach ->
+        [
+          %{
+            type: Map.get(inspection_data, "last_inspection") |> get_inspection_value_type(),
+            name: Map.get(inspection_data, "name"),
+            class_name: "last_inspection",
+            value: Map.get(inspection_data, "last_inspection")
+          },
+
+          %{
+            type: Map.get(inspection_data, "next_inspection") |> get_inspection_value_type(),
+            name: Map.get(inspection_data, "name"),
+            class_name: "next_inspection",
+            value: Map.get(inspection_data, "next_inspection")
+          }
+        ]
+    end
+
+
+    case Inspections.update_inspection(user.id, inspection.id, inspection_data_list) do
       {:ok, inspection} ->
-        aircraft = Repo.preload(inspection, :aircraft).aircraft
+        aircraft = conn.assigns.inspection.aircraft
         namespace = asset_namespace(aircraft)
 
         conn
-        |> put_flash(:success, "Successfully created inspection")
+        |> put_flash(:success, "Successfully updated inspection")
         |> redirect(to: "/admin/#{namespace}/#{aircraft.id}")
 
       {:error, changeset} ->
@@ -200,7 +236,7 @@ defmodule FlightWeb.Admin.InspectionController do
           "edit.html",
           inspection: conn.assigns.inspection,
           changeset: changeset,
-          form_type: String.to_atom(conn.assigns.inspection.date_tach)
+          form_type: conn.assigns.inspection.date_tach
         )
     end
   end

@@ -17,6 +17,11 @@ defmodule Fsm.Aircrafts.InspectionQueries do
             where: i.id == ^inspection_id and u.id == ^user_id
     end
 
+    def get_inspection_owner_query(user_id, inspection_id) do
+        from i in Inspection,
+            select: i,
+            where: i.id == ^inspection_id and i.user_id == ^user_id
+    end
 
     @doc """
     Returns query to find pending notifications for user
