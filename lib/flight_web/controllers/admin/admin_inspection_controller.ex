@@ -18,7 +18,6 @@ defmodule FlightWeb.Admin.InspectionController do
       type: :date,
       name: Map.get(date_inspection_data, "name"),
       class_name: "last_inspection",
-      t_date: :date,
       value: Map.get(date_inspection_data, "last_inspection")
     }
 
@@ -26,7 +25,6 @@ defmodule FlightWeb.Admin.InspectionController do
       type: :date,
       name: Map.get(date_inspection_data, "name"),
       class_name: "next_inspection",
-      t_date: :date,
       value: Map.get(date_inspection_data, "next_inspection")
     }
 
