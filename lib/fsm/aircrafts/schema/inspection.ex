@@ -26,6 +26,7 @@ defmodule Fsm.Aircrafts.Inspection do
       has_many(:inspection_data, Fsm.Aircrafts.InspectionData)
       has_many(:attachments, Fsm.Attachments.Attachment)
       belongs_to(:aircraft_engine, Fsm.Aircrafts.Engine)
+      belongs_to(:user, Fsm.Accounts.User)
 
       soft_delete_schema()
       timestamps()
