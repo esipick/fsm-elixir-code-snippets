@@ -23,6 +23,15 @@
         <%= form_for @changeset, "/admin/#{@asset_namespace}/#{@aircraft.id}/inspections", [as: inspection_key, method: "post", class: "form-horizontal"], fn f -> %>
           <div class="card-body">
             <%= hidden_input f, :aircraft_id, value: @aircraft.id %>
+            <div class="row">
+              <div class="col-md-3 pr-1">
+                <div class="form-group">
+                  <label>Inspection Type</label>
+                  <%= select f, :type, ["IFR": "IFR", "VFR": "VFR"], class: "selectpicker" %>
+                  <%= full_error_tag f, :type %>
+                </div>
+              </div>
+            </div>
             <%= case @form_type do
               :tach -> render("_tach_inputs.html", f: f, changeset: @changeset)
               :date -> render("_date_inputs.html", f: f, changeset: @changeset)

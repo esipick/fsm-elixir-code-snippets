@@ -18,13 +18,15 @@ defmodule Fsm.Aircrafts.Inspection do
       field :completed_at, :naive_datetime
 
       field :tach_hours, :float, virtual: true
-      field :next_inspection, :naive_datetime, virtual: true
+      field :last_inspection, InspectionDataType, virtual: true
+      field :next_inspection, InspectionDataType, virtual: true
 
 
       belongs_to :aircraft, Fsm.Scheduling.Aircraft
       has_many(:inspection_data, Fsm.Aircrafts.InspectionData)
       has_many(:attachments, Fsm.Attachments.Attachment)
       belongs_to(:aircraft_engine, Fsm.Aircrafts.Engine)
+      belongs_to(:user, Fsm.Accounts.User)
 
       soft_delete_schema()
       timestamps()
@@ -33,8 +35,13 @@ defmodule Fsm.Aircrafts.Inspection do
   @doc false
   def changeset(inspection, attrs) do
       inspection
-      |> cast(attrs, [:name,:type, :updated, :is_completed, :aircraft_id, :date_tach, :is_repeated, :repeat_every_days, :is_notified, :is_email_notified, :is_system_defined, :aircraft_engine_id, :completed_at])
+      |> cast(attrs, [:name,:type, :updated, :is_completed, :aircraft_id, :date_tach, :is_repeated, :repeat_every_days, :is_notified, :is_email_notified, :is_system_defined, :aircraft_engine_id, :user_id, :completed_at])
       |> validate_required([:name,:type, :aircraft_id])
       |> cast_assoc(:inspection_data)
   end
+
+  def new_changeset() do
+    changeset(%Fsm.Aircrafts.Inspection{}, %{})
+  end
+
 end

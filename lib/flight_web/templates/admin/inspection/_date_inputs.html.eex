@@ -1,12 +1,18 @@
 <div class="form-group">
   <label>Name *</label>
-  <%= text_input @f, :name, class: "form-control" %>
+  <%= text_input @f, :name, class: "form-control", placeholder: "Type inspection title" %>
   <%= full_error_tag @f, :name %>
 </div>
 
 <div class="form-group">
-  <label>Expiration Date *</label>
-  <%= text_input @f, :expiration, class: "form-control", placeholder: "MM/DD/YYYY", value: format_date(input_value(@f, :expiration)) %>
-  <%= full_error_tag @f, :expiration %>
+  <label>Last Inspection</label>
+  <%= date_input @f, :last_inspection, class: "form-control", placeholder: "MM/DD/YYYY", value: format_date(input_value(@f, :last_inspection)) %>
+  <%= full_error_tag @f, :last_inspection %>
+</div>
+
+<div class="form-group">
+  <label>Next Inspection</label>
+  <%= date_input @f, :next_inspection, class: "form-control", placeholder: "MM/DD/YYYY", value: format_date(input_value(@f, :next_inspection)) %>
+  <%= full_error_tag @f, :next_inspection %>
 </div>
 

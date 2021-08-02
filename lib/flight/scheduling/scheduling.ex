@@ -44,36 +44,36 @@ defmodule Flight.Scheduling do
       |> MapUtil.atomize_shallow()
       |> insert_aircraft(school_context)
 
-    case result do
-      {:ok, aircraft} ->
-        date_inspections = [
-          %DateInspection{name: "Annual", aircraft_id: aircraft.id},
-          %DateInspection{name: "Transponder", aircraft_id: aircraft.id},
-          %DateInspection{name: "Altimeter", aircraft_id: aircraft.id},
-          %DateInspection{name: "ELT", aircraft_id: aircraft.id}
-        ]
+    # case result do
+    #   {:ok, aircraft} ->
+    #     date_inspections = [
+    #       %DateInspection{name: "Annual", aircraft_id: aircraft.id},
+    #       %DateInspection{name: "Transponder", aircraft_id: aircraft.id},
+    #       %DateInspection{name: "Altimeter", aircraft_id: aircraft.id},
+    #       %DateInspection{name: "ELT", aircraft_id: aircraft.id}
+    #     ]
 
-        tach_inspections = [
-          %TachInspection{name: "100hr", aircraft_id: aircraft.id}
-        ]
+    #     tach_inspections = [
+    #       %TachInspection{name: "100hr", aircraft_id: aircraft.id}
+    #     ]
 
-        for date_inspection <- date_inspections do
-          %Inspection{}
-          |> Inspection.changeset(DateInspection.attrs(date_inspection))
-          |> Repo.insert()
-        end
+    #     for date_inspection <- date_inspections do
+    #       %Inspection{}
+    #       |> Inspection.changeset(DateInspection.attrs(date_inspection))
+    #       |> Repo.insert()
+    #     end
 
-        for tach_inspection <- tach_inspections do
-          %Inspection{}
-          |> Inspection.changeset(TachInspection.attrs(tach_inspection))
-          |> Repo.insert()
-        end
+    #     for tach_inspection <- tach_inspections do
+    #       %Inspection{}
+    #       |> Inspection.changeset(TachInspection.attrs(tach_inspection))
+    #       |> Repo.insert()
+    #     end
 
-        result
+    #     result
 
-      _ ->
-        result
-    end
+    #   _ ->
+    #     result
+    # end
   end
 
   def admin_create_simulator(attrs, school_context) do

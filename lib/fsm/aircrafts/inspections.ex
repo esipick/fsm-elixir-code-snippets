@@ -87,6 +87,28 @@ defmodule Fsm.Inspections do
         end)
     end
 
+    def get_inspections(user_id, aircraft_id) do
+        inspection_data_query = from(t in InspectionData, order_by: [asc: t.sort])
+        query =
+          from i in Inspection,
+            inner_join: a in Aircraft, on: i.aircraft_id == a.id,
+            where: i.aircraft_id == ^aircraft_id and i.user_id == ^user_id,
+            select: i
+
+        inspections = query
+            |> with_undeleted
+            |> Repo.all
+            |> Repo.preload([[inspection_data: inspection_data_query], :attachments])
+            
+        Enum.map(inspections, fn(is) ->
+            changed_data = Enum.map(is.inspection_data, fn(d) -> 
+                %{d | value: InspectionData.value_from_t_field(d)}
+            end)
+    
+            %{is | inspection_data: changed_data}
+        end)
+    end
+
     def paginate(query, 0, 0) do
         query
     end
@@ -158,7 +180,7 @@ defmodule Fsm.Inspections do
     def update_inspection(user_id, id, inspection_data) when is_list(inspection_data) do
         case is_owner(%{user_id: user_id, inspection_id: id}) do
             nil ->
-                {:error, "not found"}
+                {:error, Inspection.new_changeset()}
             _user ->
                 case update_inspection_data(id, inspection_data) do
                     true ->                         
@@ -419,7 +441,7 @@ defmodule Fsm.Inspections do
     Return user if inspection_id exists and belongs to user, otherwise nil
     """
     def is_owner(%{user_id: user_id, inspection_id: inspection_id}) do
-        InspectionQueries.get_user_inspection_query(user_id, inspection_id)
+        InspectionQueries.get_inspection_owner_query(user_id, inspection_id)
         |> Repo.one
     end
 

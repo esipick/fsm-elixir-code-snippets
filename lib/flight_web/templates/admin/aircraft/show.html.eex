@@ -66,17 +66,20 @@
                       <thead class="text-primary">
                         <tr>
                           <th>Name</th>
-                          <th>Expiration</th>
+                          <th>Type</th>
+                          <th>Date/Tach</th>
                           <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new" class="btn btn-primary btn-sm">Add New</a></th>
                         </tr>
                       </thead>
                       <tbody>
 
-                        <%= for inspection <- @aircraft.inspections do %>
-                          <%= case Flight.Scheduling.Inspection.to_specific(inspection) do
-                            %Flight.Scheduling.DateInspection{} = date_inspection -> render("_date_inspection_list_item.html", date_inspection: date_inspection)
-                            %Flight.Scheduling.TachInspection{} = tach_inspection -> render("_tach_inspection_list_item.html", tach_inspection: tach_inspection)
-                          end %>
+                        <%= for inspection <- @inspections do %>
+                          <tr>
+                            <td><%= inspection.name %></td>
+                            <td><%= inspection.type %></td>
+                            <td><%= inspection.date_tach %></td>
+                            <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
+                          </tr>
                         <% end %>
 
                       </tbody>

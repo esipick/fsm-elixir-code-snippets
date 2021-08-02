@@ -62,6 +62,7 @@ defmodule Flight.Accounts.User do
     many_to_many(:roles, Flight.Accounts.Role, join_through: "user_roles", on_replace: :delete)
     has_many(:user_roles, Flight.Accounts.UserRole, on_delete: :delete_all)
     has_many(:audit_logs, Flight.Logs.AuditLog)
+    has_many(:inspections, Fsm.Aircrafts.Inspection)
 
     many_to_many(:aircrafts, Flight.Scheduling.Aircraft,
       join_through: "user_aircrafts",

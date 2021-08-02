@@ -1,7 +1,6 @@
 <div class="panel-header panel-header-sm"></div>
 
 <div class="content">
-
   <div class="row">
     <div class="col-md-8">
       <div class="card">
@@ -11,9 +10,16 @@
         <%= form_for @changeset, "/admin/inspections/#{@inspection.id}", [as: :inspection, method: "put", class: "form-horizontal"], fn f -> %>
           <div class="card-body">
             <%= hidden_input f, :aircraft_id, value: @inspection.aircraft_id %>
+            <div class="form-group">
+              <label>Inspection Type</label>
+              <div class="col-md-4 px-0">
+                <%= select f, :type, ["IFR": "IFR", "VFR": "VFR"], class: "selectpicker" %>
+                <%= full_error_tag f, :type %>
+              </div>
+            </div>
             <%= case @form_type do
               :tach -> render("_tach_inputs.html", f: f, changeset: @changeset)
-              :date -> render("_date_inputs.html", f: f)
+              :date -> render("_date_inputs.html", f: f, changeset: @changeset)
             end %>
           </div>
           <div class="card-footer text-right">
@@ -25,7 +31,7 @@
               style="margin-left: 4px;"
               type="button"
               class="btn btn-danger btn-fill _delete_button"
-              data-inspection-id="<%= @inspection.id %>">Remove</button>
+                data-inspection-id="<%= @inspection.id %>">Remove</button>
           </div>
         <% end %>
       </div>
