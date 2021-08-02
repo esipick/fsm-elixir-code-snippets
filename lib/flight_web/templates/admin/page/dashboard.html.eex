@@ -153,50 +153,6 @@
       </div>
     </div> <!-- end row -->
   <% end %>
-  <div class="table-responsive">
-    <table class="table">
-      <tbody>
-        <%= for transaction <- @pending_transactions do %>
-          <tr>
-            <td class="text-nowrap"><a href="/admin/users/<%= transaction.user.id %>"><%= display_name transaction.user %></a></td>
-            <td class="text-right"><%= currency transaction.total %></td>
-            <td class="text-right"><%= display_date transaction.inserted_at %></td>
-          </tr>
-        <% end %>
-        <%= if @total_pending > 0 do %>
-          <tr>
-            <td class="text-nowrap"><b>Total</b></td>
-            <td class="text-right"><%= currency @total_pending %></td>
-            <td class="text-right"></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-  <div class="card-footer">
-    <div class="stats">
-      <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
-    </div>
-  </div>
-  <!-- end row -->
-  <%= if can_see_fsm_panels?(@conn.assigns.current_user) do %>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="card card-chart">
-          <div class="card-header">
-            <h5 class="card-category">Total FSM Income</h5>
-            <h1 class="card-title"><%= currency @fsm_income %></h1>
-          </div>
-          <div class="card-footer">
-            <div class="stats">
-              <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- end row -->
-  <% end %>
 </div>
 <!-- end content -->
 <%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
