@@ -51,11 +51,15 @@ defmodule FlightWeb.API.AircraftView do
   end
 
   def render("inspection.json", %{inspection: inspection}) do
+
+    inspection_data = Flight.Repo.preload(inspection, :inspection_data)
+    inspection_attachments = Flight.Repo.preload(inspection, :attachments)
+
     %{
       name: inspection.name,
       type: inspection.type,
-      date_value: inspection.date_value,
-      number_value: inspection.number_value
+      inspection_data: inspection_data,
+      inspection_attachments: inspection_attachments
     }
   end
 
