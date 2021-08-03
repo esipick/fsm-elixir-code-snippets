@@ -51,9 +51,13 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
     sort_order = Map.get(args, :sort_order) || :desc
     filter = Map.get(args, :filter) || %{}
 
-    users =
-      Accounts.list_users(page, per_page, sort_field, sort_order, filter, context)
+    users = Accounts.list_users(page, per_page, sort_field, sort_order, filter, context)
       |> UserView.map()
+      |> Enum.reduce([], fn (user, agg) ->
+          roles = user.roles |> Enum.uniq()
+          user = Map.put(user, :roles, roles)
+          agg ++ [user]
+        end)
 
     resp = {:ok, users}
     Log.response(resp, __ENV__.function, :info)
