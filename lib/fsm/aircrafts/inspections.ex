@@ -224,7 +224,7 @@ defmodule Fsm.Inspections do
                 false
             inspection -> 
                 updates = Enum.map(inspection_data, fn(kv) ->
-                    db_insp_data = Enum.filter(inspection.inspection_data, fn(d) -> d.name == kv.name end)
+                    db_insp_data = Enum.filter(inspection.inspection_data, fn(d) -> d.class_name == kv.class_name end)
                     update_inspection_data_row(db_insp_data, kv)
                 end)
 

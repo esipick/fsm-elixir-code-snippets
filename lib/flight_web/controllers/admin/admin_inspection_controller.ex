@@ -1,14 +1,17 @@
 defmodule FlightWeb.Admin.InspectionController do
   use FlightWeb, :controller
 
+  plug(:allow_only_admin when action in [:new, :create, :edit, :update, :delete])
   plug(:get_aircraft when action in [:create, :new])
   plug(:get_inspection when action in [:edit, :update, :delete])
 
   alias Flight.Scheduling
-  alias Flight.Scheduling.{Aircraft, DateInspection, TachInspection}
+  alias Flight.Scheduling.{Aircraft}
   alias Flight.Repo
   alias Fsm.Aircrafts.Inspection
   alias Fsm.Inspections
+  alias Flight.Accounts.Role
+  alias Flight.Auth.Authorization
 
   def create(conn, %{"date_inspection" => date_inspection_data}) do
 
@@ -16,14 +19,14 @@ defmodule FlightWeb.Admin.InspectionController do
 
     last_inspection_data = %{
       type: :date,
-      name: Map.get(date_inspection_data, "name"),
+      name: "Last inspection date",
       class_name: "last_inspection",
       value: Map.get(date_inspection_data, "last_inspection")
     }
 
     next_inspection_data = %{
       type: :date,
-      name: Map.get(date_inspection_data, "name"),
+      name: "Next inspection date",
       class_name: "next_inspection",
       value: Map.get(date_inspection_data, "next_inspection")
     }
@@ -63,14 +66,14 @@ defmodule FlightWeb.Admin.InspectionController do
 
     last_inspection_data = %{
       type: last_inspection_type,
-      name: Map.get(tach_inspection_data, "name"),
+      name: "Last Inspection Tach Time",
       class_name: "last_inspection",
       value: Map.get(tach_inspection_data, "last_inspection")
     }
 
     next_inspection_data = %{
       type: next_inspection_type,
-      name: Map.get(tach_inspection_data, "name"),
+      name: "Next Inspection Tach Time",
       class_name: "next_inspection",
       value: Map.get(tach_inspection_data, "next_inspection")
     }
@@ -350,6 +353,18 @@ defmodule FlightWeb.Admin.InspectionController do
       _ ->
         Map.put(inspection_data, :t_str, :string)
     end
+  end
+
+  defp allow_only_admin(conn, _) do
+    user = Repo.preload(conn.assigns.current_user, [:roles])
+    roles = Role |> Flight.Repo.all()
+
+    if Authorization.is_admin?(user) do
+      conn
+    else
+      Authorization.Extensions.redirect_unathorized_user(conn)
+    end
+
   end
 
 end
