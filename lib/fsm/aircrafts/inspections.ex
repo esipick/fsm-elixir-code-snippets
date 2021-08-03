@@ -55,7 +55,6 @@ defmodule Fsm.Inspections do
         inspection_data_query = from(t in InspectionData, order_by: [asc: t.sort])
         query =
           from i in Inspection,
-            inner_join: a in Aircraft, on: i.aircraft_id == a.id,
             where: i.aircraft_id == ^aircraft_id,
             select: i
         inspections = query
@@ -91,8 +90,7 @@ defmodule Fsm.Inspections do
         inspection_data_query = from(t in InspectionData, order_by: [asc: t.sort])
         query =
           from i in Inspection,
-            inner_join: a in Aircraft, on: i.aircraft_id == a.id,
-            where: i.aircraft_id == ^aircraft_id and i.user_id == ^user_id,
+            where: i.aircraft_id == ^aircraft_id,
             select: i
 
         inspections = query
