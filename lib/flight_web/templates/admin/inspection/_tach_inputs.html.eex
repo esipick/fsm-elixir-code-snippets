@@ -1,15 +1,9 @@
 <div class="form-group">
-  <label>Name *</label>
-  <%= text_input @f, :name, class: "form-control", placeholder: "Type inspection name" %>
-  <%= full_error_tag @f, :name %>
-</div>
-
-<div class="form-group">
   <label>Last Inspection Tach Time</label>
-  <%= text_input @f, :last_inspection, class: "form-control" %>
+  <%= text_input @f, :last_inspection, class: "form-control", required: true %>
 </div>
 
 <div class="form-group">
   <label>Next Inspection Tach Time</label>
-  <%= text_input @f, :next_inspection, class: "form-control" %>
+  <%= text_input @f, :next_inspection, class: "form-control", required: true %>
 </div>
