@@ -218,4 +218,11 @@ defmodule FlightWeb.SidebarItem do
       end
     end)
   end
+
+  def get_custom_school_name(user) do
+    user = Flight.Repo.preload(user, [:school, :roles])
+    roles = Enum.map(user.roles, fn r -> r.slug end)
+    if "admin" in roles, do: "Flight School Manager", else: user.school.name
+  end
+
 end
