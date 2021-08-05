@@ -23,7 +23,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.InspectionsResolvers do
           filter = filter |> Map.put(:completed, false)
       end
 
-    case Inspections.get_inspections(user_id, aircraft_id, page, per_page, filter) do
+    case Inspections.get_inspections(aircraft_id, page, per_page, filter) do
       nil ->
         @not_found
 
