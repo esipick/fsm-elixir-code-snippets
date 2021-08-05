@@ -31,18 +31,9 @@ defmodule Fsm.Accounts do
       %User{archived: false} ->
         case check_password(user, password) do
           {:ok, user} ->
-            user =
-              user
-              |> FlightWeb.API.UserView.show_preload()
+            user = user |> FlightWeb.API.UserView.show_preload()
 
-            roles = Map.get(user, :roles)
-        
-            school = case School.get_school(user.school_id) do
-              {:ok, school} -> school
-              _ -> %{}
-            end
-
-            school = if "admin" in roles, do: Map.put(school, :name, "Flight Manager School"), else: school
+            school = if Flight.Accounts.is_superadmin?(user), do: %{name: "Flight School Manager"}, else: user.school
 
             {:ok, %{ user: user,  token: FlightWeb.Fsm.AuthenticateApiUser.token(user), school: school }}
 
