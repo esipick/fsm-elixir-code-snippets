@@ -24,7 +24,7 @@ Tip 2: you can also add an image using data-image tag
         </div> -->
         <div class="info">
             <a data-toggle="collapse" href="#" class="collapsed text-center">
-                <span><%= FlightWeb.SidebarItem.get_custom_school_name(@conn.assigns.current_user) %> </span>
+                <span><%= @conn.assigns.current_user.first_name %> <%= @conn.assigns.current_user.last_name %></span>
             </a>
             <div class="clearfix"></div>
         </div>
