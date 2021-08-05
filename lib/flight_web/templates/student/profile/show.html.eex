@@ -301,7 +301,7 @@
             <a <%= if @tab == :billing, do: "class=active" %> href="/<%= url_role %>/profile?tab=billing">Billing</a>
             <a <%= if @tab == :schedule, do: "class=active" %> href="/<%= url_role %>/profile?tab=schedule">Schedule</a>
             <a <%= if @tab == :documents, do: "class=active" %> href="/<%= url_role %>/profile?tab=documents">Documents</a>
-            <a id="click_navigate_to_lms" class="active" href="#">Visit LMS</a>
+            <%# <a id="click_navigate_to_lms" class="active" href="#">Visit LMS</a> %>
           </nav>
         </div>
         <!-- end card-header -->
