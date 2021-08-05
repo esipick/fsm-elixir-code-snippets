@@ -78,7 +78,9 @@
                             <td><%= inspection.name %></td>
                             <td><%= inspection.type %></td>
                             <td><%= inspection.date_tach %></td>
-                            <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
+                            <%= if inspection.user_id == @conn.assigns.current_user.id do %>
+                              <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
+                            <% end %>
                           </tr>
                         <% end %>
 
