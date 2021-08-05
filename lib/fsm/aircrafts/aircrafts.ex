@@ -6,6 +6,7 @@ defmodule Fsm.Aircrafts do
   alias Fsm.Accounts.User
   alias Fsm.Aircrafts.AircraftsQueries
   alias Fsm.SchoolScope
+  alias Fsm.Aircrafts.InspectionData
 
   require Logger
 
@@ -16,9 +17,25 @@ defmodule Fsm.Aircrafts do
   end
 
   def list_aircrafts(page, per_page, sort_field, sort_order, filter, context) do
+
+    inspections_query = from p in Fsm.Aircrafts.Inspection
+
     AircraftsQueries.list_aircrafts_query(page, per_page, sort_field, sort_order, filter, context)
     |> Repo.all()
-    |> Repo.preload([:inspections, :squawks])
+    |> Repo.preload([:squawks])
+    |> Repo.preload([inspections: {inspections_query, [:inspection_data, :attachments]}])
+    |> Enum.reduce([], fn(aircraft, agg) ->
+
+      inspections = Enum.map(aircraft.inspections, fn(is) ->
+        changed_data = Enum.map(is.inspection_data, fn(d) -> 
+            %{d | value: InspectionData.value_from_t_field(d)}
+        end)
+        %{is | inspection_data: changed_data}
+      end)
+
+      aircraft = Map.put(aircraft, :inspections, inspections)
+      agg ++ [aircraft]
+    end)
 
   end
 
