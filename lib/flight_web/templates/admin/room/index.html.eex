@@ -54,9 +54,6 @@
               <table class="table">
                 <thead>
                   <th>Location</th>
-                  <%= if show_to_superadmin?(@conn) do %>
-                    <th>School</th>
-                  <% end %>
                   <th>Capacity</th>
                   <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
                   <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
@@ -67,9 +64,6 @@
                       <td>
                         <%= room.location %>
                       </td>
-                      <%= if show_to_superadmin?(@conn) do %>
-                        <td><a href="/admin/schools/<%= room.school.id %>"><%= room.school.name %></a></td>
-                      <% end %>
                       <td><%= room.capacity %></td>
                       <td><%= currency room.rate_per_hour %></td>
                       <td><%= currency room.block_rate_per_hour %></td>
