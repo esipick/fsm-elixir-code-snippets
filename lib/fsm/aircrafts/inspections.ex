@@ -51,7 +51,7 @@ defmodule Fsm.Inspections do
     @doc """
     Get aircraft inspections or nil
     """
-    def get_inspections(user_id, aircraft_id, page, per_page, filter) do
+    def get_inspections(aircraft_id, page, per_page, filter) do
         inspection_data_query = from(t in InspectionData, order_by: [asc: t.sort])
         query =
           from i in Inspection,
@@ -86,7 +86,7 @@ defmodule Fsm.Inspections do
         end)
     end
 
-    def get_inspections(user_id, aircraft_id) do
+    def get_inspections(aircraft_id) do
         inspection_data_query = from(t in InspectionData, order_by: [asc: t.sort])
         query =
           from i in Inspection,

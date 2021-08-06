@@ -192,6 +192,19 @@ defmodule FlightWeb.ViewHelpers do
     } Timezone)</span>"
   end
 
+  def school_name(school) do
+    "<span class=\"navbar-brand\" id=\"current-school\" data-school-id=#{school.id}>#{school.name}</span>"
+  end
+
+  def get_school_name_content(user, school) do
+    if Flight.Accounts.is_superadmin?(user) do
+      school = Map.put(school, :name, "Flight School Manager")
+      school_name(school)
+    else
+      school_name_with_timezone(school)
+    end
+  end
+
   def school_select(%{assigns: %{hide_school_info: true}}), do: ""
 
   def school_select(
@@ -208,7 +221,7 @@ defmodule FlightWeb.ViewHelpers do
         false -> Accounts.get_school(school_id)
       end
 
-    content = school_name_with_timezone(school)
+    content = get_school_name_content(current_user, school)
 
     Phoenix.HTML.raw(content)
   end
@@ -227,7 +240,7 @@ defmodule FlightWeb.ViewHelpers do
 
           case Enum.empty?(list_items) do
             true ->
-              school_name_with_timezone(school)
+              get_school_name_content(current_user, school)
 
             false ->
               content =
@@ -243,15 +256,17 @@ defmodule FlightWeb.ViewHelpers do
                   end
                 )
 
+              school_name_content = get_school_name_content(current_user, school)
+
               content <>
                 "</div></div><div class=\"container-fluid\">" <>
-                school_name_with_timezone(school) <>
+                school_name_content <>
                 "</div><script>require(\"js/admin/school-select.js\")</script>"
           end
 
         false ->
-          school = Accounts.get_school(current_user.school.id)
-          "<span class=\"navbar-brand\">#{school.name}</span>"
+          school_name = if Accounts.is_superadmin?(current_user), do: "Flight School Manager", else: Accounts.get_school(current_user.school.id).name
+          "<span class=\"navbar-brand\">#{school_name}</span>"
       end
 
     Phoenix.HTML.raw(content)

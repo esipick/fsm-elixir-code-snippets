@@ -32,6 +32,13 @@
                 </div>
               </div>
             </div>
+
+            <div class="form-group">
+              <label>Name *</label>
+              <%= text_input f, :name, class: "form-control", placeholder: "Type inspection title", required: true %>
+              <%= full_error_tag f, :name %>
+            </div>
+
             <%= case @form_type do
               :tach -> render("_tach_inputs.html", f: f, changeset: @changeset)
               :date -> render("_date_inputs.html", f: f, changeset: @changeset)

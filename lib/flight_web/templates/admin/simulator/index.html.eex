@@ -51,9 +51,6 @@
               <table class="table">
                 <thead>
                   <th>Name</th>
-                  <%= if show_to_superadmin?(@conn) do %>
-                    <th>School</th>
-                  <% end %>
                   <th>Equipment</th>
                   <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
                   <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
@@ -65,9 +62,6 @@
                       <td><span class="text-nowrap"><b><%= simulator.name %></b></span></br>
                         <small><%= simulator.make %> <%= simulator.model %></small>
                       </td>
-                      <%= if show_to_superadmin?(@conn) do %>
-                        <td><a href="/admin/schools/<%= simulator.school.id %>"><%= simulator.school.name %></a></td>
-                      <% end %>
                       <td><%= simulator.equipment %></td>
                       <td><%= display_boolean(simulator.ifr_certified) %></td>
                       <td><%= currency simulator.rate_per_hour %></td>

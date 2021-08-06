@@ -6,13 +6,12 @@
     <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
   </thead>
   <tbody>
-    <%= for aircraft <- @data.table_data.rows do %>
+    <%= for aircraft <- @data.table_data.rows |> Enum.filter(fn a -> a.simulator == false end) do %>
       <tr>
         <td><span class="text-nowrap"><b><%= aircraft.make %> <%= aircraft.model %></b></span></br>
           <small><%= aircraft.tail_number %></small>
         </td>
         <td><%= display_boolean(aircraft.ifr_certified) %></td>
-        <td><%= display_boolean(aircraft.simulator) %></td>
         <td><%= currency aircraft.rate_per_hour %></td>
         <td><%= currency aircraft.block_rate_per_hour %></td>
         <td class="text-right">

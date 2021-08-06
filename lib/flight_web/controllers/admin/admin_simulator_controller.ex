@@ -37,7 +37,7 @@ defmodule FlightWeb.Admin.SimulatorController do
     aircraft = conn.assigns.aircraft
     user = conn.assigns.current_user
 
-    inspections = Inspections.get_inspections(user.id, aircraft.id)
+    inspections = Inspections.get_inspections(aircraft.id)
 
     conn
     |> render("show.html", simulator: aircraft, inspections: inspections, skip_shool_select: true)
