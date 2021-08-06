@@ -33,7 +33,7 @@ defmodule Fsm.Accounts do
           {:ok, user} ->
             user = user |> FlightWeb.API.UserView.show_preload()
 
-            school = if Flight.Accounts.is_superadmin?(user), do: %{name: "Flight School Manager"}, else: user.school
+            school = if Flight.Accounts.is_superadmin?(user), do: Map.put(user.school, :name, "Flight School Manager"), else: user.school
 
             {:ok, %{ user: user,  token: FlightWeb.Fsm.AuthenticateApiUser.token(user), school: school }}
 
