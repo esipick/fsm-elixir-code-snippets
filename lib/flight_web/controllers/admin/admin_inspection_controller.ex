@@ -115,9 +115,6 @@ defmodule FlightWeb.Admin.InspectionController do
       next_value
     end
 
-    IO.inspect last_value
-    IO.inspect next_value
-
     message = validate_tach_value(last_value, next_value, last_value_type, next_value_type)
 
     if message != nil do
@@ -223,6 +220,9 @@ defmodule FlightWeb.Admin.InspectionController do
     user = conn.assigns.current_user
     inspection = conn.assigns.inspection
 
+    last_value = Map.get(inspection_data, "last_inspection")
+    next_value = Map.get(inspection_data, "next_inspection")
+
     inspection_data_list = case inspection.date_tach do
       :date ->
         [
@@ -230,50 +230,66 @@ defmodule FlightWeb.Admin.InspectionController do
             type: :date,
             name: Map.get(inspection_data, "name"),
             class_name: "last_inspection",
-            value: Map.get(inspection_data, "last_inspection")
+            value: last_value
           },
           %{
             type: :date,
             name: Map.get(inspection_data, "name"),
             class_name: "next_inspection",
-            value: Map.get(inspection_data, "next_inspection")
+            value: next_value
           }
         ]
       :tach ->
         [
           %{
-            type: Map.get(inspection_data, "last_inspection") |> get_inspection_value_type(),
+            type: last_value |> get_inspection_value_type(),
             name: Map.get(inspection_data, "name"),
             class_name: "last_inspection",
-            value: Map.get(inspection_data, "last_inspection")
+            value: last_value
           },
 
           %{
-            type: Map.get(inspection_data, "next_inspection") |> get_inspection_value_type(),
+            type: next_value |> get_inspection_value_type(),
             name: Map.get(inspection_data, "name"),
             class_name: "next_inspection",
-            value: Map.get(inspection_data, "next_inspection")
+            value: next_value
           }
         ]
     end
 
-    case Inspections.update_inspection(user.id, inspection.id, inspection_data_list) do
-      {:ok, inspection} ->
-        aircraft = conn.assigns.inspection.aircraft
-        namespace = asset_namespace(aircraft)
+    message = if inspection.date_tach == :date do
+      {:ok, last_value} = Date.from_iso8601(last_value)
+      {:ok, next_value} = Date.from_iso8601(next_value)
 
-        conn
-        |> put_flash(:success, "Successfully updated inspection")
-        |> redirect(to: "/admin/#{namespace}/#{aircraft.id}")
+      validate_date_value(last_value, next_value)
+    else
+      last_value_type  = get_inspection_value_type(last_value)
+      next_value_type  = get_inspection_value_type(next_value)
+      
+      validate_tach_value(last_value, next_value, last_value_type, next_value_type)
+    end
 
-      {:error, changeset} ->
-        render(
-          conn,
-          "edit.html",
-          inspection: conn.assigns.inspection,
-          changeset: changeset,
-          form_type: conn.assigns.inspection.date_tach
-        )
+    if message != nil do
+      render_edit_inspection_error(conn, inspection_data, message, inspection.date_tach)
+    else
+      case Inspections.update_inspection(user.id, inspection.id, inspection_data_list) do
+        {:ok, inspection} ->
+          aircraft = conn.assigns.inspection.aircraft
+          namespace = asset_namespace(aircraft)
+
+          conn
+          |> put_flash(:success, "Successfully updated inspection")
+          |> redirect(to: "/admin/#{namespace}/#{aircraft.id}")
+
+        {:error, changeset} ->
+          render(
+            conn,
+            "edit.html",
+            inspection: conn.assigns.inspection,
+            changeset: changeset,
+            form_type: conn.assigns.inspection.date_tach
+          )
+      end
     end
   end
 
@@ -416,6 +432,26 @@ defmodule FlightWeb.Admin.InspectionController do
           "new.html",
           asset_namespace: asset_namespace(conn.assigns.aircraft),
           aircraft: conn.assigns.aircraft,
+          changeset: changeset,
+          form_type: type
+        )
+  end
+
+  defp render_edit_inspection_error(conn, inspection_data, error, type) do
+
+    inspection_data = %{
+      type: Map.get(inspection_data, "type"),
+      name: Map.get(inspection_data, "name"),
+      last_inspection: Map.get(inspection_data, "last_inspection"),
+      next_inspection: Map.get(inspection_data, "next_inspection"),
+    }
+
+    changeset = Inspection.new_changeset()
+    changeset = Map.put(changeset, :data, Map.merge(changeset.data, inspection_data))
+
+    render(
+          conn |> put_flash(:error, error),
+          "edit.html",
           changeset: changeset,
           form_type: type
         )

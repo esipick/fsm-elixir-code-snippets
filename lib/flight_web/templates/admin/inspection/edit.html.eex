@@ -50,3 +50,16 @@
           %{message: "This inspection will be removed from the system.",
             path: "/admin/inspections/",
             attribute: "inspection"} %>
+<script>
+
+  const error = "<%= get_flash(@conn, :error) %>"
+
+  if(error) {
+    $.notify({
+              message: error
+            }, {
+              type: "danger",
+              placement: { align: "center" }
+            })
+  }
+</script>
