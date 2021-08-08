@@ -17,18 +17,21 @@ defmodule FlightWeb.Admin.InspectionController do
 
     user = conn.assigns.current_user
 
+    last_date = Map.get(date_inspection_data, "last_inspection")
+    next_date = Map.get(date_inspection_data, "next_inspection")
+
     last_inspection_data = %{
       type: :date,
       name: "Last inspection date",
       class_name: "last_inspection",
-      value: Map.get(date_inspection_data, "last_inspection")
+      value: last_date
     }
 
     next_inspection_data = %{
       type: :date,
       name: "Next inspection date",
       class_name: "next_inspection",
-      value: Map.get(date_inspection_data, "next_inspection")
+      value: next_date
     }
 
     inspection = %{
@@ -42,42 +45,54 @@ defmodule FlightWeb.Admin.InspectionController do
       ]
     }
 
-    case Inspections.add_inspection(inspection, user) do
-      {:ok, inspection} ->
-          redirect_to_asset(conn, inspection)
+    {:ok, last_date} = Date.from_iso8601(last_date)
+    {:ok, next_date} = Date.from_iso8601(next_date)
 
-      {:error, changeset} ->
-        render(
-          conn,
-          "new.html",
-          asset_namespace: asset_namespace(conn.assigns.aircraft),
-          aircraft: conn.assigns.aircraft,
-          changeset: changeset,
-          form_type: :date
-        )
+    message = validate_date_value(last_date, next_date)
+
+    if message != nil do
+      render_inspection_error(conn, date_inspection_data, message, :date)
+    else
+      case Inspections.add_inspection(inspection, user) do
+        {:ok, inspection} ->
+            redirect_to_asset(conn, inspection)
+  
+        {:error, changeset} ->
+          render(
+            conn,
+            "new.html",
+            asset_namespace: asset_namespace(conn.assigns.aircraft),
+            aircraft: conn.assigns.aircraft,
+            changeset: changeset,
+            form_type: :date
+          )
+      end      
     end
   end
 
   def create(conn, %{"tach_inspection" => tach_inspection_data}) do
     user = conn.assigns.current_user
 
-    last_inspection_type  = Map.get(tach_inspection_data, "last_inspection") |> get_inspection_value_type()
-    next_inspection_type  = Map.get(tach_inspection_data, "next_inspection") |> get_inspection_value_type()
+    last_value = Map.get(tach_inspection_data, "last_inspection")
+    next_value = Map.get(tach_inspection_data, "next_inspection")
+
+    # :int, :float and :string
+    last_value_type  = get_inspection_value_type(last_value)
+    next_value_type  = get_inspection_value_type(next_value)
 
     last_inspection_data = %{
-      type: last_inspection_type,
+      type: last_value_type,
       name: "Last Inspection Tach Time",
       class_name: "last_inspection",
-      value: Map.get(tach_inspection_data, "last_inspection")
+      value: last_value
     }
 
     next_inspection_data = %{
-      type: next_inspection_type,
+      type: next_value_type,
       name: "Next Inspection Tach Time",
       class_name: "next_inspection",
-      value: Map.get(tach_inspection_data, "next_inspection")
+      value: next_value
     }
-
 
     inspection = %{
       type: Map.get(tach_inspection_data, "type"),
@@ -85,24 +100,43 @@ defmodule FlightWeb.Admin.InspectionController do
       aircraft_id: conn.assigns.aircraft.id,
       date_tach: :tach,
       inspection_data: [
-        get_merged_inspection_data(last_inspection_type, last_inspection_data),
-        get_merged_inspection_data(next_inspection_type, next_inspection_data),
+        get_merged_inspection_data(last_value_type, last_inspection_data),
+        get_merged_inspection_data(next_value_type, next_inspection_data),
       ]
     }
 
-    case Inspections.add_inspection(inspection, user) do
-      {:ok, inspection} ->
-        redirect_to_asset(conn, inspection)
+    last_value = if last_value_type == :int or last_value_type == :float do
+      {last_value, _} = if last_value_type == :int, do: Integer.parse(last_value), else: Float.parse(last_value)
+      last_value
+    end
 
-      {:error, changeset} ->
-        render(
-          conn,
-          "new.html",
-          asset_namespace: asset_namespace(conn.assigns.aircraft),
-          aircraft: conn.assigns.aircraft,
-          changeset: changeset,
-          form_type: :tach
-        )
+   next_value = if next_value_type == :int or next_value_type == :float do
+      {next_value, _} = if next_value_type == :int, do: Integer.parse(next_value), else: Float.parse(next_value)
+      next_value
+    end
+
+    IO.inspect last_value
+    IO.inspect next_value
+
+    message = validate_tach_value(last_value, next_value, last_value_type, next_value_type)
+
+    if message != nil do
+      render_inspection_error(conn, tach_inspection_data, message, :tach)
+    else
+      case Inspections.add_inspection(inspection, user) do
+        {:ok, inspection} ->
+          redirect_to_asset(conn, inspection)
+
+        {:error, changeset} ->
+          render(
+            conn,
+            "new.html",
+            asset_namespace: asset_namespace(conn.assigns.aircraft),
+            aircraft: conn.assigns.aircraft,
+            changeset: changeset,
+            form_type: :tach
+          )
+      end
     end
   end
 
@@ -223,7 +257,6 @@ defmodule FlightWeb.Admin.InspectionController do
         ]
     end
 
-
     case Inspections.update_inspection(user.id, inspection.id, inspection_data_list) do
       {:ok, inspection} ->
         aircraft = conn.assigns.inspection.aircraft
@@ -321,21 +354,21 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   defp get_inspection_value_type (val) do
-    if(val === nil or val === "") do
+    if(val == nil or val == "") do
       :string
     else
       case Integer.parse(val) do
-        {:error}  ->
+        :error  ->
           :string
         {int_val, int_rest} ->
-          case int_rest === "" do
+          case int_rest == "" do
             true -> :int
             false ->
               case Float.parse(val) do
-                {:error}  ->
+                :error  ->
                   :string
                 {float_val, float_rest} ->
-                  if float_rest === "", do: :float, else: :string
+                  if float_rest == "", do: :float, else: :string
               end
           end
       end
@@ -364,7 +397,54 @@ defmodule FlightWeb.Admin.InspectionController do
     else
       Authorization.Extensions.redirect_unathorized_user(conn)
     end
+  end
 
+  defp render_inspection_error(conn, inspection_data, error, type) do
+
+    inspection_data = %{
+      type: Map.get(inspection_data, "type"),
+      name: Map.get(inspection_data, "name"),
+      last_inspection: Map.get(inspection_data, "last_inspection"),
+      next_inspection: Map.get(inspection_data, "next_inspection"),
+    }
+
+    changeset = Inspection.new_changeset()
+    changeset = Map.put(changeset, :data, Map.merge(changeset.data, inspection_data))
+
+    render(
+          conn |> put_flash(:error, error),
+          "new.html",
+          asset_namespace: asset_namespace(conn.assigns.aircraft),
+          aircraft: conn.assigns.aircraft,
+          changeset: changeset,
+          form_type: type
+        )
+  end
+
+  defp validate_date_value(last, next) do
+      cond do
+        Date.compare(last, Date.utc_today) == :gt  ->
+            "Last inspection date cannot be ahead of today"
+        Date.compare(last, next) == :gt ->
+            "Last inspection date cannot be ahead of next inspection date"
+        Date.compare(next, Date.utc_today) == :lt ->
+            "Next inspection date cannot be behind today"
+        Date.compare(last, next) == :eq ->
+            "Last inspection date connot be same as next inspection date"
+        true ->
+          nil
+    end
+  end
+
+  defp validate_tach_value(last, next, last_type, next_type) do
+    cond do
+      last_type == :string or next_type == :string ->
+        "Last or next inspection tach value should be a number"
+      last > next or last == next ->
+        "Next inspection tach value should be greater than last inspection tach value"
+      true ->
+        nil
+    end
   end
 
 end
