@@ -55,3 +55,16 @@
   </div>
 </div>
 <!-- end content -->
+<script>
+
+  const error = "<%= get_flash(@conn, :error) %>"
+
+  if(error) {
+    $.notify({
+              message: error
+            }, {
+              type: "danger",
+              placement: { align: "center" }
+            })
+  }
+</script>

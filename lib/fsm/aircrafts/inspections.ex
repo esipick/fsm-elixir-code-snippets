@@ -354,11 +354,11 @@ defmodule Fsm.Inspections do
                                         true->
                                             Map.from_struct(d)
                                             |> Map.delete(:id)
-                                            |> Map.put(:t_float,updateInspectionData.tach_hours )
+                                            |> Map.put(:t_float, updateInspectionData.tach_hours)
                                         _->
                                             Map.from_struct(d)
                                             |> Map.delete(:id)
-                                            |> Map.put(:t_float, engine_tach_start+Application.get_env(:fboss, :default_next_tach_time_add))
+                                            |> Map.put(:t_float, nil)
                                     end
                             end
                         _ ->
