@@ -416,17 +416,7 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   defp render_inspection_error(conn, inspection_data, error, type) do
-
-    inspection_data = %{
-      type: Map.get(inspection_data, "type"),
-      name: Map.get(inspection_data, "name"),
-      last_inspection: Map.get(inspection_data, "last_inspection"),
-      next_inspection: Map.get(inspection_data, "next_inspection"),
-    }
-
-    changeset = Inspection.new_changeset()
-    changeset = Map.put(changeset, :data, Map.merge(changeset.data, inspection_data))
-
+    changeset = prepare_changeset(inspection_data)
     render(
           conn |> put_flash(:error, error),
           "new.html",
@@ -438,7 +428,18 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   defp render_edit_inspection_error(conn, inspection_data, error, type) do
+    changeset = prepare_changeset(inspection_data)
+    # have to check this, why we don't have aircraft in conn.assigns
+    # for now, it works fine
+    render(
+          conn |> put_flash(:error, error),
+          "edit.html",
+          changeset: changeset,
+          form_type: type
+        )
+  end
 
+  defp prepare_changeset(inspection_data) do
     inspection_data = %{
       type: Map.get(inspection_data, "type"),
       name: Map.get(inspection_data, "name"),
@@ -448,13 +449,6 @@ defmodule FlightWeb.Admin.InspectionController do
 
     changeset = Inspection.new_changeset()
     changeset = Map.put(changeset, :data, Map.merge(changeset.data, inspection_data))
-
-    render(
-          conn |> put_flash(:error, error),
-          "edit.html",
-          changeset: changeset,
-          form_type: type
-        )
   end
 
   defp validate_date_value(last, next) do
