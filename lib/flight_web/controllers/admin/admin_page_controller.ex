@@ -11,7 +11,7 @@ defmodule FlightWeb.Admin.PageController do
 
     fsm_income = Billing.platform_income()
 
-    # expired_inspections = Flight.Scheduling.ExpiredInspection.inspections_for_aircrafts(aircrafts)
+    expired_inspections = Fsm.Aircrafts.ExpiredInspection.inspections_for_aircrafts(aircrafts)
 
     pending_transactions =
       Flight.Billing.get_filtered_transactions(%{"state" => "pending"}, conn)
@@ -29,7 +29,7 @@ defmodule FlightWeb.Admin.PageController do
       instructor_count: instructor_count,
       renter_count: renter_count,
       aircraft_count: Enum.count(aircrafts),
-      expired_inspections: [],
+      expired_inspections: expired_inspections,
       pending_transactions: pending_transactions,
       fsm_income: fsm_income,
       total_pending: total_pending
