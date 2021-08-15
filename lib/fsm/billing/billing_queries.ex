@@ -243,7 +243,7 @@ defmodule Fsm.Billing.BillingQueries do
         ),
       },
       group_by: [t.id, u.id],
-      where: t.user_id == ^user_id and is_nil(t.invoice_id) and is_nil(t.bulk_invoice_id)
+      where: t.user_id == ^user_id and (is_nil(t.invoice_id) or is_nil(t.bulk_invoice_id))
     )
   end
 
@@ -288,7 +288,7 @@ defmodule Fsm.Billing.BillingQueries do
         ),
       },
       group_by: [t.id, u.id],
-      where: is_nil(t.invoice_id) and is_nil(t.bulk_invoice_id)
+      where: is_nil(t.invoice_id) or is_nil(t.bulk_invoice_id)
     )
   end
 
