@@ -251,8 +251,6 @@ defmodule Fsm.Billing do
     )
     |> Repo.all
 
-    IO.inspect transactions
-
     case transactions do
       nil ->
         {:ok, nil}
@@ -297,9 +295,6 @@ defmodule Fsm.Billing do
           end)
         {:ok, %{transactions: transactions, page: page}}
     end
-
-    {:ok, %{transactions: transactions, page: page}}
-
   end
 
   defp payer_name(invoice) do
