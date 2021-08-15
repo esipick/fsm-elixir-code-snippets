@@ -134,7 +134,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:paid_by_venmo, :string)
     field(:state, :string)
     field(:stripe_charge_id, :string)
-    field(:total, :string)
+    field(:total, :integer)
     field(:type, :string)
     field(:first_name, :string)
     field(:last_name, :string)
