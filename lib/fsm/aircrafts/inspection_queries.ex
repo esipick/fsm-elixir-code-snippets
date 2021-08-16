@@ -24,6 +24,14 @@ defmodule Fsm.Aircrafts.InspectionQueries do
     end
 
     @doc """
+       Returns query for non-completed inspections
+    """
+    def get_not_completed_inspections_query do
+        from p in Inspection,
+        where: p.is_completed == false and is_nil(p.deleted_at)
+    end
+
+    @doc """
     Returns query to find pending notifications for user
     """
     def get_upcoming_inspections_query(user_id) do
