@@ -28,6 +28,15 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       middleware(Middleware.Authorize, ["admin", "dispatcher","instructor", "student", "renter"])
       resolve(&BillingResolvers.fetch_card/3)
     end
+
+    field :list_transactions, :transactions_data do
+      arg(:page, :integer, default_value: 1)
+      arg(:per_page, :integer, default_value: 100)
+
+      middleware(Middleware.Authorize, ["admin", "dispatcher","instructor", "student", "renter"])
+      resolve(&BillingResolvers.get_transactions/3)
+    end
+
   end
 
   # MUTATIONS
@@ -88,6 +97,11 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
 
   end
 
+  object :transactions_data do
+    field(:transactions, list_of(:transaction))
+    field(:page, :integer)
+  end
+
   object :invoice do
     field(:id, :integer)
       field(:date, :string)
@@ -107,11 +121,11 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       field(:appointment_id, :integer)
       # field(:aircraft_info, :string)
       field(:session_id, :string)
-      field(:transactions, list_of(:transactions))
+      field(:transactions, list_of(:transaction))
       field(:line_items, list_of(:line_item))
   end
 
-  object :transactions do
+  object :transaction do
     field(:id, :integer)
     field(:paid_by_balance, :string)
     field(:paid_by_charge, :string)
@@ -120,7 +134,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:paid_by_venmo, :string)
     field(:state, :string)
     field(:stripe_charge_id, :string)
-    field(:total, :string)
+    field(:total, :integer)
     field(:type, :string)
     field(:first_name, :string)
     field(:last_name, :string)
@@ -132,6 +146,17 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     end
     field(:creator_user_id, :string)
     field(:inserted_at, :string)
+    field(:line_items, list_of(:transaction_line_items))
+  end
+
+  object :transaction_line_items do
+    field(:id, :integer)
+    field(:amount, :integer)
+    field(:description, :string)
+    field(:aircraft_id, :integer)
+    field(:instructor_user_id, :integer)
+    field(:type, :string)
+    field(:total_tax, :integer)
   end
 
   object :line_item do

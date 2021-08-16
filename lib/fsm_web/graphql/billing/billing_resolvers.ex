@@ -20,6 +20,23 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
     end
   end
 
+
+  def get_transactions(
+        parent,
+        args,
+        %{context: %{current_user: %{school_id: school_id, roles: roles, id: user_id}}} = context
+      ) do
+
+    page = Map.get(args, :page)
+    per_page = Map.get(args, :per_page)
+
+    if "admin" in roles or "dispatcher" in roles or "instructor" in roles do
+      Billing.get_transactions(nil, page, per_page, context)
+    else
+      Billing.get_transactions(user_id, page, per_page, context)
+    end
+  end
+
   def add_funds(
         parent,
         args,

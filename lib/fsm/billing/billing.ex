@@ -242,6 +242,61 @@ defmodule Fsm.Billing do
     end
   end
 
+  def get_transactions(user_id, page, per_page, context) do
+    transactions = BillingQueries.list_transactions_query(
+      user_id,
+      page,
+      per_page,
+      context
+    )
+    |> Repo.all
+
+    case transactions do
+      nil ->
+        {:ok, nil}
+      data ->
+        transactions = Enum.map(data, fn t ->
+            line_items = Map.get(t, :line_items)
+              |> Enum.reject(fn line_item -> Map.get(line_item, "id") == nil end)
+              |> Enum.uniq_by(fn line_item -> Map.get(line_item, "id") end)
+              |> Enum.map(fn line_item ->
+                %{
+                  id: Map.get(line_item, "id"),
+                  description: Map.get(line_item, "description"),
+                  amount: Map.get(line_item, "amount"),
+                  instructor_user_id: Map.get(line_item, "instructor_user_id"),
+                  type: Map.get(line_item, "type"),
+                  aircraft_id: Map.get(line_item, "aircraft_id"),
+                  type: Map.get(line_item, "total_tax")
+                }
+              end)
+
+            %{
+              id: t.id,
+              paid_by_balance: t.paid_by_balance,
+              paid_by_charge: t.paid_by_charge,
+              paid_by_check: t.paid_by_check,
+              paid_by_venmo: t.paid_by_venmo,
+              stripe_charge_id: t.stripe_charge_id,
+              state: t.state,
+              total: t.total,
+              type: t.type,
+              first_name: t.first_name,
+              last_name: t.last_name,
+              email: t.email,
+              completed_at: t.completed_at,
+              payment_option: t.payment_option,
+              completed_at: t.completed_at,
+              error_message: t.error_message,
+              creator_user_id: t.creator_user_id,
+              inserted_at: t.inserted_at,
+              line_items: line_items
+            }
+          end)
+        {:ok, %{transactions: transactions, page: page}}
+    end
+  end
+
   defp payer_name(invoice) do
     user = Map.get(invoice, :user)
 

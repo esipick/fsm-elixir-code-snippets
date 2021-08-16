@@ -202,6 +202,110 @@ defmodule Fsm.Billing.BillingQueries do
     |> paginate(page, per_page)
   end
 
+  def list_transactions_query(user_id) do
+    from(t in Transaction,
+      inner_join: tli in TransactionLineItem,
+      on: (t.id == tli.transaction_id),
+      left_join: ac in Aircraft,
+      on: (ac.id == tli.aircraft_id),
+      inner_join: u in User,
+      on: t.user_id == u.id,
+      left_join: instructor in User,
+      on: tli.instructor_user_id == instructor.id,
+      select: %{
+        id: t.id,
+        paid_by_balance: t.paid_by_balance,
+        paid_by_charge: t.paid_by_charge,
+        paid_by_check: t.paid_by_check,
+        paid_by_venmo: t.paid_by_venmo,
+        stripe_charge_id: t.stripe_charge_id,
+        state: t.state,
+        total: t.total,
+        type: t.type,
+        first_name: t.first_name,
+        last_name: t.last_name,
+        email: t.email,
+        completed_at: t.completed_at,
+        payment_option: t.payment_option,
+        completed_at: t.completed_at,
+        error_message: t.error_message,
+        creator_user_id: t.creator_user_id,
+        inserted_at: t.inserted_at,
+        line_items: fragment(
+          "array_agg(json_build_object('id', ?, 'amount', ?, 'description', ?, 'aircraft_id', ?, 'instructor_user_id', ?, 'type', ?, 'total_tax', ?))",
+          tli.id,
+          tli.amount,
+          tli.description,
+          tli.aircraft_id,
+          tli.instructor_user_id,
+          tli.type,
+          tli.total_tax
+        ),
+      },
+      group_by: [t.id, u.id],
+      where: t.user_id == ^user_id and (is_nil(t.invoice_id) or is_nil(t.bulk_invoice_id))
+    )
+  end
+
+  def list_transactions_query() do
+    from(t in Transaction,
+      inner_join: tli in TransactionLineItem,
+      on: (t.id == tli.transaction_id),
+      left_join: ac in Aircraft,
+      on: (ac.id == tli.aircraft_id),
+      inner_join: u in User,
+      on: t.user_id == u.id,
+      left_join: instructor in User,
+      on: tli.instructor_user_id == instructor.id,
+      select: %{
+        id: t.id,
+        paid_by_balance: t.paid_by_balance,
+        paid_by_charge: t.paid_by_charge,
+        paid_by_check: t.paid_by_check,
+        paid_by_venmo: t.paid_by_venmo,
+        stripe_charge_id: t.stripe_charge_id,
+        state: t.state,
+        total: t.total,
+        type: t.type,
+        first_name: t.first_name,
+        last_name: t.last_name,
+        email: t.email,
+        completed_at: t.completed_at,
+        payment_option: t.payment_option,
+        completed_at: t.completed_at,
+        error_message: t.error_message,
+        creator_user_id: t.creator_user_id,
+        inserted_at: t.inserted_at,
+        line_items: fragment(
+          "array_agg(json_build_object('id', ?, 'amount', ?, 'description', ?, 'aircraft_id', ?, 'instructor_user_id', ?, 'type', ?, 'total_tax', ?))",
+          tli.id,
+          tli.amount,
+          tli.description,
+          tli.aircraft_id,
+          tli.instructor_user_id,
+          tli.type,
+          tli.total_tax
+        ),
+      },
+      group_by: [t.id, u.id],
+      where: is_nil(t.invoice_id) or is_nil(t.bulk_invoice_id)
+    )
+  end
+
+  def list_transactions_query(nil, page, per_page, school_context) do
+    list_transactions_query()
+     |> SchoolScope.scope_query(school_context)
+     |> sort_by(:inserted_at, :desc)
+     |> paginate(page, per_page)
+  end
+
+  def list_transactions_query(user_id, page, per_page, school_context) do
+    list_transactions_query(user_id)
+     |> SchoolScope.scope_query(school_context)
+     |> sort_by(:inserted_at, :desc)
+     |> paginate(page, per_page)
+  end
+
   def list_bills_query(
         user_id,
         page,
