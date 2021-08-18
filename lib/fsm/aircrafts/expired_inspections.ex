@@ -86,7 +86,7 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
                       end
                   end
             :tach ->
-                interval = inspection.last_inspection - inspection.next_inspection
+                interval = inspection.next_inspection - inspection.aircraft.last_tach_time
                 cond do
                     interval < 20 && interval > 0 -> :expiring
                     interval <= 0 -> :expired
