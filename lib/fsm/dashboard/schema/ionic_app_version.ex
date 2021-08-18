@@ -13,8 +13,8 @@ defmodule Fsm.IonicAppVersion do
   end
 
   @doc false
-  def changeset(role, attrs) do
-    role
+  def changeset(app_version, attrs) do
+    app_version
     |> cast(attrs, [:version, :int_version, :android_version, :android_int_version, :ios_version, :ios_int_version])
     |> validate_required([:version, :int_version, :android_version, :android_int_version, :ios_version, :ios_int_version])
   end
