@@ -81,8 +81,9 @@
                   <tr>
                     <td class="text-nowrap"><a href="/admin/aircrafts/<%= inspection.aircraft.id %>"><span class="photo"><img src="/images/archer.jpg"></span><%= aircraft_display_name(inspection.aircraft) %></a></td>
                     <td class="text-right">
-                      <%= inspection.inspection.name %><br />
-                      <a href="/admin/inspections/<%= inspection.inspection.id %>/edit" class="<%= inspection_class %>"><%= inspection.description %></a>
+                      <a href="/admin/inspections/<%= inspection.inspection.id %>/edit"><%= inspection.inspection.name %> </a>
+                      <br />
+                      <p class="<%= inspection_class %>"><%= inspection.description %></p>
                     </td>
                   </tr>
                 <% end %>
