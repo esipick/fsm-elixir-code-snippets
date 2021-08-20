@@ -31,11 +31,11 @@ defmodule Fsm.Accounts do
       %User{archived: false} ->
         case check_password(user, password) do
           {:ok, user} ->
-            user = user |> FlightWeb.API.UserView.show_preload()
+            user = user 
+             |> FlightWeb.API.UserView.show_preload()
+             |> set_custom_school_name()
 
-            school = if Flight.Accounts.is_superadmin?(user), do: Map.put(user.school, :name, "Flight School Manager"), else: user.school
-
-            {:ok, %{ user: user,  token: FlightWeb.Fsm.AuthenticateApiUser.token(user), school: school }}
+            {:ok, %{ user: user,  token: FlightWeb.Fsm.AuthenticateApiUser.token(user) }}
 
           {:error, _} ->
             {:error, "Invalid email or password."}
@@ -125,9 +125,13 @@ defmodule Fsm.Accounts do
   end
 
   def get_user(id) do
-    user =
-      AccountsQueries.get_user_query(id)
-      |> Repo.one
+    user_map = AccountsQueries.get_user_query(id) |> Repo.one()
+    
+    user = Map.get(user_map, :user)
+      |> Repo.preload([:school])
+      |> set_custom_school_name()
+    
+    Map.put(user_map, :user, user)
   end
 
   def get_user_with_roles(id) do
@@ -572,4 +576,17 @@ defmodule Fsm.Accounts do
     limit: ^size,
     offset: ^((page-1) * size)
   end
+
+  def set_custom_school_name(user) do
+
+    IO.inspect user
+
+    if Flight.Accounts.is_superadmin?(user) do
+      school = Map.put(user.school, :name, "Flight School Manager")
+      Map.put(user, :school, school)
+    else
+      user
+    end
+  end
+
 end

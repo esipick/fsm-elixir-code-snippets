@@ -24,10 +24,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsResolvers do
   end
 
   def get_current_user(parent, _args, %{context: %{current_user: %{id: id}}} = context) do
-    user =
-      Accounts.get_user(id)
-      |> UserView.map()
-
+    user = Accounts.get_user(id) |> UserView.map()
     {:ok, user}
   end
 
