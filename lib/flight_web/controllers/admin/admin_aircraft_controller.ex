@@ -5,6 +5,8 @@ defmodule FlightWeb.Admin.AircraftController do
   alias Flight.Scheduling.Aircraft
   alias Flight.Repo
   alias Fsm.Inspections
+  alias Fsm.Aircrafts.InspectionData
+  alias Fsm.Aircrafts.ExpiredInspection
 
   import FlightWeb.Admin.AssetsHelper
 
@@ -38,7 +40,28 @@ defmodule FlightWeb.Admin.AircraftController do
     aircraft = conn.assigns.aircraft
     user = conn.assigns.current_user
 
-    inspections = Inspections.get_inspections(aircraft.id)
+    inspections =
+      Inspections.get_inspections(aircraft.id)
+      |> Enum.map(fn inspection ->
+        inspection_data =
+          Enum.reduce(inspection.inspection_data, %{}, fn item, agg ->
+            value = InspectionData.value_from_t_field(item)
+
+            case item.class_name do
+              "last_inspection" ->
+                Map.put(agg, :last_inspection, value)
+
+              "next_inspection" ->
+                Map.put(agg, :next_inspection, value)
+            end
+          end)
+
+        inspection = Map.merge(inspection, inspection_data)
+        inspection = Map.put(inspection, :aircraft, aircraft)
+        # For due inspection column
+        expiration = ExpiredInspection.inspection_description(inspection)
+        Map.put(inspection, :expiration, expiration)
+      end)
 
     conn
     |> render("show.html", aircraft: aircraft, inspections: inspections, skip_shool_select: true)
@@ -51,6 +74,7 @@ defmodule FlightWeb.Admin.AircraftController do
     message = params["search"] && set_message(params["search"])
 
     aircraft = Repo.preload(conn.assigns.aircraft, :audit_logs)
+
     conn
     |> render("logs.html", aircraft: aircraft, data: data, message: message)
   end
