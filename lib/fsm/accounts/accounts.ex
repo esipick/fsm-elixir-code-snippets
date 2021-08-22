@@ -24,27 +24,30 @@ defmodule Fsm.Accounts do
 
   def api_login(%{"email" => email, "password" => password}) do
 
-    case user = get_user_by_email(email) do
-      %User{archived: true} ->
-        {:error, %{human_errors: [FlightWeb.AuthenticateApiUser.account_suspended_error()]}}
+    user = get_user_by_email(email)
+      |> Flight.Repo.preload([:school])
 
-      %User{archived: false} ->
-        case check_password(user, password) do
-          {:ok, user} ->
-            user = user 
-             |> FlightWeb.API.UserView.show_preload()
-             |> set_custom_school_name()
-
-            {:ok, %{ user: user,  token: FlightWeb.Fsm.AuthenticateApiUser.token(user) }}
-
-          {:error, _} ->
-            {:error, "Invalid email or password."}
-        end
-
-      _ ->
-        Comeonin.Bcrypt.dummy_checkpw()
-
-        {:error, "Invalid email or password."}
+    if user do
+      cond do
+        user.archived ->
+          {:error, %{human_errors: [FlightWeb.AuthenticateApiUser.account_suspended_error()]}}
+        user.school.archived ->
+          {:error, %{human_errors: [FlightWeb.AuthenticateApiUser.school_suspended_error()]}}
+        true ->
+          case check_password(user, password) do
+            {:ok, user} ->
+              user = user 
+               |> FlightWeb.API.UserView.show_preload()
+               |> set_custom_school_name()
+  
+              {:ok, %{ user: user,  token: FlightWeb.Fsm.AuthenticateApiUser.token(user) }}
+            {:error, _} ->
+              {:error, "Invalid email or password."}
+          end
+      end
+    else
+      Comeonin.Bcrypt.dummy_checkpw()
+      {:error, "Invalid email or password."}
     end
   end
 
