@@ -4,7 +4,6 @@ defmodule FlightWeb.Admin.SimulatorController do
   alias Flight.Scheduling
   alias Flight.Scheduling.Aircraft
   alias Flight.Repo
-  alias Fsm.Inspections
   import FlightWeb.Admin.AssetsHelper
 
   plug(:get_aircraft when action in [:show, :edit, :update, :delete])
@@ -37,10 +36,8 @@ defmodule FlightWeb.Admin.SimulatorController do
     aircraft = conn.assigns.aircraft
     user = conn.assigns.current_user
 
-    inspections = Inspections.get_inspections(aircraft.id)
-
     conn
-    |> render("show.html", simulator: aircraft, inspections: inspections, skip_shool_select: true)
+    |> render("show.html", simulator: aircraft, skip_shool_select: true)
   end
 
   def index(conn, params) do
