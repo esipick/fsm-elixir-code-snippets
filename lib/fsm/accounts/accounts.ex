@@ -581,9 +581,6 @@ defmodule Fsm.Accounts do
   end
 
   def set_custom_school_name(user) do
-
-    IO.inspect user
-
     if Flight.Accounts.is_superadmin?(user) do
       school = Map.put(user.school, :name, "Flight School Manager")
       Map.put(user, :school, school)
