@@ -1,7 +1,8 @@
 <div class="panel-header">
   <div class="header text-center">
     <h6 class="title back-link"><a href="/admin/aircrafts">< Back to aircrafts</a></h6>
-    <h2 class="title"><%= @aircraft.make %> <%= @aircraft.model %></h2>
+    <h2 class="title mb-3"><%= @aircraft.make %> <%= @aircraft.model %></h2>
+    <h5 class="title"><%= @aircraft.tail_number %></h5>
     <p class="category"><a href="/admin/aircrafts/<%= @aircraft.id %>/edit" class="btn btn-primary">Edit Aircraft</a></p>
   </div>
 </div>
@@ -68,6 +69,7 @@
                           <th>Name</th>
                           <th>Type</th>
                           <th>Date/Tach</th>
+                          <th>Due</th>
                           <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new" class="btn btn-primary btn-sm">Add New</a></th>
                         </tr>
                       </thead>
@@ -78,9 +80,8 @@
                             <td><%= inspection.name %></td>
                             <td><%= inspection.type %></td>
                             <td><%= inspection.date_tach %></td>
-                            <%= if inspection.user_id == @conn.assigns.current_user.id do %>
-                              <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
-                            <% end %>
+                            <td><%= inspection.expiration %></td>
+                            <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
                           </tr>
                         <% end %>
 

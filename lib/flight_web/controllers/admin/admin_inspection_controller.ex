@@ -242,14 +242,14 @@ defmodule FlightWeb.Admin.InspectionController do
       :tach ->
         [
           %{
-            type: last_value |> get_inspection_value_type(),
+            type: get_inspection_value_type(last_value),
             name: Map.get(inspection_data, "name"),
             class_name: "last_inspection",
             value: last_value
           },
 
           %{
-            type: next_value |> get_inspection_value_type(),
+            type: get_inspection_value_type(next_value),
             name: Map.get(inspection_data, "name"),
             class_name: "next_inspection",
             value: next_value
@@ -272,7 +272,7 @@ defmodule FlightWeb.Admin.InspectionController do
     if message != nil do
       render_edit_inspection_error(conn, inspection_data, message, inspection.date_tach)
     else
-      case Inspections.update_inspection(user.id, inspection.id, inspection_data_list) do
+      case Inspections.update_inspection(inspection.id, inspection_data_list) do
         {:ok, inspection} ->
           aircraft = conn.assigns.inspection.aircraft
           namespace = asset_namespace(aircraft)
@@ -428,6 +428,10 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   defp render_edit_inspection_error(conn, inspection_data, error, type) do
+    inspection = conn.assigns.inspection
+    inspection_data = Map.put(inspection_data, "name", inspection.name)
+    inspection_data = Map.put(inspection_data, "type", inspection.type)
+
     changeset = prepare_changeset(inspection_data)
     # have to check this, why we don't have aircraft in conn.assigns
     # for now, it works fine

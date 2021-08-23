@@ -78,4 +78,9 @@ defmodule FlightWeb.AuthenticateApiUser do
   def account_suspended_error do
     "Account is suspended. Please contact your school administrator to reinstate it."
   end
+
+  def school_suspended_error do
+    "School is suspeneded. Please contact Flight School Manager support."
+  end
+
 end

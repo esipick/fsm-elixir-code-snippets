@@ -55,7 +55,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.InspectionsResolvers do
   Update inspection data
   """
   def update_inspection(_parent, %{id: id, data: data}, %{context: %{current_user: current_user}}) do
-    case Inspections.update_inspection(current_user.id, id, data) do
+    case Inspections.update_inspection(id, data) do
       {:ok, _updated_record} ->
         {:ok, true}
 
@@ -68,7 +68,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.InspectionsResolvers do
 
   def complete_inspection(_parent, args, %{context: %{current_user: current_user}}) do
     EctoHelpers.action_wrapped(fn ->
-      Inspections.complete_inspection(current_user.id, args.completion_input)
+      Inspections.complete_inspection(args.completion_input)
     end)
   end
 
@@ -90,7 +90,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.InspectionsResolvers do
   """
   def delete_inspection(_parent, %{id: id}, %{context: %{current_user: current_user}}) do
     EctoHelpers.action_wrapped(fn ->
-      case Inspections.get_user_custom_inspection_query(id, current_user.id) do
+      case Inspections.get_user_custom_inspection_query(id) do
         nil ->
           {:error, "Inspection not found or trying to delete system defined inspection."}
 

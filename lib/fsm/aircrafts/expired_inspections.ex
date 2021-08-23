@@ -79,8 +79,8 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
             
                     interval ->
                       duration = Timex.Interval.duration(interval, :hours)
-            
-                      tach_time = case duration <= 20 && duration > 0 do
+
+                      case duration <= 20 && duration > 0 do
                         true -> :expiring
                         false -> :good
                       end

@@ -24,27 +24,30 @@ defmodule Fsm.Accounts do
 
   def api_login(%{"email" => email, "password" => password}) do
 
-    case user = get_user_by_email(email) do
-      %User{archived: true} ->
-        {:error, %{human_errors: [FlightWeb.AuthenticateApiUser.account_suspended_error()]}}
+    user = get_user_by_email(email)
+      |> Flight.Repo.preload([:school])
 
-      %User{archived: false} ->
-        case check_password(user, password) do
-          {:ok, user} ->
-            user = user |> FlightWeb.API.UserView.show_preload()
-
-            school = if Flight.Accounts.is_superadmin?(user), do: Map.put(user.school, :name, "Flight School Manager"), else: user.school
-
-            {:ok, %{ user: user,  token: FlightWeb.Fsm.AuthenticateApiUser.token(user), school: school }}
-
-          {:error, _} ->
-            {:error, "Invalid email or password."}
-        end
-
-      _ ->
-        Comeonin.Bcrypt.dummy_checkpw()
-
-        {:error, "Invalid email or password."}
+    if user do
+      cond do
+        user.archived ->
+          {:error, %{human_errors: [FlightWeb.AuthenticateApiUser.account_suspended_error()]}}
+        user.school.archived ->
+          {:error, %{human_errors: [FlightWeb.AuthenticateApiUser.school_suspended_error()]}}
+        true ->
+          case check_password(user, password) do
+            {:ok, user} ->
+              user = user 
+               |> FlightWeb.API.UserView.show_preload()
+               |> set_custom_school_name()
+  
+              {:ok, %{ user: user,  token: FlightWeb.Fsm.AuthenticateApiUser.token(user) }}
+            {:error, _} ->
+              {:error, "Invalid email or password."}
+          end
+      end
+    else
+      Comeonin.Bcrypt.dummy_checkpw()
+      {:error, "Invalid email or password."}
     end
   end
 
@@ -125,9 +128,13 @@ defmodule Fsm.Accounts do
   end
 
   def get_user(id) do
-    user =
-      AccountsQueries.get_user_query(id)
-      |> Repo.one
+    user_map = AccountsQueries.get_user_query(id) |> Repo.one()
+    
+    user = Map.get(user_map, :user)
+      |> Repo.preload([:school])
+      |> set_custom_school_name()
+    
+    Map.put(user_map, :user, user)
   end
 
   def get_user_with_roles(id) do
@@ -572,4 +579,14 @@ defmodule Fsm.Accounts do
     limit: ^size,
     offset: ^((page-1) * size)
   end
+
+  def set_custom_school_name(user) do
+    if Flight.Accounts.is_superadmin?(user) do
+      school = Map.put(user.school, :name, "Flight School Manager")
+      Map.put(user, :school, school)
+    else
+      user
+    end
+  end
+
 end

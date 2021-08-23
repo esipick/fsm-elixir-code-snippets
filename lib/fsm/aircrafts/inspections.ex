@@ -37,7 +37,7 @@ defmodule Fsm.Inspections do
         %{inspection | inspection_data: changed_data}
     end
 
-    def get_user_custom_inspection_query(id, user_id) do
+    def get_user_custom_inspection_query(id) do
         Inspection
         |> where([id: ^id])
         |> with_undeleted
@@ -175,27 +175,22 @@ defmodule Fsm.Inspections do
     @doc """
     Update an inspection with inspection data
     """
-    def update_inspection(user_id, id, inspection_data) when is_list(inspection_data) do
-        case is_owner(%{user_id: user_id, inspection_id: id}) do
-            nil ->
-                {:error, Inspection.new_changeset()}
-            _user ->
-                case update_inspection_data(id, inspection_data) do
-                    true ->                         
-                        case is_inspection_values_set(id) do
-                            {:true, inspection} ->
-                                inspection
-                                |> Inspection.changeset(%{updated: true})
-                                |> Repo.update
-                        end
-
-                        {:ok, true}
-                    false ->
-                        {:error, "failed"}
-
-                    error ->
-                        error
+    def update_inspection(id, inspection_data) when is_list(inspection_data) do
+        case update_inspection_data(id, inspection_data) do
+            true ->                         
+                case is_inspection_values_set(id) do
+                    {:true, inspection} ->
+                        inspection
+                        |> Inspection.changeset(%{updated: true})
+                        |> Repo.update
                 end
+
+                {:ok, true}
+            false ->
+                {:error, "failed"}
+
+            error ->
+                error
         end
     end
 
@@ -239,9 +234,25 @@ defmodule Fsm.Inspections do
 
         case hd.type do
             :int ->
-                {int_val, _} = Integer.parse(new_value.value)
-                isd = Ecto.Changeset.change hd, t_int: int_val
-                Repo.update isd
+                case new_value.type do
+                    :int ->
+                        {int_val, _} = Integer.parse(new_value.value)
+                        Ecto.Changeset.change hd, t_int: int_val
+                    :float ->
+                        {float_val, _} = Float.parse(new_value.value)
+                        Ecto.Changeset.change hd, t_float: float_val, type: :float, t_int: nil
+                end
+                |> Repo.update
+            :float ->
+                case new_value.type do
+                    :int ->
+                        {int_val, _} = Integer.parse(new_value.value)
+                        isd = Ecto.Changeset.change hd, t_int: int_val, type: :int, t_float: nil
+                    :float ->
+                        {float_val, _} = Float.parse(new_value.value)
+                        isd = Ecto.Changeset.change hd, t_float: float_val
+                end
+                |> Repo.update
             :string ->
                 isd = Ecto.Changeset.change hd, t_str: new_value.value
                 Repo.update isd
@@ -263,39 +274,30 @@ defmodule Fsm.Inspections do
                                 {:error, reason}
                         end
                 end
-            :float ->
-                {float_val, _} = Float.parse(new_value.value)
-                isd = Ecto.Changeset.change hd, t_float: float_val
-                Repo.update isd
         end
     end
 
     defp update_inspection_data_row([], _) do
     end
 
-    def complete_inspection(user_id, input) do
-        case is_owner(%{user_id: user_id, inspection_id: input.inspection_id}) do
-            nil ->
-                {:error, "inspection not found"}
-            user ->
-                inspection = Repo.get(Inspection, input.inspection_id)
-                |> Repo.preload([:inspection_data])
+    def complete_inspection(input) do
+        inspection = Repo.get(Inspection, input.inspection_id)
+        |> Repo.preload([:inspection_data])
 
-                Logger.debug "input: #{inspect input}"
-                completed_at = NaiveDateTime.utc_now()|> NaiveDateTime.truncate(:second)
+        Logger.debug "input: #{inspect input}"
+        completed_at = NaiveDateTime.utc_now()|> NaiveDateTime.truncate(:second)
 
-                updateInspectionData = input
-                    |> Map.merge(%{is_completed: true})
-                    |> Map.merge(%{completed_at: completed_at})
-                    |> Map.delete(:inspection_id)
+        updateInspectionData = input
+            |> Map.merge(%{is_completed: true})
+            |> Map.merge(%{completed_at: completed_at})
+            |> Map.delete(:inspection_id)
 
-                Logger.debug "updateInspectionData: #{inspect updateInspectionData}"
+        Logger.debug "updateInspectionData: #{inspect updateInspectionData}"
 
-                Ecto.Changeset.change(inspection, updateInspectionData)
-                |> Repo.update()
+        Ecto.Changeset.change(inspection, updateInspectionData)
+        |> Repo.update()
 
-                create_from_inspection(inspection, updateInspectionData)
-        end
+        create_from_inspection(inspection, updateInspectionData)
     end
 
     def create_from_inspection(inspection, updateInspectionData) do
