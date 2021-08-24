@@ -15,7 +15,11 @@ defmodule FlightWeb.AuthenticateWebUser do
           user
           |> Flight.Repo.preload([:school])
 
-        assign(conn, :current_user, user)
+        app_version = Fsm.AppVersions.get_app_version() |> Map.get(:web_version)
+
+        conn
+        |> assign(:current_user, user)
+        |> assign(:version, app_version)
 
       {:error, code} ->
         conn = if code == :user_not_found, do: log_out(conn), else: conn
