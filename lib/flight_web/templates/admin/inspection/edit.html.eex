@@ -29,7 +29,7 @@
           </div>
           <div class="card-footer text-right">
             <div class="pull-left">
-              <a href="/admin/aircrafts/<%= @inspection.aircraft_id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
+              <button type="button" onclick="history.back()" class="btn btn-fill btn-default mr-2">Cancel</button>
               <input type="submit" class="btn btn-fill btn-primary" value="Save">
             </div>
             <button

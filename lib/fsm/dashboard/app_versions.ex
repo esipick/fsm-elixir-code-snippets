@@ -1,35 +1,19 @@
-defmodule Fsm.AppVersion do
+defmodule Fsm.AppVersions do
+  alias Fsm.AppVersions
   alias Fsm.AppVersion
-  alias Fsm.IonicAppVersion
   alias Flight.Repo
 
   import Ecto.Query, warn: false
 
   @doc """
-  returns default fsm version
-  """
-  def get_default_version() do
-    %{
-      version: "4.1.0",
-      int_version: 4_000_100,
-      android_version: "4.1.0",
-      android_int_version: 4_000_100,
-      ios_version: "4.1.0",
-      ios_int_version: 4_000_100,
-      created_at: "2021-08-19 12:00:00",
-      updated_at: "2021-08-19 12:00:00"
-    }
-  end
-
-  @doc """
   return lastest versions of the mobile apps
   """
   def get_app_version do
-    version = Ecto.Query.from(v in IonicAppVersion, order_by: [desc: v.created_at], limit: 1)
+    version = Ecto.Query.from(v in AppVersion, order_by: [desc: v.created_at], limit: 1)
     |> Ecto.Query.first()
     |> Repo.one()
 
-    version ||Fsm.AppVersion.get_default_version()
+    version || get_default_version()
   end
 
   @doc """
@@ -44,15 +28,33 @@ defmodule Fsm.AppVersion do
           android_version: version,
           android_int_version: int_version,
           ios_version: version,
-          ios_int_version: int_version
+          ios_int_version: int_version,
+          web_version: version
         }
-        %IonicAppVersion{}
-        |> IonicAppVersion.changeset(version_attrs)
+        %AppVersion{}
+        |> AppVersion.changeset(version_attrs)
         |> Repo.insert()
 
       {:error, message} ->
         {:error, message}
     end
+  end
+
+  @doc """
+  returns default fsm version
+  """
+  def get_default_version() do
+    %{
+      version: "4.1.1",
+      int_version: 4_000_101,
+      android_version: "4.1.1",
+      android_int_version: 4_000_101,
+      ios_version: "4.1.1",
+      ios_int_version: 4_000_101,
+      web_version: "4.1.1",
+      created_at: "2021-08-25 12:00:00",
+      updated_at: "2021-08-25 12:00:00"
+    }
   end
 
   @doc """
