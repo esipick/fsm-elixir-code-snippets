@@ -62,7 +62,7 @@
               </ul>
             </nav>
             <div class="copyright">
-              &copy; <script>document.write(new Date().getFullYear())</script>, Flight School Manager
+              &copy; <script>document.write(new Date().getFullYear())</script>, Flight School Manager (v<%=@conn.assigns.version%>)
             </div>
           </div>
         </footer>
