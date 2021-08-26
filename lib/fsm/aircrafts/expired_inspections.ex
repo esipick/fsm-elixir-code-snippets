@@ -55,7 +55,8 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
         :date ->
             Flight.Date.format(inspection.next_inspection)
         :tach ->
-            tach_time = inspection.next_inspection - inspection.aircraft.last_tach_time
+            # aircraft last_tach_time is store in db with factor 10
+            tach_time = (inspection.next_inspection * 10) - (inspection.aircraft.last_tach_time)
             FlightWeb.ViewHelpers.display_hour_tenths(tach_time)
       end
     end
@@ -86,7 +87,8 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
                       end
                   end
             :tach ->
-                interval = inspection.next_inspection - inspection.aircraft.last_tach_time
+              # aircraft last_tach_time is store in db with factor 10
+                interval = (inspection.next_inspection * 10) - inspection.aircraft.last_tach_time
                 cond do
                     interval < 20 && interval > 0 -> :expiring
                     interval <= 0 -> :expired
