@@ -398,6 +398,7 @@ defmodule Fsm.Inspections do
         inspectionAttrs =
           attrs
             |> Map.put(:is_system_defined, false)
+            |> Map.put(:updated, true)
             |> Map.put(:aircraft_engine_id, engine_id)
             |> Map.merge(%{user_id: current_user.id})
             |> Map.merge(%{inspection_data: attrs.inspection_data |> map_inspection_data_value_to_field})
