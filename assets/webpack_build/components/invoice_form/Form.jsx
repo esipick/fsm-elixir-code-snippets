@@ -481,7 +481,7 @@ class Form extends Component {
     if ( this.state.line_items.length > 0) {
       for (let increment in this.state.line_items) {
         if (this.state.line_items[increment].type == "aircraft") {
-          if(typeof(this.state.line_items[increment].errors) != "undefined") {
+          if(typeof(this.state.line_items[increment].errors) != "undefined" && !this.state.demo) {
             return;
           }
           else{
