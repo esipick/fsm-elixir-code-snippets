@@ -13,7 +13,7 @@
 
 <div class="panel-header">
   <div class="header text-center">
-    <h6 class="title back-link"><a href="/admin/aircrafts">< Back to aircrafts</a></h6>
+    <h6 class="title back-link"><a href="/admin/aircrafts">< Back to Aircraft</a></h6>
     <h2 class="title">
     <%= if @aircraft.make && @aircraft.model do "#{@aircraft.make} #{@aircraft.model}" else "Audit Logs" end %>
   </div>
