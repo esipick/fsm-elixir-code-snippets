@@ -36,11 +36,8 @@ class Form extends Component {
 
     this.formRef = null;
     const { creator, staff_member, appointment } = props;
-    var {payment_method} = props
 
     const appointments = appointment ? [appointment] : [];
-    payment_method = payment_method && this.getPaymentMethod(payment_method)
-    payment_method = payment_method || {}
     
     let id = localStorage.getItem('invoice_id')
     if  (id && !props.id) {
@@ -68,7 +65,7 @@ class Form extends Component {
       hobb_tach_warning_open: false,
       hobb_tach_warning_accepted: false,
       balance_warning_accepted: false,
-      payment_method: payment_method || {},
+      payment_method: this.getPaymentMethod(props.payment_method),
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
@@ -139,7 +136,7 @@ class Form extends Component {
           date: invoice.date ? new Date(invoice.date) : new Date(),
           student: invoice.user || this.demoGuestPayer(demo, invoice.payer_name),
           line_items: invoice.line_items || [],
-          payment_method: this.getPaymentMethod(demo ? DEFAULT_PAYMENT_OPTION : invoice.payment_option),
+          payment_method: this.getPaymentMethod(invoice.payment_option),
           demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
@@ -165,6 +162,10 @@ class Form extends Component {
   }
 
   getPaymentMethod = (payment_option) => {
+    if(!payment_option) {
+      return DEFAULT_PAYMENT_OPTION
+    }
+    
     const finded_option = PAYMENT_OPTIONS.find((option) => {
       return option.value === payment_option
     });
@@ -657,6 +658,7 @@ class Form extends Component {
       demo = false
     }
 
+    const paymentOptions = student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined" && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS
 
     return (
       <div className="card">
@@ -751,7 +753,7 @@ class Form extends Component {
                     <Select placeholder="Payment method"
                       value={payment_method}
                       classNamePrefix="react-select"
-                      options={student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined" && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS}
+                      options={paymentOptions}
                       onChange={this.setPaymentMethod}
                       required={true} />
                   </div>
