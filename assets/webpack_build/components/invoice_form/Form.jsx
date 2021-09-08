@@ -69,7 +69,8 @@ class Form extends Component {
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
-      date: new Date()
+      date: new Date(),
+      ending_hobbs_tach_error: false
     }
   }
 
@@ -465,6 +466,13 @@ class Form extends Component {
     const line_items = this.state.line_items || []
     const isInstructorOnly = line_items.length == 1 && line_items[0].type === "instructor"
 
+    for(const increment in this.state.line_items) {
+      const hobbs_end = this.state.line_items[increment].hobbs_end
+      const tach_end = this.state.line_items[increment].tach_end
+
+      console.log({hobbs_end, tach_end})
+    }
+
     if (this.state.saving) return;
     if (!isInstructorOnly && this.state.total <= 0) {
       this.setState({error_alert_total_open: true});
@@ -482,10 +490,18 @@ class Form extends Component {
     if ( this.state.line_items.length > 0) {
       for (let increment in this.state.line_items) {
         if (this.state.line_items[increment].type == "aircraft") {
+
+          const hobbs_end = this.state.line_items[increment].hobbs_end
+          const tach_end = this.state.line_items[increment].tach_end
+  
+          // make sure hobbs end and tach ends must be set
+          if(!(hobbs_end && tach_end)) {
+            return this.setState({ending_hobbs_tach_error: true});
+          }
+
           if(typeof(this.state.line_items[increment].errors) != "undefined" && !this.state.demo) {
             return;
-          }
-          else{
+          } else{
             if (!this.state.hobb_tach_warning_accepted &&
                 ( (this.state.line_items[increment].hobbs_end - this.state.line_items[increment].hobbs_start) > 120 ||
                 ( this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 120 ) ) {
@@ -568,6 +584,10 @@ class Form extends Component {
 
   closeTotalErrorAlert = () => {
     this.setState({ error_alert_total_open: false });
+  }
+
+  closeEndingHobbsTachAlert = () => {
+    this.setState({ ending_hobbs_tach_error: false });
   }
 
   closeTotalDueErrorAlert = () => {
@@ -800,6 +820,11 @@ class Form extends Component {
       <ErrorAlert open={this.state.error_alert_total_open}
           onAccept={this.closeTotalErrorAlert}
           text="Invoices cannot be saved with a total amount below or equal to zero."
+      />
+
+      <ErrorAlert open={this.state.ending_hobbs_tach_error}
+          onAccept={this.closeEndingHobbsTachAlert}
+          text="Ending hobbs and tach hours must be filled correctly"
       />
 
       <ErrorAlert open={this.state.error_alert_total_due_open}

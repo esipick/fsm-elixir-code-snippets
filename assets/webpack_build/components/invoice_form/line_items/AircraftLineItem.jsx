@@ -163,7 +163,7 @@ class AircraftLineItem extends Component {
 
   setHobbsEnd = ({ floatValue = 0 }) => {
     const { line_item } = this.state;
-    line_item.hobbs_end = floatValue >= MAX_INT ? this.state.hobbs_end : floatValue * 10;
+    line_item.hobbs_end = floatValue >= MAX_INT ? this.state.hobbs_end : floatValue === 0 ? null : floatValue * 10;
 
     this.updateLineItem(line_item);
   }
@@ -177,7 +177,7 @@ class AircraftLineItem extends Component {
 
   setTachEnd = ({ floatValue = 0 }) => {
     const { line_item } = this.state;
-    line_item.tach_end = floatValue >= MAX_INT ? this.state.tach_end : floatValue * 10;
+    line_item.tach_end = floatValue >= MAX_INT ? this.state.tach_end : floatValue === 0 ? null : floatValue * 10;
 
     this.updateLineItem(line_item);
   }
