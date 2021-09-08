@@ -68,7 +68,7 @@
                         <tr>
                           <th>Name</th>
                           <th>Type</th>
-                          <th class="text-uppercase text-center">Date/Tach</th>
+                          <th class="text-center">Date/Tach</th>
                           <th>Due</th>
                           <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new" class="btn btn-primary btn-sm">Add New</a></th>
                         </tr>
@@ -79,7 +79,7 @@
                           <tr>
                             <td><%= inspection.name %></td>
                             <td><%= inspection.type %></td>
-                            <td class="text-center"><%= inspection.date_tach %></td>
+                            <td class="text-center text-capitalize"><%= inspection.date_tach %></td>
                             <td><%= inspection.expiration %></td>
                             <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
                           </tr>
