@@ -31,7 +31,7 @@
                 <%= nav_item_link("STEP 03 - Profile Settings", @conn, @school, @tab, :profile) %>
               </li>
               <li class="nav-item col-xs-2">
-                <%= nav_item_link("STEP 04 - Resources", @conn, @school, @tab, :assets) %>
+                <%= nav_item_link("STEP 04 - Resources", @conn, @school, @tab, :resources) %>
               </li>
               <%= if can_access_billing?(@conn) do %>
                 <li class="nav-item col-xs-2">
@@ -52,7 +52,7 @@
                 <%= nav_item_link("Profile Settings", @conn, @school, @tab, :profile) %>
               </li>
               <li class="nav-item col-xs-2">
-                <%= nav_item_link("Resources", @conn, @school, @tab, :assets) %>
+                <%= nav_item_link("Resources", @conn, @school, @tab, :resources) %>
               </li>
               <%= if can_access_billing?(@conn) do %>
                 <li class="nav-item col-xs-2">
@@ -77,7 +77,7 @@
               :payment -> render "_payment.html", school: @school
               :billing -> render "_billing.html", school: @school, changeset: @changeset, request_path: @conn.request_path, props: @props
               :profile -> render "_profile.html", school: @school, changeset: @changeset, request_path: @conn.request_path
-              :assets -> render "_assets.html", school: @school, data: @data, conn: @conn, asset: @asset, redirect_back_to: @redirect_back_to
+              :resources -> render "_assets.html", school: @school, data: @data, conn: @conn, asset: @asset, redirect_back_to: @redirect_back_to
             end
             %>
         </div>
