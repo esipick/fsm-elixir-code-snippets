@@ -71,7 +71,15 @@ defmodule Fsm.Billing.UpdateInvoice do
       else
         {:aircrafts, true} -> {:error, "An invoice can have a single item for Flight, Demo Flight or Simulator Hours."}
         {:rooms, true} -> {:error, "The same room cannot be added twice to an invoice."}
-        error -> {:error, :failed}
+        {:error, changeset} -> 
+          errors = changeset.errors
+          |> Enum.map(fn({key, {value, context}}) -> 
+               [message: "#{key} #{value}", details: context]
+             end)
+          IO.inspect errors
+          {:error, errors}
+        _ ->
+          {:error, :failed}
       end
     end
   
