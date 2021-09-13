@@ -123,6 +123,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       field(:session_id, :string)
       field(:transactions, list_of(:transaction))
       field(:line_items, list_of(:line_item))
+      field(:user, :user)
   end
 
   object :transaction do

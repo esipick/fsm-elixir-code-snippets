@@ -231,7 +231,8 @@ defmodule Fsm.Billing do
               session_id: i.session_id,
               transactions: transactions,
               line_items: line_items,
-              inserted_at: i.inserted_at
+              inserted_at: i.inserted_at,
+              user: i.user
             }
           end)
 
