@@ -36,7 +36,7 @@ class Form extends Component {
 
     this.formRef = null;
     const { creator, staff_member, appointment } = props;
-
+    const demo = appointment && appointment.demo
     const appointments = appointment ? [appointment] : [];
     
     let id = localStorage.getItem('invoice_id')
@@ -65,12 +65,13 @@ class Form extends Component {
       hobb_tach_warning_open: false,
       hobb_tach_warning_accepted: false,
       balance_warning_accepted: false,
-      payment_method: this.getPaymentMethod(props.payment_method),
+      payment_method: this.getPaymentMethod(props.payment_method, demo),
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
       date: new Date(),
-      ending_hobbs_tach_error: false
+      ending_hobbs_tach_error: false,
+      demo
     }
   }
 
@@ -132,12 +133,13 @@ class Form extends Component {
       .then(r => {
         const invoice = itemsFromInvoice(r.data, this.props.user_roles);
         const demo = invoice.appointment ? invoice.appointment.demo : false
+        const payment_method = this.getPaymentMethod(invoice.payment_option, demo)
 
         this.setState({
           date: invoice.date ? new Date(invoice.date) : new Date(),
           student: invoice.user || this.demoGuestPayer(demo, invoice.payer_name),
           line_items: invoice.line_items || [],
-          payment_method: this.getPaymentMethod(invoice.payment_option),
+          payment_method: payment_method,
           demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
@@ -162,8 +164,13 @@ class Form extends Component {
       });
   }
 
-  getPaymentMethod = (payment_option) => {
+  getPaymentMethod = (payment_option, demo = false) => {
+
     if(!payment_option) {
+      return DEFAULT_PAYMENT_OPTION
+    }
+
+    if(payment_option === BALANCE && demo) {
       return DEFAULT_PAYMENT_OPTION
     }
     
@@ -305,7 +312,7 @@ class Form extends Component {
   createGuestPayer = (payer_name) => {
     const student = this.guestPayer(payer_name);
 
-    this.setState({ student, appointments: [], payment_method: {} });
+    this.setState({ student, appointments: [], payment_method: DEFAULT_PAYMENT_OPTION });
   }
 
   isGuestNameValid = (inputValue, selectValue, selectOptions) => {
@@ -679,6 +686,9 @@ class Form extends Component {
     }
 
     const paymentOptions = student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined" && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS
+
+
+    console.log(paymentOptions)
 
     return (
       <div className="card">
