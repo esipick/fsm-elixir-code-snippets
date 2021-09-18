@@ -18,6 +18,12 @@ defmodule Fsm.SchoolAssets.SchoolAssetsQueries do
     |> paginate(page, per_page)
   end
 
+  def get_room(id, school_context) do
+    Room
+    |> SchoolScope.scope_query(school_context)
+    |> where([r], r.id == ^id and r.archived == false)
+  end
+
   defp sort_by(query, nil, nil) do
     query
   end

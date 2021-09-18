@@ -15,5 +15,12 @@ defmodule FsmWeb.GraphQL.SchoolAssets.SchoolAssetsResolvers do
     resp = {:ok, rooms}
     Log.response(resp, __ENV__.function, :info)
   end
+
+  def get_room(parent, args, context) do
+    room = SchoolAssets.get_room(args.id, context)
+    IO.inspect room
+    {:ok, room}
+  end
+
 end
   
