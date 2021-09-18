@@ -12,6 +12,7 @@ defmodule Fsm.Billing.BillingQueries do
   alias Fsm.Billing.TransactionLineItem
   alias Fsm.Billing.InvoiceLineItem
   alias Fsm.Aircrafts.Aircraft
+  alias Fsm.SchoolAssets.Room
 
   require Logger
 
@@ -23,6 +24,8 @@ defmodule Fsm.Billing.BillingQueries do
       on: (i.id == ili.invoice_id),
       left_join: ac in Aircraft,
       on: (ac.id == ili.aircraft_id),
+      left_join: r in Room,
+      on: (r.id == ili.room_id),
       left_join: u in User,
       on: i.user_id == u.id,
       left_join: instructor in User,
@@ -97,9 +100,10 @@ defmodule Fsm.Billing.BillingQueries do
             t.payment_option,
             t.inserted_at
           ),
-        user: u
+        user: u,
+        room: r
       },
-      group_by: [i.id, u.id],
+      group_by: [i.id, u.id, r.id],
       where: i.archived == false and i.is_visible == true
     )
   end
@@ -112,6 +116,8 @@ defmodule Fsm.Billing.BillingQueries do
       on: (i.id == ili.invoice_id),
       left_join: ac in Aircraft,
       on: (ac.id == ili.aircraft_id),
+      left_join: r in Room,
+      on: (r.id == ili.room_id),
       inner_join: u in User,
       on: i.user_id == u.id,
       left_join: instructor in User,
@@ -186,9 +192,10 @@ defmodule Fsm.Billing.BillingQueries do
             t.payment_option,
             t.inserted_at
           ),
-        user: u
+        user: u,
+        room: r
       },
-      group_by: [i.id, u.id],
+      group_by: [i.id, u.id, r.id],
       where: i.user_id == ^user_id and i.archived == false and i.is_visible == true
     )
   end
