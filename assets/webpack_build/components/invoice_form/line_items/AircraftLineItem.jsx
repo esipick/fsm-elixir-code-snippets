@@ -8,6 +8,7 @@ import {
   DESCRIPTION_SELECT_OPTS, DEFAULT_TYPE, TYPES, SIMULATOR_HOURS, FLIGHT_HOURS,
   NUMBER_INPUT_OPTS, DEFAULT_RATE, populateHobbsTach, DEMO_FLIGHT
 } from './line_item_utils';
+import { getAccountBalance } from '../../utils';
 
 const MAX_INT = 2147483647;
 const NUMBER_PROPS = {
@@ -63,16 +64,15 @@ class AircraftLineItem extends Component {
     }
 
     const { aircraft } = this.state;
-    if (line_item.aircraft && (this.getAccountBalance() >=1 )) {
+    
+    if (line_item.aircraft && (getAccountBalance(this.props.student) === 0 )) {
       // this.setState({ rate: this.props.line_item.aircraft.block_rate_per_hour });
       line_item.rate = this.props.line_item.aircraft.block_rate_per_hour;
     }
     else if(line_item.aircraft){
       line_item.rate = this.props.line_item.aircraft.rate_per_hour;
     }
-    else {
-      line_item;
-    }
+
     line_item.quantity = 0;
     line_item.amount = 0;
 
@@ -85,12 +85,6 @@ class AircraftLineItem extends Component {
 
     if (!line_item.demo && !line_item.enable_rate) {return}
     this.setRate(line_item)
-  }
-
-  getAccountBalance = () => {
-    if (!this.props.student) return 0;
-
-    return (this.props.student.balance * 1.0 / 100).toFixed(2);
   }
 
   remove = (e) => {

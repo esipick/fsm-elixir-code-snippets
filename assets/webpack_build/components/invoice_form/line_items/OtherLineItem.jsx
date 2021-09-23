@@ -9,7 +9,7 @@ import {
   DESCRIPTION_SELECT_OPTS, NUMBER_INPUT_OPTS, INSTRUCTOR_HOURS, ROOM,
   DEFAULT_TYPE, TYPES, DEFAULT_RATE, isInstructorHoursEditable
 } from './line_item_utils';
-import { authHeaders } from '../../utils';
+import { authHeaders, getAccountBalance } from '../../utils';
 
 class OtherLineItem extends Component {
   constructor(props) {
@@ -96,8 +96,17 @@ class OtherLineItem extends Component {
     );
   }
 
+  getRoomRate = (room) => {
+    let rate;
+    if(room) {
+       const balance = getAccountBalance(this.props.student);
+       rate = balance === 0 ? room.rate_per_hour : room.block_rate_per_hour;
+    }
+    return rate ? rate : DEFAULT_RATE;
+  }
+
   setRoom = (room) => {
-    const rate = room && room.rate_per_hour ? room.rate_per_hour : DEFAULT_RATE;
+    const rate = this.getRoomRate(room);
     const room_id = room ? room.id : null;
     const amount = rate * this.state.line_item.quantity;
     const payload = { rate, room_id, amount };
