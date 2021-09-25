@@ -1,5 +1,6 @@
 <div class="panel-header">
   <div class="header text-center">
+    <h6 class="title back-link"><a href="/admin/simulators">< Back to Simulators</a></h6>
     <h2 class="title"><%= @simulator.name %></h2>
     <p class="category">Edit simulator</p>
   </div>

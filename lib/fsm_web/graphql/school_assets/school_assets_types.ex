@@ -20,6 +20,12 @@ defmodule FsmWeb.GraphQL.SchoolAssets.SchoolAssetsTypes do
       middleware Middleware.Authorize
       resolve &SchoolAssetsResolvers.list_rooms/3
     end
+    @desc "Get room information by room id"
+    field :get_room, non_null(:room) do
+      arg :id, non_null(:id)
+      middleware Middleware.Authorize
+      resolve &SchoolAssetsResolvers.get_room/3
+    end
   end
 
   # MUTATIONS

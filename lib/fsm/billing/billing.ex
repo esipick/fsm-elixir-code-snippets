@@ -16,6 +16,7 @@ defmodule Fsm.Billing do
   alias Flight.Billing.InstructorLineItemDetail
 
   alias Flight.Accounts.StripeAccount
+  require Logger
 
   def aircraft_cost!(%AircraftLineItemDetail{} = detail) do
     {:ok, amount} = aircraft_cost(detail)
@@ -87,34 +88,30 @@ defmodule Fsm.Billing do
   end
 
   def update_invoice(invoice_params, pay_off, school_id, user_id) do
+    
+    # why we're doing this?
     invoice_params = Map.put(invoice_params, :is_visible, true)
+
     case UpdateInvoice.run(invoice_params, pay_off, school_id, user_id) do
       {:ok, invoice} ->
         session_info = Map.take(invoice, [:session_id, :connect_account, :pub_key])
         
-        invoice =
-          Repo.get(Invoice, invoice.id)
+        invoice = Repo.get(Invoice, invoice.id)
           |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
           |> Map.merge(session_info)
 
-       {:error, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
-
-        {:error, :update_error}
-
-       {:error, %Ecto.Changeset{} = changeset} ->
-
-        {:error, :update_error}
-
-       {:error, %Stripe.Error{} = error} ->
+      {:error, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
+        {:error, changeset}
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:error, changeset}
+      {:error, %Stripe.Error{} = error} ->
         # status = Map.get(error.extra, :http_status) || 422
-
         # {{conn
         # |> put_status(status)
         # |> json(%{stripe_error: StripeHelper.human_error(error)})}}
-        {:error, FlightWeb.StripeHelper.human_error(error)}
+      {:error, FlightWeb.StripeHelper.human_error(error)}
 
       {:error, %PaymentError{} = error} ->
-
         # conn
         # |> put_status(400)
         # |> json(%{stripe_error: StripeHelper.human_error(error.message)})
@@ -234,7 +231,9 @@ defmodule Fsm.Billing do
               session_id: i.session_id,
               transactions: transactions,
               line_items: line_items,
-              inserted_at: i.inserted_at
+              inserted_at: i.inserted_at,
+              user: i.user,
+              room: i.room
             }
           end)
 
@@ -311,7 +310,6 @@ defmodule Fsm.Billing do
     )
   end
 
-require Logger
   def add_credit_card(stripe_token, user_id) do
     %{roles: _roles, user: user} = Accounts.get_user(user_id)
     case user.stripe_customer_id do

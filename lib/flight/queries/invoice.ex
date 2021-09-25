@@ -33,7 +33,7 @@ defmodule Flight.Queries.Invoice do
           fragment(
             "to_tsvector('english', payer_name) @@ to_tsquery(?)",
             ^Utils.prefix_search(normalized_term)
-          )
+          ) or ilike(t.payer_name, ^normalized_term)
       )
     )
     |> pass_unless(start_date, &where(&1, [t], t.inserted_at >= ^start_date))

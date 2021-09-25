@@ -77,56 +77,56 @@ defmodule FlightWeb.Admin.SettingsController do
     )
   end
 
-  def show(conn, %{"tab" => "assets"} = params) do
+  def show(conn, %{"tab" => "resources"} = params) do
     page_params = FlightWeb.Pagination.params(params)
     data = FlightWeb.Admin.AircraftListData.build(conn, page_params)
 
     render(conn, "show.html",
       hide_school_info: true,
       school: conn.assigns.school,
-      tab: :assets,
+      tab: :resources,
       asset: :aircraft,
       data: data,
       redirect_back_to: redirect_back_to_path(conn)
     )
   end
 
-  def show(conn, %{"tab" => "assets_aircraft"} = params) do
+  def show(conn, %{"tab" => "resources_aircraft"} = params) do
     page_params = FlightWeb.Pagination.params(params)
     data = FlightWeb.Admin.AircraftListData.build(conn, page_params)
 
     render(conn, "show.html",
       hide_school_info: true,
       school: conn.assigns.school,
-      tab: :assets,
+      tab: :resources,
       asset: :aircraft,
       data: data,
       redirect_back_to: redirect_back_to_path(conn)
     )
   end
 
-  def show(conn, %{"tab" => "assets_simulator"} = params) do
+  def show(conn, %{"tab" => "resources_simulator"} = params) do
     page_params = FlightWeb.Pagination.params(params)
     data = FlightWeb.Admin.SimulatorListData.build(conn, page_params)
 
     render(conn, "show.html",
       hide_school_info: true,
       school: conn.assigns.school,
-      tab: :assets,
+      tab: :resources,
       asset: :simulator,
       data: data,
       redirect_back_to: redirect_back_to_path(conn)
     )
   end
 
-  def show(conn, %{"tab" => "assets_room"} = params) do
+  def show(conn, %{"tab" => "resources_room"} = params) do
     page_params = FlightWeb.Pagination.params(params)
     data = FlightWeb.Admin.RoomListData.build(conn, page_params)
 
     render(conn, "show.html",
       hide_school_info: true,
       school: conn.assigns.school,
-      tab: :assets,
+      tab: :resources,
       asset: :room,
       data: data,
       redirect_back_to: redirect_back_to_path(conn)

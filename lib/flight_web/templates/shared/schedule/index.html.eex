@@ -120,10 +120,10 @@
             </div>
 
             <div class="row">
-              <label class="col-md-3 col-form-label">Asset *</label>
+              <label class="col-md-3 col-form-label">Resource *</label>
               <div class="col-md-9">
                 <div class="form-group">
-                  <select id="apptFor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Asset" placeholder="Asset">
+                  <select id="apptFor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Resource" placeholder="Resource">
                     <option selected value="Aircraft">Aircraft</option>
                     <option value="Simulator">Simulator</option>
                     <option value="Room">Room</option>

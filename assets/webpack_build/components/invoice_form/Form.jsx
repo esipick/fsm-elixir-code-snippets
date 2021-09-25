@@ -36,11 +36,8 @@ class Form extends Component {
 
     this.formRef = null;
     const { creator, staff_member, appointment } = props;
-    var {payment_method} = props
-
+    const demo = appointment && appointment.demo
     const appointments = appointment ? [appointment] : [];
-    payment_method = payment_method && this.getPaymentMethod(payment_method)
-    payment_method = payment_method || {}
     
     let id = localStorage.getItem('invoice_id')
     if  (id && !props.id) {
@@ -68,11 +65,13 @@ class Form extends Component {
       hobb_tach_warning_open: false,
       hobb_tach_warning_accepted: false,
       balance_warning_accepted: false,
-      payment_method: payment_method || {},
+      payment_method: this.getPaymentMethod(props.payment_method, demo),
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
-      date: new Date()
+      date: new Date(),
+      ending_hobbs_tach_error: false,
+      demo
     }
   }
 
@@ -134,12 +133,13 @@ class Form extends Component {
       .then(r => {
         const invoice = itemsFromInvoice(r.data, this.props.user_roles);
         const demo = invoice.appointment ? invoice.appointment.demo : false
+        const payment_method = this.getPaymentMethod(invoice.payment_option, demo)
 
         this.setState({
           date: invoice.date ? new Date(invoice.date) : new Date(),
           student: invoice.user || this.demoGuestPayer(demo, invoice.payer_name),
           line_items: invoice.line_items || [],
-          payment_method: this.getPaymentMethod(demo ? DEFAULT_PAYMENT_OPTION : invoice.payment_option),
+          payment_method: payment_method,
           demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
@@ -164,7 +164,16 @@ class Form extends Component {
       });
   }
 
-  getPaymentMethod = (payment_option) => {
+  getPaymentMethod = (payment_option, demo = false) => {
+
+    if(!payment_option) {
+      return DEFAULT_PAYMENT_OPTION
+    }
+
+    if(payment_option === BALANCE && demo) {
+      return DEFAULT_PAYMENT_OPTION
+    }
+    
     const finded_option = PAYMENT_OPTIONS.find((option) => {
       return option.value === payment_option
     });
@@ -303,7 +312,7 @@ class Form extends Component {
   createGuestPayer = (payer_name) => {
     const student = this.guestPayer(payer_name);
 
-    this.setState({ student, appointments: [], payment_method: {} });
+    this.setState({ student, appointments: [], payment_method: DEFAULT_PAYMENT_OPTION });
   }
 
   isGuestNameValid = (inputValue, selectValue, selectOptions) => {
@@ -464,6 +473,13 @@ class Form extends Component {
     const line_items = this.state.line_items || []
     const isInstructorOnly = line_items.length == 1 && line_items[0].type === "instructor"
 
+    for(const increment in this.state.line_items) {
+      const hobbs_end = this.state.line_items[increment].hobbs_end
+      const tach_end = this.state.line_items[increment].tach_end
+
+      console.log({hobbs_end, tach_end})
+    }
+
     if (this.state.saving) return;
     if (!isInstructorOnly && this.state.total <= 0) {
       this.setState({error_alert_total_open: true});
@@ -481,10 +497,18 @@ class Form extends Component {
     if ( this.state.line_items.length > 0) {
       for (let increment in this.state.line_items) {
         if (this.state.line_items[increment].type == "aircraft") {
-          if(typeof(this.state.line_items[increment].errors) != "undefined") {
-            return;
+
+          const hobbs_end = this.state.line_items[increment].hobbs_end
+          const tach_end = this.state.line_items[increment].tach_end
+  
+          // make sure hobbs end and tach ends must be set
+          if(!(hobbs_end && tach_end)) {
+            return this.setState({ending_hobbs_tach_error: true});
           }
-          else{
+
+          if(typeof(this.state.line_items[increment].errors) != "undefined" && !this.state.demo) {
+            return;
+          } else{
             if (!this.state.hobb_tach_warning_accepted &&
                 ( (this.state.line_items[increment].hobbs_end - this.state.line_items[increment].hobbs_start) > 120 ||
                 ( this.state.line_items[increment].tach_end - this.state.line_items[increment].tach_start) > 120 ) ) {
@@ -567,6 +591,10 @@ class Form extends Component {
 
   closeTotalErrorAlert = () => {
     this.setState({ error_alert_total_open: false });
+  }
+
+  closeEndingHobbsTachAlert = () => {
+    this.setState({ ending_hobbs_tach_error: false });
   }
 
   closeTotalDueErrorAlert = () => {
@@ -657,6 +685,10 @@ class Form extends Component {
       demo = false
     }
 
+    const paymentOptions = student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined" && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS
+
+
+    console.log(paymentOptions)
 
     return (
       <div className="card">
@@ -751,7 +783,7 @@ class Form extends Component {
                     <Select placeholder="Payment method"
                       value={payment_method}
                       classNamePrefix="react-select"
-                      options={student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined" && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS}
+                      options={paymentOptions}
                       onChange={this.setPaymentMethod}
                       required={true} />
                   </div>
@@ -798,6 +830,11 @@ class Form extends Component {
       <ErrorAlert open={this.state.error_alert_total_open}
           onAccept={this.closeTotalErrorAlert}
           text="Invoices cannot be saved with a total amount below or equal to zero."
+      />
+
+      <ErrorAlert open={this.state.ending_hobbs_tach_error}
+          onAccept={this.closeEndingHobbsTachAlert}
+          text="Ending hobbs and tach hours must be filled correctly"
       />
 
       <ErrorAlert open={this.state.error_alert_total_due_open}
