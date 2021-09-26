@@ -93,8 +93,8 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :flight, Flight.Repo,
-  username: "admin",
-  password: "123456",
+  username: "postgres",
+  password: "postgres",
   database: "flight_dev",
   hostname: "localhost",
   pool_size: 10
