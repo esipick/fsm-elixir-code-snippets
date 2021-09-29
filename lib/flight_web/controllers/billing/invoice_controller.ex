@@ -49,7 +49,45 @@ defmodule FlightWeb.Billing.InvoiceController do
       else
         props
       end
-        
+
+    course_id = params["course_id"]
+
+    course = if !is_nil(course_id) do
+        case Integer.parse(course_id) do
+          :error ->
+            IO.puts "Invalid course id"
+            %{}
+          {id, _rem} ->
+            %{assigns: %{current_user: current_user}} = conn
+            
+            data_url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+            
+            body = Poison.encode!(%{
+              "action": "get_course",
+              "id": id,
+              "webtoken": Flight.Utils.get_webtoken(current_user.school_id)
+            })
+
+            case HTTPoison.post(data_url,body) do
+              {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+                case Poison.decode(body) do
+                  {:ok, response} ->
+                    # we're getting a list of length 1 for "courses" key
+                    [course | _] = Map.get(response, "course")
+                    # return course info
+                    course
+                  {:error, error} -> error
+                end
+              {:ok, %HTTPoison.Response{status_code: 404}} ->
+                %{}
+              {:error, %HTTPoison.Error{reason: reason}} ->
+                %{}
+            end
+        end
+    end
+
+    props = Map.put(props, :course, course)
+    
     render(conn, "new.html", props: props)
   end
 

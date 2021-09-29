@@ -108,3 +108,6 @@ config :flight, Flight.Mailer,
   api_key: "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"
 
 config :appsignal, :config, active: false
+config :flight, :lms_endpoint, System.get_env("LMS_ENDPOINT") || "https://moodlenew.esipick.com"
+config :flight, :webtoken_key, System.get_env("WEBTOKEN_KEY") || "FSMM"
+config :flight, :webtoken_secret_key, System.get_env("WEBTOKEN_SECRET_KEY") || ".jG<T9qX6sNk3.Z3"

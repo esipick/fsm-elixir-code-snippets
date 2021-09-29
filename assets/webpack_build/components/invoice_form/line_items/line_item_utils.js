@@ -5,6 +5,7 @@ export const SIMULATOR_HOURS = "Simulator Hours"
 export const INSTRUCTOR_HOURS = "Instructor Hours";
 export const DEMO_FLIGHT = "Demo Flight"
 export const ROOM = "Room"
+export const COURSE = "Course"
 
 export const DEFAULT_TYPE = "other";
 export const TYPES = {
@@ -12,7 +13,8 @@ export const TYPES = {
   [SIMULATOR_HOURS]: "aircraft",
   [DEMO_FLIGHT]: "aircraft",
   [ROOM]: "room",
-  [INSTRUCTOR_HOURS]: "instructor"
+  [INSTRUCTOR_HOURS]: "instructor",
+  [COURSE]: "course"
 }
 
 export const DESCRIPTION_OPTS = [
@@ -20,7 +22,8 @@ export const DESCRIPTION_OPTS = [
   {label: SIMULATOR_HOURS, value: SIMULATOR_HOURS, taxable: true, deductible: false},
   {label: DEMO_FLIGHT, value: DEMO_FLIGHT, taxable: true, deductible: false},
   {label: INSTRUCTOR_HOURS, value: INSTRUCTOR_HOURS, taxable: false, deductible: false},
-  {label: ROOM, value: ROOM, taxable: false, deductible: false}
+  {label: ROOM, value: ROOM, taxable: false, deductible: false},
+  {label: COURSE, value: COURSE, taxable: true, deductible: false}
 ];
 
 export const DEFAULT_RATE = 0;
@@ -64,7 +67,7 @@ export class LineItemRecord {
     this.type = TYPES[this.description] || DEFAULT_TYPE;
     this.instructor_user = params.instructor_user;
     this.instructor_user_id = params.instructor_user && params.instructor_user.id;
-
+    this.course_id = params.course_id
     this.aircraft = params.aircraft || params.simulator;
     this.aircraft_id = (params.aircraft && params.aircraft.id) || (params.simulator && params.simulator.id);
     
@@ -167,6 +170,17 @@ const instructorItem = (instructor_user, duration) => {
     taxable: false,
     deductible: false
   });
+}
+
+export const courseItem = (course) => {
+  return new LineItemRecord({
+    course_id: course.id,
+    quantity: 1,
+    rate: course.price * 100,
+    description: COURSE,
+    taxable: true,
+    deductible: false
+  })
 }
 
 const fromAircraft = (aircraft, type, duration) => {

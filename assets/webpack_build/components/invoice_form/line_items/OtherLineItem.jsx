@@ -1,15 +1,12 @@
 import classnames from 'classnames';
-import NumberFormat from 'react-number-format';
 import React, { Component } from 'react';
+import NumberFormat from 'react-number-format';
 import Select from 'react-select';
-
 import Error from '../../common/Error';
-
+import { getAccountBalance, isEmpty } from '../../utils';
 import {
-  DESCRIPTION_SELECT_OPTS, NUMBER_INPUT_OPTS, INSTRUCTOR_HOURS, ROOM,
-  DEFAULT_TYPE, TYPES, DEFAULT_RATE, isInstructorHoursEditable
+  DEFAULT_RATE, DESCRIPTION_SELECT_OPTS, INSTRUCTOR_HOURS, isInstructorHoursEditable, NUMBER_INPUT_OPTS, ROOM
 } from './line_item_utils';
-import { authHeaders, getAccountBalance } from '../../utils';
 
 class OtherLineItem extends Component {
   constructor(props) {
@@ -172,6 +169,10 @@ class OtherLineItem extends Component {
       shouldDisableRate = false
     }
     
+    if(!isEmpty(this.props.course)) {
+      shouldDisableRate = true
+    }
+
     return (
       <tr key={id} className={wrapperClass}>
         <td>{number}.</td>

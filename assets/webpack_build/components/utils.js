@@ -7,11 +7,20 @@ export const addSchoolIdParam = (prefix = '', postfix = '') => {
   } else { return '' }
 }
 
-export const  getAccountBalance = (student) => {
+export const getAccountBalance = (student) => {
   if (!student) {
     return 0;
   }
 
   const rawBalance =(student.balance * 1.0 / 100).toFixed(2);
   return parseFloat(rawBalance);
+}
+
+/**
+ * 
+ * @param non-null and non-undefined object 
+ * @returns true | false
+ */
+export const isEmpty = (obj) => {
+  return Object.keys(obj || {}).length === 0
 }

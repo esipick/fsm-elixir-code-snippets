@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
-
-import Error from '../common/Error';
+import { isEmpty } from '../utils';
 import LineItem from './line_items/LineItem';
-
-import { itemsFromAppointment, LineItemRecord, aircraftFlightHours } from './line_items/line_item_utils';
-
-import { authHeaders, addSchoolIdParam } from '../utils';
+import { courseItem, itemsFromAppointment, LineItemRecord } from './line_items/line_item_utils';
 
 const lineItemsKey = (appointment) => appointment && appointment.id || 'none';
 
@@ -13,10 +9,17 @@ class LineItemsTable extends Component {
   constructor(props) {
     super(props);
     const { appointment, current_user_id, user_roles } = props;
- 
-    const line_items =
-      props.line_items.length > 0 && !appointment ? props.line_items : itemsFromAppointment(appointment, props.line_items, user_roles);
     
+    let line_items = []
+
+    if(!isEmpty(this.props.course)) {
+      line_items = [courseItem(this.props.course)]
+    } else {
+      line_items = props.line_items.length > 0 && !appointment ? props.line_items : itemsFromAppointment(appointment, props.line_items, user_roles);
+    }
+    
+    console.log(line_items)
+
     this.state = { line_items, appointment, current_user_id, user_roles };
   }
 
@@ -32,7 +35,7 @@ class LineItemsTable extends Component {
 
     if (prevAppointmentId !== appointmentId) {
       const { appointment } = props;
-      const line_items = itemsFromAppointment(appointment, [], props.user_roles);
+      const line_items =  itemsFromAppointment(appointment, [], props.user_roles);
       
       return { ...state, line_items, appointment };
     }
@@ -114,14 +117,17 @@ class LineItemsTable extends Component {
                 onChange={this.setLineItem}
                 onRemove={this.removeLineItem}
                 current_user_id={this.state.current_user_id}
-                user_roles = {this.state.user_roles} />
+                user_roles = {this.state.user_roles} 
+                course={this.props.course} />
             ))
           }
 
           <tr>
-            <td colSpan="7">
-              <button className="btn btn-sm btn-default" onClick={this.addLineItem}>Add</button>
-            </td>
+            {
+              isEmpty(this.props.course) && <td colSpan="7">
+                <button className="btn btn-sm btn-default" onClick={this.addLineItem}>Add</button>
+              </td>
+            }
           </tr>
           <tr>
             <td colSpan="5" className="text-right">

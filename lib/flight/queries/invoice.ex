@@ -73,6 +73,12 @@ defmodule Flight.Queries.Invoice do
     |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
   end
 
+  def course_invoices(user_id) do
+    from i in Invoice,
+         inner_join: li in InvoiceLineItem, on: i.id == li.invoice_id,
+         select: i,
+         where: i.user_id == ^user_id and li.type == 5 and not is_nil(i.course_id)  and not is_nil(li.course_id)
+  end
   defp parse_date(date, shift_days) do
     case date do
       date when date in [nil, ""] ->
