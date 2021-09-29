@@ -38,6 +38,7 @@ defmodule Fsm.Billing.Invoice do
       
       field(:aircraft_info, :map, null: true)
       field(:session_id, :string, null: true)
+      field(:course_id, :integer, null: true)
   
       belongs_to(:user, User)
       belongs_to(:school, School)
@@ -59,7 +60,7 @@ defmodule Fsm.Billing.Invoice do
       invoice
       |> cast(attrs, @required_fields)
       |> cast(attrs, @payer_fields)
-      |> cast(attrs, [:aircraft_info, :appointment_id, :archived, :is_visible, :status, :appointment_updated_at, :demo, :session_id])
+      |> cast(attrs, [:aircraft_info, :appointment_id, :archived, :is_visible, :status, :appointment_updated_at, :demo, :session_id, :course_id])
       |> cast_assoc(:line_items)
       |> assoc_constraint(:user)
       |> assoc_constraint(:school)

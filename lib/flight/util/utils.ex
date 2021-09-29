@@ -96,4 +96,9 @@ defmodule Flight.Utils do
               _ ->  {nil, nil}
         end
     end
+
+    def get_webtoken(school_id) do
+      modified_key = Application.get_env(:flight, :webtoken_key) <> "_" <> to_string(school_id)
+      Flight.Webtoken.encrypt(modified_key)
+    end
 end

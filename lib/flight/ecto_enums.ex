@@ -17,7 +17,8 @@ defenum(
   aircraft: 1,
   instructor: 2,
   discount: 3,
-  room: 4
+  room: 4,
+  course: 5
 )
 
 defenum(AppointmentStatusEnum, pending: 0, paid: 1)

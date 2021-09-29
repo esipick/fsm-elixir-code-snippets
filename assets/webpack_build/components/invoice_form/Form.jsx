@@ -1,31 +1,23 @@
+import { loadStripe } from "@stripe/stripe-js";
 import classnames from 'classnames';
 import http from 'j-fetch';
+import { debounce } from 'lodash';
 import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
-import { debounce } from 'lodash';
-
-// import "core-js/stable";
 import "regenerator-runtime/runtime";
-import { loadStripe } from "@stripe/stripe-js";
-
-import { authHeaders, addSchoolIdParam } from '../utils';
 import Error from '../common/Error';
-
-import { itemsFromInvoice } from './line_items/line_item_utils';
-
-import LineItemsTable from './LineItemsTable';
-import LowBalanceAlert from './LowBalanceAlert';
-import ConfirmHobbTachAlert from './ConfirmHobbTachAlert';
-import ErrorAlert from './ErrorAlert';
+import { addSchoolIdParam, authHeaders, isEmpty } from '../utils';
 import ConfirmAlert from './ConfirmAlert';
-import {itemsFromAppointment, containsSimulator, containsDemoFlight} from './line_items/line_item_utils';
-
+import ConfirmHobbTachAlert from './ConfirmHobbTachAlert';
 import {
-  BALANCE, CASH, CHECK, VENMO, MARK_AS_PAID, PAY,
-  GUEST_PAYMENT_OPTIONS, DEFAULT_PAYMENT_OPTION, PAYMENT_OPTIONS, DEMO_PAYMENT_OPTIONS
+  BALANCE, DEFAULT_PAYMENT_OPTION, DEMO_PAYMENT_OPTIONS, GUEST_PAYMENT_OPTIONS, PAYMENT_OPTIONS
 } from './constants';
+import ErrorAlert from './ErrorAlert';
+import LineItemsTable from './LineItemsTable';
+import { containsDemoFlight, containsSimulator, itemsFromAppointment, itemsFromInvoice } from './line_items/line_item_utils';
+import LowBalanceAlert from './LowBalanceAlert';
 
 let calculateRequest = () => { };
 
@@ -343,7 +335,7 @@ class Form extends Component {
     return {
       ignore_last_time: is_edit,
       line_items,
-      user_id: student && student.id,
+      user_id: isEmpty(this.props.course) ? student && student.id : this.props.current_user_id,
       payer_name: student && student.guest ? student.label : '',
       date: date.toISOString(),
       tax_rate: sales_tax,
@@ -352,7 +344,8 @@ class Form extends Component {
       total_amount_due,
       payment_option: payment_method.value,
       is_visible: is_visible,
-      appointment_id: appointment && appointment.id
+      appointment_id: appointment && appointment.id,
+      course_id: isEmpty(this.props.course) ? null : this.props.course.id
     }
   }
 
@@ -687,9 +680,6 @@ class Form extends Component {
 
     const paymentOptions = student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined" && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS
 
-
-    console.log(paymentOptions)
-
     return (
       <div className="card">
         <div className="card-header text-left">
@@ -700,33 +690,46 @@ class Form extends Component {
           <div className="invoice-form">
             <div className="form">
               <form ref={this.setFormRef}>
-                <div className="form-group">
-                  <label>
-                    Person Name
-                    <Error text={this.userErrors(errors.user_id)} />
-                  </label>
-                  { staff_member && this.studentSelect() }
-                  { !staff_member && <div>{student.first_name + ' ' + student.last_name}</div> }
-                </div>
-
-                <div className="form-group">
-                  <label>
-                    Appointment
-                    <Error text={errors.appointment_id} />
-                  </label>
-                  <div className={classnames('invoice-select-wrapper', errors.appointment_id ? 'with-error' : '')}>
-                    <Select placeholder="Appointment"
-                      isClearable
-                      classNamePrefix="react-select"
-                      options={appointments}
-                      onChange={this.setAppointment}
-                      isLoading={appointment_loading}
-                      getOptionLabel={this.appointmentLabel}
-                      getOptionValue={(o) => o.id}
-                      isDisabled={!student || student.guest}
-                      value={appointment} />
+               {isEmpty(this.props.course) && (
+                  <div className="form-group">
+                    <label>
+                      Person Name
+                      <Error text={this.userErrors(errors.user_id)} />
+                    </label>
+                    { staff_member && this.studentSelect() }
+                    { !staff_member && <div>{student.first_name + ' ' + student.last_name}</div> }
                   </div>
-                </div>
+               )}
+
+                {
+                !isEmpty(this.props.course) && <div className="form-group">
+                        <label>
+                            Course Title
+                        </label>
+                        <p>{this.props.course.coursename}</p>
+                    </div> 
+                }
+
+                {
+                  isEmpty(this.props.course) && <div className="form-group">
+                    <label>
+                      Appointment
+                      <Error text={errors.appointment_id} />
+                    </label>
+                    <div className={classnames('invoice-select-wrapper', errors.appointment_id ? 'with-error' : '')}>
+                      <Select placeholder="Appointment"
+                        isClearable
+                        classNamePrefix="react-select"
+                        options={appointments}
+                        onChange={this.setAppointment}
+                        isLoading={appointment_loading}
+                        getOptionLabel={this.appointmentLabel}
+                        getOptionValue={(o) => o.id}
+                        isDisabled={!student || student.guest}
+                        value={appointment} />
+                    </div>
+                  </div>
+                }
 
                 <div className="form-group">
                   <label>Acct Balance</label>
@@ -771,7 +774,9 @@ class Form extends Component {
                       total_amount_due={total_amount_due}
                       total_tax={total_tax}
                       current_user_id={this.state.current_user_id}
-                      user_roles = {this.state.user_roles} />}
+                      user_roles = {this.state.user_roles}
+                      course={this.props.course} />
+                  }
               </div>
 
                 <div className="form-group">
@@ -791,11 +796,13 @@ class Form extends Component {
                 </div>
 
                 <div id="save_and_pay" className="form-group invoice-save-buttons">
-                  <input className="btn btn-primary"
-                    type="submit"
-                    value="Save for later"
-                    disabled={saving}
-                    onClick={() => { this.submitForm({ pay_off: false }) }} />
+                  { isEmpty(this.props.course) &&
+                    <input className="btn btn-primary"
+                      type="submit"
+                      value="Save for later"
+                      disabled={saving}
+                      onClick={() => { this.submitForm({ pay_off: false }) }} />
+                  }
                   <input className="btn btn-default"
                     type="button"
                     value="Cancel"

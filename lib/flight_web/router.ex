@@ -128,7 +128,6 @@ defmodule FlightWeb.Router do
     pipe_through([:browser, :admin_layout, :renter_authenticate, :admin_metrics_namespace])
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
-
     resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true) do
       put("/update_card", ProfileController, :update_card)
     end
@@ -145,7 +144,14 @@ defmodule FlightWeb.Router do
       put("/update_card", StudentController, :update_card)
     end
   end
-
+  scope("/course", FlightWeb.Course, as: :course) do
+    pipe_through([  :browser,
+      :admin_layout,
+      :web_user_authenticate,
+      :admin_metrics_namespace,
+      :complete_onboarding])
+    get("/list", CourseController, :index)
+  end
   scope("/billing", FlightWeb.Billing, as: :billing) do
     pipe_through([
       :browser,
@@ -251,6 +257,11 @@ defmodule FlightWeb.Router do
   scope "/api", FlightWeb.API do
     post("/stripe_events", StripeController, :stripe_events)
     get("/ios_app_version", IosAppVersionController, :index)
+  end
+
+  scope "/api", FlightWeb.API do
+    get("/encrypt-text", AESController, :encrypt)
+    get("/decrypt-text", AESController, :decrypt)
   end
 
   scope "/api", FlightWeb.API do

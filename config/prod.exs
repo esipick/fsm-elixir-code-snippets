@@ -64,6 +64,9 @@ config :stripity_stripe, :pool_options,
   max_connections: 10
 
 config :flight, :aws_apns_application_arn, Map.fetch!(System.get_env(), "AWS_SNS_APNS_ARN")
+config :flight, :lms_endpoint, System.get_env("LMS_ENDPOINT") || "https://moodlenew.esipick.com"
+config :flight, :webtoken_key, System.get_env("WEBTOKEN_KEY") || "FSM"
+config :flight, :webtoken_secret_key, System.get_env("WEBTOKEN_SECRET_KEY") || ".jG<T9qX6sNk3.Z3"
 
 # ## SSL Support
 #

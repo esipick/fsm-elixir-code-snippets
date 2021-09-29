@@ -1,12 +1,8 @@
-import classnames from 'classnames';
 import React, { PureComponent } from 'react';
-
-import OtherLineItem from './OtherLineItem';
+import { isEmpty } from './../../utils';
 import AircraftLineItem from './AircraftLineItem';
-
-import {
-  DESCRIPTION_OPTS, DEFAULT_TYPE, TYPES, DEFAULT_RATE
-} from './line_item_utils';
+import { DEFAULT_RATE, DEFAULT_TYPE, DESCRIPTION_OPTS, TYPES } from './line_item_utils';
+import OtherLineItem from './OtherLineItem';
 
 class InvoiceLineItem extends PureComponent {
 
@@ -50,7 +46,11 @@ class InvoiceLineItem extends PureComponent {
 
   render() {
     const { line_item, creator, staff_member } = this.props;
-    const editable = staff_member || !line_item.creator_id || line_item.creator_id == creator.id;
+    let editable = staff_member || !line_item.creator_id || line_item.creator_id == creator.id;
+
+    if(!isEmpty(this.props.course)) {
+      editable = false
+    }
 
     const props = Object.assign({}, this.props, {
       lineItemTypeOptions: this.lineItemTypeOptions(),

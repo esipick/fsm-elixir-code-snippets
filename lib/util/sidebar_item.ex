@@ -61,6 +61,12 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
+        path: "/course/list",
+        label: "Courses",
+        icon_class: "education_hat",
+        active: false
+      },
+      %SidebarItem{
         path: "/admin/reports",
         label: "Reports",
         icon_class: "files_single-copy-04",
@@ -117,6 +123,12 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
+        path: "/course/list",
+        label: "Courses",
+        icon_class: "education_hat",
+        active: false
+      },
+      %SidebarItem{
         path: "/logout",
         label: "Log out",
         icon_class: "media-1_button-power",
@@ -147,6 +159,12 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
+        path: "/course/list",
+        label: "Courses",
+        icon_class: "education_hat",
+        active: false
+      },
+      %SidebarItem{
         path: "/logout",
         label: "Log out",
         icon_class: "media-1_button-power",
@@ -174,6 +192,12 @@ defmodule FlightWeb.SidebarItem do
         path: "/renter/schedule",
         label: "Schedule",
         icon_class: "ui-1_calendar-60",
+        active: false
+      },
+      %SidebarItem{
+        path: "/course/list",
+        label: "Courses",
+        icon_class: "education_hat",
         active: false
       },
       %SidebarItem{

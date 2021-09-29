@@ -29,7 +29,10 @@ defmodule Flight.Mixfile do
         :timex,
         :bamboo,
         :scrivener_ecto,
-        :scrivener_html
+        :scrivener_html,
+        :httpoison,
+        :phoenix_html_simplified_helpers,
+        :html_sanitize_ex
       ]
     ]
   end
@@ -85,7 +88,10 @@ defmodule Flight.Mixfile do
       {:cors_plug, "~> 2.0"},
       # Dev tools
       {:faker, "~> 0.12", only: [:dev, :test]},
-      {:wallaby, "~> 0.24.0", runtime: false, only: :test}
+      {:wallaby, "~> 0.24.0", runtime: false, only: :test},
+      {:httpoison, "~> 1.6.2"},
+      {:phoenix_html_simplified_helpers, "~> 2.1.0"},
+      {:html_sanitize_ex, "~> 1.4"}
     ]
   end
 
