@@ -35,7 +35,7 @@
                     <a href="/billing/invoices/new?course_id=<%= course["id"] %>" class="btn btn-primary">$<%= course["price"] %> Buy Now</a>
                      <% end %>
                     <% end %>
-                    <%= if course["isPaid"] or course["price"] == 0 do %>
+                    <%= if course["isPaid"] or course["price"] == 0 or @is_admin do %>
                     <a href="<%= @login_url <> Base.encode64(to_string(course["id"])) %>"
                        class="btn btn-success">Open</a>
                     <% end %>
