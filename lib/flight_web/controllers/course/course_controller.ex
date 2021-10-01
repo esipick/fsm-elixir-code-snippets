@@ -69,7 +69,6 @@ defmodule FlightWeb.Course.CourseController do
   end)
 
     updated_courses = Enum.map(courses, fn (course) ->
-
       if Enum.any?(course_ids, fn(id)-> id == Map.get(course, "id") end) do
         course
         |> Map.put("isPaid", true)
@@ -78,6 +77,7 @@ defmodule FlightWeb.Course.CourseController do
         |> Map.put("isPaid", false)
       end
     end)
+    updated_courses =  updated_courses |> Enum.sort_by(fn x -> x["sortorder"] end)
 
     Logger.info fn -> "courses: #{inspect courses}" end
     Logger.info fn -> "updated_courses: #{inspect updated_courses}" end
