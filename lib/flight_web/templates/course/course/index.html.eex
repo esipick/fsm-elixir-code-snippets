@@ -22,8 +22,14 @@
         <%= for course <- @courses do %>
         <div class="col-sm-3">
             <div class="card">
+                <%= if course["img_url"] != "" do %>
                 <img class="card-img-top" src="<%= course["img_url"] %>"
-                     alt="Card image cap">
+                     alt="Course image">
+                <% else %>
+                <img class="card-img-top" src="<%= static_path(@conn, "/images/course_placeholder.png") %>"
+                     alt="Course image">
+                <% end %>
+
                 <div class="card-body">
 
                     <h5 class="card-title"><%= course["coursename"]%></h5>
