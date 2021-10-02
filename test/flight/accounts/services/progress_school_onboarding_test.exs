@@ -27,21 +27,21 @@ defmodule Flight.Accounts.ProgressSchoolOnboardingTest do
 
       assert tab == :payment
       assert school_onboarding.completed == true
-      assert school_onboarding.current_step == :assets
+      assert school_onboarding.current_step == :resources
     end
   end
 
   describe "run/2 with redirect_tab when onboarding is at last step" do
     test "completes onboarding" do
-      school_onboarding = school_onboarding_fixture(%{current_step: :assets})
+      school_onboarding = school_onboarding_fixture(%{current_step: :resources})
       school = school_onboarding.school
 
-      {_school, tab} = ProgressSchoolOnboarding.run(school, %{redirect_tab: "assets"})
+      {_school, tab} = ProgressSchoolOnboarding.run(school, %{redirect_tab: "resources"})
       school_onboarding = refresh(school_onboarding)
 
-      assert tab == :assets
+      assert tab == :resources
       assert school_onboarding.completed == true
-      assert school_onboarding.current_step == :assets
+      assert school_onboarding.current_step == :resources
     end
   end
 
