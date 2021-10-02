@@ -51,7 +51,7 @@ defmodule FlightWeb.Admin.InvitationController do
         conn
         |> put_flash(
           :success,
-          "Successfully sent invitation. Please have #{invitation.first_name} check their email to complete the sign up process."
+          "Invitation sent to #{invitation.email} successfully. Please check your email for pending verification."
         )
         |> redirect(to: path)
 

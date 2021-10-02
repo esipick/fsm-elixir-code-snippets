@@ -142,13 +142,9 @@ defmodule FlightWeb.Admin.UserController do
            ) do
       message =
         if transaction.type == "credit" do
-          "Successfully added #{FlightWeb.ViewHelpers.currency(transaction.total)} to #{
-            user.first_name
-          }'s balance."
+          "Funds added successfully"
         else
-          "Successfully removed #{FlightWeb.ViewHelpers.currency(transaction.total)} from #{
-            user.first_name
-          }'s balance."
+          "Funds removed successfully"
         end
 
       Flight.Billing.approve_transactions_within_balance(user)
