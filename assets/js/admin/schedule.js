@@ -778,7 +778,10 @@ $(document).ready(function () {
     $('#demoApptNote').val(initialData.note);
     $('#demoApptCustomer').val(initialData.payer_name);
 
-    $('#calendarNewModal').modal();
+    $('#calendarNewModal').modal({
+      backdrop: 'static',   // This disable for click outside event
+      keyboard: true        // This for keyboard event
+    });
   };
 
   function fsmCalendar(instructors, aircrafts, simulators, rooms, students, current_user) {
