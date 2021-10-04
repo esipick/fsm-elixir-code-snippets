@@ -27,7 +27,7 @@ defmodule FlightWeb.Features.CompleteOnboardingTest do
     |> click(button("Save & Next"))
     |> assert_has(css(".nav-link.onboarding.active", text: "PROFILE SETTINGS"))
     |> click(button("Save & Next"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "ASSETS"))
+    |> assert_has(css(".nav-link.onboarding.active", text: "RESOURCES"))
     |> click(button("Save & Next"))
     |> assert_has(css(".nav-link.onboarding.active", text: "PAYMENT SETUP"))
     |> click(link("Save & Next"))
@@ -38,7 +38,7 @@ defmodule FlightWeb.Features.CompleteOnboardingTest do
 
   @tag :integration
   test "admin can return in steps", %{session: session} do
-    school_onboarding = school_onboarding_fixture(%{current_step: :assets})
+    school_onboarding = school_onboarding_fixture(%{current_step: :resources})
     school = school_onboarding.school
 
     session
@@ -47,7 +47,7 @@ defmodule FlightWeb.Features.CompleteOnboardingTest do
     |> click(link("Back"))
     |> assert_has(css(".nav-link.onboarding.active", text: "PAYMENTS"))
     |> click(link("Back"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "ASSETS"))
+    |> assert_has(css(".nav-link.onboarding.active", text: "RESOURCES"))
     |> click(link("Back"))
     |> assert_has(css(".nav-link.onboarding.active", text: "PROFILE SETTINGS"))
     |> click(link("Back"))

@@ -37,11 +37,11 @@ function getPlainDate(start_at) {
                   <dd><p>Current Balance</p></dd>
                 </dl>
                 <dl class="form-group d-flex flex-row-reverse">
-                  <dt class="col-md-9"><input type="text" name="amount" id="addFundsAmount" class="form-control"/></dt>
+                  <dt class="col-md-9"><input type="number" name="amount" id="addFundsAmount" required class="form-control"/></dt>
                   <dd class="col-md-3"><p>Amount<br/><span id="arithmeticOperator"></span></p></dd>
                 </dl>
                 <dl class="form-group d-flex flex-row-reverse">
-                  <dt class="col-md-9"><textarea class="form-control" name="description" placeholder="enter description here"></textarea></dt>
+                  <dt class="col-md-9"><textarea class="form-control" id="addFundsDescription" name="description" placeholder="enter description here"></textarea></dt>
                   <dd class="col-md-3"><p>Description</p></dd>
                 </dl>
               </div>
@@ -114,17 +114,33 @@ function getPlainDate(start_at) {
 
 <script>
   $("#addFundsButton").on("click", function() {
-    $("#addFundsModal").modal()
+    $("#addFundsModal").modal();
+    $("#addFundsAmount")[0].value = "";
+    $("#addFundsDescription")[0].value = "";
   })
 
   $("#addFundsAmount").on("input", function() {
     amount = parseInt(this.value)
-    if (amount > 0) {
-      $("#addFundsSubmit")[0].value = "Add Funds"
-    } else if (amount < 0) {
-      $("#addFundsSubmit")[0].value = "Remove Funds"
-      $("#arithmeticOperator").text("(-)");
+    if (amount > 0 || isNaN(amount)) {
+      updateSubmitButtonText("Add Funds");
+    }
 
+    if (amount < 0) {
+      updateSubmitButtonText("Remove Funds");
+      $("#arithmeticOperator").text("(-)");
+    }
+
+    if(isNaN(amount)) {
+      $("#arithmeticOperator").text("");
     }
   })
+
+  $("#addFundsSubmit").on("click", function(){
+    $("#addFundsSubmit").addClass("disabled");
+  });
+
+  function updateSubmitButtonText(text) {
+    $("#addFundsSubmit")[0].value = text;
+  }
+
 </script>

@@ -27,7 +27,7 @@ defenum(
   school: 0,
   contact: 1,
   profile: 2,
-  assets: 3,
+  resources: 3,
   payment: 4,
   billing: 5
 )

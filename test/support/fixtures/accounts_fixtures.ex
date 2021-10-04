@@ -60,7 +60,7 @@ defmodule Flight.AccountsFixtures do
   end
 
   def completed_school_onboarding_fixture(school \\ school_fixture()) do
-    school_onboarding_fixture(%{completed: true, current_step: :assets}, school)
+    school_onboarding_fixture(%{completed: true, current_step: :resources}, school)
   end
 
   def default_school_fixture() do
