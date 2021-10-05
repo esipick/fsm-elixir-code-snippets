@@ -76,6 +76,9 @@ defmodule FlightWeb.AuthenticateWebUser do
   end
 
   def log_out(conn) do
+    #logout from LMS
+    user = Flight.Accounts.dangerous_get_user(get_session(conn, :user_id))
+    Flight.Utils.logout_from_lms(user.id)
     delete_session(conn, :user_id)
   end
 end

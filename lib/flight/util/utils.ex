@@ -1,6 +1,6 @@
 defmodule Flight.Utils do
     @secs_in_a_day 86000
-
+    require Logger
     def add_months(%NaiveDateTime{} = date, no_of_months) do
         Timex.shift(date, months: no_of_months)
         # total_days = no_of_days_by_adding_months(date, no_of_months)
@@ -100,5 +100,23 @@ defmodule Flight.Utils do
     def get_webtoken(school_id) do
       modified_key = Application.get_env(:flight, :webtoken_key) <> "_" <> to_string(school_id)
       Flight.Webtoken.encrypt(modified_key)
+    end
+    def logout_from_lms(user_id) do
+        Logger.info fn -> "user_id: #{inspect user_id}" end
+        url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/user_mgt.php?action=logout&userid="<> to_string(user_id)
+        Logger.info fn -> "url: #{inspect url}" end
+        courses = case HTTPoison.get(url) do
+            {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+                case Poison.decode(body) do
+                    {:ok, response} -> response
+                    {:error, error} -> error
+                end
+            {:ok, %HTTPoison.Response{status_code: 404}} ->
+                []
+            {:error, %HTTPoison.Error{reason: reason}} ->
+                Logger.info fn -> "reason: #{inspect reason}" end
+                []
+        end
+
     end
 end
