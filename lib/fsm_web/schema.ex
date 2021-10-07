@@ -15,6 +15,7 @@ defmodule FsmWeb.GraphQL.Schema do
     import_types FsmWeb.GraphQL.Attachments.AttachmentsTypes
     import_types FsmWeb.GraphQL.Aircrafts.InspectionsTypes
     import_types FsmWeb.GraphQL.Tracking.UserLogsTypes
+    import_types FsmWeb.GraphQL.Courses.CoursesTypes
     import_types Absinthe.Plug.Types
     import_types Absinthe.Type.Custom
 
@@ -38,6 +39,7 @@ defmodule FsmWeb.GraphQL.Schema do
       import_fields :attachments_queries
       import_fields :inspections_queries
       import_fields :user_logs_queries
+      import_fields :courses_queries
     end
   
     mutation do
@@ -65,4 +67,3 @@ defmodule FsmWeb.GraphQL.Schema do
     #   middleware
     # end
   end
-  

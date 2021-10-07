@@ -22,8 +22,8 @@
         <%= for course <- @courses do %>
         <div class="col-sm-3">
             <div class="card">
-                <%= if course["img_url"] != "" do %>
-                <img class="card-img-top" src="<%= course["img_url"] %>"
+                <%= if course.img_url != "" do %>
+                <img class="card-img-top" src="<%= course.img_url %>"
                      alt="Course image">
                 <% else %>
                 <img class="card-img-top" src="<%= static_path(@conn, "/images/course_placeholder.png") %>"
@@ -32,17 +32,17 @@
 
                 <div class="card-body">
 
-                    <h5 class="card-title"><%= course["coursename"]%></h5>
-                    <p class="card-text"> <%= truncate String.trim(HtmlSanitizeEx.strip_tags(course["summary"])), length: 100 %></p>
-                    <%= if !@is_admin and  !course["isPaid"] do %>
-                    <%= if course["price"] == 0 do %>
+                    <h5 class="card-title"><%= course.course_name%></h5>
+                    <p class="card-text"> <%= truncate String.trim(HtmlSanitizeEx.strip_tags(course.summary)), length: 100 %></p>
+                    <%= if !@is_admin and  !course.is_paid do %>
+                    <%= if course.price == 0 do %>
                     <span class="btn btn-primary" >Free</span>
                     <% else %>
-                    <a href="/billing/invoices/new?course_id=<%= course["id"] %>" class="btn btn-primary">$<%= course["price"] %> Buy Now</a>
+                    <a href="/billing/invoices/new?course_id=<%= course.id %>" class="btn btn-primary">$<%= course.price %> Buy Now</a>
                      <% end %>
                     <% end %>
-                    <%= if course["isPaid"] or course["price"] == 0 or @is_admin do %>
-                    <a href="<%= @login_url <> Base.encode64(to_string(course["id"])) %>"
+                    <%= if course.is_paid or course.price == 0 or @is_admin do %>
+                    <a href="<%= @login_url <> Base.encode64(to_string(course.id)) %>"
                        class="btn btn-success">Open</a>
                     <% end %>
                 </div>

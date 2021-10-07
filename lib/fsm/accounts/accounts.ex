@@ -129,14 +129,14 @@ defmodule Fsm.Accounts do
 
   def get_user(id) do
     user_map = AccountsQueries.get_user_query(id) |> Repo.one()
-    
+
     if is_nil(user_map) do
       nil
-    else 
+    else
       user = Map.get(user_map, :user)
         |> Repo.preload([:school])
         |> set_custom_school_name()
-      
+
       Map.put(user_map, :user, user)
     end
   end
