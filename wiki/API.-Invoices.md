@@ -544,7 +544,8 @@ Example response:
     ["cc", 1],
     ["cash", 2],
     ["cheque", 3],
-    ["venmo", 4]
+    ["venmo", 4],
+    ["fund", 5]
   ]
 }
 ```

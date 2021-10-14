@@ -75,7 +75,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
 
   # TYPES
   # Enum
-  enum(:payment_options, values: [:balance, :cc, :cash, :cheque, :venmo])
+  enum(:payment_options, values: [:balance, :cc, :cash, :cheque, :venmo, :fund])
   enum(:status, values: [:paid, :pending, :failed])
   # balance: 0, cc: 1, cash: 2, cheque: 3,venmo: 4
 
