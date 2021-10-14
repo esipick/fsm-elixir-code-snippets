@@ -8,7 +8,8 @@ defenum(
   cc: 1,
   cash: 2,
   cheque: 3,
-  venmo: 4
+  venmo: 4,
+  fund: 5
 )
 
 defenum(
@@ -18,7 +19,8 @@ defenum(
   instructor: 2,
   discount: 3,
   room: 4,
-  course: 5
+  course: 5,
+  fund: 6
 )
 
 defenum(AppointmentStatusEnum, pending: 0, paid: 1)

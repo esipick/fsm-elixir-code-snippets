@@ -134,7 +134,7 @@ defmodule FlightWeb.Admin.UserController do
   def add_funds(conn, %{"amount" => amount, "description" => description}) do
     with {:ok, cent_amount} <- Billing.parse_amount(amount),
          {:ok, {user, transaction}} <-
-           Billing.add_funds_by_credit(
+          Fsm.Billing.add_funds_by_credit(
              conn.assigns.requested_user,
              conn.assigns.current_user,
              cent_amount,

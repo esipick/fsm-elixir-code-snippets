@@ -404,77 +404,111 @@ defmodule Fsm.Billing do
         {"debit", "remove_funds"}
       end
 
-    {:ok, result} = Repo.transaction(fn ->
-      transaction =
-        %Transaction{}
-        |> SchoolScope.school_changeset(user)
-        |> Transaction.changeset(
-          %{
-            user_id: user.id,
-            creator_user_id: creator_user.id,
-            completed_at: NaiveDateTime.utc_now(),
-            state: "completed",
-            type: transaction_type,
-            total: abs(amount)
-          }
-          |> Pipe.pass_unless(
-            transaction_type == "debit",
-            &Map.put(&1, :paid_by_balance, abs(amount))
-          )
-        )
-        |> Repo.insert!()
-
-      line_item =
-        %TransactionLineItem{}
-        |> TransactionLineItem.changeset(%{
-          transaction_id: transaction.id,
-          type: line_item_type,
+    create_invoice_item = %{
+      user_id: user.id,
+      date: Date.utc_today(),
+      is_visible: true,
+      line_items: [
+        %{
+          amount: abs(amount),
           description: description,
-          amount: abs(amount)
-        })
-        |> Repo.insert!()
+          quantity: 1.00,
+          rate: abs(amount),
+          taxable: false,
+          type: :fund,
+          aircraft_id: nil,
+          deductible: false
+        }
+      ],
+      payment_option: :fund,
+      status: :paid,
+      tax_rate: 0,
+      total: abs(amount),
+      total_amount_due: 0,
+      total_tax: 0
+    }
 
-      case update_balance(user, amount) do
-        {:ok, user} ->
-          transaction = %{transaction | line_items: [line_item]}
+    invoice_resp = create_invoice(create_invoice_item, true, user.school_id, creator_user.id)
 
-          {:ok, {user, transaction}}
-
-        other ->
-          other
-      end
-    end)   
-
-    case result do
-      {:ok, {_, transaction}} ->
-        Mondo.Task.start(fn ->
+    case invoice_resp do
+      {:ok, invoice} ->
+        {:ok, result} = Repo.transaction(fn ->
           transaction =
-            transaction
-            |> Repo.preload([:user])
-
-          notification =
-            if transaction.type == "credit" do
-              Flight.PushNotifications.funds_added_notification(
-                transaction.user,
-                creator_user,
-                transaction
+            %Transaction{}
+            |> SchoolScope.school_changeset(user)
+            |> Transaction.changeset(
+              %{
+                user_id: user.id,
+                creator_user_id: creator_user.id,
+                completed_at: NaiveDateTime.utc_now(),
+                state: "completed",
+                type: transaction_type,
+                total: abs(amount),
+                invoice_id: invoice.id,
+                payment_option: :fund
+              }
+              |> Pipe.pass_unless(
+                transaction_type == "debit",
+                &Map.put(&1, :paid_by_balance, abs(amount))
               )
-            else
-              Flight.PushNotifications.funds_removed_notification(
-                transaction.user,
-                creator_user,
-                transaction
-              )
-            end
-
-          Mondo.PushService.publish(notification)
+            )
+            |> Repo.insert!()
+    
+          line_item =
+            %TransactionLineItem{}
+            |> TransactionLineItem.changeset(%{
+              transaction_id: transaction.id,
+              type: line_item_type,
+              description: description,
+              amount: abs(amount)
+            })
+            |> Repo.insert!()
+    
+          case update_balance(user, amount) do
+            {:ok, user} ->
+              transaction = %{transaction | line_items: [line_item]}
+    
+              {:ok, {user, transaction}}
+    
+            other ->
+              other
+          end
+    
         end)
-
-      _ ->
-        :nothing
+    
+        case result do
+          {:ok, {_, transaction}} ->
+            Mondo.Task.start(fn ->
+              transaction =
+                transaction
+                |> Repo.preload([:user])
+    
+              notification =
+                if transaction.type == "credit" do
+                  Flight.PushNotifications.funds_added_notification(
+                    transaction.user,
+                    creator_user,
+                    transaction
+                  )
+                else
+                  Flight.PushNotifications.funds_removed_notification(
+                    transaction.user,
+                    creator_user,
+                    transaction
+                  )
+                end
+    
+              Mondo.PushService.publish(notification)
+            end)
+    
+          _ ->
+            :nothing
+        end
+        result
+      {:error, invoice} ->
+        {:error, :invalid}
     end
 
-    result
   end
 
   def add_funds_by_credit(_, _, _, _) do
