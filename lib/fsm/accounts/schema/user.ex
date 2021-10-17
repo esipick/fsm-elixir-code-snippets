@@ -7,7 +7,7 @@ defmodule Fsm.Accounts.User do
     alias __MODULE__
     alias Fsm.AvatarUploader
   
-    @avatar_size 5_000_000
+    @avatar_size 5_242_880
   
     schema "users" do
       field(:email, :string)

@@ -39,7 +39,7 @@ defmodule Fsm.Schema.Document do
     defp validate_file_size(document, %{"file" => file}) do
       {:ok, %{size: size}} = File.stat(file.path)
   
-      file_size = Application.get_env(:flight, :file_size, 5_000_000)
+      file_size = Application.get_env(:flight, :file_size, 5_242_880)
       human_size = Size.humanize!(file_size, spacer: "")
   
       case size > file_size do
