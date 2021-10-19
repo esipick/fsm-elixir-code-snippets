@@ -20,5 +20,11 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def get_courses(_parent, _args, _context), do: @not_authenticated
 
+    def get_course(_parent, %{id: course_id}, %{context: %{current_user: current_user}}) do
+      course = Flight.General.get_course_detail(current_user, course_id)
+      Logger.info fn -> "course: #{inspect course}" end
+      {:ok, course}
+    end
 
+    def get_course(_parent, _args, _context), do: @not_authenticated
 end
