@@ -1,22 +1,152 @@
 defmodule Flight.Course do
-  defstruct [:id ,:course_name,:start_date ,:summary ,:end_date ,:sort_order ,:is_paid ,:price,:img_url]
+  defstruct [
+    :id,
+    :course_name,
+    :start_date,
+    :summary,
+    :end_date,
+    :sort_order,
+    :is_paid,
+    :price,
+    :img_url
+  ]
+  @keys ~w(id course_name start_date summary end_date sort_order is_paid price img_url)
+  def decode(%{} = map) do
+    map
+    |> Map.take(@keys)
+    |> Enum.map(fn({k, v}) -> {String.to_existing_atom(k), v} end)
+    |> Enum.map(&decode/1)
+    |> fn(data) -> struct(__MODULE__, data) end.()
+  end
+
+  def decode({k, v}), do: {k, v}
 end
 
 
 defmodule Flight.ChecklistObjective do
-  defstruct [:objective_id ,:name,:comment, :remarks]
+  defstruct [
+    :objective_id,
+    :name,
+    :comment,
+    :remarks
+  ]
+  @keys ~w(objective_id name comment remarks)
+  def decode(%{} = map) do
+    map
+    |> Map.take(@keys)
+    |> Enum.map(fn({k, v}) -> {String.to_existing_atom(k), v} end)
+    |> Enum.map(&decode/1)
+    |> fn(data) -> struct(__MODULE__, data) end.()
+  end
+
+  def decode({k, v}), do: {k, v}
 end
+
 defmodule Flight.Checklist do
-  defstruct [:id ,:name, checklist_objectives: [%Flight.ChecklistObjective{}]]
+  defstruct [
+    :id,
+    :name,
+    checklist_objectives: [%Flight.ChecklistObjective{}]
+  ]
+
+  @keys ~w(id name checklist_objectives)
+  def decode(%{} = map) do
+    map
+    |> Map.take(@keys)
+    |> Enum.map(fn({k, v}) -> {String.to_existing_atom(k), v} end)
+    |> Enum.map(&decode/1)
+    |> fn(data) -> struct(__MODULE__, data) end.()
+  end
+
+  def decode({:checklist_objectives, objectives}) when is_list(objectives) do
+    {:checklist_objectives, Enum.map(objectives, &Flight.ChecklistObjective.decode/1)}
+  end
+  def decode({k, v}), do: {k, v}
+
 end
+
 defmodule Flight.Lesson do
-  defstruct [:id ,:visible,:summary ,:summaryformat, :section,:uservisible, :visited, :last_visit_datetime, :completed, checklists: [%Flight.Checklist{}]]
+  defstruct [
+    :id,
+    :visible,
+    :summary,
+    :summaryformat,
+    :section,
+    :uservisible,
+    :visited,
+    :last_visit_datetime,
+    :completed,
+    checklists: [%Flight.Checklist{}]
+  ]
+
+  @keys ~w(id visible summary summaryformat section uservisible visited last_visit_datetime completed checklists)
+  def decode(%{} = map) do
+    map
+    |> Map.take(@keys)
+    |> Enum.map(fn({k, v}) -> {String.to_existing_atom(k), v} end)
+    |> Enum.map(&decode/1)
+    |> fn(data) -> struct(__MODULE__, data) end.()
+  end
+
+  def decode({:checklists, checklists}) when is_list(checklists) do
+    {:checklists, Enum.map(checklists, &Flight.Checklist.decode/1)}
+  end
+
+  def decode({k, v}), do: {k, v}
 end
+
 defmodule Flight.CourseParticipant do
-  defstruct [:user_id ,:first_name,:last_name ,lessons: [%Flight.Lesson{}]]
+  defstruct [
+    :user_id,
+    :first_name,
+    :last_name,
+    lessons: [%Flight.Lesson{}]
+  ]
+
+  @keys ~w(user_id first_name last_name lessons)
+  def decode(%{} = map) do
+    map 
+    |> Map.take(@keys)
+    |> Enum.map(fn({k, v}) -> {String.to_existing_atom(k), v} end)
+    |> Enum.map(&decode/1)
+    |> fn(data) -> struct(__MODULE__, data) end.()
+  end
+
+  def decode({:lessons, lessons}) when is_list(lessons) do
+    {:lessons, Enum.map(lessons, &Flight.Lesson.decode/1)}
+  end
+
+  def decode({k, v}), do: {k, v}
 end
+
 defmodule Flight.CourseDetail do
-  defstruct [:id ,:course_name,:start_date ,:summary ,:end_date ,:sort_order ,:is_paid ,:price,:image_url,participants: [%Flight.CourseParticipant{}]]
+  defstruct [
+    :id,
+    :course_name,
+    :start_date,
+    :summary,
+    :end_date,
+    :sort_order,
+    :is_paid,
+    :price,
+    :image_url,
+    participants: [%Flight.CourseParticipant{}]
+  ]
+
+  @keys ~w(id course_name start_date summary end_date sort_order is_paid price image_url participants)
+  def decode(%{} = map) do
+    map
+    |> Map.take(@keys)
+    |> Enum.map(fn({k, v}) -> {String.to_existing_atom(k), v} end)
+    |> Enum.map(&decode/1)
+    |> fn(data) -> struct(__MODULE__, data) end.()
+  end
+
+  def decode({:participants, participants}) when is_list(participants) do
+    {:participants, Enum.map(participants, &Flight.CourseParticipant.decode/1)}
+  end
+
+  def decode({k, v}), do: {k, v}
 end
 
 
@@ -105,50 +235,16 @@ defmodule Flight.General do
       "webtoken": "amgE48/4ft/3zwKw0nwwbPoE8zep5s5OeX+9bRpGYY4=",
       "courseid": course_id
     })
+    
     Logger.info fn -> "postBody: #{inspect postBody}" end
+
     course = case HTTPoison.post(url,postBody) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        Logger.info fn -> "body: #{inspect body}" end
-#        Logger.info fn -> "Poison.decode!(body, as: [%Bear{}]): #{inspect Poison.decode!(body, as: %Flight.CourseDetail{})}" end
 
         case Poison.decode(body) do
           {:ok, course} ->
-
-            participants  = Map.get(course, "participants")
-
-            participants =  Enum.map participants, fn(participant) ->
-              lessons = Map.get(participant, "lessons")
-              lessons = Enum.map lessons, fn(lesson) ->
-                      lesson = Map.new lesson, fn({key, value}) ->
-                        {String.to_atom(key), value}
-                      end
-                      struct(Flight.Lesson, lesson)
-              end
-
-                            #participant = participant
-                             #             |> Map.put("lessons", lessons)
-              Logger.info fn -> "lessons----------------------: #{inspect lessons}" end
-
-              participant = Map.new participant, fn({key, value}) ->
-                {String.to_atom(key), value}
-              end
-
-              struct(Flight.CourseParticipant, participant)
-            end
-
-
-
-            %Flight.CourseDetail{
-              id: Map.get(course, "id"),
-              sort_order: Map.get(course, "sort_order"),
-              course_name: Map.get(course, "course_name"),
-              start_date: Map.get(course, "start_date"),
-              end_date: Map.get(course, "end_date"),
-              summary: Map.get(course, "summary"),
-              price: Map.get(course, "price"),
-              image_url: Map.get(course, "image_url"),
-              participants: participants,
-            }
+            Logger.info fn -> "postBody: #{inspect Flight.CourseDetail.decode(course)}" end
+            Flight.CourseDetail.decode(course)
           {:error, error} -> error
         end
       {:ok, %HTTPoison.Response{status_code: 404}} ->
@@ -165,5 +261,3 @@ defmodule Flight.General do
     Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/user_mgt.php?action=login&webtoken=" <> encodedWebtoken <> "&email=" <> current_user.email <> "&username=" <> current_user.email <> "&userid=" <> to_string(current_user.id) <> "&role=catmanager&firstname=" <> current_user.first_name <> "&lastname=" <> current_user.last_name <> "&courseid="
   end
 end
-
-
