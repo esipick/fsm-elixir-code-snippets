@@ -21,7 +21,19 @@ defmodule Flight.Course do
 
   def decode({k, v}), do: {k, v}
 end
+defmodule Flight.LessonResult do
+  defstruct [
+    :percentage,
+    :ratio
+  ]
+end
 
+defmodule Flight.CourseResult do
+  defstruct [
+    :percentage,
+    :ratio
+  ]
+end
 
 defmodule Flight.ChecklistObjective do
   defstruct [
@@ -245,6 +257,105 @@ defmodule Flight.General do
           {:ok, course} ->
             Logger.info fn -> "postBody: #{inspect Flight.CourseDetail.decode(course)}" end
             Flight.CourseDetail.decode(course)
+          {:error, error} -> error
+        end
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        []
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.info fn -> "reason: #{inspect reason}" end
+        []
+    end
+  end
+
+  def get_cumulative_results_lesson_level(current_user, course_id, lesson_id)do
+    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
+    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+    postBody = Poison.encode!(%{
+      "action": "cumulative_results_lesson_level",
+      "webtoken": "amgE48/4ft/3zwKw0nwwbPoE8zep5s5OeX+9bRpGYY4=",
+      "courseid": course_id,
+      "lessonid": lesson_id,
+      "userid": 9 #current_user.id
+    })
+
+    Logger.info fn -> "postBody: #{inspect postBody}" end
+
+    course = case HTTPoison.post(url,postBody) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+
+        case Poison.decode(body) do
+          {:ok, result} ->
+            Logger.info fn -> "result: #{inspect result}" end
+            %Flight.LessonResult{
+              ratio: Map.get(result, "ratio"),
+              percentage: Map.get(result, "percentage"),
+            }
+          {:error, error} -> error
+        end
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        []
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.info fn -> "reason: #{inspect reason}" end
+        []
+    end
+  end
+
+  def cumulative_results_course_level(current_user, course_id)do
+    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
+    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+    postBody = Poison.encode!(%{
+      "action": "cumulative_results_course_level",
+      "webtoken": "amgE48/4ft/3zwKw0nwwbPoE8zep5s5OeX+9bRpGYY4=",
+      "courseid": course_id,
+      "userid": 9 #current_user.id
+    })
+
+    Logger.info fn -> "postBody: #{inspect postBody}" end
+
+    course = case HTTPoison.post(url,postBody) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+
+        case Poison.decode(body) do
+          {:ok, result} ->
+            Logger.info fn -> "result: #{inspect result}" end
+            %Flight.CourseResult{
+              ratio: Map.get(result, "ratio"),
+              percentage: Map.get(result, "percentage"),
+            }
+          {:error, error} -> error
+        end
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        []
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.info fn -> "reason: #{inspect reason}" end
+        []
+    end
+  end
+
+  def checklist_objective_remarks(current_user, course_id,course_module_id, item_id)do
+    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
+    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+    postBody = Poison.encode!(%{
+      "action": "cumulative_results_course_level",
+      "webtoken": "amgE48/4ft/3zwKw0nwwbPoE8zep5s5OeX+9bRpGYY4=",
+      "courseid": course_id,
+      "coursemoduleid": course_module_id,
+      "itemid": item_id,
+      "userid": 9 #current_user.id
+    })
+
+    Logger.info fn -> "postBody: #{inspect postBody}" end
+
+    course = case HTTPoison.post(url,postBody) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+
+        case Poison.decode(body) do
+          {:ok, result} ->
+            Logger.info fn -> "result: #{inspect result}" end
+            %Flight.CourseResult{
+              ratio: Map.get(result, "ratio"),
+              percentage: Map.get(result, "percentage"),
+            }
           {:error, error} -> error
         end
       {:ok, %HTTPoison.Response{status_code: 404}} ->

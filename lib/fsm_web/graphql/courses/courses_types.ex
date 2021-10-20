@@ -15,8 +15,37 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
             arg :id, non_null(:id)
             resolve &CoursesResolvers.get_course/3
         end
+        @desc "Get Cumulative Results_lesson_level"
+        field :get_cumulative_results_lesson_level, :cumulative_results_lesson_level do
+            arg :course_id, non_null(:id)
+            arg :lesson_id, non_null(:id)
+            resolve &CoursesResolvers.get_cumulative_results_lesson_level/3
+        end
+        @desc "Get Cumulative Results_course_level"
+        field :get_cumulative_results_course_level, :cumulative_results_course_level do
+            arg :course_id, non_null(:id)
+            resolve &CoursesResolvers.cumulative_results_course_level/3
+        end
+
     end
-    # Types
+    object :courses_mutations do
+        @desc "Insert Checklist Objective Remarks"
+        field :checklist_objective_remarks, :checklist_objective_remarks do
+            arg :course_id, non_null(:id)
+            arg :course_module_id, non_null(:id)
+            arg :item_id, non_null(:id)
+            resolve &CoursesResolvers.checklist_objective_remarks/3
+        end
+    end
+        # Types
+    object :cumulative_results_course_level do
+        field :ratio, :string
+        field :percentage, :string
+    end
+    object :cumulative_results_lesson_level do
+        field :ratio, :string
+        field :percentage, :string
+    end
     object :course do
         field :id, :integer
         field :course_name, :string
@@ -41,14 +70,12 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field :participants, list_of(:participant)
 
     end
-
     object :participant do
         field :user_id, :integer
         field :first_name, :string
         field :last_name, :string
         field :lessons, list_of(:lesson)
     end
-
     object :lesson do
         field :id, :integer
         field :visible, :integer
@@ -61,13 +88,11 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field :completed, :boolean
         field :checklists, list_of(:checklist)
     end
-
     object :checklist do
         field :id, :integer
         field :name, :string
         field :checklist_objectives, list_of(:checklist_objective)
     end
-
     object :checklist_objective do
         field :objective_id, :integer
         field :name, :string
@@ -75,7 +100,6 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field :remarks, :string
 
     end
-
     object :course_data do
         field :courses, list_of(:course)
     end

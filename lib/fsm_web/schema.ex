@@ -56,6 +56,7 @@ defmodule FsmWeb.GraphQL.Schema do
       import_fields :attachments_mutations
       import_fields :inspections_mutations
       import_fields :user_logs_mutations
+      import_fields :courses_mutations
     end
   
     # # exectute changeset error middleware for each mutation
