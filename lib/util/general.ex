@@ -244,7 +244,7 @@ defmodule Flight.General do
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
       "action": "get_course_structure",
-      "webtoken": "amgE48/4ft/3zwKw0nwwbPoE8zep5s5OeX+9bRpGYY4=",
+      "webtoken": webtoken,
       "courseid": course_id
     })
     
@@ -272,7 +272,7 @@ defmodule Flight.General do
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
       "action": "cumulative_results_lesson_level",
-      "webtoken": "amgE48/4ft/3zwKw0nwwbPoE8zep5s5OeX+9bRpGYY4=",
+      "webtoken": webtoken,
       "courseid": course_id,
       "lessonid": lesson_id,
       "userid": 9 #current_user.id
@@ -305,9 +305,9 @@ defmodule Flight.General do
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
       "action": "cumulative_results_course_level",
-      "webtoken": "amgE48/4ft/3zwKw0nwwbPoE8zep5s5OeX+9bRpGYY4=",
+      "webtoken": webtoken,
       "courseid": course_id,
-      "userid": 9 #current_user.id
+      "userid": current_user.id #current_user.id
     })
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
@@ -337,11 +337,11 @@ defmodule Flight.General do
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
       "action": "cumulative_results_course_level",
-      "webtoken": "amgE48/4ft/3zwKw0nwwbPoE8zep5s5OeX+9bRpGYY4=",
+      "webtoken": current_user,
       "courseid": course_id,
       "coursemoduleid": course_module_id,
       "itemid": item_id,
-      "userid": 9 #current_user.id
+      "userid": current_user.id
     })
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
