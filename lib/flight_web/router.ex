@@ -153,6 +153,7 @@ defmodule FlightWeb.Router do
       :complete_onboarding])
     get("/list", CourseController, :index)
     get("/participants", CourseController, :participants)
+    get("/participant/info", CourseController, :participant_info)
   end
 
   scope("/billing", FlightWeb.Billing, as: :billing) do

@@ -75,4 +75,11 @@ defmodule FlightWeb.Course.CourseController do
     )
   end
 
+  def participant_info(conn, _) do
+    render(
+      conn,
+      "participant_info.html"
+    )
+  end
+
 end
