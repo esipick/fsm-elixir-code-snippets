@@ -144,14 +144,17 @@ defmodule FlightWeb.Router do
       put("/update_card", StudentController, :update_card)
     end
   end
+  
   scope("/course", FlightWeb.Course, as: :course) do
-    pipe_through([  :browser,
+    pipe_through([ :browser,
       :admin_layout,
       :web_user_authenticate,
       :admin_metrics_namespace,
       :complete_onboarding])
     get("/list", CourseController, :index)
+    get("/participants", CourseController, :participants)
   end
+
   scope("/billing", FlightWeb.Billing, as: :billing) do
     pipe_through([
       :browser,
