@@ -38,6 +38,10 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         end
     end
         # Types
+    object :checklist_objective_remarks do
+        field :ratio, :string
+        field :percentage, :string
+    end
     object :cumulative_results_course_level do
         field :ratio, :string
         field :percentage, :string
