@@ -25,7 +25,7 @@
                                                 <p class="text-primary font-weight-bold title"><%=participant.progress%>%</p>
                                             </div>
                                             <div class="col-sm-6">
-                                                <p><%=participant.date%></p>
+                                                <p class="text-secondary"><%=participant.date%></p>
                                             </div>
                                         </div>
                                     </div>
