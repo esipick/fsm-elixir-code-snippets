@@ -32,15 +32,16 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         @desc "Insert Checklist Objective Remarks"
         field :checklist_objective_remarks, :checklist_objective_remarks do
             arg :course_id, non_null(:id)
-            arg :course_module_id, non_null(:id)
+            arg :teacher_mark, non_null(:id)
             arg :item_id, non_null(:id)
+            arg :comment, :string
             resolve &CoursesResolvers.checklist_objective_remarks/3
         end
     end
         # Types
     object :checklist_objective_remarks do
-        field :ratio, :string
-        field :percentage, :string
+        field :status, :string
+        field :message, :string
     end
     object :cumulative_results_course_level do
         field :ratio, :string

@@ -35,6 +35,13 @@ defmodule Flight.CourseResult do
   ]
 end
 
+defmodule Flight.ApiResult do
+  defstruct [
+    :status,
+    :message
+  ]
+end
+
 defmodule Flight.ChecklistObjective do
   defstruct [
     :objective_id,
@@ -332,14 +339,15 @@ defmodule Flight.General do
     end
   end
 
-  def checklist_objective_remarks(current_user, course_id,course_module_id, item_id)do
+  def checklist_objective_remarks(current_user, course_id, teacher_mark, item_id,comment)do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
-      "action": "cumulative_results_course_level",
-      "webtoken": current_user,
+      "action": "insert_checklist_objective_remarks",
+      "webtoken": webtoken,
       "courseid": course_id,
-      "coursemoduleid": course_module_id,
+      "teachermark": teacher_mark,
+      "comment": comment,
       "itemid": item_id,
       "userid": current_user.id
     })
@@ -352,9 +360,9 @@ defmodule Flight.General do
         case Poison.decode(body) do
           {:ok, result} ->
             Logger.info fn -> "result: #{inspect result}" end
-            %Flight.CourseResult{
-              ratio: Map.get(result, "ratio"),
-              percentage: Map.get(result, "percentage"),
+            %Flight.ApiResult{
+              status: Map.get(result, "status"),
+              message: Map.get(result, "message"),
             }
           {:error, error} -> error
         end
