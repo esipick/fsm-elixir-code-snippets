@@ -1,0 +1,42 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h6 class="title back-link"><a href="/course/list">< Back to Courses</a></h6>
+  </div>
+</div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header d-flex flex-column">
+            <%= for participants_chunk <- @participants do %>
+                <div class="row">
+                   <%= for participant <- participants_chunk do %>
+                        <div class="col-sm-4">
+                            <a href="/course/participant/info?id=<%=participant.id%>">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title text text-secondary"><%= participant.name%></h5>
+                                        <div class="progress" style="height: 2px;">
+                                            <div class="progress-bar" role="progressbar" style="width: <%=participant.progress%>%;" aria-valuenow="<%=participant.progress%>" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-sm-6">
+                                                <p class="text-primary font-weight-bold title"><%=participant.progress%>%</p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p class="text-secondary"><%=participant.date%></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                   <% end %>
+                </div>
+            <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
