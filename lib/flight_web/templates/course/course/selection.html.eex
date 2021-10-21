@@ -1,0 +1,70 @@
+<div class="panel-header">
+</div>
+
+<style>
+    .chevron-up {
+        width: 20px;
+        height: 20px;
+        margin: 2px;
+    }
+     .chevron-down {
+        width: 20px;
+        height: 20px;
+        margin-right: 4px;
+    }
+</style>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header d-flex flex-column">
+            <%= for selection <- @selections do %>
+                <div id="accordion">
+                    <div class="row my-2">
+                        <div class="col-md-12 border-secondary border-bottom">
+                            <h3><%=selection.name%> <span class="text-primary h-5"><%= selection.completion%> </span></h3>
+                        </div>
+                    </div>
+                    <%= for activity <- selection.activities do %>
+                        <div class="border-secondary border-bottom">
+                            <div class="py-4 mx-3">
+                                <div class="row ml-0 d-flex flex-row justify-content-between">
+                                    <div class="row" style="cursor: pointer;" id="heading<%=selection.id%>-<%=activity.id%>" data-toggle="collapse" data-target="#collapse<%=selection.id%>-<%=activity.id%>" aria-expanded="true" aria-controls="collapse<%=selection.id%>-<%=activity.id%>">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="text-secondary chevron-up d-none" fill="none"  viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                            </svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="text-secondary chevron-down" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                            <h5 class="mb-0 text-dark">
+                                                <%=activity.title%>
+                                            </h5>
+                                    </div>
+                                    <div class="h5">Satisfied / Unsatisfied</div>
+                                </div>
+                                <div id="collapse<%=selection.id%>-<%=activity.id%>" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                                    <div class="card-body ml-1">
+                                        <%=activity.body%>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% end %>
+                </div>
+            <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    $('').on('show.bs.collapse', function () {
+        $(this).siblings('').addClass('active');
+    });
+
+    $('').on('hide.bs.collapse', function () {
+        $(this).siblings('').removeClass('active');
+    });
+</script>

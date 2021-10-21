@@ -82,4 +82,66 @@ defmodule FlightWeb.Course.CourseController do
     )
   end
 
+  def selection(conn, _) do
+
+    selections = [
+      %{
+        id: 1,
+        name: "Pre-Flight Lesson",
+        completion: "9/10",
+        activities: [
+          %{
+            id: 1,
+            title: "Direction",
+            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            satisfied: false
+          },
+          %{
+            id: 2,
+            title: "Management",
+            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            satisfied: true
+          },
+          %{
+            id: 3,
+            title: "Decision Making",
+            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            satisfied: false
+          },
+          %{
+            id: 4,
+            title: "Hand Reponsibilities",
+            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            satisfied: true
+          },
+          %{
+            id: 5,
+            title: "Airplane Stability",
+            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            satisfied: false
+          }
+        ]
+      },
+      %{
+        id: 2,
+        name: "Flight Review",
+        completion: "0/40",
+        activities: [
+          %{
+            id: 1,
+            title: "Normal Take Off And Landing",
+            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            satisfied: false
+          }
+        ]
+      }
+    ]
+
+    render(
+      conn,
+      "selection.html",
+      selections: selections
+    )
+  end
+
 end
