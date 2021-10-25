@@ -77,33 +77,74 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
     end
     object :participant do
         field :user_id, :integer
+        field :fsm_user_id, :string
         field :first_name, :string
         field :last_name, :string
+        field :course_completed, :boolean
+        field :completed_lessons, :integer
+        field :total_lessons, :integer
+        field :total_lessons_completed, :float
         field :lessons, list_of(:lesson)
     end
     object :lesson do
         field :id, :integer
-        field :visible, :integer
+        field :name, :string
         field :summary, :string
-        field :summaryformat, :integer
+        field :lesson_completed, :boolean
+        field :completed_sub_lessons, :integer
+        field :total_sub_lessons, :integer
+        field :sub_lessons, list_of(:sub_lesson)
+    end
+    object :sub_lesson do
+        field :id, :integer
+        field :visible, :integer
+        field :sub_lessontype, :string
+        field :summaryformat, :string
         field :section, :integer
         field :uservisible, :boolean
         field :visited, :boolean
         field :last_visit_datetime, :string
-        field :completed, :boolean
-        field :checklists, list_of(:checklist)
-    end
-    object :checklist do
-        field :id, :integer
-        field :name, :string
-        field :checklist_objectives, list_of(:checklist_objective)
-    end
-    object :checklist_objective do
-        field :objective_id, :integer
-        field :name, :string
-        field :comment, :string
+        field :sub_lesson_completed, :boolean
+        field :completed_modules, :integer
+        field :total_modules, :integer
+        field :notes, :string
         field :remarks, :string
+        field :modules, list_of(:module)
+    end
+    object :module do
+        field :id, :integer
+        field :url, :string
+        field :name, :string
+        field :instance, :integer
+        field :contextid, :integer
+        field :visible, :integer
+        field :uservisible, :boolean
+        field :visibleoncoursepage, :integer
+        field :modicon, :string
+        field :modname, :string
+        field :modplural, :string
+        field :availability, :string
+        field :indent, :integer
+        field :onclick, :string
+        field :afterlink, :string
+        field :customdata, :string
+        field :noviewlink, :boolean
+        field :completion, :integer
+        field :contents, list_of(:content)
+    end
 
+    object :content do
+        field :type, :string
+        field :filename, :string
+        field :filepath, :string
+        field :filesize, :integer
+        field :fileurl, :string
+        field :timecreated, :integer
+        field :timemodified, :integer
+        field :sortorder, :integer
+        field :userid, :string
+        field :author, :string
+        field :license, :string
     end
     object :course_data do
         field :courses, list_of(:course)

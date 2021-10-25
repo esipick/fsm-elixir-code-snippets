@@ -152,9 +152,9 @@ defmodule FlightWeb.Router do
       :admin_metrics_namespace,
       :complete_onboarding])
     get("/list", CourseController, :index)
-    get("/participants", CourseController, :participants)
+    get("/participants/:course_id", CourseController, :participants)
     get("/participant/info", CourseController, :participant_info)
-    get("/selection", CourseController, :selection)
+    get("/selection/:course_id/:user_id", CourseController, :selection)
   end
 
   scope("/billing", FlightWeb.Billing, as: :billing) do

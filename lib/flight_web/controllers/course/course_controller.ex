@@ -30,48 +30,13 @@ defmodule FlightWeb.Course.CourseController do
     )
   end
 
-  def participants(conn, _) do
-    course_participants = [
-      [
-        %{
-          id: 1,
-          name: "Charlie Brown",
-          progress: 37,
-          date: "Nov. 14 3:45pm"
-        },
-        %{
-          id: 2,
-          name: "Jim Halpert",
-          progress: 22,
-          date: "Nov. 14 4:45pm"
-        },
-        %{
-          id: 3,
-          name: "Jim Halpert",
-          progress: 70,
-          date: "Nov. 14 4:05pm"
-        }
-      ],
-      [
-        %{
-          id: 4,
-          name: "Jim Halpert",
-          progress: 0,
-          date: "Dec. 14 1:00pm"
-        },
-        %{
-          id: 5,
-          name: "Jim Halpert",
-          progress: 50,
-          date: "Nov. 14 4:45pm"
-        }
-      ]
-    ]
-  
+  def participants(%{assigns: %{current_user: current_user}} = conn, %{"course_id" => course_id}) do
+    course_details = Flight.General.get_course_detail(current_user, course_id)
+    Logger.info fn -> "course_details: #{inspect course_details}" end
     render(
      conn,
     "participants.html",
-     participants: course_participants
+    course_details: course_details
     )
   end
 
@@ -82,65 +47,13 @@ defmodule FlightWeb.Course.CourseController do
     )
   end
 
-  def selection(conn, _) do
-
-    selections = [
-      %{
-        id: 1,
-        name: "Pre-Flight Lesson",
-        completion: "9/10",
-        activities: [
-          %{
-            id: 1,
-            title: "Direction",
-            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            satisfied: false
-          },
-          %{
-            id: 2,
-            title: "Management",
-            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            satisfied: true
-          },
-          %{
-            id: 3,
-            title: "Decision Making",
-            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            satisfied: false
-          },
-          %{
-            id: 4,
-            title: "Hand Reponsibilities",
-            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            satisfied: true
-          },
-          %{
-            id: 5,
-            title: "Airplane Stability",
-            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            satisfied: false
-          }
-        ]
-      },
-      %{
-        id: 2,
-        name: "Flight Review",
-        completion: "0/40",
-        activities: [
-          %{
-            id: 1,
-            title: "Normal Take Off And Landing",
-            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            satisfied: false
-          }
-        ]
-      }
-    ]
-
+  def selection(%{assigns: %{current_user: current_user}} = conn, %{"course_id" => course_id, "user_id" => user_id}) do
+    selections = Flight.General.get_course_lesson(current_user, course_id,user_id)
+    Logger.info fn -> "selections--------------------------------: #{inspect selections.lessons}" end
     render(
       conn,
       "selection.html",
-      selections: selections
+      lessons: selections.lessons
     )
   end
 
