@@ -47,7 +47,12 @@
                                     <div class="card-body ml-1">
                                         <%= if sub_lesson.modules do %>
                                             <%= for module <- sub_lesson.modules do %>
-                                            <p><%=module.name%></p>
+                                            <p><span><img src="<%=module.modicon%>"></span>
+                                                <%= for content <- module.contents do %>
+                                                <a target="_blank" href="<%= content.fileurl%>"> <%=module.name%> </a>
+                                               <% end %>
+
+                                            </p>
                                              <% end %>
                                         <% end %>
                                     </div>
