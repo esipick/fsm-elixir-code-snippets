@@ -14,6 +14,7 @@ defmodule Fsm.Billing do
   alias Fsm.Billing.PaymentError
   alias Fsm.Billing.AircraftLineItemDetail
   alias Flight.Billing.InstructorLineItemDetail
+  alias Fsm.SchoolAssets.Room
 
   alias Flight.Accounts.StripeAccount
   require Logger
@@ -147,6 +148,9 @@ defmodule Fsm.Billing do
         {:ok, nil}
 
       data ->
+
+        IO.inspect data
+
         data =
           Enum.map(data, fn i ->
             transactions =
@@ -211,6 +215,14 @@ defmodule Fsm.Billing do
                 }
               end)
 
+            # coded this logic here to get the room using room_id because of Left Join of Room and Invoice
+            # returning duplicate invoices grouped based on room.id
+            room_line_item = line_items |> Enum.find(fn x -> x.type == 4 end)
+
+            room = if room_line_item do
+              Repo.get(Room, room_line_item.room_id)
+            end
+
             %{
               id: i.id,
               date: i.date,
@@ -233,7 +245,7 @@ defmodule Fsm.Billing do
               line_items: line_items,
               inserted_at: i.inserted_at,
               user: i.user,
-              room: i.room
+              room: room
             }
           end)
 
