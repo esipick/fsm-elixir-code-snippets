@@ -52,7 +52,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field :start_date, :string
         field :summary, :string
         field :end_date, :string
-        field :price, :decimal
+        field :price, :float
         field :is_paid, :boolean
         field :img_url, :string
         field :sort_order, :string
