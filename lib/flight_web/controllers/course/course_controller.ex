@@ -6,7 +6,10 @@ defmodule FlightWeb.Course.CourseController do
   require Logger
 
   def index(%{assigns: %{current_user: current_user}} = conn, _) do
+
     isAdmin =  Authorization.is_admin?(current_user)
+    staff_member =  Authorization.staff_member?(current_user)
+    Logger.info fn -> "staff_member:-----------------------=============================== #{inspect staff_member}" end
     adminLoginUrl =  case  isAdmin do
       true->
         Flight.General.get_lms_admin_login_url(current_user)
@@ -26,7 +29,8 @@ defmodule FlightWeb.Course.CourseController do
       courses: courses,
       login_url: loginUrl,
       admin_login_url: adminLoginUrl,
-      is_admin: isAdmin
+      is_admin: isAdmin,
+      staff_member: staff_member
     )
   end
 

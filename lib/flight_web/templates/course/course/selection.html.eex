@@ -19,6 +19,7 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header d-flex flex-column">
+
             <%= for lesson <- @lessons do %>
                 <div id="accordion">
                     <div class="row my-2">
@@ -30,7 +31,14 @@
                         <div class="border-secondary border-bottom">
                             <div class="py-4 mx-3">
                                 <div class="row ml-0 d-flex flex-row justify-content-between">
-                                    <div class="row" style="cursor: pointer;" id="heading<%=sub_lesson.id%>-<%=sub_lesson.id%>" data-toggle="collapse" data-target="#collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>" aria-expanded="true" aria-controls="collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>">
+                                    <div class="row"
+                                         style="cursor: pointer;"
+                                         id="heading<%=sub_lesson.id%>-<%=sub_lesson.id%>"
+                                         data-toggle="collapse"
+                                         data-target="#collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>"
+                                         aria-expanded="true"
+                                         aria-controls="collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>"
+                                    >
                                             <svg xmlns="http://www.w3.org/2000/svg" class="text-secondary chevron-up d-none" fill="none"  viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
                                             </svg>
@@ -43,7 +51,11 @@
                                     </div>
                                     <div class="h5">Satisfied / Unsatisfied</div>
                                 </div>
-                                <div id="collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                                <div
+                                        id="collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>"
+                                        class="collapse"
+                                        aria-labelledby="headingOne"
+                                        data-parent="#accordion">
                                     <div class="card-body ml-1">
                                         <%= if sub_lesson.modules do %>
                                             <%= for module <- sub_lesson.modules do %>
@@ -51,7 +63,6 @@
                                                 <%= for content <- module.contents do %>
                                                 <a target="_blank" href="<%= content.fileurl%>"> <%=module.name%> </a>
                                                <% end %>
-
                                             </p>
                                              <% end %>
                                         <% end %>
