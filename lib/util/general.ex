@@ -312,7 +312,7 @@ defmodule Flight.General do
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
       "action": "get_course_structure",
-      "webtoken": "amgE48/4ft/3zwKw0nwwbPoE8zep5s5OeX+9bRpGYY4=", #webtoken,
+      "webtoken": webtoken,
       "courseid": course_id
     })
     
