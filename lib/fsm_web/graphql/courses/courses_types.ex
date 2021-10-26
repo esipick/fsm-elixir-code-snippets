@@ -52,7 +52,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field :start_date, :string
         field :summary, :string
         field :end_date, :string
-        field :price, :float
+        field :price, :decimal
         field :is_paid, :boolean
         field :img_url, :string
         field :sort_order, :string
@@ -64,7 +64,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field :start_date, :string
         field :end_date, :string
         field :summary, :string
-        field :price, :float
+        field :price, :decimal
         field :total_lessons, :integer
         field :image_url, :string
         field :participants, list_of(:participant)
@@ -78,7 +78,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field :course_completed, :boolean
         field :completed_lessons, :integer
         field :total_lessons, :integer
-        field :total_lessons_completed, :float
+        field :total_lessons_completed, :integer
         field :lessons, list_of(:lesson)
     end
     object :lesson do
