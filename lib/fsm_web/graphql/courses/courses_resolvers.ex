@@ -28,27 +28,11 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def get_course(_parent, _args, _context), do: @not_authenticated
 
-    def get_cumulative_results_lesson_level(_parent, %{course_id: course_id, lesson_id: lesson_id}, %{context: %{current_user: current_user}}) do
-      course = Flight.General.get_cumulative_results_lesson_level(current_user, course_id, lesson_id)
+    def insert_lesson_sub_lesson_remarks(_parent, %{remark_input: attrs}, %{context: %{current_user: current_user}}) do
+      course = Flight.General.insert_lesson_sub_lesson_remarks(current_user,attrs)
       Logger.info fn -> "course: #{inspect course}" end
       {:ok, course}
     end
 
-    def get_cumulative_results_lesson_level(_parent, _args, _context), do: @not_authenticated
-
-    def cumulative_results_course_level(_parent, %{course_id: course_id}, %{context: %{current_user: current_user}}) do
-      course = Flight.General.cumulative_results_course_level(current_user, course_id)
-      Logger.info fn -> "course: #{inspect course}" end
-      {:ok, course}
-    end
-
-    def cumulative_results_course_level(_parent, _args, _context), do: @not_authenticated
-
-    def checklist_objective_remarks(_parent, %{course_id: course_id, teacher_mark: teacher_mark, item_id: item_id,comment: comment}, %{context: %{current_user: current_user}}) do
-      course = Flight.General.checklist_objective_remarks(current_user, course_id, teacher_mark, item_id,comment)
-      Logger.info fn -> "course: #{inspect course}" end
-      {:ok, course}
-    end
-
-    def checklist_objective_remarks(_parent, _args, _context), do: @not_authenticated
+    def insert_lesson_sub_lesson_remarks(_parent, _args, _context), do: @not_authenticated
 end

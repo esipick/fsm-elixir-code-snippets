@@ -312,7 +312,7 @@ defmodule Flight.General do
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
       "action": "get_course_structure",
-      "webtoken": webtoken,
+      "webtoken": "amgE48/4ft/3zwKw0nwwbPoE8zep5s5OeX+9bRpGYY4=", #webtoken,
       "courseid": course_id
     })
     
@@ -335,109 +335,28 @@ defmodule Flight.General do
     end
   end
 
-  def get_course_lesson(current_user, course_id, lms_user_id)do
+  def insert_lesson_sub_lesson_remarks(current_user,attrs)do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
-    postBody = Poison.encode!(%{
-      "action": "get_user_course_lessons",
-      "webtoken": "amgE48/4ft/3zwKw0nwwbPoE8zep5s5OeX+9bRpGYY4=", #webtoken,
-      "courseid": course_id,
-      "userid": lms_user_id
-    })
-
-    Logger.info fn -> "postBody: #{inspect postBody}" end
-
-    participant = case HTTPoison.post(url,postBody) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-
-        case Poison.decode(body) do
-          {:ok, participant} ->
-            Flight.CourseParticipant.decode(participant)
-          {:error, error} -> error
-        end
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        []
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
-        []
+    teacher_mark =  case Map.has_key?(attrs, :teacher_mark) do
+      true->
+        attrs.teacher_mark
+      false->
+      nil
     end
-  end
-
-  def get_cumulative_results_lesson_level(current_user, course_id, lesson_id)do
-    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
-    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
-    postBody = Poison.encode!(%{
-      "action": "cumulative_results_lesson_level",
-      "webtoken": webtoken,
-      "courseid": course_id,
-      "lessonid": lesson_id,
-      "userid": 9 #current_user.id
-    })
-
-    Logger.info fn -> "postBody: #{inspect postBody}" end
-
-    course = case HTTPoison.post(url,postBody) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-
-        case Poison.decode(body) do
-          {:ok, result} ->
-            Logger.info fn -> "result: #{inspect result}" end
-            %Flight.LessonResult{
-              ratio: Map.get(result, "ratio"),
-              percentage: Map.get(result, "percentage"),
-            }
-          {:error, error} -> error
-        end
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        []
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
-        []
+    note =  case Map.has_key?(attrs, :note) do
+      true->
+        attrs.note
+      false->
+        nil
     end
-  end
-
-  def cumulative_results_course_level(current_user, course_id)do
-    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
-    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
-      "action": "cumulative_results_course_level",
+      "action": "insert_lesson_sublesson_remarks",
       "webtoken": webtoken,
-      "courseid": course_id,
-      "userid": current_user.id #current_user.id
-    })
-
-    Logger.info fn -> "postBody: #{inspect postBody}" end
-
-    course = case HTTPoison.post(url,postBody) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-
-        case Poison.decode(body) do
-          {:ok, result} ->
-            Logger.info fn -> "result: #{inspect result}" end
-            %Flight.CourseResult{
-              ratio: Map.get(result, "ratio"),
-              percentage: Map.get(result, "percentage"),
-            }
-          {:error, error} -> error
-        end
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        []
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
-        []
-    end
-  end
-
-  def checklist_objective_remarks(current_user, course_id, teacher_mark, item_id,comment)do
-    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
-    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
-    postBody = Poison.encode!(%{
-      "action": "insert_checklist_objective_remarks",
-      "webtoken": webtoken,
-      "courseid": course_id,
-      "teachermark": teacher_mark,
-      "comment": comment,
-      "itemid": item_id,
+      "courseid": attrs.course_id,
+      "teachermark": teacher_mark ,
+      "note": note,
+      "sub_lesson_id": attrs.sub_lesson_id,
       "userid": current_user.id
     })
 

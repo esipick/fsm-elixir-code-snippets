@@ -15,30 +15,25 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
             arg :id, non_null(:id)
             resolve &CoursesResolvers.get_course/3
         end
-        @desc "Get Cumulative Results_lesson_level"
-        field :get_cumulative_results_lesson_level, :cumulative_results_lesson_level do
-            arg :course_id, non_null(:id)
-            arg :lesson_id, non_null(:id)
-            resolve &CoursesResolvers.get_cumulative_results_lesson_level/3
-        end
-        @desc "Get Cumulative Results_course_level"
-        field :get_cumulative_results_course_level, :cumulative_results_course_level do
-            arg :course_id, non_null(:id)
-            resolve &CoursesResolvers.cumulative_results_course_level/3
-        end
+
 
     end
     object :courses_mutations do
-        @desc "Insert Checklist Objective Remarks"
-        field :checklist_objective_remarks, :checklist_objective_remarks do
-            arg :course_id, non_null(:id)
-            arg :teacher_mark, non_null(:id)
-            arg :item_id, non_null(:id)
-            arg :comment, :string
-            resolve &CoursesResolvers.checklist_objective_remarks/3
+        @desc "Insert sub lesson Remarks"
+        field :sub_lesson_remarks, :checklist_objective_remarks do
+            arg :remark_input, non_null(:remark_input)
+            resolve &CoursesResolvers.insert_lesson_sub_lesson_remarks/3
         end
     end
-        # Types
+
+    input_object :remark_input do
+        field(:course_id,  non_null(:id))
+        field(:teacher_mark,  non_null(:id))
+        field(:sub_lesson_id, :id)
+        field(:note, :string)
+    end
+
+    # Types
     object :checklist_objective_remarks do
         field :status, :string
         field :message, :string
