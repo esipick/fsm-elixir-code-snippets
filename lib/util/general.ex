@@ -335,6 +335,34 @@ defmodule Flight.General do
     end
   end
 
+  def get_course_lesson(current_user, course_id, lms_user_id)do
+    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
+    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+    postBody = Poison.encode!(%{
+      "action": "get_user_course_lessons",
+      "webtoken": webtoken,
+      "courseid": course_id,
+      "userid": lms_user_id
+    })
+
+    Logger.info fn -> "postBody: #{inspect postBody}" end
+
+    participant = case HTTPoison.post(url,postBody) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+
+        case Poison.decode(body) do
+          {:ok, participant} ->
+            Flight.CourseParticipant.decode(participant)
+          {:error, error} -> error
+        end
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        []
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.info fn -> "reason: #{inspect reason}" end
+        []
+    end
+  end
+
   def insert_lesson_sub_lesson_remarks(current_user,attrs)do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
