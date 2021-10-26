@@ -12,6 +12,16 @@
         height: 20px;
         margin-right: 4px;
     }
+
+    .accordion-icon[aria-expanded="false"] .chevron-down {
+        transform: rotate(0deg);
+        transition: 0.5s;
+    }
+
+    .accordion-icon[aria-expanded="true"] .chevron-down {
+        transform: rotate(180deg);
+        transition: 0.5s;
+    }
 </style>
 
 <div class="content">
@@ -21,7 +31,7 @@
         <div class="card-header d-flex flex-column">
 
             <%= for lesson <- @lessons do %>
-                <div id="accordion">
+                <div id="accordion-<%=lesson.id%>">
                     <div class="row my-2">
                         <div class="col-md-12 border-secondary border-bottom">
                             <h3><%=lesson.name%> <span class="text-primary h-5"> </span></h3>
@@ -31,31 +41,28 @@
                         <div class="border-secondary border-bottom">
                             <div class="py-4 mx-3">
                                 <div class="row ml-0 d-flex flex-row justify-content-between">
-                                    <div class="row"
+                                    <div class="row accordion-icon"
                                          style="cursor: pointer;"
                                          id="heading<%=sub_lesson.id%>-<%=sub_lesson.id%>"
                                          data-toggle="collapse"
                                          data-target="#collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>"
-                                         aria-expanded="true"
+                                         aria-expanded="false"
                                          aria-controls="collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>"
                                     >
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="text-secondary chevron-up d-none" fill="none"  viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                                            </svg>
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="text-secondary chevron-down" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                            <h5 class="mb-0 text-dark">
-                                                <%=sub_lesson.name%>
-                                            </h5>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="text-secondary chevron-down" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                        <h5 class="mb-0 text-dark">
+                                            <%=sub_lesson.name%>
+                                        </h5>
                                     </div>
                                     <div class="h5">Satisfied / Unsatisfied</div>
                                 </div>
                                 <div
                                         id="collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>"
                                         class="collapse"
-                                        aria-labelledby="headingOne"
-                                        data-parent="#accordion">
+                                        aria-labelledby="heading<%=sub_lesson.id%>-<%=sub_lesson.id%>"
+                                        data-parent="#accordion-<%=lesson.id%>">
                                     <div class="card-body ml-1">
                                         <%= if sub_lesson.modules do %>
                                             <%= for module <- sub_lesson.modules do %>
@@ -78,13 +85,4 @@
     </div>
   </div>
 </div>
-
-<script>
-    $('').on('show.bs.collapse', function () {
-        $(this).siblings('').addClass('active');
-    });
-
-    $('').on('hide.bs.collapse', function () {
-        $(this).siblings('').removeClass('active');
-    });
-</script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
