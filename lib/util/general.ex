@@ -385,6 +385,6 @@ defmodule Flight.General do
   def get_student_login_url(current_user) do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     encodedWebtoken = Base.encode64(webtoken)
-    Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/user_mgt.php?action=login&webtoken=" <> encodedWebtoken <> "&email=" <> current_user.email <> "&username=" <> current_user.email <> "&userid=" <> to_string(current_user.id) <> "&role=catmanager&firstname=" <> current_user.first_name <> "&lastname=" <> current_user.last_name <> "&courseid="
+    Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/user_mgt.php?action=login&webtoken=" <> encodedWebtoken <> "&email=" <> current_user.email <> "&username=" <> current_user.email <> "&userid=" <> to_string(current_user.id) <> "&role=student&firstname=" <> current_user.first_name <> "&lastname=" <> current_user.last_name <> "&courseid="
   end
 end
