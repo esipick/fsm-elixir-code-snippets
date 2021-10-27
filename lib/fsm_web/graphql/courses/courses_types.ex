@@ -93,6 +93,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
     end
     object :sub_lesson do
         field :id, :integer
+        field :name, :string
         field :visible, :integer
         field :sub_lessontype, :string
         field :summaryformat, :string
