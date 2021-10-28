@@ -5,6 +5,7 @@ import BulkInvoiceEmailForm from './components/bulk_invoice/bulkInvoiceEmailForm
 import InvoiceCustomLineItem from './components/invoice_custom_line_item/Form';
 import Documents from './components/documents/Main';
 import CopyLink from './components/copy_link/CopyLink';
+import CourseLessons from './components/courses/lessons';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './styles.css';
@@ -15,5 +16,6 @@ window.Components = {
   BulkInvoiceEmailForm,
   InvoiceCustomLineItem,
   Documents,
-  CopyLink
+  CopyLink,
+  CourseLessons
 };

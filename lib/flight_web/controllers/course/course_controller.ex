@@ -54,10 +54,18 @@ defmodule FlightWeb.Course.CourseController do
   def selection(%{assigns: %{current_user: current_user}} = conn, %{"course_id" => course_id, "user_id" => user_id}) do
     selections = Flight.General.get_course_lesson(current_user, course_id,user_id)
     Logger.info fn -> "selections--------------------------------: #{inspect selections.lessons}" end
+
+    props = %{
+      currentUser: current_user,
+      courseId: course_id,
+      userId: user_id,
+      userCourse: selections
+    }
+
     render(
       conn,
       "selection.html",
-      lessons: selections.lessons
+      props: props
     )
   end
 
