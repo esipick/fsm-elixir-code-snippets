@@ -1,18 +1,23 @@
-import React, { Fragment } from 'react';
+import React, { useState } from 'react';
 
 const CourseLessons = ({ userCourse, currentUser, courseId, userId }) => {
+    const [course, setCourse] = useState(userCourse)
 
+    console.log(course)
+
+    const handleRemarks = (sublessonId) => {}
+    roomroom
     return (<div className="card">
             <div className="card-header d-flex flex-column">
                 {
-                    userCourse.lessons.map(lesson => <LessonCard key={lesson.id} lesson={lesson} />)
+                    course.lessons.map(lesson => <LessonCard key={lesson.id} lesson={lesson} setRemarks={handleRemarks} />)
                 }
             </div>
       </div>
     )
 }
 
-const LessonCard = ({ lesson }) => {
+const LessonCard = ({ lesson, setRemarks }) => {
     return (
         <div id={`accordion-${lesson.id}`}>
             <div className="row my-2">
@@ -57,7 +62,9 @@ const SubLessonCard = ({lessonId, subLesson}) => {
                             }
                         </h5>
                     </div>
-                    <div className="h5">Satisfied / Unsatisfied</div>
+                    <div className="h5">
+                        Satisfied / Unsatisfied
+                    </div>
                 </div>
                 <div
                     id={`collapse${lessonId}-${subLesson.id}`}
