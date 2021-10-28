@@ -417,6 +417,11 @@ defmodule FlightWeb.Router do
       schema: FsmWeb.GraphQL.Schema
   end
 
+  scope "/api", FlightWeb.API do
+    pipe_through([:api, :api_authenticate])
+    post("/course/sublesson/remarks", CourseController, :sublesson_remarks)
+  end
+
   if Mix.env() == :dev do
     # forward("/email_inbox", Bamboo.EmailPreviewPlug)
   end
