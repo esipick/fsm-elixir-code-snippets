@@ -205,6 +205,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:taxable, :boolean)
     field(:type, :string)
     field(:instructor_user_id, :integer)
+    field(:course_id, :integer)
   end
 
   input_object :create_invoice_input do
@@ -221,6 +222,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:total_amount_due, :integer)
     field(:total_tax, :integer)
     field(:user_id, :integer)
+    field(:course_id, :integer)
     field(:line_items, list_of(:line_item_input))
   end
 

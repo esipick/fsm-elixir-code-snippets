@@ -176,6 +176,7 @@ defmodule Flight.CourseParticipant do
     :fsm_user_id,
     :first_name,
     :last_name,
+    :token,
     :course_completed,
     :completed_lessons,
     :total_lessons,
@@ -183,7 +184,7 @@ defmodule Flight.CourseParticipant do
     lessons: [%Flight.Lesson{}]
   ]
 
-  @keys ~w(user_id fsm_user_id first_name last_name course_completed completed_lessons total_lessons total_lessons_completed lessons)
+  @keys ~w(user_id fsm_user_id first_name last_name token course_completed completed_lessons total_lessons total_lessons_completed lessons)
   def decode(%{} = map) do
     map 
     |> Map.take(@keys)
