@@ -75,6 +75,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field :fsm_user_id, :string
         field :first_name, :string
         field :last_name, :string
+        field :token, :string
         field :course_completed, :boolean
         field :completed_lessons, :integer
         field :total_lessons, :integer
@@ -92,6 +93,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
     end
     object :sub_lesson do
         field :id, :integer
+        field :name, :string
         field :visible, :integer
         field :sub_lessontype, :string
         field :summaryformat, :string
