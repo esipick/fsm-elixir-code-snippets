@@ -3,10 +3,16 @@ import React, { useState } from 'react';
 const CourseLessons = ({ userCourse, currentUser, courseId, userId }) => {
     const [course, setCourse] = useState(userCourse)
 
-    console.log(course)
+    console.log(userCourse, courseId, userId)
 
-    const handleRemarks = (sublessonId) => {}
-    roomroom
+    const handleRemarks = (lessonId, sublessonId, remarks) => {
+        const payload = {
+            lesson_id: lessonId,
+            sublesson_id: sublessonId,
+            remarks: remarks
+        }
+    }
+
     return (<div className="card">
             <div className="card-header d-flex flex-column">
                 {
@@ -27,7 +33,8 @@ const LessonCard = ({ lesson, setRemarks }) => {
                         lesson.sub_lessons.map(subLesson => <SubLessonCard
                             key={lesson.id +"-"+ subLesson.id}
                             lessonId={lesson.id}
-                            subLesson={subLesson} />
+                            subLesson={subLesson}
+                            setRemarks={setRemarks}/>
                         )
                     }
                 </div>
@@ -36,7 +43,7 @@ const LessonCard = ({ lesson, setRemarks }) => {
     )
 }
 
-const SubLessonCard = ({lessonId, subLesson}) => {
+const SubLessonCard = ({lessonId, subLesson, setRemarks}) => {
     return (
         <div className="border-secondary border-bottom">
             <div className="py-4 mx-3">
@@ -62,8 +69,15 @@ const SubLessonCard = ({lessonId, subLesson}) => {
                             }
                         </h5>
                     </div>
-                    <div className="h5">
-                        Satisfied / Unsatisfied
+                    <div className="h5 d-flex flex-row">
+                        {
+                            subLesson.remarks === "" ?
+                               <>
+                                <div onClick={() => setRemarks(lessonId, subLesson.id, 1)}>Statisfied</div>
+                                <div onClick={() => setRemarks(lessonId, subLesson.id, 2)}>Unsatisfied</div> 
+                              </>
+                              : <p>{subLesson.remarks === "satisfactory" ? 'Satisfied' :  'Unsatisfied' }</p>
+                        }
                     </div>
                 </div>
                 <div
