@@ -38,7 +38,8 @@ end
 defmodule Flight.ApiResult do
   defstruct [
     :status,
-    :message
+    :message,
+    participant: Flight.CourseParticipant
   ]
 end
 
@@ -386,7 +387,7 @@ defmodule Flight.General do
       "teachermark": teacher_mark ,
       "note": note,
       "sub_lesson_id": attrs.sub_lesson_id,
-      "userid": current_user.id
+      "userid": attrs.fsm_user_id
     })
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
@@ -396,10 +397,15 @@ defmodule Flight.General do
 
         case Poison.decode(body) do
           {:ok, result} ->
+            [participant | _] = Map.get(result, "participant")
+            participant = Flight.CourseParticipant.decode(participant)
+
             Logger.info fn -> "result: #{inspect result}" end
+            
             %Flight.ApiResult{
               status: Map.get(result, "status"),
               message: Map.get(result, "message"),
+              participant: participant
             }
           {:error, error} -> error
         end

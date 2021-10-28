@@ -29,6 +29,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
     input_object :remark_input do
         field(:course_id,  non_null(:id))
         field(:teacher_mark,  non_null(:id))
+        field(:fsm_user_id, :integer)
         field(:sub_lesson_id, :id)
         field(:note, :string)
     end
@@ -37,6 +38,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
     object :checklist_objective_remarks do
         field :status, :string
         field :message, :string
+        field :participant, :participant
     end
     object :cumulative_results_course_level do
         field :ratio, :string
