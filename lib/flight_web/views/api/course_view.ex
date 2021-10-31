@@ -65,4 +65,8 @@ defmodule FlightWeb.API.CourseView do
       name: objective.name
     }
   end
+
+  def render("sublesson_remarks.json", response) do
+    response
+  end
 end
