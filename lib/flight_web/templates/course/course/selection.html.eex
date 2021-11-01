@@ -27,62 +27,9 @@
 <div class="content">
   <div class="row">
     <div class="col-md-12">
-      <div class="card">
-        <div class="card-header d-flex flex-column">
-
-            <%= for lesson <- @lessons do %>
-                <div id="accordion-<%=lesson.id%>">
-                    <div class="row my-2">
-                        <div class="col-md-12 border-secondary border-bottom">
-                            <h3><%=lesson.name%> <span class="text-primary h-5"> </span></h3>
-                        </div>
-                    </div>
-                    <%= for sub_lesson <- lesson.sub_lessons do %>
-                        <div class="border-secondary border-bottom">
-                            <div class="py-4 mx-3">
-                                <div class="row ml-0 d-flex flex-row justify-content-between">
-                                    <div class="row accordion-icon"
-                                         style="cursor: pointer;"
-                                         id="heading<%=sub_lesson.id%>-<%=sub_lesson.id%>"
-                                         data-toggle="collapse"
-                                         data-target="#collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>"
-                                         aria-expanded="false"
-                                         aria-controls="collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="text-secondary chevron-down" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                        <h5 class="mb-0 text-dark">
-                                            <%=sub_lesson.name%>
-                                        </h5>
-                                    </div>
-                                    <div class="h5">Satisfied / Unsatisfied</div>
-                                </div>
-                                <div
-                                        id="collapse<%=sub_lesson.id%>-<%=sub_lesson.id%>"
-                                        class="collapse"
-                                        aria-labelledby="heading<%=sub_lesson.id%>-<%=sub_lesson.id%>"
-                                        data-parent="#accordion-<%=lesson.id%>">
-                                    <div class="card-body ml-1">
-                                        <%= if sub_lesson.modules do %>
-                                            <%= for module <- sub_lesson.modules do %>
-                                            <p><span><img src="<%=module.modicon%>"></span>
-                                                <%= for content <- module.contents do %>
-                                                <a target="_blank" href="<%= content.fileurl%>"> <%=module.name%> </a>
-                                               <% end %>
-                                            </p>
-                                             <% end %>
-                                        <% end %>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <% end %>
-                </div>
-            <% end %>
-        </div>
-      </div>
+        <%= ReactPhoenix.ClientSide.react_component("Components.CourseLessons", @props) %>
     </div>
   </div>
 </div>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<%# <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script> %>
