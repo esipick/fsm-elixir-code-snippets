@@ -422,6 +422,46 @@ defmodule Flight.General do
     end
   end
 
+  def enroll_student(current_user, attrs) do
+    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
+    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/user_mgt.php"
+    isAdmin =  Authorization.is_admin?(current_user)
+    role = if (isAdmin) do
+      "catmanager"
+      else
+      "student"
+    end
+    postBody = Poison.encode!(%{
+      "action": "login",
+      "webtoken": webtoken,
+      "email": current_user.email ,
+      "username": current_user.email ,
+      "userid": current_user.id ,
+      "role": role,
+      "firstname": current_user.first_name,
+      "lastname": current_user.last_name,
+      "courseid": [attrs["course_id"]],
+    })
+
+    Logger.info fn -> "postBody11111111111111111111111111111111111111111111111111: #{inspect postBody}" end
+
+    course = case HTTPoison.post(url,postBody) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+
+        case Poison.decode(body) do
+          {:ok, result} ->
+            result
+          {:error, error} -> error
+        end
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        []
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.info fn -> "reason: #{inspect reason}" end
+        []
+    end
+  end
+
+
   def get_student_login_url(current_user) do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     encodedWebtoken = Base.encode64(webtoken)
