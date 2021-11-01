@@ -2,15 +2,19 @@ import React, { useState } from 'react';
 import { authHeaders } from '../utils';
 
 const CourseLessons = ({ courseInfo, courseId }) => {
-    const [course, setCourse] = useState(courseInfo)
+    const [state, setState] = useState({
+        subLessonId: undefined,
+        type: undefined,
+        course: courseInfo
+    })
 
-    const handleRemarks = async (lessonId, subLessonId, mark) => {
+    const handleRemark = async (lessonId, subLessonId, remark) => {
         const payload = {
             course_id: courseId,
             lesson_id: lessonId,
             sub_lesson_id: subLessonId,
-            teacher_mark: mark,
-            fsm_user_id: courseInfo.fsm_user_id,
+            teacher_mark: remark,
+            fsm_user_id: state.course.fsm_user_id,
             notes: null
         }
 
@@ -23,62 +27,59 @@ const CourseLessons = ({ courseInfo, courseId }) => {
 			body: JSON.stringify(payload)
 		}
 
+        setState({
+            ...state,
+            type: remark,
+            subLessonId: subLessonId
+        })
+
 		await fetch(`/api/course/sublesson/remarks`, reqOpts)
 			.then(res => res.json())
 			.then(data => {
-				console.log(data)
-                setCourse(data.participant ?? course)
+                setState({
+                    type: undefined,
+                    subLessonId: undefined,
+                    course: data.courseInfo
+                })
 			})
 			.catch(error => {
-                console.log(error)
-                window.alert("Unable to set remark now")
+                setState({
+                    ...state,
+                    type: undefined,
+                    subLessonId: undefined
+                })
+                window.alert("Something went wrong, please try again.")
 			})
     }
 
     return (<div className="card">
             <div className="card-header d-flex flex-column">
                 {
-                    (course.lessons ?? []).map(lesson => <LessonCard key={lesson.id} lesson={lesson} setRemarks={handleRemarks} />)
+                    (state.course.lessons ?? []).map(lesson => (
+                        <div key={lesson.id} id={`accordion-${lesson.id}`}>
+                            <div className="row my-2">
+                                <div className="col-md-12 border-secondary border-bottom">
+                                    <h3>{lesson.name} <span className="text-primary h-5"> </span></h3>
+                                    {
+                                        lesson.sub_lessons.map(subLesson => <SubLessonCard
+                                            key={lesson.id +"-"+ subLesson.id}
+                                            lessonId={lesson.id}
+                                            subLesson={subLesson}
+                                            markedSubLesson={{type: state.type, subLessonId: state.subLessonId}}
+                                            setRemark={handleRemark}/>
+                                        )
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    ))
                 }
             </div>
       </div>
     )
 }
 
-const LessonCard = ({ lesson, setRemarks }) => {
-    return (
-        <div id={`accordion-${lesson.id}`}>
-            <div className="row my-2">
-                <div className="col-md-12 border-secondary border-bottom">
-                    <h3>{lesson.name} <span className="text-primary h-5"> </span></h3>
-                    {
-                        lesson.sub_lessons.map(subLesson => <SubLessonCard
-                            key={lesson.id +"-"+ subLesson.id}
-                            lessonId={lesson.id}
-                            subLesson={subLesson}
-                            setRemarks={setRemarks}/>
-                        )
-                    }
-                </div>
-            </div>
-        </div>
-    )
-}
-
-const SubLessonCard = ({lessonId, subLesson, setRemarks}) => {
-
-    const [markedSubLesson, setMarkedSubLesson] = useState({
-        subId: undefined,
-        type: undefined
-    })
-
-    const handleMarkSubLesson = (type) => {
-        setRemarks(lessonId, subLesson.id, type)
-        setMarkedSubLesson({
-            subId: subLesson.id,
-            type
-        })
-    }
+const SubLessonCard = ({lessonId, subLesson, setRemark, markedSubLesson}) => {
 
     const isSatisfied = subLesson.remarks === "satisfactory"
     const isUnsatisfied = subLesson.remarks === "not_satisfactory"
@@ -94,13 +95,7 @@ const SubLessonCard = ({lessonId, subLesson, setRemarks}) => {
                         aria-expanded="false"
                         aria-controls={`collapse${lessonId}-${subLesson.id}`}
                     >
-                        <svg 
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="text-secondary chevron-down" 
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
+                        <ChevronDown />
                         <h5 className="mb-0 text-dark">
                             {
                                 subLesson.name
@@ -109,18 +104,18 @@ const SubLessonCard = ({lessonId, subLesson, setRemarks}) => {
                     </div>
                     <div className="h5 d-flex flex-row">
                         {
-                            markedSubLesson.type === 1 && markedSubLesson.subId === subLesson.id ?
+                            markedSubLesson.type === 1 && markedSubLesson.subLessonId === subLesson.id ?
                                 <Spinner />
                                 :
-                                <div className={`button-remark ${ isSatisfied ? 'active' : ''}`} disabled={isSatisfied}
-                                    onClick={() => handleMarkSubLesson(1)}>Statisfied</div>
+                                <div className={`button-remark ${ isSatisfied ? 'active disabled-click' : ''}`} disabled={isSatisfied}
+                                    onClick={() =>setRemark(lessonId, subLesson.id, 1)}>Statisfied</div>
                         }
                          {
-                            markedSubLesson.type === 2 && markedSubLesson.subId === subLesson.id ?
+                            markedSubLesson.type === 2 && markedSubLesson.subLessonId === subLesson.id ?
                                 <Spinner />
                                 :
-                                <div className={`button-remark ${ isUnsatisfied ? 'active' : ''}`} disabled={isUnsatisfied}
-                                    onClick={() => handleMarkSubLesson(2)}>Unstatisfied</div>
+                                <div className={`button-remark ${ isUnsatisfied ? 'active disabled-click' : ''}`} disabled={isUnsatisfied}
+                                    onClick={() =>setRemark(lessonId, subLesson.id, 2)}>Unstatisfied</div>
                         }
                     </div>
                 </div>
@@ -155,6 +150,12 @@ const SubLessonCard = ({lessonId, subLesson, setRemarks}) => {
         </div>
     )
 }
+const ChevronDown = () => (<svg 
+    xmlns="http://www.w3.org/2000/svg"
+    className="text-secondary chevron-down" 
+    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+</svg>)
 
 const Spinner = () => (<div className="lds-ring"><div></div><div></div><div></div><div></div></div>)
 
