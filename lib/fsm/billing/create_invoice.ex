@@ -36,9 +36,15 @@ defmodule Fsm.Billing.CreateInvoice do
           }
         )
 
+
       with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
           {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
           {:ok, invoice} <- Invoice.create(invoice_attrs) do
+        #If course invoice enroll student at LMS.
+          if Map.get(invoice_params, "course_id", false) do
+            Flight.General.enroll_student(current_user ,invoice_params )
+          end
+
             line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
 
             cond do
