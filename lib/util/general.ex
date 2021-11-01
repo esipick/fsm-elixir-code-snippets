@@ -397,15 +397,20 @@ defmodule Flight.General do
 
         case Poison.decode(body) do
           {:ok, result} ->
-            [participant | _] = Map.get(result, "participant")
-            participant = Flight.CourseParticipant.decode(participant)
 
             Logger.info fn -> "result: #{inspect result}" end
-            
+
+            participant = Map.get(result, "participant")
+
+            if(!is_nil(participant)) do
+              [participant | _] = participant
+              participant = Flight.CourseParticipant.decode(participant)
+            end
+
             %Flight.ApiResult{
               status: Map.get(result, "status"),
               message: Map.get(result, "message"),
-              participant: participant
+              participant: participant || %Flight.CourseParticipant{}
             }
           {:error, error} -> error
         end

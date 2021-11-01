@@ -1,22 +1,44 @@
 import React, { useState } from 'react';
+import { authHeaders } from '../utils';
 
-const CourseLessons = ({ userCourse, currentUser, courseId, userId }) => {
-    const [course, setCourse] = useState(userCourse)
+const CourseLessons = ({ courseInfo, courseId }) => {
+    const [course, setCourse] = useState(courseInfo)
 
-    console.log(userCourse, courseId, userId)
-
-    const handleRemarks = (lessonId, sublessonId, remarks) => {
+    const handleRemarks = async (lessonId, subLessonId, mark) => {
         const payload = {
+            course_id: courseId,
             lesson_id: lessonId,
-            sublesson_id: sublessonId,
-            remarks: remarks
+            sub_lesson_id: subLessonId,
+            teacher_mark: mark,
+            fsm_user_id: courseInfo.fsm_user_id,
+            notes: null
         }
+
+        const reqOpts = {
+			method: 'POST',
+			headers: {
+                ...authHeaders(),
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(payload)
+		}
+
+		await fetch(`/api/course/sublesson/remarks`, reqOpts)
+			.then(res => res.json())
+			.then(data => {
+				console.log(data)
+                setCourse(data.participant ?? course)
+			})
+			.catch(error => {
+                console.log(error)
+                window.alert("Unable to set remark now")
+			})
     }
 
     return (<div className="card">
             <div className="card-header d-flex flex-column">
                 {
-                    course.lessons.map(lesson => <LessonCard key={lesson.id} lesson={lesson} setRemarks={handleRemarks} />)
+                    (course.lessons ?? []).map(lesson => <LessonCard key={lesson.id} lesson={lesson} setRemarks={handleRemarks} />)
                 }
             </div>
       </div>
@@ -48,8 +70,7 @@ const SubLessonCard = ({lessonId, subLesson, setRemarks}) => {
         <div className="border-secondary border-bottom">
             <div className="py-4 mx-3">
                 <div className="row ml-0 d-flex flex-row justify-content-between">
-                    <div className="row accordion-icon"
-                        style={{cursor: "pointer"}}
+                    <div className="row accordion-icon cursor-pointer"
                         id={`heading${lessonId}-${subLesson.id}`}
                         data-toggle="collapse"
                         data-target={`#collapse${lessonId}-${subLesson.id}`}
@@ -70,14 +91,8 @@ const SubLessonCard = ({lessonId, subLesson, setRemarks}) => {
                         </h5>
                     </div>
                     <div className="h5 d-flex flex-row">
-                        {
-                            subLesson.remarks === "" ?
-                               <>
-                                <div onClick={() => setRemarks(lessonId, subLesson.id, 1)}>Statisfied</div>
-                                <div onClick={() => setRemarks(lessonId, subLesson.id, 2)}>Unsatisfied</div> 
-                              </>
-                              : <p>{subLesson.remarks === "satisfactory" ? 'Satisfied' :  'Unsatisfied' }</p>
-                        }
+                        <div className={`button-remark ${subLesson.remarks === "satisfactory" ? 'active' : ''}`} onClick={() => setRemarks(lessonId, subLesson.id, 1)}>Statisfied</div>
+                        <div className={`button-remark ${subLesson.remarks === "not_satisfactory" ? 'active' : ''}`} onClick={() => setRemarks(lessonId, subLesson.id, 2)}>Unsatisfied</div> 
                     </div>
                 </div>
                 <div

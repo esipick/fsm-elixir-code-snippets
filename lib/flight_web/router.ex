@@ -405,6 +405,7 @@ defmodule FlightWeb.Router do
         )
       end
     end
+    post("/course/sublesson/remarks", CourseController, :sublesson_remarks)
   end
 
   scope "/api" do
@@ -415,11 +416,6 @@ defmodule FlightWeb.Router do
 
     forward "/", Absinthe.Plug,
       schema: FsmWeb.GraphQL.Schema
-  end
-
-  scope "/api", FlightWeb.API do
-    pipe_through([:api, :api_authenticate])
-    post("/course/sublesson/remarks", CourseController, :sublesson_remarks)
   end
 
   if Mix.env() == :dev do
