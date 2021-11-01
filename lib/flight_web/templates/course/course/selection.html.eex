@@ -2,55 +2,7 @@
 </div>
 
 <style>
-    .chevron-up {
-        width: 20px;
-        height: 20px;
-        margin: 2px;
-    }
-     .chevron-down {
-        width: 20px;
-        height: 20px;
-        margin-right: 4px;
-    }
-
-    .accordion-icon[aria-expanded="false"] .chevron-down {
-        transform: rotate(0deg);
-        transition: 0.5s;
-    }
-
-    .accordion-icon[aria-expanded="true"] .chevron-down {
-        transform: rotate(180deg);
-        transition: 0.5s;
-    }
-
-    .cursor-pointer {
-        cursor: pointer;
-    }
-
-    .button-remark {
-        background-color: #ddd;
-        border: none;
-        color: black;
-        padding: 4px 8px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        margin: 4px 2px;
-        cursor: pointer;
-        border-radius: 16px;
-        font-size: 0.90rem;
-    }
-
-    .button-remark.active {
-        background-color: #2CA8Fe;
-        color: white;
-    }
-
-    .button-remark:hover {
-        background-color: #2CA8Fe;
-        color: white;
-    }
-
+    .chevron-up{width:20px;height:20px;margin:2px}.chevron-down{width:20px;height:20px;margin-right:4px}.accordion-icon[aria-expanded=false] .chevron-down{transform:rotate(0);transition:.5s}.accordion-icon[aria-expanded=true] .chevron-down{transform:rotate(180deg);transition:.5s}.cursor-pointer{cursor:pointer}.button-remark{background-color:#ddd;border:none;color:#000;padding:4px 8px;text-align:center;text-decoration:none;display:inline-block;margin:4px 2px;cursor:pointer;border-radius:16px;font-size:.9rem}.button-remark.active{background-color:#2ca8fe;color:#fff}.button-remark:hover{background-color:#2ca8fe;color:#fff}
 </style>
 
 <div class="content">
