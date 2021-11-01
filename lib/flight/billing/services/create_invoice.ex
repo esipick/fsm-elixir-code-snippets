@@ -36,7 +36,7 @@ defmodule Flight.Billing.CreateInvoice do
 
         #If course invoice enroll student at LMS.
       if Map.get(invoice_params, "course_id", false) do
-           Flight.General.enroll_student(user ,invoice_params )
+           Flight.General.enroll_student(user , Map.get(invoice_params, "course_id") )
       end
 
       Logger.info fn -> "invoice_params-----------------: #{inspect invoice_params}" end

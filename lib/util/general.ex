@@ -422,7 +422,7 @@ defmodule Flight.General do
     end
   end
 
-  def enroll_student(current_user, attrs) do
+  def enroll_student(current_user, course_id) do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/user_mgt.php"
     isAdmin =  Authorization.is_admin?(current_user)
@@ -440,7 +440,7 @@ defmodule Flight.General do
       "role": role,
       "firstname": current_user.first_name,
       "lastname": current_user.last_name,
-      "courseid": [attrs["course_id"]],
+      "courseid": [course_id],
     })
 
     Logger.info fn -> "postBody11111111111111111111111111111111111111111111111111: #{inspect postBody}" end
