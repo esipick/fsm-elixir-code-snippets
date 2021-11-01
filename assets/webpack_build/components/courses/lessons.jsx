@@ -66,6 +66,23 @@ const LessonCard = ({ lesson, setRemarks }) => {
 }
 
 const SubLessonCard = ({lessonId, subLesson, setRemarks}) => {
+
+    const [markedSubLesson, setMarkedSubLesson] = useState({
+        subId: undefined,
+        type: undefined
+    })
+
+    const handleMarkSubLesson = (type) => {
+        setRemarks(lessonId, subLesson.id, type)
+        setMarkedSubLesson({
+            subId: subLesson.id,
+            type
+        })
+    }
+
+    const isSatisfied = subLesson.remarks === "satisfactory"
+    const isUnsatisfied = subLesson.remarks === "not_satisfactory"
+
     return (
         <div className="border-secondary border-bottom">
             <div className="py-4 mx-3">
@@ -91,8 +108,20 @@ const SubLessonCard = ({lessonId, subLesson, setRemarks}) => {
                         </h5>
                     </div>
                     <div className="h5 d-flex flex-row">
-                        <div className={`button-remark ${subLesson.remarks === "satisfactory" ? 'active' : ''}`} onClick={() => setRemarks(lessonId, subLesson.id, 1)}>Statisfied</div>
-                        <div className={`button-remark ${subLesson.remarks === "not_satisfactory" ? 'active' : ''}`} onClick={() => setRemarks(lessonId, subLesson.id, 2)}>Unsatisfied</div> 
+                        {
+                            markedSubLesson.type === 1 && markedSubLesson.subId === subLesson.id ?
+                                <Spinner />
+                                :
+                                <div className={`button-remark ${ isSatisfied ? 'active' : ''}`} disabled={isSatisfied}
+                                    onClick={() => handleMarkSubLesson(1)}>Statisfied</div>
+                        }
+                         {
+                            markedSubLesson.type === 2 && markedSubLesson.subId === subLesson.id ?
+                                <Spinner />
+                                :
+                                <div className={`button-remark ${ isUnsatisfied ? 'active' : ''}`} disabled={isUnsatisfied}
+                                    onClick={() => handleMarkSubLesson(2)}>Unstatisfied</div>
+                        }
                     </div>
                 </div>
                 <div
@@ -126,6 +155,8 @@ const SubLessonCard = ({lessonId, subLesson, setRemarks}) => {
         </div>
     )
 }
+
+const Spinner = () => (<div className="lds-ring"><div></div><div></div><div></div><div></div></div>)
 
 export default CourseLessons
 
