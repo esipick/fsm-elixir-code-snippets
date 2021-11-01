@@ -70,7 +70,7 @@ defmodule FlightWeb.API.CourseView do
     %{
       message: course_info.message,
       status: course_info.status,
-      participant: render_one(course_info.participant, CourseView, "course_participant.json", as: :participant)
+      courseInfo: render_one(course_info.participant, CourseView, "course_participant.json", as: :participant)
     }
   end
 
