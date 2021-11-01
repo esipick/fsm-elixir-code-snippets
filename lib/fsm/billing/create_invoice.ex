@@ -41,7 +41,7 @@ defmodule Fsm.Billing.CreateInvoice do
           {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
           {:ok, invoice} <- Invoice.create(invoice_attrs) do
         #If course invoice enroll student at LMS.
-          if Map.get(invoice_params, "course_id", false) do
+          if Map.get(invoice_params, :course_id, false) do
             Flight.General.enroll_student(current_user ,invoice_params )
           end
 
