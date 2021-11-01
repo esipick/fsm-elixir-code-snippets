@@ -27,6 +27,30 @@
         cursor: pointer;
     }
 
+    .button-remark {
+        background-color: #ddd;
+        border: none;
+        color: black;
+        padding: 4px 8px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 16px;
+        font-size: 0.90rem;
+    }
+
+    .button-remark.active {
+        background-color: #2CA8Fe;
+        color: white;
+    }
+
+    .button-remark:hover {
+        background-color: #2CA8Fe;
+        color: white;
+    }
+
 </style>
 
 <div class="content">

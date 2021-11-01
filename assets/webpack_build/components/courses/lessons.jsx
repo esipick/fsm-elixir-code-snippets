@@ -91,8 +91,8 @@ const SubLessonCard = ({lessonId, subLesson, setRemarks}) => {
                         </h5>
                     </div>
                     <div className="h5 d-flex flex-row">
-                        <div className="mr-1 p-1 cursor-pointer" onClick={() => setRemarks(lessonId, subLesson.id, 1)}>Statisfied</div>
-                        <div className="p-1 cursor-pointer" onClick={() => setRemarks(lessonId, subLesson.id, 2)}>Unsatisfied</div> 
+                        <div className={`button-remark ${subLesson.remarks === "satisfactory" ? 'active' : ''}`} onClick={() => setRemarks(lessonId, subLesson.id, 1)}>Statisfied</div>
+                        <div className={`button-remark ${subLesson.remarks === "not_satisfactory" ? 'active' : ''}`} onClick={() => setRemarks(lessonId, subLesson.id, 2)}>Unsatisfied</div> 
                     </div>
                 </div>
                 <div
