@@ -20,9 +20,9 @@ defmodule FlightWeb.API.CourseController do
       note: Map.get(attrs, "notes")
     }
     
-    response = Course.insert_lesson_sub_lesson_remarks(user, attrs)
+    course_info = Course.insert_lesson_sub_lesson_remarks(user, attrs)
     
-    render(conn, "sublesson_remarks.json", response)
+    render(conn, "course_info.json", course_info: course_info)
   end
 
 end

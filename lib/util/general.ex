@@ -402,9 +402,9 @@ defmodule Flight.General do
 
             participant = Map.get(result, "participant")
 
-            if(!is_nil(participant)) do
+            participant = if(!is_nil(participant)) do
               [participant | _] = participant
-              participant = Flight.CourseParticipant.decode(participant)
+              Flight.CourseParticipant.decode(participant)
             end
 
             %Flight.ApiResult{
@@ -420,6 +420,10 @@ defmodule Flight.General do
         Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
+
+    # IO.inspect course
+
+    # course
   end
 
   def enroll_student(current_user, course_id) do

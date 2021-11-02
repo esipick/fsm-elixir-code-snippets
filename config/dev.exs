@@ -109,5 +109,5 @@ config :flight, Flight.Mailer,
 
 config :appsignal, :config, active: false
 config :flight, :lms_endpoint, System.get_env("LMS_ENDPOINT") || "https://moodlenew.esipick.com"
-config :flight, :webtoken_key, System.get_env("WEBTOKEN_KEY") || "FSMM"
+config :flight, :webtoken_key, System.get_env("WEBTOKEN_KEY") || "FSM"
 config :flight, :webtoken_secret_key, System.get_env("WEBTOKEN_SECRET_KEY") || ".jG<T9qX6sNk3.Z3"

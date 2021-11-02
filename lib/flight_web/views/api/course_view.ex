@@ -66,7 +66,16 @@ defmodule FlightWeb.API.CourseView do
     }
   end
 
-  def render("sublesson_remarks.json", response) do
-    response
+  def render("course_info.json", %{course_info: course_info}) do
+    %{
+      message: course_info.message,
+      status: course_info.status,
+      courseInfo: render_one(course_info.participant, CourseView, "course_participant.json", as: :participant)
+    }
   end
+
+  def render("course_participant.json", %{participant: participant}) do
+    participant
+  end
+
 end
