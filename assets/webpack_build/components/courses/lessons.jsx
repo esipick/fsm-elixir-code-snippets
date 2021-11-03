@@ -5,7 +5,8 @@ const CourseLessons = ({ courseInfo, courseId }) => {
     const [state, setState] = useState({
         subLessonId: undefined,
         type: undefined,
-        course: courseInfo
+        course: courseInfo,
+        pageModuleContent: undefined,
     })
 
     const handleRemark = async (lessonId, subLessonId, remark) => {
@@ -52,6 +53,24 @@ const CourseLessons = ({ courseInfo, courseId }) => {
 			})
     }
 
+    const getModulePageContent = async (url) => {
+        const reqOpts = {
+			method: 'GET',
+		}
+		await fetch(url, reqOpts)
+			.then(res => res.text())
+			.then(data => {
+              console.log('data',data)
+                setState({
+                    ...state,
+                    pageModuleContent: data
+                })
+			})
+			.catch(error => {
+
+			})
+    }
+
     return (<div className="card">
             <div className="card-header d-flex flex-column">
                 {
@@ -66,7 +85,11 @@ const CourseLessons = ({ courseInfo, courseId }) => {
                                             lessonId={lesson.id}
                                             subLesson={subLesson}
                                             markedSubLesson={{type: state.type, subLessonId: state.subLessonId}}
-                                            setRemark={handleRemark}/>
+                                            setRemark={handleRemark}
+                                            getModulePageContent={getModulePageContent}
+                                            course={state.course}
+                                            pageModuleContent={state.pageModuleContent}
+                                            />
                                         )
                                     }
                                 </div>
@@ -79,7 +102,8 @@ const CourseLessons = ({ courseInfo, courseId }) => {
     )
 }
 
-const SubLessonCard = ({lessonId, subLesson, setRemark, markedSubLesson}) => {
+const SubLessonCard = ({lessonId, subLesson,markedSubLesson, setRemark,getModulePageContent,course, pageModuleContent}) => {
+    console.log('course',course)
 
     const isSatisfied = subLesson.remarks === "satisfactory"
     const isUnsatisfied = subLesson.remarks === "not_satisfactory"
@@ -103,6 +127,7 @@ const SubLessonCard = ({lessonId, subLesson, setRemark, markedSubLesson}) => {
                         </h5>
                     </div>
                     <div className="h5 d-flex flex-row">
+
                         {
                             markedSubLesson.type === 1 && markedSubLesson.subLessonId === subLesson.id ?
                                 <Spinner />
@@ -133,18 +158,29 @@ const SubLessonCard = ({lessonId, subLesson, setRemark, markedSubLesson}) => {
                                                 <img src={module.modicon} />
                                             </span>
                                         {
-                                            (module.contents ?? []).map((content, index) => (
-                                                <a key={lessonId + "-" + subLesson.id + "-" + module.id + index}
-                                                    target="_blank"
-                                                    href={content.fileurl}>
-                                                      {module.name}
-                                                </a>
-                                            ))
+                                            (module.contents ?? []).map((content, index) => {
+                                                if(module.modname == 'page'){
+                                                    return <a key={lessonId + "-" + subLesson.id + "-" + module.id + index}
+                                                              onClick={() =>getModulePageContent(content.fileurl + "&token=" + course.token)}>
+                                                        {module.name}
+                                                    </a>
+
+                                                }else{
+                                                    return <a key={lessonId + "-" + subLesson.id + "-" + module.id + index}
+                                                              href={content.fileurl + "&token=" + course.token}>
+                                                        {module.name}
+                                                    </a>
+                                                }
+
+
+
+                                            })
                                         }
                                     </p>
                                 ))
                        }
                     </div>
+                    <p dangerouslySetInnerHTML={{__html: pageModuleContent}} />
                 </div>
             </div>
         </div>
