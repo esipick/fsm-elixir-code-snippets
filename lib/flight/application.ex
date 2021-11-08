@@ -12,7 +12,8 @@ defmodule Flight.Application do
       # Start the Ecto repository
       Flight.Repo,
       # Start the Endpoint (http/https)
-      FlightWeb.Endpoint
+      FlightWeb.Endpoint,
+      Flight.Scheduler
       # Start a worker by calling: Flight.Worker.start_link(arg)
       # {Flight.Worker, arg}
     ]

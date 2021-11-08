@@ -83,6 +83,11 @@ config :scrivener_html,
   routes_helper: FlightWeb.Router.Helpers,
   view_style: :bootstrap_v4
 
+config :flight, Flight.Scheduler,
+       jobs: [
+         # Every minute
+         {"* * * * *",{Flight.MonthlyCourseInvoiceJob, :send_course_monthly_invoice, []}},
+       ]
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

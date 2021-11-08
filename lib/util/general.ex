@@ -8,9 +8,10 @@ defmodule Flight.Course do
     :sort_order,
     :is_paid,
     :price,
+    :created_at,
     :img_url
   ]
-  @keys ~w(id course_name start_date summary end_date sort_order is_paid price img_url)
+  @keys ~w(id course_name start_date summary end_date sort_order is_paid price created_at img_url)
   def decode(%{} = map) do
     map
     |> Map.take(@keys)
@@ -246,8 +247,8 @@ defmodule Flight.General do
     Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/user_mgt.php?action=login&webtoken=" <> encodedWebtoken <> "&email=" <> current_user.email <> "&username=" <> current_user.email <> "&userid=" <> to_string(current_user.id) <> "&role=catmanager&firstname=" <> current_user.first_name <> "&lastname=" <> current_user.last_name <> "&courseid=0"
   end
 
-  def get_lms_courses(current_user, isAdmin) do
-    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
+  def get_school_lms_courses(school_id) do
+    webtoken = Flight.Utils.get_webtoken(school_id)
     Logger.info fn -> "webtoken: #{inspect webtoken}" end
 
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
@@ -261,18 +262,19 @@ defmodule Flight.General do
         case Poison.decode(body) do
           {:ok, courses} ->
             for course <- courses do
-             %Flight.Course{
-               id: Map.get(course, "id"),
-               course_name: Map.get(course, "coursename"),
-               start_date: Map.get(course, "startdate"),
-               summary: Map.get(course, "summary"),
-               end_date: Map.get(course, "enddate"),
-               sort_order: Map.get(course, "sortorder"),
-               is_paid: Map.get(course, "isPaid"),
-               price: Map.get(course, "price"),
-               img_url: Map.get(course, "img_url"),
+              %Flight.Course{
+                id: Map.get(course, "id"),
+                course_name: Map.get(course, "coursename"),
+                start_date: Map.get(course, "startdate"),
+                summary: Map.get(course, "summary"),
+                end_date: Map.get(course, "enddate"),
+                sort_order: Map.get(course, "sortorder"),
+                is_paid: Map.get(course, "isPaid"),
+                created_at: Map.get(course, "created_at"),
+                price: Map.get(course, "price"),
+                img_url: Map.get(course, "img_url"),
               }
-             end
+            end
           {:error, error} -> error
         end
       {:ok, %HTTPoison.Response{status_code: 404}} ->
@@ -281,6 +283,11 @@ defmodule Flight.General do
         Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
+  end
+
+  def get_lms_courses(current_user, isAdmin) do
+
+    courses = get_school_lms_courses(current_user.school_id)
 
     #get course payment information from DB
     invoices = Flight.Queries.Invoice.course_invoices(current_user.id)

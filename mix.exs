@@ -32,7 +32,8 @@ defmodule Flight.Mixfile do
         :scrivener_html,
         :httpoison,
         :phoenix_html_simplified_helpers,
-        :html_sanitize_ex
+        :html_sanitize_ex,
+        :quantum
       ]
     ]
   end
@@ -91,7 +92,8 @@ defmodule Flight.Mixfile do
       {:wallaby, "~> 0.24.0", runtime: false, only: :test},
       {:httpoison, "~> 1.6.2"},
       {:phoenix_html_simplified_helpers, "~> 2.1.0"},
-      {:html_sanitize_ex, "~> 1.4"}
+      {:html_sanitize_ex, "~> 1.4"},
+      {:quantum, "~> 3.0"}
     ]
   end
 

@@ -2,7 +2,7 @@ defmodule FlightWeb.API.InvoiceController do
   use FlightWeb, :controller
 
   import Flight.Auth.Authorization
-
+  require Logger
   alias Flight.Auth.Permission
   alias Flight.Repo
   alias FlightWeb.{ViewHelpers, Pagination, StripeHelper}
@@ -156,7 +156,8 @@ defmodule FlightWeb.API.InvoiceController do
   def show(conn, _params) do
     invoice =
       Repo.preload(conn.assigns.invoice, [:line_items, :user, :school, :appointment], force: true)
-    
+
+    Logger.info fn -> "invoice.is_admin_invoice*********************************************************************------------------------------------------: #{inspect invoice.is_admin_invoice}" end
     conn
     |> put_status(200)
     |> render("show.json", invoice: invoice)

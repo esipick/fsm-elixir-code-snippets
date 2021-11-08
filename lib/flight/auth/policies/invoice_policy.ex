@@ -34,7 +34,7 @@ defmodule Flight.Auth.InvoicePolicy do
   end
 
   def delete?(user, invoice) do
-    invoice.status != :archived && ( (invoice.status == :pending && staff_member?(user)) || is_admin?(user))
+    invoice.status != :archived && ( (invoice.status == :pending && staff_member?(user)) || is_admin?(user)) && !invoice.is_admin_invoice
   end
 
   def can_see_link_to_profile?(user) do

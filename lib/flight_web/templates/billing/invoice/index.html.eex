@@ -101,6 +101,7 @@ function getPlainDate(start_at) {
 
             <tbody>
               <%= for invoice <- @invoices do %>
+
                 <tr>
                   <td><a href="/billing/invoices/<%= invoice.id %>"><%= invoice.id %></a></td>
                 <script> document.write(
@@ -127,7 +128,7 @@ function getPlainDate(start_at) {
                           EDIT
                         </a>
                       <% end %>
-                        <%= if can_delete_invoice?(@conn, invoice) do %>
+                        <%= if can_delete_invoice?(@conn, invoice)  do %>
                           <button stype="button" class="btn btn-danger btn-sm ml-1 _delete_button" data-invoice-id="<%= invoice.id %>">
                             Delete
                           </button>

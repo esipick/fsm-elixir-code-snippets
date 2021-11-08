@@ -32,6 +32,8 @@ class Form extends Component {
     const appointments = appointment ? [appointment] : [];
     
     let id = localStorage.getItem('invoice_id')
+
+
     if  (id && !props.id) {
       localStorage.removeItem('invoice_id')
       window.location = `/billing/invoices/${id}/edit`;
@@ -140,7 +142,8 @@ class Form extends Component {
           appointment: invoice.appointment,
           default_appointment: invoice.appointment,
           default_user: invoice.user,
-          invoice_loading: false
+          invoice_loading: false,
+          is_admin_invoice: invoice.is_admin_invoice
         });
       })
       .catch(err => {
@@ -643,7 +646,7 @@ class Form extends Component {
     }
   }
 
-  studentSelect = () => {
+  studentSelect = (is_admin_invoice) => {
     const { errors, student, students } = this.state;
    
     return (
@@ -657,6 +660,7 @@ class Form extends Component {
           onChange={this.setStudent}
           getOptionLabel={(o) => (o.label || o.first_name + ' ' + o.last_name)}
           getOptionValue={(o) => o.id}
+          isDisabled={is_admin_invoice}
           value={student} />
       </div>
     )
@@ -666,9 +670,10 @@ class Form extends Component {
     const { custom_line_items, staff_member } = this.props;
     const { aircrafts, simulators, appointment, appointment_loading, appointments,
       instructors, rooms, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
-      saving, stripe_error, student, total, total_amount_due, total_tax
+      saving, stripe_error, student, total, total_amount_due, total_tax, is_admin_invoice
     } = this.state;
 
+    console.log('is_admin_invoice',is_admin_invoice)
     const isGuest = student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined"
     
     var {demo} = this.state;
@@ -696,7 +701,7 @@ class Form extends Component {
                       Person Name
                       <Error text={this.userErrors(errors.user_id)} />
                     </label>
-                    { staff_member && this.studentSelect() }
+                    { staff_member && this.studentSelect(is_admin_invoice) }
                     { !staff_member && <div>{student.first_name + ' ' + student.last_name}</div> }
                   </div>
                )}
@@ -725,7 +730,7 @@ class Form extends Component {
                         isLoading={appointment_loading}
                         getOptionLabel={this.appointmentLabel}
                         getOptionValue={(o) => o.id}
-                        isDisabled={!student || student.guest}
+                        isDisabled={!student || student.guest || is_admin_invoice}
                         value={appointment} />
                     </div>
                   </div>
@@ -796,7 +801,7 @@ class Form extends Component {
                 </div>
 
                 <div id="save_and_pay" className="form-group invoice-save-buttons">
-                  { isEmpty(this.props.course) &&
+                  { isEmpty(this.props.course) && !is_admin_invoice &&
                     <input className="btn btn-primary"
                       type="submit"
                       value="Save for later"
