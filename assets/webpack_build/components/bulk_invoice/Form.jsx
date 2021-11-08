@@ -1,18 +1,11 @@
 import classnames from 'classnames';
-import http from 'j-fetch';
 import React, { Component } from 'react';
 import Select from 'react-select';
-import { debounce } from 'lodash';
-
 import './styles.css';
-
 import { authHeaders, addSchoolIdParam } from '../utils';
 import Error from '../common/Error';
-
 import Invoice from './Invoice';
-
 import { PAYMENT_OPTIONS, DEFAULT_PAYMENT_OPTION, BALANCE } from '../invoice_form/constants';
-
 import LowBalanceAlert from '../invoice_form/LowBalanceAlert';
 import ErrorAlert from '../invoice_form/ErrorAlert';
 
@@ -49,8 +42,10 @@ class BulkInvoiceForm extends Component {
   };
 
   loadStudents = () => {
-    return http.get({ url: '/api/users/by_role?role=student', headers: authHeaders() })
-      .then(r => r.json())
+    return fetch('/api/users/by_role?role=student', {
+      method: 'GET',
+      headers: authHeaders()
+    }).then(r => r.json())
       .then(r => { this.setState({ students: r.data }); })
       .catch(err => {
         err.json().then(e => { console.warn(e); });
@@ -65,8 +60,8 @@ class BulkInvoiceForm extends Component {
 
     this.setState({ invoices_loading: true });
 
-    http.get({
-      url: '/api/invoices?skip_pagination=true&status=0&user_id=' + student.id + addSchoolIdParam('&'),
+    fetch(`/api/invoices?skip_pagination=true&status=0&user_id=${student.id}${addSchoolIdParam('&')}`, {
+      method: 'GET',
       headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
@@ -110,12 +105,16 @@ class BulkInvoiceForm extends Component {
       payment_option: payment_method.value,
       invoice_ids
     }
-
-    http.post({
-      url: `/api/bulk_invoices`,
-      body: { bulk_invoice },
-      headers: authHeaders()
-    }).then(response => {
+    
+    fetch('/api/bulk_invoices', {
+      method: 'POST',
+      body: JSON.stringify({bulk_invoice}),
+      headers: {
+        ...authHeaders(),
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    })
+    .then(response => {
       response.json().then(({ data }) => {
         window.location = `/billing/transactions/${data.transaction_id}`;
       });

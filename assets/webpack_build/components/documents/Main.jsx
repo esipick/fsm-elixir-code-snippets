@@ -1,4 +1,3 @@
-import http from 'j-fetch'
 import React, { Component } from 'react'
 import Pagination from "react-js-pagination"
 import Dropzone from 'react-dropzone'
@@ -138,9 +137,9 @@ class Main extends Component {
     if (school_span) {
       url = url + '?school_id=' + school_span.dataset['schoolId']
     }
-
-    http['delete']({
-      url: url,
+    
+    fetch(url, {
+      method: 'DELETE',
       headers: authHeaders()
     }).then(response => {
       if (response.status == 204) {

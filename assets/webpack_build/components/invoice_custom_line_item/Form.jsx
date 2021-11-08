@@ -1,5 +1,4 @@
 
-import http from 'j-fetch';
 import NumberFormat from 'react-number-format';
 import React, { Component } from 'react';
 import { authHeaders } from '../utils';
@@ -63,10 +62,13 @@ class Form extends Component {
     this.setState({ saving: true });
     const payload = this.payload();
 
-    http['post']({
-      url: `/api/invoices/${this.props.school_id}/custom_line_items`,
-      body: { custom_line_item: payload },
-      headers: authHeaders()
+    fetch('', {
+      method: 'POST',
+      body: JSON.stringify({custom_line_item: payload}),
+      headers: {
+        ...authHeaders(),
+        'Content-Type': 'application/json; charset=utf-8'
+      }
     }).then(response => {
       response.json().then((custom_line_item) => {
         this.addCustomLineItem(custom_line_item)

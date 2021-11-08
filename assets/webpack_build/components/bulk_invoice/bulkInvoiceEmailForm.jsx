@@ -1,19 +1,11 @@
 import classnames from 'classnames';
-import http from 'j-fetch';
 import React, { Component } from 'react';
 import Select from 'react-select';
-import { debounce } from 'lodash';
-
 import './styles.css';
-
 import { authHeaders, addSchoolIdParam } from '../utils';
 import Error from '../common/Error';
-
 import Invoice from './emailInvoice';
-
-import { PAYMENT_OPTIONS, DEFAULT_PAYMENT_OPTION, BALANCE } from '../invoice_form/constants';
-
-// import LowBalanceAlert from '../invoice_form/LowBalanceAlert';
+import { DEFAULT_PAYMENT_OPTION } from '../invoice_form/constants';
 import ErrorAlert from '../invoice_form/ErrorAlert';
 
 class BulkInvoiceEmailForm extends Component {
@@ -49,8 +41,13 @@ class BulkInvoiceEmailForm extends Component {
   };
 
   loadStudents = () => {
-    return http.get({ url: '/api/users/by_role?role=student', headers: authHeaders() })
-      .then(r => r.json())
+    const reqOpts = {
+
+    }
+      fetch("/api/users/by_role?role=student", {
+        method: 'GET',
+        headers: authHeaders()
+      }).then(r => r.json())
       .then(r => { this.setState({ students: r.data }); })
       .catch(err => {
         err.json().then(e => { console.warn(e); });
@@ -65,9 +62,9 @@ class BulkInvoiceEmailForm extends Component {
 
     this.setState({ invoices_loading: true });
 
-    http.get({
-      url: '/api/invoices?skip_pagination=true&user_id=' + student.id + addSchoolIdParam('&'),
-      headers: authHeaders()
+    fetch(`/api/invoices?skip_pagination=true&user_id=${student.id}${addSchoolIdParam('&')}`, {
+        method: 'GET',
+        headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
         this.setState({ invoices: r.data, invoices_loading: false });
@@ -109,11 +106,15 @@ class BulkInvoiceEmailForm extends Component {
       invoice_ids
     }
 
-    http.post({
-      url: `/api/bulk_invoices/send_bulk_invoice`,
-      body: { bulk_invoice },
-      headers: authHeaders()
-    }).then(response => {
+    fetch('/api/bulk_invoices/send_bulk_invoice', {
+      method: 'POST',
+      body: JSON.stringify({bulk_invoice}),
+      headers: {
+        ...authHeaders(),
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    })
+    .then(response => {
       response.json().then(({ data }) => {
         window.location = `/billing/bulk_invoices/send_bulk_invoice?success=1`;
       });
@@ -229,8 +230,8 @@ class BulkInvoiceEmailForm extends Component {
 
   render() {
     const {
-      all_invoices_selected, student, students, invoices, invoices_loading,
-      total_amount_due, selectedInvoices, errors, stripe_error, saving, payment_method
+      student, students, invoices, invoices_loading,
+      errors, stripe_error, saving
     } = this.state;
 
     const payBtnDisabled = saving || !student || invoices_loading;

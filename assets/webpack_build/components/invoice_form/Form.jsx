@@ -1,14 +1,12 @@
 import { loadStripe } from "@stripe/stripe-js";
 import classnames from 'classnames';
-import http from 'j-fetch';
-import { debounce } from 'lodash';
 import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import "regenerator-runtime/runtime";
 import Error from '../common/Error';
-import { addSchoolIdParam, authHeaders, isEmpty } from '../utils';
+import { addSchoolIdParam, authHeaders, isEmpty, debounce } from '../utils';
 import ConfirmAlert from './ConfirmAlert';
 import ConfirmHobbTachAlert from './ConfirmHobbTachAlert';
 import {
@@ -86,8 +84,10 @@ class Form extends Component {
   }
 
   loadAircrafts = () => {
-    return http.get({ url: '/api/aircrafts', headers: authHeaders() })
-      .then(r => r.json())
+    return fetch('/api/aircrafts', {
+        method: 'GET',
+        headers: authHeaders()
+      }).then(r => r.json())
       .then(r => { 
         const simulators = r.data.filter(function(item){return item.simulator})
         const aircrafts = r.data.filter(function(item){return !item.simulator})
@@ -100,8 +100,10 @@ class Form extends Component {
   }
 
   loadInstructors = () => {
-    return http.get({ url: '/api/users/by_role?role=instructor', headers: authHeaders() })
-      .then(r => r.json())
+    return fetch('/api/users/by_role?role=instructor', {
+        method: 'GET',
+        headers: authHeaders()
+      }).then(r => r.json())
       .then(r => { this.setState({ instructors: r.data }); })
       .catch(err => {
         err.json().then(e => { console.warn(e); });
@@ -109,8 +111,10 @@ class Form extends Component {
   }
 
   loadRooms = () => {
-    return http.get({ url: '/api/rooms', headers: authHeaders() })
-      .then(r => r.json())
+    fetch('/api/rooms', {
+        method: 'GET',
+        headers: authHeaders()
+      }).then(r => r.json())
       .then(r => { this.setState({ rooms: r.data }); })
       .catch(err => {
         err.json().then(e => { console.warn(e); });
@@ -120,8 +124,8 @@ class Form extends Component {
   loadInvoice = () => {
     this.setState({ invoice_loading: true });
 
-    return http.get({
-      url: '/api/invoices/' + this.state.id,
+    return fetch('/api/invoices/', {
+      method: 'GET',
       headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
@@ -185,8 +189,10 @@ class Form extends Component {
   loadStudents = () => {
     if (!this.props.staff_member) return;
 
-    return http.get({ url: '/api/users?invoice_payee', headers: authHeaders() })
-      .then(r => r.json())
+    return fetch('/api/users?invoice_payee', {
+        method: 'GET',
+        headers: authHeaders()
+      }).then(r => r.json())
       .then(r => { this.setState({ students: r.data }); })
       .catch(err => {
         err.json().then(e => { console.warn(e); });
@@ -201,8 +207,8 @@ class Form extends Component {
 
     this.setState({ appointment_loading: true });
 
-    http.get({
-      url: '/api/invoices/appointments?user_id=' + student.id + addSchoolIdParam('&'),
+    fetch(`/api/invoices/appointments?user_id=${student.id}${addSchoolIdParam('&')}`, {
+      method: 'GET',
       headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
@@ -377,11 +383,11 @@ class Form extends Component {
     this.setState({ saving: true });
 
     const payload = this.payload();
-    const http_method = this.state.action == 'edit' ? 'put' : 'post';
+    const http_method = this.state.action == 'edit' ? 'PUT' : 'POST';
 
-    http[http_method]({
-      url: `/api/invoices/${this.state.id}`,
-      body: { pay_off: pay_off, invoice: payload },
+    fetch(`/api/invoices/${this.state.id}`, {
+      method: http_method,
+      body: JSON.stringify({ pay_off: pay_off, invoice: payload }),
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
@@ -432,10 +438,13 @@ class Form extends Component {
     if (!this.state.saving) this.setState({ saving: true });
 
     calculateRequest = debounce(payloadParams => {
-      http.post({
-        url: '/api/invoices/calculate?' + addSchoolIdParam(),
-        body: { invoice: payloadParams },
-        headers: authHeaders()
+      fetch(`/api/invoices/calculate?${addSchoolIdParam()}`, {
+        method: 'POST',
+        body: JSON.stringify({invoice: payloadParams}),
+        headers: {
+          ...authHeaders(),
+          'Content-Type': 'application/json; charset=utf-8'
+        }
       }).then(response => {
         this.setState({ saving: false });
         response.json().then(callback);
@@ -445,7 +454,7 @@ class Form extends Component {
           console.warn(err);
         });
       });
-    }, 500);
+    }, 1000);
 
     calculateRequest(payload);
   }
