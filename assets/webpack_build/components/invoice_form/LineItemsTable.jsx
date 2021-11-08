@@ -8,6 +8,7 @@ const lineItemsKey = (appointment) => appointment && appointment.id || 'none';
 class LineItemsTable extends Component {
   constructor(props) {
     super(props);
+
     const { appointment, current_user_id, user_roles } = props;
     
     let line_items = []
@@ -76,7 +77,7 @@ class LineItemsTable extends Component {
 
   render() {
     var { total, total_tax, total_amount_due } = this.state;
-    const { aircrafts, simulators, custom_line_items, errors, instructors, rooms, sales_tax } = this.props;
+    const { aircrafts, simulators, custom_line_items, errors, instructors, rooms, sales_tax,is_admin_invoice } = this.props;
     const line_items = this.lineItems();
     const line_items_errors = errors.line_items || [];
     
@@ -117,14 +118,15 @@ class LineItemsTable extends Component {
                 onChange={this.setLineItem}
                 onRemove={this.removeLineItem}
                 current_user_id={this.state.current_user_id}
-                user_roles = {this.state.user_roles} 
+                user_roles = {this.state.user_roles}
+                is_admin_invoice = {this.props.is_admin_invoice}
                 course={this.props.course} />
             ))
           }
 
           <tr>
             {
-              isEmpty(this.props.course) && <td colSpan="7">
+              isEmpty(this.props.course) && !this.props.is_admin_invoice && <td colSpan="7">
                 <button className="btn btn-sm btn-default" onClick={this.addLineItem}>Add</button>
               </td>
             }

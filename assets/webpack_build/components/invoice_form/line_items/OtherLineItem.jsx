@@ -192,7 +192,7 @@ class OtherLineItem extends Component {
         <td className="lc-column">
           <NumberFormat onValueChange={this.setRate}
             value={rate == null ? null : rate / 100 }
-            disabled={!staff_member || shouldDisableRate}
+            disabled={!staff_member || shouldDisableRate || !editable}
             {...rateOpts} />
           { errors.rate && <br /> }
           <Error text={errors.rate} />

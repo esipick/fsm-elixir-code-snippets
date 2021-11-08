@@ -780,6 +780,7 @@ class Form extends Component {
                       total_tax={total_tax}
                       current_user_id={this.state.current_user_id}
                       user_roles = {this.state.user_roles}
+                      is_admin_invoice = {is_admin_invoice}
                       course={this.props.course} />
                   }
               </div>

@@ -45,13 +45,13 @@ class InvoiceLineItem extends PureComponent {
   }
 
   render() {
-    const { line_item, creator, staff_member } = this.props;
+    const { line_item, creator, staff_member, is_admin_invoice } = this.props;
     let editable = staff_member || !line_item.creator_id || line_item.creator_id == creator.id;
 
-    if(!isEmpty(this.props.course)) {
+    if(!isEmpty(this.props.course) || this.props.is_admin_invoice) {
       editable = false
     }
-
+    console.log('editable',editable)
     const props = Object.assign({}, this.props, {
       lineItemTypeOptions: this.lineItemTypeOptions(),
       itemFromOption: this.itemFromOption,
