@@ -86,7 +86,7 @@ config :scrivener_html,
 config :flight, Flight.Scheduler,
        jobs: [
          # Every minute
-         {"* * * * *",{Flight.MonthlyCourseInvoiceJob, :send_course_monthly_invoice, []}},
+         { System.get_env("MONTHLY_COURSE_INVOICE_INTERVAL") || "0 0 28 * *",{Flight.MonthlyCourseInvoiceJob, :send_course_monthly_invoice, []}},
        ]
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
