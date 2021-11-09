@@ -68,7 +68,7 @@ config :flight, :lms_endpoint, System.get_env("LMS_ENDPOINT") || "https://moodle
 config :flight, :webtoken_key, System.get_env("WEBTOKEN_KEY") || "FSM"
 config :flight, :webtoken_secret_key, System.get_env("WEBTOKEN_SECRET_KEY") || ".jG<T9qX6sNk3.Z3"
 config :flight, :per_course_price, String.to_integer(System.get_env("PER_COURSE_PRICE") || "10")
-
+config :flight, :monthly_invoice_creator, String.to_integer(System.get_env("MONTHLY_INVOICE_CREATOR") || "1")
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
