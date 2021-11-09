@@ -56,7 +56,7 @@ defmodule Flight.MonthlyCourseInvoiceJob do
 
           }
           Logger.info fn -> "create_invoice_item: #{inspect create_invoice_item }" end
-          invoice_resp = Fsm.Billing.create_invoice(create_invoice_item, false, school_item.school.id, 56)
+          invoice_resp = Fsm.Billing.create_invoice(create_invoice_item, false, school_item.school.id, 1)
           Logger.info fn -> "invoice_resp: #{inspect invoice_resp }" end
         _ ->
           Logger.info("Invoice not send, admin user not exist")
