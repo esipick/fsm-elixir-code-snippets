@@ -28,7 +28,7 @@ class Form extends Component {
     const { creator, staff_member, appointment } = props;
     const demo = appointment && appointment.demo
     const appointments = appointment ? [appointment] : [];
-    
+
     let id = localStorage.getItem('invoice_id')
 
 
@@ -36,7 +36,7 @@ class Form extends Component {
       localStorage.removeItem('invoice_id')
       window.location = `/billing/invoices/${id}/edit`;
     }
-    
+
     this.state = {
       appointment,
       appointments,
@@ -124,7 +124,7 @@ class Form extends Component {
   loadInvoice = () => {
     this.setState({ invoice_loading: true });
 
-    return fetch('/api/invoices/', {
+    return fetch('/api/invoices/'+ this.state.id, {
       method: 'GET',
       headers: authHeaders()
     }).then(r => r.json())
