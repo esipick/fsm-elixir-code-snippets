@@ -256,7 +256,7 @@ defmodule Flight.General do
       "action": "courses_retrieved",
       "webtoken": webtoken
     })
-    options = [recv_timeout: 60000]
+    options = [recv_timeout: 60000, timeout: 60000]
 
     courses = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -328,7 +328,7 @@ defmodule Flight.General do
     })
     
     Logger.info fn -> "postBody: #{inspect postBody}" end
-    options = [recv_timeout: 60000]
+    options = [recv_timeout: 60000, timeout: 60000]
     course = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
@@ -357,7 +357,7 @@ defmodule Flight.General do
     })
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
-    options = [recv_timeout: 60000]
+    options = [recv_timeout: 60000, timeout: 60000]
     participant = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
@@ -400,7 +400,7 @@ defmodule Flight.General do
     })
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
-    options = [recv_timeout: 60000]
+    options = [recv_timeout: 60000, timeout: 60000]
     course = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
@@ -457,7 +457,7 @@ defmodule Flight.General do
     })
 
     Logger.info fn -> "postBody11111111111111111111111111111111111111111111111111: #{inspect postBody}" end
-    options = [recv_timeout: 60000]
+    options = [recv_timeout: 60000, timeout: 60000]
     course = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
