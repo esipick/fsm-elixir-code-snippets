@@ -67,6 +67,7 @@ config :flight, :aws_apns_application_arn, Map.fetch!(System.get_env(), "AWS_SNS
 config :flight, :lms_endpoint, System.get_env("LMS_ENDPOINT") || "https://moodlenew.esipick.com"
 config :flight, :webtoken_key, System.get_env("WEBTOKEN_KEY") || "FSM"
 config :flight, :webtoken_secret_key, System.get_env("WEBTOKEN_SECRET_KEY") || ".jG<T9qX6sNk3.Z3"
+config :flight, :per_course_price, String.to_integer(System.get_env("PER_COURSE_PRICE") || "10")
 
 # ## SSL Support
 #
