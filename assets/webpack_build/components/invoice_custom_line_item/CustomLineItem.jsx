@@ -1,3 +1,4 @@
+import http from 'j-fetch';
 import NumberFormat from 'react-number-format';
 import React, { Component } from 'react';
 import { authHeaders } from '../utils';
@@ -43,14 +44,11 @@ class CustomLineItem extends Component {
     this.setState({ saving: true });
     const { custom_line_item: { id }, school_id } = this.props
     const payload = this.payload();
-    
-    fetch(`/api/invoices/${school_id}/custom_line_items/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({custom_line_item: payload}),
-      headers: {
-        ...authHeaders(),
-        'Content-Type': 'application/json; charset=utf-8'
-      }
+
+    http['patch']({
+      url: `/api/invoices/${school_id}/custom_line_items/${id}`,
+      body: { custom_line_item: payload },
+      headers: authHeaders()
     }).then(response => {
       response.json().then(({ description, default_rate }) => {
         this.setState({ saving: true, description, default_rate: default_rate / 100 });
@@ -74,8 +72,8 @@ class CustomLineItem extends Component {
 
     const { custom_line_item: { id }, onRemove, school_id } = this.props
 
-    fetch(`/api/invoices/${school_id}/custom_line_items/${id}`, {
-      method: 'DELETE',
+    http['delete']({
+      url: `/api/invoices/${school_id}/custom_line_items/${id}`,
       headers: authHeaders()
     }).then(response => {
       if (response.status == 204) {

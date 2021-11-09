@@ -1,4 +1,5 @@
 import classnames from 'classnames';
+import http from 'j-fetch';
 import React, { Component } from 'react';
 import Select from 'react-select';
 import './styles.css';
@@ -42,10 +43,8 @@ class BulkInvoiceForm extends Component {
   };
 
   loadStudents = () => {
-    return fetch('/api/users/by_role?role=student', {
-      method: 'GET',
-      headers: authHeaders()
-    }).then(r => r.json())
+    return http.get({ url: '/api/users/by_role?role=student', headers: authHeaders() })
+      .then(r => r.json())
       .then(r => { this.setState({ students: r.data }); })
       .catch(err => {
         err.json().then(e => { console.warn(e); });
@@ -60,8 +59,8 @@ class BulkInvoiceForm extends Component {
 
     this.setState({ invoices_loading: true });
 
-    fetch(`/api/invoices?skip_pagination=true&status=0&user_id=${student.id}${addSchoolIdParam('&')}`, {
-      method: 'GET',
+    http.get({
+      url: '/api/invoices?skip_pagination=true&status=0&user_id=' + student.id + addSchoolIdParam('&'),
       headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
@@ -105,16 +104,12 @@ class BulkInvoiceForm extends Component {
       payment_option: payment_method.value,
       invoice_ids
     }
-    
-    fetch('/api/bulk_invoices', {
-      method: 'POST',
-      body: JSON.stringify({bulk_invoice}),
-      headers: {
-        ...authHeaders(),
-        'Content-Type': 'application/json; charset=utf-8'
-      }
-    })
-    .then(response => {
+
+    http.post({
+      url: `/api/bulk_invoices`,
+      body: { bulk_invoice },
+      headers: authHeaders()
+    }).then(response => {
       response.json().then(({ data }) => {
         window.location = `/billing/transactions/${data.transaction_id}`;
       });

@@ -1,4 +1,5 @@
 import classnames from 'classnames';
+import http from 'j-fetch';
 import React, { Component } from 'react';
 import Select from 'react-select';
 import './styles.css';
@@ -41,13 +42,8 @@ class BulkInvoiceEmailForm extends Component {
   };
 
   loadStudents = () => {
-    const reqOpts = {
-
-    }
-      fetch("/api/users/by_role?role=student", {
-        method: 'GET',
-        headers: authHeaders()
-      }).then(r => r.json())
+    return http.get({ url: '/api/users/by_role?role=student', headers: authHeaders() })
+      .then(r => r.json())
       .then(r => { this.setState({ students: r.data }); })
       .catch(err => {
         err.json().then(e => { console.warn(e); });
@@ -62,9 +58,9 @@ class BulkInvoiceEmailForm extends Component {
 
     this.setState({ invoices_loading: true });
 
-    fetch(`/api/invoices?skip_pagination=true&user_id=${student.id}${addSchoolIdParam('&')}`, {
-        method: 'GET',
-        headers: authHeaders()
+    http.get({
+      url: '/api/invoices?skip_pagination=true&user_id=' + student.id + addSchoolIdParam('&'),
+      headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
         this.setState({ invoices: r.data, invoices_loading: false });
@@ -106,15 +102,11 @@ class BulkInvoiceEmailForm extends Component {
       invoice_ids
     }
 
-    fetch('/api/bulk_invoices/send_bulk_invoice', {
-      method: 'POST',
-      body: JSON.stringify({bulk_invoice}),
-      headers: {
-        ...authHeaders(),
-        'Content-Type': 'application/json; charset=utf-8'
-      }
-    })
-    .then(response => {
+    http.post({
+      url: `/api/bulk_invoices/send_bulk_invoice`,
+      body: { bulk_invoice },
+      headers: authHeaders()
+    }).then(response => {
       response.json().then(({ data }) => {
         window.location = `/billing/bulk_invoices/send_bulk_invoice?success=1`;
       });
@@ -230,8 +222,7 @@ class BulkInvoiceEmailForm extends Component {
 
   render() {
     const {
-      student, students, invoices, invoices_loading,
-      errors, stripe_error, saving
+      student, students, invoices, invoices_loading, errors, stripe_error, saving
     } = this.state;
 
     const payBtnDisabled = saving || !student || invoices_loading;
