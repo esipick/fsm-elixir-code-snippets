@@ -17,49 +17,60 @@ defmodule Flight.MonthlyCourseInvoiceJob do
   end
   def send_course_monthly_invoice() do
     Logger.info("MonthlyCourseInvoiceJob:send_course_monthly_invoice -- Started...")
-
+    today = DateTime.utc_now
     list_items = FlightWeb.Admin.SchoolListItem.items_from_schools(Flight.Accounts.get_schools())
     for school_item <- list_items do
-      courses = Flight.General.get_school_lms_courses(school_item.school.id)
-      number_on_course_to_bill = get_number_of_courses_to_bill(courses)
-      per_course_price = Application.get_env(:flight, :per_course_price)*100
-      total_amount_to_bill = number_on_course_to_bill * per_course_price
-      Logger.info fn -> "Number of courses to bill: #{inspect number_on_course_to_bill }" end
-      Logger.info fn -> "total_amount_to_bill: #{inspect total_amount_to_bill }" end
-      #get admin user info using admin email
-      case user = Flight.Accounts.get_user_by_email(school_item.school.contact_email) do
-        %User{archived: false} ->
-          Logger.info fn -> "user**************************************************************************: #{inspect user }" end
-          create_invoice_item = %{
-            user_id: user.id,
-            date: Date.utc_today(),
-            is_visible: true,
-            line_items: [
-              %{
-                amount: abs(total_amount_to_bill),
-                description: "Monthly courses invoice",
-                quantity: abs(number_on_course_to_bill),
-                rate: abs(per_course_price),
-                taxable: false,
-                type: :course_invoice,
-                aircraft_id: nil,
-                deductible: false
-              }
-            ],
-            payment_option: :cc,
-            status: :pending,
-            tax_rate: 0,
-            total: abs(total_amount_to_bill),
-            total_amount_due: abs(total_amount_to_bill),
-            total_tax: 0,
-            is_admin_invoice: true
+      #check if monthly course invoice is created in this month.
+      currentMonthCourseAdminInvoice =  Fsm.Billing.Invoices.getCurrentMonthCourseAdminInvoice(school_item.school.id)
+      Logger.info fn -> "currentMonthCourseAdminInvoice:---------------------------------- #{inspect currentMonthCourseAdminInvoice }" end
+      Logger.info fn -> "currentMonthCourseAdminInvoice != nil && currentMonthCourseAdminInvoice.inserted_at.month ==  today.month:---------------------------------- #{inspect currentMonthCourseAdminInvoice != nil && currentMonthCourseAdminInvoice.inserted_at.month ==  today.month }" end
 
-          }
-          Logger.info fn -> "create_invoice_item: #{inspect create_invoice_item }" end
-          invoice_resp = Fsm.Billing.create_invoice(create_invoice_item, false, school_item.school.id, Application.get_env(:flight, :monthly_invoice_creator))
-          Logger.info fn -> "invoice_resp: #{inspect invoice_resp }" end
-        _ ->
-          Logger.info("Invoice not send, admin user not exist")
+      case currentMonthCourseAdminInvoice != nil && currentMonthCourseAdminInvoice.inserted_at.month ==  today.month  do
+        true->
+          Logger.info("Invoice already exist!++++++++++++++++++++++++++++++++++++++")
+        false->
+          courses = Flight.General.get_school_lms_courses(school_item.school.id)
+          number_on_course_to_bill = get_number_of_courses_to_bill(courses)
+          per_course_price = Application.get_env(:flight, :per_course_price)*100
+          total_amount_to_bill = number_on_course_to_bill * per_course_price
+          Logger.info fn -> "Number of courses to bill: #{inspect number_on_course_to_bill }" end
+          Logger.info fn -> "total_amount_to_bill: #{inspect total_amount_to_bill }" end
+
+          #get admin user info using admin email
+          case user = Flight.Accounts.get_user_by_email(school_item.school.contact_email) do
+            %User{archived: false} ->
+              Logger.info fn -> "user**************************************************************************: #{inspect user }" end
+              create_invoice_item = %{
+                user_id: user.id,
+                date: Date.utc_today(),
+                is_visible: true,
+                line_items: [
+                  %{
+                    amount: abs(total_amount_to_bill),
+                    description: "Monthly courses invoice",
+                    quantity: abs(number_on_course_to_bill),
+                    rate: abs(per_course_price),
+                    taxable: false,
+                    type: :course_invoice,
+                    aircraft_id: nil,
+                    deductible: false
+                  }
+                ],
+                payment_option: :cc,
+                status: :pending,
+                tax_rate: 0,
+                total: abs(total_amount_to_bill),
+                total_amount_due: abs(total_amount_to_bill),
+                total_tax: 0,
+                is_admin_invoice: true
+
+              }
+              Logger.info fn -> "create_invoice_item: #{inspect create_invoice_item }" end
+              invoice_resp = Fsm.Billing.create_invoice(create_invoice_item, false, school_item.school.id, Application.get_env(:flight, :monthly_invoice_creator))
+              Logger.info fn -> "invoice_resp: #{inspect invoice_resp }" end
+            _ ->
+              Logger.info("Invoice not send, admin user not exist")
+          end
       end
     end
     Logger.info("MonthlyCourseInvoiceJob:send_course_monthly_invoice -- Ended...")
