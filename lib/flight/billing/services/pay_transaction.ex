@@ -12,12 +12,15 @@ end
 
 defmodule Flight.Billing.PayTransaction do
   import Ecto.Changeset
+  require Logger
 
   alias Flight.{Repo, Billing.Transaction}
   alias FlightWeb.ViewHelpers
   alias Flight.Billing.PaymentError
 
   def run(transaction) do
+    Logger.info fn -> "run**************************************************************************: #{inspect transaction }" end
+
     transaction = Repo.preload(transaction, [:user, :invoice])
 
     case transaction.payment_option do
@@ -75,6 +78,7 @@ defmodule Flight.Billing.PayTransaction do
 
   defp create_charge(transaction) do
     user = transaction.user
+    Logger.info fn -> "create_charge**************************************************************************: #{inspect transaction }" end
 
     try do
       case Stripe.Customer.retrieve(user.stripe_customer_id) do

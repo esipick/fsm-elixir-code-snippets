@@ -22,7 +22,8 @@ defmodule Fsm.Billing.CreateInvoice do
       school_context = %Plug.Conn{assigns: %{current_user: current_user}}
 
       Logger.info fn -> " Map.get(invoice_params, :line_items): #{inspect  Map.get(invoice_params, :line_items) }" end
-      line_items = LineItemCreator.populate_creator(Map.get(invoice_params, :line_items), current_user)
+      line_items =   LineItemCreator.populate_creator(Map.get(invoice_params, :line_items), current_user)
+
       aircraft_info = Utils.aircraft_info_map(invoice_params)
 
       invoice_attrs =
@@ -112,7 +113,7 @@ defmodule Fsm.Billing.CreateInvoice do
       x_device = Enum.into(Map.get(school_context, :req_headers) || [], %{})
       x_device = x_device["X-Device"] || x_device["x-device"] || ""
       x_device = String.downcase(x_device)
-  
+
       case invoice.payment_option do
         :balance -> pay_off_balance(invoice, school_context)
         :cc ->

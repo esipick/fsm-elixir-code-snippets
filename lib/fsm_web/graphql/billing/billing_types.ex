@@ -125,7 +125,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       field(:line_items, list_of(:line_item))
       field(:user, :user)
       field(:room, :room)
-    field(:is_admin_invoice, :boolean)
+      field(:is_admin_invoice, :boolean)
   end
 
   object :transaction do

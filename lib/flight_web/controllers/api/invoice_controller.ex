@@ -97,6 +97,7 @@ defmodule FlightWeb.API.InvoiceController do
 
   def update(conn, %{"invoice" => invoice_params}) do
     invoice_params = Map.put(invoice_params, "is_visible", true)
+    Logger.info fn -> "invoice_params***********************************************************------------------------------------------: #{inspect invoice_params}" end
     case UpdateInvoice.run(conn.assigns.invoice, invoice_params, conn) do
       {:ok, invoice} ->
         session_info = Map.take(invoice, [:session_id, :connect_account, :pub_key])

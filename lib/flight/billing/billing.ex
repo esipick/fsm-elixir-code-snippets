@@ -2,7 +2,7 @@ defmodule Flight.Billing do
   alias Flight.Repo
   import Ecto.Query, warn: false
   import Pipe
-
+  require Logger
   alias Flight.Billing
   alias Flight.SchoolScope
 
@@ -308,6 +308,8 @@ defmodule Flight.Billing do
   end
 
   def approve_transaction(transaction, source? \\ nil) do
+    Logger.info fn -> "approve_transaction111111111111111111111111111111111111: #{inspect transaction }" end
+
     case transaction.state do
       "pending" ->
         case get_payment_method(transaction.user, transaction.total, source?) do
@@ -328,6 +330,7 @@ defmodule Flight.Billing do
 
           :charge ->
             if source? do
+
               case create_stripe_charge(source?, transaction) do
                 {:ok, charge} ->
                   update_transaction_completed(transaction, :charge, charge.id)
@@ -720,6 +723,8 @@ defmodule Flight.Billing do
   end
 
   def create_stripe_charge(source_id, transaction) do
+    Logger.info fn -> "transaction111**************************************************************************: #{inspect transaction }" end
+
     case transaction.state do
       "pending" ->
         create_stripe_charge(
@@ -736,6 +741,8 @@ defmodule Flight.Billing do
   end
 
   def create_stripe_charge(source_id, user?, email, total, school_context) do
+    Logger.info fn -> "source_id44444444444444444: #{inspect source_id }" end
+
     stripe_account =
       Repo.get_by(
         Flight.Accounts.StripeAccount,
@@ -744,6 +751,7 @@ defmodule Flight.Billing do
 
     cond do
       !stripe_account ->
+
         {:error, :no_stripe_account}
 
       !stripe_account.charges_enabled ->
