@@ -256,8 +256,9 @@ defmodule Flight.General do
       "action": "courses_retrieved",
       "webtoken": webtoken
     })
+    options = [recv_timeout: 60000]
 
-    courses = case HTTPoison.post(url,postBody) do
+    courses = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Poison.decode(body) do
           {:ok, courses} ->
@@ -317,6 +318,7 @@ defmodule Flight.General do
   end
 
   def get_course_detail(current_user, course_id)do
+
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
@@ -326,8 +328,8 @@ defmodule Flight.General do
     })
     
     Logger.info fn -> "postBody: #{inspect postBody}" end
-
-    course = case HTTPoison.post(url,postBody) do
+    options = [recv_timeout: 60000]
+    course = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
         case Poison.decode(body) do
@@ -355,8 +357,8 @@ defmodule Flight.General do
     })
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
-
-    participant = case HTTPoison.post(url,postBody) do
+    options = [recv_timeout: 60000]
+    participant = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
         case Poison.decode(body) do
@@ -398,8 +400,8 @@ defmodule Flight.General do
     })
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
-
-    course = case HTTPoison.post(url,postBody) do
+    options = [recv_timeout: 60000]
+    course = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
         case Poison.decode(body) do
@@ -455,8 +457,8 @@ defmodule Flight.General do
     })
 
     Logger.info fn -> "postBody11111111111111111111111111111111111111111111111111: #{inspect postBody}" end
-
-    course = case HTTPoison.post(url,postBody) do
+    options = [recv_timeout: 60000]
+    course = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
         case Poison.decode(body) do
