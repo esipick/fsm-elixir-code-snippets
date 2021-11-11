@@ -4,8 +4,8 @@
 <div class="content profile" style="background-color: white">
     <div class="card-header" data-background-color="gray">
         <%= if @admin_login_url != nil do %>
-        <a href="<%= @admin_login_url %>" class="link lms-login-btn">
-            <span>Go to LMS</span>
+        <a href="<%= @admin_login_url %>" class="btn btn-fill btn-primary float-right">
+            <span>Manage Courses</span>
         </a>
         <% end %>
         <div class="user-info">
