@@ -16,7 +16,12 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
             resolve &CoursesResolvers.get_course/3
         end
 
-
+        @desc "Get Course lesson detail"
+        field :get_course_lesson, :participant do
+            arg :course_id, non_null(:id)
+            arg :lms_user_id, non_null(:id)
+            resolve &CoursesResolvers.get_course_lesson/3
+        end
     end
     object :courses_mutations do
         @desc "Insert sub lesson Remarks"
