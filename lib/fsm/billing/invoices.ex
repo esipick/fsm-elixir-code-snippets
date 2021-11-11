@@ -14,6 +14,7 @@ defmodule Fsm.Billing.Invoices do
     from(
       i in Invoice,
       where: i.school_id == ^school_id,
+      where: i.is_admin_invoice == true,
       order_by: [desc: i.inserted_at],
       limit: 1
     )
