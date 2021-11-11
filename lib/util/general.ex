@@ -328,7 +328,7 @@ defmodule Flight.General do
     })
     
     Logger.info fn -> "postBody: #{inspect postBody}" end
-    options = [recv_timeout: 60000, timeout: 60000]
+    options = [recv_timeout: 160000, timeout: 160000]
     course = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
