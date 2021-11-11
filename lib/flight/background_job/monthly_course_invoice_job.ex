@@ -22,24 +22,18 @@ defmodule Flight.MonthlyCourseInvoiceJob do
     for school_item <- list_items do
       #check if monthly course invoice is created in this month.
       currentMonthCourseAdminInvoice =  Fsm.Billing.Invoices.getCurrentMonthCourseAdminInvoice(school_item.school.id)
-      Logger.info fn -> "currentMonthCourseAdminInvoice:---------------------------------- #{inspect currentMonthCourseAdminInvoice }" end
-      Logger.info fn -> "currentMonthCourseAdminInvoice != nil && currentMonthCourseAdminInvoice.inserted_at.month ==  today.month:---------------------------------- #{inspect currentMonthCourseAdminInvoice != nil && currentMonthCourseAdminInvoice.inserted_at.month ==  today.month }" end
 
       case currentMonthCourseAdminInvoice != nil && currentMonthCourseAdminInvoice.inserted_at.month ==  today.month  do
         true->
-          Logger.info("Invoice already exist!++++++++++++++++++++++++++++++++++++++")
+          Logger.info fn -> "Invoice already created for School #{school_item.school.name} (#{school_item.school.id}) for Month of #{today.month}" end
         false->
           courses = Flight.General.get_school_lms_courses(school_item.school.id)
           number_on_course_to_bill = get_number_of_courses_to_bill(courses)
           per_course_price = Application.get_env(:flight, :per_course_price)*100
           total_amount_to_bill = number_on_course_to_bill * per_course_price
-          Logger.info fn -> "Number of courses to bill: #{inspect number_on_course_to_bill }" end
-          Logger.info fn -> "total_amount_to_bill: #{inspect total_amount_to_bill }" end
-
           #get admin user info using admin email
           case user = Flight.Accounts.get_user_by_email(school_item.school.contact_email) do
             %User{archived: false} ->
-              Logger.info fn -> "user**************************************************************************: #{inspect user }" end
               create_invoice_item = %{
                 user_id: user.id,
                 date: Date.utc_today(),
@@ -65,11 +59,11 @@ defmodule Flight.MonthlyCourseInvoiceJob do
                 is_admin_invoice: true
 
               }
-              Logger.info fn -> "create_invoice_item: #{inspect create_invoice_item }" end
+
               invoice_resp = Fsm.Billing.create_invoice(create_invoice_item, false, school_item.school.id, Application.get_env(:flight, :monthly_invoice_creator))
-              Logger.info fn -> "invoice_resp: #{inspect invoice_resp }" end
+              Logger.info fn -> "Invoice created for School #{school_item.school.name} (#{school_item.school.id}) for Month of #{today.month}. Number of #{number_on_course_to_bill} courses billed to school admin #{user.email}}" end
             _ ->
-              Logger.info("Invoice not send, admin user not exist")
+              Logger.info fn -> "Invoice not send for School #{school_item.school.name} (#{school_item.school.id}), because School admin #{school_item.school.contact_email} account does not exist." end
           end
       end
     end
