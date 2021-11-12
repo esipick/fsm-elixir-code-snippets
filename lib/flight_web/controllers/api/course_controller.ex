@@ -14,15 +14,14 @@ defmodule FlightWeb.API.CourseController do
     attrs = %{
       course_id: Map.get(attrs, "course_id"),
       sub_lesson_id: Map.get(attrs, "sub_lesson_id"),
-      lesson_id: Map.get(attrs, "lesson_id"),
       teacher_mark: Map.get(attrs, "teacher_mark"),
       fsm_user_id: Map.get(attrs, "fsm_user_id"),
       note: Map.get(attrs, "notes")
     }
     
-    course_info = Course.insert_lesson_sub_lesson_remarks(user, attrs)
+    participant_course_info = Course.insert_lesson_sub_lesson_remarks(user, attrs)
     
-    render(conn, "course_info.json", course_info: course_info)
+    render(conn, "participant_course_info.json", participant_course_info: participant_course_info)
   end
 
 end

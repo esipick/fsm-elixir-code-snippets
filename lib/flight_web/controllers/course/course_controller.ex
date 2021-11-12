@@ -52,12 +52,13 @@ defmodule FlightWeb.Course.CourseController do
   end
 
   def selection(%{assigns: %{current_user: current_user}} = conn, %{"course_id" => course_id, "user_id" => user_id}) do
-    course_info = Flight.General.get_course_lesson(current_user, course_id,user_id)
-    Logger.info fn -> "course info--------------------------------: #{inspect course_info}" end
+    participant_course = Flight.General.get_course_lesson(current_user, course_id,user_id)
+    Logger.info fn -> "course info--------------------------------: #{inspect participant_course}" end
 
     props = %{
       courseId: course_id,
-      courseInfo: course_info
+      participantCourse: participant_course,
+      courseProgress: get_course_progress(participant_course)
     }
 
     render(
@@ -65,6 +66,13 @@ defmodule FlightWeb.Course.CourseController do
       "selection.html",
       props: props
     )
+  end
+
+
+  def get_course_progress(participant_course) when is_nil(participant_course), do: 0
+  def get_course_progress(participant_course) do
+    percentage = (participant_course.total_lessons_completed / participant_course.total_lessons) * 100
+    round(percentage)
   end
 
 end
