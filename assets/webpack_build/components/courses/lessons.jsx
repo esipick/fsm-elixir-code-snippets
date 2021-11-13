@@ -5,7 +5,9 @@ import { authHeaders } from "../utils";
 const LoaderType = {
   SATISFACTORY: 1,
   UNSATISFACTORY: 2,
-  NOTES: 3
+  NOTES: 3,
+  SUB_LESSON_CONTENT: 4,
+  PAGE_MODULE_CONTENT: 5
 };
 
 const RemarksType = {
@@ -19,7 +21,6 @@ const CourseLessons = ({ participantCourse, courseId }) => {
     subLessonId: undefined,
     loaderType: undefined, // LoaderType
     participant: participantCourse,
-    pageModuleContent: undefined,
     summaryModal: false,
     subLessonPanel: false,
     subLesson: undefined
@@ -65,30 +66,10 @@ const CourseLessons = ({ participantCourse, courseId }) => {
       });
   };
 
-  const getModulePageContent = async (url, subLessonId) => {
-    const reqOpts = {
-      method: "GET"
-    };
-
-    await fetch(url, reqOpts)
-      .then((res) => res.text())
-      .then((data) => {
-        setState({
-          ...state,
-          subLessonId,
-          pageModuleContent: data,
-        });
-      })
-      .catch((error) => {
-        console.log(error)
-      });
-  };
-
   const handleCloseModal = () => {
     setState({
       ...state,
       subLessonId: undefined,
-      pageModuleContent: undefined,
       lessonId: undefined,
       summaryModal: false
     });
@@ -99,8 +80,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
       ...state,
       subLessonPanel: false,
       subLesson: undefined,
-      lessonId: undefined,
-      pageModuleContent: undefined
+      lessonId: undefined
     });
   };
 
@@ -132,13 +112,10 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                 lessonId={state.lessonId}
                 subLesson={state.subLesson}
                 participant={{...state.participant, courseId}}
-                pageModuleContent={state.pageModuleContent}
                 markedSubLesson={{
                   loaderType: state.loaderType,
                   subLessonId: state.subLessonId,
                 }}
-                getModulePageContent={getModulePageContent}
-                closeModuleContentModal={handleCloseModal}
                 saveRemarks={saveRemarks}
                 setParticipant={updateParticipant}
               />
@@ -175,7 +152,6 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                       subLessonId: state.subLessonId,
                     }}
                     saveRemarks={saveRemarks}
-                    getModulePageContent={getModulePageContent}
                     showSubLesson={() =>
                       setState({
                         ...state,
@@ -276,17 +252,35 @@ const SubLessonPanelContent = ({
   subLesson,
   participant,
   setParticipant,
-  pageModuleContent,
-  getModulePageContent,
   markedSubLesson,
-  saveRemarks,
-  closeModuleContentModal
+  saveRemarks
 }) => {
 
   const [state, setState] = useState({
     moduleContent: undefined,
-    takeNotesModal: false
+    takeNotesModal: false,
+    pageModuleContent: undefined,
+    loaderType: undefined
   });
+
+  const getModulePageContent = async (subLessonId, url) => {
+    const reqOpts = {
+      method: "GET"
+    };
+
+    await fetch(url, reqOpts)
+      .then((res) => res.text())
+      .then((data) => {
+        setState({
+          ...state,
+          subLessonId,
+          pageModuleContent: data,
+        });
+      })
+      .catch((error) => {
+        console.log(error)
+      });
+  };
 
   const satisfied = isSatisfied(subLesson.remarks);
   const unsatisfied = isUnsatisfied(subLesson.remarks);
@@ -358,8 +352,8 @@ const SubLessonPanelContent = ({
                     }
                     onClick={() =>
                       getModulePageContent(
-                        content.fileurl + "&token=" + participant.token,
-                        subLesson.id
+                        subLesson.id,
+                        content.fileurl + "&token=" + participant.token
                       )
                     }
                   >
@@ -394,11 +388,11 @@ const SubLessonPanelContent = ({
           </div>
         ))}
       </div>
-      {pageModuleContent && (
-        <Modal callback={closeModuleContentModal}>
+      {state.pageModuleContent && (
+        <Modal callback={() => setState({...state, pageModuleContent: undefined, loaderType: LoaderType.PAGE_MODULE_CONTENT})}>
           <div
             className="sublesson module-content"
-            dangerouslySetInnerHTML={{ __html: pageModuleContent }}
+            dangerouslySetInnerHTML={{ __html: state.pageModuleContent }}
           />
         </Modal>
       )}
