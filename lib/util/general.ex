@@ -429,10 +429,6 @@ defmodule Flight.General do
         Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
-
-    # IO.inspect course
-
-    # course
   end
 
   def enroll_student(current_user, course_id) do

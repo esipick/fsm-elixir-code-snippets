@@ -33,9 +33,9 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
 
     input_object :remark_input do
         field(:course_id,  non_null(:id))
-        field(:teacher_mark, :id)
+        field(:teacher_mark, :integer)
         field(:fsm_user_id, non_null(:integer))
-        field(:sub_lesson_id, :id)
+        field(:sub_lesson_id, :integer)
         field(:note, :string)
     end
 
