@@ -257,28 +257,44 @@ const SubLessonPanelContent = ({
 }) => {
 
   const [state, setState] = useState({
-    moduleContent: undefined,
+    youtubeModuleContent: undefined,
     takeNotesModal: false,
+    pageModuleContentModal: false,
     pageModuleContent: undefined,
-    loaderType: undefined
+    loaderType: undefined,
+    error: undefined
   });
 
-  const getModulePageContent = async (subLessonId, url) => {
+  const getModulePageContent = (url) => {
     const reqOpts = {
       method: "GET"
     };
 
-    await fetch(url, reqOpts)
+    setState({
+      ...state,
+      pageModuleContentModal: true,
+      loaderType: LoaderType.PAGE_MODULE_CONTENT
+    })
+
+   fetch(url, reqOpts)
       .then((res) => res.text())
       .then((data) => {
         setState({
           ...state,
-          subLessonId,
-          pageModuleContent: data,
+          loaderType: undefined,
+          pageModuleContentModal: true,
+          pageModuleContent: data
         });
       })
       .catch((error) => {
         console.log(error)
+        setState({
+          ...state,
+          loaderType: undefined,
+          pageModuleContentModal: true,
+          error: "Something went wrong. Please close this and try again."
+        });
+
       });
   };
 
@@ -347,14 +363,9 @@ const SubLessonPanelContent = ({
                 return (
                   <div
                     className="cursor-pointer"
-                    key={
-                      lessonId + "-" + subLesson.id + "-" + module.id + index
-                    }
+                    key={ lessonId + "-" + subLesson.id + "-" + module.id + index }
                     onClick={() =>
-                      getModulePageContent(
-                        subLesson.id,
-                        content.fileurl + "&token=" + participant.token
-                      )
+                      getModulePageContent(`${content.fileurl}&token=${participant.token}`)
                     }
                   >
                     <p className="mb-0" dangerouslySetInnerHTML={{ __html: module.name }} />
@@ -369,7 +380,7 @@ const SubLessonPanelContent = ({
                     key={
                       lessonId + "-" + subLesson.id + "-" + module.id + index
                     }
-                    onClick={() => setState({...state, moduleContent: content})}
+                    onClick={() => setState({...state, youtubeModuleContent: content})}
                   >
                     <p className="mb-0" dangerouslySetInnerHTML={{ __html: module.name }} />
                   </div>
@@ -388,27 +399,52 @@ const SubLessonPanelContent = ({
           </div>
         ))}
       </div>
-      {state.pageModuleContent && (
-        <Modal callback={() => setState({...state, pageModuleContent: undefined, loaderType: LoaderType.PAGE_MODULE_CONTENT})}>
-          <div
-            className="sublesson module-content"
-            dangerouslySetInnerHTML={{ __html: state.pageModuleContent }}
-          />
+      {(state.pageModuleContentModal) && (
+        <Modal callback={() => setState({
+          ...state,
+          pageModuleContentModal: false,
+          pageModuleContent: undefined,
+          loaderType: undefined,
+          error: undefined
+        })}>
+          {
+            (state.loaderType === LoaderType.PAGE_MODULE_CONTENT) &&  (
+              <div className="d-flex flex-column mb-2 justify-content-cente align-items-center jumbotron">
+                <Spinner />
+                <p className="mb-0">Loading...</p>
+              </div>
+            )
+          }
+          {
+            state.pageModuleContent && (
+                <div
+                  className="sublesson module-content"
+                  dangerouslySetInnerHTML={{ __html: state.pageModuleContent }}
+                />
+            )
+          }
+          {
+            state.error && (
+              <div className="d-flex flex-row justify-content-center jumbotron mb-2">
+                <p>{state.error}</p>
+              </div>
+            )
+          }
         </Modal>
       )}
       {
-        state.moduleContent && (
-          <Modal callback={() => setState({...state, moduleContent: undefined})}>
+        state.youtubeModuleContent && (
+          <Modal callback={() => setState({...state, youtubeModuleContent: undefined})}>
             <div className="w-100">
-              <p className="bold">{state.moduleContent.filename}</p>
+              <p className="bold">{state.youtubeModuleContent.filename}</p>
               <iframe
-                  src={`${state.moduleContent.fileurl}?rel=0`}
+                  src={`${state.youtubeModuleContent.fileurl}?rel=0`}
                   className="w-100"
                   height={320}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope;"
                   allowFullScreen
-                  title={state.moduleContent.filename}
+                  title={state.youtubeModuleContent.filename}
                 />
             </div>
           </Modal>
