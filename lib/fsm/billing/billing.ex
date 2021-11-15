@@ -81,7 +81,7 @@ defmodule Fsm.Billing do
     #check if course invoice is paid
     course_id = Map.get(invoice_params, "course_id", false)
     Logger.info fn -> "course_id---------------------------: #{inspect course_id }" end
-    if course_id && Fsm.Billing.Invoices.getCourseInvoice(course_id,user_id ) == nil do
+    if course_id && Fsm.Billing.Invoices.getCourseInvoice(course_id,Map.get(invoice_params, "user_id") ) == nil do
       {:error, "Invoice has already paid."}
     else
       %Invoice{}
