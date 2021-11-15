@@ -25,9 +25,7 @@ defmodule Fsm.Billing.CreateInvoice do
       line_items =   LineItemCreator.populate_creator(Map.get(invoice_params, :line_items), current_user)
 
       aircraft_info = Utils.aircraft_info_map(invoice_params)
-      if Map.get(invoice_params, :course_id, false) do
-        Logger.info fn -> "Purchased course invoice.....----------------------------------------22" end
-      end
+
       invoice_attrs =
         Map.merge(
 
