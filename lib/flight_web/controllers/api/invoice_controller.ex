@@ -14,7 +14,7 @@ defmodule FlightWeb.API.InvoiceController do
     PaymentError,
     UpdateInvoice
   }
-
+  plug(:check_course_is_paid when action in [:create])
   plug(:get_invoice when action in [:update, :show, :delete])
   plug(:authorize_view when action in [:show])
   plug(:authorize_create when action in [:create])
@@ -205,6 +205,22 @@ defmodule FlightWeb.API.InvoiceController do
       conn
       |> send_resp(404, "")
       |> halt()
+    end
+  end
+
+  defp check_course_is_paid(conn, _) do
+    #check if course is already paid.
+
+    if conn.params["invoice"]["course_id"]  do
+      courseInvoice =  Fsm.Billing.Invoices.getCourseInvoice(conn.params["invoice"]["course_id"])
+      Logger.info fn -> "courseInvoice111111111111111111111------------------------------------------: #{inspect courseInvoice}" end
+      if courseInvoice == nil do
+        conn
+      else
+        halt_not_found_response(conn, "Invoice has already paid.")
+      end
+    else
+      conn
     end
   end
 

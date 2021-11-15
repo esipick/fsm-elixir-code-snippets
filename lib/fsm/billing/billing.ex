@@ -78,13 +78,20 @@ defmodule Fsm.Billing do
   end
 
   def create_invoice(invoice_params, pay_off, school_id, user_id) do
-    %Invoice{}
-    |> Invoice.payment_options_changeset(invoice_params)
-    |> case do
-      %Ecto.Changeset{valid?: true} ->
-          CreateInvoice.run(invoice_params, pay_off, school_id, user_id)
-      
-      changeset -> {:error, changeset}
+    #check if course invoice is paid
+    course_id = Map.get(invoice_params, "course_id", false)
+    Logger.info fn -> "course_id---------------------------: #{inspect course_id }" end
+    if course_id && Fsm.Billing.Invoices.getCourseInvoice(course_id) == nil do
+      {:error, "Invoice has already paid."}
+    else
+      %Invoice{}
+      |> Invoice.payment_options_changeset(invoice_params)
+      |> case do
+           %Ecto.Changeset{valid?: true} ->
+             CreateInvoice.run(invoice_params, pay_off, school_id, user_id)
+
+           changeset -> {:error, changeset}
+         end
     end
   end
 
