@@ -29,6 +29,12 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
             arg :remark_input, non_null(:remark_input)
             resolve &CoursesResolvers.insert_lesson_sub_lesson_remarks/3
         end
+
+        @desc "Insert course module view"
+        field :add_course_module_view, :input_course_module_view_response do
+            arg :input_course_module_view, non_null(:input_course_module_view)
+            resolve &CoursesResolvers.add_course_module_view/3
+        end
     end
 
     input_object :remark_input do
@@ -38,12 +44,20 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field(:sub_lesson_id, :integer)
         field(:note, :string)
     end
+    input_object :input_course_module_view do
+        field(:course_id,  non_null(:id))
+        field(:course_module_id,  non_null(:id))
+    end
 
     # Types
     object :checklist_objective_remarks do
         field :status, :string
         field :message, :string
         field :participant, :participant
+    end
+    object :input_course_module_view_response do
+        field :status, :string
+        field :message, :string
     end
     object :cumulative_results_course_level do
         field :ratio, :string

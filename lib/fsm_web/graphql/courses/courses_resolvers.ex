@@ -39,4 +39,12 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
     end
 
     def insert_lesson_sub_lesson_remarks(_parent, _args, _context), do: @not_authenticated
+
+    def add_course_module_view(_parent, %{input_course_module_view: attrs}, %{context: %{current_user: current_user}}) do
+      response = Flight.General.add_course_module_view_remarks(current_user,attrs)
+      Logger.info fn -> "response: #{inspect response}" end
+      {:ok, response}
+    end
+
+    def add_course_module_view(_parent, _args, _context), do: @not_authenticated
 end
