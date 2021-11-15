@@ -212,7 +212,7 @@ defmodule FlightWeb.API.InvoiceController do
     #check if course is already paid.
 
     if conn.params["invoice"]["course_id"]  do
-      courseInvoice =  Fsm.Billing.Invoices.getCourseInvoice(conn.params["invoice"]["course_id"])
+      courseInvoice =  Fsm.Billing.Invoices.getCourseInvoice(conn.params["invoice"]["course_id"], conn.params["invoice"]["user_id"])
       Logger.info fn -> "courseInvoice111111111111111111111------------------------------------------: #{inspect courseInvoice}" end
       if courseInvoice == nil do
         conn

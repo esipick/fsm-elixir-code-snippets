@@ -20,10 +20,11 @@ defmodule Fsm.Billing.Invoices do
     )
     |> Flight.Repo.one()
   end
-  def getCourseInvoice(course_id) do
+  def getCourseInvoice(course_id, user_id) do
     from(
       i in Invoice,
       where: i.course_id == ^course_id,
+      where: i.user_id == ^user_id,
       where: i.status == 1,
       limit: 1
     )
