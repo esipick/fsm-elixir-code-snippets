@@ -71,7 +71,7 @@ defmodule FlightWeb.Course.CourseController do
 
   def get_course_progress(participant_course) when is_nil(participant_course), do: 0
   def get_course_progress(participant_course) do
-    percentage = (participant_course.total_lessons_completed / participant_course.total_lessons) * 100
+    percentage = (participant_course.completed_lessons / participant_course.total_lessons) * 100
     round(percentage)
   end
 
