@@ -166,9 +166,18 @@ const CourseLessons = ({ participantCourse, courseId }) => {
             </div>
             {state.summaryModal && state.lessonId === lesson.id && (
               <Modal callback={handleCloseModal}>
-                <div className="sublesson module-content">
-                  <div dangerouslySetInnerHTML={{ __html: lesson.summary }} />
-                </div>
+               {
+                 lesson.summary ? (
+                    <div className="sublesson module-content">
+                      <div dangerouslySetInnerHTML={{ __html: lesson.summary }} />
+                    </div>
+                  )
+                : (
+                  <div className="d-flex flex-row justify-content-center jumbotron mb-2">
+                    <p className="mb-0">No Summary</p>
+                  </div>
+                )
+               }
               </Modal>
             )}
           </div>
@@ -191,13 +200,17 @@ const SubLessonCard = ({
   return (
     <div className="row mx-2 1d-flex flex-row justify-content-between no-last-child-border border-bottom">
       <div
-        className="accordion-icon cursor-pointer d-flex flex-row justify-content-start align-items-center"
+        className="accordion-icon d-flex flex-row justify-content-start align-items-center"
         id={`heading${lessonId}-${subLesson.id}`}
       >
-        <ChevronRight />
-        <h5 onClick={showSubLesson} className="mb-0 text-dark">
-          {subLesson.name}
-        </h5>
+        <a
+          onClick={showSubLesson}
+          className="cursor-pointer d-flex flex-row justify-content-start align-items-center">
+          <ChevronRight />
+          <h5 className="mb-0 text-dark">
+            {subLesson.name}
+          </h5>
+        </a>
       </div>
 
       <div className="d-flex flex-row align-items-center text-uppercase my-2">
@@ -390,7 +403,8 @@ const SubLessonPanelContent = ({
               return (
                 <a
                   key={lessonId + "-" + subLesson.id + "-" + module.id + index}
-                  href={content.fileurl + "&token=" + participant.oken}
+                  href={content.fileurl + "&token=" + participant.token}
+                  target={"_blank"}
                 >
                    <p className="mb-0" dangerouslySetInnerHTML={{ __html: module.name }} />
                 </a>
@@ -479,8 +493,12 @@ const SubLessonPanelContent = ({
           </div>
         </div>
         <div className="pt-2">
-          <p>{subLesson.notes}
-          </p>
+         {
+           subLesson.notes ? 
+           <p>{subLesson.notes}</p>
+           :
+           <p className="text-secondary">No notes available</p>
+         }
         </div>
       </div>
     </div>
