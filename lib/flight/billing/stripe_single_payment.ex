@@ -93,8 +93,8 @@ defmodule Flight.StripeSinglePayment do
         Enum.reduce(line_items, {[], 0}, fn(item, acc) ->
             {line_items, total} = acc
             rate = item.quantity * item.rate
-            quantity = 
-                if item.quantity < 1, do: 1, else: item.quantity
+            quantity = item.quantity
+            
 
             {total, rate } =
                 if item.taxable do
@@ -103,16 +103,16 @@ defmodule Flight.StripeSinglePayment do
                     rate = rate + tax
                     total = total + rate
 
-                    {total, rate / round(quantity)}
+                    {total, rate / quantity}
 
                 else
-                    total = total + (round(quantity) * item.rate)
+                    total = total + (quantity * item.rate)
                     {total, item.rate}
                 end
 
             item = 
                 %{
-                    "quantity" => round(quantity),
+                    "quantity" => quantity,
                     "currency" => "usd",
                     "amount" => escape_scientific_notation(rate),
                     "name" => item.description
