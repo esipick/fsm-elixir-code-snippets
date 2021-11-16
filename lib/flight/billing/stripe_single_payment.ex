@@ -94,7 +94,7 @@ defmodule Flight.StripeSinglePayment do
             {line_items, total} = acc
             rate = item.quantity * item.rate
             quantity = item.quantity
-            
+
 
             {total, rate } =
                 if item.taxable do
@@ -112,7 +112,7 @@ defmodule Flight.StripeSinglePayment do
 
             item = 
                 %{
-                    "quantity" => quantity,
+                    "quantity" => round(quantity),
                     "currency" => "usd",
                     "amount" => escape_scientific_notation(rate),
                     "name" => item.description
