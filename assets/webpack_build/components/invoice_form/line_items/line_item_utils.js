@@ -178,7 +178,7 @@ export const courseItem = (course) => {
     quantity: 1,
     rate: course.price * 100,
     description: COURSE,
-    taxable: true,
+    taxable: false,
     deductible: false
   })
 }
