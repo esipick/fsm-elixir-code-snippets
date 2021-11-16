@@ -10,7 +10,7 @@ defmodule Flight.StripeSinglePayment do
             "success_url" => base_url() <> "/billing/checkout_success?session_id={CHECKOUT_SESSION_ID}",
             "line_items" => line_items,
             "payment_intent_data" => %{
-                "application_fee_amount" => application_fee(total_amount),
+                "application_fee_amount" => application_fee(total_amount)
             }
         }
         Logger.info fn -> "Url info: #{inspect info}" end
@@ -88,7 +88,7 @@ defmodule Flight.StripeSinglePayment do
 
     defp map_line_items(nil, _tax_rate), do: []
     defp map_line_items(line_items, tax_rate) do
-        line_items = Enum.filter(line_items, &(&1.rate > 0 && &1.quantity > 0))
+        line_items = Enum.filter(line_items, &(&1.rate > 0 && &1.quantity > 0 && &1.deductible == false))
 
         Enum.reduce(line_items, {[], 0}, fn(item, acc) ->
             {line_items, total} = acc
