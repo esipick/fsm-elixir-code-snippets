@@ -148,6 +148,8 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field :customdata, :string
         field :noviewlink, :boolean
         field :completion, :integer
+        field :completionstate, :boolean
+        field :vieweddate, :string
         field :contents, list_of(:content)
     end
 

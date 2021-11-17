@@ -90,10 +90,12 @@ defmodule Flight.Module do
     :customdata,
     :noviewlink,
     :completion,
+    :completionstate,
+    :vieweddate,
     contents: [%Flight.Content{}]
   ]
 
-  @keys ~w(id url name instance contextid visible uservisible visibleoncoursepage modicon modname modplural modplural indent onclick afterlink customdata noviewlink completion contents )
+  @keys ~w(id url name instance contextid visible uservisible visibleoncoursepage modicon modname modplural modplural indent onclick afterlink customdata noviewlink completion completionstate vieweddate contents  )
   def decode(%{} = map) do
     map
     |> Map.take(@keys)
