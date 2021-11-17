@@ -402,6 +402,7 @@ const SubLessonPanelContent = ({
 
               return (
                 <a
+                  class="module-link"
                   key={lessonId + "-" + subLesson.id + "-" + module.id + index}
                   href={content.fileurl + "&token=" + participant.token}
                   target={"_blank"}

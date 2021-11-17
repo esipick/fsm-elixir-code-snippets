@@ -794,3 +794,8 @@
   right: 33px;
   top: 49px;
 }
+.module-link, .module-link:focus, .module-link:hover {
+  text-decoration: none;
+  color: #868e96;
+}
+
