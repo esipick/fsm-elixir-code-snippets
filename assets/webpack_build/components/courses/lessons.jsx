@@ -231,7 +231,7 @@ const SubLessonCard = ({
               )
             }
           >
-            Satisfactory
+            Sat
           </div>
         )}
         <span className="text-secondary"> | </span>
@@ -252,7 +252,7 @@ const SubLessonCard = ({
               )
             }
           >
-            Unsatisfactory
+            Unsat
           </div>
         )}
       </div>
@@ -336,7 +336,7 @@ const SubLessonPanelContent = ({
                 )
               }
             >
-              Satisfactory
+              Sat
             </div>
           )}
           <span className="text-secondary"> | </span>
@@ -357,7 +357,7 @@ const SubLessonPanelContent = ({
                 )
               }
             >
-              Unsatisfactory
+              Unsat
             </div>
           )}
         </div>
@@ -366,21 +366,21 @@ const SubLessonPanelContent = ({
         {(subLesson.modules ?? []).map((module) => (
           <div
             key={lessonId + "-" + subLesson.id + "-" + module.id}
-            className="no-last-child-border pb-2 mb-2 border-bottom d-flex flex-row align-items-center"
+            className="no-last-child-border pb-2 mb-2 border-bottom"
           >
-            <span className="mr-2">
-              <img src={module.modicon} />
-            </span>
             {(module.contents ?? []).map((content, index) => {
               if (module.modname === "page") {
                 return (
                   <div
-                    className="cursor-pointer"
+                    className="cursor-pointer d-flex flex-row align-items-center"
                     key={ lessonId + "-" + subLesson.id + "-" + module.id + index }
                     onClick={() =>
                       getModulePageContent(`${content.fileurl}&token=${participant.token}`)
                     }
                   >
+                    <span className="mr-2">
+                      <img src={module.modicon} />
+                    </span>
                     <p className="mb-0" dangerouslySetInnerHTML={{ __html: module.name }} />
                   </div>
                 );
@@ -389,12 +389,15 @@ const SubLessonPanelContent = ({
               if(content.fileurl?.includes("youtube")) {
                 return (
                   <div
-                    className="cursor-pointer"
+                    className="cursor-pointer d-flex flex-row align-items-center"
                     key={
                       lessonId + "-" + subLesson.id + "-" + module.id + index
                     }
                     onClick={() => setState({...state, youtubeModuleContent: content})}
                   >
+                    <span className="mr-2">
+                      <img src={module.modicon} />
+                    </span>
                     <p className="mb-0" dangerouslySetInnerHTML={{ __html: module.name }} />
                   </div>
                 );
@@ -402,11 +405,14 @@ const SubLessonPanelContent = ({
 
               return (
                 <a
-                  class="module-link"
+                  className="d-flex flex-row align-items-center text-secondary"
                   key={lessonId + "-" + subLesson.id + "-" + module.id + index}
                   href={content.fileurl + "&token=" + participant.token}
                   target={"_blank"}
                 >
+                  <span className="mr-2">
+                    <img src={module.modicon} />
+                  </span>
                    <p className="mb-0" dangerouslySetInnerHTML={{ __html: module.name }} />
                 </a>
               );
@@ -496,7 +502,7 @@ const SubLessonPanelContent = ({
         <div className="pt-2">
          {
            subLesson.notes ? 
-           <p>{subLesson.notes}</p>
+           <textarea className="w-100 disabled-click border-0" rows={5} defaultValue={subLesson.notes}/>
            :
            <p className="text-secondary">No notes available</p>
          }
