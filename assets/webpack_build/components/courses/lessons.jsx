@@ -122,12 +122,20 @@ const CourseLessons = ({ participantCourse, courseId }) => {
             </div>
           </div>
         )}
-        {(state.participant.lessons ?? []).map((lesson) => (
-          <div key={lesson.id} id={`accordion-${lesson.id}`}>
+        {(state.participant.lessons ?? []).map((lesson, index) => (
+          <div className="lesson-accordion" key={lesson.id} id={`accordion-${lesson.id}`}>
             <div className="row my-1 lesson-content">
               <div className="col-md-12 border-secondary">
                 <div className="d-flex flex-row justify-content-between align-items-center">
-                  <h3 className="mb-2">{lesson.name}</h3>
+                  <div className="d-flex flex-row justify-content-start align-items-center accordion-icon cursor-pointer"
+                    data-toggle="collapse"
+                    data-target={"#collapse-"+lesson.id} 
+                    aria-expanded={index === 0}
+                    aria-controls={"collapse-"+lesson.id}
+                    >
+                      <ChevronDown />
+                      <h4 className="mt-2 mb-2">{lesson.name}</h4>
+                  </div>
                   <a
                     href="#"
                     onClick={() =>
@@ -142,26 +150,31 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                     View Summary
                   </a>
                 </div>
-                {(lesson.sub_lessons ?? []).map((subLesson) => (
-                  <SubLessonCard
-                    key={lesson.id + "-" + subLesson.id}
-                    lessonId={lesson.id}
-                    subLesson={subLesson}
-                    markedSubLesson={{
-                      loaderType: state.loaderType,
-                      subLessonId: state.subLessonId,
-                    }}
-                    saveRemarks={saveRemarks}
-                    showSubLesson={() =>
-                      setState({
-                        ...state,
-                        lessonId: lesson.id,
-                        subLessonPanel: true,
-                        subLesson: subLesson,
-                      })
-                    }
-                  />
-                ))}
+                <div id={"collapse-"+lesson.id} class={`accordion-collapse collapse ${index === 0 ? 'show' : ''}`} 
+                  aria-labelledby={"heading-"+lesson.id} 
+                  data-parent={"#accordion-"+lesson.id}
+                  >
+                    {(lesson.sub_lessons ?? []).map((subLesson) => (
+                      <SubLessonCard
+                        key={lesson.id + "-" + subLesson.id}
+                        lessonId={lesson.id}
+                        subLesson={subLesson}
+                        markedSubLesson={{
+                          loaderType: state.loaderType,
+                          subLessonId: state.subLessonId,
+                        }}
+                        saveRemarks={saveRemarks}
+                        showSubLesson={() =>
+                          setState({
+                            ...state,
+                            lessonId: lesson.id,
+                            subLessonPanel: true,
+                            subLesson: subLesson,
+                          })
+                        }
+                      />
+                    ))}
+                </div>
               </div>
             </div>
             {state.summaryModal && state.lessonId === lesson.id && (
@@ -624,7 +637,7 @@ const isUnsatisfied = (remarks) => remarks === "not_satisfactory";
 const ChevronRight = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className="text-secondary chevron-right text-primary"
+    className="chevron-right text-primary"
     fill="currentColor"
     viewBox="0 0 24 24"
     stroke="currentColor"
@@ -636,6 +649,21 @@ const ChevronRight = () => (
     />
   </svg>
 );
+
+const ChevronDown = () => (
+  <svg xmlns="http://www.w3.org/2000/svg"
+      className="chevron-down mr-2 text-primary"
+      fill="currentColor"
+      viewBox="0 0 24 24" 
+      stroke="currentColor"
+    >
+    <path 
+      fillRule="evenodd"
+      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+      clipRule="evenodd" 
+    />
+  </svg>
+)
 
 const CrossSign = ({ callback }) => (
   <svg

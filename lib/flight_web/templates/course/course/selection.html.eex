@@ -36,16 +36,7 @@
           transform: rotate(360deg);
       }
   }
-  .chevron-up {
-      width: 20px;
-      height: 20px;
-      margin: 2px;
-  }
-  .chevron-down {
-      width: 20px;
-      height: 20px;
-      margin-right: 4px;
-  }
+
   .accordion-icon[aria-expanded="false"] .chevron-down {
       transform: rotate(0);
       transition: 0.5s;
@@ -88,7 +79,12 @@
       width: 20px;
       height: 20px;
   }
-l
+
+  .lesson-accordion .chevron-down {
+      width: 28px;
+      height: 28px;
+  }
+
   .no-last-child-border:last-of-type{
       border-bottom: none !important;
   }
