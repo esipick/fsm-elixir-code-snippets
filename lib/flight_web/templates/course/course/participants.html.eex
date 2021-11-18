@@ -9,30 +9,36 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header d-flex flex-column">
-                <div class="row">
-                    <%= for participant <- @course_details.participants do %>
-                   <div class="col-sm-4">
-                            <a href="/course/selection/<%= @course_details.id %>/<%= participant.user_id %>">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title text text-secondary"><%= participant.first_name %> <%= participant.last_name %></h5>
-                                        <div class="progress" style="height: 2px;">
-                                            <div class="progress-bar" role="progressbar" style="width: <%= participant.total_lessons_completed %>%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+          <%= if length(@course_details.participants) == 0 do %> 
+            <div class="row justify-content-center">
+              <h4 class="text-center mb-4 mt-4 text-secondary">Participants Not Found</h4>
+            </div>
+          <%= else %>
+            <div class="row">
+                <%= for participant <- @course_details.participants do %>
+                  <div class="col-sm-4">
+                        <a href="/course/selection/<%= @course_details.id %>/<%= participant.user_id %>">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title text text-secondary"><%= participant.first_name %> <%= participant.last_name %></h5>
+                                    <div class="progress" style="height: 2px;">
+                                        <div class="progress-bar" role="progressbar" style="width: <%= participant.total_lessons_completed %>%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-sm-6">
+                                            <p class="text-primary font-weight-bold title"><%= participant.total_lessons_completed %>%</p>
                                         </div>
-                                        <div class="row mt-2">
-                                            <div class="col-sm-6">
-                                                <p class="text-primary font-weight-bold title"><%= participant.total_lessons_completed %>%</p>
-                                            </div>
-                                            <div class="col-sm-6">
+                                        <div class="col-sm-6">
 
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </a>
-                        </div>
-                    <% end %>
-                </div>
+                            </div>
+                        </a>
+                    </div>
+                <% end %>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>

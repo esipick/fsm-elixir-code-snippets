@@ -20,7 +20,7 @@
                     </div>
                     <%= if length(@courses) == 0 do %>
                     <div class="card-body profile">
-                        <h6>No Courses found</h6>
+                        <h6>Courses Not Found</h6>
                     </div>
                     <% end %>
                     <div class="row">

@@ -122,6 +122,15 @@ const CourseLessons = ({ participantCourse, courseId }) => {
             </div>
           </div>
         )}
+        {
+          (state.participant.lessons ?? []).length === 0 && (
+            <div className="row my-1 lesson-content">
+              <div className="col-md-12 border-secondary">
+                  <h4 className="row justify-content-center text-secondary">Lessons Not Found</h4>
+              </div>
+            </div>
+          )
+        }
         {(state.participant.lessons ?? []).map((lesson, index) => (
           <div className="lesson-accordion" key={lesson.id} id={`accordion-${lesson.id}`}>
             <div className="row my-1 lesson-content">
@@ -195,6 +204,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
             )}
           </div>
         ))}
+
       </div>
     </div>
   );
