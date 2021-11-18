@@ -137,6 +137,7 @@ defmodule Fsm.Billing.BillingQueries do
         inserted_at: i.inserted_at,
         # aircraft_info: i.aircraft_info,
         session_id: i.session_id,
+        is_admin_invoice: i.is_admin_invoice,
         line_items:
           fragment(
             "array_agg(json_build_object('id', ?, 'invoice_id', ?, 'description', ?, 'rate', ?, 'quantity', ?, 'amount', ?, 'inserted_at', ?, 'updated_at', ?, 'instructor_user_id', ?, 'type', ?, 'aircraft_id', ?, 'hobbs_start', ?, 'hobbs_end', ?, 'tach_start', ?, 'tach_end', ?, 'hobbs_tach_used', ?, 'taxable', ?, 'deductible', ?, 'creator_id', ?, 'room_id', ?, 'tail_number', ?, 'make', ?, 'model', ?, 'aircraft_simulator_name', ?, 'simulator', ?,'instructor_name', ?))",
