@@ -126,7 +126,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
           (state.participant.lessons ?? []).length === 0 && (
             <div className="row my-1 lesson-content">
               <div className="col-md-12 border-secondary">
-                  <h4 className="row justify-content-center text-secondary">Lessons Not Found</h4>
+                  <h4 className="row justify-content-center text-secondary mt-0">Lessons Not Found</h4>
               </div>
             </div>
           )
@@ -168,6 +168,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                         key={lesson.id + "-" + subLesson.id}
                         lessonId={lesson.id}
                         subLesson={subLesson}
+                        selectedSubLesson={state.subLesson}
                         markedSubLesson={{
                           loaderType: state.loaderType,
                           subLessonId: state.subLessonId,
@@ -204,7 +205,6 @@ const CourseLessons = ({ participantCourse, courseId }) => {
             )}
           </div>
         ))}
-
       </div>
     </div>
   );
@@ -213,6 +213,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
 const SubLessonCard = ({
   lessonId,
   subLesson,
+  selectedSubLesson,
   markedSubLesson,
   saveRemarks,
   showSubLesson
@@ -221,9 +222,9 @@ const SubLessonCard = ({
   const unsatisfied = isUnsatisfied(subLesson.remarks);
 
   return (
-    <div className="row mx-2 1d-flex flex-row justify-content-between no-last-child-border border-bottom">
+    <div className={`row mx-2 d-flex flex-row justify-content-between no-last-child-border border-bottom ${selectedSubLesson?.id === subLesson.id ? 'bg-light' : ''}`}>
       <div
-        className="accordion-icon d-flex flex-row justify-content-start align-items-center"
+        className="d-flex flex-row justify-content-start align-items-center"
         id={`heading${lessonId}-${subLesson.id}`}
       >
         <a
