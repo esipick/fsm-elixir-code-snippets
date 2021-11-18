@@ -1,79 +1,82 @@
 <div class="panel-header">
 
 </div>
-<div class="content profile" style="background-color: white">
-    <div class="card-header" data-background-color="gray">
-        <%= if @admin_login_url != nil do %>
-        <a href="<%= @admin_login_url %>" class="btn btn-fill btn-primary float-right">
-            <span>Manage Courses</span>
-        </a>
-        <% end %>
-        <div class="user-info">
-            <h2>Course Selection</h2>
-        </div>
-
-    </div>
-    <%= if length(@courses) == 0 do %>
-    <div class="card-body profile">
-        <h6>No Courses found</h6>
-    </div>
-    <% end %>
-    <div class="row">
-        <%= for course <- @courses do %>
-        <div class="col-sm-3">
-            <div class="card">
-                <%= if @staff_member do %>
-                <a href="/course/participants/<%= course.id%>">
-                    <%= if course.img_url != "" do %>
-                    <img class="card-img-top" src="<%= course.img_url %>"
-                         alt="Course image">
-                    <% else %>
-                    <img class="card-img-top" src="<%= static_path(@conn, "/images/course_placeholder.png") %>"
-                         alt="Course image">
-                    <% end %>
-                    <div class="card-body">
-                            <h5 class="card-title"><%= course.course_name%></h5>
-                            <p class="card-text"> <%= truncate String.trim(HtmlSanitizeEx.strip_tags(course.summary)), length: 100 %></p>
-                    </div>
-                </a>
-                <% else %>
-                    <%= if course.img_url != "" do %>
-                    <img class="card-img-top" src="<%= course.img_url %>"
-                         alt="Course image">
-                    <% else %>
-                    <img class="card-img-top" src="<%= static_path(@conn, "/images/course_placeholder.png") %>"
-                         alt="Course image">
-                    <% end %>
-                    <div class="card-body">
-                        <h5 class="card-title"><%= course.course_name%></h5>
-                        <p class="card-text"> <%= truncate String.trim(HtmlSanitizeEx.strip_tags(course.summary)), length: 100 %></p>
-                        <%= if !@is_admin and  !course.is_paid do %>
-                            <%= if course.price == 0 do %>
-                                <span class="btn btn-primary" >Free</span>
-                            <% else %>
-                            <a href="/billing/invoices/new?course_id=<%= course.id %>" class="btn btn-primary">$<%= course.price %> Buy Now</a>
-                            <% end %>
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header d-flex flex-column"> 
+            <div class="row">
+                <div class="content profile">
+                    <div>
+                        <%= if @admin_login_url != nil do %>
+                        <a href="<%= @admin_login_url %>" class="btn btn-fill btn-primary float-right">
+                            <span>Manage Courses</span>
+                        </a>
                         <% end %>
-                        <%= if course.is_paid or course.price == 0 or @is_admin do %>
-                            <a href="<%= @login_url <> Base.encode64(to_string(course.id)) %>"
-                               class="btn btn-success">Open</a>
+                        <div class="user-info">
+                            <h2>Course Selection</h2>
+                        </div>
+                    </div>
+                    <%= if length(@courses) == 0 do %>
+                    <div class="card-body profile">
+                        <h6>No Courses found</h6>
+                    </div>
+                    <% end %>
+                    <div class="row">
+                        <%= for course <- @courses do %>
+                        <div class="col-sm-3">
+                            <div class="card">
+                                <%= if @staff_member do %>
+                                <a href="/course/participants/<%= course.id%>">
+                                    <%= if course.img_url != "" do %>
+                                    <img class="card-img-top" src="<%= course.img_url %>"
+                                        alt="Course image">
+                                    <% else %>
+                                    <img class="card-img-top" src="<%= static_path(@conn, "/images/course_placeholder.png") %>"
+                                        alt="Course image">
+                                    <% end %>
+                                    <div class="card-body">
+                                            <h5 class="card-title"><%= course.course_name%></h5>
+                                            <p class="card-text"> <%= truncate String.trim(HtmlSanitizeEx.strip_tags(course.summary)), length: 100 %></p>
+                                    </div>
+                                </a>
+                                <% else %>
+                                    <%= if course.img_url != "" do %>
+                                    <img class="card-img-top" src="<%= course.img_url %>"
+                                        alt="Course image">
+                                    <% else %>
+                                    <img class="card-img-top" src="<%= static_path(@conn, "/images/course_placeholder.png") %>"
+                                        alt="Course image">
+                                    <% end %>
+                                    <div class="card-body">
+                                        <h5 class="card-title"><%= course.course_name%></h5>
+                                        <p class="card-text"> <%= truncate String.trim(HtmlSanitizeEx.strip_tags(course.summary)), length: 100 %></p>
+                                        <%= if !@is_admin and  !course.is_paid do %>
+                                            <%= if course.price == 0 do %>
+                                                <span class="btn btn-primary" >Free</span>
+                                            <% else %>
+                                            <a href="/billing/invoices/new?course_id=<%= course.id %>" class="btn btn-primary">$<%= course.price %> Buy Now</a>
+                                            <% end %>
+                                        <% end %>
+                                        <%= if course.is_paid or course.price == 0 or @is_admin do %>
+                                            <a href="<%= @login_url <> Base.encode64(to_string(course.id)) %>"
+                                            class="btn btn-success">Open</a>
+                                        <% end %>
+                                    </div>
+                                <% end %>
+                            </div>
+                        </div>
                         <% end %>
                     </div>
-                <% end %>
+                </div>
             </div>
         </div>
-        <% end %>
+      </div>
     </div>
+  </div>
 </div>
 
-
-<script>
-
-</script>
-
-<script>
-
-</script>
 <%= if get_flash(@conn, :success) do %>
 <script>
     $(document).ready(function () {
