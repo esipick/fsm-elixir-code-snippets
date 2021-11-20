@@ -18,7 +18,6 @@ const RemarksType = {
 const CourseLessons = ({ participantCourse, courseId }) => {
   const [state, setState] = useState({
     lessonId: undefined,
-    subLessonId: undefined,
     loaderType: undefined, // LoaderType
     participant: participantCourse,
     summaryModal: false,
@@ -26,13 +25,13 @@ const CourseLessons = ({ participantCourse, courseId }) => {
     subLesson: undefined
   });
 
-  const saveRemarks = async (subLessonId, remark, type) => {
+  const saveRemarks = async (subLesson, remark, type) => {
     const payload = {
-      course_id: courseId,
-      sub_lesson_id: subLessonId,
+      course_id: parseInt(courseId),
+      sub_lesson_id: subLesson.id,
       teacher_mark: remark,
       fsm_user_id: state.participant.fsm_user_id,
-      notes: null
+      notes: subLesson.notes
     };
 
     const reqOpts = {
@@ -47,20 +46,20 @@ const CourseLessons = ({ participantCourse, courseId }) => {
     setState({
       ...state,
       loaderType: type,
-      subLessonId: subLessonId
+      subLesson
     });
 
     await fetch(`/api/course/sublesson/remarks`, reqOpts)
       .then((res) => res.json())
       .then((data) => {
-        updateParticipant(state.lessonId, subLessonId, data.participantCourse)
+        updateParticipant(state.lessonId, subLesson.id, data.participantCourse)
       })
       .catch((error) => {
         console.log(error);
         setState({
           ...state,
           loaderType: undefined,
-          subLessonId: undefined
+          subLesson: undefined
         });
         window.alert("Something went wrong, please try again.");
       });
@@ -69,7 +68,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
   const handleCloseModal = () => {
     setState({
       ...state,
-      subLessonId: undefined,
+      subLesson: undefined,
       lessonId: undefined,
       summaryModal: false
     });
@@ -114,7 +113,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                 participant={{...state.participant, courseId}}
                 markedSubLesson={{
                   loaderType: state.loaderType,
-                  subLessonId: state.subLessonId,
+                  subLessonId: state.subLesson.id,
                 }}
                 saveRemarks={saveRemarks}
                 setParticipant={updateParticipant}
@@ -159,7 +158,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                     View Summary
                   </a>
                 </div>
-                <div id={"collapse-"+lesson.id} class={`accordion-collapse collapse ${index === 0 ? 'show' : ''}`} 
+                <div id={"collapse-"+lesson.id} className={`accordion-collapse collapse ${index === 0 ? 'show' : ''}`} 
                   aria-labelledby={"heading-"+lesson.id} 
                   data-parent={"#accordion-"+lesson.id}
                   >
@@ -171,7 +170,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                         selectedSubLesson={state.subLesson}
                         markedSubLesson={{
                           loaderType: state.loaderType,
-                          subLessonId: state.subLessonId,
+                          subLessonId: state.subLesson?.id,
                         }}
                         saveRemarks={saveRemarks}
                         showSubLesson={() =>
@@ -249,7 +248,7 @@ const SubLessonCard = ({
             disabled={satisfied}
             onClick={() =>
               saveRemarks(
-                subLesson.id,
+                subLesson,
                 RemarksType.SATISFACTORY,
                 LoaderType.SATISFACTORY
               )
@@ -270,7 +269,7 @@ const SubLessonCard = ({
             disabled={unsatisfied}
             onClick={() =>
               saveRemarks(
-                subLesson.id,
+                subLesson,
                 RemarksType.UNSATISFACTORY,
                 LoaderType.UNSATISFACTORY
               )
@@ -354,7 +353,7 @@ const SubLessonPanelContent = ({
               disabled={satisfied}
               onClick={() =>
                 saveRemarks(
-                  subLesson.id,
+                  subLesson,
                   RemarksType.SATISFACTORY,
                   LoaderType.SATISFACTORY
                 )
@@ -375,7 +374,7 @@ const SubLessonPanelContent = ({
               disabled={unsatisfied}
               onClick={() =>
                 saveRemarks(
-                  subLesson.id,
+                  subLesson,
                   RemarksType.UNSATISFACTORY,
                   LoaderType.UNSATISFACTORY
                 )
@@ -526,7 +525,7 @@ const SubLessonPanelContent = ({
         <div className="pt-2">
          {
            subLesson.notes ? 
-           <textarea className="w-100 disabled-click border-0" rows={5} defaultValue={subLesson.notes}/>
+           <textarea className="w-100 disabled-click border-0" readOnly={true} rows={5} value={subLesson.notes}/>
            :
            <p className="text-secondary">No notes available</p>
          }
@@ -554,9 +553,9 @@ const TakeNotes = ({
     event.preventDefault();
 
     const payload = {
-      course_id: courseId,
+      course_id: parseInt(courseId),
       sub_lesson_id: subLesson.id,
-      teacher_mark: null,
+      teacher_mark: isSatisfied(subLesson.remarks) ? 1 : isUnsatisfied(subLesson.remarks) ? 2 : 0,
       fsm_user_id: participant.fsm_user_id,
       notes: state.notes,
     };
