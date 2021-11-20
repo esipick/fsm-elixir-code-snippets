@@ -19,12 +19,13 @@ const RemarksType = {
 
 const CourseLessons = ({ participantCourse, courseId }) => {
   const [state, setState] = useState({
-    lessonId: undefined,
+    lesson: undefined,
     loaderType: undefined, // LoaderType
     participant: participantCourse,
-    summaryModal: false,
+    lessonOverviewModal: false,
     subLessonPanel: false,
-    subLesson: undefined
+    subLesson: undefined,
+    lessonNotesModal: false
   });
 
   const saveRemarks = async (subLesson, remark, type) => {
@@ -54,7 +55,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
     await fetch(`/api/course/sublesson/remarks`, reqOpts)
       .then((res) => res.json())
       .then((data) => {
-        updateParticipant(state.lessonId, subLesson.id, data.participantCourse)
+        updateParticipant(state.lesson, subLesson.id, data.participantCourse)
       })
       .catch((error) => {
         console.log(error);
@@ -71,8 +72,9 @@ const CourseLessons = ({ participantCourse, courseId }) => {
     setState({
       ...state,
       subLesson: undefined,
-      lessonId: undefined,
-      summaryModal: false
+      lesson: undefined,
+      lessonOverviewModal: false,
+      lessonNotesModal: false
     });
   };
 
@@ -81,17 +83,17 @@ const CourseLessons = ({ participantCourse, courseId }) => {
       ...state,
       subLessonPanel: false,
       subLesson: undefined,
-      lessonId: undefined
+      lesson: undefined
     });
   };
 
-  const updateParticipant = (lessonId, subLessonId, participant) => {
+  const updateParticipant = (lesson, subLessonId, participant) => {
     
     let subLesson = undefined
 
     if(state.subLessonPanel) {
       subLesson = (participant.lessons ?? [])
-      .find(l => l.id === lessonId)?.sub_lessons?.find(sl => sl.id === subLessonId)
+      .find(l => l.id === lesson.id)?.sub_lessons?.find(sl => sl.id === subLessonId)
     }
 
     setState({
@@ -110,7 +112,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
             <div className="text-secondary">
               <CrossSign callback={handleCloseSidebarPanel} />
               <SubLessonPanelContent
-                lessonId={state.lessonId}
+                lesson={state.lesson}
                 subLesson={state.subLesson}
                 participant={{...state.participant, courseId}}
                 markedSubLesson={{
@@ -146,20 +148,34 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                       <ChevronDown />
                       <h4 className="mt-2 mb-2">{lesson.name}</h4>
                   </div>
-                  <a
-                    href="#"
-                    onClick={() =>
-                      setState({
-                        ...state,
-                        summaryModal: true,
-                        lessonId: lesson.id,
-                      })
-                    }
-                    className="text-primary"
-                  >
-                    View Summary
-                  </a>
-                </div>
+                 <div className="d-flex flex-row align-items-center">
+                  <p
+                      onClick={() =>
+                        setState({
+                          ...state,
+                          lesson,
+                          lessonOverviewModal: true
+                        })
+                      }
+                      className="text-primary my-0 mx-1 cursor-pointer"
+                    >
+                      Overview
+                    </p>
+                    <span className="text-secondary"> | </span>
+                    <p
+                      onClick={() =>
+                        setState({
+                          ...state,
+                          lesson,
+                          lessonNotesModal: true
+                        })
+                      }
+                      className="text-primary my-0 mx-1 cursor-pointer"
+                    >
+                      Notes
+                    </p>
+                  </div>
+              </div>
                 <div id={"collapse-"+lesson.id} className={`accordion-collapse collapse ${index === 0 ? 'show' : ''}`} 
                   aria-labelledby={"heading-"+lesson.id} 
                   data-parent={"#accordion-"+lesson.id}
@@ -167,7 +183,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                     {(lesson.sub_lessons ?? []).map((subLesson) => (
                       <SubLessonCard
                         key={lesson.id + "-" + subLesson.id}
-                        lessonId={lesson.id}
+                        lesson={lesson}
                         subLesson={subLesson}
                         selectedSubLesson={state.subLesson}
                         markedSubLesson={{
@@ -178,7 +194,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                         showSubLesson={() =>
                           setState({
                             ...state,
-                            lessonId: lesson.id,
+                            lesson: lesson,
                             subLessonPanel: true,
                             subLesson: subLesson,
                           })
@@ -188,31 +204,54 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                 </div>
               </div>
             </div>
-            {state.summaryModal && state.lessonId === lesson.id && (
+          </div>
+        ))}
+        {state.lessonOverviewModal && state.lesson && (
               <Modal callback={handleCloseModal}>
                {
-                 lesson.summary ? (
+                 state.lesson.summary ? (
                     <div className="sublesson module-content">
-                      <div dangerouslySetInnerHTML={{ __html: lesson.summary }} />
+                      <h4 className="m-0">Lesson Overview</h4>
+                      <div dangerouslySetInnerHTML={{ __html: state.lesson.summary }} />
                     </div>
                   )
                 : (
                   <div className="d-flex flex-row justify-content-center jumbotron mb-2">
-                    <p className="mb-0">No Summary</p>
+                    <p className="mb-0">No Lesson Overview</p>
                   </div>
                 )
                }
               </Modal>
             )}
-          </div>
-        ))}
+            {state.lessonNotesModal && state.lesson && (
+              <Modal callback={handleCloseModal}>
+               {
+                <div className="sublesson module-content">
+                  <h4 className="m-0">Lesson Notes</h4>
+                  <div>
+                  {
+                    (state.lesson.sub_lessons ?? []).map(sl => {
+                        if(!sl.notes) {
+                          return null
+                        }
+                        return (<div key={state.lesson.id + "-" + sl.id} className="border p-1 rounded mb-1">
+                          <p className="bold border-bottom m-0">{sl.name}</p>
+                          <textarea className="w-100 text-secondary border-0" readOnly={true} rows={2} value={sl.notes}/>
+                        </div>)
+                    })
+                  }
+                  </div>
+                </div>
+               }
+              </Modal>
+            )}
       </div>
     </div>
   );
 };
 
 const SubLessonCard = ({
-  lessonId,
+  lesson,
   subLesson,
   selectedSubLesson,
   markedSubLesson,
@@ -224,7 +263,7 @@ const SubLessonCard = ({
     <div className={`row py-2 mx-2 d-flex flex-row justify-content-between no-last-child-border border-bottom ${selectedSubLesson?.id === subLesson.id ? 'bg-light' : ''}`}>
       <div
         className="d-flex flex-row justify-content-start align-items-center"
-        id={`heading${lessonId}-${subLesson.id}`}
+        id={`heading${lesson.id}-${subLesson.id}`}
       >
         <a
           onClick={showSubLesson}
@@ -317,7 +356,7 @@ const RemarkButtons = ({subLesson, markedSubLesson, saveRemarks}) => {
 }
 
 const SubLessonPanelContent = ({
-  lessonId,
+  lesson,
   subLesson,
   participant,
   setParticipant,
@@ -376,7 +415,7 @@ const SubLessonPanelContent = ({
       <div className="card-body p-0">
         {(subLesson.modules ?? []).map((module) => (
           <div
-            key={lessonId + "-" + subLesson.id + "-" + module.id}
+            key={lesson.id + "-" + subLesson.id + "-" + module.id}
             className="no-last-child-border pb-2 mb-2 border-bottom"
           >
             {(module.contents ?? []).map((content, index) => {
@@ -384,7 +423,7 @@ const SubLessonPanelContent = ({
                 return (
                   <div
                     className="cursor-pointer d-flex flex-row align-items-center"
-                    key={ lessonId + "-" + subLesson.id + "-" + module.id + index }
+                    key={ lesson.id + "-" + subLesson.id + "-" + module.id + index }
                     onClick={() =>
                       getModulePageContent(`${content.fileurl}&token=${participant.token}`)
                     }
@@ -402,7 +441,7 @@ const SubLessonPanelContent = ({
                   <div
                     className="cursor-pointer d-flex flex-row align-items-center"
                     key={
-                      lessonId + "-" + subLesson.id + "-" + module.id + index
+                      lesson.id + "-" + subLesson.id + "-" + module.id + index
                     }
                     onClick={() => setState({...state, youtubeModuleContent: content})}
                   >
@@ -417,7 +456,7 @@ const SubLessonPanelContent = ({
               return (
                 <a
                   className="d-flex flex-row align-items-center text-secondary"
-                  key={lessonId + "-" + subLesson.id + "-" + module.id + index}
+                  key={lesson.id + "-" + subLesson.id + "-" + module.id + index}
                   href={content.fileurl + "&token=" + participant.token}
                   target={"_blank"}
                 >
@@ -492,7 +531,7 @@ const SubLessonPanelContent = ({
               subLesson={subLesson}
               setParticipant={  
                 (participant) => {
-                  setParticipant(lessonId, subLesson.id, participant)
+                  setParticipant(lesson, subLesson.id, participant)
                   setState({...state, takeNotesModal: false})
                 }
               }
@@ -513,7 +552,7 @@ const SubLessonPanelContent = ({
         <div className="pt-2">
          {
            subLesson.notes ? 
-           <textarea className="w-100 disabled-click border-0" readOnly={true} rows={5} value={subLesson.notes}/>
+           <textarea className="w-100 border-0" readOnly={true} rows={5} value={subLesson.notes}/>
            :
            <p className="text-secondary">No notes available</p>
          }
