@@ -3,6 +3,7 @@ import { Modal } from "../common/modal";
 import { authHeaders } from "../utils";
 
 const LoaderType = {
+  NOT_GRADED: 0,
   SATISFACTORY: 1,
   UNSATISFACTORY: 2,
   NOTES: 3,
@@ -11,6 +12,7 @@ const LoaderType = {
 };
 
 const RemarksType = {
+  NOT_GRADED: 0,
   SATISFACTORY: 1,
   UNSATISFACTORY: 2
 };
@@ -217,11 +219,9 @@ const SubLessonCard = ({
   saveRemarks,
   showSubLesson
 }) => {
-  const satisfied = isSatisfied(subLesson.remarks);
-  const unsatisfied = isUnsatisfied(subLesson.remarks);
-
+  
   return (
-    <div className={`row mx-2 d-flex flex-row justify-content-between no-last-child-border border-bottom ${selectedSubLesson?.id === subLesson.id ? 'bg-light' : ''}`}>
+    <div className={`row py-2 mx-2 d-flex flex-row justify-content-between no-last-child-border border-bottom ${selectedSubLesson?.id === subLesson.id ? 'bg-light' : ''}`}>
       <div
         className="d-flex flex-row justify-content-start align-items-center"
         id={`heading${lessonId}-${subLesson.id}`}
@@ -235,53 +235,86 @@ const SubLessonCard = ({
           </h5>
         </a>
       </div>
-
-      <div className="d-flex flex-row align-items-center text-uppercase my-2">
-        {markedSubLesson.loaderType === LoaderType.SATISFACTORY &&
-        markedSubLesson.subLessonId === subLesson.id ? (
-          <Spinner />
-        ) : (
-          <div
-            className={`button-remark text-secondary ${
-              satisfied ? "active disabled-click" : ""
-            }`}
-            disabled={satisfied}
-            onClick={() =>
-              saveRemarks(
-                subLesson,
-                RemarksType.SATISFACTORY,
-                LoaderType.SATISFACTORY
-              )
-            }
-          >
-            Sat
-          </div>
-        )}
-        <span className="text-secondary"> | </span>
-        {markedSubLesson.loaderType === LoaderType.UNSATISFACTORY &&
-        markedSubLesson.subLessonId === subLesson.id ? (
-          <Spinner />
-        ) : (
-          <div
-            className={`button-remark text-secondary ${
-              unsatisfied ? "active disabled-click" : ""
-            }`}
-            disabled={unsatisfied}
-            onClick={() =>
-              saveRemarks(
-                subLesson,
-                RemarksType.UNSATISFACTORY,
-                LoaderType.UNSATISFACTORY
-              )
-            }
-          >
-            Unsat
-          </div>
-        )}
-      </div>
+      <RemarkButtons {...{markedSubLesson, saveRemarks, subLesson}}  />
     </div>
   );
 };
+
+const RemarkButtons = ({subLesson, markedSubLesson, saveRemarks}) => {
+  
+  const satisfied = isSatisfied(subLesson.remarks);
+  const unsatisfied = isUnsatisfied(subLesson.remarks);
+
+   return (
+    <div className="d-flex flex-row align-items-center text-uppercase">
+    {markedSubLesson.loaderType === LoaderType.SATISFACTORY &&
+    markedSubLesson.subLessonId === subLesson.id ? (
+      <Spinner />
+    ) : (
+      <div
+        className={`button-remark ${
+          satisfied ? "text-success disabled-click" : "text-secondary"
+        }`}
+        disabled={satisfied}
+        onClick={() =>
+          saveRemarks(
+            subLesson,
+            RemarksType.SATISFACTORY,
+            LoaderType.SATISFACTORY
+          )
+        }
+      >
+        Sat
+      </div>
+    )}
+    <span className="text-secondary"> | </span>
+    {markedSubLesson.loaderType === LoaderType.UNSATISFACTORY &&
+    markedSubLesson.subLessonId === subLesson.id ? (
+      <Spinner />
+    ) : (
+      <div
+        className={`button-remark ${
+          unsatisfied ? "text-danger disabled-click" : "text-secondary"
+        }`}
+        disabled={unsatisfied}
+        onClick={() =>
+          saveRemarks(
+            subLesson,
+            RemarksType.UNSATISFACTORY,
+            LoaderType.UNSATISFACTORY
+          )
+        }
+      >
+        Unsat
+      </div>
+    )}
+
+    <span className="text-secondary"> | </span>
+    {markedSubLesson.loaderType === LoaderType.NOT_GRADED &&
+    markedSubLesson.subLessonId === subLesson.id ? (
+      <Spinner />
+    ) : (
+      <button
+        id="btn-reset-grading"
+        rel="popover"
+        data-placement="bottom"
+        data-original-title="Reset Grading"
+        disabled={!(satisfied || unsatisfied)}
+        className={`btn btn-sm p-1 m-0 ml-1 ${satisfied || unsatisfied ? 'btn-danger' : 'btn-light'}`}
+        onClick={() =>
+          saveRemarks(
+            subLesson,
+            RemarksType.NOT_GRADED,
+            LoaderType.NOT_GRADED
+          )
+        }
+      >
+        Reset
+      </button>
+    )}
+  </div>
+   )
+}
 
 const SubLessonPanelContent = ({
   lessonId,
@@ -334,56 +367,11 @@ const SubLessonPanelContent = ({
       });
   };
 
-  const satisfied = isSatisfied(subLesson.remarks);
-  const unsatisfied = isUnsatisfied(subLesson.remarks);
-
   return (
     <div className="sublesson-content ml-1">
       <div className="row ml-0 d-flex flex-row justify-content-between align-items-center mb-2">
         <h5 className="mb-0 text-dark">{subLesson.name}</h5>
-        <div className="h5 mb-0 d-flex flex-row align-items-center text-uppercase">
-          {markedSubLesson.loaderType === LoaderType.SATISFACTORY &&
-          markedSubLesson.subLessonId === subLesson.id ? (
-            <Spinner />
-          ) : (
-            <div
-              className={`button-remark text-secondary ${
-                satisfied ? "active disabled-click" : ""
-              }`}
-              disabled={satisfied}
-              onClick={() =>
-                saveRemarks(
-                  subLesson,
-                  RemarksType.SATISFACTORY,
-                  LoaderType.SATISFACTORY
-                )
-              }
-            >
-              Sat
-            </div>
-          )}
-          <span className="text-secondary"> | </span>
-          {markedSubLesson.loaderType === LoaderType.UNSATISFACTORY &&
-          markedSubLesson.subLessonId === subLesson.id ? (
-            <Spinner />
-          ) : (
-            <div
-              className={`button-remark text-secondary ${
-                unsatisfied ? "active disabled-click" : ""
-              }`}
-              disabled={unsatisfied}
-              onClick={() =>
-                saveRemarks(
-                  subLesson,
-                  RemarksType.UNSATISFACTORY,
-                  LoaderType.UNSATISFACTORY
-                )
-              }
-            >
-              Unsat
-            </div>
-          )}
-        </div>
+        <RemarkButtons {...{subLesson, markedSubLesson, saveRemarks}} />
       </div>
       <div className="card-body p-0">
         {(subLesson.modules ?? []).map((module) => (
