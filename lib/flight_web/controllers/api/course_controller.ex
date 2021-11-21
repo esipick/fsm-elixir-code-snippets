@@ -24,4 +24,16 @@ defmodule FlightWeb.API.CourseController do
     render(conn, "participant_course_info.json", participant_course_info: participant_course_info)
   end
 
+  def sublesson_module_view(conn, attrs) do
+    %{assigns: %{current_user: user}} = conn
+
+    attrs = %{
+      course_id: Map.get(attrs, "course_id"),
+      course_module_id: Map.get(attrs, "module_id")
+    }
+
+    response = Course.add_course_module_view_remarks(user,attrs)
+    render(conn, "course_module_view.json", module_view_response: response)
+  end
+
 end

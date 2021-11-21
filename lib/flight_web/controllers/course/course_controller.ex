@@ -58,7 +58,8 @@ defmodule FlightWeb.Course.CourseController do
     props = %{
       courseId: course_id,
       participantCourse: participant_course,
-      courseProgress: get_course_progress(participant_course)
+      courseProgress: get_course_progress(participant_course),
+      userRoles: Flight.Accounts.get_user_roles(conn) |> Enum.map(fn r -> r.slug end)
     }
 
     render(

@@ -17,7 +17,7 @@ const RemarksType = {
   UNSATISFACTORY: 2
 };
 
-const CourseLessons = ({ participantCourse, courseId }) => {
+const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
   const [state, setState] = useState({
     lesson: undefined,
     loaderType: undefined, // LoaderType
@@ -99,6 +99,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
     setState({
       ...state,
       loaderType: undefined,
+      lesson,
       participant,
       subLesson
     });
@@ -121,6 +122,7 @@ const CourseLessons = ({ participantCourse, courseId }) => {
                 }}
                 saveRemarks={saveRemarks}
                 setParticipant={updateParticipant}
+                userRoles={userRoles}
               />
             </div>
           </div>
@@ -361,7 +363,8 @@ const SubLessonPanelContent = ({
   participant,
   setParticipant,
   markedSubLesson,
-  saveRemarks
+  saveRemarks,
+  userRoles
 }) => {
 
   const [state, setState] = useState({
@@ -373,7 +376,7 @@ const SubLessonPanelContent = ({
     error: undefined
   });
 
-  const getModulePageContent = (url) => {
+  const getModulePageContent = (moduleId, url) => {
     const reqOpts = {
       method: "GET"
     };
@@ -402,9 +405,75 @@ const SubLessonPanelContent = ({
           pageModuleContentModal: true,
           error: "Something went wrong. Please close this and try again."
         });
-
       });
   };
+
+  const markModuleView = (mod) => {
+
+    // we already viewed the module
+    if(mod.completionstate && mod.vieweddate) {
+      return
+    }
+
+    // only student can mark module as viewed
+    if(!(userRoles.length === 1 && userRoles.includes("student"))) {
+      return
+    }
+
+    const payload = {
+      course_id: parseInt(participant.courseId),
+      module_id: mod.id
+    };
+
+    const postReqOpts = {
+      method: "POST",
+      headers: {
+        ...authHeaders(),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    };
+
+    fetch(`/api/course/sublesson/module/view`, postReqOpts)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data)
+        const updatedLesson = {
+          ...lesson,
+          sub_lessons: (lesson.sub_lessons ?? []).map(sl => {
+            return {
+              ...sl,
+              modules: (sl.modules ?? []).map(mod => {
+                if(mod.id === moduleId) {
+                  return {
+                    ...mod,
+                    completionstate: true,
+                    vieweddate: Math.round(Date.now()/1000).toString()
+                  }
+                }
+                return mod
+              })
+            }
+          })
+        }
+
+        const updatedParticipant = {
+          ...participant,
+          lessons: participant.lessons.map(l => {
+            if(l.id === updatedLesson.id) {
+              return updatedLesson
+            }
+            return l
+          })
+        }
+
+        // update parent state
+        setParticipant(updatedLesson, subLesson.id, updatedParticipant)
+      })
+      .catch((error) => {
+        console.log("error", error);
+    });
+  }
 
   return (
     <div className="sublesson-content ml-1">
@@ -413,25 +482,35 @@ const SubLessonPanelContent = ({
         <RemarkButtons {...{subLesson, markedSubLesson, saveRemarks}} />
       </div>
       <div className="card-body p-0">
-        {(subLesson.modules ?? []).map((module) => (
+        {(subLesson.modules ?? []).map((mod) => (
           <div
-            key={lesson.id + "-" + subLesson.id + "-" + module.id}
+            key={lesson.id + "-" + subLesson.id + "-" + mod.id}
             className="no-last-child-border pb-2 mb-2 border-bottom"
           >
-            {(module.contents ?? []).map((content, index) => {
-              if (module.modname === "page") {
+            {(mod.contents ?? []).map((content, index, originalContents) => {
+              if (mod.modname === "page") {
                 return (
                   <div
-                    className="cursor-pointer d-flex flex-row align-items-center"
-                    key={ lesson.id + "-" + subLesson.id + "-" + module.id + index }
-                    onClick={() =>
-                      getModulePageContent(`${content.fileurl}&token=${participant.token}`)
+                    className={`cursor-pointer d-flex flex-row align-items-center justify-content-between
+                      ${originalContents.length > 1 ? 'no-last-child-border pb-2 mb-2 border-bottom' : ''}`}
+                    key={ lesson.id + "-" + subLesson.id + "-" + mod.id + index }
+                    onClick={() => {
+                        markModuleView(mod);
+                        getModulePageContent(mod.id, `${content.fileurl}&token=${participant.token}`);
+                      }
                     }
                   >
-                    <span className="mr-2">
-                      <img src={module.modicon} />
-                    </span>
-                    <p className="mb-0" dangerouslySetInnerHTML={{ __html: module.name }} />
+                    <div className="d-flex flex-row align-items-center">
+                      <span className="mr-2">
+                        <img src={mod.modicon} />
+                      </span>
+                      <p className="mb-0" dangerouslySetInnerHTML={{ __html: mod.name }} />
+                    </div>
+                    {
+                      (mod.completionstate && mod.vieweddate) && (
+                        <CheckCircleIcon className={"text-success"} />
+                      )
+                    }
                   </div>
                 );
               }
@@ -439,31 +518,51 @@ const SubLessonPanelContent = ({
               if(content.fileurl?.includes("youtube")) {
                 return (
                   <div
-                    className="cursor-pointer d-flex flex-row align-items-center"
+                    className={`cursor-pointer d-flex flex-row align-items-center justify-content-between
+                    ${originalContents.length > 1 ? 'no-last-child-border pb-2 mb-2 border-bottom' : ''}`}
                     key={
-                      lesson.id + "-" + subLesson.id + "-" + module.id + index
+                      lesson.id + "-" + subLesson.id + "-" + mod.id + index
                     }
-                    onClick={() => setState({...state, youtubeModuleContent: content})}
+                    onClick={() => {
+                      markModuleView(mod);
+                      setState({...state, youtubeModuleContent: content});
+                    }}
                   >
-                    <span className="mr-2">
-                      <img src={module.modicon} />
-                    </span>
-                    <p className="mb-0" dangerouslySetInnerHTML={{ __html: module.name }} />
+                    <div className="d-flex flex-row align-items-center">
+                      <span className="mr-2">
+                          <img src={mod.modicon} />
+                        </span>
+                        <p className="mb-0" dangerouslySetInnerHTML={{ __html: mod.name }} />
+                    </div>
+                    {
+                      (mod.completionstate && mod.vieweddate) && (
+                        <CheckCircleIcon className={"text-success"} />
+                      )
+                    }
                   </div>
                 );
               }
 
               return (
                 <a
-                  className="d-flex flex-row align-items-center text-secondary"
-                  key={lesson.id + "-" + subLesson.id + "-" + module.id + index}
+                  className={`cursor-pointer d-flex flex-row align-items-center justify-content-between
+                  ${originalContents.length > 1 ? 'no-last-child-border pb-2 mb-2 border-bottom' : ''}`}
+                  key={lesson.id + "-" + subLesson.id + "-" + mod.id + index}
                   href={content.fileurl + "&token=" + participant.token}
                   target={"_blank"}
+                  onClick={() => markModuleView(mod)}
                 >
-                  <span className="mr-2">
-                    <img src={module.modicon} />
-                  </span>
-                   <p className="mb-0" dangerouslySetInnerHTML={{ __html: module.name }} />
+                    <div className="d-flex flex-row align-items-center">
+                      <span className="mr-2">
+                        <img src={mod.modicon} />
+                      </span>
+                      <p className="mb-0" dangerouslySetInnerHTML={{ __html: mod.name }} />
+                    </div>
+                    {
+                      (mod.completionstate && mod.vieweddate) && (
+                        <CheckCircleIcon className={"text-success"} />
+                      )
+                    }
                 </a>
               );
             })}
@@ -717,6 +816,12 @@ const CrossSign = ({ callback }) => (
     />
   </svg>
 );
+
+const CheckCircleIcon = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" height="24" width="24" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+)
 
 const Spinner = ({ borderColor }) => (
   <div className="lds-ring">

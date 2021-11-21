@@ -78,4 +78,10 @@ defmodule FlightWeb.API.CourseView do
     participant
   end
 
+  def render("course_module_view.json", %{module_view_response: response}) do
+    %{
+      message: response.message,
+      status: response.status
+    }
+  end
 end

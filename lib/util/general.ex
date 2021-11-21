@@ -440,7 +440,7 @@ defmodule Flight.General do
       "action": "insert_coursemodule_viewed",
       "webtoken": webtoken,
       "courseid": attrs.course_id,
-      "coursemoduleid": attrs.course_module_id ,
+      "coursemoduleid": attrs.course_module_id,
       "userid": current_user.id
     })
 
