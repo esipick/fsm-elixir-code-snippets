@@ -93,13 +93,11 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :flight, Flight.Repo,
-username: "bgxmltqexmsbbt",
-password: "f745da74c253a3ff78fc4a7728e6612d8fb3dd16e1923943e02c554a294fa2dc",
-database: "d3lugdu8a44rbb",
-hostname: "ec2-174-129-22-84.compute-1.amazonaws.com",
-port: 5432,
-pool_size: 10,
-ssl: true
+  username: "postgres",
+  password: "postgres",
+  database: "flight_dev",
+  hostname: "localhost",
+  pool_size: 10
 
 config :flight, :user_token_salt, "gwfyeA8B5"
 
@@ -116,5 +114,3 @@ config :flight, :webtoken_secret_key, System.get_env("WEBTOKEN_SECRET_KEY") || "
 config :flight, :per_course_price, String.to_integer(System.get_env("PER_COURSE_PRICE") || "10")
 config :flight, :monthly_invoice_creator, String.to_integer(System.get_env("MONTHLY_INVOICE_CREATOR") || "1")
 config :logger, level: :debug
-
-
