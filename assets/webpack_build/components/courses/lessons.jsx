@@ -416,7 +416,7 @@ const SubLessonPanelContent = ({
     }
 
     // only student can mark module as viewed
-    if(!(userRoles.length === 1 && userRoles.includes("student"))) {
+    if(!isStudent(userRoles)) {
       return
     }
 
@@ -641,12 +641,16 @@ const SubLessonPanelContent = ({
       <div className="notes-section">
         <div className="d-flex flex-row align-items-center justify-content-between border-bottom">
           <h4 className="my-2">Notes</h4>
-          <div
-            onClick={() => setState({...state, takeNotesModal: true})}
-            className="cursor-pointer bold text-uppercase btn btn-primary"
-          >
-            Add a Note
-          </div>
+          {
+            !isStudent(userRoles) && (
+                <button
+                onClick={() => setState({...state, takeNotesModal: true})}
+                className="cursor-pointer bold text-uppercase btn btn-primary"
+              >
+                Add a Note
+              </button>
+            )
+          }
         </div>
         <div className="pt-2">
          {
@@ -769,6 +773,7 @@ const TakeNotes = ({
 
 const isSatisfied = (remarks) => remarks === "satisfactory";
 const isUnsatisfied = (remarks) => remarks === "not_satisfactory";
+const isStudent = (roles) => roles.length === 1 && roles.includes("student");
 
 const ChevronRight = () => (
   <svg
