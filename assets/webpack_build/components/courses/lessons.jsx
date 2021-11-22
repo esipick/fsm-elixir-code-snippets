@@ -29,6 +29,13 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
   });
 
   const saveRemarks = async (subLesson, remark, type) => {
+
+    if(remark === RemarksType.NOT_GRADED) {
+      if(!window.confirm("Are you sure you want to reset grade?")) {
+        return
+      }
+    }
+
     const payload = {
       course_id: parseInt(courseId),
       sub_lesson_id: subLesson.id,
@@ -103,6 +110,8 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
       subLesson
     });
   }
+
+  console.log(state.participant)
 
   return (
     <div className="card">
