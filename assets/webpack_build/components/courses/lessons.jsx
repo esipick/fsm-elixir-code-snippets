@@ -33,8 +33,7 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
       course_id: parseInt(courseId),
       sub_lesson_id: subLesson.id,
       teacher_mark: remark,
-      fsm_user_id: state.participant.fsm_user_id,
-      notes: null
+      fsm_user_id: state.participant.fsm_user_id
     };
 
     const reqOpts = {
@@ -685,16 +684,15 @@ const TakeNotes = ({
     const payload = {
       course_id: parseInt(courseId),
       sub_lesson_id: subLesson.id,
-      teacher_mark: null,
       fsm_user_id: participant.fsm_user_id,
-      notes: state.notes,
+      notes: state.notes
     };
 
     const reqOpts = {
       method: "POST",
       headers: {
         ...authHeaders(),
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
     };

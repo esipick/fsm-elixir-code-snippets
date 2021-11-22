@@ -11,15 +11,20 @@ defmodule FlightWeb.API.CourseController do
   def sublesson_remarks(conn, attrs) do
     %{assigns: %{current_user: user}} = conn
 
-    attrs = %{
+    teacher_mark = Map.get(attrs, "teacher_mark", nil)
+    notes = Map.get(attrs, "notes", nil)
+
+    new_attrs = %{
       course_id: Map.get(attrs, "course_id"),
       sub_lesson_id: Map.get(attrs, "sub_lesson_id"),
-      teacher_mark: Map.get(attrs, "teacher_mark"),
-      fsm_user_id: Map.get(attrs, "fsm_user_id"),
-      note: Map.get(attrs, "notes")
+      fsm_user_id: Map.get(attrs, "fsm_user_id")
     }
+
+    new_attrs = if is_nil(teacher_mark), do: new_attrs, else: Map.put(new_attrs, :teacher_mark, teacher_mark)
     
-    participant_course_info = Course.insert_lesson_sub_lesson_remarks(user, attrs)
+    new_attrs = if is_nil(notes), do: new_attrs, else: Map.put(new_attrs, :note, notes)
+    
+    participant_course_info = Course.insert_lesson_sub_lesson_remarks(user, new_attrs)
     
     render(conn, "participant_course_info.json", participant_course_info: participant_course_info)
   end
