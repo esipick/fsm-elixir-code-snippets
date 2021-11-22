@@ -34,7 +34,7 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
       sub_lesson_id: subLesson.id,
       teacher_mark: remark,
       fsm_user_id: state.participant.fsm_user_id,
-      notes: subLesson.notes
+      notes: null
     };
 
     const reqOpts = {
@@ -685,7 +685,7 @@ const TakeNotes = ({
     const payload = {
       course_id: parseInt(courseId),
       sub_lesson_id: subLesson.id,
-      teacher_mark: isSatisfied(subLesson.remarks) ? 1 : isUnsatisfied(subLesson.remarks) ? 2 : 0,
+      teacher_mark: null,
       fsm_user_id: participant.fsm_user_id,
       notes: state.notes,
     };
