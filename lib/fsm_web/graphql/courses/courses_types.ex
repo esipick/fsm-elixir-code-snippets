@@ -4,6 +4,9 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
     alias FsmWeb.GraphQL.Middleware
     alias FsmWeb.GraphQL.Courses.CoursesResolvers
 
+    #Enums
+    enum(:action, values: [:read, :unread])
+
     # Queries
     object :courses_queries do
         @desc "Get Courses"
@@ -47,6 +50,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
     input_object :input_course_module_view do
         field(:course_id,  non_null(:id))
         field(:course_module_id,  non_null(:id))
+        field(:action,  non_null(:action))
     end
 
     # Types
@@ -58,6 +62,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
     object :input_course_module_view_response do
         field :status, :string
         field :message, :string
+        field :operation, :string
     end
     object :cumulative_results_course_level do
         field :ratio, :string

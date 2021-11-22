@@ -441,7 +441,8 @@ defmodule Flight.General do
       "webtoken": webtoken,
       "courseid": attrs.course_id,
       "coursemoduleid": attrs.course_module_id,
-      "userid": current_user.id
+      "userid": current_user.id,
+      "operation": attrs.action,
     })
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
@@ -504,7 +505,6 @@ defmodule Flight.General do
         []
     end
   end
-
 
   def get_student_login_url(current_user) do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
