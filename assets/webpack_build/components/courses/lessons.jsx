@@ -17,6 +17,11 @@ const RemarksType = {
   UNSATISFACTORY: 2
 };
 
+const SubLessonTypes = {
+  PRE_FLIGHT: "Pre Flight",
+  FLIGHT: "Flight"
+};
+
 const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
   const [state, setState] = useState({
     lesson: undefined,
@@ -25,7 +30,9 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
     lessonOverviewModal: false,
     subLessonPanel: false,
     subLesson: undefined,
-    lessonNotesModal: false
+    lessonNotesModal: false,
+    courseNotesModal: false,
+    subLessonType: SubLessonTypes.PRE_FLIGHT
   });
 
   const saveRemarks = async (subLesson, remark, type) => {
@@ -80,7 +87,8 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
       subLesson: undefined,
       lesson: undefined,
       lessonOverviewModal: false,
-      lessonNotesModal: false
+      lessonNotesModal: false,
+      courseNotesModal: false
     });
   };
 
@@ -111,8 +119,6 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
     });
   }
 
-  console.log(state.participant)
-
   return (
     <div className="card">
       <div className="card-header d-flex flex-column">
@@ -136,10 +142,42 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
           </div>
         )}
         {
-          (state.participant.lessons ?? []).length === 0 && (
+          (state.participant.lessons ?? []).length === 0 ? (
             <div className="row my-1 lesson-content">
               <div className="col-md-12 border-secondary">
                   <h4 className="row justify-content-center text-secondary mt-0">Lessons Not Found</h4>
+              </div>
+            </div>
+          )
+          : (
+            <div className="row my-1 lesson-content p-2">
+              <div className="col-md-12 border-secondary">
+                <div className="lesson-tabs d-flex flex-row align-items-center bg-dark p-2">
+                  <div 
+                    onClick={() => setState({...state, subLessonType: SubLessonTypes.PRE_FLIGHT})}
+                    className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
+                      <div className={`icon border mr-2 round-button ${state.subLessonType === SubLessonTypes.PRE_FLIGHT ? 'bg-secondary' : ''}`}>
+                        <img src={'/images/preflight-icon.png'} className="" height="24px" width="24px" />
+                      </div>
+                      <p className="text-white mb-0 title">Pre Flight</p>
+                  </div>
+                  <div 
+                    onClick={() => setState({...state, subLessonType: SubLessonTypes.FLIGHT})}
+                    className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
+                      <div className={`icon border mr-2 round-button ${state.subLessonType === SubLessonTypes.FLIGHT ? 'bg-secondary' : ''}`}>
+                        <img src={'/images/flight-icon.png'} className="" height="24px" width="24px" />
+                      </div>
+                      <p className="text-white mb-0 title">Flight</p>
+                  </div>
+                  <div 
+                    onClick={() => setState({...state, courseNotesModal: true})}
+                    className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
+                      <div className="icon border mr-2 round-button">
+                        <img src={'/images/lesson-notes-icon.png'} className="" height="24px" width="24px" />
+                      </div>
+                      <p className="text-white mb-0 title">Notes</p>
+                  </div>
+                </div>
               </div>
             </div>
           )
@@ -190,27 +228,30 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                   aria-labelledby={"heading-"+lesson.id} 
                   data-parent={"#accordion-"+lesson.id}
                   >
-                    {(lesson.sub_lessons ?? []).map((subLesson) => (
-                      <SubLessonCard
-                        key={lesson.id + "-" + subLesson.id}
-                        lesson={lesson}
-                        subLesson={subLesson}
-                        selectedSubLesson={state.subLesson}
-                        markedSubLesson={{
-                          loaderType: state.loaderType,
-                          subLessonId: state.subLesson?.id,
-                        }}
-                        saveRemarks={saveRemarks}
-                        showSubLesson={() =>
-                          setState({
-                            ...state,
-                            lesson: lesson,
-                            subLessonPanel: true,
-                            subLesson: subLesson,
-                          })
-                        }
-                      />
-                    ))}
+                    {(lesson.sub_lessons ?? [])
+                      .filter(subLesson => subLesson.sub_lessontype === state.subLessonType)
+                      .map((subLesson) => (
+                        <SubLessonCard
+                          key={lesson.id + "-" + subLesson.id}
+                          lesson={lesson}
+                          subLesson={subLesson}
+                          selectedSubLesson={state.subLesson}
+                          markedSubLesson={{
+                            loaderType: state.loaderType,
+                            subLessonId: state.subLesson?.id,
+                          }}
+                          saveRemarks={saveRemarks}
+                          showSubLesson={() =>
+                            setState({
+                              ...state,
+                              lesson: lesson,
+                              subLessonPanel: true,
+                              subLesson: subLesson,
+                            })
+                          }
+                        />
+                      ))
+                    }
                 </div>
               </div>
             </div>
@@ -237,7 +278,7 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
               <Modal callback={handleCloseModal}>
                {
                 <div className="sublesson module-content">
-                  <h4 className="m-0">Lesson Notes</h4>
+                  <h4 className="m-0">Lessons Notes</h4>
                   <div>
                   {
                     (state.lesson.sub_lessons ?? []).map(sl => {
@@ -250,6 +291,36 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                         </div>)
                     })
                   }
+                  </div>
+                </div>
+               }
+              </Modal>
+            )}
+            {state.courseNotesModal && (
+              <Modal callback={handleCloseModal}>
+               {
+                <div className="sublesson module-content">
+                  <h4 className="m-0">Lessons Notes</h4>
+                  <div>
+                    {
+                      (state.participant.lessons ?? [])
+                        .map(lesson => (
+                          <div key={lesson.id} style={{overflowY: 'unset'}}>
+                              {/* <p className="title">{lesson.name}</p> */}
+                              {
+                                (lesson.sub_lessons ?? []).map(sl => {
+                                  if(!sl.notes) {
+                                    return null
+                                  }
+                                  return (<div key={lesson.id + "-" + sl.id} className="border p-1 rounded mb-1">
+                                    <p className="bold border-bottom m-0">{sl.name}</p>
+                                    <textarea className="w-100 text-secondary border-0" readOnly={true} rows={2} value={sl.notes}/>
+                                  </div>)
+                              })
+                            }
+                          </div>
+                        ))
+                    }
                   </div>
                 </div>
                }
