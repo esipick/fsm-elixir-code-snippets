@@ -77,7 +77,7 @@ defmodule Flight.Queries.Invoice do
     from i in Invoice,
          inner_join: li in InvoiceLineItem, on: i.id == li.invoice_id,
          select: i,
-         where: i.user_id == ^user_id and li.type == 5 and not is_nil(i.course_id)  and not is_nil(li.course_id)
+         where: i.user_id == ^user_id and i.status == 1 and li.type == 5 and not is_nil(i.course_id)  and not is_nil(li.course_id)
   end
   defp parse_date(date, shift_days) do
     case date do

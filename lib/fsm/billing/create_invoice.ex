@@ -42,10 +42,6 @@ defmodule Fsm.Billing.CreateInvoice do
       with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
           {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
           {:ok, invoice} <- Invoice.create(invoice_attrs) do
-        #If course invoice enroll student at LMS.
-          if Map.get(invoice_params, :course_id, false) do
-            Flight.General.enroll_student(current_user ,Map.get(invoice_params, :course_id) )
-          end
 
             line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
 
@@ -66,6 +62,10 @@ defmodule Fsm.Billing.CreateInvoice do
               case pay(invoice, school_context) do
                 {:ok, invoice} ->
                   Invoice.paid(invoice)
+                  #If course invoice enroll student at LMS.
+                  if Map.get(invoice_params, :course_id, false) do
+                    Flight.General.enroll_student(current_user ,Map.get(invoice_params, :course_id) )
+                  end
                   {:ok, invoice}
                 {:error, error} -> {:error, "Invoice Id:" <> inspect(invoice.id)<> " " <> error.message}
               end
