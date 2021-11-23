@@ -798,4 +798,13 @@
   text-decoration: none;
   color: #868e96;
 }
-
+.progress-value .h2{
+  font-size: 1.9em;
+}
+.card .card-header {
+  padding: 0px 24px 0 24px;
+}
+.card-header .lesson-content ,.my-1 {
+  padding-top: 0px!important;
+  margin-top: 0px!important;
+}

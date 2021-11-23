@@ -157,25 +157,25 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                     onClick={() => setState({...state, subLessonType: SubLessonTypes.PRE_FLIGHT})}
                     className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
                       <div className={`icon border mr-2 round-button ${state.subLessonType === SubLessonTypes.PRE_FLIGHT ? 'bg-secondary' : ''}`}>
-                        <img src={'/images/preflight-icon.png'} className="" height="24px" width="24px" />
+                        <img src={'/images/preFlight.svg'} className="" height="23px" width="23px" />
                       </div>
-                      <p className="text-white mb-0 title">Pre Flight</p>
+                      <p className="text-white mb-0 title">PRE FLIGHT</p>
                   </div>
                   <div 
                     onClick={() => setState({...state, subLessonType: SubLessonTypes.FLIGHT})}
                     className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
                       <div className={`icon border mr-2 round-button ${state.subLessonType === SubLessonTypes.FLIGHT ? 'bg-secondary' : ''}`}>
-                        <img src={'/images/flight-icon.png'} className="" height="24px" width="24px" />
+                        <img src={'/images/flight.svg'} className="" height="20px" width="20px" />
                       </div>
-                      <p className="text-white mb-0 title">Flight</p>
+                      <p className="text-white mb-0 title">FLIGHT</p>
                   </div>
                   <div 
                     onClick={() => setState({...state, courseNotesModal: true})}
                     className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
                       <div className="icon border mr-2 round-button">
-                        <img src={'/images/lesson-notes-icon.png'} className="" height="24px" width="24px" />
+                        <img src={'/images/note.svg'} className="" height="25px" width="25px" />
                       </div>
-                      <p className="text-white mb-0 title">Notes</p>
+                      <p className="text-white mb-0 title">NOTES</p>
                   </div>
                 </div>
               </div>
