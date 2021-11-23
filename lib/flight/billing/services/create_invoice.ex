@@ -11,8 +11,14 @@ defmodule Flight.Billing.CreateInvoice do
   alias Flight.Billing.InvoiceLineItem
   require Logger
   def run(invoice_params, %{assigns: %{current_user: user}} = school_context) do
-
-
+    ## archive course invoice if there is
+    if Map.get(invoice_params, "course_id", false) do
+      invoices = Flight.Queries.Invoice.course_invoices_by_course(user.id, Map.get(invoice_params, "course_id"))
+                 |> Repo.all()
+      Enum.map(invoices, fn (invoice) ->
+        Invoice.archive(invoice)
+      end)
+    end
     pay_off = Map.get(school_context.params, "pay_off", false)
     school = Flight.SchoolScope.get_school(school_context)
     current_user = school_context.assigns.current_user

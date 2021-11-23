@@ -16,6 +16,19 @@ defmodule Fsm.Billing.CreateInvoice do
     require Logger
   
     def run(invoice_params, pay_off, school_id, user_id) do
+
+      ## archive course invoice if there is
+      if Map.get(invoice_params, :course_id, false) do
+        invoices = Flight.Queries.Invoice.course_invoices_by_course(user_id, Map.get(invoice_params, :course_id))
+                   |> Repo.all()
+
+        #Invoice.archive(conn.assigns.invoice)
+        Enum.map(invoices, fn (invoice) ->
+          Invoice.archive(invoice)
+        end)
+
+      end
+
       pay_off = pay_off || false
       school = Fsm.SchoolScope.get_school(school_id)
       %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
