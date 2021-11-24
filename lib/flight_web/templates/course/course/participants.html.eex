@@ -1,6 +1,6 @@
 <div class="panel-header">
   <div class="header text-center">
-    <h6 class="title back-link"><a href="/course/list">< Back to Courses</a></h6>
+    <h6 class="title back-link"><a href="/course/list">< <%= @course_details.course_name%></a></h6>
   </div>
 </div>
 

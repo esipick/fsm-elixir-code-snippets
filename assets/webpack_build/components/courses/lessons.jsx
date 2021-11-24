@@ -18,21 +18,23 @@ const RemarksType = {
 };
 
 const SubLessonTypes = {
-  PRE_FLIGHT: "Pre Flight",
-  FLIGHT: "Flight"
-};
+  FLIGHT: 'Flight',
+  PRE_FLIGHT: 'Pre Flight'
+}
 
 const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
+
+  console.log(participantCourse)
+
   const [state, setState] = useState({
     lesson: undefined,
-    loaderType: undefined, // LoaderType
+    loaderType: undefined,
     participant: participantCourse,
     lessonOverviewModal: false,
     subLessonPanel: false,
     subLesson: undefined,
     lessonNotesModal: false,
-    courseNotesModal: false,
-    subLessonType: SubLessonTypes.PRE_FLIGHT
+    courseNotesModal: false
   });
 
   const saveRemarks = async (subLesson, remark, type) => {
@@ -119,6 +121,21 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
     });
   }
 
+  const lessons = (state.participant.lessons ?? []).map(lesson => {
+    return {
+      ...lesson,
+      typedSubLessons: (lesson.sub_lessons ?? []).reduce((agg, sublesson) => {
+        return {
+          ...agg,
+          [sublesson.sub_lessontype]: [
+            ...(agg[sublesson.sub_lessontype] ?? []),
+            sublesson
+          ]
+        }
+      }, {})
+    }
+  });
+
   return (
     <div className="card">
       <div className="card-header d-flex flex-column">
@@ -154,35 +171,19 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
               <div className="col-md-12 border-secondary">
                 <div className="lesson-tabs d-flex flex-row align-items-center bg-dark p-2">
                   <div 
-                    onClick={() => setState({...state, subLessonType: SubLessonTypes.PRE_FLIGHT})}
-                    className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
-                      <div className={`icon border mr-2 round-button ${state.subLessonType === SubLessonTypes.PRE_FLIGHT ? 'bg-secondary' : ''}`}>
-                        <img src={'/images/preFlight.svg'} className="" height="23px" width="23px" />
-                      </div>
-                      <p className="text-white mb-0 title">PRE FLIGHT</p>
-                  </div>
-                  <div 
-                    onClick={() => setState({...state, subLessonType: SubLessonTypes.FLIGHT})}
-                    className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
-                      <div className={`icon border mr-2 round-button ${state.subLessonType === SubLessonTypes.FLIGHT ? 'bg-secondary' : ''}`}>
-                        <img src={'/images/flight.svg'} className="" height="20px" width="20px" />
-                      </div>
-                      <p className="text-white mb-0 title">FLIGHT</p>
-                  </div>
-                  <div 
                     onClick={() => setState({...state, courseNotesModal: true})}
                     className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
                       <div className="icon border mr-2 round-button">
                         <img src={'/images/note.svg'} className="" height="25px" width="25px" />
                       </div>
-                      <p className="text-white mb-0 title">NOTES</p>
+                      <p className="text-white mb-0 title">COURSE NOTES</p>
                   </div>
                 </div>
               </div>
             </div>
           )
         }
-        {(state.participant.lessons ?? []).map((lesson, index) => (
+        {lessons.map((lesson, index) => (
           <div className="lesson-accordion" key={lesson.id} id={`accordion-${lesson.id}`}>
             <div className="row my-1 lesson-content">
               <div className="col-md-12 border-secondary">
@@ -224,33 +225,49 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                     </p>
                   </div>
               </div>
-                <div id={"collapse-"+lesson.id} className={`accordion-collapse collapse ${index === 0 ? 'show' : ''}`} 
+                <div id={"collapse-"+lesson.id} className={`accordion-collapse collapse ml-4 ${index === 0 ? 'show' : ''}`} 
                   aria-labelledby={"heading-"+lesson.id} 
                   data-parent={"#accordion-"+lesson.id}
                   >
-                    {(lesson.sub_lessons ?? [])
-                      .filter(subLesson => subLesson.sub_lessontype === state.subLessonType)
-                      .map((subLesson) => (
-                        <SubLessonCard
-                          key={lesson.id + "-" + subLesson.id}
-                          lesson={lesson}
-                          subLesson={subLesson}
-                          selectedSubLesson={state.subLesson}
-                          markedSubLesson={{
-                            loaderType: state.loaderType,
-                            subLessonId: state.subLesson?.id,
-                          }}
-                          saveRemarks={saveRemarks}
-                          showSubLesson={() =>
-                            setState({
-                              ...state,
-                              lesson: lesson,
-                              subLessonPanel: true,
-                              subLesson: subLesson,
-                            })
-                          }
-                        />
-                      ))
+                    {
+                      Object.entries(lesson.typedSubLessons ?? {})
+                        .sort(([a], [b]) => b.length - a.length)
+                        .map(([type, subLessons], index) => {
+                          return(
+                            <div key={type+"-"+index} className="mx-2">
+                              <div 
+                                className="align-items-center cursor-pointer d-flex flex-row cursor-pointer">
+                                  <div className="icon border bg-dark mr-2 round-button">
+                                    <img src={`/images/${type === SubLessonTypes.FLIGHT ? 'flight' : 'pre-flight' }.svg`} height="25px" width="25px" />
+                                  </div>
+                                  <p className="mb-0 title text-uppercase">{type}</p>
+                              </div>
+                              {(subLessons ?? [])
+                                  .map(subLesson => (
+                                    <SubLessonCard
+                                      key={lesson.id + "-" + subLesson.id}
+                                      lesson={lesson}
+                                      subLesson={subLesson}
+                                      selectedSubLesson={state.subLesson}
+                                      markedSubLesson={{
+                                        loaderType: state.loaderType,
+                                        subLessonId: state.subLesson?.id,
+                                      }}
+                                      saveRemarks={saveRemarks}
+                                      showSubLesson={() =>
+                                        setState({
+                                          ...state,
+                                          lesson: lesson,
+                                          subLessonPanel: true,
+                                          subLesson: subLesson,
+                                        })
+                                      }
+                                    />
+                                  ))
+                                }
+                            </div>
+                          )
+                      })
                     }
                 </div>
               </div>
@@ -278,17 +295,19 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
               <Modal callback={handleCloseModal}>
                {
                 <div className="sublesson module-content">
-                  <h4 className="m-0">Lessons Notes</h4>
+                  <h4 className="m-0">Lesson Notes</h4>
                   <div>
                   {
                     (state.lesson.sub_lessons ?? []).map(sl => {
                         if(!sl.notes) {
                           return null
                         }
-                        return (<div key={state.lesson.id + "-" + sl.id} className="border p-1 rounded mb-1">
-                          <p className="bold border-bottom m-0">{sl.name}</p>
-                          <textarea className="w-100 text-secondary border-0" readOnly={true} rows={2} value={sl.notes}/>
-                        </div>)
+                        return (
+                          <div key={state.lesson.id + "-" + sl.id} className="p-1">
+                            <p className="bold m-0">{sl.name}</p>
+                              <div style={{whiteSpace: "pre-line"}}>{sl.notes}</div>
+                          </div>
+                        )
                     })
                   }
                   </div>
@@ -300,26 +319,37 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
               <Modal callback={handleCloseModal}>
                {
                 <div className="sublesson module-content">
-                  <h4 className="m-0">Lessons Notes</h4>
+                  <h4 className="m-0">Course Notes</h4>
                   <div>
                     {
-                      (state.participant.lessons ?? [])
-                        .map(lesson => (
-                          <div key={lesson.id} style={{overflowY: 'unset'}}>
-                              {/* <p className="title">{lesson.name}</p> */}
-                              {
-                                (lesson.sub_lessons ?? []).map(sl => {
-                                  if(!sl.notes) {
-                                    return null
-                                  }
-                                  return (<div key={lesson.id + "-" + sl.id} className="border p-1 rounded mb-1">
-                                    <p className="bold border-bottom m-0">{sl.name}</p>
-                                    <textarea className="w-100 text-secondary border-0" readOnly={true} rows={2} value={sl.notes}/>
-                                  </div>)
-                              })
-                            }
-                          </div>
-                        ))
+                      (lessons ?? [])
+                        .map((lesson, index) => {
+
+                          const subLessonsWithNotes = (lesson.sub_lessons ?? []).filter(sl => sl.notes)
+
+                          if(subLessonsWithNotes.length === 0) {
+                              return null
+                          }
+
+                          return (
+                            <div key={lesson.id} style={{overflowY: 'unset'}}>
+                                <p className="title my-2">{lesson.name}</p>
+                                {
+                                  (lesson.sub_lessons ?? []).map(sl => {
+                                    if(!sl.notes) {
+                                      return null
+                                    }
+                                    return (
+                                      <div key={lesson.id + "-" + sl.id} className="p-1">
+                                          <p className="bold m-0">{sl.name}</p>
+                                          <div style={{whiteSpace: "pre-line"}}> {sl.notes}</div>
+                                      </div>
+                                    )
+                                })
+                              }
+                            </div>
+                          )
+                        })
                     }
                   </div>
                 </div>
@@ -341,7 +371,7 @@ const SubLessonCard = ({
 }) => {
   
   return (
-    <div className={`row py-2 mx-2 d-flex flex-row justify-content-between no-last-child-border border-bottom ${selectedSubLesson?.id === subLesson.id ? 'bg-light' : ''}`}>
+    <div className={`row py-2 ml-1 d-flex flex-row justify-content-between no-last-child-border border-bottom ${selectedSubLesson?.id === subLesson.id ? 'bg-light' : ''}`}>
       <div
         className="d-flex flex-row justify-content-start align-items-center"
         id={`heading${lesson.id}-${subLesson.id}`}
@@ -372,17 +402,22 @@ const RemarkButtons = ({subLesson, markedSubLesson, saveRemarks}) => {
       <Spinner />
     ) : (
       <div
-        className={`button-remark ${
-          satisfied ? "text-success disabled-click" : "text-secondary"
-        }`}
+        className={`button-remark ${ satisfied ? "text-success" : "text-secondary" }`}
         disabled={satisfied}
-        onClick={() =>
+        onClick={() => {
+          satisfied ? 
+          saveRemarks(
+            subLesson,
+            RemarksType.NOT_GRADED,
+            LoaderType.SATISFACTORY
+          )
+          :
           saveRemarks(
             subLesson,
             RemarksType.SATISFACTORY,
             LoaderType.SATISFACTORY
           )
-        }
+        }}
       >
         Sat
       </div>
@@ -393,45 +428,27 @@ const RemarkButtons = ({subLesson, markedSubLesson, saveRemarks}) => {
       <Spinner />
     ) : (
       <div
-        className={`button-remark ${
-          unsatisfied ? "text-danger disabled-click" : "text-secondary"
-        }`}
+        className={`button-remark ${ unsatisfied ? "text-danger" : "text-secondary" }`}
         disabled={unsatisfied}
-        onClick={() =>
+        onClick={() => {
+          unsatisfied ? 
+          saveRemarks(
+            subLesson,
+            RemarksType.NOT_GRADED,
+            LoaderType.UNSATISFACTORY
+          )
+          :
           saveRemarks(
             subLesson,
             RemarksType.UNSATISFACTORY,
             LoaderType.UNSATISFACTORY
           )
-        }
+        }}
       >
         Unsat
       </div>
     )}
 
-    <span className="text-secondary"> | </span>
-    {markedSubLesson.loaderType === LoaderType.NOT_GRADED &&
-    markedSubLesson.subLessonId === subLesson.id ? (
-      <Spinner />
-    ) : (
-      <button
-        id="btn-reset-grading"
-        rel="popover"
-        data-placement="bottom"
-        data-original-title="Reset Grading"
-        disabled={!(satisfied || unsatisfied)}
-        className={`btn btn-sm p-1 m-0 ml-1 ${satisfied || unsatisfied ? 'btn-danger' : 'btn-light'}`}
-        onClick={() =>
-          saveRemarks(
-            subLesson,
-            RemarksType.NOT_GRADED,
-            LoaderType.NOT_GRADED
-          )
-        }
-      >
-        Reset
-      </button>
-    )}
   </div>
    )
 }
@@ -733,8 +750,9 @@ const SubLessonPanelContent = ({
         </div>
         <div className="pt-2">
          {
-           subLesson.notes ? 
-           <textarea className="w-100 border-0" readOnly={true} rows={5} value={subLesson.notes}/>
+           subLesson.notes ?
+           <div style={{whiteSpace: "pre-line"}}> {subLesson.notes}</div>
+          //  <textarea className="w-100 border-0" readOnly={true} rows={5} value={subLesson.notes}/>
            :
            <p className="text-secondary">No notes available</p>
          }
