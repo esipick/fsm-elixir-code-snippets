@@ -69,6 +69,34 @@ defmodule FlightWeb.Course.CourseController do
     )
   end
 
+  def course_detail(%{assigns: %{current_user: current_user}} = conn, %{"course_id" => course_id}) do
+    user_id = "fsm2m" <> to_string(current_user.id)
+    participant_course = Flight.General.get_course_lesson(current_user, course_id,user_id)
+
+    Logger.info fn -> "course info--------------------------------: #{inspect participant_course}" end
+    if participant_course.completed_lessons == nil do
+      render(
+        conn,
+        "error.html",
+        error_message: "You haven't purchased course."
+      )
+      else
+      props = %{
+        courseId: course_id,
+        participantCourse: participant_course,
+        courseProgress: get_course_progress(participant_course),
+        userRoles: Flight.Accounts.get_user_roles(conn) |> Enum.map(fn r -> r.slug end)
+      }
+
+      render(
+        conn,
+        "selection.html",
+        props: props
+      )
+      end
+
+  end
+
 
   def get_course_progress(participant_course) when is_nil(participant_course), do: 0
   def get_course_progress(participant_course) do

@@ -60,7 +60,7 @@
                                             <% end %>
                                         <% end %>
                                         <%= if course.is_paid or course.price == 0 or @is_admin do %>
-                                            <a href="<%= @login_url <> Base.encode64(to_string(course.id)) %>"
+                                            <a href="/course/detail/<%= course.id%>"
                                             class="btn btn-success">Open</a>
                                         <% end %>
                                     </div>

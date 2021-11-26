@@ -1,0 +1,17 @@
+<div class="panel-header">
+  <div class="header text-center">
+    <h6 class="title back-link"><a href="/course/list">< Back to Courses</a></h6>
+  </div>
+</div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header d-flex flex-column">
+          <h4 class="text-center mb-4 mt-4 text-secondary"><%= @error_message %></h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
