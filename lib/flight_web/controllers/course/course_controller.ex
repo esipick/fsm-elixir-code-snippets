@@ -70,7 +70,9 @@ defmodule FlightWeb.Course.CourseController do
   end
 
   def course_detail(%{assigns: %{current_user: current_user}} = conn, %{"course_id" => course_id}) do
+    # create moodle user id using fsm user id
     user_id = "fsm2m" <> to_string(current_user.id)
+    
     participant_course = Flight.General.get_course_lesson(current_user, course_id,user_id)
 
     Logger.info fn -> "course info--------------------------------: #{inspect participant_course}" end
@@ -78,14 +80,14 @@ defmodule FlightWeb.Course.CourseController do
       render(
         conn,
         "error.html",
-        error_message: "You haven't purchased course."
+        error_message: "You haven't purchased any course."
       )
-      else
+    else
       props = %{
         courseId: course_id,
         participantCourse: participant_course,
         courseProgress: get_course_progress(participant_course),
-        userRoles: Flight.Accounts.get_user_roles(conn) |> Enum.map(fn r -> r.slug end)
+        userRoles: ["student"]
       }
 
       render(
@@ -93,7 +95,7 @@ defmodule FlightWeb.Course.CourseController do
         "selection.html",
         props: props
       )
-      end
+    end
 
   end
 

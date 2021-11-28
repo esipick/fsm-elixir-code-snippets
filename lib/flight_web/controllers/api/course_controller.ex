@@ -34,7 +34,8 @@ defmodule FlightWeb.API.CourseController do
 
     attrs = %{
       course_id: Map.get(attrs, "course_id"),
-      course_module_id: Map.get(attrs, "module_id")
+      course_module_id: Map.get(attrs, "module_id"),
+      action: Map.get(attrs, "action")
     }
 
     response = Course.add_course_module_view_remarks(user,attrs)

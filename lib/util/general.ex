@@ -442,7 +442,7 @@ defmodule Flight.General do
       "courseid": attrs.course_id,
       "coursemoduleid": attrs.course_module_id,
       "userid": current_user.id,
-      "operation": attrs.action,
+      "operation": attrs.action
     })
 
     Logger.info fn -> "postBody: #{inspect postBody}" end

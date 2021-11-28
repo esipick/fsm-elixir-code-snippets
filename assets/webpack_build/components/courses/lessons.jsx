@@ -22,9 +22,12 @@ const SubLessonTypes = {
   PRE_FLIGHT: 'Pre Flight'
 }
 
-const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
+const ModuleViewActions = {
+  READ: 'read',
+  UNREAD: 'unread'
+}
 
-  console.log(participantCourse)
+const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
 
   const [state, setState] = useState({
     lesson: undefined,
@@ -166,7 +169,7 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
               </div>
             </div>
           )
-          : (
+          : !isStudent(userRoles) && (
             <div className="row my-1 lesson-content p-2">
               <div className="col-md-12 border-secondary">
                 <div className="lesson-tabs d-flex flex-row align-items-center bg-dark p-2">
@@ -197,33 +200,38 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                       <ChevronDown />
                       <h4 className="mt-2 mb-2">{lesson.name}</h4>
                   </div>
-                 <div className="d-flex flex-row align-items-center">
-                  <p
-                      onClick={() =>
-                        setState({
-                          ...state,
-                          lesson,
-                          lessonOverviewModal: true
-                        })
-                      }
-                      className="text-primary my-0 mx-1 cursor-pointer"
-                    >
-                      Overview
-                    </p>
-                    <span className="text-secondary"> | </span>
-                    <p
-                      onClick={() =>
-                        setState({
-                          ...state,
-                          lesson,
-                          lessonNotesModal: true
-                        })
-                      }
-                      className="text-primary my-0 mx-1 cursor-pointer"
-                    >
-                      Notes
-                    </p>
-                  </div>
+                    <div className="d-flex flex-row align-items-center">
+                      <p
+                          onClick={() =>
+                            setState({
+                              ...state,
+                              lesson,
+                              lessonOverviewModal: true
+                            })
+                          }
+                          className="text-primary my-0 mx-1 cursor-pointer"
+                        >
+                          Overview
+                        </p>
+
+                       {
+                        !isStudent(userRoles) && <>
+                          <span className="text-secondary"> | </span>
+                          <p
+                            onClick={() =>
+                              setState({
+                                ...state,
+                                lesson,
+                                lessonNotesModal: true
+                              })
+                            }
+                            className="text-primary my-0 mx-1 cursor-pointer"
+                          >
+                            Notes
+                          </p>
+                          </>
+                        }
+                    </div>
               </div>
                 <div id={"collapse-"+lesson.id} className={`accordion-collapse collapse ml-4 ${index === 0 ? 'show' : ''}`} 
                   aria-labelledby={"heading-"+lesson.id} 
@@ -262,6 +270,7 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                                           subLesson: subLesson,
                                         })
                                       }
+                                      userRoles={userRoles}
                                     />
                                   ))
                                 }
@@ -367,11 +376,13 @@ const SubLessonCard = ({
   selectedSubLesson,
   markedSubLesson,
   saveRemarks,
-  showSubLesson
+  showSubLesson,
+  userRoles
 }) => {
   
   return (
-    <div className={`row py-2 ml-1 d-flex flex-row justify-content-between no-last-child-border border-bottom ${selectedSubLesson?.id === subLesson.id ? 'bg-light' : ''}`}>
+    <div className={`row py-2 ml-1 d-flex flex-row justify-content-between no-last-child-border border-bottom 
+      ${selectedSubLesson?.id === subLesson.id ? 'bg-light' : ''} ${markedSubLesson.subLessonId ? 'disabled-click text-secondary' : ''}`}>
       <div
         className="d-flex flex-row justify-content-start align-items-center"
         id={`heading${lesson.id}-${subLesson.id}`}
@@ -380,12 +391,16 @@ const SubLessonCard = ({
           onClick={showSubLesson}
           className="cursor-pointer d-flex flex-row justify-content-start align-items-center">
           <ChevronRight />
-          <h5 className="mb-0 text-dark">
+          <h5 className={`mb-0 ${markedSubLesson.subLessonId ? 'text-secondary' : 'text-dark'}`}>
             {subLesson.name}
           </h5>
         </a>
       </div>
-      <RemarkButtons {...{markedSubLesson, saveRemarks, subLesson}}  />
+      {
+        !isStudent(userRoles) && (
+          <RemarkButtons {...{markedSubLesson, saveRemarks, subLesson}}  />
+        )
+      }
     </div>
   );
 };
@@ -472,7 +487,7 @@ const SubLessonPanelContent = ({
     error: undefined
   });
 
-  const getModulePageContent = (moduleId, url) => {
+  const getModulePageContent = (url) => {
     const reqOpts = {
       method: "GET"
     };
@@ -504,21 +519,33 @@ const SubLessonPanelContent = ({
       });
   };
 
-  const markModuleView = (mod) => {
+  const markModuleView = (mod, action) => {
 
     // we already viewed the module
-    if(mod.completionstate && mod.vieweddate) {
-      return
+    if(action === ModuleViewActions.READ) {
+      if(mod.completionstate && mod.vieweddate) {
+        return
+      }
     }
 
-    // only student can mark module as viewed
+    // only student can mark module as read/unread
     if(!isStudent(userRoles)) {
       return
     }
 
+
+    if(action === ModuleViewActions.UNREAD) {
+      if(!window.confirm("Are you sure you want to unread?")) {
+        return
+      }
+    }
+
+    const moduleId = mod.id
+
     const payload = {
       course_id: parseInt(participant.courseId),
-      module_id: mod.id
+      module_id: moduleId,
+      action
     };
 
     const postReqOpts = {
@@ -530,41 +557,42 @@ const SubLessonPanelContent = ({
       body: JSON.stringify(payload)
     };
 
+    const updatedLesson = {
+      ...lesson,
+      sub_lessons: (lesson.sub_lessons ?? []).map(sl => {
+        return {
+          ...sl,
+          modules: (sl.modules ?? []).map(mod => {
+            if(mod.id === moduleId) {
+              return {
+                ...mod,
+                completionstate: action === ModuleViewActions.READ ? true : false,
+                vieweddate: Math.round(Date.now()/1000).toString()
+              }
+            }
+            return mod
+          })
+        }
+      })
+    }
+
+    const updatedParticipant = {
+      ...participant,
+      lessons: participant.lessons.map(l => {
+        if(l.id === updatedLesson.id) {
+          return updatedLesson
+        }
+        return l
+      })
+    }
+
+    // update parent state
+    setParticipant(updatedLesson, subLesson.id, updatedParticipant)
+
     fetch(`/api/course/sublesson/module/view`, postReqOpts)
       .then((res) => res.json())
       .then((data) => {
         console.log(data)
-        const updatedLesson = {
-          ...lesson,
-          sub_lessons: (lesson.sub_lessons ?? []).map(sl => {
-            return {
-              ...sl,
-              modules: (sl.modules ?? []).map(mod => {
-                if(mod.id === moduleId) {
-                  return {
-                    ...mod,
-                    completionstate: true,
-                    vieweddate: Math.round(Date.now()/1000).toString()
-                  }
-                }
-                return mod
-              })
-            }
-          })
-        }
-
-        const updatedParticipant = {
-          ...participant,
-          lessons: participant.lessons.map(l => {
-            if(l.id === updatedLesson.id) {
-              return updatedLesson
-            }
-            return l
-          })
-        }
-
-        // update parent state
-        setParticipant(updatedLesson, subLesson.id, updatedParticipant)
       })
       .catch((error) => {
         console.log("error", error);
@@ -575,7 +603,11 @@ const SubLessonPanelContent = ({
     <div className="sublesson-content ml-1">
       <div className="row ml-0 d-flex flex-row justify-content-between align-items-center mb-2">
         <h5 className="mb-0 text-dark">{subLesson.name}</h5>
-        <RemarkButtons {...{subLesson, markedSubLesson, saveRemarks}} />
+        {
+          !isStudent(userRoles) && (
+            <RemarkButtons {...{subLesson, markedSubLesson, saveRemarks}} />
+          )
+        }
       </div>
       <div className="card-body p-0">
         {(subLesson.modules ?? []).map((mod) => (
@@ -587,16 +619,17 @@ const SubLessonPanelContent = ({
               if (mod.modname === "page") {
                 return (
                   <div
-                    className={`cursor-pointer d-flex flex-row align-items-center justify-content-between
+                    className={`d-flex flex-row align-items-center justify-content-between
                       ${originalContents.length > 1 ? 'no-last-child-border pb-2 mb-2 border-bottom' : ''}`}
                     key={ lesson.id + "-" + subLesson.id + "-" + mod.id + index }
-                    onClick={() => {
-                        markModuleView(mod);
-                        getModulePageContent(mod.id, `${content.fileurl}&token=${participant.token}`);
+                  >
+                    <div className="cursor-pointer d-flex flex-row align-items-center"
+                      onClick={() => {
+                        markModuleView(mod, ModuleViewActions.READ);
+                        getModulePageContent(`${content.fileurl}&token=${participant.token}`);
                       }
                     }
-                  >
-                    <div className="d-flex flex-row align-items-center">
+                    >
                       <span className="mr-2">
                         <img src={mod.modicon} />
                       </span>
@@ -604,7 +637,9 @@ const SubLessonPanelContent = ({
                     </div>
                     {
                       (mod.completionstate && mod.vieweddate) && (
-                        <CheckCircleIcon className={"text-success"} />
+                        <div className="cursor-pointer" onClick={() => markModuleView(mod, ModuleViewActions.UNREAD)}>
+                          <CheckCircleIcon className={"text-success"} />
+                        </div>
                       )
                     }
                   </div>
@@ -614,17 +649,18 @@ const SubLessonPanelContent = ({
               if(content.fileurl?.includes("youtube")) {
                 return (
                   <div
-                    className={`cursor-pointer d-flex flex-row align-items-center justify-content-between
+                    className={`d-flex flex-row align-items-center justify-content-between
                     ${originalContents.length > 1 ? 'no-last-child-border pb-2 mb-2 border-bottom' : ''}`}
                     key={
                       lesson.id + "-" + subLesson.id + "-" + mod.id + index
                     }
-                    onClick={() => {
-                      markModuleView(mod);
-                      setState({...state, youtubeModuleContent: content});
-                    }}
                   >
-                    <div className="d-flex flex-row align-items-center">
+                    <div className= "cursor-pointer d-flex flex-row align-items-center"
+                      onClick={() => {
+                        markModuleView(mod, ModuleViewActions.READ);
+                        setState({...state, youtubeModuleContent: content});
+                      }}
+                    >
                       <span className="mr-2">
                           <img src={mod.modicon} />
                         </span>
@@ -632,7 +668,9 @@ const SubLessonPanelContent = ({
                     </div>
                     {
                       (mod.completionstate && mod.vieweddate) && (
-                        <CheckCircleIcon className={"text-success"} />
+                        <div className="cursor-pointer" onClick={() => markModuleView(mod, ModuleViewActions.UNREAD)}>
+                          <CheckCircleIcon className={"text-success"} />
+                        </div>
                       )
                     }
                   </div>
@@ -640,26 +678,32 @@ const SubLessonPanelContent = ({
               }
 
               return (
-                <a
-                  className={`cursor-pointer d-flex flex-row align-items-center justify-content-between
+                <div
+                  className={`d-flex flex-row align-items-center justify-content-between
                   ${originalContents.length > 1 ? 'no-last-child-border pb-2 mb-2 border-bottom' : ''}`}
                   key={lesson.id + "-" + subLesson.id + "-" + mod.id + index}
-                  href={content.fileurl + "&token=" + participant.token}
-                  target={"_blank"}
-                  onClick={() => markModuleView(mod)}
-                >
-                    <div className="d-flex flex-row align-items-center">
-                      <span className="mr-2">
-                        <img src={mod.modicon} />
-                      </span>
-                      <p className="mb-0" dangerouslySetInnerHTML={{ __html: mod.name }} />
-                    </div>
+                 
+                >   
+                    <a
+                      href={content.fileurl}
+                      target={"_blank"}
+                      onClick={() => markModuleView(mod, ModuleViewActions.READ)}
+                    >
+                      <div className="d-flex flex-row align-items-center">
+                        <span className="mr-2">
+                          <img src={mod.modicon} />
+                        </span>
+                        <p className="mb-0" dangerouslySetInnerHTML={{ __html: mod.name }} />
+                      </div>
+                    </a>
                     {
                       (mod.completionstate && mod.vieweddate) && (
-                        <CheckCircleIcon className={"text-success"} />
+                        <div className="cursor-pointer" onClick={() => markModuleView(mod, ModuleViewActions.UNREAD)}>
+                          <CheckCircleIcon className={"text-success"} />
+                        </div>
                       )
                     }
-                </a>
+                </div>
               );
             })}
           </div>
@@ -734,30 +778,32 @@ const SubLessonPanelContent = ({
           </Modal>
         )
       }
-      <div className="notes-section">
-        <div className="d-flex flex-row align-items-center justify-content-between border-bottom">
-          <h4 className="my-2">Notes</h4>
-          {
-            !isStudent(userRoles) && (
+      {
+        !isStudent(userRoles) && (
+          <div className="notes-section">
+            <div className="d-flex flex-row align-items-center justify-content-between border-bottom">
+              <h4 className="my-2">Notes</h4>
+              {
                 <button
-                onClick={() => setState({...state, takeNotesModal: true})}
-                className="cursor-pointer bold text-uppercase btn btn-primary"
-              >
-                Add a Note
-              </button>
-            )
-          }
-        </div>
-        <div className="pt-2">
-         {
-           subLesson.notes ?
-           <div style={{whiteSpace: "pre-line"}}> {subLesson.notes}</div>
-          //  <textarea className="w-100 border-0" readOnly={true} rows={5} value={subLesson.notes}/>
-           :
-           <p className="text-secondary">No notes available</p>
-         }
-        </div>
-      </div>
+                    onClick={() => setState({...state, takeNotesModal: true})}
+                    className="cursor-pointer bold text-uppercase btn btn-primary"
+                  >
+                  Add a Note
+                </button>
+              }
+            </div>
+            <div className="pt-2">
+            {
+              subLesson.notes ?
+              <div style={{whiteSpace: "pre-line"}}> {subLesson.notes}</div>
+              //  <textarea className="w-100 border-0" readOnly={true} rows={5} value={subLesson.notes}/>
+              :
+              <p className="text-secondary">No notes available</p>
+            }
+            </div>
+          </div>
+        )
+      }
     </div>
   );
 };
