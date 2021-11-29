@@ -324,32 +324,37 @@ defmodule Flight.General do
   end
 
   def get_course_detail(current_user, course_id)do
-    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
-    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
-    postBody = Poison.encode!(%{
-      "action": "get_course_structure",
-      "webtoken": webtoken,
-      "courseid": course_id
-    })
-    
-    Logger.info fn -> "postBody: #{inspect postBody}" end
-    options = [recv_timeout: 160000, timeout: 160000]
+    if  Flight.General.is_lms_beta_school(current_user) do
+      webtoken = Flight.Utils.get_webtoken(current_user.school_id)
+      url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+      postBody = Poison.encode!(%{
+        "action": "get_course_structure",
+        "webtoken": webtoken,
+        "courseid": course_id
+      })
 
-    course = case HTTPoison.post(url,postBody,options) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+      Logger.info fn -> "postBody: #{inspect postBody}" end
+      options = [recv_timeout: 160000, timeout: 160000]
 
-        case Poison.decode(body) do
-          {:ok, course} ->
-            Logger.info fn -> "postBody: #{inspect Flight.CourseDetail.decode(course)}" end
-            Flight.CourseDetail.decode(course)
-          {:error, error} -> error
-        end
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        []
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
-        []
+      course = case HTTPoison.post(url,postBody,options) do
+        {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+
+          case Poison.decode(body) do
+            {:ok, course} ->
+              Logger.info fn -> "postBody: #{inspect Flight.CourseDetail.decode(course)}" end
+              Flight.CourseDetail.decode(course)
+            {:error, error} -> error
+          end
+        {:ok, %HTTPoison.Response{status_code: 404}} ->
+          []
+        {:error, %HTTPoison.Error{reason: reason}} ->
+          Logger.info fn -> "reason: #{inspect reason}" end
+          []
+      end
+    else
+      []
     end
+
   end
 
   def get_course_lesson(current_user, course_id, lms_user_id)do
