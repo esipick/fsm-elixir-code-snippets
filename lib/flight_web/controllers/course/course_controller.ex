@@ -6,21 +6,23 @@ defmodule FlightWeb.Course.CourseController do
   require Logger
 
   def index(%{assigns: %{current_user: current_user}} = conn, _) do
-
+    is_lms_beta_school = Flight.General.is_lms_beta_school(current_user)
     isAdmin =  Authorization.is_admin?(current_user)
     staff_member =  Authorization.staff_member?(current_user)
     Logger.info fn -> "staff_member:-----------------------=============================== #{inspect staff_member}" end
-    adminLoginUrl =  case  isAdmin do
+    adminLoginUrl =  case  isAdmin &&  is_lms_beta_school do
       true->
         Flight.General.get_lms_admin_login_url(current_user)
       false->
         nil
     end
     Logger.info fn -> "adminLoginUrl: #{inspect adminLoginUrl}" end
-
     loginUrl = Flight.General.get_student_login_url(current_user)
-    courses = Flight.General.get_lms_courses(current_user, isAdmin)
-
+    courses = if is_lms_beta_school do
+        Flight.General.get_lms_courses(current_user, isAdmin)
+          else
+          []
+        end
     Logger.info fn -> "loginUrl: #{inspect loginUrl}" end
     Logger.info fn -> "courses: #{inspect courses}" end
 

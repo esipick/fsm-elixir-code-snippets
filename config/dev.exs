@@ -50,6 +50,18 @@ case(Map.fetch(System.get_env(), "SUPERADMIN_IDS")) do
     config :flight, superadmin_ids: [1, 7]
 end
 
+case(Map.fetch(System.get_env(), "LMS_BETA_SCHOOLS_IDS")) do
+  {:ok, keys} ->
+    config :flight,
+           lms_beta_schools_ids:
+             keys
+             |> String.split(",")
+             |> Enum.map(&String.to_integer/1)
+
+  _ ->
+    config :flight, lms_beta_schools_ids: [11, 7]
+end
+
 config :flight, :webhook_token, "abc"
 config :flight, :platform_fee_amount, 5000
 
@@ -109,8 +121,10 @@ config :flight, Flight.Mailer,
 
 config :appsignal, :config, active: false
 config :flight, :lms_endpoint, System.get_env("LMS_ENDPOINT") || "https://moodlenew.esipick.com"
-config :flight, :webtoken_key, System.get_env("WEBTOKEN_KEY") || "FSM"
+config :flight, :webtoken_key, System.get_env("WEBTOKEN_KEY") || "FSMM"
 config :flight, :webtoken_secret_key, System.get_env("WEBTOKEN_SECRET_KEY") || ".jG<T9qX6sNk3.Z3"
 config :flight, :per_course_price, String.to_integer(System.get_env("PER_COURSE_PRICE") || "10")
 config :flight, :monthly_invoice_creator, String.to_integer(System.get_env("MONTHLY_INVOICE_CREATOR") || "1")
+config :flight, :enable_lms_for_all, System.get_env("ENABLE_LMS_FOR_ALL") || "NO"
+
 config :logger, level: :debug

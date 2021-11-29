@@ -5,15 +5,18 @@
   <div class="row">
     <div class="col-md-12">
       <div class="card">
-        <div class="card-header d-flex flex-column"> 
+        <div class="card-header d-flex flex-column">
+            <div class="pull-right manage_course_btn" >
+            <%= if @admin_login_url != nil do %>
+            <a href="<%= @admin_login_url %>" class="btn btn-fill btn-primary float-right">
+                <span>Manage Courses</span>
+            </a>
+            <% end %>
+            </div>
             <div class="row">
                 <div class="content profile">
                     <div>
-                        <%= if @admin_login_url != nil do %>
-                        <a href="<%= @admin_login_url %>" class="btn btn-fill btn-primary float-right">
-                            <span>Manage Courses</span>
-                        </a>
-                        <% end %>
+
                         <div class="user-info">
                             <h2>Course Selection</h2>
                         </div>

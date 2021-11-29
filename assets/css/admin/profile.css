@@ -808,3 +808,9 @@
   padding-top: 0px!important;
   margin-top: 0px!important;
 }
+
+.manage_course_btn{
+  position: absolute;
+  right: 7px;
+  z-index: 300;
+}

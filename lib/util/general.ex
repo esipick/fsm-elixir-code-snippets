@@ -511,4 +511,16 @@ defmodule Flight.General do
     encodedWebtoken = Base.encode64(webtoken)
     Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/user_mgt.php?action=login&webtoken=" <> encodedWebtoken <> "&email=" <> current_user.email <> "&username=" <> current_user.email <> "&userid=" <> to_string(current_user.id) <> "&role=student&firstname=" <> current_user.first_name <> "&lastname=" <> current_user.last_name <> "&courseid="
   end
+
+  def is_lms_beta_school(current_user) do
+    if Application.get_env(:flight, :enable_lms_for_all) == "NO" do
+      if current_user.school_id in Application.get_env(:flight, :lms_beta_schools_ids, []) do
+       true
+      else
+        false
+      end
+    else
+      true
+    end
+  end
 end

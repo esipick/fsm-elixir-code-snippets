@@ -57,6 +57,12 @@ config :flight,
     |> String.split(",")
     |> Enum.map(&String.to_integer/1)
 
+config :flight,
+       lms_beta_schools_ids:
+         Map.fetch!(System.get_env(), "LMS_BETA_SCHOOLS_IDS")
+         |> String.split(",")
+         |> Enum.map(&String.to_integer/1)
+
 config :flight, :webhook_token, Map.fetch!(System.get_env(), "WEBHOOK_TOKEN")
 
 config :stripity_stripe, :pool_options,
@@ -69,6 +75,7 @@ config :flight, :webtoken_key, System.get_env("WEBTOKEN_KEY") || "FSM"
 config :flight, :webtoken_secret_key, System.get_env("WEBTOKEN_SECRET_KEY") || ".jG<T9qX6sNk3.Z3"
 config :flight, :per_course_price, String.to_integer(System.get_env("PER_COURSE_PRICE") || "10")
 config :flight, :monthly_invoice_creator, String.to_integer(System.get_env("MONTHLY_INVOICE_CREATOR") || "1")
+config :flight, :enable_lms_for_all, System.get_env("ENABLE_LMS_FOR_ALL") || "NO"
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
