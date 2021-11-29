@@ -18,11 +18,7 @@ defmodule FlightWeb.Course.CourseController do
     end
     Logger.info fn -> "adminLoginUrl: #{inspect adminLoginUrl}" end
     loginUrl = Flight.General.get_student_login_url(current_user)
-    courses = if is_lms_beta_school do
-        Flight.General.get_lms_courses(current_user, isAdmin)
-          else
-          []
-        end
+    courses =   Flight.General.get_lms_courses(current_user, isAdmin)
     Logger.info fn -> "loginUrl: #{inspect loginUrl}" end
     Logger.info fn -> "courses: #{inspect courses}" end
 

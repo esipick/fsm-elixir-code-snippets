@@ -289,38 +289,41 @@ defmodule Flight.General do
   end
 
   def get_lms_courses(current_user, isAdmin) do
+    if  Flight.General.is_lms_beta_school(current_user) do
+        courses = get_school_lms_courses(current_user.school_id)
 
-    courses = get_school_lms_courses(current_user.school_id)
+        #get course payment information from DB
+        invoices = Flight.Queries.Invoice.course_invoices(current_user.id)
+                   |> Repo.all()
 
-    #get course payment information from DB
-    invoices = Flight.Queries.Invoice.course_invoices(current_user.id)
-               |> Repo.all()
+        course_ids = Enum.map(invoices, fn (invoice) ->
+          invoice.course_id
+        end)
 
-    course_ids = Enum.map(invoices, fn (invoice) ->
-      invoice.course_id
-    end)
-
-    updated_courses = Enum.map(courses, fn (course) ->
-      case isAdmin do
-        true->
-          course
-          |> Map.put(:is_paid, true)
-        false->
-          if Enum.any?(course_ids, fn(id)-> id == Map.get(course, :id) end) do
-            course
-            |> Map.put(:is_paid, true)
-          else
-            course
-            |> Map.put(:is_paid, false)
+        updated_courses = Enum.map(courses, fn (course) ->
+          case isAdmin do
+            true->
+              course
+              |> Map.put(:is_paid, true)
+            false->
+              if Enum.any?(course_ids, fn(id)-> id == Map.get(course, :id) end) do
+                course
+                |> Map.put(:is_paid, true)
+              else
+                course
+                |> Map.put(:is_paid, false)
+              end
           end
-      end
-    end)
+        end)
 
-    Enum.sort_by(updated_courses, fn(course) -> course.sort_order end)
+        Enum.sort_by(updated_courses, fn(course) -> course.sort_order end)
+      else
+        []
+    end
+
   end
 
   def get_course_detail(current_user, course_id)do
-
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
@@ -331,6 +334,7 @@ defmodule Flight.General do
     
     Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [recv_timeout: 160000, timeout: 160000]
+
     course = case HTTPoison.post(url,postBody,options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
