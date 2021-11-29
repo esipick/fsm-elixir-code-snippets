@@ -341,7 +341,6 @@ defmodule Flight.General do
 
           case Poison.decode(body) do
             {:ok, course} ->
-              Logger.info fn -> "postBody: #{inspect Flight.CourseDetail.decode(course)}" end
               Flight.CourseDetail.decode(course)
             {:error, error} -> error
           end
@@ -352,7 +351,7 @@ defmodule Flight.General do
           []
       end
     else
-      []
+      %{}
     end
 
   end
