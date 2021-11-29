@@ -18,6 +18,11 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
             arg :id, non_null(:id)
             resolve &CoursesResolvers.get_course/3
         end
+        @desc "Get Course participants"
+        field :get_course_participants, :course_detail do
+            arg :course_id, non_null(:id)
+            resolve &CoursesResolvers.get_course_participants/3
+        end
 
         @desc "Get Course lesson detail"
         field :get_course_lesson, :participant do

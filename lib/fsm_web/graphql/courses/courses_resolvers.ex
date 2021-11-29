@@ -24,6 +24,14 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def get_course(_parent, _args, _context), do: @not_authenticated
 
+    def get_course_participants(_parent, %{course_id: course_id}, %{context: %{current_user: current_user}}) do
+      course = Flight.General.get_course_participants(current_user, course_id)
+      Logger.info fn -> "course: #{inspect course}" end
+      {:ok, course}
+    end
+
+    def get_course_participants(_parent, _args, _context), do: @not_authenticated
+
     def get_course_lesson(_parent, %{course_id: course_id, lms_user_id: lms_user_id}, %{context: %{current_user: current_user}}) do
       course = Flight.General.get_course_lesson(current_user, course_id, lms_user_id)
       Logger.info fn -> "course: #{inspect course}" end

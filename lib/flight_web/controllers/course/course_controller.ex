@@ -33,7 +33,7 @@ defmodule FlightWeb.Course.CourseController do
   end
 
   def participants(%{assigns: %{current_user: current_user}} = conn, %{"course_id" => course_id}) do
-    course_details = Flight.General.get_course_detail(current_user, course_id)
+    course_details = Flight.General.get_course_participants(current_user, course_id)
     Logger.info fn -> "course_details: #{inspect course_details}" end
     render(
      conn,
