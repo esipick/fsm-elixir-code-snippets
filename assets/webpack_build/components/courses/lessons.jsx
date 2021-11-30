@@ -675,7 +675,7 @@ const SubLessonPanelContent = ({
                   key={lesson.id + "-" + subLesson.id + "-" + mod.id + index}
                 >   
                     <a
-                      href={content.fileurl + "?token=" + participant.token}
+                      href={content.fileurl + "&token=" + participant.token}
                       target={"_blank"}
                       onClick={() => markModuleView(mod, ModuleViewActions.READ)}
                     >
