@@ -178,16 +178,7 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
         }
         <div className="row my-1 lesson-content p-2">
           <div className="col-md-12 border-secondary">
-            <div className="lesson-tabs d-flex flex-row align-items-center bg-dark p-2">
-              <div 
-                onClick={() => setState({...state, courseNotesModal: true})}
-                className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
-                  <div className="icon border mr-2 round-button">
-                    <img src={'/images/note.svg'} className="" height="25px" width="25px" />
-                  </div>
-                  <p className="text-white mb-0 title">COURSE NOTES</p>
-              </div>
-            </div>
+            <Tabbar showCourseNotes={() => setState({...state, courseNotesModal: true})} />
           </div>
         </div>
         {lessons.map((lesson, index) => (
@@ -862,6 +853,7 @@ const TakeNotes = ({
           className="w-100 p-2"
           aria-label="With textarea"
           rows={5}
+          autoFocus={!state.notes}
           required={true}
           onChange={(event) =>
             setState({ ...state, notes: event.target.value })
@@ -973,5 +965,23 @@ const Spinner = ({ borderColor }) => (
     <div></div>
   </div>
 );
+
+const Tabbar = ({ showCourseNotes }) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div className="lesson-tabs d-flex flex-row align-items-center bg-dark p-2">
+      <div
+        onClick={showCourseNotes}
+        onMouseEnter={() => setHovered(!hovered)}
+        onMouseLeave={() => setHovered(!hovered)}
+        className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
+          <div className={`icon border mr-2 round-button ${hovered ? 'bg-secondary' : ''}`}>
+            <img src={'/images/note.svg'} className="" height="25px" width="25px" />
+          </div>
+          <p className={`text-white mb-0 title ${hovered ? 'text-secondary' : ''}`}>COURSE NOTES</p>
+      </div>
+  </div>
+  )
+}
 
 export default CourseLessons;

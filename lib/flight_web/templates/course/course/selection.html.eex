@@ -188,14 +188,6 @@
     padding-top: 40px !important;
 }
 
-.lesson-tabs .tab .icon:hover {
-  background-color: #868e96;
-}
-
-.lesson-tabs .tab .title:hover {
-  color: #868e96 !important;
-}
-
 </style>
 
 <div class="course-selection panel-header">
