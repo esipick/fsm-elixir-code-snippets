@@ -85,7 +85,7 @@ defmodule FlightWeb.Course.CourseController do
         courseId: course_id,
         participantCourse: participant_course,
         courseProgress: get_course_progress(participant_course),
-        userRoles: ["student"]
+        userRoles: ["student", "renter"]
       }
 
       render(

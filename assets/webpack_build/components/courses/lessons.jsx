@@ -40,7 +40,13 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
     courseNotesModal: false
   });
 
+  const studentOrRenter = isStudentOrRenter(userRoles);
+
   const saveRemarks = async (subLesson, remark, type) => {
+
+    if(studentOrRenter) {
+      return console.log("Student or Renter can't grade a sub-lesson");
+    }
 
     if(remark === RemarksType.NOT_GRADED) {
       if(!window.confirm("Are you sure you want to reset grade?")) {
@@ -156,36 +162,34 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                 }}
                 saveRemarks={saveRemarks}
                 setParticipant={updateParticipant}
-                userRoles={userRoles}
+                studentOrRenter={studentOrRenter}
               />
             </div>
           </div>
         )}
         {
-          (state.participant.lessons ?? []).length === 0 ? (
+          (state.participant.lessons ?? []).length === 0 && (
             <div className="row my-1 lesson-content">
               <div className="col-md-12 border-secondary">
                   <h4 className="row justify-content-center text-secondary mt-0">Lessons Not Found</h4>
               </div>
             </div>
           )
-          : !isStudent(userRoles) && (
-            <div className="row my-1 lesson-content p-2">
-              <div className="col-md-12 border-secondary">
-                <div className="lesson-tabs d-flex flex-row align-items-center bg-dark p-2">
-                  <div 
-                    onClick={() => setState({...state, courseNotesModal: true})}
-                    className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
-                      <div className="icon border mr-2 round-button">
-                        <img src={'/images/note.svg'} className="" height="25px" width="25px" />
-                      </div>
-                      <p className="text-white mb-0 title">COURSE NOTES</p>
+        }
+        <div className="row my-1 lesson-content p-2">
+          <div className="col-md-12 border-secondary">
+            <div className="lesson-tabs d-flex flex-row align-items-center bg-dark p-2">
+              <div 
+                onClick={() => setState({...state, courseNotesModal: true})}
+                className="tab align-items-center cursor-pointer d-flex flex-row mx-4 cursor-pointer">
+                  <div className="icon border mr-2 round-button">
+                    <img src={'/images/note.svg'} className="" height="25px" width="25px" />
                   </div>
-                </div>
+                  <p className="text-white mb-0 title">COURSE NOTES</p>
               </div>
             </div>
-          )
-        }
+          </div>
+        </div>
         {lessons.map((lesson, index) => (
           <div className="lesson-accordion" key={lesson.id} id={`accordion-${lesson.id}`}>
             <div className="row my-1 lesson-content">
@@ -213,24 +217,19 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                         >
                           Overview
                         </p>
-
-                       {
-                        !isStudent(userRoles) && <>
-                          <span className="text-secondary"> | </span>
-                          <p
-                            onClick={() =>
-                              setState({
-                                ...state,
-                                lesson,
-                                lessonNotesModal: true
-                              })
-                            }
-                            className="text-primary my-0 mx-1 cursor-pointer"
-                          >
-                            Notes
-                          </p>
-                          </>
-                        }
+                        <span className="text-secondary"> | </span>
+                        <p
+                          onClick={() =>
+                            setState({
+                              ...state,
+                              lesson,
+                              lessonNotesModal: true
+                            })
+                          }
+                          className="text-primary my-0 mx-1 cursor-pointer"
+                        >
+                          Notes
+                        </p>
                     </div>
               </div>
                 <div id={"collapse-"+lesson.id} className={`accordion-collapse collapse ml-4 ${index === 0 ? 'show' : ''}`} 
@@ -267,10 +266,10 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                                           ...state,
                                           lesson: lesson,
                                           subLessonPanel: true,
-                                          subLesson: subLesson,
+                                          subLesson: subLesson
                                         })
                                       }
-                                      userRoles={userRoles}
+                                      studentOrRenter={studentOrRenter}
                                     />
                                   ))
                                 }
@@ -377,7 +376,7 @@ const SubLessonCard = ({
   markedSubLesson,
   saveRemarks,
   showSubLesson,
-  userRoles
+  studentOrRenter
 }) => {
   
   return (
@@ -396,16 +395,12 @@ const SubLessonCard = ({
           </h5>
         </a>
       </div>
-      {
-        !isStudent(userRoles) && (
-          <RemarkButtons {...{markedSubLesson, saveRemarks, subLesson}}  />
-        )
-      }
+      <RemarkButtons {...{markedSubLesson, saveRemarks, subLesson, studentOrRenter}}  />
     </div>
   );
 };
 
-const RemarkButtons = ({subLesson, markedSubLesson, saveRemarks}) => {
+const RemarkButtons = ({subLesson, markedSubLesson, saveRemarks, studentOrRenter}) => {
   
   const satisfied = isSatisfied(subLesson.remarks);
   const unsatisfied = isUnsatisfied(subLesson.remarks);
@@ -417,8 +412,8 @@ const RemarkButtons = ({subLesson, markedSubLesson, saveRemarks}) => {
       <Spinner />
     ) : (
       <div
-        className={`button-remark ${ satisfied ? "text-success" : "text-secondary" }`}
-        disabled={satisfied}
+        className={`button-remark ${ satisfied  ? "text-success" : "text-secondary" } ${studentOrRenter ? 'disabled-click' : ''}`}
+        disabled={satisfied || studentOrRenter}
         onClick={() => {
           satisfied ? 
           saveRemarks(
@@ -443,8 +438,8 @@ const RemarkButtons = ({subLesson, markedSubLesson, saveRemarks}) => {
       <Spinner />
     ) : (
       <div
-        className={`button-remark ${ unsatisfied ? "text-danger" : "text-secondary" }`}
-        disabled={unsatisfied}
+        className={`button-remark ${ unsatisfied ? "text-danger" : "text-secondary" } ${ studentOrRenter ? 'disabled-click' : ''}`}
+        disabled={unsatisfied || studentOrRenter}
         onClick={() => {
           unsatisfied ? 
           saveRemarks(
@@ -475,7 +470,7 @@ const SubLessonPanelContent = ({
   setParticipant,
   markedSubLesson,
   saveRemarks,
-  userRoles
+  studentOrRenter
 }) => {
 
   const [state, setState] = useState({
@@ -529,7 +524,7 @@ const SubLessonPanelContent = ({
     }
 
     // only student can mark module as read/unread
-    if(!isStudent(userRoles)) {
+    if(!studentOrRenter) {
       return
     }
 
@@ -603,11 +598,7 @@ const SubLessonPanelContent = ({
     <div className="sublesson-content ml-1">
       <div className="row ml-0 d-flex flex-row justify-content-between align-items-center mb-2">
         <h5 className="mb-0 text-dark">{subLesson.name}</h5>
-        {
-          !isStudent(userRoles) && (
-            <RemarkButtons {...{subLesson, markedSubLesson, saveRemarks}} />
-          )
-        }
+        <RemarkButtons {...{subLesson, markedSubLesson, saveRemarks, studentOrRenter}} />
       </div>
       <div className="card-body p-0">
         {(subLesson.modules ?? []).map((mod) => (
@@ -638,7 +629,7 @@ const SubLessonPanelContent = ({
                     {
                       (mod.completionstate && mod.vieweddate) && (
                         <div className="cursor-pointer" onClick={() => markModuleView(mod, ModuleViewActions.UNREAD)}>
-                          <CheckCircleIcon className={"text-success"} />
+                          <CheckCircleSolidIcon className={"text-success"} />
                         </div>
                       )
                     }
@@ -669,7 +660,7 @@ const SubLessonPanelContent = ({
                     {
                       (mod.completionstate && mod.vieweddate) && (
                         <div className="cursor-pointer" onClick={() => markModuleView(mod, ModuleViewActions.UNREAD)}>
-                          <CheckCircleIcon className={"text-success"} />
+                          <CheckCircleSolidIcon className={"text-success"} />
                         </div>
                       )
                     }
@@ -682,10 +673,9 @@ const SubLessonPanelContent = ({
                   className={`d-flex flex-row align-items-center justify-content-between
                   ${originalContents.length > 1 ? 'no-last-child-border pb-2 mb-2 border-bottom' : ''}`}
                   key={lesson.id + "-" + subLesson.id + "-" + mod.id + index}
-                 
                 >   
                     <a
-                      href={content.fileurl}
+                      href={content.fileurl + "?token=" + participant.token}
                       target={"_blank"}
                       onClick={() => markModuleView(mod, ModuleViewActions.READ)}
                     >
@@ -699,7 +689,7 @@ const SubLessonPanelContent = ({
                     {
                       (mod.completionstate && mod.vieweddate) && (
                         <div className="cursor-pointer" onClick={() => markModuleView(mod, ModuleViewActions.UNREAD)}>
-                          <CheckCircleIcon className={"text-success"} />
+                          <CheckCircleSolidIcon className={"text-success"} />
                         </div>
                       )
                     }
@@ -778,32 +768,31 @@ const SubLessonPanelContent = ({
           </Modal>
         )
       }
-      {
-        !isStudent(userRoles) && (
           <div className="notes-section">
-            <div className="d-flex flex-row align-items-center justify-content-between border-bottom">
-              <h4 className="my-2">Notes</h4>
-              {
-                <button
-                    onClick={() => setState({...state, takeNotesModal: true})}
-                    className="cursor-pointer bold text-uppercase btn btn-primary"
-                  >
-                  Add a Note
-                </button>
-              }
-            </div>
+          {
+            !studentOrRenter && (
+                <div className="d-flex flex-row align-items-center justify-content-between border-bottom">
+                  <h4 className="my-2">Notes</h4>
+                  {
+                    <button
+                        onClick={() => setState({...state, takeNotesModal: true})}
+                        className="cursor-pointer bold text-uppercase btn btn-primary"
+                      >
+                      Add a Note
+                    </button>
+                  }
+                </div>
+              )
+            }
             <div className="pt-2">
             {
               subLesson.notes ?
               <div style={{whiteSpace: "pre-line"}}> {subLesson.notes}</div>
-              //  <textarea className="w-100 border-0" readOnly={true} rows={5} value={subLesson.notes}/>
               :
               <p className="text-secondary">No notes available</p>
             }
             </div>
           </div>
-        )
-      }
     </div>
   );
 };
@@ -915,7 +904,7 @@ const TakeNotes = ({
 
 const isSatisfied = (remarks) => remarks === "satisfactory";
 const isUnsatisfied = (remarks) => remarks === "not_satisfactory";
-const isStudent = (roles) => roles.length === 1 && roles.includes("student");
+const isStudentOrRenter = (roles) => roles.length === 2 && roles.includes("student") && roles.includes("renter");
 
 const ChevronRight = () => (
   <svg
@@ -967,6 +956,12 @@ const CrossSign = ({ callback }) => (
 const CheckCircleIcon = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" height="24" width="24" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+)
+
+const CheckCircleSolidIcon = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
+    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
   </svg>
 )
 
