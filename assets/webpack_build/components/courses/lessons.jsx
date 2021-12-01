@@ -234,7 +234,7 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                           return(
                             <div key={type+"-"+index} className="mx-2">
                               <div 
-                                className="align-items-center cursor-pointer d-flex flex-row cursor-pointer">
+                                className="align-items-center d-flex flex-row">
                                   <div className="icon border bg-dark mr-2 round-button">
                                     <img src={`/images/${type === SubLessonTypes.FLIGHT ? 'flight' : 'pre-flight' }.svg`} height="25px" width="25px" />
                                   </div>
@@ -396,15 +396,31 @@ const RemarkButtons = ({subLesson, markedSubLesson, saveRemarks, studentOrRenter
   const satisfied = isSatisfied(subLesson.remarks);
   const unsatisfied = isUnsatisfied(subLesson.remarks);
 
-   return (
+  // if lesson is not graded and view is for student or renter
+  // don't show grade status
+  if(!(satisfied || unsatisfied) && studentOrRenter) {
+    return null
+  }
+
+  if(studentOrRenter) {
+      if (satisfied) {
+        return (
+            <div className={"text-success text-uppercase"}>Sat</div>
+        )
+      }
+      return (
+        <div className={"text-danger text-uppercase"}>Unsat</div>
+      )
+  }
+
+  return (
     <div className="d-flex flex-row align-items-center text-uppercase">
     {markedSubLesson.loaderType === LoaderType.SATISFACTORY &&
     markedSubLesson.subLessonId === subLesson.id ? (
       <Spinner />
     ) : (
       <div
-        className={`button-remark ${ satisfied  ? "text-success" : "text-secondary" } ${studentOrRenter ? 'disabled-click' : ''}`}
-        disabled={satisfied || studentOrRenter}
+        className={`button-remark ${ satisfied  ? "text-success" : "text-secondary" }`}
         onClick={() => {
           satisfied ? 
           saveRemarks(
@@ -429,8 +445,7 @@ const RemarkButtons = ({subLesson, markedSubLesson, saveRemarks, studentOrRenter
       <Spinner />
     ) : (
       <div
-        className={`button-remark ${ unsatisfied ? "text-danger" : "text-secondary" } ${ studentOrRenter ? 'disabled-click' : ''}`}
-        disabled={unsatisfied || studentOrRenter}
+        className={`button-remark ${ unsatisfied ? "text-danger" : "text-secondary" }`}
         onClick={() => {
           unsatisfied ? 
           saveRemarks(
@@ -769,7 +784,7 @@ const SubLessonPanelContent = ({
                         onClick={() => setState({...state, takeNotesModal: true})}
                         className="cursor-pointer bold text-uppercase btn btn-primary"
                       >
-                      Add a Note
+                      {subLesson.notes ? 'Update Note' : 'Add a Note'}
                     </button>
                   }
                 </div>
