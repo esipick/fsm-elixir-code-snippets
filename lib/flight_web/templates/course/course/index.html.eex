@@ -13,10 +13,8 @@
             </a>
             <% end %>
             </div>
-            <div class="row">
-                <div class="content profile">
+           <div class="content profile">
                     <div>
-
                         <div class="user-info">
                             <h2>Course Selection</h2>
                         </div>
@@ -73,7 +71,6 @@
                         <% end %>
                     </div>
                 </div>
-            </div>
         </div>
       </div>
     </div>
