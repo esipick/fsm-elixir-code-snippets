@@ -558,4 +558,31 @@ defmodule Flight.General do
       true
     end
   end
+
+  def create_category_at_lms(school) do
+    webtoken = Flight.Utils.get_webtoken(school.id)
+
+    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+    postData=%{
+      "action": "category_creation",
+      "name": school.name,
+      "webtoken": webtoken
+    }
+
+    postBody = Poison.encode!(postData)
+    Logger.info fn -> "url: #{inspect url}" end
+    Logger.info fn -> "postData: #{inspect postData}" end
+    category = case HTTPoison.post(url,postBody) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        case Poison.decode(body) do
+          {:ok, category} ->category
+          {:error, error} -> error
+        end
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        []
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.info fn -> "reason: #{inspect reason}" end
+        []
+    end
+  end
 end

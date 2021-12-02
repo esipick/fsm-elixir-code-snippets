@@ -1042,8 +1042,7 @@ defmodule Flight.Accounts do
           with {:ok, school} <- create_school(school_data),
                {:ok, user} <- create_user(user_data, school, school.stripe_account != nil) do
             create_school_onboarding(school)
-            #@todo call LMS api to create category
-            create_category_at_lms(school)
+            Flight.General.create_category_at_lms(school)
             accept_school_invitation(school_invitation)
             assign_roles(user, [Role.admin()])
 
@@ -1165,30 +1164,4 @@ defmodule Flight.Accounts do
     SchoolOnboarding.create(%{school_id: school.id})
   end
 
-  defp create_category_at_lms(school) do
-    webtoken = Flight.Utils.get_webtoken(school.id)
-
-    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
-    postData=%{
-      "action": "category_creation",
-      "name": school.name,
-      "webtoken": webtoken
-    }
-
-    postBody = Poison.encode!(postData)
-    Logger.info fn -> "url: #{inspect url}" end
-    Logger.info fn -> "postData: #{inspect postData}" end
-    category = case HTTPoison.post(url,postBody) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        case Poison.decode(body) do
-          {:ok, category} ->category
-          {:error, error} -> error
-        end
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        []
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
-        []
-      end
-  end
 end
