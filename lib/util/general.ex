@@ -260,7 +260,7 @@ defmodule Flight.General do
     })
     options = [timeout: 150_000, recv_timeout: 150_000]
 
-    courses = case HTTPoison.post(url,postBody,options) do
+    courses = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Poison.decode(body) do
           {:ok, courses} ->
@@ -336,7 +336,7 @@ defmodule Flight.General do
       Logger.info fn -> "postBody: #{inspect postBody}" end
       options = [timeout: 150_000, recv_timeout: 150_000]
 
-      course = case HTTPoison.post(url,postBody,options) do
+      course = case HTTPoison.post(url,postBody, [],options) do
         {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
           case Poison.decode(body) do
@@ -368,7 +368,7 @@ defmodule Flight.General do
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
-    participant = case HTTPoison.post(url,postBody,options) do
+    participant = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
         case Poison.decode(body) do
@@ -395,7 +395,7 @@ defmodule Flight.General do
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
-    course = case HTTPoison.post(url,postBody,options) do
+    course = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
         case Poison.decode(body) do
@@ -438,7 +438,7 @@ defmodule Flight.General do
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
-    course = case HTTPoison.post(url,postBody,options) do
+    course = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
         case Poison.decode(body) do
@@ -482,7 +482,7 @@ defmodule Flight.General do
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
-    course = case HTTPoison.post(url,postBody,options) do
+    course = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
         case Poison.decode(body) do
@@ -525,7 +525,7 @@ defmodule Flight.General do
 
     Logger.info fn -> "postBody11111111111111111111111111111111111111111111111111: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
-    course = case HTTPoison.post(url,postBody,options) do
+    course = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
 
         case Poison.decode(body) do
