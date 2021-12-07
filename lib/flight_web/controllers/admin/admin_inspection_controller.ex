@@ -12,7 +12,7 @@ defmodule FlightWeb.Admin.InspectionController do
   alias Fsm.Inspections
   alias Flight.Accounts.Role
   alias Flight.Auth.Authorization
-  require Logger
+
   def create(conn, %{"date_inspection" => date_inspection_data}) do
 
     user = conn.assigns.current_user
@@ -485,10 +485,6 @@ defmodule FlightWeb.Admin.InspectionController do
       last_type == :string or next_type == :string ->
         "Last or next inspection tach value should be a number"
       last > next or last == next ->
-        Logger.info fn -> "last:----------------------- #{inspect last}" end
-        Logger.info fn -> "next:------------------------ #{inspect next}" end
-        Logger.info fn -> "last_type:------------------------ #{inspect last_type}" end
-        Logger.info fn -> "next_type:------------------------ #{inspect next_type}" end
         "Next inspection tach value should be greater than last inspection tach value"
       true ->
         nil
