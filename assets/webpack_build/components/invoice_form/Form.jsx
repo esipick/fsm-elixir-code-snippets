@@ -1,13 +1,14 @@
 import { loadStripe } from "@stripe/stripe-js";
 import classnames from 'classnames';
 import http from 'j-fetch';
+import { debounce } from 'lodash';
 import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import "regenerator-runtime/runtime";
 import Error from '../common/Error';
-import { addSchoolIdParam, authHeaders, isEmpty, debounce } from '../utils';
+import { addSchoolIdParam, authHeaders, isEmpty } from '../utils';
 import ConfirmAlert from './ConfirmAlert';
 import ConfirmHobbTachAlert from './ConfirmHobbTachAlert';
 import {
@@ -429,6 +430,7 @@ class Form extends Component {
     }
 
     if (!this.state.saving) this.setState({ saving: true });
+
 
     calculateRequest = debounce(payloadParams => {
       http.post({
