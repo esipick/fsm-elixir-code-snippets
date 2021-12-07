@@ -686,8 +686,23 @@ defmodule Flight.General do
     sub_lessons = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Poison.decode(body) do
-          {:ok, sub_lesson} ->
-            Flight.SubLesson.decode(sub_lesson)
+          {:ok, sub_lessons} ->
+            Logger.info fn -> "sub_lesson: #{inspect sub_lessons}" end
+            for sub_lesson <- sub_lessons do
+              %Flight.SubLesson{
+                id: Map.get(sub_lesson, "id"),
+                visible: Map.get(sub_lesson, "visible"),
+                name: Map.get(sub_lesson, "name"),
+                summary: Map.get(sub_lesson, "summary"),
+                sub_lessontype: Map.get(sub_lesson, "sub_lessontype"),
+                sub_lesson_completed: Map.get(sub_lesson, "sub_lesson_completed"),
+                completed_modules: Map.get(sub_lesson, "completed_modules"),
+                total_modules: Map.get(sub_lesson, "total_modules"),
+                notes: Map.get(sub_lesson, "notes"),
+                remarks: Map.get(sub_lesson, "remarks"),
+              }
+            end
+
           {:error, error} -> error
         end
       {:ok, %HTTPoison.Response{status_code: 404}} ->
@@ -715,7 +730,19 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Poison.decode(body) do
           {:ok, sub_lesson_modules} ->
-            Flight.Module.decode(sub_lesson_modules)
+
+            for sub_lesson_module <- sub_lesson_modules do
+              %Flight.Module{
+                id: Map.get(sub_lesson_module, "id"),
+                url: Map.get(sub_lesson_module, "url"),
+                name: Map.get(sub_lesson_module, "name"),
+                modicon: Map.get(sub_lesson_module, "modicon"),
+                modname: Map.get(sub_lesson_module, "modname"),
+                completionstate: Map.get(sub_lesson_module, "completionstate"),
+                vieweddate: Map.get(sub_lesson_module, "vieweddate"),
+                contents: Enum.map(Map.get(sub_lesson_module, "contents"), &Flight.Content.decode/1) ,
+              }
+            end
           {:error, error} -> error
         end
       {:ok, %HTTPoison.Response{status_code: 404}} ->

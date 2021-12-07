@@ -44,7 +44,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         end
 
         @desc "Get Participant Course Sub lesson"
-        field :get_participant_course_sub_lessons, :participant do
+        field :get_participant_course_sub_lessons, list_of(:sub_lesson) do
             arg :course_id, non_null(:id)
             arg :lms_user_id, non_null(:id)
             arg :section_id, non_null(:id)
@@ -52,7 +52,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         end
 
         @desc "Get Participant Course Sub lesson Modules"
-        field :get_participant_course_sub_lesson_modules, :participant do
+        field :get_participant_course_sub_lesson_modules,  list_of(:module) do
             arg :course_id, non_null(:id)
             arg :lms_user_id, non_null(:id)
             arg :sub_lesson_id, non_null(:id)
