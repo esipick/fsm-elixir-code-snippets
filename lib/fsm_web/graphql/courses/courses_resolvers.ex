@@ -40,6 +40,30 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def get_course_lesson(_parent, _args, _context), do: @not_authenticated
 
+    def get_participant_course_lessons(_parent, %{course_id: course_id, lms_user_id: lms_user_id}, %{context: %{current_user: current_user}}) do
+      course = Flight.General.get_participant_course_lessons(current_user, course_id, lms_user_id)
+      Logger.info fn -> "course: #{inspect course}" end
+      {:ok, course}
+    end
+
+    def get_participant_course_lessons(_parent, _args, _context), do: @not_authenticated
+
+    def get_participant_course_sub_lessons(_parent, %{course_id: course_id, lms_user_id: lms_user_id, section_id: section_id}, %{context: %{current_user: current_user}}) do
+      course = Flight.General.get_participant_course_sub_lessons(current_user, course_id, lms_user_id, section_id)
+      Logger.info fn -> "course: #{inspect course}" end
+      {:ok, course}
+    end
+
+    def get_participant_course_sub_lessons(_parent, _args, _context), do: @not_authenticated
+
+    def get_participant_course_sub_lesson_modules(_parent, %{course_id: course_id, lms_user_id: lms_user_id, sub_lesson_id: sub_lesson_id}, %{context: %{current_user: current_user}}) do
+      course = Flight.General.get_participant_course_sub_lesson_modules(current_user, course_id, lms_user_id, sub_lesson_id)
+      Logger.info fn -> "course: #{inspect course}" end
+      {:ok, course}
+    end
+
+    def get_participant_course_sub_lesson_modules(_parent, _args, _context), do: @not_authenticated
+
     def insert_lesson_sub_lesson_remarks(_parent, %{remark_input: attrs}, %{context: %{current_user: current_user}}) do
       course = Flight.General.insert_lesson_sub_lesson_remarks(current_user,attrs)
       Logger.info fn -> "course: #{inspect course}" end

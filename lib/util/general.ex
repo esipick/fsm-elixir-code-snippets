@@ -151,6 +151,7 @@ defmodule Flight.Lesson do
   defstruct [
     :id,
     :name,
+    :section_id,
     :summary,
     :lesson_completed,
     :completed_sub_lessons,
@@ -158,7 +159,7 @@ defmodule Flight.Lesson do
     sub_lessons: [%Flight.SubLesson{}]
   ]
 
-  @keys ~w(id name name summary lesson_completed completed_sub_lessons total_sub_lessons sub_lessons)
+  @keys ~w(id name name section_id summary lesson_completed completed_sub_lessons total_sub_lessons sub_lessons)
   def decode(%{} = map) do
     map
     |> Map.take(@keys)
@@ -457,6 +458,62 @@ defmodule Flight.General do
               status: Map.get(result, "status"),
               message: Map.get(result, "message"),
               participant: participant || %Flight.CourseParticipant{}
+            }
+          {:error, error} -> error
+        end
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        []
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.info fn -> "reason: #{inspect reason}" end
+        []
+    end
+  end
+
+  def insert_lesson_sub_lesson_remarks_v2(current_user,attrs)do
+    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
+    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+    teacher_mark =  case Map.has_key?(attrs, :teacher_mark) do
+      true->
+        attrs.teacher_mark
+      false->
+        nil
+    end
+    note =  case Map.has_key?(attrs, :note) do
+      true->
+        attrs.note
+      false->
+        nil
+    end
+    postBody = Poison.encode!(%{
+      "action": "insert_lesson_sublesson_remarks_v2",
+      "webtoken": webtoken,
+      "courseid": attrs.course_id,
+      "teachermark": teacher_mark ,
+      "note": note,
+      "sub_lesson_id": attrs.sub_lesson_id,
+      "userid": attrs.fsm_user_id
+    })
+
+    Logger.info fn -> "postBody: #{inspect postBody}" end
+    options = [timeout: 150_000, recv_timeout: 150_000]
+    course = case HTTPoison.post(url,postBody, [],options) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+
+        case Poison.decode(body) do
+          {:ok, result} ->
+
+            Logger.info fn -> "result: #{inspect result}" end
+
+            participant = Map.get(result, "participant")
+
+            participant = if(!is_nil(participant)) do
+              [participant | _] = participant
+              Flight.CourseParticipant.decode(participant)
+            end
+
+            %Flight.ApiResult{
+              status: Map.get(result, "status"),
+              message: Map.get(result, "message")
             }
           {:error, error} -> error
         end

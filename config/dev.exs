@@ -104,12 +104,15 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
+#postgres://u2m3bv6culpu1g:p5d3f42edf711f237657bfeed88f99fe120871b9299c0575c1253bdc865d6d5cd@ec2-54-210-114-50.compute-1.amazonaws.com:5432/d5eno1a329n6vo
 config :flight, Flight.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "flight_dev",
-  hostname: "localhost",
-  pool_size: 10
+username: "u2m3bv6culpu1g",
+password: "p5d3f42edf711f237657bfeed88f99fe120871b9299c0575c1253bdc865d6d5cd",
+database: "d5eno1a329n6vo",
+hostname: "ec2-54-210-114-50.compute-1.amazonaws.com",
+port: 5432,
+pool_size: 10,
+ssl: true
 
 config :flight, :user_token_salt, "gwfyeA8B5"
 
