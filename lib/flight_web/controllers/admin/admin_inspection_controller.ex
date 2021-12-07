@@ -266,6 +266,16 @@ defmodule FlightWeb.Admin.InspectionController do
       last_value_type  = get_inspection_value_type(last_value)
       next_value_type  = get_inspection_value_type(next_value)
       
+      last_value = if last_value_type == :int or last_value_type == :float do
+        {last_value, _} = if last_value_type == :int, do: Integer.parse(last_value), else: Float.parse(last_value)
+        last_value
+      end
+
+      next_value = if next_value_type == :int or next_value_type == :float do
+        {next_value, _} = if next_value_type == :int, do: Integer.parse(next_value), else: Float.parse(next_value)
+        next_value
+      end
+
       validate_tach_value(last_value, next_value, last_value_type, next_value_type)
     end
 
