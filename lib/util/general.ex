@@ -643,14 +643,14 @@ defmodule Flight.General do
     end
   end
 
-  def get_participant_course_lessons(current_user, course_id, lms_user_id)do
+  def get_participant_course_lessons(current_user, course_id, fsm_or_lms_user_id)do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
       "action": "get_user_course_lessons_v2",
       "webtoken": webtoken,
       "courseid": course_id,
-      "userid": lms_user_id
+      "userid": fsm_or_lms_user_id
     })
 
     Logger.info fn -> "postBody: #{inspect postBody}" end
