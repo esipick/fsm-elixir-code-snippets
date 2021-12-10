@@ -96,4 +96,12 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
     end
 
     def add_course_module_view(_parent, _args, _context), do: @not_authenticated
+
+    def update_lesson_status(_parent, %{lesson_id: lesson_id, lms_user_id: lms_user_id, status: status} = attrs, %{context: %{current_user: current_user}}) do
+      response = Flight.General.update_lesson_status(current_user,attrs)
+      Logger.info fn -> "response: #{inspect response}" end
+      {:ok, response}
+    end
+
+    def update_lesson_status(_parent, _args, _context), do: @not_authenticated
 end

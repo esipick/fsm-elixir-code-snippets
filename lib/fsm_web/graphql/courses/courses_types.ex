@@ -83,6 +83,14 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
             arg :input_course_module_view, non_null(:input_course_module_view)
             resolve &CoursesResolvers.add_course_module_view/3
         end
+
+        @desc "Update lesson Status"
+        field :update_lesson_status, :add_update_sub_lesson_remarks_response do
+            arg :lesson_id, non_null(:id)
+            arg :lms_user_id, non_null(:id)
+            arg :status, non_null(:boolean)
+            resolve &CoursesResolvers.update_lesson_status/3
+        end
     end
 
     input_object :remark_input do
@@ -165,6 +173,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field :section_id, :integer
         field :summary, :string
         field :lesson_completed, :boolean
+        field :lesson_complete_status, :boolean
         field :completed_sub_lessons, :integer
         field :total_sub_lessons, :integer
         field :sub_lessons, list_of(:sub_lesson)
