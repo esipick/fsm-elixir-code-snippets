@@ -689,7 +689,8 @@ defmodule Flight.General do
         case Poison.decode(body) do
           {:ok, sub_lessons} ->
             Logger.info fn -> "sub_lesson: #{inspect sub_lessons}" end
-            for sub_lesson <- sub_lessons do
+            sub_lessons
+            |> Enum.map(fn sub_lesson ->
               %Flight.SubLesson{
                 id: Map.get(sub_lesson, "id"),
                 visible: Map.get(sub_lesson, "visible"),
@@ -702,7 +703,7 @@ defmodule Flight.General do
                 notes: Map.get(sub_lesson, "notes"),
                 remarks: Map.get(sub_lesson, "remarks"),
               }
-            end
+            end)
 
           {:error, error} -> error
         end
@@ -714,7 +715,7 @@ defmodule Flight.General do
     end
   end
 
-  def get_participant_course_sub_lesson_modules(current_user, course_id, lms_user_id, sub_lesson_id)do
+  def get_participant_course_sub_lesson_modules(current_user, course_id, lms_user_id, sub_lesson_id) do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
@@ -732,7 +733,8 @@ defmodule Flight.General do
         case Poison.decode(body) do
           {:ok, sub_lesson_modules} ->
 
-            for sub_lesson_module <- sub_lesson_modules do
+            sub_lesson_modules
+            |> Enum.map(fn sub_lesson_module ->
               %Flight.Module{
                 id: Map.get(sub_lesson_module, "id"),
                 url: Map.get(sub_lesson_module, "url"),
@@ -743,7 +745,7 @@ defmodule Flight.General do
                 vieweddate: Map.get(sub_lesson_module, "vieweddate"),
                 contents: Enum.map(Map.get(sub_lesson_module, "contents"), &Flight.Content.decode/1) ,
               }
-            end
+            end)
           {:error, error} -> error
         end
       {:ok, %HTTPoison.Response{status_code: 404}} ->

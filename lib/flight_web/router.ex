@@ -406,8 +406,14 @@ defmodule FlightWeb.Router do
         )
       end
     end
-    post("/course/sublesson/remarks", CourseController, :sublesson_remarks)
-    post("/course/sublesson/module/view", CourseController, :sublesson_module_view)
+    
+    scope "/course" do
+      post("/sublesson/remarks", CourseController, :sublesson_remarks)
+      post("/sublesson/module/view", CourseController, :sublesson_module_view)
+      post("/lesson/sublessons", CourseController, :get_sub_lessons)
+      post("/sublesson/modules", CourseController, :get_sub_lesson_modules)
+    end
+   
   end
 
   scope "/api" do
