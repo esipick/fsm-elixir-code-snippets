@@ -32,7 +32,7 @@ export const CourseLesson = ({ lesson, participant }) => {
 
     const payload = {
       course_id: participant.courseId,
-      lms_user_id: participant.fsm_user_id,
+      lms_user_id: participant.user_id,
       section_id: lesson.section_id,
     };
 
@@ -333,7 +333,7 @@ const LessonContent = ({
                   selected={sublesson.id === state.selectedSublesson?.id}
                   saveRemarks={saveRemarks}
                   markedSublesson={state.markedSublesson}
-                  studentOrRenter={participant.studentOrRenter}
+                  participant={participant}
                 />
               ))}
             </div>

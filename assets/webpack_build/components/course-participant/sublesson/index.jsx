@@ -8,7 +8,7 @@ export const SubLessonCard = ({
   selected,
   setSublesson,
   markedSublesson,
-  studentOrRenter,
+  participant,
   saveRemarks,
 }) => {
   return (
@@ -37,7 +37,7 @@ export const SubLessonCard = ({
         </div>
       </div>
       <RemarksButtons
-        {...{ markedSublesson, sublesson, studentOrRenter, saveRemarks }}
+        {...{ markedSublesson, sublesson, saveRemarks, studentOrRenter: participant.studentOrRenter }}
       />
     </div>
   );

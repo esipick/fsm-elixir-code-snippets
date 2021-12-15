@@ -4,12 +4,6 @@ import { authHeaders } from "../utils";
 import { CourseLesson } from "./lesson/index";
 import { Tabbar } from "./tabbar";
 
-import {
-  LoaderType,
-  RemarksType,
-  SubLessonTypes,
-  ModuleViewActions,
-} from "./constants";
 import { isStudentOrRenter } from "./utils";
 
 export const CourseParticipant = ({
@@ -17,7 +11,6 @@ export const CourseParticipant = ({
   userRoles,
   courseId,
 }) => {
-  console.log(participantCourse);
 
   const [state, setState] = useState({
     lesson: undefined,

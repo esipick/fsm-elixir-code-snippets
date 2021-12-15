@@ -30,7 +30,7 @@ export const SubLessonSidePanel = ({
     const fetchModules = () => {
       const payload = {
         course_id: participant.courseId,
-        lms_user_id: participant.fsm_user_id,
+        lms_user_id: participant.user_id,
         sub_lesson_id: sublesson.id,
       };
 

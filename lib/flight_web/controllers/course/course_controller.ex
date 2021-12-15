@@ -50,8 +50,7 @@ defmodule FlightWeb.Course.CourseController do
   end
 
   def selection(%{assigns: %{current_user: current_user}} = conn, %{"course_id" => course_id, "user_id" => user_id}) do
-    #participant_course = Flight.General.get_course_lesson(current_user, course_id,user_id)
-    participant_course = Flight.General.get_participant_course_lessons(current_user, course_id,user_id)
+    participant_course = Flight.General.get_participant_course_lessons(current_user, course_id, user_id)
 
     Logger.info fn -> "course info--------------------------------: #{inspect participant_course}" end
 
@@ -73,7 +72,7 @@ defmodule FlightWeb.Course.CourseController do
     # create moodle user id using fsm user id
     user_id = "fsm2m" <> to_string(current_user.id)
     
-    participant_course = Flight.General.get_course_lesson(current_user, course_id,user_id)
+    participant_course = Flight.General.get_participant_course_lessons(current_user, course_id,user_id)
 
     Logger.info fn -> "course info--------------------------------: #{inspect participant_course}" end
     if participant_course.completed_lessons == nil do

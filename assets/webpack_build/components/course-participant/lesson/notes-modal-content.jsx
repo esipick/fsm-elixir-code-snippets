@@ -13,7 +13,7 @@ export const LessonNotesModalContent = ({ lesson, participant }) => {
   
         const payload = {
           course_id: participant.courseId,
-          lms_user_id: participant.fsm_user_id,
+          lms_user_id: participant.user_id,
           section_id: lesson.section_id,
         };
   
