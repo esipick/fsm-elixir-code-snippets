@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import { Modal } from "../common/modal";
-import { authHeaders } from "../utils";
 import { CourseLesson } from "./lesson/index";
-import { Tabbar } from "./tabbar";
+// import { Tabbar } from "./tabbar";
 
 import { isStudentOrRenter } from "./utils";
 
@@ -31,9 +29,9 @@ export const CourseParticipant = ({
 
   return (
     <Wrapper>
-      <InnerWrapper>
+      {/* <InnerWrapper>
         <Tabbar />
-      </InnerWrapper>
+      </InnerWrapper> */}
       {participantCourse.lessons.map((lesson, index) => {
         return (
           <CourseLesson
