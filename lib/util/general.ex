@@ -242,6 +242,37 @@ defmodule Flight.General do
   alias Flight.Auth.Authorization
   alias Flight.Billing.{Invoice, InvoiceCustomLineItem}
   alias Flight.Repo
+  def get_course_info(current_user, course_id)do
+    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
+    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+    postBody = Poison.encode!(%{
+      "action": "get_course",
+      "webtoken": webtoken,
+      "courseid": course_id
+    })
+
+    Logger.info fn -> "postBody: #{inspect postBody}" end
+    options = [timeout: 150_000, recv_timeout: 150_000]
+
+    course = case HTTPoison.post(url,postBody, [],options) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+
+        case Poison.decode(body) do
+          {:ok, course} ->
+            %Flight.CourseDetail{
+              id: Map.get(course, "id"),
+              price: Map.get(course, "price"),
+            }
+          {:error, error} -> error
+        end
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        []
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.info fn -> "reason: #{inspect reason}" end
+        []
+    end
+
+  end
 
   def get_lms_admin_login_url(current_user) do
     webtoken = Application.get_env(:flight, :webtoken_key) <> "_" <>  to_string(current_user.school.id)
@@ -790,4 +821,6 @@ defmodule Flight.General do
         []
     end
   end
+
+
 end
