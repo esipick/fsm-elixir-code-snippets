@@ -66,16 +66,11 @@ defmodule FlightWeb.API.CourseView do
     }
   end
 
-  def render("participant_course_info.json", %{participant_course_info: course_info}) do
+  def render("sub_lesson_remarks.json", %{response: response}) do
     %{
-      message: course_info.message,
-      status: course_info.status,
-      participantCourse: render_one(course_info.participant, CourseView, "course_participant.json", as: :participant)
+      message: response.message,
+      status: response.status
     }
-  end
-
-  def render("course_participant.json", %{participant: participant}) do
-    participant
   end
 
   def render("course_module_view.json", %{module_view_response: response}) do
@@ -84,4 +79,24 @@ defmodule FlightWeb.API.CourseView do
       status: response.status
     }
   end
+
+  def render("sub_lessons.json", %{sub_lessons: response}) do
+    %{
+      data: render_many(response, CourseView, "sub_lesson.json", as: :sub_lesson)
+    }
+  end
+  def render("sub_lesson.json", %{sub_lesson: sub_lesson}) do
+    sub_lesson
+  end
+
+  def render("sub_lesson_modules.json", %{sub_lesson_modules: response}) do
+    %{
+      data: render_many(response, CourseView, "sub_lesson_module.json", as: :sub_lesson_module)
+    }
+  end
+  def render("sub_lesson_module.json", %{sub_lesson_module: sub_lesson_module}) do
+    sub_lesson_module
+  end
+
+
 end

@@ -30,6 +30,40 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
             arg :lms_user_id, non_null(:id)
             resolve &CoursesResolvers.get_course_lesson/3
         end
+        @desc "Get Participant Course lesson"
+        field :get_participant_course_lessons, :participant do
+            arg :course_id, non_null(:id)
+            arg :lms_user_id, non_null(:id)
+            resolve &CoursesResolvers.get_participant_course_lessons/3
+        end
+        @desc "Get Student Course lesson"
+        field :get_student_course_lessons, :participant do
+            arg :course_id, non_null(:id)
+            arg :fsm_user_id, non_null(:id)
+            resolve &CoursesResolvers.get_student_course_lessons/3
+        end
+        @desc "Get Participant Course lesson"
+        field :get_participant_course_lessons, :participant do
+            arg :course_id, non_null(:id)
+            arg :lms_user_id, non_null(:id)
+            resolve &CoursesResolvers.get_participant_course_lessons/3
+        end
+
+        @desc "Get Participant Course Sub lesson"
+        field :get_participant_course_sub_lessons, list_of(:sub_lesson) do
+            arg :course_id, non_null(:id)
+            arg :lms_user_id, non_null(:id)
+            arg :section_id, non_null(:id)
+            resolve &CoursesResolvers.get_participant_course_sub_lessons/3
+        end
+
+        @desc "Get Participant Course Sub lesson Modules"
+        field :get_participant_course_sub_lesson_modules,  list_of(:module) do
+            arg :course_id, non_null(:id)
+            arg :lms_user_id, non_null(:id)
+            arg :sub_lesson_id, non_null(:id)
+            resolve &CoursesResolvers.get_participant_course_sub_lesson_modules/3
+        end
     end
     object :courses_mutations do
         @desc "Insert sub lesson Remarks"
@@ -38,10 +72,24 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
             resolve &CoursesResolvers.insert_lesson_sub_lesson_remarks/3
         end
 
+        @desc "Add/update sub lesson Remarks"
+        field :add_update_sub_lesson_remarks, :add_update_sub_lesson_remarks_response do
+            arg :remark_input, non_null(:remark_input)
+            resolve &CoursesResolvers.add_update_sub_lesson_remarks/3
+        end
+
         @desc "Insert course module view"
         field :add_course_module_view, :input_course_module_view_response do
             arg :input_course_module_view, non_null(:input_course_module_view)
             resolve &CoursesResolvers.add_course_module_view/3
+        end
+
+        @desc "Update lesson Status"
+        field :update_lesson_status, :add_update_sub_lesson_remarks_response do
+            arg :lesson_id, non_null(:id)
+            arg :lms_user_id, non_null(:id)
+            arg :status, non_null(:boolean)
+            resolve &CoursesResolvers.update_lesson_status/3
         end
     end
 
@@ -64,6 +112,12 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
         field :message, :string
         field :participant, :participant
     end
+
+    object :add_update_sub_lesson_remarks_response do
+        field :status, :string
+        field :message, :string
+    end
+
     object :input_course_module_view_response do
         field :status, :string
         field :message, :string
@@ -116,8 +170,10 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
     object :lesson do
         field :id, :integer
         field :name, :string
+        field :section_id, :integer
         field :summary, :string
         field :lesson_completed, :boolean
+        field :lesson_complete_status, :boolean
         field :completed_sub_lessons, :integer
         field :total_sub_lessons, :integer
         field :sub_lessons, list_of(:sub_lesson)

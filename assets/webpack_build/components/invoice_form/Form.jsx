@@ -431,6 +431,7 @@ class Form extends Component {
 
     if (!this.state.saving) this.setState({ saving: true });
 
+
     calculateRequest = debounce(payloadParams => {
       http.post({
         url: '/api/invoices/calculate?' + addSchoolIdParam(),

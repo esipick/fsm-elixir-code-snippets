@@ -189,7 +189,7 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                   <div className="d-flex flex-row justify-content-start align-items-center accordion-icon cursor-pointer"
                     data-toggle="collapse"
                     data-target={"#collapse-"+lesson.id} 
-                    aria-expanded={index === 0}
+
                     aria-controls={"collapse-"+lesson.id}
                     >
                       <ChevronDown />
@@ -223,7 +223,7 @@ const CourseLessons = ({ participantCourse, userRoles, courseId }) => {
                         </p>
                     </div>
               </div>
-                <div id={"collapse-"+lesson.id} className={`accordion-collapse collapse ml-4 ${index === 0 ? 'show' : ''}`} 
+                <div id={"collapse-"+lesson.id} className={`accordion-collapse collapse ml-4 ${index === 0 ? '' : ''}`}
                   aria-labelledby={"heading-"+lesson.id} 
                   data-parent={"#accordion-"+lesson.id}
                   >
