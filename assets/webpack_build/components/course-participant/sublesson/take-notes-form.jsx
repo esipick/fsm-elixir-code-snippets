@@ -38,7 +38,7 @@ export const TakeNotes = ({
       submitting: true
     }));
 
-    fetch(`/api/course/sublesson/remarks`, reqOpts)
+    fetch(`/api/course/sublesson/notes`, reqOpts)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);

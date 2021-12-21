@@ -408,6 +408,7 @@ defmodule FlightWeb.Router do
     end
     
     scope "/course" do
+      post("/sublesson/notes", CourseController, :sublesson_notes)
       post("/sublesson/remarks", CourseController, :sublesson_remarks)
       post("/sublesson/module/view", CourseController, :sublesson_module_view)
       post("/lesson/sublessons", CourseController, :get_sub_lessons)
