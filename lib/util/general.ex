@@ -246,7 +246,7 @@ defmodule Flight.General do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
-      "action": "get_course",
+      "action": "get_course_v2",
       "webtoken": webtoken,
       "courseid": course_id
     })
