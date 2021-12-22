@@ -556,6 +556,7 @@ defmodule Flight.General do
         []
     end
   end
+
   def insert_lesson_sub_lesson_remarks_v3(current_user,attrs)do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
@@ -617,12 +618,18 @@ defmodule Flight.General do
   def add_course_module_view_remarks(current_user,attrs)do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+    userid =  case Map.has_key?(attrs, :fsm_user_id) do
+      true->
+        attrs.fsm_user_id
+      false->
+        current_user.id
+    end
     postBody = Poison.encode!(%{
       "action": "insert_coursemodule_viewed",
       "webtoken": webtoken,
       "courseid": attrs.course_id,
       "coursemoduleid": attrs.course_module_id,
-      "userid": current_user.id,
+      "userid": userid,
       "operation": attrs.action
     })
 

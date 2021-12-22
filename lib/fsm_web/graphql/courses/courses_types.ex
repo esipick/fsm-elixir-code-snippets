@@ -85,6 +85,12 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
             resolve &CoursesResolvers.add_course_module_view/3
         end
 
+        @desc "Insert course module view v2"
+        field :add_course_module_view_v2, :input_course_module_view_response do
+            arg :input_course_module_view, non_null(:input_course_module_view_v2)
+            resolve &CoursesResolvers.add_course_module_view/3
+        end
+
         @desc "Update lesson Status"
         field :update_lesson_status, :add_update_sub_lesson_remarks_response do
             arg :lesson_id, non_null(:id)
@@ -113,6 +119,12 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
     input_object :input_course_module_view do
         field(:course_id,  non_null(:id))
         field(:course_module_id,  non_null(:id))
+        field(:action,  non_null(:action))
+    end
+    input_object :input_course_module_view_v2 do
+        field(:course_id,  non_null(:id))
+        field(:course_module_id,  non_null(:id))
+        field(:fsm_user_id,  non_null(:id))
         field(:action,  non_null(:action))
     end
 
