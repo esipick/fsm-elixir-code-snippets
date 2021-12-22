@@ -8,7 +8,7 @@ defmodule FlightWeb.API.CourseController do
     render(conn, "index.json", courses: courses)
   end
 
-  def sublesson_remarks(conn, attrs) do
+  def sublesson_notes(conn, attrs) do
     %{assigns: %{current_user: user}} = conn
 
     teacher_mark = Map.get(attrs, "teacher_mark", nil)
@@ -25,6 +25,29 @@ defmodule FlightWeb.API.CourseController do
     new_attrs = if is_nil(notes), do: new_attrs, else: Map.put(new_attrs, :note, notes)
     
     response = Course.insert_lesson_sub_lesson_remarks_v2(user, new_attrs)
+    
+    render(conn, "sub_lesson_remarks.json", response: response)
+  end
+
+  def sublesson_remarks(conn, attrs) do
+    %{assigns: %{current_user: user}} = conn
+
+    teacher_mark = Map.get(attrs, "teacher_mark", nil)
+    notes = Map.get(attrs, "notes", nil)
+
+    new_attrs = %{
+      course_id: Map.get(attrs, "course_id"),
+      sub_lesson_id: Map.get(attrs, "sub_lesson_id"),
+      fsm_user_id: Map.get(attrs, "fsm_user_id"),
+      lesson_id: Map.get(attrs, "lesson_id"),
+      lesson_section_id: Map.get(attrs, "section_id")
+    }
+
+    new_attrs = if is_nil(teacher_mark), do: new_attrs, else: Map.put(new_attrs, :teacher_mark, teacher_mark)
+    
+    new_attrs = if is_nil(notes), do: new_attrs, else: Map.put(new_attrs, :note, notes)
+    
+    response = Course.insert_lesson_sub_lesson_remarks_v3(user, new_attrs)
     
     render(conn, "sub_lesson_remarks.json", response: response)
   end

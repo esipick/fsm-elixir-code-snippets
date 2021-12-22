@@ -75,6 +75,13 @@
       max-height: 480px;
       padding: 2px;
   }
+  .course-notes {
+    max-height: 480px;
+    overflow-y: scroll;
+  }
+  .course-notes .lesson {
+      padding: 2px;
+  }
   .chevron-right {
       width: 20px;
       height: 20px;
