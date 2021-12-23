@@ -70,6 +70,20 @@
       </div>
     </div>
   </div>
+   <div class="row">
+    <div class="col-md-6">
+      <div class="form-group">
+        <label>Allow Student to Schedule</label>
+        <%= select f, :student_schedule, Flight.Accounts.School.valid_schedule_values(), class: "form-control" %>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group">
+        <label>Allow Renter to Schedule</label>
+        <%= select f, :renter_schedule, Flight.Accounts.School.valid_schedule_values(), class: "form-control" %>
+      </div>
+    </div>
+  </div>
   <input type="hidden" name="redirect_tab" value="school" />
   <div class="card-footer mt-3">
     <%= if onboarding_completed?(@school) do %>
