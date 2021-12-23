@@ -20,6 +20,8 @@ defmodule Flight.Accounts.School do
     field(:archived, :boolean, default: false)
     field(:show_student_accounts_summary, :boolean, default: false)
     field(:show_student_flight_hours, :boolean, default: false)
+    field(:student_schedule, :boolean, default: true)
+    field(:renter_schedule, :boolean, default: true)
     has_one(:stripe_account, Flight.Accounts.StripeAccount)
     has_one(:school_onboarding, Flight.Accounts.SchoolOnboarding)
 
