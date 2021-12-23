@@ -56,11 +56,11 @@
                                         <%= if !@is_admin and  !course.is_paid do %>
                                             <%= if course.price == 0 do %>
                                                 <span class="btn btn-primary" >Free</span>
-                                            <% else %>
-                                            <a href="/billing/invoices/new?course_id=<%= course.id %>" class="btn btn-primary">$<%= course.price %> Buy Now</a>
                                             <% end %>
+                                            <a href="/billing/invoices/new?course_id=<%= course.id %>" class="btn btn-primary">$<%= course.price %> Buy Now</a>
+
                                         <% end %>
-                                        <%= if course.is_paid or course.price == 0 or @is_admin do %>
+                                        <%= if course.is_paid or @is_admin do %>
                                             <a href="/course/detail/<%= course.id%>"
                                             class="btn btn-success">Open</a>
                                         <% end %>
