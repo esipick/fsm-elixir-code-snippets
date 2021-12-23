@@ -1,4 +1,5 @@
 /* global $, swal, moment */
+var schoolInfo = null;
 var userInfo = null;
 var allInstructors = null;
 var allAircrafts = null;
@@ -46,6 +47,43 @@ $(document).ready(function () {
     if (span) {
       return prefix + "school_id=" + span.dataset.schoolId + postfix
     } else { return '' }
+  }
+
+  function getSchool() {
+    $.ajax({
+      method: "get",
+      url: "/api/school/"+ addSchoolIdParam('?'),
+      headers: AUTH_HEADERS
+    })
+    .then(response => {
+      schoolInfo = response;
+    })
+    .catch(error => {
+      console.log(error)
+    })
+  }
+  getSchool();
+
+  function checkRole() {
+    const user = userInfo;
+    if ( user.roles && 
+      !user.roles.includes('admin') &&
+      !user.roles.includes('dispatcher') &&
+      !user.roles.includes('instructor') )
+    {
+      const school = schoolInfo;
+      if ( user.roles.includes('student') )
+      {
+        if ( school.student_schedule == true) return true
+        else return false
+      }
+      else
+      {
+        if ( school.renter_schedule == true) return true
+        else return false
+      }
+    }
+    else return true;
   }
 
   var $calendar = $('#fullCalendar');
@@ -209,7 +247,6 @@ $(document).ready(function () {
   });
 
   function displayForAppointment(type) {
-
     if (type == "Simulator") {
       $('#apptFieldAircraft').hide();
       $('#apptFieldSimulator').show();
@@ -926,6 +963,8 @@ $(document).ready(function () {
         return current_user && current_user.id === id
       },
       select: function (start, end, notSure, notSure2, resource) {
+        const canProceed = checkRole();
+        if ( canProceed == false ) return;
         var instructorId = null;
         var aircraftId = null;
         var simulatorId = null;
@@ -975,7 +1014,8 @@ $(document).ready(function () {
       },
       editable: true,
       eventClick: function (calEvent, jsEvent, view) {
-
+        const canProceed = checkRole();
+        if ( canProceed == false ) return;
         if (calEvent.unavailability) {
           var instructor_user_id = null;
           if (calEvent.unavailability.instructor_user) {

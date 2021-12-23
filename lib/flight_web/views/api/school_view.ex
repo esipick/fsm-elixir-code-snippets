@@ -19,7 +19,9 @@ defmodule FlightWeb.API.SchoolView do
       sales_tax: school.sales_tax,
       archived: school.archived,
       show_student_accounts_summary: school.show_student_accounts_summary,
-      show_student_flight_hours: school.show_student_flight_hours
+      show_student_flight_hours: school.show_student_flight_hours,
+      student_schedule: school.student_schedule,
+      renter_schedule: school.renter_schedule
     }
   end
 end
