@@ -119,9 +119,9 @@ export const SubLessonSidePanel = ({
       }),
     }));
 
-    const urlPart = participant.studentOrRenter.isStudentOrRenter ? 'view' : 'unread'
+    const urlPart = participant.studentOrRenter ? 'view' : 'unread'
 
-    fetch(`/api/course/sublesson/${urlPart}`, postReqOpts)
+    fetch(`/api/course/sublesson/module/${urlPart}`, postReqOpts)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
