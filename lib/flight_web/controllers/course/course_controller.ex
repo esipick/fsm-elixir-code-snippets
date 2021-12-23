@@ -73,7 +73,7 @@ defmodule FlightWeb.Course.CourseController do
     # create moodle user id using fsm user id
     user_id = "fsm2m" <> to_string(current_user.id)
 
-    participant_course = Flight.General.get_participant_course_lessons(current_user, course_id,user_id)
+    participant_course = Flight.General.get_participant_course_lessons(current_user, course_id, user_id)
 
     Logger.info fn -> "course info--------------------------------: #{inspect participant_course}" end
     if participant_course.completed_lessons == nil do
