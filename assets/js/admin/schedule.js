@@ -22,6 +22,70 @@ function payerTitle(appointment) {
   return (appointment.demo) ? appointment.payer_name : userTitle(appointment.user) || userTitle(appointment.instructor_user);
 }
 
+function retrieveAircraftId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('aircraft') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function retrieveInstructorId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('instructor') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function retrieveSimulatorId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('simulator') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function retrieveRoomId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('room') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function checkDuplicates(a) {
+  const noDups = new Set(a);
+  return a.length !== noDups.size;
+}
+
+function hasDuplicates(resources) {
+  const newresources = resources.map(resource => {
+    return resource.split(':')[0]
+  })
+  return checkDuplicates(newresources);
+}
+
 $(document).ready(function () {
   var showMySchedules = false
   var showMyAssigned = false
@@ -916,6 +980,93 @@ $(document).ready(function () {
         day: {
           titleFormat: 'ddd D MMM, YYYY'
         }
+      },
+      // eventDragStart:function( event, jsEvent, ui, view ) {
+      //   console.log('eventDragStart')
+      //   console.log('event',event)
+      //   console.log('jsEvent',jsEvent)
+      //   console.log('ui',ui)
+      //   console.log('view',view)
+      // },
+      // eventDragStop:function( event, jsEvent, ui, view ) {
+      //   console.log('eventDragStop')
+      //   console.log('event resources',event.resourceIds)
+      //   // console.log('jsEvent',jsEvent)
+      //   // console.log('ui',ui)
+      //   // console.log('view',view)
+      // },
+      eventDrop:function( event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
+        console.log(event.resourceIds)
+        console.log(event.appointment)
+        if ( !event.resourceIds || hasDuplicates(event.resourceIds) )
+        {
+          $calendar.fullCalendar('refetchEvents')
+          $.notify({
+            message: "Invalid Move."
+          }, {
+            type: "danger",
+            placement: { align: "center" }
+          })
+          return;
+        } 
+
+        const appointment = event.appointment
+        const aircraft_id = retrieveAircraftId(event.resourceIds)
+        const instructor_id = retrieveInstructorId(event.resourceIds)
+        const simulator_id = retrieveSimulatorId(event.resourceIds)
+        const room_id = retrieveRoomId(event.resourceIds)
+
+        var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+        var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+       
+        var eventData = {
+          start_at: eventStart,
+          end_at: eventEnd,
+          user_id: appointment.user ? appointment.user.id : null,
+          instructor_user_id: instructor_id,
+          aircraft_id: aircraft_id,
+          simulator_id: simulator_id,
+          room_id: room_id,
+          note: appointment.note,
+          type: appointment.type
+        };
+       
+        $.ajax({
+          method: "put",
+          url: "/api/appointments/" + appointment.id + addSchoolIdParam('?'),
+          data: { data: eventData },
+          headers: AUTH_HEADERS
+        })
+        .then(function () {
+          $calendar.fullCalendar('refetchEvents')  
+          $.notify({
+            message: "Successfully updated " + event.title
+          }, {
+            type: "success",
+            placement: { align: "center" }
+          })
+  
+        }).catch(function (e) {
+          $calendar.fullCalendar('refetchEvents')
+          if (e.responseJSON.human_errors) {
+            showError(e.responseJSON.human_errors, event)
+          } else {
+            $.notify({
+              message: "There was an error updating the event"
+            }, {
+              type: "danger",
+              placement: { align: "center" }
+            })
+          }
+          $('#loader').hide();
+        })
+      },
+      drop:function( date, allDay, jsEvent, ui ) {
+        console.log('drop1122')
+        console.log('date',date)
+        console.log('allDay',allDay)
+        console.log('jsEvent',jsEvent)
+        console.log('ui',ui)
       },
       eventRender: function eventRender( event, element, view ) {
         if (!showMySchedules) {return true}
