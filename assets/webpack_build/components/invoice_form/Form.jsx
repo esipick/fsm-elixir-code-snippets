@@ -478,11 +478,11 @@ class Form extends Component {
     }
 
     if (this.state.saving) return;
-    if (!isInstructorOnly && this.state.total <= 0) {
+    if (!isInstructorOnly && this.state.total < 0) {
       this.setState({error_alert_total_open: true});
       return;
     }
-    if (!isInstructorOnly && this.state.total_amount_due <= 0) {
+    if (!isInstructorOnly && this.state.total_amount_due < 0) {
       this.setState({error_alert_total_due_open: true});
       return;
     }

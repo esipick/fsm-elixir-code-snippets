@@ -224,6 +224,8 @@ const LessonContent = ({
       sub_lesson_id: sublesson.id,
       teacher_mark: remark,
       fsm_user_id: participant.fsm_user_id,
+      section_id: lesson.section_id,
+      lesson_id: lesson.id
     };
 
     const reqOpts = {

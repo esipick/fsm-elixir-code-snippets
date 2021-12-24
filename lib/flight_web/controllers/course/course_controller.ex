@@ -72,19 +72,8 @@ defmodule FlightWeb.Course.CourseController do
   def course_detail(%{assigns: %{current_user: current_user}} = conn, %{"course_id" => course_id}) do
     # create moodle user id using fsm user id
     user_id = "fsm2m" <> to_string(current_user.id)
-    participant_course = Flight.General.get_participant_course_lessons(current_user, course_id,user_id)
-    participant_course =  if participant_course.completed_lessons == nil do
-      courseInfo =  Flight.General.get_course_info(current_user , course_id )
-      if courseInfo.price == 0 do
-        Flight.General.enroll_student(current_user ,course_id)
-        Flight.General.get_participant_course_lessons(current_user, course_id,user_id)
-        else
-        []
-      end
-    else
-      participant_course
-    end
 
+    participant_course = Flight.General.get_participant_course_lessons(current_user, course_id, user_id)
 
     Logger.info fn -> "course info--------------------------------: #{inspect participant_course}" end
     if participant_course.completed_lessons == nil do

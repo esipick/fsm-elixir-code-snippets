@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { Modal } from "../common/modal";
+import { CourseNotesContent } from "./course-notes-content";
 import { CourseLesson } from "./lesson/index";
-// import { Tabbar } from "./tabbar";
+import { Tabbar } from "./tabbar";
 
 import { isStudentOrRenter } from "./utils";
 
@@ -13,6 +15,7 @@ export const CourseParticipant = ({
   const [state, setState] = useState({
     lesson: undefined,
     sublesson: undefined,
+    openCourseNotes: false
   });
 
   if ((participantCourse.lessons ?? []).length === 0) {
@@ -29,9 +32,9 @@ export const CourseParticipant = ({
 
   return (
     <Wrapper>
-      {/* <InnerWrapper>
-        <Tabbar />
-      </InnerWrapper> */}
+      <InnerWrapper>
+        <Tabbar showCourseNotes={() => setState((prevState) => ({...prevState, openCourseNotes: !prevState.openCourseNotes}))} />
+      </InnerWrapper>
       {participantCourse.lessons.map((lesson, index) => {
         return (
           <CourseLesson
@@ -45,6 +48,17 @@ export const CourseParticipant = ({
           />
         );
       })}
+      {
+      participantCourse.lessons.length > 0 && state.openCourseNotes && (
+        <Modal callback={() => setState((prevState) => ({...prevState, openCourseNotes: !state.openCourseNotes})) }>
+           <CourseNotesContent participant={{
+              ...participantCourse,
+              courseId: parseInt(courseId),
+              studentOrRenter: isStudentOrRenter(userRoles)
+           }} />
+        </Modal>
+      )
+      }
     </Wrapper>
   );
 };

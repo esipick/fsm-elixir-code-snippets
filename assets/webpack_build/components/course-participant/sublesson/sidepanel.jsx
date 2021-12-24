@@ -74,8 +74,8 @@ export const SubLessonSidePanel = ({
       }
     }
 
-    // only student can mark module as read/unread
-    if (!participant.studentOrRenter) {
+    // only student can read the module
+    if(action === ModuleViewActions.READ && !participant.studentOrRenter) {
       return;
     }
 
@@ -87,11 +87,13 @@ export const SubLessonSidePanel = ({
 
     const moduleId = mod.id;
 
-    const payload = {
+    let payload = {
       course_id: participant.courseId,
       module_id: moduleId,
       action,
     };
+
+    payload = participant.studentOrRenter ? payload : {...payload, fsm_user_id: participant.fsm_user_id}
 
     const postReqOpts = {
       method: "POST",
@@ -117,7 +119,9 @@ export const SubLessonSidePanel = ({
       }),
     }));
 
-    fetch(`/api/course/sublesson/module/view`, postReqOpts)
+    const urlPart = participant.studentOrRenter ? 'view' : 'unread'
+
+    fetch(`/api/course/sublesson/module/${urlPart}`, postReqOpts)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);

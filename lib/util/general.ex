@@ -246,7 +246,7 @@ defmodule Flight.General do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
-      "action": "get_course",
+      "action": "get_course_v2",
       "webtoken": webtoken,
       "courseid": course_id
     })
@@ -557,15 +557,79 @@ defmodule Flight.General do
     end
   end
 
+  def insert_lesson_sub_lesson_remarks_v3(current_user,attrs)do
+    webtoken = Flight.Utils.get_webtoken(current_user.school_id)
+    url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+    teacher_mark =  case Map.has_key?(attrs, :teacher_mark) do
+      true->
+        attrs.teacher_mark
+      false->
+        nil
+    end
+    note =  case Map.has_key?(attrs, :note) do
+      true->
+        attrs.note
+      false->
+        nil
+    end
+    postBody = Poison.encode!(%{
+      "action": "insert_lesson_sublesson_remarks_v2",
+      "webtoken": webtoken,
+      "courseid": attrs.course_id,
+      "teachermark": teacher_mark ,
+      "note": note,
+      "sub_lesson_id": attrs.sub_lesson_id,
+      "userid": attrs.fsm_user_id,
+      "lessonid": attrs.lesson_id,
+      "lesson_section_id": attrs.lesson_section_id
+    })
+
+    Logger.info fn -> "postBody: #{inspect postBody}" end
+    options = [timeout: 150_000, recv_timeout: 150_000]
+    course = case HTTPoison.post(url,postBody, [],options) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+
+        case Poison.decode(body) do
+          {:ok, result} ->
+
+            Logger.info fn -> "result: #{inspect result}" end
+
+            participant = Map.get(result, "participant")
+
+            participant = if(!is_nil(participant)) do
+              [participant | _] = participant
+              Flight.CourseParticipant.decode(participant)
+            end
+
+            %Flight.ApiResult{
+              status: Map.get(result, "status"),
+              message: Map.get(result, "message")
+            }
+          {:error, error} -> error
+        end
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        []
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.info fn -> "reason: #{inspect reason}" end
+        []
+    end
+  end
+
   def add_course_module_view_remarks(current_user,attrs)do
     webtoken = Flight.Utils.get_webtoken(current_user.school_id)
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
+    userid =  case Map.has_key?(attrs, :fsm_user_id) do
+      true->
+        attrs.fsm_user_id
+      false->
+        current_user.id
+    end
     postBody = Poison.encode!(%{
       "action": "insert_coursemodule_viewed",
       "webtoken": webtoken,
       "courseid": attrs.course_id,
       "coursemoduleid": attrs.course_module_id,
-      "userid": current_user.id,
+      "userid": userid,
       "operation": attrs.action
     })
 

@@ -59,30 +59,7 @@ defmodule FlightWeb.Billing.InvoiceController do
             %{}
           {id, _rem} ->
             %{assigns: %{current_user: current_user}} = conn
-            
-            data_url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
-            
-            body = Poison.encode!(%{
-              "action": "get_course",
-              "id": id,
-              "webtoken": Flight.Utils.get_webtoken(current_user.school_id)
-            })
-
-            case HTTPoison.post(data_url,body) do
-              {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-                case Poison.decode(body) do
-                  {:ok, response} ->
-                    # we're getting a list of length 1 for "courses" key
-                    [course | _] = Map.get(response, "course")
-                    # return course info
-                    course
-                  {:error, error} -> error
-                end
-              {:ok, %HTTPoison.Response{status_code: 404}} ->
-                %{}
-              {:error, %HTTPoison.Error{reason: reason}} ->
-                %{}
-            end
+            Flight.General.get_course_info(current_user , id )
         end
     end
 
