@@ -93,7 +93,7 @@ export const SubLessonSidePanel = ({
       action,
     };
 
-    payload = participant.studentOrRenter ? payload : {...payload, lms_user_id: participant.user_id}
+    payload = participant.studentOrRenter ? payload : {...payload, fsm_user_id: participant.fsm_user_id}
 
     const postReqOpts = {
       method: "POST",
