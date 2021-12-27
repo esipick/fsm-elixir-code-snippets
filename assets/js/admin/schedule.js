@@ -715,7 +715,6 @@ $(document).ready(function () {
       if (!assetType) {assetType = "Aircraft"}
       $('#apptFor').val(assetType).selectpicker("refresh");
 
-
     if (initialData.type == "unavailability" || initialData.type == "unavailable") {
       regularView(false);
       unavailabilityView(true);
@@ -730,7 +729,8 @@ $(document).ready(function () {
         $('#apptTitle').text("Create New")
       }
     }
-    else if (initialData.type == "demoAppointment"){
+    else if (initialData.type == "demoAppointment" || initialData.type == "demo_flight"){
+
       demoFlightView(true);
       regularView(false);
       unavailabilityView(false);
@@ -820,6 +820,18 @@ $(document).ready(function () {
       keyboard: true        // This for keyboard event
     });
   };
+
+  var disableEditAppointment = function(){
+    $('#apptStart').attr("disabled", true);
+    $('#apptEnd').attr("disabled", true);
+    $('#apptStudent').prop("disabled", false).selectpicker("refresh");
+    $('#apptInstructor').attr("disabled", true);
+    $('#apptFor').attr("disabled", true);
+    $('#apptAircraft').attr("disabled", true);
+    $('#apptNote').attr("disabled", true);
+    $('#btnDelete').attr("disabled", true);
+    $('#btnSave').attr("disabled", true);
+  }
 
   function fsmCalendar(instructors, aircrafts, simulators, rooms, students, current_user) {
     userInfo = current_user;
@@ -964,7 +976,7 @@ $(document).ready(function () {
       },
       select: function (start, end, notSure, notSure2, resource) {
         const canProceed = checkRole();
-        if ( canProceed == false ) return;
+        if ( !canProceed ) return;
         var instructorId = null;
         var aircraftId = null;
         var simulatorId = null;
@@ -1015,7 +1027,10 @@ $(document).ready(function () {
       editable: true,
       eventClick: function (calEvent, jsEvent, view) {
         const canProceed = checkRole();
-        if ( canProceed == false ) return;
+        if ( !canProceed ){
+          disableEditAppointment()
+          return;
+        }
         if (calEvent.unavailability) {
           var instructor_user_id = null;
           if (calEvent.unavailability.instructor_user) {
@@ -1043,8 +1058,10 @@ $(document).ready(function () {
             type: "unavailable"
           })
           return;
-        } else if (calEvent.appointment.demo) {
+        }
+        else if (calEvent.appointment.demo) {
           var appointment = calEvent.appointment
+
           var instructor_user_id = null;
           if (appointment.instructor_user) {
             instructor_user_id = appointment.instructor_user.id
@@ -1072,7 +1089,8 @@ $(document).ready(function () {
             payer_name: payerTitle(appointment),
             id: appointment.id
           })
-        } else if (calEvent.appointment) {
+        }
+        else if (calEvent.appointment) {
           var appointment = calEvent.appointment
           var instructor_user_id = null;
           if (appointment.instructor_user) {
