@@ -71,7 +71,7 @@ defmodule FlightWeb.API.CourseController do
     attrs = %{
       course_id: Map.get(attrs, "course_id"),
       course_module_id: Map.get(attrs, "module_id"),
-      lms_user_id: Map.get(attrs, "lms_user_id"),
+      fsm_user_id: Map.get(attrs, "fsm_user_id"),
       action: Map.get(attrs, "action")
     }
 
