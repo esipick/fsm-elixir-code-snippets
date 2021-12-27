@@ -21,6 +21,29 @@
       </div>
     </div>
   </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-check">
+        <label class="form-check-label">
+          <%= checkbox f, :student_schedule %>
+          <span class="form-check-sign"></span>
+          Allow Student to Schedule
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-check">
+        <label class="form-check-label">
+          <%= checkbox f, :renter_schedule %>
+          <span class="form-check-sign"></span>
+          Allow Renter to Schedule
+        </label>
+      </div>
+    </div>
+  </div>
+
     <input type="hidden" name="redirect_tab" value="profile" />
   <div class="card-footer mt-3">
     <%= if onboarding_completed?(@school) do %>
