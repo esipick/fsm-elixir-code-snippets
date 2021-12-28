@@ -236,7 +236,7 @@ defmodule FlightWeb.Admin.UserController do
         end
       else
         "" ->
-          %{}
+          nil
 
         _ ->
           nil
