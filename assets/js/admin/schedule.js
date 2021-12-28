@@ -153,16 +153,17 @@ $(document).ready(function () {
       !user.roles.includes('instructor') )
     {
       const school = schoolInfo;
+      if ( user.roles.includes('renter') )
+      {
+        if ( school.renter_schedule == true) return true
+        else return false
+      }
       if ( user.roles.includes('student') )
       {
         if ( school.student_schedule == true) return true
         else return false
       }
-      else
-      {
-        if ( school.renter_schedule == true) return true
-        else return false
-      }
+
     }
     else return true;
   }
