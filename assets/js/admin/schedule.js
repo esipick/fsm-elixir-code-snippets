@@ -1020,14 +1020,20 @@ $(document).ready(function () {
         }
       }
     }
-
-    $calendar.fullCalendar({
+    var editable = true
+    var eventStartEditable = true
+    if(!checkRole()){
+      editable = false
+      eventStartEditable = false
+    }
+  $calendar.fullCalendar({
       viewRender: function (view, element) { },
       header: {
         left: 'title,chooseDateButton',
         center: 'timelineDay,timelineWeek,timelineMonth',
         right: 'prev,next,today,customDate,mySchedules,myAssigned'
       },
+      eventStartEditable: eventStartEditable,
       customButtons: customButtons,
       resourceGroupField: "type",
       resources: resources,
@@ -1308,7 +1314,7 @@ $(document).ready(function () {
         openAppointmentModal(params)
 
       },
-      editable: true,
+      editable: editable,
       eventClick: function (calEvent, jsEvent, view) {
         const canProceed = checkRole();
         if ( !canProceed ){
@@ -1530,6 +1536,8 @@ $(document).ready(function () {
         })
       }
     });
+
+
   }
 
   var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
