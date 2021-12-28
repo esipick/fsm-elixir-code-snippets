@@ -23,6 +23,87 @@ function payerTitle(appointment) {
   return (appointment.demo) ? appointment.payer_name : userTitle(appointment.user) || userTitle(appointment.instructor_user);
 }
 
+function retrieveAircraftId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('aircraft') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function retrieveInstructorId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('instructor') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function retrieveSimulatorId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('simulator') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function retrieveRoomId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('room') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function checkDuplicates(a) {
+  const noDups = new Set(a);
+  return a.length !== noDups.size;
+}
+
+function groupResources(resources) {
+  const resourcesObject = {
+    aircraft: [],
+    instructor: [],
+    simulator: [],
+    room: []
+  };
+  
+  resources.forEach(resource => {
+    const res = resource.split(':');
+    const resourceType = res[0];
+    const resourceId  = res[1];
+    resourcesObject[resourceType].push(resourceId);
+  });
+  return resourcesObject;
+}
+
+function hasDuplicates(resources) {
+  const newresources = resources.map(resource => {
+    return resource.split(':')[0]
+  })
+  return checkDuplicates(newresources);
+}
+
 $(document).ready(function () {
   var showMySchedules = false
   var showMyAssigned = false
@@ -966,6 +1047,208 @@ $(document).ready(function () {
           titleFormat: 'ddd D MMM, YYYY'
         }
       },
+      // eventDragStart:function( event, jsEvent, ui, view ) {
+      //   console.log('eventDragStart')
+      //   console.log('event',event)
+      //   console.log('jsEvent',jsEvent)
+      //   console.log('ui',ui)
+      //   console.log('view',view)
+      // },
+      // eventDragStop:function( event, jsEvent, ui, view ) {
+      //   console.log('eventDragStop')
+      //   console.log('event resources',event.resourceIds)
+      //   // console.log('jsEvent',jsEvent)
+      //   // console.log('ui',ui)
+      //   // console.log('view',view)
+      // },
+      eventDrop:function( event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
+        if ( event.unavailability )
+        {
+          const appointment = event.unavailability;
+          const resource = [event.resourceId];
+          const aircraft_id = retrieveAircraftId(resource)
+          const instructor_id = retrieveInstructorId(resource)
+          const simulator_id = retrieveSimulatorId(resource)
+          const room_id = retrieveRoomId(resource)
+          let UnavailablityFor =  '';
+          if ( aircraft_id != null )
+          {
+            UnavailablityFor = 'Aircraft'
+          }
+          else if ( instructor_id != null )
+          {
+            UnavailablityFor = 'Instructor'
+          }
+          else if ( simulator_id != null )
+          {
+            UnavailablityFor = 'Simulator'
+          }
+          else if ( room_id != null )
+          {
+            UnavailablityFor = 'Room'
+          }
+
+          var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+          var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+        
+          var eventData = {
+            start_at: eventStart,
+            end_at: eventEnd,
+            instructor_user_id: instructor_id,
+            aircraft_id: aircraft_id,
+            simulator_id: simulator_id,
+            room_id: room_id,
+            note: appointment.note,
+            belongs: UnavailablityFor
+          };
+          $.ajax({
+            method: "put",
+            url: "/api/unavailabilities/" + appointment.id + addSchoolIdParam('?'),
+            data: { data: eventData },
+            headers: AUTH_HEADERS
+          })
+          .then(function () {
+            $calendar.fullCalendar('refetchEvents')  
+            $.notify({
+              message: "Successfully updated Unavailability"
+            }, {
+              type: "success",
+              placement: { align: "center" }
+            })
+    
+          }).catch(function (e) {
+            $calendar.fullCalendar('refetchEvents')
+            if (e.responseJSON.human_errors) {
+              showError(e.responseJSON.human_errors, event)
+            } else {
+              $.notify({
+                message: "There was an error updating the unavailability"
+              }, {
+                type: "danger",
+                placement: { align: "center" }
+              })
+            }
+            $('#loader').hide();
+          })
+          return;
+        }
+        const appointment = event.appointment
+        if ( event.resourceId )
+        {
+          event.resourceIds = [event.resourceId]
+        } 
+        else if ( hasDuplicates(event.resourceIds) )
+        {
+          const res = groupResources(event.resourceIds);
+          const aircraft_id = res.aircraft[1] ? res.aircraft[1] : null
+          const instructor_id = res.instructor[1] ? res.instructor[1] : null
+          const simulator_id = res.simulator[1] ? res.simulator[1] : null
+          const room_id = res.room[1] ? res.room[1] : null
+
+          var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+          var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+        
+          var eventData = {
+            start_at: eventStart,
+            end_at: eventEnd,
+            user_id: appointment.user ? appointment.user.id : null,
+            instructor_user_id: instructor_id,
+            aircraft_id: aircraft_id,
+            simulator_id: simulator_id,
+            room_id: room_id,
+            note: appointment.note,
+            type: appointment.type
+          };
+
+          $.ajax({
+            method: "put",
+            url: "/api/appointments/" + appointment.id + addSchoolIdParam('?'),
+            data: { data: eventData },
+            headers: AUTH_HEADERS
+          })
+          .then(function () {
+            $calendar.fullCalendar('refetchEvents')  
+            $.notify({
+              message: "Successfully updated " + event.title
+            }, {
+              type: "success",
+              placement: { align: "center" }
+            })
+    
+          }).catch(function (e) {
+            $calendar.fullCalendar('refetchEvents')
+            if (e.responseJSON.human_errors) {
+              showError(e.responseJSON.human_errors, event)
+            } else {
+              $.notify({
+                message: "There was an error updating the event"
+              }, {
+                type: "danger",
+                placement: { align: "center" }
+              })
+            }
+            $('#loader').hide();
+          })
+          return;
+        }
+        
+        const aircraft_id = retrieveAircraftId(event.resourceIds)
+        const instructor_id = retrieveInstructorId(event.resourceIds)
+        const simulator_id = retrieveSimulatorId(event.resourceIds)
+        const room_id = retrieveRoomId(event.resourceIds)
+
+        var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+        var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+       
+        var eventData = {
+          start_at: eventStart,
+          end_at: eventEnd,
+          user_id: appointment.user ? appointment.user.id : null,
+          instructor_user_id: instructor_id,
+          aircraft_id: aircraft_id,
+          simulator_id: simulator_id,
+          room_id: room_id,
+          note: appointment.note,
+          type: appointment.type
+        };
+       
+        $.ajax({
+          method: "put",
+          url: "/api/appointments/" + appointment.id + addSchoolIdParam('?'),
+          data: { data: eventData },
+          headers: AUTH_HEADERS
+        })
+        .then(function () {
+          $calendar.fullCalendar('refetchEvents')  
+          $.notify({
+            message: "Successfully updated " + event.title
+          }, {
+            type: "success",
+            placement: { align: "center" }
+          })
+  
+        }).catch(function (e) {
+          $calendar.fullCalendar('refetchEvents')
+          if (e.responseJSON.human_errors) {
+            showError(e.responseJSON.human_errors, event)
+          } else {
+            $.notify({
+              message: "There was an error updating the event"
+            }, {
+              type: "danger",
+              placement: { align: "center" }
+            })
+          }
+          $('#loader').hide();
+        })
+      },
+      drop:function( date, allDay, jsEvent, ui ) {
+        console.log('drop1122')
+        console.log('date',date)
+        console.log('allDay',allDay)
+        console.log('jsEvent',jsEvent)
+        console.log('ui',ui)
+      },
       eventRender: function eventRender( event, element, view ) {
         if (!showMySchedules) {return true}
         var id = event.appointment && event.appointment.instructor_user && event.appointment.instructor_user.id
@@ -1248,10 +1531,10 @@ $(document).ready(function () {
     });
   }
 
-    var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
-    var students = $.get({ url: "/api/users/students", headers: AUTH_HEADERS })
-    var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: AUTH_HEADERS })
-    var rooms = $.get({url: "/api/rooms" + addSchoolIdParam('?'), headers: AUTH_HEADERS})
+  var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
+  var students = $.get({ url: "/api/users/students", headers: AUTH_HEADERS })
+  var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: AUTH_HEADERS })
+  var rooms = $.get({url: "/api/rooms" + addSchoolIdParam('?'), headers: AUTH_HEADERS})
 
   var current_user = $.get({ url: "/api/user_info", headers: AUTH_HEADERS })
 
