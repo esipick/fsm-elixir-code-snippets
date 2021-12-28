@@ -272,19 +272,6 @@
                 </div>
               </div>
             </div>
-            <!--
-            <div class="row">
-              <label class="col-md-3 col-form-label">Repeat</label>
-              <div class="col-md-9">
-                <div class="form-group">
-                  <select id="unavailRepeats" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Student" placeholder="Student">
-                    <option>None</option>
-                    <option value="Every Week">Every Week</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            -->
           </div>
 
           <div class="tab-pane" id="demoAppointmentForm">

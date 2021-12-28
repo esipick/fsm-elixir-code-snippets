@@ -20,6 +20,8 @@ defmodule Flight.Accounts.School do
     field(:archived, :boolean, default: false)
     field(:show_student_accounts_summary, :boolean, default: false)
     field(:show_student_flight_hours, :boolean, default: false)
+    field(:student_schedule, :boolean, default: true)
+    field(:renter_schedule, :boolean, default: true)
     has_one(:stripe_account, Flight.Accounts.StripeAccount)
     has_one(:school_onboarding, Flight.Accounts.SchoolOnboarding)
 
@@ -68,7 +70,9 @@ defmodule Flight.Accounts.School do
       :contact_email,
       :sales_tax,
       :show_student_accounts_summary,
-      :show_student_flight_hours
+      :show_student_flight_hours,
+      :student_schedule,
+      :renter_schedule
     ])
     |> base_validations()
   end
@@ -133,5 +137,10 @@ defmodule Flight.Accounts.School do
   def valid_timezones() do
     Tzdata.zone_lists_grouped()[:northamerica]
     |> Enum.filter(&String.starts_with?(&1, "America"))
+  end
+
+  def valid_schedule_values() do
+    valid_values = [{:Enable, true}, {:Disable, false}]
+    valid_values
   end
 end
