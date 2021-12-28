@@ -139,9 +139,12 @@ function getPlainDate(start_at) {
       $("#addFundsSubmit").addClass("disabled");
     }
   
-    if(amount && description) {
+    if(amount && description && description.length < 255) {
        $("#addFundsSubmit").removeClass("disabled");
+    } else {
+      $("#addFundsSubmit").addClass("disabled");
     }
+
   });
 
 
@@ -149,7 +152,7 @@ function getPlainDate(start_at) {
     description = this.value.trim()
     amount = $("#addFundsAmount")[0].value
 
-    if(amount && description) {
+    if(amount && description && description.length < 255 ) {
        $("#addFundsSubmit").removeClass("disabled");
     } else {
       $("#addFundsSubmit").addClass("disabled");
