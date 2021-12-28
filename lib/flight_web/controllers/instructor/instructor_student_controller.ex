@@ -124,7 +124,7 @@ defmodule FlightWeb.Instructor.StudentController do
   def add_funds(conn, %{"amount" => amount, "description" => description}) do
     with {:ok, cent_amount} <- Billing.parse_amount(amount),
          {:ok, {user, transaction}} <-
-           Billing.add_funds_by_credit(
+           Fsm.Billing.add_funds_by_credit(
              conn.assigns.requested_user,
              conn.assigns.current_user,
              cent_amount,
@@ -147,11 +147,16 @@ defmodule FlightWeb.Instructor.StudentController do
       |> put_flash(:success, message)
       |> redirect(to: "/instructor/students/#{conn.assigns.requested_user.id}?tab=billing")
     else
-      {:error, :invalid} ->
+      {:error, :invalid_amount} ->
         conn
         |> put_flash(:error, "Invalid amount. Please enter an amount in the form: 20.50")
         |> redirect(to: "/instructor/students/#{conn.assigns.requested_user.id}?tab=billing")
 
+      {:error, :invalid} ->
+        conn
+        |> put_flash(:error, "Amount or description is empty")
+        |> redirect(to: "/instructor/students/#{conn.assigns.requested_user.id}?tab=billing")
+    
       {:error, :negative_balance} ->
         conn
         |> put_flash(:error, "Students cannot have a negative balance.")
