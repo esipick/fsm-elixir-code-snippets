@@ -153,10 +153,15 @@ defmodule FlightWeb.Admin.UserController do
       |> put_flash(:success, message)
       |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")
     else
-      {:error, :invalid} ->
+      {:error, :invalid_amount} ->
         conn
         |> put_flash(:error, "Invalid amount. Please enter an amount in the form: 20.50")
         |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")
+
+        {:error, :invalid} ->
+          conn
+          |> put_flash(:error, "Amount or description is empty")
+          |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")  
 
       {:error, :negative_balance} ->
         conn
