@@ -265,7 +265,7 @@ defmodule FlightWeb.Admin.InspectionController do
     else
       last_value_type  = get_inspection_value_type(last_value)
       next_value_type  = get_inspection_value_type(next_value)
-
+      
       last_value = if last_value_type == :int or last_value_type == :float do
         {last_value, _} = if last_value_type == :int, do: Integer.parse(last_value), else: Float.parse(last_value)
         last_value
