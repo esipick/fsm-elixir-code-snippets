@@ -21,13 +21,13 @@ defmodule FlightWeb.Billing.InvoiceStruct do
         [appointment: [:user, :instructor_user, [aircraft: :inspections]]]
       ])
 
-    %InvoiceStruct{
+      %InvoiceStruct{
       id: invoice.id,
       user_id: invoice.user_id,
       created: invoice.inserted_at,
       school: invoice.school,
       payer_name: payer_name(invoice),
-      amount_due: invoice.total_amount_due,
+      amount_due: (if invoice.status == :paid, do: 0, else: invoice.total_amount_due),
       amount_paid: amount_paid(invoice),
       amount_remainder: amount_remainder(invoice),
       status: invoice.status,
@@ -64,7 +64,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       id: invoice.id,
       user_id: invoice.user_id,
       created: invoice.inserted_at,
-      amount_due: invoice.total_amount_due,
+      amount_due: (if invoice.status == :paid, do: 0, else: invoice.total_amount_due),
       amount_paid: amount_paid(invoice),
       amount_remainder: amount_remainder(invoice),
       status: invoice.status,
@@ -90,7 +90,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
 
   defp amount_paid(invoice) do
     completed_transactions(invoice)
-    |> Enum.reduce(0, fn transaction, acc -> transaction.amount_due + acc end)
+    |> Enum.reduce(0, fn transaction, acc -> transaction.amount_paid + acc end)
   end
 
   defp editable(invoice) do
