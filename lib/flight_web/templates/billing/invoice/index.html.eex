@@ -167,7 +167,7 @@ function getPlainDate(start_at) {
     </div>
   </div>
 </div>
-
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
 <script>
   require("js/admin/datetimepicker.js")
 </script>
