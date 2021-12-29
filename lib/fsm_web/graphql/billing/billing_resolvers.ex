@@ -238,7 +238,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
       4 => "VENMO",
       5 => "FUND"
     }
-    matched_option = Map.get(payment_options, payment_option)}
+    matched_option = Map.get(payment_options, payment_option)
     {:ok, matched_option}
   end
 
