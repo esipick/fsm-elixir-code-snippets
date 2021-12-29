@@ -39,7 +39,7 @@ class InvoiceLineItem extends PureComponent {
       type,
       taxable: option.taxable,
       deductible: option.deductible,
-      quantity: type == "aircraft" ? 0 : (quantity || 1),
+      quantity: type === "aircraft" || type === "instructor" ? 0 : (quantity || 1),
       amount: rate * quantity
     });
   }
@@ -51,7 +51,7 @@ class InvoiceLineItem extends PureComponent {
     if(!isEmpty(this.props.course) || this.props.is_admin_invoice) {
       editable = false
     }
-    console.log('editable',editable)
+
     const props = Object.assign({}, this.props, {
       lineItemTypeOptions: this.lineItemTypeOptions(),
       itemFromOption: this.itemFromOption,

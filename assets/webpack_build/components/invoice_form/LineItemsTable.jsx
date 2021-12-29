@@ -19,8 +19,6 @@ class LineItemsTable extends Component {
       line_items = props.line_items.length > 0 && !appointment ? props.line_items : itemsFromAppointment(appointment, props.line_items, user_roles);
     }
     
-    console.log(line_items)
-
     this.state = { line_items, appointment, current_user_id, user_roles };
   }
 
