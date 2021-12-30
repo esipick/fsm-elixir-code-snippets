@@ -19,8 +19,10 @@ export const ChevronRight = () => (
 export const ChevronDown = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className="chevron-down mr-2 text-primary"
+    className="chevron-down text-primary"
     fill="currentColor"
+    height="24px"
+    width="24px"
     viewBox="0 0 24 24"
     stroke="currentColor"
   >
@@ -35,8 +37,10 @@ export const ChevronDown = () => (
 export const ChevronUp = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className="chevron-down mr-2 text-primary"
+    className="chevron-down text-primary"
     fill="currentColor"
+    height="24px"
+    width="24px"
     viewBox="0 0 24 24"
     stroke="currentColor"
   >
@@ -65,8 +69,8 @@ export const CheckCircleIcon = ({ className }) => (
     xmlns="http://www.w3.org/2000/svg"
     className={className}
     fill="none"
-    height="24"
-    width="24"
+    height="24px"
+    width="24px"
     viewBox="0 0 24 24"
     stroke="currentColor"
   >
@@ -79,12 +83,12 @@ export const CheckCircleIcon = ({ className }) => (
   </svg>
 );
 
-export const CheckCircleSolidIcon = ({ className }) => (
+export const CheckCircleSolidIcon = ({ className, height, width }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     className={className}
-    height="24"
-    width="24"
+    height={height ?? 24}
+    width={width ?? 24}
     viewBox="0 0 24 24"
     fill="currentColor"
   >

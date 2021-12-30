@@ -13,7 +13,7 @@ export const SubLessonCard = ({
 }) => {
   return (
     <div
-      className={`row py-2 ml-1 d-flex flex-row justify-content-between no-last-child-border border-bottom 
+      className={`row py-1 ml-1 d-flex flex-row justify-content-between no-last-child-border border-bottom 
         ${selected || markedSublesson.sublessonId ? "bg-light" : ""} ${
         markedSublesson.sublessonId ? "disabled-click text-secondary" : ""
       }`}

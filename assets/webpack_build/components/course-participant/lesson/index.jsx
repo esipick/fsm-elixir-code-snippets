@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ChevronDown, ChevronUp } from "./../common/icons";
+import { CheckCircleIcon, CheckCircleSolidIcon, ChevronDown, ChevronUp } from "./../common/icons";
 import { Spinner } from "./../common/spinner";
 import { Modal } from "./../../common/modal";
 import { authHeaders } from "./../../utils";
@@ -156,7 +156,7 @@ const LessonRow = ({ lesson, showOverview, loadSublessons, showNotes }) => {
   const [isExpanded, setExpanded] = useState(false);
 
   return (
-    <div className="d-flex flex-row justify-content-between align-items-center">
+    <div className="py-1 d-flex flex-row justify-content-between align-items-center">
       <div
         onClick={() => {
           setExpanded((prevState) => !prevState);
@@ -172,7 +172,16 @@ const LessonRow = ({ lesson, showOverview, loadSublessons, showNotes }) => {
             <ChevronDown />
           )
         }
-        <h4 className="mt-2 mb-2">{lesson.name}</h4>
+       <div className="d-flex flex-row justify-content-start align-items-center">
+         {
+           lesson.lesson_completed ? (
+            <CheckCircleSolidIcon className="text-success" height={28} width={28} />
+           ): (
+            <CheckCircleIcon className="text-secondary mr-1" />
+           )
+         }
+          <p className="m-0" style={{fontSize: '1.7em', fontWeight: 900}}>{lesson.name}</p>
+       </div>
       </div>
       <div className="d-flex flex-row align-items-center">
         <p
