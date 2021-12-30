@@ -120,6 +120,7 @@ function getPlainDate(start_at) {
     $("#addFundsModal").modal();
     $("#addFundsAmount")[0].value = "";
     $("#addFundsDescription")[0].value = "";
+    $("#descriptionLimitExceedError").addClass("invalid-feedback");
   })
 
   $("#addFundsAmount").on("input", function() {
