@@ -4,6 +4,7 @@ var userInfo = null;
 var allInstructors = null;
 var allAircrafts = null;
 var allStudents = null;
+var resourceType = null;
 
 function userTitle(user) {
   if (!user) return '';
@@ -329,6 +330,7 @@ $(document).ready(function () {
   });
 
   function displayForAppointment(type) {
+    resourceType = type;
     if (type == "Simulator") {
       $('#apptFieldAircraft').hide();
       $('#apptFieldSimulator').show();
@@ -435,6 +437,20 @@ $(document).ready(function () {
     }
   }
 
+  function checkForSimulator (simulator_id) {
+    if ( resourceType === 'Simulator' && simulator_id == null ) {
+      $.notify({
+        message: "Simulator required"
+      }, {
+        type: "danger",
+        placement: { align: "center" }
+      })
+      $('#loader').hide();
+      return false;
+    } else {
+      return true;
+    }
+  }
   // collect event data on save and send to server
   $('#btnSave').click(function () {
     console.log("save Button Clicked")
@@ -456,7 +472,7 @@ $(document).ready(function () {
       var eventSimulator = safeParseInt($('#apptSimulator').val());
       var eventRoom = safeParseInt($('#apptRoom').val());
       var eventApptType = $('#apptType').val();
-
+      if ( !checkForSimulator(eventSimulator) ) return;
       var eventStart = (moment.utc($('#apptStart').val()).add(-(moment($('#apptStart').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
       var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment($('#apptEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
 
@@ -500,7 +516,7 @@ $(document).ready(function () {
       var eventStart = (moment.utc($('#demoApptStart').val()).add(-(moment($('#demoApptStart').val()).utcOffset()), 'm')).format()
       var eventEnd = (moment.utc($('#demoApptEnd').val()).add(-(moment($('#demoApptEnd').val()).utcOffset()), 'm')).format()
       var eventNote = $('#demoApptNote').val()
-
+      if ( !checkForSimulator(eventSimulator) ) return;
       var eventData = {
         start_at: eventStart,
         end_at: eventEnd,
@@ -535,7 +551,7 @@ $(document).ready(function () {
       var eventAircraft = safeParseInt($('#unavailAircraft').val());
       var eventSimulator = safeParseInt($('#unavailSimulator').val());
       var eventRoom = safeParseInt($('#unavailRoom').val());
-
+      if ( !checkForSimulator(eventSimulator) ) return;
       var eventStart;
       var eventEnd;
 
