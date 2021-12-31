@@ -118,11 +118,17 @@ defmodule FlightWeb.Student.ProfileController do
 
     case Accounts.regular_user_update_profile(user, user_form) do
       {:ok, _} ->
+
       if Accounts.has_role?(user, "renter") do
-        redirect(conn, to: "/renter/profile")
+        conn
+        |> put_flash(:success, "Profile updated successfully")
+        |> redirect(to: "/renter/profile")
       else
-        redirect(conn, to: "/student/profile")
+        conn
+        |> put_flash(:success, "Profile updated successfully")
+        |> redirect(to: "/student/profile")
       end
+
 
       {:error, changeset} ->
         render(
