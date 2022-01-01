@@ -151,12 +151,12 @@ defmodule FlightWeb.Instructor.StudentController do
         conn
         |> put_flash(:error, "Invalid amount. Please enter an amount in the form: 20.50")
         |> redirect(to: "/instructor/students/#{conn.assigns.requested_user.id}?tab=billing")
-
+        
       {:error, :invalid} ->
         conn
         |> put_flash(:error, "Amount or description is empty")
-        |> redirect(to: "/instructor/students/#{conn.assigns.requested_user.id}?tab=billing")
-    
+        |> redirect(to: "/instructor/students/#{conn.assigns.requested_user.id}?tab=billing")  
+  
       {:error, :negative_balance} ->
         conn
         |> put_flash(:error, "Students cannot have a negative balance.")

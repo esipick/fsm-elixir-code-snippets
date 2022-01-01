@@ -1,8 +1,10 @@
 /* global $, swal, moment */
+var schoolInfo = null;
 var userInfo = null;
 var allInstructors = null;
 var allAircrafts = null;
 var allStudents = null;
+var resourceType = null;
 
 function userTitle(user) {
   if (!user) return '';
@@ -20,6 +22,87 @@ function appointmentTitle(appointment) {
 
 function payerTitle(appointment) {
   return (appointment.demo) ? appointment.payer_name : userTitle(appointment.user) || userTitle(appointment.instructor_user);
+}
+
+function retrieveAircraftId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('aircraft') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function retrieveInstructorId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('instructor') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function retrieveSimulatorId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('simulator') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function retrieveRoomId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('room') )
+    {
+      return resources[i].split(':')[1]
+    }
+  }
+  return id;
+}
+
+function checkDuplicates(a) {
+  const noDups = new Set(a);
+  return a.length !== noDups.size;
+}
+
+function groupResources(resources) {
+  const resourcesObject = {
+    aircraft: [],
+    instructor: [],
+    simulator: [],
+    room: []
+  };
+  
+  resources.forEach(resource => {
+    const res = resource.split(':');
+    const resourceType = res[0];
+    const resourceId  = res[1];
+    resourcesObject[resourceType].push(resourceId);
+  });
+  return resourcesObject;
+}
+
+function hasDuplicates(resources) {
+  const newresources = resources.map(resource => {
+    return resource.split(':')[0]
+  })
+  return checkDuplicates(newresources);
 }
 
 $(document).ready(function () {
@@ -46,6 +129,44 @@ $(document).ready(function () {
     if (span) {
       return prefix + "school_id=" + span.dataset.schoolId + postfix
     } else { return '' }
+  }
+
+  function getSchool() {
+    $.ajax({
+      method: "get",
+      url: "/api/school/"+ addSchoolIdParam('?'),
+      headers: AUTH_HEADERS
+    })
+    .then(response => {
+      schoolInfo = response;
+    })
+    .catch(error => {
+      console.log(error)
+    })
+  }
+  getSchool();
+
+  function checkRole() {
+    const user = userInfo;
+    if ( user.roles && 
+      !user.roles.includes('admin') &&
+      !user.roles.includes('dispatcher') &&
+      !user.roles.includes('instructor') )
+    {
+      const school = schoolInfo;
+      if ( user.roles.includes('renter') )
+      {
+        if ( school.renter_schedule == true) return true
+        else return false
+      }
+      if ( user.roles.includes('student') )
+      {
+        if ( school.student_schedule == true) return true
+        else return false
+      }
+
+    }
+    else return true;
   }
 
   var $calendar = $('#fullCalendar');
@@ -209,7 +330,7 @@ $(document).ready(function () {
   });
 
   function displayForAppointment(type) {
-
+    resourceType = type;
     if (type == "Simulator") {
       $('#apptFieldAircraft').hide();
       $('#apptFieldSimulator').show();
@@ -315,7 +436,30 @@ $(document).ready(function () {
       }
     }
   }
-
+  function showRequiredError(message) {
+    $.notify({
+      message: message
+    }, {
+      type: "danger",
+      placement: { align: "center" }
+    })
+    $('#loader').hide();
+  }
+  function checkForResourceType(aircraft_id, simulator_id, room_id) {
+    if ( !simulator_id && resourceType === 'Simulator'  ) {
+      showRequiredError("Simulator is required.")
+      return false;
+    }
+    if ( !aircraft_id && resourceType === 'Aircraft' ) {
+      showRequiredError("Aircraft is required.")
+      return false;
+    }
+    if ( !room_id && resourceType === 'Room' ) {
+      showRequiredError("Room is required.")
+      return false;
+    }
+    return true;
+  }
   // collect event data on save and send to server
   $('#btnSave').click(function () {
     console.log("save Button Clicked")
@@ -337,7 +481,7 @@ $(document).ready(function () {
       var eventSimulator = safeParseInt($('#apptSimulator').val());
       var eventRoom = safeParseInt($('#apptRoom').val());
       var eventApptType = $('#apptType').val();
-
+      if ( !checkForResourceType(eventAircraft, eventSimulator, eventRoom) ) return;
       var eventStart = (moment.utc($('#apptStart').val()).add(-(moment($('#apptStart').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
       var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment($('#apptEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
 
@@ -381,7 +525,7 @@ $(document).ready(function () {
       var eventStart = (moment.utc($('#demoApptStart').val()).add(-(moment($('#demoApptStart').val()).utcOffset()), 'm')).format()
       var eventEnd = (moment.utc($('#demoApptEnd').val()).add(-(moment($('#demoApptEnd').val()).utcOffset()), 'm')).format()
       var eventNote = $('#demoApptNote').val()
-
+      if ( !checkForResourceType(eventAircraft, eventSimulator, eventRoom) ) return;
       var eventData = {
         start_at: eventStart,
         end_at: eventEnd,
@@ -416,7 +560,7 @@ $(document).ready(function () {
       var eventAircraft = safeParseInt($('#unavailAircraft').val());
       var eventSimulator = safeParseInt($('#unavailSimulator').val());
       var eventRoom = safeParseInt($('#unavailRoom').val());
-
+      if ( !checkForResourceType(eventAircraft, eventSimulator, eventRoom) ) return;
       var eventStart;
       var eventEnd;
 
@@ -664,7 +808,7 @@ $(document).ready(function () {
       var assetType = null
 
       if (initialData.aircraft_id) {
-        unavailType = "Aircraft"
+        assetType = "Aircraft"
 
       } else if (initialData.simulator_id) {
         assetType = "Simulator"
@@ -672,12 +816,12 @@ $(document).ready(function () {
       } else if (initialData.room_id) {
         assetType = "Room"
       }
-
+      
+      if (!assetType) {assetType = "Aircraft"}
       displayForAppointment(assetType)
 
-      if (!assetType) {assetType = "Aircraft"}
+      
       $('#apptFor').val(assetType).selectpicker("refresh");
-
 
     if (initialData.type == "unavailability" || initialData.type == "unavailable") {
       regularView(false);
@@ -693,7 +837,8 @@ $(document).ready(function () {
         $('#apptTitle').text("Create New")
       }
     }
-    else if (initialData.type == "demoAppointment"){
+    else if (initialData.type == "demoAppointment" || initialData.type == "demo_flight"){
+
       demoFlightView(true);
       regularView(false);
       unavailabilityView(false);
@@ -783,6 +928,18 @@ $(document).ready(function () {
       keyboard: true        // This for keyboard event
     });
   };
+
+  var disableEditAppointment = function(){
+    $('#apptStart').attr("disabled", true);
+    $('#apptEnd').attr("disabled", true);
+    $('#apptStudent').prop("disabled", false).selectpicker("refresh");
+    $('#apptInstructor').attr("disabled", true);
+    $('#apptFor').attr("disabled", true);
+    $('#apptAircraft').attr("disabled", true);
+    $('#apptNote').attr("disabled", true);
+    $('#btnDelete').attr("disabled", true);
+    $('#btnSave').attr("disabled", true);
+  }
 
   function fsmCalendar(instructors, aircrafts, simulators, rooms, students, current_user) {
     userInfo = current_user;
@@ -889,14 +1046,20 @@ $(document).ready(function () {
         }
       }
     }
-
-    $calendar.fullCalendar({
+    var editable = true
+    var eventStartEditable = true
+    if(!checkRole()){
+      editable = false
+      eventStartEditable = false
+    }
+  $calendar.fullCalendar({
       viewRender: function (view, element) { },
       header: {
         left: 'title,chooseDateButton',
         center: 'timelineDay,timelineWeek,timelineMonth',
         right: 'prev,next,today,customDate,mySchedules,myAssigned'
       },
+      eventStartEditable: eventStartEditable,
       customButtons: customButtons,
       resourceGroupField: "type",
       resources: resources,
@@ -917,6 +1080,208 @@ $(document).ready(function () {
           titleFormat: 'ddd D MMM, YYYY'
         }
       },
+      // eventDragStart:function( event, jsEvent, ui, view ) {
+      //   console.log('eventDragStart')
+      //   console.log('event',event)
+      //   console.log('jsEvent',jsEvent)
+      //   console.log('ui',ui)
+      //   console.log('view',view)
+      // },
+      // eventDragStop:function( event, jsEvent, ui, view ) {
+      //   console.log('eventDragStop')
+      //   console.log('event resources',event.resourceIds)
+      //   // console.log('jsEvent',jsEvent)
+      //   // console.log('ui',ui)
+      //   // console.log('view',view)
+      // },
+      eventDrop:function( event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
+        if ( event.unavailability )
+        {
+          const appointment = event.unavailability;
+          const resource = [event.resourceId];
+          const aircraft_id = retrieveAircraftId(resource)
+          const instructor_id = retrieveInstructorId(resource)
+          const simulator_id = retrieveSimulatorId(resource)
+          const room_id = retrieveRoomId(resource)
+          let UnavailablityFor =  '';
+          if ( aircraft_id != null )
+          {
+            UnavailablityFor = 'Aircraft'
+          }
+          else if ( instructor_id != null )
+          {
+            UnavailablityFor = 'Instructor'
+          }
+          else if ( simulator_id != null )
+          {
+            UnavailablityFor = 'Simulator'
+          }
+          else if ( room_id != null )
+          {
+            UnavailablityFor = 'Room'
+          }
+
+          var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+          var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+        
+          var eventData = {
+            start_at: eventStart,
+            end_at: eventEnd,
+            instructor_user_id: instructor_id,
+            aircraft_id: aircraft_id,
+            simulator_id: simulator_id,
+            room_id: room_id,
+            note: appointment.note,
+            belongs: UnavailablityFor
+          };
+          $.ajax({
+            method: "put",
+            url: "/api/unavailabilities/" + appointment.id + addSchoolIdParam('?'),
+            data: { data: eventData },
+            headers: AUTH_HEADERS
+          })
+          .then(function () {
+            $calendar.fullCalendar('refetchEvents')  
+            $.notify({
+              message: "Successfully updated Unavailability"
+            }, {
+              type: "success",
+              placement: { align: "center" }
+            })
+    
+          }).catch(function (e) {
+            $calendar.fullCalendar('refetchEvents')
+            if (e.responseJSON.human_errors) {
+              showError(e.responseJSON.human_errors, event)
+            } else {
+              $.notify({
+                message: "There was an error updating the unavailability"
+              }, {
+                type: "danger",
+                placement: { align: "center" }
+              })
+            }
+            $('#loader').hide();
+          })
+          return;
+        }
+        const appointment = event.appointment
+        if ( event.resourceId )
+        {
+          event.resourceIds = [event.resourceId]
+        } 
+        else if ( hasDuplicates(event.resourceIds) )
+        {
+          const res = groupResources(event.resourceIds);
+          const aircraft_id = res.aircraft[1] ? res.aircraft[1] : null
+          const instructor_id = res.instructor[1] ? res.instructor[1] : null
+          const simulator_id = res.simulator[1] ? res.simulator[1] : null
+          const room_id = res.room[1] ? res.room[1] : null
+
+          var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+          var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+        
+          var eventData = {
+            start_at: eventStart,
+            end_at: eventEnd,
+            user_id: appointment.user ? appointment.user.id : null,
+            instructor_user_id: instructor_id,
+            aircraft_id: aircraft_id,
+            simulator_id: simulator_id,
+            room_id: room_id,
+            note: appointment.note,
+            type: appointment.type
+          };
+
+          $.ajax({
+            method: "put",
+            url: "/api/appointments/" + appointment.id + addSchoolIdParam('?'),
+            data: { data: eventData },
+            headers: AUTH_HEADERS
+          })
+          .then(function () {
+            $calendar.fullCalendar('refetchEvents')  
+            $.notify({
+              message: "Successfully updated " + event.title
+            }, {
+              type: "success",
+              placement: { align: "center" }
+            })
+    
+          }).catch(function (e) {
+            $calendar.fullCalendar('refetchEvents')
+            if (e.responseJSON.human_errors) {
+              showError(e.responseJSON.human_errors, event)
+            } else {
+              $.notify({
+                message: "There was an error updating the event"
+              }, {
+                type: "danger",
+                placement: { align: "center" }
+              })
+            }
+            $('#loader').hide();
+          })
+          return;
+        }
+        
+        const aircraft_id = retrieveAircraftId(event.resourceIds)
+        const instructor_id = retrieveInstructorId(event.resourceIds)
+        const simulator_id = retrieveSimulatorId(event.resourceIds)
+        const room_id = retrieveRoomId(event.resourceIds)
+
+        var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+        var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+       
+        var eventData = {
+          start_at: eventStart,
+          end_at: eventEnd,
+          user_id: appointment.user ? appointment.user.id : null,
+          instructor_user_id: instructor_id,
+          aircraft_id: aircraft_id,
+          simulator_id: simulator_id,
+          room_id: room_id,
+          note: appointment.note,
+          type: appointment.type
+        };
+       
+        $.ajax({
+          method: "put",
+          url: "/api/appointments/" + appointment.id + addSchoolIdParam('?'),
+          data: { data: eventData },
+          headers: AUTH_HEADERS
+        })
+        .then(function () {
+          $calendar.fullCalendar('refetchEvents')  
+          $.notify({
+            message: "Successfully updated " + event.title
+          }, {
+            type: "success",
+            placement: { align: "center" }
+          })
+  
+        }).catch(function (e) {
+          $calendar.fullCalendar('refetchEvents')
+          if (e.responseJSON.human_errors) {
+            showError(e.responseJSON.human_errors, event)
+          } else {
+            $.notify({
+              message: "There was an error updating the event"
+            }, {
+              type: "danger",
+              placement: { align: "center" }
+            })
+          }
+          $('#loader').hide();
+        })
+      },
+      drop:function( date, allDay, jsEvent, ui ) {
+        console.log('drop1122')
+        console.log('date',date)
+        console.log('allDay',allDay)
+        console.log('jsEvent',jsEvent)
+        console.log('ui',ui)
+      },
       eventRender: function eventRender( event, element, view ) {
         if (!showMySchedules) {return true}
         var id = event.appointment && event.appointment.instructor_user && event.appointment.instructor_user.id
@@ -926,6 +1291,8 @@ $(document).ready(function () {
         return current_user && current_user.id === id
       },
       select: function (start, end, notSure, notSure2, resource) {
+        const canProceed = checkRole();
+        if ( !canProceed ) return;
         var instructorId = null;
         var aircraftId = null;
         var simulatorId = null;
@@ -973,9 +1340,13 @@ $(document).ready(function () {
         openAppointmentModal(params)
 
       },
-      editable: true,
+      editable: editable,
       eventClick: function (calEvent, jsEvent, view) {
-
+        const canProceed = checkRole();
+        if ( !canProceed ){
+          disableEditAppointment()
+          return;
+        }
         if (calEvent.unavailability) {
           var instructor_user_id = null;
           if (calEvent.unavailability.instructor_user) {
@@ -1003,8 +1374,10 @@ $(document).ready(function () {
             type: "unavailable"
           })
           return;
-        } else if (calEvent.appointment.demo) {
+        }
+        else if (calEvent.appointment.demo) {
           var appointment = calEvent.appointment
+
           var instructor_user_id = null;
           if (appointment.instructor_user) {
             instructor_user_id = appointment.instructor_user.id
@@ -1032,7 +1405,8 @@ $(document).ready(function () {
             payer_name: payerTitle(appointment),
             id: appointment.id
           })
-        } else if (calEvent.appointment) {
+        }
+        else if (calEvent.appointment) {
           var appointment = calEvent.appointment
           var instructor_user_id = null;
           if (appointment.instructor_user) {
@@ -1188,12 +1562,14 @@ $(document).ready(function () {
         })
       }
     });
+
+
   }
 
-    var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
-    var students = $.get({ url: "/api/users/students", headers: AUTH_HEADERS })
-    var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: AUTH_HEADERS })
-    var rooms = $.get({url: "/api/rooms" + addSchoolIdParam('?'), headers: AUTH_HEADERS})
+  var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
+  var students = $.get({ url: "/api/users/students", headers: AUTH_HEADERS })
+  var aircrafts = $.get({ url: "/api/aircrafts" + addSchoolIdParam('?'), headers: AUTH_HEADERS })
+  var rooms = $.get({url: "/api/rooms" + addSchoolIdParam('?'), headers: AUTH_HEADERS})
 
   var current_user = $.get({ url: "/api/user_info", headers: AUTH_HEADERS })
 

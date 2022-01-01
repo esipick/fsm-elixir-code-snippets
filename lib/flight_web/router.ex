@@ -149,8 +149,8 @@ defmodule FlightWeb.Router do
     pipe_through([ :browser,
       :admin_layout,
       :web_user_authenticate,
-      :admin_metrics_namespace,
-      :complete_onboarding])
+      :admin_metrics_namespace
+      ])
     get("/list", CourseController, :index)
     get("/participants/:course_id", CourseController, :participants)
     get("/participant/info", CourseController, :participant_info)
@@ -163,8 +163,7 @@ defmodule FlightWeb.Router do
       :browser,
       :admin_layout,
       :web_user_authenticate,
-      :admin_metrics_namespace,
-      :complete_onboarding
+      :admin_metrics_namespace
     ])
       
     resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show, :delete])

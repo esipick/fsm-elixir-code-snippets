@@ -35,7 +35,9 @@ defmodule FlightWeb.Instructor.ProfileController do
 
     case Accounts.regular_user_update_profile(user, user_form) do
       {:ok, _} ->
-        redirect(conn, to: "/instructor/profile")
+        conn
+        |> put_flash(:success, "Profile updated successfully")
+        |> redirect(to: "/instructor/profile")
 
       {:error, changeset} ->
         render(

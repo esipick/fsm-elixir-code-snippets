@@ -470,13 +470,6 @@ class Form extends Component {
     const line_items = this.state.line_items || []
     const isInstructorOnly = line_items.length == 1 && line_items[0].type === "instructor"
 
-    for(const increment in this.state.line_items) {
-      const hobbs_end = this.state.line_items[increment].hobbs_end
-      const tach_end = this.state.line_items[increment].tach_end
-
-      console.log({hobbs_end, tach_end})
-    }
-
     if (this.state.saving) return;
     if (!isInstructorOnly && this.state.total < 0) {
       this.setState({error_alert_total_open: true});
@@ -674,7 +667,6 @@ class Form extends Component {
       saving, stripe_error, student, total, total_amount_due, total_tax, is_admin_invoice
     } = this.state;
 
-    console.log('is_admin_invoice',is_admin_invoice)
     const isGuest = student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined"
     
     var {demo} = this.state;

@@ -158,11 +158,11 @@ defmodule FlightWeb.Admin.UserController do
         |> put_flash(:error, "Invalid amount. Please enter an amount in the form: 20.50")
         |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")
 
-      {:error, :invalid} ->
-        conn
-        |> put_flash(:error, "Amount or description is empty")
-        |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing") 
-        
+        {:error, :invalid} ->
+          conn
+          |> put_flash(:error, "Amount or description is empty")
+          |> redirect(to: "/admin/users/#{conn.assigns.requested_user.id}?tab=billing")
+
       {:error, :negative_balance} ->
         conn
         |> put_flash(:error, "Users cannot have a negative balance.")
@@ -236,7 +236,7 @@ defmodule FlightWeb.Admin.UserController do
         end
       else
         "" ->
-          %{}
+          nil
 
         _ ->
           nil
@@ -257,7 +257,9 @@ defmodule FlightWeb.Admin.UserController do
            instructors
          ) do
       {:ok, user} ->
-        redirect(conn, to: "/admin/users/#{user.id}")
+        conn
+        |> put_flash(:success, "Profile updated successfully")
+        |> redirect(to: "/admin/users/#{user.id}")
 
       {:error, changeset} ->
         user = conn.assigns.requested_user
@@ -309,16 +311,16 @@ defmodule FlightWeb.Admin.UserController do
     user = conn.assigns.requested_user
 
     roles = Enum.map(user.roles, &(&1.slug))
-    
+
     has_paid_appointments_in_future  = if "student" in roles do
-  
+
         future_appointments = Appointment.get_paid_appointments(conn, %{ user_id: user.id })
-          |> Enum.filter(fn appointment -> 
+          |> Enum.filter(fn appointment ->
             Map.get(appointment, :end_at)
               |> NaiveDateTime.to_date()
               |> Timex.after?(Timex.today())
           end)
- 
+
         length(future_appointments) > 0
     end
 
@@ -333,9 +335,9 @@ defmodule FlightWeb.Admin.UserController do
       conn =
         conn
         |> put_flash(:success, "Successfully archived #{user.first_name} #{user.last_name}")
-      
+
       cond do
-        params["from_contacts"] == "true" -> 
+        params["from_contacts"] == "true" ->
           redirect(conn, to: "/admin/settings?tab=contact&role=#{params["role"]}&page=#{params["page"]}#user_info")
 
         params["role"] -> redirect(conn, to: "/admin/users?role=#{params["role"]}&page=#{params["page"]}")
@@ -354,7 +356,7 @@ defmodule FlightWeb.Admin.UserController do
       |> put_flash(:success, "Successfully restored #{user.first_name} #{user.last_name} account")
 
     cond do
-      params["from_contacts"] == "true" -> 
+      params["from_contacts"] == "true" ->
         redirect(conn, to: "/admin/settings?tab=contact&role=#{params["role"]}#user_info")
 
       params["role"] -> redirect(conn, to: "/admin/users?role=#{params["role"]}")

@@ -230,14 +230,16 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
   end
 
   def invoice_payment_option_enum(%{payment_option: payment_option}, _, _) do
-    {:ok, %{
-        0 => "BALANCE",
-        1 => "CC",
-        2 => "CASH",
-        3 => "CHEQUE",
-        4 => "VENMO"
-      }
-      |> Map.get(payment_option)}
+    payment_options = %{
+      0 => "BALANCE",
+      1 => "CC",
+      2 => "CASH",
+      3 => "CHEQUE",
+      4 => "VENMO",
+      5 => "FUND"
+    }
+    matched_option = Map.get(payment_options, payment_option)
+    {:ok, matched_option}
   end
 
   def invoice_payment_option_enum(_, _, _) do

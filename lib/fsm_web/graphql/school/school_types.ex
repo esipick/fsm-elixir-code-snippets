@@ -33,8 +33,9 @@ defmodule FsmWeb.GraphQL.School.SchoolTypes do
         field(:contact_phone_number, :string)
         field(:contact_email, :string)
         field(:timezone, :string)
+        field(:student_schedule, :boolean)
+        field(:renter_schedule, :boolean)
         field(:sales_tax, :float)
         field(:archived, :boolean)
     end 
   end
-  

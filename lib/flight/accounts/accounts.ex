@@ -906,6 +906,7 @@ defmodule Flight.Accounts do
       i in Invitation,
       inner_join: r in assoc(i, :role),
       where: is_nil(i.accepted_at),
+      order_by: [desc: i.inserted_at],
       preload: [:role]
     )
     |> SchoolScope.scope_query(school_context)
@@ -917,7 +918,8 @@ defmodule Flight.Accounts do
       i in Invitation,
       inner_join: r in assoc(i, :role),
       where: is_nil(i.accepted_at),
-      where: r.slug == ^role_slug
+      where: r.slug == ^role_slug,
+      order_by: [desc: i.inserted_at]
     )
     |> SchoolScope.scope_query(school_context)
     |> Repo.all()
@@ -973,7 +975,8 @@ defmodule Flight.Accounts do
   def visible_school_invitations() do
     from(
       i in SchoolInvitation,
-      where: is_nil(i.accepted_at)
+      where: is_nil(i.accepted_at),
+      order_by: [desc: i.inserted_at]
     )
     |> Repo.all()
   end

@@ -206,7 +206,7 @@ export const SubLessonSidePanel = ({
                       </div>
                       {item.completionstate && item.vieweddate && (
                         <div
-                          className="cursor-pointer"
+                          className="cursor-pointer d-flex"
                           onClick={() =>
                             markModuleView(item, ModuleViewActions.UNREAD)
                           }
@@ -248,7 +248,7 @@ export const SubLessonSidePanel = ({
                       </div>
                       {item.completionstate && item.vieweddate && (
                         <div
-                          className="cursor-pointer"
+                          className="cursor-pointer d-flex"
                           onClick={() =>
                             markModuleView(item, ModuleViewActions.UNREAD)
                           }
@@ -289,7 +289,7 @@ export const SubLessonSidePanel = ({
                     </a>
                     {item.completionstate && item.vieweddate && (
                       <div
-                        className="cursor-pointer"
+                        className="cursor-pointer d-flex"
                         onClick={() =>
                           markModuleView(item, ModuleViewActions.UNREAD)
                         }

@@ -234,7 +234,7 @@ class AircraftLineItem extends Component {
           </td>
           <td>
             <label>Rate</label>
-            <NumberFormat disabled={!enable_rate} onValueChange={this.setCustomRate} value={rate == null ? null : rate / 100} {...NUMBER_INPUT_OPTS} />
+            <NumberFormat disabled={true} onValueChange={this.setCustomRate} value={rate == null ? null : rate / 100} {...NUMBER_INPUT_OPTS} />
             {errors.rate && <br />}
             <Error text={errors.rate} />
           </td>
