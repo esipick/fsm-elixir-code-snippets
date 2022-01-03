@@ -81,8 +81,13 @@ class LineItemsTable extends Component {
     
     total = total || this.props.total || 0
     total_tax = total_tax || this.props.total_tax || 0
+    if(total == 0){
+      total_tax = 0
+    }
     total_amount_due = total_amount_due || this.props.total_amount_due || 0
-    
+    if(total == 0){
+      total_amount_due = 0
+    }
     return (
       <table className="table table-striped line-items-table">
         <thead>
