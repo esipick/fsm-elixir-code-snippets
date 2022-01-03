@@ -167,6 +167,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:room_id, :integer)
     field(:tail_number, :string)
     field(:model, :string)
+    field(:serial_number, :string)
     field(:make, :string)
     field(:aircraft_simulator_name, :string)
     field(:simulator, :boolean)

@@ -206,6 +206,7 @@ defmodule Fsm.Billing do
                   tail_number: Map.get(line_item, "tail_number"),
                   make: Map.get(line_item, "make"),
                   model: Map.get(line_item, "model"),
+                  serial_number: Map.get(line_item, "serial_number"),
                   aircraft_simulator_name: Map.get(line_item, "aircraft_simulator_name"),
                   simulator: Map.get(line_item, "simulator"),
                   hobbs_start: Map.get(line_item, "hobbs_start"),
