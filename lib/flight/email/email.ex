@@ -16,7 +16,7 @@ defmodule Flight.Email do
     |> to(invitation.email)
     |> put_layout({FlightWeb.EmailView, "invitation"})
     # TODO: What email address to use here?
-    |> from("noreply@flightschoolmanager.co")
+    |> from({company_name, "noreply@flightschoolmanager.co"})
     |> subject("Welcome to "<>company_name<>"!")
     |> render(
       "_user_invitation.html",
@@ -32,7 +32,7 @@ defmodule Flight.Email do
     |> to(invitation.email)
     |> put_layout({FlightWeb.EmailView, "invitation"})
     # TODO: What email address to use here?
-    |> from("noreply@flightschoolmanager.co")
+    |> from({"Flight School Manager", "noreply@flightschoolmanager.co"})
     |> subject("Welcome to Flight School Manager!")
     |> render(
       "_school_invitation.html",
@@ -45,7 +45,7 @@ defmodule Flight.Email do
     |> to(password_reset.user.email)
     |> put_layout({FlightWeb.EmailView, "invitation"})
     # TODO: What email address to use here?
-    |> from("noreply@flightschoolmanager.co")
+    |> from({"Flight School Manager", "noreply@flightschoolmanager.co"})
     |> subject("Password Reset - Flight School Manager")
     |> render(
       "_reset_password.html",
@@ -70,7 +70,7 @@ defmodule Flight.Email do
     
     new_email()
     |> to(to)
-    |> from("noreply@flightschoolmanager.co")
+    |> from({"Flight School Manager", "noreply@flightschoolmanager.co"})
     |> subject("Invoice# #{invoice_no} - Flight School Manager")
     |> html_body("Invoice# #{invoice_no} - Flight School Manager")
     |> put_attachment(attachment)
