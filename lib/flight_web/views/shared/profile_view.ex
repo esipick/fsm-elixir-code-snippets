@@ -58,4 +58,16 @@ defmodule FlightWeb.Shared.ProfileView do
   def human_role(role_slug) do
     String.capitalize(role_slug)
   end
+
+  def fetch_card(user) do
+    if user.stripe_customer_id do
+      case Stripe.Customer.retrieve(user.stripe_customer_id) do
+        {:ok, customer} ->
+          Enum.find(customer.sources.data, fn s -> s.id == customer.default_source end)
+
+        _ ->
+          nil
+      end
+    end
+  end
 end

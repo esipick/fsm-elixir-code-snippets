@@ -105,7 +105,7 @@ defmodule FlightWeb.API.TransactionController do
         "add_funds" => %{"user_id" => user_id, "amount" => amount, "source" => source}
       }) do
     user = Flight.Accounts.get_user(user_id, conn)
-
+    {:ok, amount} = Flight.Billing.parse_amount(amount)
     with %Flight.Accounts.User{} <- user,
          {:ok, {_user, transaction}} <-
            Flight.Billing.add_funds_by_charge(user, conn.assigns.current_user, amount, source) do
