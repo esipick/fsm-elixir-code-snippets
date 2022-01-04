@@ -117,10 +117,19 @@ defmodule FlightWeb.API.TransactionController do
     else
       error ->
         IO.inspect(error)
+        case error do
+          {:error, %Stripe.Error{}} ->
+            {_, stripe_error } = error
+            conn
+            |> put_status(400)
+            |> json(%{human_errors: [stripe_error.message]})
 
-        conn
-        |> put_status(400)
-        |> json(%{human_errors: ["Unable to add funds."]})
+          _ ->
+            conn
+            |> put_status(400)
+            |> json(%{human_errors: ["Unable to add Funds"]})
+        end
+
     end
   end
 

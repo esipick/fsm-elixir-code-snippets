@@ -58,7 +58,7 @@ function getPlainDate(start_at) {
                 <% else %>
                   <input type="hidden" value="" id="card_id" />
                 <% end %>
-                
+                <p id="paymentError" class="text-danger font-weight-normal text-sm text-left"></p>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -129,23 +129,24 @@ function getPlainDate(start_at) {
   $("#addFundsButton").on("click", function() {
     $("#addFundsModal").modal();
     $("#addFundsAmount")[0].value = "";
-    $("#addFundsDescription")[0].value = "";
-    $("#descriptionLimitExceedError").addClass("invalid-feedback");
+    $("#paymentError").text('');
   });
 
   $("#addFundsAmount").on("input", function() {
     amount = parseInt(this.value)
 
-    if (amount < 0) {
+    if (amount < 1) {
       $("#addFundsSubmit").addClass("disabled");
+      $("#paymentError").text('Amount should be Greater than 1');
     }
 
     if(isNaN(amount)) {
-      $("#arithmeticOperator").text("");
       $("#addFundsSubmit").addClass("disabled");
+      $("#paymentError").text('Please enter a valid number Greater than 1');
     }
 
     if(amount ) {
+       $("#paymentError").text('');
        $("#addFundsSubmit").removeClass("disabled");
     } else {
       $("#addFundsSubmit").addClass("disabled");
@@ -198,17 +199,7 @@ function getPlainDate(start_at) {
       else {
         message = errors.message
       }
-      $.notify({
-        message: message
-      }, {
-        type: "danger",
-        placement: { align: "center" }
-      })
+      $("#paymentError").text(message);
     })
   });
-
-  function updateSubmitButtonText(text) {
-    $("#addFundsSubmit")[0].value = text;
-  }
-
 </script>
