@@ -12,7 +12,7 @@ import { addSchoolIdParam, authHeaders, isEmpty } from '../utils';
 import ConfirmAlert from './ConfirmAlert';
 import ConfirmHobbTachAlert from './ConfirmHobbTachAlert';
 import {
-  BALANCE, DEFAULT_PAYMENT_OPTION, DEMO_PAYMENT_OPTIONS, GUEST_PAYMENT_OPTIONS, PAYMENT_OPTIONS
+  BALANCE, DEFAULT_GUEST_PAYMENT_OPTION, DEFAULT_PAYMENT_OPTION, DEMO_PAYMENT_OPTIONS, GUEST_PAYMENT_OPTIONS, PAYMENT_OPTIONS
 } from './constants';
 import ErrorAlert from './ErrorAlert';
 import LineItemsTable from './LineItemsTable';
@@ -166,7 +166,7 @@ class Form extends Component {
     }
 
     if(payment_option === BALANCE && demo) {
-      return DEFAULT_PAYMENT_OPTION
+      return DEFAULT_GUEST_PAYMENT_OPTION
     }
     
     const finded_option = PAYMENT_OPTIONS.find((option) => {
@@ -307,7 +307,7 @@ class Form extends Component {
   createGuestPayer = (payer_name) => {
     const student = this.guestPayer(payer_name);
 
-    this.setState({ student, appointments: [], payment_method: DEFAULT_PAYMENT_OPTION });
+    this.setState({ student, appointments: [], payment_method: DEFAULT_GUEST_PAYMENT_OPTION });
   }
 
   isGuestNameValid = (inputValue, selectValue, selectOptions) => {
@@ -666,17 +666,16 @@ class Form extends Component {
       instructors, rooms, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax, is_admin_invoice
     } = this.state;
-
-    const isGuest = student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined"
     
-    var {demo} = this.state;
-    if (!demo && containsDemoFlight(line_items)) { demo = true} 
-
-    if (!isGuest) {
-      demo = false
+    let  { demo } = this.state;
+  
+    if (!demo && containsDemoFlight(line_items)) {
+      demo = true
     }
 
-    const paymentOptions = student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined" && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS
+    // Both demo user and guest user don't have credit card payment option
+    // so they have to pay in cash, venmo, or check
+    const paymentOptions = student?.guest || demo ? GUEST_PAYMENT_OPTIONS : PAYMENT_OPTIONS
 
     return (
       <div className="card">
