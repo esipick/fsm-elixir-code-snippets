@@ -43,7 +43,7 @@ defmodule Flight.Billing.PayOff do
 
   def credit_card(%{stripe_customer_id: nil}, _, _), do: {:error, "Payment method {CC} not available for user. Please update the user profile and add a credit card."}
   def credit_card(user, transaction_attrs, school_context) do
-    Logger.info fn -> "manually122-----------------------: #{inspect transaction_attrs }" end
+    #Logger.info fn -> "manually122-----------------------: #{inspect transaction_attrs }" end
     case CreateTransaction.run(user, school_context, transaction_attrs) do
       {:ok, transaction} ->
         PayTransaction.run(transaction)
@@ -54,7 +54,7 @@ defmodule Flight.Billing.PayOff do
   end
 
   def manually(user, transaction_attrs, school_context) do
-    Logger.info fn -> "manually-----------------------: #{inspect transaction_attrs }" end
+    #Logger.info fn -> "manually-----------------------: #{inspect transaction_attrs }" end
 
     case CreateTransaction.run(user, school_context, transaction_attrs) do
       {:ok, transaction} ->

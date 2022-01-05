@@ -251,7 +251,7 @@ defmodule Flight.General do
       "courseid": course_id
     })
 
-    Logger.info fn -> "postBody: #{inspect postBody}" end
+    #Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
 
     course = case HTTPoison.post(url,postBody, [],options) do
@@ -268,7 +268,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
 
@@ -284,7 +284,7 @@ defmodule Flight.General do
 
   def get_school_lms_courses(school_id) do
     webtoken = Flight.Utils.get_webtoken(school_id)
-    Logger.info fn -> "webtoken: #{inspect webtoken}" end
+    #Logger.info fn -> "webtoken: #{inspect webtoken}" end
 
     url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/category_mgt.php"
     postBody = Poison.encode!(%{
@@ -316,7 +316,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -366,7 +366,7 @@ defmodule Flight.General do
         "courseid": course_id
       })
 
-      Logger.info fn -> "postBody: #{inspect postBody}" end
+      # Logger.info fn -> "postBody: #{inspect postBody}" end
       options = [timeout: 150_000, recv_timeout: 150_000]
 
       course = case HTTPoison.post(url,postBody, [],options) do
@@ -380,7 +380,7 @@ defmodule Flight.General do
         {:ok, %HTTPoison.Response{status_code: 404}} ->
           []
         {:error, %HTTPoison.Error{reason: reason}} ->
-          Logger.info fn -> "reason: #{inspect reason}" end
+          # Logger.info fn -> "reason: #{inspect reason}" end
           []
       end
     else
@@ -399,7 +399,7 @@ defmodule Flight.General do
       "userid": lms_user_id
     })
 
-    Logger.info fn -> "postBody: #{inspect postBody}" end
+    #Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
     participant = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -412,7 +412,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -426,7 +426,7 @@ defmodule Flight.General do
       "courseid": course_id
     })
 
-    Logger.info fn -> "postBody: #{inspect postBody}" end
+    #Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
     course = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -439,7 +439,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -469,7 +469,7 @@ defmodule Flight.General do
       "userid": attrs.fsm_user_id
     })
 
-    Logger.info fn -> "postBody: #{inspect postBody}" end
+    #Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
     course = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -477,7 +477,7 @@ defmodule Flight.General do
         case Poison.decode(body) do
           {:ok, result} ->
 
-            Logger.info fn -> "result: #{inspect result}" end
+            #Logger.info fn -> "result: #{inspect result}" end
 
             participant = Map.get(result, "participant")
 
@@ -496,7 +496,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -526,7 +526,7 @@ defmodule Flight.General do
       "userid": attrs.fsm_user_id
     })
 
-    Logger.info fn -> "postBody: #{inspect postBody}" end
+    #Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
     course = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -534,7 +534,7 @@ defmodule Flight.General do
         case Poison.decode(body) do
           {:ok, result} ->
 
-            Logger.info fn -> "result: #{inspect result}" end
+            #Logger.info fn -> "result: #{inspect result}" end
 
             participant = Map.get(result, "participant")
 
@@ -552,7 +552,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -584,7 +584,7 @@ defmodule Flight.General do
       "lesson_section_id": attrs.lesson_section_id
     })
 
-    Logger.info fn -> "postBody: #{inspect postBody}" end
+    #Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
     course = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -592,7 +592,7 @@ defmodule Flight.General do
         case Poison.decode(body) do
           {:ok, result} ->
 
-            Logger.info fn -> "result: #{inspect result}" end
+            #Logger.info fn -> "result: #{inspect result}" end
 
             participant = Map.get(result, "participant")
 
@@ -610,7 +610,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -633,7 +633,7 @@ defmodule Flight.General do
       "operation": attrs.action
     })
 
-    Logger.info fn -> "postBody: #{inspect postBody}" end
+    #Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
     course = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -650,7 +650,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -676,7 +676,7 @@ defmodule Flight.General do
       "courseid": [course_id],
     })
 
-    Logger.info fn -> "postBody11111111111111111111111111111111111111111111111111: #{inspect postBody}" end
+    # Logger.info fn -> "postBody11111111111111111111111111111111111111111111111111: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
     course = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -689,7 +689,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -723,8 +723,8 @@ defmodule Flight.General do
     }
 
     postBody = Poison.encode!(postData)
-    Logger.info fn -> "url: #{inspect url}" end
-    Logger.info fn -> "postData: #{inspect postData}" end
+    #Logger.info fn -> "url: #{inspect url}" end
+    #Logger.info fn -> "postData: #{inspect postData}" end
     category = case HTTPoison.post(url,postBody) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Poison.decode(body) do
@@ -734,7 +734,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -749,7 +749,7 @@ defmodule Flight.General do
       "userid": fsm_or_lms_user_id
     })
 
-    Logger.info fn -> "postBody: #{inspect postBody}" end
+    #Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
     participant = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -761,7 +761,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -777,13 +777,13 @@ defmodule Flight.General do
       "section_id": section_id
     })
 
-    Logger.info fn -> "postBody: #{inspect postBody}" end
+    #Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
     sub_lessons = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Poison.decode(body) do
           {:ok, sub_lessons} ->
-            Logger.info fn -> "sub_lesson: #{inspect sub_lessons}" end
+            #Logger.info fn -> "sub_lesson: #{inspect sub_lessons}" end
             sub_lessons
             |> Enum.map(fn sub_lesson ->
               %Flight.SubLesson{
@@ -805,7 +805,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -821,7 +821,7 @@ defmodule Flight.General do
       "sub_lesson_id": sub_lesson_id
     })
 
-    Logger.info fn -> "postBody: #{inspect postBody}" end
+    #Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
     sub_lesson_modules = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -846,7 +846,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end
@@ -862,7 +862,7 @@ defmodule Flight.General do
       "userid": attrs.lms_user_id
     })
 
-    Logger.info fn -> "postBody: #{inspect postBody}" end
+    #Logger.info fn -> "postBody: #{inspect postBody}" end
     options = [timeout: 150_000, recv_timeout: 150_000]
     course = case HTTPoison.post(url,postBody, [],options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -870,7 +870,7 @@ defmodule Flight.General do
         case Poison.decode(body) do
           {:ok, result} ->
 
-            Logger.info fn -> "result: #{inspect result}" end
+            #Logger.info fn -> "result: #{inspect result}" end
 
             %Flight.ApiResult{
               status: Map.get(result, "status"),
@@ -881,7 +881,7 @@ defmodule Flight.General do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         []
       {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.info fn -> "reason: #{inspect reason}" end
+        #Logger.info fn -> "reason: #{inspect reason}" end
         []
     end
   end

@@ -102,9 +102,9 @@ defmodule Flight.Utils do
       Flight.Webtoken.encrypt(modified_key)
     end
     def logout_from_lms(user_id) do
-        Logger.info fn -> "user_id: #{inspect user_id}" end
+      #Logger.info fn -> "user_id: #{inspect user_id}" end
         url = Application.get_env(:flight, :lms_endpoint) <> "/auth/fsm2moodle/user_mgt.php?action=logout&userid="<> to_string(user_id)
-        Logger.info fn -> "url: #{inspect url}" end
+        #Logger.info fn -> "url: #{inspect url}" end
         courses = case HTTPoison.get(url) do
             {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
                 case Poison.decode(body) do
@@ -114,7 +114,7 @@ defmodule Flight.Utils do
             {:ok, %HTTPoison.Response{status_code: 404}} ->
                 []
             {:error, %HTTPoison.Error{reason: reason}} ->
-                Logger.info fn -> "reason: #{inspect reason}" end
+              #Logger.info fn -> "reason: #{inspect reason}" end
                 []
         end
 

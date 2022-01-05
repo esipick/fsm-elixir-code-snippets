@@ -138,14 +138,14 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
 
 
                         error ->
-                        Logger.info fn -> "Stripe Charge Error: #{inspect error}" end
+                          #Logger.info fn -> "Stripe Charge Error: #{inspect error}" end
                           {:error, "Something went wrong! Unable to add funds using card in user profile. Please update another card in profile or check amount and try again"}
                         end
 
                    else
                      nil -> {:error, "Stripe Account not added for this school."}
                      error ->
-                       Logger.info fn -> "Stripe Account for school Error: #{inspect error}" end
+                       #Logger.info fn -> "Stripe Account for school Error: #{inspect error}" end
                        error
                    end
 
@@ -159,7 +159,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
 
                  end
                error ->
-                 Logger.info fn -> "Stripe Error: #{inspect error}" end
+                 #Logger.info fn -> "Stripe Error: #{inspect error}" end
 
                  {:error, "Please attach valid card in user profile"}
              end

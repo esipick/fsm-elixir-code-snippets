@@ -44,7 +44,7 @@ defmodule Flight.Billing.CreateInvoice do
 
 
 
-      Logger.info fn -> "invoice_params-----------------: #{inspect invoice_params}" end
+      #Logger.info fn -> "invoice_params-----------------: #{inspect invoice_params}" end
           line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
 
           cond do
@@ -54,7 +54,7 @@ defmodule Flight.Billing.CreateInvoice do
           end
   
           if pay_off == true do
-        Logger.info fn -> "invoice990000-----------------: #{inspect invoice}" end
+            #Logger.info fn -> "invoice990000-----------------: #{inspect invoice}" end
           case pay(invoice, school_context) do
               {:ok, invoice} ->
                 #If course invoice enroll student at LMS.
@@ -113,7 +113,7 @@ defmodule Flight.Billing.CreateInvoice do
       :balance -> pay_off_balance(invoice, school_context)
       :cc -> 
         is_demo = is_demo_invoice?(invoice)
-        Logger.info fn -> " pay_off_cc_333444-------------: #{inspect  invoice }" end
+        #Logger.info fn -> " pay_off_cc_333444-------------: #{inspect  invoice }" end
         pay_off_cc(invoice, school_context, is_demo, x_device)
       
       _ -> pay_off_manually(invoice, school_context)
@@ -150,7 +150,7 @@ defmodule Flight.Billing.CreateInvoice do
 
   defp pay_off_cc(invoice, 
     %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, "ios") do
-    Logger.info fn -> " pay_off_cc_33444-------------: #{inspect  invoice }" end
+    #Logger.info fn -> " pay_off_cc_33444-------------: #{inspect  invoice }" end
     Flight.StripeSinglePayment.get_payment_intent_secret(invoice, school_id)
     |> case do
       {:ok, %{intent_id: id} = session} -> 
@@ -167,7 +167,7 @@ defmodule Flight.Billing.CreateInvoice do
 
   defp pay_off_cc(invoice, 
     %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, _) do
-    Logger.info fn -> " pay_off_cc_11122-------------: #{inspect  invoice }" end
+    #Logger.info fn -> " pay_off_cc_11122-------------: #{inspect  invoice }" end
 
     Flight.StripeSinglePayment.get_stripe_session(invoice, school_id)
     |> case do
@@ -185,7 +185,7 @@ defmodule Flight.Billing.CreateInvoice do
 
   defp pay_off_cc(invoice, school_context, _, _, amount \\ nil) do
     amount = amount || invoice.total_amount_due
-    Logger.info fn -> " invoice2222222-------------: #{inspect  invoice }" end
+    #Logger.info fn -> " invoice2222222-------------: #{inspect  invoice }" end
     transaction_attrs =
       transaction_attributes(invoice)
       |> Map.merge(%{type: "credit", total: amount, payment_option: :cc})
