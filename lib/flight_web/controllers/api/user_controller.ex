@@ -162,10 +162,10 @@ defmodule FlightWeb.API.UserController do
   end
 
   def zip_code(conn, params) do
-    Map.get(params, "id") 
+    Map.get(params, "id")
     |> Flight.KnowledgeBase.get_zipcode
     |> case do
-      nil -> 
+      nil ->
         conn
         |> put_status(404)
         |> json(%{human_errors: ["Zip code not found."]})
@@ -223,5 +223,44 @@ defmodule FlightWeb.API.UserController do
 
   defp modify_admin_permission() do
     [Permission.new(:admins, :modify, :all)]
+  end
+
+  def add_funds(conn, %{"amount" => amount, "description" => description}) do
+    with {:ok, cent_amount} <- Flight.Billing.parse_amount(amount),
+         {:ok, {user, transaction}} <-
+          Fsm.Billing.add_funds_by_credit(
+             conn.assigns.current_user,
+             conn.assigns.current_user,
+             cent_amount,
+             description
+           ) do
+      message =
+        if transaction.type == "credit" do
+          "Funds added successfully"
+        else
+          "Funds removed successfully"
+        end
+
+      Flight.Billing.approve_transactions_within_balance(user)
+
+      conn
+      |> put_status(200)
+      |> json(%{success: message})
+    else
+      {:error, :invalid_amount} ->
+        conn
+        |> put_status(400)
+        |> json(%{error: "Invalid amount. Please enter an amount in the form: 20.50"})
+
+        {:error, :invalid} ->
+          conn
+          |> put_status(400)
+          |> json(%{error: "Amount or description is empty"})
+
+      {:error, :negative_balance} ->
+        conn
+        |> put_status(400)
+        |> json(%{error: "Users cannot have a negative balance."})
+    end
   end
 end
