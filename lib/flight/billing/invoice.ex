@@ -34,7 +34,8 @@ defmodule Flight.Billing.Invoice do
     field(:is_visible, :boolean, default: false)
     field(:archived_at, :naive_datetime)
     field(:appointment_updated_at, :naive_datetime)
-    
+    field(:notes, :string)
+
     field(:aircraft_info, :map, null: true)
     field(:session_id, :string, null: true)
     field(:course_id, :integer, null: true)
@@ -60,7 +61,7 @@ defmodule Flight.Billing.Invoice do
     invoice
     |> cast(attrs, @required_fields)
     |> cast(attrs, @payer_fields)
-    |> cast(attrs, [:aircraft_info, :appointment_id, :archived, :is_visible, :status, :appointment_updated_at, :demo, :session_id, :course_id, :is_admin_invoice])
+    |> cast(attrs, [:aircraft_info, :appointment_id, :archived, :is_visible, :status, :appointment_updated_at, :demo, :session_id, :course_id, :is_admin_invoice, :notes])
     |> cast_assoc(:line_items)
     |> assoc_constraint(:user)
     |> assoc_constraint(:school)
@@ -125,7 +126,7 @@ defmodule Flight.Billing.Invoice do
   def validate_payment_option(%Ecto.Changeset{valid?: true} = changeset) do
     user_id = get_change(changeset, :user_id) || get_field(changeset, :user_id)
     payment_option = get_change(changeset, :payment_option) || get_field(changeset, :payment_option)
-    
+
     IO.inspect(changeset, label: "Changeset")
 
     if user_id == nil and payment_option in [nil, :balance] do

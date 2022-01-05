@@ -60,6 +60,7 @@ class Form extends Component {
       hobb_tach_warning_accepted: false,
       balance_warning_accepted: false,
       payment_method: this.getPaymentMethod(props.payment_method, demo),
+      notes: '',
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
@@ -134,6 +135,7 @@ class Form extends Component {
           student: invoice.user || this.demoGuestPayer(demo, invoice.payer_name),
           line_items: invoice.line_items || [],
           payment_method: payment_method,
+          
           demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
@@ -342,6 +344,7 @@ class Form extends Component {
       payer_name: student && student.guest ? student.label : '',
       date: date.toISOString(),
       tax_rate: sales_tax,
+      notes: this.state.notes,
       total,
       total_tax,
       total_amount_due,
@@ -385,7 +388,6 @@ class Form extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
-        console.log(data)
         if (pay_off && data.session_id && data.connect_account && data.pub_key) {
 
           if (http_method == 'post') {
@@ -549,7 +551,6 @@ class Form extends Component {
   saveAndPayButton = () => {
     const { payment_method: { value }, saving } = this.state;
     const inputValue = "Pay Now";//[CASH, CHECK, VENMO].includes(value) ? MARK_AS_PAID : PAY
-
     return (
       <input className="btn btn-success invoice-form__pay-btn"
         type="submit"
@@ -778,6 +779,20 @@ class Form extends Component {
               </div>
 
                 <div className="form-group">
+                  <label>
+                    Add Notes
+                    
+                  </label>
+                  <div className="invoice-select-wrapper">
+                   <textarea 
+                        className="w-100 p-2"
+                        aria-label="With textarea"
+                        value={this.state.notes}
+                        onChange={(event) =>  this.setState({
+                        notes: event.target.value
+                      })}
+                      required={false} />
+                  </div>
                   <label>
                     Payment method
                     <Error text={errors.payment_option} />
