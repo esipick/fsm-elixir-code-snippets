@@ -2,7 +2,7 @@ defmodule FlightWeb.SharedView do
   use FlightWeb, :view
 
   def page_sizes do
-    [50, 75, 100]
+    [50, 75, 100, 200, 400, 600, 800, 1000]
   end
 
   def fetch_card(user) do
