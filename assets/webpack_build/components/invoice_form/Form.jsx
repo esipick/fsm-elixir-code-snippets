@@ -780,11 +780,13 @@ class Form extends Component {
 
                 <div className="form-group">
                   <label>
-                    Notes
+                    Add Notes
                     
                   </label>
                   <div className="invoice-select-wrapper">
                    <textarea 
+                        className="w-100 p-2"
+                        aria-label="With textarea"
                         value={this.state.notes}
                         onChange={(event) =>  this.setState({
                         notes: event.target.value
