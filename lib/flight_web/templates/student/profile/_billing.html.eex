@@ -28,7 +28,7 @@ function getPlainDate(start_at) {
     <div class="text-center mb-2 mt-2 d-flex justify-content-center">
       <!-- Button trigger modal -->
       <button type="button" class="btn btn-primary" id="addFundsButton">
-        add or remove funds
+        add funds
       </button>
 
       <!-- Modal -->
@@ -37,7 +37,7 @@ function getPlainDate(start_at) {
           <div class="modal-content">
             <form>
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Add or Remove Funds</h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Funds</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -140,14 +140,12 @@ function getPlainDate(start_at) {
     description = $("#addFundsDescription")[0].value
 
     if (amount > 0) {
-      updateSubmitButtonText("Add Funds");
       $("#paymentError").text('');
     }
 
     if (amount < 0) {
-      updateSubmitButtonText("Remove Funds");
-      $("#arithmeticOperator").text("(-)");
-      $("#paymentError").text('');
+      $("#addFundsSubmit").addClass("disabled");
+      $("#paymentError").text('Amount should be greater than 1');
     }
 
     if(isNaN(amount)) {
@@ -207,8 +205,4 @@ function getPlainDate(start_at) {
       $("#paymentError").text(message);
     })
   });
-
-  function updateSubmitButtonText(text) {
-    $("#addFundsSubmit")[0].value = text;
-  }
 </script>
