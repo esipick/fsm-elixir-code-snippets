@@ -105,7 +105,7 @@ defmodule FlightWeb.API.TransactionController do
         "add_funds" => %{"user_id" => user_id, "amount" => amount, "source" => source}
       }) do
     user = Flight.Accounts.get_user(user_id, conn)
-
+    {:ok, amount} = Flight.Billing.parse_amount(amount)
     with %Flight.Accounts.User{} <- user,
          {:ok, {_user, transaction}} <-
            Flight.Billing.add_funds_by_charge(user, conn.assigns.current_user, amount, source) do
@@ -117,10 +117,19 @@ defmodule FlightWeb.API.TransactionController do
     else
       error ->
         IO.inspect(error)
+        case error do
+          {:error, %Stripe.Error{}} ->
+            {_, stripe_error } = error
+            conn
+            |> put_status(400)
+            |> json(%{human_errors: [stripe_error.message]})
 
-        conn
-        |> put_status(400)
-        |> json(%{human_errors: ["Unable to add funds."]})
+          _ ->
+            conn
+            |> put_status(400)
+            |> json(%{human_errors: ["Unable to add Funds"]})
+        end
+
     end
   end
 

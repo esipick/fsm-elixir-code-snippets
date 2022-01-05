@@ -6,7 +6,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
   defstruct ~w(
     appointment id school payer_name amount_due amount_paid status payment_date
     editable title total tax_rate total_tax line_items transactions
-    amount_remainder created payment_method user_id bulk_transaction user is_admin_invoice
+    amount_remainder created payment_method user_id bulk_transaction user is_admin_invoice notes
   )a
 
   def build(invoice) do
@@ -20,7 +20,6 @@ defmodule FlightWeb.Billing.InvoiceStruct do
         :line_items,
         [appointment: [:user, :instructor_user, [aircraft: :inspections]]]
       ])
-
       %InvoiceStruct{
       id: invoice.id,
       user_id: invoice.user_id,
@@ -31,6 +30,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       amount_paid: amount_paid(invoice),
       amount_remainder: amount_remainder(invoice),
       status: invoice.status,
+      notes: invoice.notes,
       payment_date: invoice.date,
       payment_method: invoice.payment_option,
       editable: editable(invoice),
@@ -59,7 +59,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
         :line_items
       ])
 
-    
+
     %InvoiceStruct{
       id: invoice.id,
       user_id: invoice.user_id,

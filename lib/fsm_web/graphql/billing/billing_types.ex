@@ -119,6 +119,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       field(:appointment_updated_at, :string)
       field(:inserted_at, :string)
       field(:appointment_id, :integer)
+      field(:notes, :string)
       # field(:aircraft_info, :string)
       field(:session_id, :string)
       field(:transactions, list_of(:transaction))
@@ -167,6 +168,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:room_id, :integer)
     field(:tail_number, :string)
     field(:model, :string)
+    field(:serial_number, :string)
     field(:make, :string)
     field(:aircraft_simulator_name, :string)
     field(:simulator, :boolean)
@@ -225,6 +227,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:user_id, :integer)
     field(:course_id, :integer)
     field(:line_items, list_of(:line_item_input))
+    field(:notes, :string)
   end
 
   input_object :update_invoice_input do
@@ -242,6 +245,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:total_tax, :integer)
     field(:user_id, :integer)
     field(:line_items, list_of(:line_item_input))
+    field(:notes, :string)
   end
 
   input_object :transactions_filters do

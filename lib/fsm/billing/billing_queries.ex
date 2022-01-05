@@ -44,13 +44,15 @@ defmodule Fsm.Billing.BillingQueries do
         archived_at: i.archived_at,
         appointment_updated_at: i.appointment_updated_at,
         appointment_id: i.appointment_id,
+        notes: i.notes,
+
         # aircraft_info: i.aircraft_info,
         session_id: i.session_id,
         inserted_at: i.inserted_at,
         is_admin_invoice: i.is_admin_invoice,
         line_items:
           fragment(
-            "array_agg(json_build_object('id', ?, 'invoice_id', ?, 'description', ?, 'rate', ?, 'quantity', ?, 'amount', ?, 'inserted_at', ?, 'updated_at', ?, 'instructor_user_id', ?, 'type', ?, 'aircraft_id', ?, 'hobbs_start', ?, 'hobbs_end', ?, 'tach_start', ?, 'tach_end', ?, 'hobbs_tach_used', ?, 'taxable', ?, 'deductible', ?, 'creator_id', ?, 'room_id', ?, 'tail_number', ?, 'make', ?, 'model', ?, 'aircraft_simulator_name', ?, 'simulator', ?, 'instructor_name', ?))",
+            "array_agg(json_build_object('id', ?, 'invoice_id', ?, 'description', ?, 'rate', ?, 'quantity', ?, 'amount', ?, 'inserted_at', ?, 'updated_at', ?, 'instructor_user_id', ?, 'type', ?, 'aircraft_id', ?, 'hobbs_start', ?, 'hobbs_end', ?, 'tach_start', ?, 'tach_end', ?, 'hobbs_tach_used', ?, 'taxable', ?, 'deductible', ?, 'creator_id', ?, 'room_id', ?, 'tail_number', ?, 'make', ?, 'model', ?,'serial_number', ?, 'aircraft_simulator_name', ?, 'simulator', ?, 'instructor_name', ?))",
             ili.id,
             ili.invoice_id,
             ili.description,
@@ -74,6 +76,7 @@ defmodule Fsm.Billing.BillingQueries do
             ac.tail_number,
             ac.make,
             ac.model,
+            ac.serial_number,
             ac.name,
             ac.simulator,
             fragment("concat(?, ' ', ?)", instructor.first_name, instructor.last_name)
@@ -135,12 +138,13 @@ defmodule Fsm.Billing.BillingQueries do
         appointment_updated_at: i.appointment_updated_at,
         appointment_id: i.appointment_id,
         inserted_at: i.inserted_at,
+        notes: i.notes,
         # aircraft_info: i.aircraft_info,
         session_id: i.session_id,
         is_admin_invoice: i.is_admin_invoice,
         line_items:
           fragment(
-            "array_agg(json_build_object('id', ?, 'invoice_id', ?, 'description', ?, 'rate', ?, 'quantity', ?, 'amount', ?, 'inserted_at', ?, 'updated_at', ?, 'instructor_user_id', ?, 'type', ?, 'aircraft_id', ?, 'hobbs_start', ?, 'hobbs_end', ?, 'tach_start', ?, 'tach_end', ?, 'hobbs_tach_used', ?, 'taxable', ?, 'deductible', ?, 'creator_id', ?, 'room_id', ?, 'tail_number', ?, 'make', ?, 'model', ?, 'aircraft_simulator_name', ?, 'simulator', ?,'instructor_name', ?))",
+            "array_agg(json_build_object('id', ?, 'invoice_id', ?, 'description', ?, 'rate', ?, 'quantity', ?, 'amount', ?, 'inserted_at', ?, 'updated_at', ?, 'instructor_user_id', ?, 'type', ?, 'aircraft_id', ?, 'hobbs_start', ?, 'hobbs_end', ?, 'tach_start', ?, 'tach_end', ?, 'hobbs_tach_used', ?, 'taxable', ?, 'deductible', ?, 'creator_id', ?, 'room_id', ?, 'tail_number', ?, 'make', ?, 'model', ?,'serial_number', ?, 'aircraft_simulator_name', ?, 'simulator', ?,'instructor_name', ?))",
             ili.id,
             ili.invoice_id,
             ili.description,
@@ -164,6 +168,7 @@ defmodule Fsm.Billing.BillingQueries do
             ac.tail_number,
             ac.make,
             ac.model,
+            ac.serial_number,
             ac.name,
             ac.simulator,
             fragment("concat(?, ' ', ?)", instructor.first_name, instructor.last_name)
@@ -234,6 +239,7 @@ defmodule Fsm.Billing.BillingQueries do
         error_message: t.error_message,
         creator_user_id: t.creator_user_id,
         inserted_at: t.inserted_at,
+
         line_items: fragment(
           "array_agg(json_build_object('id', ?, 'amount', ?, 'description', ?, 'aircraft_id', ?, 'instructor_user_id', ?, 'type', ?, 'total_tax', ?))",
           tli.id,

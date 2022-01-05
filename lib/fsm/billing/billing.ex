@@ -5,7 +5,7 @@ defmodule Fsm.Billing do
   alias Fsm.Billing.BillingQueries
   alias Fsm.Billing.Transaction
   alias Fsm.Billing.TransactionLineItem
-  alias Fsm.Accounts 
+  alias Fsm.Accounts
   alias Fsm.SchoolScope
   alias Fsm.Accounts.User
   alias Fsm.Billing.Invoice
@@ -95,14 +95,14 @@ defmodule Fsm.Billing do
   end
 
   def update_invoice(invoice_params, pay_off, school_id, user_id) do
-    
+
     # why we're doing this?
     invoice_params = Map.put(invoice_params, :is_visible, true)
 
     case UpdateInvoice.run(invoice_params, pay_off, school_id, user_id) do
       {:ok, invoice} ->
         session_info = Map.take(invoice, [:session_id, :connect_account, :pub_key])
-        
+
         invoice = Repo.get(Invoice, invoice.id)
           |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
           |> Map.merge(session_info)
@@ -125,7 +125,7 @@ defmodule Fsm.Billing do
         {:error, FlightWeb.StripeHelper.human_error(error.message)}
 
       {:error, msg} ->
-        message = 
+        message =
         if(is_map(msg)) do
           Map.get(msg, :message)
         else
@@ -181,7 +181,8 @@ defmodule Fsm.Billing do
                   paid_by_check: Map.get(transaction, "paid_by_check"),
                   paid_by_venmo: Map.get(transaction, "paid_by_venmo"),
                   payment_option: Map.get(transaction, "payment_option"),
-                  inserted_at: Map.get(transaction, "inserted_at")
+                  inserted_at: Map.get(transaction, "inserted_at"),
+                  notes: Map.get(transaction, "notes")
                 }
               end)
 
@@ -206,6 +207,7 @@ defmodule Fsm.Billing do
                   tail_number: Map.get(line_item, "tail_number"),
                   make: Map.get(line_item, "make"),
                   model: Map.get(line_item, "model"),
+                  serial_number: Map.get(line_item, "serial_number"),
                   aircraft_simulator_name: Map.get(line_item, "aircraft_simulator_name"),
                   simulator: Map.get(line_item, "simulator"),
                   hobbs_start: Map.get(line_item, "hobbs_start"),
@@ -217,7 +219,8 @@ defmodule Fsm.Billing do
                   deductible: Map.get(line_item, "deductible"),
                   creator_id: Map.get(line_item, "creator_id"),
                   room_id: Map.get(line_item, "room_id"),
-                  instructor_name: Map.get(line_item, "instructor_name")
+                  instructor_name: Map.get(line_item, "instructor_name"),
+                  notes: Map.get(line_item, "notes"),
                 }
               end)
 
@@ -252,7 +255,8 @@ defmodule Fsm.Billing do
               line_items: line_items,
               inserted_at: i.inserted_at,
               user: i.user,
-              room: room
+              room: room,
+              notes: i.notes,
             }
           end)
 
@@ -472,7 +476,7 @@ defmodule Fsm.Billing do
               )
             )
             |> Repo.insert!()
-    
+
           line_item =
             %TransactionLineItem{}
             |> TransactionLineItem.changeset(%{
@@ -482,26 +486,26 @@ defmodule Fsm.Billing do
               amount: abs(amount)
             })
             |> Repo.insert!()
-    
+
           case update_balance(user, amount) do
             {:ok, user} ->
               transaction = %{transaction | line_items: [line_item]}
-    
+
               {:ok, {user, transaction}}
-    
+
             other ->
               other
           end
-    
+
         end)
-    
+
         case result do
           {:ok, {_, transaction}} ->
             Mondo.Task.start(fn ->
               transaction =
                 transaction
                 |> Repo.preload([:user])
-    
+
               notification =
                 if transaction.type == "credit" do
                   Flight.PushNotifications.funds_added_notification(
@@ -516,10 +520,10 @@ defmodule Fsm.Billing do
                     transaction
                   )
                 end
-    
+
               Mondo.PushService.publish(notification)
             end)
-    
+
           _ ->
             :nothing
         end
@@ -808,9 +812,9 @@ defmodule Fsm.Billing do
         {:error, :invalid}
 
       {:error, :negative_balance} ->
-        {:error, :negative_balance} 
+        {:error, :negative_balance}
       _->
-        {:error, :user_not_found} 
+        {:error, :user_not_found}
     end
   end
 
@@ -880,10 +884,10 @@ defmodule Fsm.Billing do
   end
 
   def get_invoice(invoice_id) do
-    invoice = Repo.get(Invoice, invoice_id) 
-    |> Repo.preload(:line_items) 
+    invoice = Repo.get(Invoice, invoice_id)
+    |> Repo.preload(:line_items)
     |> Repo.preload(:user)
     |> Repo.preload(:appointment)
   end
-  
+
 end

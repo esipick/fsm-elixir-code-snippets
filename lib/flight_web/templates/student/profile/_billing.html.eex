@@ -12,18 +12,63 @@ function getPlainDate(start_at) {
 </script>
 
 <div class="tab-pane detail-list list-billing" id="link2">
-<%= if @show_student_accounts_summary do%>
-  <div class="text-center mb-2 mt-2 d-flex justify-content-center">
-      <span class="col-md-3 d-flex flex-column">
-        <h7>Account Balance</h7>
-        <h2 class="mb-2"><%= currency @user.balance %></h2>
-      </span>
-      <span class="col-md-3 d-flex flex-column">
-        <h7>Amount Spent</h7>
-        <h2 class="mb-2"><%= currency @total_amount_spent %></h2>
-      </span>
-  </div>
-<% end %>
+  <%= if @show_student_accounts_summary do%>
+    <div class="text-center mb-2 mt-2 d-flex justify-content-center">
+        <span class="col-md-3 d-flex flex-column">
+          <h7>Account Balance</h7>
+          <h2 class="mb-2"><%= currency @user.balance %></h2>
+        </span>
+        <span class="col-md-3 d-flex flex-column">
+          <h7>Amount Spent</h7>
+          <h2 class="mb-2"><%= currency @total_amount_spent %></h2>
+        </span>      
+    </div>
+  <% end %>
+
+    <div class="text-center mb-2 mt-2 d-flex justify-content-center">
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" id="addFundsButton">
+        add funds
+      </button>
+
+      <!-- Modal -->
+      <div class="modal fade" id="addFundsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <form>
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Funds</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body detail-list">
+                <dl class="d-flex justify-content-between flex-row-reverse">
+                  <dt><%= currency @user.balance %></dt>
+                  <dd><p>Current Balance</p></dd>
+                </dl>
+                <dl class="form-group d-flex flex-row-reverse">
+                  <dt class="col-md-9"><input type="text" name="amount" id="addFundsAmount" placeholder="Enter amount" class="form-control"/></dt>
+                  <dd class="col-md-3"><p>Amount*<br/><span id="arithmeticOperator"></span></p></dd>
+                </dl>
+                <input type="hidden" value=<%= @user.id %> id="user_id" />
+                <% card = fetch_card(@user) %>
+                <%= if card do %>
+                  <input type="hidden" value=<%= card.id %> id="card_id" />
+                <% else %>
+                  <input type="hidden" value="" id="card_id" />
+                <% end %>
+                <p id="paymentError" class="text-danger font-weight-normal text-sm text-left"></p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <input type="button" id="addFundsSubmit" class="btn btn-primary disabled" value="Add Funds" />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
   <h7>Transaction History</h7>
   <%= for transaction <- @transactions do %>
@@ -79,3 +124,82 @@ function getPlainDate(start_at) {
     </dl>
   <% end %>
 </div>
+<script>
+  
+  $("#addFundsButton").on("click", function() {
+    $("#addFundsModal").modal();
+    $("#addFundsAmount")[0].value = "";
+    $("#paymentError").text('');
+  });
+
+  $("#addFundsAmount").on("input", function() {
+    amount = parseInt(this.value)
+
+    if (amount < 1) {
+      $("#addFundsSubmit").addClass("disabled");
+      $("#paymentError").text('Amount should be Greater than 1');
+    }
+
+    if(isNaN(amount)) {
+      $("#addFundsSubmit").addClass("disabled");
+      $("#paymentError").text('Please enter a valid number Greater than 1');
+    }
+
+    if(amount ) {
+       $("#paymentError").text('');
+       $("#addFundsSubmit").removeClass("disabled");
+    } else {
+      $("#addFundsSubmit").addClass("disabled");
+    }
+
+  });
+
+  $("#addFundsSubmit").on("click", function(){
+    $("#addFundsSubmit").addClass("disabled");
+    var AUTH_HEADERS = { "Authorization": window.fsm_token };
+    const card_id = $("#card_id").val();
+    if ( !card_id ) {
+      $.notify({
+        message: "No Card found against your account. Please add a Card to add Funds."
+      }, {
+        type: "danger",
+        placement: { align: "center" }
+      });
+      return;
+    }
+    const user_id = $("#user_id").val();
+    const amount = $("#addFundsAmount")[0].value;
+    const data = {
+      user_id: user_id,
+      amount: amount,
+      source: card_id
+    }
+    $.ajax({
+      method: "post",
+      url: "/api/transactions",
+      data: { "add_funds": data },
+      headers: AUTH_HEADERS
+    })
+    .then(response => {
+      $.notify({
+        message: "Successfully added Funds."
+      }, {
+        type: "success",
+        placement: { align: "center" }
+      })
+      setTimeout(window.location.reload(), 2000);
+    })
+    .catch(error => {
+      const errors = JSON.parse(error.responseText)
+      let message = '';
+      if ( errors.human_errors )
+      {
+        message = errors.human_errors[0]
+      }
+      else {
+        message = errors.message
+      }
+      $("#paymentError").text(message);
+    })
+  });
+</script>

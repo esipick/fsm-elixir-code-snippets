@@ -12,7 +12,7 @@ import { addSchoolIdParam, authHeaders, isEmpty } from '../utils';
 import ConfirmAlert from './ConfirmAlert';
 import ConfirmHobbTachAlert from './ConfirmHobbTachAlert';
 import {
-  BALANCE, DEFAULT_PAYMENT_OPTION, DEMO_PAYMENT_OPTIONS, GUEST_PAYMENT_OPTIONS, PAYMENT_OPTIONS
+  BALANCE, DEFAULT_GUEST_PAYMENT_OPTION, DEFAULT_PAYMENT_OPTION, DEMO_PAYMENT_OPTIONS, GUEST_PAYMENT_OPTIONS, PAYMENT_OPTIONS
 } from './constants';
 import ErrorAlert from './ErrorAlert';
 import LineItemsTable from './LineItemsTable';
@@ -60,6 +60,7 @@ class Form extends Component {
       hobb_tach_warning_accepted: false,
       balance_warning_accepted: false,
       payment_method: this.getPaymentMethod(props.payment_method, demo),
+      notes: '',
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
@@ -134,6 +135,7 @@ class Form extends Component {
           student: invoice.user || this.demoGuestPayer(demo, invoice.payer_name),
           line_items: invoice.line_items || [],
           payment_method: payment_method,
+          
           demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
@@ -166,7 +168,7 @@ class Form extends Component {
     }
 
     if(payment_option === BALANCE && demo) {
-      return DEFAULT_PAYMENT_OPTION
+      return DEFAULT_GUEST_PAYMENT_OPTION
     }
     
     const finded_option = PAYMENT_OPTIONS.find((option) => {
@@ -307,7 +309,7 @@ class Form extends Component {
   createGuestPayer = (payer_name) => {
     const student = this.guestPayer(payer_name);
 
-    this.setState({ student, appointments: [], payment_method: DEFAULT_PAYMENT_OPTION });
+    this.setState({ student, appointments: [], payment_method: DEFAULT_GUEST_PAYMENT_OPTION });
   }
 
   isGuestNameValid = (inputValue, selectValue, selectOptions) => {
@@ -342,6 +344,7 @@ class Form extends Component {
       payer_name: student && student.guest ? student.label : '',
       date: date.toISOString(),
       tax_rate: sales_tax,
+      notes: this.state.notes,
       total,
       total_tax,
       total_amount_due,
@@ -385,7 +388,6 @@ class Form extends Component {
       headers: authHeaders()
     }).then(response => {
       response.json().then(({ data }) => {
-        console.log(data)
         if (pay_off && data.session_id && data.connect_account && data.pub_key) {
 
           if (http_method == 'post') {
@@ -549,7 +551,6 @@ class Form extends Component {
   saveAndPayButton = () => {
     const { payment_method: { value }, saving } = this.state;
     const inputValue = "Pay Now";//[CASH, CHECK, VENMO].includes(value) ? MARK_AS_PAID : PAY
-
     return (
       <input className="btn btn-success invoice-form__pay-btn"
         type="submit"
@@ -666,17 +667,16 @@ class Form extends Component {
       instructors, rooms, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax, is_admin_invoice
     } = this.state;
-
-    const isGuest = student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined"
     
-    var {demo} = this.state;
-    if (!demo && containsDemoFlight(line_items)) { demo = true} 
-
-    if (!isGuest) {
-      demo = false
+    let  { demo } = this.state;
+  
+    if (!demo && containsDemoFlight(line_items)) {
+      demo = true
     }
 
-    const paymentOptions = student && typeof(student) != "undefined" && student.guest && typeof(student.guest) != "undefined" && !demo ? GUEST_PAYMENT_OPTIONS : demo ? DEMO_PAYMENT_OPTIONS : PAYMENT_OPTIONS
+    // Both demo user and guest user don't have credit card payment option
+    // so they have to pay in cash, venmo, or check
+    const paymentOptions = student?.guest || demo ? GUEST_PAYMENT_OPTIONS : PAYMENT_OPTIONS
 
     return (
       <div className="card">
@@ -779,6 +779,20 @@ class Form extends Component {
               </div>
 
                 <div className="form-group">
+                  <label>
+                    Add Notes
+                    
+                  </label>
+                  <div className="invoice-select-wrapper">
+                   <textarea 
+                        className="w-100 p-2"
+                        aria-label="With textarea"
+                        value={this.state.notes}
+                        onChange={(event) =>  this.setState({
+                        notes: event.target.value
+                      })}
+                      required={false} />
+                  </div>
                   <label>
                     Payment method
                     <Error text={errors.payment_option} />

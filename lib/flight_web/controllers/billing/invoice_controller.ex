@@ -32,6 +32,7 @@ defmodule FlightWeb.Billing.InvoiceController do
   end
 
   def new(conn, params) do
+
     appointment =
       if params["appointment_id"] do
         Repo.get(Flight.Scheduling.Appointment, params["appointment_id"])
@@ -64,7 +65,7 @@ defmodule FlightWeb.Billing.InvoiceController do
     end
 
     props = Map.put(props, :course, course)
-    
+
     render(conn, "new.html", props: props)
   end
 
@@ -90,7 +91,7 @@ defmodule FlightWeb.Billing.InvoiceController do
   def send_invoice(conn, %{"id" => id}) when not is_nil(id) do
     invoice = Repo.get(Invoice, id)
     Flight.InvoiceEmail.send_paid_invoice_email(invoice, conn)
-    
+
     conn
     |> put_flash(:success, "Invoice sent successfully")
     |> redirect(to: "/billing/invoices")
@@ -170,7 +171,7 @@ defmodule FlightWeb.Billing.InvoiceController do
   def checkout_success(conn, %{"session_id" => session_id}) do
     Invoice.get_by_session_id(session_id)
     |> case do
-      nil -> 
+      nil ->
         conn
         |> put_flash(:error, "Invalid Session id.")
         |> redirect(to: "/billing/invoices")
@@ -202,12 +203,12 @@ defmodule FlightWeb.Billing.InvoiceController do
   end
 
   defp base_invoice_props(conn) do
-    current_user = 
+    current_user =
       conn.assigns.current_user
       |> Repo.preload(:roles)
 
     roles = Enum.map(current_user.roles, &(&1.slug))
-    
+
     %{
       user_roles: roles,
       current_user_id: current_user.id,
