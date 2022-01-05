@@ -25,7 +25,7 @@ defmodule Fsm.Helpers do
         items = URI.parse(url) 
         |> Map.get(:path) 
         |> String.split("/")
-        Logger.info fn -> "items: #{inspect items}" end
+        #Logger.info fn -> "items: #{inspect items}" end
         case items do
             [_,bucket, filename] ->
                 {:ok,bucket, filename}

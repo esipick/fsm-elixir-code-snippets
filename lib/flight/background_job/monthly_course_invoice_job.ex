@@ -8,7 +8,7 @@ defmodule Flight.MonthlyCourseInvoiceJob do
 
       today = DateTime.utc_now
       courseCreateDate  =   course.created_at |> DateTime.from_unix!() |> DateTime.to_naive()
-      Logger.info fn -> "courseCreateDate: #{inspect courseCreateDate}" end
+      #Logger.info fn -> "courseCreateDate: #{inspect courseCreateDate}" end
       if today.month == courseCreateDate.month do
          1 + acc
       else
@@ -17,7 +17,7 @@ defmodule Flight.MonthlyCourseInvoiceJob do
     end)
   end
   def send_course_monthly_invoice() do
-    Logger.info("MonthlyCourseInvoiceJob:send_course_monthly_invoice -- Started...")
+    #Logger.info("MonthlyCourseInvoiceJob:send_course_monthly_invoice -- Started...")
     today = DateTime.utc_now
     list_items = FlightWeb.Admin.SchoolListItem.items_from_schools(Flight.Accounts.get_schools())
     for school_item <- list_items do
@@ -65,7 +65,7 @@ defmodule Flight.MonthlyCourseInvoiceJob do
                 }
 
                 invoice_resp = Fsm.Billing.create_invoice(create_invoice_item, false, school_item.school.id, Application.get_env(:flight, :monthly_invoice_creator))
-                Logger.info fn -> "Invoice created for School #{school_item.school.name} (id: #{school_item.school.id}) for Month of #{today.month}. Number of #{number_on_course_to_bill} courses billed to school admin #{user.email}}" end
+              #Logger.info fn -> "Invoice created for School #{school_item.school.name} (id: #{school_item.school.id}) for Month of #{today.month}. Number of #{number_on_course_to_bill} courses billed to school admin #{user.email}}" end
               _ ->
                 Logger.info fn -> "Invoice not send for School #{school_item.school.name} (id: #{school_item.school.id}), because School admin #{school_item.school.contact_email} account does not exist." end
             end

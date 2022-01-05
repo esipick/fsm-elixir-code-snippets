@@ -34,7 +34,7 @@ defmodule Fsm.Billing.CreateInvoice do
       %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
       school_context = %Plug.Conn{assigns: %{current_user: current_user}}
 
-      Logger.info fn -> " Map.get(invoice_params, :line_items): #{inspect  Map.get(invoice_params, :line_items) }" end
+      #Logger.info fn -> " Map.get(invoice_params, :line_items): #{inspect  Map.get(invoice_params, :line_items) }" end
       line_items =   LineItemCreator.populate_creator(Map.get(invoice_params, :line_items), current_user)
 
       aircraft_info = Utils.aircraft_info_map(invoice_params)

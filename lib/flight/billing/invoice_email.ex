@@ -46,7 +46,8 @@ defmodule Flight.InvoiceEmail do
     end
 
     def deliver_email(invoice, school) do
-        Task.start(fn ->
+        Mondo.Task.start(fn ->
+
             with {:ok, pdf_path} <- convert_to_pdf(invoice, school) do
                 invoice.user.email
                 |> Flight.Email.invoice_email(invoice.id, pdf_path)    
@@ -73,9 +74,14 @@ defmodule Flight.InvoiceEmail do
     def pdf_from_html(id, html) do
         options = [format: "A4", print_background: true]
         pdf_path = Path.absname("#{id}-invoice.pdf")
-
-        with {:ok, _} <- PuppeteerPdf.Generate.from_string(html, pdf_path, options) do
-            {:ok, pdf_path}
+        IO.inspect("pdf_path #{inspect pdf_path}")
+        IO.inspect("html: #{inspect html}")
+        case PuppeteerPdf.Generate.from_string(html, pdf_path, options) do
+            {:ok, _} ->
+                IO.inspect("pdf_path11: #{inspect pdf_path}")
+                {:ok, pdf_path}
+            {:error, message} ->
+                IO.inspect("message: #{inspect message}")
         end
     end
 end

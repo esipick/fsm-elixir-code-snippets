@@ -35,7 +35,7 @@ defmodule Fsm.Squawks do
     end
   
     def add_squawk_only(squawk_input)do
-      Logger.info fn -> "squawk_input----------------------: #{inspect squawk_input}" end
+      #Logger.info fn -> "squawk_input----------------------: #{inspect squawk_input}" end
       %Squawk{}
       |> Squawk.changeset(squawk_input)
       |> Repo.insert()

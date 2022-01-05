@@ -59,17 +59,17 @@ defmodule Mondo.PushService do
         case result do
           {:error, {:http_error, 400, %{code: "EndpointDisabled"}}} ->
             Flight.Repo.delete(token)
-            Logger.info("AWS SNS Endpoint disabled, deleting #{inspect(token)}")
+          #Logger.info("AWS SNS Endpoint disabled, deleting #{inspect(token)}")
 
           {:error, {:http_error, 400, %{code: "InvalidParameter"}}} ->
             Flight.Repo.delete(token)
-            Logger.info("AWS SNS invalid parameter, deleting device token #{inspect(token)}")
+          #Logger.info("AWS SNS invalid parameter, deleting device token #{inspect(token)}")
 
           {:error, error} ->
             Logger.error("Failed to send push notification. #{inspect(error)}")
 
           {:ok, _} ->
-            Logger.info("Successfully sent push notification to #{push_notification.user_id}")
+            #Logger.info("Successfully sent push notification to #{push_notification.user_id}")
             result
         end
       end

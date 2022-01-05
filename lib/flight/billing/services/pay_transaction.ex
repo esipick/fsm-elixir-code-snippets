@@ -19,7 +19,7 @@ defmodule Flight.Billing.PayTransaction do
   alias Flight.Billing.PaymentError
 
   def run(transaction) do
-    Logger.info fn -> "run**************************************************************************: #{inspect transaction }" end
+    #Logger.info fn -> "run**************************************************************************: #{inspect transaction }" end
 
     transaction = Repo.preload(transaction, [:user, :invoice])
 
@@ -78,7 +78,7 @@ defmodule Flight.Billing.PayTransaction do
 
   defp create_charge(transaction) do
     user = transaction.user
-    Logger.info fn -> "create_charge**************************************************************************: #{inspect transaction }" end
+    #Logger.info fn -> "create_charge**************************************************************************: #{inspect transaction }" end
 
     try do
       case Stripe.Customer.retrieve(user.stripe_customer_id) do

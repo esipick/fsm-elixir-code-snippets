@@ -13,7 +13,7 @@ defmodule Flight.StripeSinglePayment do
                 "application_fee_amount" => application_fee(total_amount)
             }
         }
-        Logger.info fn -> "Url info: #{inspect info}" end
+        #Logger.info fn -> "Url info: #{inspect info}" end
         
         with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id),
             {:ok, %{id: id}} <- create_session(acc_id, info) do
@@ -37,7 +37,7 @@ defmodule Flight.StripeSinglePayment do
             currency: "usd",
             amount: round(total_amount)
         }
-        Logger.info fn -> "Param info: #{inspect info}" end
+        #Logger.info fn -> "Param info: #{inspect info}" end
 
         with %{stripe_account_id: acc_id} <- Billing.get_stripe_account_by_school_id(school_id),
             {:ok, %{id: id}} <- Stripe.Charge.create(info, connect_account: acc_id) do

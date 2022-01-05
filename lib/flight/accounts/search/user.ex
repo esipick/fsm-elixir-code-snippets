@@ -59,7 +59,7 @@ require Logger
         where(query, [u], u.inserted_at >= ^to_string(from_date<>" 00:00:00") and u.inserted_at <= ^to_string(to_date<>" 23:59:59"))
 
       normalized_term not in ["", nil, " "] && from_date not in ["", nil, " "] && to_date not in ["", nil, " "] ->
-        Logger.info fn -> "{from_date, to_date}: #{inspect {from_date, to_date}}"end
+        #Logger.info fn -> "{from_date, to_date}: #{inspect {from_date, to_date}}"end
         where(
           query,
           fragment(

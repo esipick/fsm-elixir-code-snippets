@@ -47,7 +47,7 @@ defmodule Fsm.Aircrafts.AircraftsQueries do
     end
 
     defp filter(query, filter) do
-      Logger.info "filter: #{inspect filter}"
+      #Logger.info "filter: #{inspect filter}"
       Enum.reduce(filter, query, fn ({key, value}, query) ->
         case key do
           :id ->

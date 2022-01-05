@@ -308,7 +308,7 @@ defmodule Flight.Billing do
   end
 
   def approve_transaction(transaction, source? \\ nil) do
-    Logger.info fn -> "approve_transaction111111111111111111111111111111111111: #{inspect transaction }" end
+    #Logger.info fn -> "approve_transaction111111111111111111111111111111111111: #{inspect transaction }" end
 
     case transaction.state do
       "pending" ->
@@ -723,7 +723,7 @@ defmodule Flight.Billing do
   end
 
   def create_stripe_charge(source_id, transaction) do
-    Logger.info fn -> "transaction111**************************************************************************: #{inspect transaction }" end
+    #Logger.info fn -> "transaction111**************************************************************************: #{inspect transaction }" end
 
     case transaction.state do
       "pending" ->
@@ -741,7 +741,7 @@ defmodule Flight.Billing do
   end
 
   def create_stripe_charge(source_id, user?, email, total, school_context) do
-    Logger.info fn -> "source_id44444444444444444: #{inspect source_id }" end
+    #Logger.info fn -> "source_id44444444444444444: #{inspect source_id }" end
 
     stripe_account =
       Repo.get_by(

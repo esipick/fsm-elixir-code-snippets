@@ -67,7 +67,7 @@ defmodule Flight.Email do
   def invoice_email(to, _invoice_no, path) when is_nil(to) or is_nil(path), do: :error
   def invoice_email(to, invoice_no, path) do
     attachment = Bamboo.Attachment.new(path, filename: "invoice-#{invoice_no}.pdf", content_type: "application/pdf")
-    
+    IO.inspect("attachment: #{inspect attachment}")
     new_email()
     |> to(to)
     |> from({"Flight School Manager", "noreply@flightschoolmanager.co"})
