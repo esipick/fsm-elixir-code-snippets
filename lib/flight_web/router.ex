@@ -144,7 +144,7 @@ defmodule FlightWeb.Router do
       put("/update_card", StudentController, :update_card)
     end
   end
-  
+
   scope("/course", FlightWeb.Course, as: :course) do
     pipe_through([ :browser,
       :admin_layout,
@@ -165,7 +165,7 @@ defmodule FlightWeb.Router do
       :web_user_authenticate,
       :admin_metrics_namespace
     ])
-      
+
     resources("/invoices", InvoiceController, only: [:index, :new, :edit, :show, :delete])
     get("/invoices/send_invoice/:id", InvoiceController, :send_invoice)
     get("/checkout_success/", InvoiceController, :checkout_success)
@@ -322,7 +322,7 @@ defmodule FlightWeb.Router do
     get("/users/autocomplete", UserController, :autocomplete, as: :autocomplete)
     get("/users/by_role", UserController, :by_role, as: :by_role)
     get("/users/students", UserController, :get_students)
-
+    post("/users/add_funds", UserController, :add_funds)
     get("/zip_code/:id", UserController, :zip_code)
 
     resources("/users", UserController, only: [:show, :create, :update, :index]) do
@@ -405,7 +405,7 @@ defmodule FlightWeb.Router do
         )
       end
     end
-    
+
     scope "/course" do
       post("/sublesson/notes", CourseController, :sublesson_notes)
       post("/sublesson/remarks", CourseController, :sublesson_remarks)
@@ -414,7 +414,7 @@ defmodule FlightWeb.Router do
       post("/lesson/sublessons", CourseController, :get_sub_lessons)
       post("/sublesson/modules", CourseController, :get_sub_lesson_modules)
     end
-   
+
   end
 
   scope "/api" do
