@@ -73,7 +73,7 @@ defmodule Flight.InvoiceEmail do
     def pdf_from_html(id, html) do
         options = [format: "A4", print_background: true]
         pdf_path = Path.absname("#{id}-invoice.pdf")
-
+        IO.inspect("pdf_path #{inspect pdf_path}")
         with {:ok, _} <- PuppeteerPdf.Generate.from_string(html, pdf_path, options) do
             {:ok, pdf_path}
         end
