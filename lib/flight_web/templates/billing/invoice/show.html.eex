@@ -216,7 +216,7 @@ function getPlainDate(start_at) {
                   <th>Date</th>
                   <th>Amount due</th>
                   <th>Amount paid</th>
-                  <th>State</th>
+                  <th>Status</th>
                   <th>Completed at</th>
                   <th>Payment method</th>
                 </tr>
