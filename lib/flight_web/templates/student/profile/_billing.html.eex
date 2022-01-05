@@ -28,7 +28,7 @@ function getPlainDate(start_at) {
     <div class="text-center mb-2 mt-2 d-flex justify-content-center">
       <!-- Button trigger modal -->
       <button type="button" class="btn btn-primary" id="addFundsButton">
-        add funds
+        add or remove funds
       </button>
 
       <!-- Modal -->
@@ -37,27 +37,28 @@ function getPlainDate(start_at) {
           <div class="modal-content">
             <form>
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Add Funds</h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">Add or Remove Funds</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
               <div class="modal-body detail-list">
-                <dl class="d-flex justify-content-between flex-row-reverse">
-                  <dt><%= currency @user.balance %></dt>
-                  <dd><p>Current Balance</p></dd>
-                </dl>
+                <%= if @show_student_accounts_summary do%>
+                  <dl class="d-flex justify-content-between flex-row-reverse">
+                    <dt><%= currency @user.balance %></dt>
+                    <dd><p>Current Balance</p></dd>
+                  </dl>
+                <% end %>
                 <dl class="form-group d-flex flex-row-reverse">
                   <dt class="col-md-9"><input type="text" name="amount" id="addFundsAmount" placeholder="Enter amount" class="form-control"/></dt>
                   <dd class="col-md-3"><p>Amount*<br/><span id="arithmeticOperator"></span></p></dd>
                 </dl>
-                <input type="hidden" value=<%= @user.id %> id="user_id" />
-                <% card = fetch_card(@user) %>
-                <%= if card do %>
-                  <input type="hidden" value=<%= card.id %> id="card_id" />
-                <% else %>
-                  <input type="hidden" value="" id="card_id" />
-                <% end %>
+                <dl class="form-group d-flex flex-row-reverse">
+                  <dt class="col-md-9"><textarea class="form-control" id="addFundsDescription" name="description" placeholder="Enter description here"></textarea>
+                  <p id="descriptionLimitExceedError" class="text-danger font-weight-normal text-sm text-left invalid-feedback">Exceeds limit of 255 characters</p>
+                  </dt>
+                  <dd class="col-md-3"><p>Description*</p></dd>
+                </dl>
                 <p id="paymentError" class="text-danger font-weight-normal text-sm text-left"></p>
               </div>
               <div class="modal-footer">
@@ -129,23 +130,32 @@ function getPlainDate(start_at) {
   $("#addFundsButton").on("click", function() {
     $("#addFundsModal").modal();
     $("#addFundsAmount")[0].value = "";
+    $("#addFundsDescription")[0].value = "";
+    $("#descriptionLimitExceedError").addClass("invalid-feedback");
     $("#paymentError").text('');
   });
 
   $("#addFundsAmount").on("input", function() {
     amount = parseInt(this.value)
+    description = $("#addFundsDescription")[0].value
 
-    if (amount < 1) {
-      $("#addFundsSubmit").addClass("disabled");
-      $("#paymentError").text('Amount should be Greater than 1');
+    if (amount > 0) {
+      updateSubmitButtonText("Add Funds");
+      $("#paymentError").text('');
+    }
+
+    if (amount < 0) {
+      updateSubmitButtonText("Remove Funds");
+      $("#arithmeticOperator").text("(-)");
+      $("#paymentError").text('');
     }
 
     if(isNaN(amount)) {
       $("#addFundsSubmit").addClass("disabled");
-      $("#paymentError").text('Please enter a valid number Greater than 1');
+      $("#paymentError").text('Please enter a valid number.');
     }
 
-    if(amount ) {
+    if(amount && description && description.length < 255) {
        $("#paymentError").text('');
        $("#addFundsSubmit").removeClass("disabled");
     } else {
@@ -154,35 +164,38 @@ function getPlainDate(start_at) {
 
   });
 
+  $("#addFundsDescription").on("input", function() {
+    description = this.value.trim()
+    amount = $("#addFundsAmount")[0].value
+
+    if(amount && description && description.length < 255 ) {
+       $("#addFundsSubmit").removeClass("disabled");
+       $("#descriptionLimitExceedError").addClass("invalid-feedback");
+    } else {
+      $("#addFundsSubmit").addClass("disabled");
+       $("#descriptionLimitExceedError").removeClass("invalid-feedback");
+    }
+  });
+
   $("#addFundsSubmit").on("click", function(){
     $("#addFundsSubmit").addClass("disabled");
     var AUTH_HEADERS = { "Authorization": window.fsm_token };
-    const card_id = $("#card_id").val();
-    if ( !card_id ) {
-      $.notify({
-        message: "No Card found against your account. Please add a Card to add Funds."
-      }, {
-        type: "danger",
-        placement: { align: "center" }
-      });
-      return;
-    }
-    const user_id = $("#user_id").val();
     const amount = $("#addFundsAmount")[0].value;
+    const description = $("#addFundsDescription")[0].value;
     const data = {
-      user_id: user_id,
       amount: amount,
-      source: card_id
+      description: description
     }
     $.ajax({
       method: "post",
-      url: "/api/transactions",
-      data: { "add_funds": data },
+      url: "/api/users/add_funds",
+      data: data,
       headers: AUTH_HEADERS
     })
     .then(response => {
+      const message = response.success
       $.notify({
-        message: "Successfully added Funds."
+        message: message
       }, {
         type: "success",
         placement: { align: "center" }
@@ -190,16 +203,12 @@ function getPlainDate(start_at) {
       setTimeout(window.location.reload(), 2000);
     })
     .catch(error => {
-      const errors = JSON.parse(error.responseText)
-      let message = '';
-      if ( errors.human_errors )
-      {
-        message = errors.human_errors[0]
-      }
-      else {
-        message = errors.message
-      }
+      const message = JSON.parse(error.responseText).error
       $("#paymentError").text(message);
     })
   });
+
+  function updateSubmitButtonText(text) {
+    $("#addFundsSubmit")[0].value = text;
+  }
 </script>
