@@ -54,7 +54,7 @@ function getPlainDate(start_at) {
               </dl>
 
               <dl class="d-flex justify-content-between">
-                <dt>Payer name</dt>
+                <dt>Payer names</dt>
                 <dd><%= @invoice.payer_name %></dd>
               </dl>
 
@@ -195,6 +195,14 @@ function getPlainDate(start_at) {
                   </tbody>
                 </table>
               </div>
+              <%= if @invoice.notes do %>
+                <dl class="d-flex justify-content-start">
+                <dt>Notes</dt>
+              </dl>
+              <div>
+                 <%= @invoice.notes %>
+              </div>
+  <%= end%>
             </div>
           </div>
         </div>

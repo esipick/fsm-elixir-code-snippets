@@ -44,6 +44,8 @@ defmodule Fsm.Billing.BillingQueries do
         archived_at: i.archived_at,
         appointment_updated_at: i.appointment_updated_at,
         appointment_id: i.appointment_id,
+        notes: i.notes,
+
         # aircraft_info: i.aircraft_info,
         session_id: i.session_id,
         inserted_at: i.inserted_at,
@@ -136,6 +138,7 @@ defmodule Fsm.Billing.BillingQueries do
         appointment_updated_at: i.appointment_updated_at,
         appointment_id: i.appointment_id,
         inserted_at: i.inserted_at,
+        notes: i.notes,
         # aircraft_info: i.aircraft_info,
         session_id: i.session_id,
         is_admin_invoice: i.is_admin_invoice,
@@ -236,6 +239,7 @@ defmodule Fsm.Billing.BillingQueries do
         error_message: t.error_message,
         creator_user_id: t.creator_user_id,
         inserted_at: t.inserted_at,
+
         line_items: fragment(
           "array_agg(json_build_object('id', ?, 'amount', ?, 'description', ?, 'aircraft_id', ?, 'instructor_user_id', ?, 'type', ?, 'total_tax', ?))",
           tli.id,
