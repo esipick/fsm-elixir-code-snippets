@@ -167,6 +167,7 @@ function exportTableToCSV(filename) {
               <div class="col-md-10">
                 <%= pagination_links @conn,
                   @page,
+                  search: @params["search"],
                   path: &billing_transaction_path/3,
                   page_size: @page.page_size
                 %>
