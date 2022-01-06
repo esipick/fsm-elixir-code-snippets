@@ -122,7 +122,7 @@ function exportTableToCSV(filename) {
                 <th>Person Name</th>
                 <th>Amount Due</th>
                 <th>Amount Paid</th>
-                <th>State</th>
+                <th>Status</th>
                 <th>Completed At</th>
                 <th>Payment Method</th>
               </tr>
