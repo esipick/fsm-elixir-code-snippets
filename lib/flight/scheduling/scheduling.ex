@@ -327,6 +327,22 @@ defmodule Flight.Scheduling do
     hours <> "h" <> "  " <> minutes <> "m"
   end
 
+  def calculate_appointments_billing_duration(appointments) do
+    hours =
+      Enum.reduce(appointments, 0, fn appointment, acc ->
+        if(is_nil(appointment.start_hobbs_time) or is_nil(appointment.end_hobbs_time)) do
+          acc
+        else
+          hours = appointment.end_hobbs_time - appointment.start_hobbs_time
+          hours + acc
+        end
+      end)
+    
+    hours = Integer.floor_div(hours, 10) |> to_string
+
+    hours <> "h"
+  end
+
   def apply_utc_timezone_if_aircraft(changeset, attrs, key, timezone) do
     case Map.get(attrs, key) do
       nil -> changeset

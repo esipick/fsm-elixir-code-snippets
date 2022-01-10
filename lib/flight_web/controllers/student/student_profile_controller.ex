@@ -22,14 +22,15 @@ defmodule FlightWeb.Student.ProfileController do
       Scheduling.get_appointments(options, conn)
       |> Repo.preload([:aircraft, :instructor_user])
 
-    total_hrs_spent = Scheduling.calculate_appointments_duration(appointments)
+    # total_hrs_spent = Scheduling.calculate_appointments_duration(appointments)
+    flight_hrs_billed = Scheduling.calculate_appointments_billing_duration(appointments)
 
     render(
       conn,
       "show.html",
       user: user,
       tab: :schedule,
-      total_hrs_spent: total_hrs_spent,
+      total_hrs_spent: flight_hrs_billed,
       show_student_flight_hours: current_user.school.show_student_flight_hours,
       appointments: appointments,
       skip_shool_select: true
