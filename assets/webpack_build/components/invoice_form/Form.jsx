@@ -60,7 +60,7 @@ class Form extends Component {
       hobb_tach_warning_accepted: false,
       balance_warning_accepted: false,
       payment_method: this.getPaymentMethod(props.payment_method, demo),
-      notes: '',
+      notes: props.notes,
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
@@ -135,7 +135,7 @@ class Form extends Component {
           student: invoice.user || this.demoGuestPayer(demo, invoice.payer_name),
           line_items: invoice.line_items || [],
           payment_method: payment_method,
-          
+          notes: invoice.notes,
           demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
@@ -784,14 +784,15 @@ class Form extends Component {
                     
                   </label>
                   <div className="invoice-select-wrapper">
-                   <textarea 
-                        className="w-100 p-2"
-                        aria-label="With textarea"
-                        value={this.state.notes}
-                        onChange={(event) =>  this.setState({
-                        notes: event.target.value
-                      })}
-                      required={false} />
+                    <textarea 
+                      className="form-control"
+                      aria-label="With textarea"
+                      value={this.state.notes}
+                      onChange={(event) =>  this.setState({
+                          notes: event.target.value
+                        })
+                      }
+                    />
                   </div>
                   <label>
                     Payment method

@@ -97,7 +97,7 @@ defmodule FlightWeb.API.InvoiceController do
 
   def update(conn, %{"invoice" => invoice_params}) do
     invoice_params = Map.put(invoice_params, "is_visible", true)
-    #Logger.info fn -> "invoice_params***********************************************************------------------------------------------: #{inspect invoice_params}" end
+
     case UpdateInvoice.run(conn.assigns.invoice, invoice_params, conn) do
       {:ok, invoice} ->
         session_info = Map.take(invoice, [:session_id, :connect_account, :pub_key])
@@ -158,7 +158,6 @@ defmodule FlightWeb.API.InvoiceController do
     invoice =
       Repo.preload(conn.assigns.invoice, [:line_items, :user, :school, :appointment], force: true)
 
-    #Logger.info fn -> "invoice.is_admin_invoice*********************************************************************------------------------------------------: #{inspect invoice.is_admin_invoice}" end
     conn
     |> put_status(200)
     |> render("show.json", invoice: invoice)
