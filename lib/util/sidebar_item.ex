@@ -8,8 +8,8 @@ defmodule FlightWeb.SidebarItem do
   def admin_sidebar(user) do
     [
       %SidebarItem{
-        path: "/admin/dashboard",
-        label: "Dashboard",
+        path: "/admin/home",
+        label: "Home",
         icon_class: "design_app",
         active: false
       },

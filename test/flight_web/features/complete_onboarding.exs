@@ -8,7 +8,7 @@ defmodule FlightWeb.Features.CompleteOnboardingTest do
 
     session
     |> log_in_admin(school)
-    |> visit("/admin/dashboard")
+    |> visit("/admin/home")
     |> assert_has(css(".nav-link.onboarding.completed", text: " DETAILS"))
     |> assert_has(css(".nav-link.onboarding.active", text: "Directory"))
     |> assert_has(css(".nav-link.onboarding.upcoming", text: "PROFILE SETTINGS"))

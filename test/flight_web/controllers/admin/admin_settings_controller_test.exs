@@ -83,7 +83,7 @@ defmodule FlightWeb.Admin.SettingsControllerTest do
         |> web_auth_dispatcher()
         |> get("/admin/settings?tab=billing")
 
-      assert redirected_to(conn) == "/admin/dashboard"
+      assert redirected_to(conn) == "/admin/home"
     end
   end
 

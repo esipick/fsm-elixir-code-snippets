@@ -37,7 +37,7 @@ defmodule FlightWeb.Admin.PageController do
   end
 
   def root(conn, _) do
-    redirect(conn, to: "/admin/dashboard")
+    redirect(conn, to: "/admin/home")
   end
 
   def schools(conn, _params) do

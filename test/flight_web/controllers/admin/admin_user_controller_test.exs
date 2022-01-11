@@ -156,7 +156,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
 
       content = conn |> html_response(302)
 
-      assert redirected_to(conn) == "/admin/dashboard"
+      assert redirected_to(conn) == "/admin/home"
       refute content =~ admin.first_name
     end
   end
@@ -264,7 +264,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
 
       content = conn |> html_response(302)
 
-      assert redirected_to(conn) == "/admin/dashboard"
+      assert redirected_to(conn) == "/admin/home"
       refute content =~ admin.first_name
     end
   end
@@ -296,7 +296,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
 
       content = conn |> html_response(302)
 
-      assert redirected_to(conn) == "/admin/dashboard"
+      assert redirected_to(conn) == "/admin/home"
       refute content =~ admin.first_name
     end
   end
@@ -493,10 +493,10 @@ defmodule FlightWeb.Admin.UserControllerTest do
         conn
         |> web_auth(admin)
         |> put("/admin/users/#{student.id}", payload)
-        |> response_redirected_to("/admin/dashboard")
+        |> response_redirected_to("/admin/home")
 
       conn
-      |> get("/admin/dashboard")
+      |> get("/admin/home")
       |> html_response(200)
 
       assert get_flash(conn, :error) =~ "User already removed."
@@ -513,7 +513,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
       conn
       |> web_auth_dispatcher()
       |> put("/admin/users/#{admin.id}", payload)
-      |> response_redirected_to("/admin/dashboard")
+      |> response_redirected_to("/admin/home")
 
       user = Accounts.get_user(admin.id, admin)
       refute user.first_name == "Allison"
@@ -626,7 +626,7 @@ defmodule FlightWeb.Admin.UserControllerTest do
         |> web_auth_admin(admin)
         |> get("/admin/users/#{student.id}/restore?role=student")
 
-      assert redirected_to(conn) == "/admin/dashboard"
+      assert redirected_to(conn) == "/admin/home"
       assert get_flash(conn, :error) =~ "Bill Murray account is already restored"
     end
   end

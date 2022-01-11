@@ -185,7 +185,7 @@ defmodule FlightWeb.Router do
 
     get("/", PageController, :root)
 
-    get("/dashboard", PageController, :dashboard)
+    get("/home", PageController, :dashboard)
 
     resources("/schools", SchoolController, only: [:index, :show, :delete])
 
