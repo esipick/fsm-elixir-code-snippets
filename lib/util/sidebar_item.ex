@@ -44,7 +44,7 @@ defmodule FlightWeb.SidebarItem do
       },
       %SidebarItem{
         path: "/admin/users?role=user",
-        label: "User Roles",
+        label: "Directory",
         icon_class: "tech_headphones",
         active: false
       },
