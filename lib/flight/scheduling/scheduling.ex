@@ -8,6 +8,8 @@ defmodule Flight.Scheduling do
     TachInspection,
     Unavailability
   }
+
+  alias Flight.Billing.Invoice
   alias Flight.Accounts.UserAircraft
   alias Flight.Accounts.UserInstructor
 
@@ -333,8 +335,15 @@ defmodule Flight.Scheduling do
   def calculate_appointments_billing_duration(appointments) do
     hours =
       Enum.reduce(appointments, 0, fn appointment, acc ->
-        if(is_nil(appointment.start_hobbs_time) or is_nil(appointment.end_hobbs_time)) do
-          acc
+
+        query = from i in Invoice,
+                where: i.appointment_id == ^appointment.id,
+                select: i
+        pending_invoice = Repo.all(query)
+          |> Enum.any?(fn i -> i.status == :pending end)
+
+        if(is_nil(appointment.start_hobbs_time) or is_nil(appointment.end_hobbs_time) or pending_invoice) do
+            acc
         else
           hours = appointment.end_hobbs_time - appointment.start_hobbs_time
           hours + acc
