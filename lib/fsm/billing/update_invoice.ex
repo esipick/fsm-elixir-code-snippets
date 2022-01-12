@@ -23,6 +23,7 @@ defmodule Fsm.Billing.UpdateInvoice do
           "total_amount_due" => Map.get(invoice_input, :total_amount_due),
           "total_tax" => Map.get(invoice_input, :total_tax),
           "user_id" => Map.get(invoice_input, :user_id),
+          "notes" => Map.get(invoice_input, :notes),
           "line_items" => Map.get(invoice_input, :line_items)
         }
 
