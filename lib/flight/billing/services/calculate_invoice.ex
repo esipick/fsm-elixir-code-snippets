@@ -25,7 +25,7 @@ defmodule Flight.Billing.CalculateInvoice do
     invoice_attrs =
       Map.merge(invoice_attrs, %{
         "line_items" => line_items,
-        "total_tax" => total_tax,
+        "total_tax" => (if total == 0, do: 0, else: total_tax),
         "total" => total,
         "total_amount_due" => (if total == 0, do: 0, else: total + total_tax)
       })
