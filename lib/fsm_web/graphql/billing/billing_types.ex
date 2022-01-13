@@ -106,7 +106,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       field(:total, :integer)
       field(:tax_rate, :string)
       field(:total_tax, :integer)
-      field(:total_amount_due, :string)
+      field(:total_amount_due, :integer)
       field(:status, :status)
       field(:payment_option, :payment_options)
       field(:payer_name, :string)
