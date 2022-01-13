@@ -673,10 +673,11 @@ class Form extends Component {
     // In case of guest user don't have credit card payment option
     // so they have to pay in cash, venmo, or check
     let paymentOptions = PAYMENT_OPTIONS;
-    if(student?.guest) {
-      paymentOptions = GUEST_PAYMENT_OPTIONS;
-    } else if(demo) {
+    
+    if(demo) {
       paymentOptions = DEMO_PAYMENT_OPTIONS;
+    } else if(student?.guest) {
+      paymentOptions = GUEST_PAYMENT_OPTIONS;
     }
 
     return (
@@ -782,13 +783,12 @@ class Form extends Component {
                 <div className="form-group">
                   <label>
                     Add Notes
-                    
                   </label>
                   <div className="invoice-select-wrapper">
                     <textarea 
                       className="form-control"
                       aria-label="With textarea"
-                      value={this.state.notes}
+                      value={this.state.notes || ''}
                       onChange={(event) =>  this.setState({
                           notes: event.target.value
                         })
