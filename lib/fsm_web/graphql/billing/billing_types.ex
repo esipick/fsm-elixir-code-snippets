@@ -3,12 +3,11 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
   alias FsmWeb.GraphQL.Middleware
   alias FsmWeb.GraphQL.Billing.BillingResolvers
 
-  #Enums
   enum(:transaction_order_by, values: [:desc, :asc])
-  enum(:charge_payment_method, values: [:cash, :cc])
   enum(:transaction_search_criteria, values: [:first_name, :last_name])
   enum(:transaction_sort_fields, values: [:id, :first_name, :last_name])
   # user roles 1: admin, 2:dispatcher
+
   # QUERIES
   object :billing_queries do
     field :list_bills, :billing_data do
@@ -43,7 +42,6 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
   object :billing_mutations do
     field :add_funds, :string do
       arg :amount, non_null(:string)
-      arg :payment_method, non_null(:charge_payment_method)
       arg :user_id, non_null(:string)
       arg :description, non_null(:string)
       middleware(Middleware.Authorize, ["admin", "dispatcher", "instructor" , "student", "renter"])

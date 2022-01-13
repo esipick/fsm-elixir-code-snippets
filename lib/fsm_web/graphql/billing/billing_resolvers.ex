@@ -44,128 +44,130 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
       ) do
 
     IO.inspect("#{inspect args} requested by id(#{id}) on #{inspect DateTime.utc_now()}", label: "Add Funds Request: ")
+
     amount = Map.get(args, :amount)
-    charge_payment_method = Map.get(args, :payment_method)
     description = Map.get(args, :description)
     requested_user_id = Map.get(args, :user_id)
 
-    case charge_payment_method do
-      :cash ->
-        if "admin" in roles or "dispatcher" in roles do
-          Billing.add_funds(%{user_id: id}, %{
-            amount: amount,
-            description: description,
-            user_id: requested_user_id
-          })
-        else
-          {:error, "Only 'admin' and 'dispatcher' can add funds using 'cash' payment method"}
-        end
+    case parse_amount(amount) do
+      {:ok, cent_amount} ->
+        cond do
+          "admin" in roles or "dispatcher" in roles ->
+            Billing.add_funds(%{user_id: id}, %{
+              amount: amount,
+              description: description,
+              user_id: requested_user_id
+            })
+          cent_amount < 0 ->
+            {:error, "Only admin or dispatcher can remove funds."}
+          true ->
+            %{roles: _roles, user: current_user} = Fsm.Accounts.get_user(id)
 
-      _ ->
-        %{roles: _roles, user: current_user} = Fsm.Accounts.get_user(id)
-
-        if Map.get(current_user, :stripe_customer_id) not in [nil, "", " "] do
-          Stripe.Customer.retrieve(current_user.stripe_customer_id)
-          |> case do
-               {:ok,
-                 %Stripe.Customer{sources: %Stripe.List{data: [%Stripe.Card{id: stripe_customer, exp_month: exp_month, exp_year: exp_year} =card | _]},
-                 default_source: source_id}
-               } ->
-                 with {:ok, parsed_amount} <- parse_amount(amount),
-                      {:ok, expiry_date} <- Date.new(exp_year, exp_month, 28),
-                      true <- Date.diff(expiry_date, Date.utc_today()) > 0
-                  do
-
-                   with acc_id <- Map.get(Billing.get_stripe_account_by_school_id(school_id), :stripe_account_id),
-                        true <- acc_id != nil do
-
-                   token_result =
-                     if current_user do
-                       token =
-                         Stripe.Token.create(
-                           %{customer: current_user.stripe_customer_id, card: source_id},
-                           connect_account: acc_id
-                         )
-
-                       case token do
-                         {:ok, token} -> {:ok, token.id}
-                         error -> error
+            if Map.get(current_user, :stripe_customer_id) not in [nil, "", " "] do
+              Stripe.Customer.retrieve(current_user.stripe_customer_id)
+              |> case do
+                   {:ok,
+                     %Stripe.Customer{sources: %Stripe.List{data: [%Stripe.Card{id: stripe_customer, exp_month: exp_month, exp_year: exp_year} =card | _]},
+                     default_source: source_id}
+                   } ->
+                     with {:ok, parsed_amount} <- parse_amount(amount),
+                          {:ok, expiry_date} <- Date.new(exp_year, exp_month, 28),
+                          true <- Date.diff(expiry_date, Date.utc_today()) > 0
+                      do
+    
+                       with acc_id <- Map.get(Billing.get_stripe_account_by_school_id(school_id), :stripe_account_id),
+                            true <- acc_id != nil do
+    
+                       token_result =
+                         if current_user do
+                           token =
+                             Stripe.Token.create(
+                               %{customer: current_user.stripe_customer_id, card: source_id},
+                               connect_account: acc_id
+                             )
+    
+                           case token do
+                             {:ok, token} -> {:ok, token.id}
+                             error -> error
+                           end
+                         else
+                           {:ok, source_id}
+                         end
+                     resp =
+                       case token_result do
+                         {:ok, token_id} ->
+                           Stripe.Charge.create(
+                             %{
+                               source: token_id,
+    #                           application_fee: application_fee_for_total(parsed_amount),
+                               currency: "usd",
+                               receipt_email: current_user.email,
+                               amount: parsed_amount
+                             },
+                             connect_account: acc_id
+                           )
+    
+                         error ->
+                           error
                        end
+    
+                       resp
+                         |> case do
+                            {:ok, %Stripe.Charge{status: "succeeded"}=resp} ->
+                              Billing.add_funds(%{user_id: id}, %{
+                                amount: amount,
+                                description: description,
+                                user_id: requested_user_id
+                              })
+    
+                            {:error, %Stripe.Error{extra: %{message: message, param: param}}} ->
+                              {:error, "Stripe Error in parameter '#{param}': #{message}"}
+    
+                            {:error, %Stripe.Error{extra: %{raw_error: %{"message" => message, "param" => param}}}} ->
+                              {:error, "Stripe Error in parameter '#{param}': #{message}"}
+    
+                            {:error, %Stripe.Error{extra: %{message: message}}} ->
+                              {:error, "Stripe Error: #{message}"}
+    
+                            {:error, %Stripe.Error{message: message}} ->
+                              {:error, "Stripe Error: #{message}"}
+    
+                            {:error, error} ->
+                              {:error, "Stripe Raw Error: #{error}"}
+    
+    
+                            error ->
+                              #Logger.info fn -> "Stripe Charge Error: #{inspect error}" end
+                              {:error, "Something went wrong! Unable to add funds using card in user profile. Please update another card in profile or check amount and try again"}
+                            end
+    
+                       else
+                         nil -> {:error, "Stripe Account not added for this school."}
+                         error ->
+                           #Logger.info fn -> "Stripe Account for school Error: #{inspect error}" end
+                           error
+                       end
+    
                      else
-                       {:ok, source_id}
-                     end
-                 resp =
-                   case token_result do
-                     {:ok, token_id} ->
-                       Stripe.Charge.create(
-                         %{
-                           source: token_id,
-#                           application_fee: application_fee_for_total(parsed_amount),
-                           currency: "usd",
-                           receipt_email: current_user.email,
-                           amount: parsed_amount
-                         },
-                         connect_account: acc_id
-                       )
-
-                     error ->
-                       error
-                   end
-
-                   resp
-                     |> case do
-                        {:ok, %Stripe.Charge{status: "succeeded"}=resp} ->
-                          Billing.add_funds(%{user_id: id}, %{
-                            amount: amount,
-                            description: description,
-                            user_id: requested_user_id
-                          })
-
-                        {:error, %Stripe.Error{extra: %{message: message, param: param}}} ->
-                          {:error, "Stripe Error in parameter '#{param}': #{message}"}
-
-                        {:error, %Stripe.Error{extra: %{raw_error: %{"message" => message, "param" => param}}}} ->
-                          {:error, "Stripe Error in parameter '#{param}': #{message}"}
-
-                        {:error, %Stripe.Error{extra: %{message: message}}} ->
-                          {:error, "Stripe Error: #{message}"}
-
-                        {:error, %Stripe.Error{message: message}} ->
-                          {:error, "Stripe Error: #{message}"}
-
-                        {:error, error} ->
-                          {:error, "Stripe Raw Error: #{error}"}
-
-
-                        error ->
-                          #Logger.info fn -> "Stripe Charge Error: #{inspect error}" end
-                          {:error, "Something went wrong! Unable to add funds using card in user profile. Please update another card in profile or check amount and try again"}
+                     resp ->
+                        if !resp do
+                            {:error, "Card Expired! Please attach valid card in user profile"}
+                        else
+                            {:error, "Please attach valid amount to add funds"}
                         end
-
-                   else
-                     nil -> {:error, "Stripe Account not added for this school."}
-                     error ->
-                       #Logger.info fn -> "Stripe Account for school Error: #{inspect error}" end
-                       error
-                   end
-
-                 else
-                 resp ->
-                    if !resp do
-                        {:error, "Card Expired! Please attach valid card in user profile"}
-                    else
-                        {:error, "Please attach valid amount to add funds"}
-                    end
-
+    
+                     end
+                   error ->
+                     #Logger.info fn -> "Stripe Error: #{inspect error}" end
+    
+                     {:error, "Please attach valid card in user profile"}
                  end
-               error ->
-                 #Logger.info fn -> "Stripe Error: #{inspect error}" end
-
-                 {:error, "Please attach valid card in user profile"}
-             end
-          else
-            {:error, "Invalid user's stripe customer id"}
-          end
+              else
+                {:error, "Invalid user's stripe customer id"}
+              end
+        end
+      {:error, invalid} ->
+        {:error, "Invalid amount"}
     end
   end
 
