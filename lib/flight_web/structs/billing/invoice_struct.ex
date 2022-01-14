@@ -26,8 +26,8 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       created: invoice.inserted_at,
       school: invoice.school,
       payer_name: payer_name(invoice),
-      amount_due: (if invoice.status == :paid, do: 0, else: invoice.total_amount_due),
-      amount_paid: amount_paid(invoice),
+      amount_due: (if invoice.status == :paid or invoice.total == 0, do: 0, else: invoice.total_amount_due),
+      amount_paid: get_amount_paid(invoice),
       amount_remainder: amount_remainder(invoice),
       status: invoice.status,
       notes: invoice.notes,
@@ -37,7 +37,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       title: title(invoice),
       total: invoice.total,
       tax_rate: invoice.tax_rate,
-      total_tax: invoice.total_tax,
+      total_tax: (if invoice.total == 0, do: 0, else: invoice.total_tax) ,
       line_items: invoice.line_items,
       transactions: transactions(invoice),
       user: invoice.user,
@@ -65,7 +65,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       user_id: invoice.user_id,
       created: invoice.inserted_at,
       amount_due: (if invoice.status == :paid, do: 0, else: invoice.total_amount_due),
-      amount_paid: amount_paid(invoice),
+      amount_paid: get_amount_paid(invoice),
       amount_remainder: amount_remainder(invoice),
       status: invoice.status,
       payment_date: invoice.date,
@@ -85,6 +85,17 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       User.full_name(invoice.user)
     else
       invoice.payer_name
+    end
+  end
+
+  defp get_amount_paid(invoice) do
+    cond do
+      invoice.total == 0 ->
+        0
+      invoice.status == :paid ->
+        invoice.total_amount_due
+      true ->
+        amount_paid(invoice)
     end
   end
 

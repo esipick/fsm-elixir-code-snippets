@@ -46,7 +46,7 @@
                 <%= nav_item_link("School Details", @conn, @school, @tab, :school) %>
               </li>
               <li class="nav-item col-xs-2">
-                <%= nav_item_link("User Roles", @conn, @school, @tab, :contact) %>
+                <%= nav_item_link("Directory", @conn, @school, @tab, :contact) %>
               </li>
               <li class="nav-item col-xs-2">
                 <%= nav_item_link("Profile Settings", @conn, @school, @tab, :profile) %>

@@ -44,7 +44,7 @@ defmodule FlightWeb.Admin.SchoolController do
     if Flight.Accounts.is_superadmin?(conn.assigns.current_user) do
       conn
     else
-      redirect(conn, to: "/admin/dashboard")
+      redirect(conn, to: "/admin/home")
     end
   end
 end

@@ -73,13 +73,13 @@ defmodule FsmWeb.GraphQL.Squawks.SquawksResolvers do
                 nil ->
                     @not_found
                 squawk ->
-                    Logger.info fn -> "squawk----: #{inspect squawk}" end
+                  #Logger.info fn -> "squawk----: #{inspect squawk}" end
                     attrs = squawk_image_input
                             |> Map.put(:user_id, current_user.id)
                             |> Map.put(:squawk_id, squawk.id)
                             |> Map.put(:attachment_type, :squawk)
 
-                    Logger.info fn -> "attrs----: #{inspect attrs}" end
+                    #Logger.info fn -> "attrs----: #{inspect attrs}" end
                     Squawks.add_squawk_image(attrs)
             end
         end)

@@ -8,9 +8,9 @@ defmodule FlightWeb.Features.CompleteOnboardingTest do
 
     session
     |> log_in_admin(school)
-    |> visit("/admin/dashboard")
+    |> visit("/admin/home")
     |> assert_has(css(".nav-link.onboarding.completed", text: " DETAILS"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "USER ROLES"))
+    |> assert_has(css(".nav-link.onboarding.active", text: "Directory"))
     |> assert_has(css(".nav-link.onboarding.upcoming", text: "PROFILE SETTINGS"))
   end
 
@@ -23,7 +23,7 @@ defmodule FlightWeb.Features.CompleteOnboardingTest do
     |> log_in_admin(school)
     |> assert_has(css(".nav-link.onboarding.active", text: "SCHOOL DETAILS"))
     |> click(button("Save & Next"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "USER ROLES"))
+    |> assert_has(css(".nav-link.onboarding.active", text: "Directory"))
     |> click(button("Save & Next"))
     |> assert_has(css(".nav-link.onboarding.active", text: "PROFILE SETTINGS"))
     |> click(button("Save & Next"))
@@ -51,7 +51,7 @@ defmodule FlightWeb.Features.CompleteOnboardingTest do
     |> click(link("Back"))
     |> assert_has(css(".nav-link.onboarding.active", text: "PROFILE SETTINGS"))
     |> click(link("Back"))
-    |> assert_has(css(".nav-link.onboarding.active", text: "USER ROLES"))
+    |> assert_has(css(".nav-link.onboarding.active", text: "Directory"))
     |> click(link("Back"))
     |> assert_has(css(".nav-link.onboarding.active", text: "SCHOOL DETAILS"))
   end

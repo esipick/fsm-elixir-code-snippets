@@ -342,7 +342,7 @@ defmodule FlightWeb.Admin.UserController do
 
         params["role"] -> redirect(conn, to: "/admin/users?role=#{params["role"]}&page=#{params["page"]}")
 
-        true -> redirect(conn, to: "/admin/dashboard")
+        true -> redirect(conn, to: "/admin/home")
       end
     end
   end
@@ -361,7 +361,7 @@ defmodule FlightWeb.Admin.UserController do
 
       params["role"] -> redirect(conn, to: "/admin/users?role=#{params["role"]}")
 
-      true -> redirect(conn, to: "/admin/dashboard")
+      true -> redirect(conn, to: "/admin/home")
     end
   end
 
@@ -378,13 +378,13 @@ defmodule FlightWeb.Admin.UserController do
       user && user.archived ->
         conn
         |> put_flash(:error, "User already removed.")
-        |> redirect(to: "/admin/dashboard")
+        |> redirect(to: "/admin/home")
         |> halt()
 
       true ->
         conn
         |> put_flash(:error, "Unknown user.")
-        |> redirect(to: "/admin/dashboard")
+        |> redirect(to: "/admin/home")
         |> halt()
     end
   end
@@ -401,13 +401,13 @@ defmodule FlightWeb.Admin.UserController do
       user && !user.archived ->
         conn
         |> put_flash(:error, "#{user.first_name} #{user.last_name} account is already restored")
-        |> redirect(to: "/admin/dashboard")
+        |> redirect(to: "/admin/home")
         |> halt()
 
       true ->
         conn
         |> put_flash(:error, "Unknown user.")
-        |> redirect(to: "/admin/dashboard")
+        |> redirect(to: "/admin/home")
         |> halt()
     end
   end

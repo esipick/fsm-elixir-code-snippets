@@ -675,7 +675,7 @@ defmodule Fsm.Billing do
   end
 
   def create_stripe_charge(source_id, user?, email, total, school_context) do
-    Logger.info fn -> "source_id5555555555555555: #{inspect source_id }" end
+    #Logger.info fn -> "source_id5555555555555555: #{inspect source_id }" end
     stripe_account =
       Repo.get_by(
         Flight.Accounts.StripeAccount,

@@ -8,6 +8,8 @@ defmodule Flight.Scheduling do
     TachInspection,
     Unavailability
   }
+
+  alias Flight.Billing.Invoice
   alias Flight.Accounts.UserAircraft
   alias Flight.Accounts.UserInstructor
 
@@ -23,10 +25,10 @@ defmodule Flight.Scheduling do
   def admin_create_aircraft(%{"maintenance_ids" => m_ids } = attrs, %{
       assigns: %{
         current_user: %{school_id: school_id}}} = school_context) when is_list(m_ids) do
-    
-    Repo.transaction(fn -> 
+
+    Repo.transaction(fn ->
       with {:ok, %{
-          id: id, 
+          id: id,
           last_tach_time: tach_hours
           } = aircraft} <- admin_create_aircraft(Map.delete(attrs, "maintenance_ids"), school_context),
         {:ok, :done} <- Inspections.check_and_assign_aircraft_maintenance(id, m_ids, tach_hours, school_id) do
@@ -264,7 +266,6 @@ defmodule Flight.Scheduling do
   ##
 
   def get_appointments(options, %{assigns: %{current_user: %{id: user_id}}} = school_context) do
-
     from_value =
       case NaiveDateTime.from_iso8601(options["from"] || "") do
         {:ok, date} -> date
@@ -286,6 +287,8 @@ defmodule Flight.Scheduling do
     user_id_value = options["user_id"]
     instructor_user_id_value = options["instructor_user_id"]
     aircraft_id_value = options["aircraft_id"]
+    simulator_id_value = options["simulator_id"]
+    room_id_value = options["room_id"]
     assigned_value = if !!options["assigned"] and options["assigned"] not in [false, "false", "", " ", nil], do: options["assigned"], else: ""
 
     from(a in Appointment, where: a.archived == false)
@@ -297,6 +300,8 @@ defmodule Flight.Scheduling do
     )
     |> pass_unless(user_id_value, &where(&1, [a], a.user_id == ^user_id_value))
     |> pass_unless(aircraft_id_value, &where(&1, [a], a.aircraft_id == ^aircraft_id_value))
+    |> pass_unless(simulator_id_value, &where(&1, [a], a.simulator_id == ^simulator_id_value))
+    |> pass_unless(room_id_value, &where(&1, [a], a.room_id == ^room_id_value))
     |> pass_unless(
       instructor_user_id_value,
       &from(a in &1, where: a.instructor_user_id == ^instructor_user_id_value)
@@ -325,6 +330,29 @@ defmodule Flight.Scheduling do
     hours = Integer.floor_div(seconds, 3600) |> to_string
     minutes = Time.add(~T[00:00:00], seconds).minute |> to_string
     hours <> "h" <> "  " <> minutes <> "m"
+  end
+
+  def calculate_appointments_billing_duration(appointments) do
+    hours =
+      Enum.reduce(appointments, 0, fn appointment, acc ->
+
+        query = from i in Invoice,
+                where: i.appointment_id == ^appointment.id,
+                select: i
+        pending_invoice = Repo.all(query)
+          |> Enum.any?(fn i -> i.status == :pending end)
+
+        if(is_nil(appointment.start_hobbs_time) or is_nil(appointment.end_hobbs_time) or pending_invoice) do
+            acc
+        else
+          hours = appointment.end_hobbs_time - appointment.start_hobbs_time
+          hours + acc
+        end
+      end)
+    
+    hours = Integer.floor_div(hours, 10) |> to_string
+
+    hours <> "h"
   end
 
   def apply_utc_timezone_if_aircraft(changeset, attrs, key, timezone) do
@@ -368,7 +396,7 @@ defmodule Flight.Scheduling do
     school_context
   ) do
 
-    Repo.transaction(fn -> 
+    Repo.transaction(fn ->
       upsert_appointment(appointment, attrs, modifying_user, school_context)
       |> case do
         {:ok, appointment} -> appointment
@@ -402,7 +430,7 @@ defmodule Flight.Scheduling do
 
     if changeset.valid? do
 
-      {temp_changeset, appointment} = 
+      {temp_changeset, appointment} =
         with true <- is_create?,
           {:ok, item} <- Repo.insert(changeset) do
             {item, Map.put(appointment, :id, item.id)}
@@ -410,11 +438,11 @@ defmodule Flight.Scheduling do
         else
           _ -> {changeset, appointment}
         end
-      
+
       changeset =
       temp_changeset
        |> Appointment.changeset(%{}, school.timezone)
-      
+
       {:ok, _} = apply_action(changeset, :insert)
 
       start_at = get_field(changeset, :start_at) # |> utc_to_walltime(school.timezone)
@@ -424,7 +452,7 @@ defmodule Flight.Scheduling do
       aircraft_id = get_field(changeset, :aircraft_id) || get_field(changeset, :simulator_id)
       room_id = get_field(changeset, :room_id)
       _type = get_field(changeset, :type)
-      
+
       excluded_appointment_ids =
         if appointment.id do
           [appointment.id]
@@ -432,7 +460,7 @@ defmodule Flight.Scheduling do
           []
         end
 
-      # if appointment has started. do not let instructor and 
+      # if appointment has started. do not let instructor and
 
       status =
         if user_id && user_id != "" do
@@ -496,7 +524,7 @@ defmodule Flight.Scheduling do
 
           case status do
             :available -> changeset
-            other -> 
+            other ->
               key = if get_field(changeset, :simulator_id), do: :simulator, else: :aircraft
 
               add_error(changeset, key, "is #{other}", status: status)
@@ -520,17 +548,17 @@ defmodule Flight.Scheduling do
 
           case status do
             :available -> changeset
-            other -> 
+            other ->
               add_error(changeset, :room, "is #{other}", status: status)
           end
         else
           changeset
         end
-      
+
       new_aircraft_id = get_change(changeset, :aircraft_id) || get_field(changeset, :aircraft_id)
       new_simulator_id = get_change(changeset, :simulator_id) || get_field(changeset, :simulator_id)
 
-      {should_delete_item, changeset} = 
+      {should_delete_item, changeset} =
         if (appointment.aircraft_id != nil && appointment.aircraft_id != new_aircraft_id) or
           (appointment.simulator_id != nil && appointment.simulator_id != new_simulator_id) do
           changeset =
@@ -542,7 +570,7 @@ defmodule Flight.Scheduling do
         else
           {false, changeset}
         end
-        
+
       case Repo.insert_or_update(changeset) do
         {:ok, appointment} ->
           assign_instructor_to_user = user_id not in ["", nil] && instructor_user_id not in ["", nil]
@@ -673,7 +701,7 @@ defmodule Flight.Scheduling do
 
       start_at = get_field(changeset, :start_at) #|> utc_to_walltime(school.timezone)
       end_at = get_field(changeset, :end_at) #|> utc_to_walltime(school.timezone)
-      
+
       changeset =
         if aircraft_id do
 
@@ -690,7 +718,7 @@ defmodule Flight.Scheduling do
 
           case status do
             :available -> changeset
-            other -> 
+            other ->
               key = if get_field(changeset, :simulator_id), do: :simulator, else: :aircraft
 
               add_error(changeset, key, "is #{other}", status: status)
@@ -715,14 +743,21 @@ defmodule Flight.Scheduling do
 
           case status do
             :available -> changeset
-            other -> 
+            other ->
               add_error(changeset, :room, "is #{other}", status: status)
           end
         else
           changeset
         end
 
-      Repo.insert_or_update(changeset)
+      res = Repo.insert_or_update(changeset)
+      case res do
+        {:ok, unavailability} ->
+          send_unavailibility_notification(changeset, school_context)
+          {:ok, unavailability}
+        {:error, changeset} ->
+          {:error, changeset}
+      end
     else
       {:error, changeset}
     end
@@ -785,7 +820,7 @@ defmodule Flight.Scheduling do
 
     deleting_user = Repo.preload(deleting_user, :school)
     Appointment.archive(appointment)
-    
+
     Flight.Bills.archive_appointment_invoices(appointment.id)
 
     Mondo.Task.start(fn ->
@@ -806,6 +841,49 @@ defmodule Flight.Scheduling do
         )
         |> Mondo.PushService.publish()
       end
+    end)
+  end
+
+  def send_unavailibility_notification(changeset, school_context) do
+    changes = changeset.changes;
+    belongs = changes.belongs;
+    case belongs do
+      "Instructor" ->
+        options = %{
+          "instructor_user_id" => changes.instructor_user_id,
+          "from" => NaiveDateTime.to_string(changes.start_at),
+          "to" => NaiveDateTime.to_string(changes.end_at)
+        }
+        del_appointments_due_to_unavailability(options, school_context)
+      "Aircraft" ->
+        options = %{
+          "aircraft_id" => changes.aircraft_id,
+          "from" => NaiveDateTime.to_string(changes.start_at),
+          "to" => NaiveDateTime.to_string(changes.end_at)
+        }
+        del_appointments_due_to_unavailability(options, school_context)
+      "Room" ->
+        options = %{
+          "room_id" => changes.room_id,
+          "from" => NaiveDateTime.to_string(changes.start_at),
+          "to" => NaiveDateTime.to_string(changes.end_at)
+        }
+        del_appointments_due_to_unavailability(options, school_context)
+      "Simulator" ->
+        options = %{
+          "simulator_id" => changes.simulator_id,
+          "from" => NaiveDateTime.to_string(changes.start_at),
+          "to" => NaiveDateTime.to_string(changes.end_at)
+        }
+        del_appointments_due_to_unavailability(options, school_context)
+    end
+  end
+
+  def del_appointments_due_to_unavailability(options, school_context) do
+    appointments = get_appointments(options, school_context)
+
+    Enum.map(appointments, fn appointment ->
+      delete_appointment(appointment.id, school_context.assigns.current_user, school_context)
     end)
   end
 end

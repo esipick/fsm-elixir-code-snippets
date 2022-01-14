@@ -58,7 +58,7 @@ defmodule Fsm.Inspections do
             where: i.aircraft_id == ^aircraft_id,
             select: i
         inspections = query
-        Logger.info fn -> "filter: #{inspect filter}" end
+        #Logger.info fn -> "filter: #{inspect filter}" end
 
         case filter != nil && Map.has_key?(filter, :sort_field) && Map.has_key?(filter, :sort_order) do
             true->
@@ -257,8 +257,8 @@ defmodule Fsm.Inspections do
                 isd = Ecto.Changeset.change hd, t_str: new_value.value
                 Repo.update isd
             :date ->
-                Logger.info fn -> "new_value.value: #{inspect new_value.value}" end
-                Logger.info fn -> "Date.from_iso8601(new_value.value): #{inspect Date.from_iso8601(new_value.value)}" end
+              #Logger.info fn -> "new_value.value: #{inspect new_value.value}" end
+              #Logger.info fn -> "Date.from_iso8601(new_value.value): #{inspect Date.from_iso8601(new_value.value)}" end
                 case Date.from_iso8601(new_value.value) do
                     {:ok, iso_date} -> 
                         isd = Ecto.Changeset.change hd, t_date: iso_date

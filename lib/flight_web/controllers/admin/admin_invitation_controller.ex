@@ -136,7 +136,7 @@ defmodule FlightWeb.Admin.InvitationController do
       true ->
         conn
         |> put_flash(:error, "Invitation already removed.")
-        |> redirect(to: "/admin/dashboard")
+        |> redirect(to: "/admin/home")
         |> halt()
     end
   end

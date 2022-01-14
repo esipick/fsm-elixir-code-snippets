@@ -5,12 +5,12 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
     require Logger
 
     def get_courses(_parent,_args, %{context: %{current_user: current_user}}) do
-        Logger.info fn -> "current_user111: #{inspect current_user}" end
+      #Logger.info fn -> "current_user111: #{inspect current_user}" end
       
         isAdmin =  Enum.member?(current_user.roles, "admin")
-        Logger.info fn -> "isAdmin: #{inspect isAdmin}" end
+        #Logger.info fn -> "isAdmin: #{inspect isAdmin}" end
         courses = Flight.General.get_lms_courses(current_user, isAdmin)
-        Logger.info fn -> "courses: #{inspect courses}" end
+        #Logger.info fn -> "courses: #{inspect courses}" end
         {:ok, courses}
     end
 
@@ -18,7 +18,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def get_course(_parent, %{id: course_id}, %{context: %{current_user: current_user}}) do
       course = Flight.General.get_course_detail(current_user, course_id)
-      Logger.info fn -> "course: #{inspect course}" end
+      #Logger.info fn -> "course: #{inspect course}" end
       {:ok, course}
     end
 
@@ -26,7 +26,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def get_course_participants(_parent, %{course_id: course_id}, %{context: %{current_user: current_user}}) do
       course = Flight.General.get_course_participants(current_user, course_id)
-      Logger.info fn -> "course: #{inspect course}" end
+      #Logger.info fn -> "course: #{inspect course}" end
       {:ok, course}
     end
 
@@ -34,7 +34,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def get_course_lesson(_parent, %{course_id: course_id, lms_user_id: lms_user_id}, %{context: %{current_user: current_user}}) do
       course = Flight.General.get_course_lesson(current_user, course_id, lms_user_id)
-      Logger.info fn -> "course: #{inspect course}" end
+      # Logger.info fn -> "course: #{inspect course}" end
       {:ok, course}
     end
 
@@ -42,7 +42,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def get_participant_course_lessons(_parent, %{course_id: course_id, lms_user_id: lms_user_id}, %{context: %{current_user: current_user}}) do
       course = Flight.General.get_participant_course_lessons(current_user, course_id, lms_user_id)
-      Logger.info fn -> "course: #{inspect course}" end
+      # Logger.info fn -> "course: #{inspect course}" end
       {:ok, course}
     end
 
@@ -51,7 +51,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
     def get_student_course_lessons(_parent, %{course_id: course_id, fsm_user_id: fsm_user_id}, %{context: %{current_user: current_user}}) do
       fsm_user_id = "fsm2m" <> to_string(fsm_user_id)
       course = Flight.General.get_participant_course_lessons(current_user, course_id, fsm_user_id)
-      Logger.info fn -> "course: #{inspect course}" end
+      #Logger.info fn -> "course: #{inspect course}" end
       {:ok, course}
     end
 
@@ -59,7 +59,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def get_participant_course_sub_lessons(_parent, %{course_id: course_id, lms_user_id: lms_user_id, section_id: section_id}, %{context: %{current_user: current_user}}) do
       course = Flight.General.get_participant_course_sub_lessons(current_user, course_id, lms_user_id, section_id)
-      Logger.info fn -> "course: #{inspect course}" end
+      #Logger.info fn -> "course: #{inspect course}" end
       {:ok, course}
     end
 
@@ -67,7 +67,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def get_participant_course_sub_lesson_modules(_parent, %{course_id: course_id, lms_user_id: lms_user_id, sub_lesson_id: sub_lesson_id}, %{context: %{current_user: current_user}}) do
       course = Flight.General.get_participant_course_sub_lesson_modules(current_user, course_id, lms_user_id, sub_lesson_id)
-      Logger.info fn -> "course: #{inspect course}" end
+      # Logger.info fn -> "course: #{inspect course}" end
       {:ok, course}
     end
 
@@ -75,7 +75,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def insert_lesson_sub_lesson_remarks(_parent, %{remark_input: attrs}, %{context: %{current_user: current_user}}) do
       course = Flight.General.insert_lesson_sub_lesson_remarks(current_user,attrs)
-      Logger.info fn -> "course: #{inspect course}" end
+      # Logger.info fn -> "course: #{inspect course}" end
       {:ok, course}
     end
 
@@ -83,7 +83,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def add_update_sub_lesson_remarks(_parent, %{remark_input: attrs}, %{context: %{current_user: current_user}}) do
       course = Flight.General.insert_lesson_sub_lesson_remarks_v2(current_user,attrs)
-      Logger.info fn -> "course: #{inspect course}" end
+      #Logger.info fn -> "course: #{inspect course}" end
       {:ok, course}
     end
 
@@ -91,7 +91,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def add_update_sub_lesson_remarks_v1(_parent, %{remark_input: attrs}, %{context: %{current_user: current_user}}) do
       course = Flight.General.insert_lesson_sub_lesson_remarks_v3(current_user,attrs)
-      Logger.info fn -> "course: #{inspect course}" end
+      #Logger.info fn -> "course: #{inspect course}" end
       {:ok, course}
     end
 
@@ -99,7 +99,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def add_course_module_view(_parent, %{input_course_module_view: attrs}, %{context: %{current_user: current_user}}) do
       response = Flight.General.add_course_module_view_remarks(current_user,attrs)
-      Logger.info fn -> "response: #{inspect response}" end
+      #Logger.info fn -> "response: #{inspect response}" end
       {:ok, response}
     end
 
@@ -107,7 +107,7 @@ defmodule FsmWeb.GraphQL.Courses.CoursesResolvers do
 
     def update_lesson_status(_parent, %{lesson_id: lesson_id, lms_user_id: lms_user_id, status: status} = attrs, %{context: %{current_user: current_user}}) do
       response = Flight.General.update_lesson_status(current_user,attrs)
-      Logger.info fn -> "response: #{inspect response}" end
+      # Logger.info fn -> "response: #{inspect response}" end
       {:ok, response}
     end
 

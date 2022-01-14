@@ -60,7 +60,7 @@ class Form extends Component {
       hobb_tach_warning_accepted: false,
       balance_warning_accepted: false,
       payment_method: this.getPaymentMethod(props.payment_method, demo),
-      notes: '',
+      notes: props.notes,
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
@@ -135,7 +135,7 @@ class Form extends Component {
           student: invoice.user || this.demoGuestPayer(demo, invoice.payer_name),
           line_items: invoice.line_items || [],
           payment_method: payment_method,
-          
+          notes: invoice.notes,
           demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
@@ -163,19 +163,15 @@ class Form extends Component {
 
   getPaymentMethod = (payment_option, demo = false) => {
 
-    if(!payment_option) {
-      return DEFAULT_PAYMENT_OPTION
-    }
-
-    if(payment_option === BALANCE && demo) {
-      return DEFAULT_GUEST_PAYMENT_OPTION
+    if(!payment_option || (payment_option === BALANCE && demo)) {
+      return DEFAULT_PAYMENT_OPTION;
     }
     
-    const finded_option = PAYMENT_OPTIONS.find((option) => {
-      return option.value === payment_option
+    const findedOption = PAYMENT_OPTIONS.find((option) => {
+      return option.value === payment_option;
     });
     
-    return finded_option || DEFAULT_PAYMENT_OPTION;
+    return findedOption || DEFAULT_PAYMENT_OPTION;
   }
 
   setFormRef = (form) => {
@@ -674,9 +670,15 @@ class Form extends Component {
       demo = true
     }
 
-    // Both demo user and guest user don't have credit card payment option
+    // In case of guest user don't have credit card payment option
     // so they have to pay in cash, venmo, or check
-    const paymentOptions = student?.guest || demo ? GUEST_PAYMENT_OPTIONS : PAYMENT_OPTIONS
+    let paymentOptions = PAYMENT_OPTIONS;
+    
+    if(demo) {
+      paymentOptions = DEMO_PAYMENT_OPTIONS;
+    } else if(student?.guest) {
+      paymentOptions = GUEST_PAYMENT_OPTIONS;
+    }
 
     return (
       <div className="card">
@@ -781,17 +783,17 @@ class Form extends Component {
                 <div className="form-group">
                   <label>
                     Add Notes
-                    
                   </label>
                   <div className="invoice-select-wrapper">
-                   <textarea 
-                        className="w-100 p-2"
-                        aria-label="With textarea"
-                        value={this.state.notes}
-                        onChange={(event) =>  this.setState({
-                        notes: event.target.value
-                      })}
-                      required={false} />
+                    <textarea 
+                      className="form-control"
+                      aria-label="With textarea"
+                      value={this.state.notes || ''}
+                      onChange={(event) =>  this.setState({
+                          notes: event.target.value
+                        })
+                      }
+                    />
                   </div>
                   <label>
                     Payment method

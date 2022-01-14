@@ -12,7 +12,7 @@ defmodule FlightWeb.SessionControllerTest do
       conn
       |> web_auth_admin()
       |> get("/login")
-      |> response_redirected_to("/admin/dashboard")
+      |> response_redirected_to("/admin/home")
     end
   end
 
@@ -32,7 +32,7 @@ defmodule FlightWeb.SessionControllerTest do
 
       conn
       |> post("/login", %{email: "hello@bar.com", password: "hey hey you"})
-      |> response_redirected_to("/admin/dashboard")
+      |> response_redirected_to("/admin/home")
     end
 
     test "redirects to dashboard if dispatcher", %{conn: conn} do
@@ -41,7 +41,7 @@ defmodule FlightWeb.SessionControllerTest do
 
       conn
       |> post("/login", %{email: "hello@bar.com", password: "hey hey you"})
-      |> response_redirected_to("/admin/dashboard")
+      |> response_redirected_to("/admin/home")
     end
 
     test "redirects to login on failure", %{conn: conn} do

@@ -8,7 +8,7 @@ defmodule FlightWeb.AuthorizeSuperadmin do
       conn
     else
       conn
-      |> Phoenix.Controller.redirect(to: "/admin/dashboard")
+      |> Phoenix.Controller.redirect(to: "/admin/home")
       |> halt()
     end
   end
