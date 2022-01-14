@@ -13,14 +13,14 @@ defmodule FlightWeb.Admin.PageController do
 
     expired_inspections = Fsm.Aircrafts.ExpiredInspection.inspections_for_aircrafts(aircrafts)
 
-    pending_transactions =
-      Flight.Billing.get_filtered_transactions(%{"state" => "pending"}, conn)
-      |> Flight.Repo.preload([:user])
+    # pending_transactions =
+    #   Flight.Billing.get_filtered_transactions(%{"state" => "pending"}, conn)
+    #   |> Flight.Repo.preload([:user])
 
-    total_pending =
-      pending_transactions
-      |> Enum.map(& &1.total)
-      |> Enum.sum()
+    # total_pending =
+    #   pending_transactions
+    #   |> Enum.map(& &1.total)
+    #   |> Enum.sum()
 
     render(
       conn,
@@ -30,9 +30,9 @@ defmodule FlightWeb.Admin.PageController do
       renter_count: renter_count,
       aircraft_count: Enum.count(aircrafts),
       expired_inspections: expired_inspections,
-      pending_transactions: pending_transactions,
-      fsm_income: fsm_income,
-      total_pending: total_pending
+      # pending_transactions: pending_transactions,
+      fsm_income: fsm_income
+      # total_pending: total_pending
     )
   end
 
