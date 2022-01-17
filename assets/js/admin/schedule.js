@@ -4,7 +4,6 @@ var userInfo = null;
 var allInstructors = null;
 var allAircrafts = null;
 var allStudents = null;
-var resourceType = null;
 
 function userTitle(user) {
   if (!user) return '';
@@ -330,7 +329,6 @@ $(document).ready(function () {
   });
 
   function displayForAppointment(type) {
-    resourceType = type;
     if (type == "Simulator") {
       $('#apptFieldAircraft').hide();
       $('#apptFieldSimulator').show();
@@ -436,30 +434,7 @@ $(document).ready(function () {
       }
     }
   }
-  function showRequiredError(message) {
-    $.notify({
-      message: message
-    }, {
-      type: "danger",
-      placement: { align: "center" }
-    })
-    $('#loader').hide();
-  }
-  function checkForResourceType(aircraft_id, simulator_id, room_id) {
-    if ( !simulator_id && resourceType === 'Simulator'  ) {
-      showRequiredError("Simulator is required.")
-      return false;
-    }
-    if ( !aircraft_id && resourceType === 'Aircraft' ) {
-      showRequiredError("Aircraft is required.")
-      return false;
-    }
-    if ( !room_id && resourceType === 'Room' ) {
-      showRequiredError("Room is required.")
-      return false;
-    }
-    return true;
-  }
+
   // collect event data on save and send to server
   $('#btnSave').click(function () {
     console.log("save Button Clicked")
@@ -481,7 +456,7 @@ $(document).ready(function () {
       var eventSimulator = safeParseInt($('#apptSimulator').val());
       var eventRoom = safeParseInt($('#apptRoom').val());
       var eventApptType = $('#apptType').val();
-      if ( !checkForResourceType(eventAircraft, eventSimulator, eventRoom) ) return;
+
       var eventStart = (moment.utc($('#apptStart').val()).add(-(moment($('#apptStart').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
       var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment($('#apptEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
 
@@ -525,7 +500,7 @@ $(document).ready(function () {
       var eventStart = (moment.utc($('#demoApptStart').val()).add(-(moment($('#demoApptStart').val()).utcOffset()), 'm')).format()
       var eventEnd = (moment.utc($('#demoApptEnd').val()).add(-(moment($('#demoApptEnd').val()).utcOffset()), 'm')).format()
       var eventNote = $('#demoApptNote').val()
-      if ( !checkForResourceType(eventAircraft, eventSimulator, eventRoom) ) return;
+
       var eventData = {
         start_at: eventStart,
         end_at: eventEnd,
@@ -560,7 +535,7 @@ $(document).ready(function () {
       var eventAircraft = safeParseInt($('#unavailAircraft').val());
       var eventSimulator = safeParseInt($('#unavailSimulator').val());
       var eventRoom = safeParseInt($('#unavailRoom').val());
-      if ( !checkForResourceType(eventAircraft, eventSimulator, eventRoom) ) return;
+
       var eventStart;
       var eventEnd;
 
@@ -816,11 +791,10 @@ $(document).ready(function () {
       } else if (initialData.room_id) {
         assetType = "Room"
       }
-      
-      if (!assetType) {assetType = "Aircraft"}
+
       displayForAppointment(assetType)
 
-      
+      if (!assetType) {assetType = "Aircraft"}
       $('#apptFor').val(assetType).selectpicker("refresh");
 
     if (initialData.type == "unavailability" || initialData.type == "unavailable") {
