@@ -36,7 +36,7 @@ defmodule Flight.Scheduling.Appointment do
     timestamps()
   end
 
-  def types(), do: ["solo_flight", "demo_flight", "check_ride", "instructor_led", "unavailable", "meeting"]
+  def types(), do: ["solo_flight", "demo_flight", "check_ride", "flight_lesson", "unavailable", "meeting"]
 
   def __test_changeset(appointment, attrs, timezone) do
     appointment
@@ -105,7 +105,7 @@ defmodule Flight.Scheduling.Appointment do
 
   def normalize_type(%Ecto.Changeset{valid?: true, changes: %{type: type}} = changeset) do
     type = type || "none"
-    type = 
+    type =
         type
         |> String.downcase
 
@@ -123,7 +123,7 @@ defmodule Flight.Scheduling.Appointment do
       get_field(changeset, :demo) ->
         changeset
 
-      get_field(changeset, :instructor_user_id) || get_field(changeset, :aircraft_id) || 
+      get_field(changeset, :instructor_user_id) || get_field(changeset, :aircraft_id) ||
       get_field(changeset, :simulator_id) || get_field(changeset, :room_id) ->
         changeset
 
@@ -171,7 +171,7 @@ defmodule Flight.Scheduling.Appointment do
   defp validate_assets(changeset) do
     aircraft_id = get_field(changeset, :aircraft_id) || get_change(changeset, :aircraft_id)
     simulator_id = get_field(changeset, :simulator_id) || get_change(changeset, :simulator_id)
-    room_id = get_field(changeset, :room_id) || get_change(changeset, :room_id) 
+    room_id = get_field(changeset, :room_id) || get_change(changeset, :room_id)
 
     cond do
       aircraft_id && simulator_id && room_id ->
