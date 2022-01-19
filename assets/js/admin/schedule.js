@@ -752,7 +752,7 @@ $(document).ready(function () {
 
       } else {
         $('#apptType').attr('disabled', false)
-        $('#apptType').val('instructor_led').selectpicker("refresh");
+        $('#apptType').val('flight_lesson').selectpicker("refresh");
         $('#btnDelete').hide()
       }
 
@@ -1477,7 +1477,7 @@ $(document).ready(function () {
 
             } else {
               var color_class = 'event-blue'
-              if (appointment.type === "instructor_led") {
+              if (appointment.type === "flight_lesson") {
                 color_class = 'event-light-blue'
               } else if (appointment.type === "demo_flight") {
                 color_class = "event-yellow"
