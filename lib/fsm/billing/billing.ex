@@ -181,8 +181,7 @@ defmodule Fsm.Billing do
                   paid_by_check: Map.get(transaction, "paid_by_check"),
                   paid_by_venmo: Map.get(transaction, "paid_by_venmo"),
                   payment_option: Map.get(transaction, "payment_option"),
-                  inserted_at: Map.get(transaction, "inserted_at"),
-                  notes: Map.get(transaction, "notes")
+                  inserted_at: Map.get(transaction, "inserted_at")
                 }
               end)
 
@@ -219,8 +218,7 @@ defmodule Fsm.Billing do
                   deductible: Map.get(line_item, "deductible"),
                   creator_id: Map.get(line_item, "creator_id"),
                   room_id: Map.get(line_item, "room_id"),
-                  instructor_name: Map.get(line_item, "instructor_name"),
-                  notes: Map.get(line_item, "notes"),
+                  instructor_name: Map.get(line_item, "instructor_name")
                 }
               end)
 
@@ -257,6 +255,7 @@ defmodule Fsm.Billing do
               user: i.user,
               room: room,
               notes: i.notes,
+              payer_email: i.payer_email
             }
           end)
 

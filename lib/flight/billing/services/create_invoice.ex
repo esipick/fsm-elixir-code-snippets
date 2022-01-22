@@ -10,6 +10,7 @@ defmodule Flight.Billing.CreateInvoice do
   alias Flight.Billing.TransactionLineItem
   alias Flight.Billing.InvoiceLineItem
   require Logger
+
   def run(invoice_params, %{assigns: %{current_user: user}} = school_context) do
     ## archive course invoice if there is
     if Map.get(invoice_params, "course_id", false) do
@@ -52,7 +53,7 @@ defmodule Flight.Billing.CreateInvoice do
             line_item != nil -> Utils.update_aircraft(line_item.aircraft_id, line_item, user)
             true -> :nothing
           end
-  
+
           if pay_off == true do
             #Logger.info fn -> "invoice990000-----------------: #{inspect invoice}" end
           case pay(invoice, school_context) do
@@ -66,7 +67,7 @@ defmodule Flight.Billing.CreateInvoice do
             end
           else
             {:ok, invoice}
-          end  
+          end
     else
       {:aircrafts, true} -> {:error, "An invoice can have a single item for Flight, Demo Flight or Simulator Hours."}
       {:rooms, true} -> {:error, "The same room cannot be added twice to an invoice."}
@@ -81,7 +82,7 @@ defmodule Flight.Billing.CreateInvoice do
     |> process_payment(school_context)
     |> case do
       {:ok, invoice} ->
-        # here make transaction line items and insert.        
+        # here make transaction line items and insert.
         if invoice.appointment && invoice.status == :paid do
           Appointment.paid(invoice.appointment)
         end
@@ -111,11 +112,11 @@ defmodule Flight.Billing.CreateInvoice do
 
     case invoice.payment_option do
       :balance -> pay_off_balance(invoice, school_context)
-      :cc -> 
+      :cc ->
         is_demo = is_demo_invoice?(invoice)
         #Logger.info fn -> " pay_off_cc_333444-------------: #{inspect  invoice }" end
         pay_off_cc(invoice, school_context, is_demo, x_device)
-      
+
       _ -> pay_off_manually(invoice, school_context)
     end
   end
@@ -148,12 +149,12 @@ defmodule Flight.Billing.CreateInvoice do
     end
   end
 
-  defp pay_off_cc(invoice, 
+  defp pay_off_cc(invoice,
     %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, "ios") do
     #Logger.info fn -> " pay_off_cc_33444-------------: #{inspect  invoice }" end
     Flight.StripeSinglePayment.get_payment_intent_secret(invoice, school_id)
     |> case do
-      {:ok, %{intent_id: id} = session} -> 
+      {:ok, %{intent_id: id} = session} ->
         Flight.Bills.delete_invoice_pending_transactions(invoice.id, invoice.user_id, school_id)
         transaction_attrs = transaction_attributes(invoice)
         CreateTransaction.run(invoice.user, school_context, transaction_attrs)
@@ -165,13 +166,13 @@ defmodule Flight.Billing.CreateInvoice do
     end
   end
 
-  defp pay_off_cc(invoice, 
+  defp pay_off_cc(invoice,
     %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, _) do
     #Logger.info fn -> " pay_off_cc_11122-------------: #{inspect  invoice }" end
 
     Flight.StripeSinglePayment.get_stripe_session(invoice, school_id)
     |> case do
-      {:ok, session} -> 
+      {:ok, session} ->
         Flight.Bills.delete_invoice_pending_transactions(invoice.id, invoice.user_id, school_id)
         transaction_attrs = transaction_attributes(invoice)
         CreateTransaction.run(invoice.user, school_context, transaction_attrs)
@@ -211,6 +212,7 @@ defmodule Flight.Billing.CreateInvoice do
       total: invoice.total_amount_due,
       payment_option: invoice.payment_option,
       payer_name: invoice.payer_name,
+      payer_email: invoice.payer_email,
       invoice_id: invoice.id
     }
   end
@@ -224,14 +226,14 @@ defmodule Flight.Billing.CreateInvoice do
   def insert_bulk_invoice_line_items(_, [], _school_context), do: {:ok, :done}
   def insert_bulk_invoice_line_items(%{id: bulk_invoice_id} = bulk_invoice, invoices, school_context) do
     ids = Enum.map(invoices, & &1.id)
-    line_items_map = 
+    line_items_map =
       get_invoice_line_items(ids)
       |> Enum.group_by(& &1.invoice_id)
 
     Enum.map(invoices, fn invoice ->
       line_items = Map.get(line_items_map, invoice.id)
       invoice =
-        invoice 
+        invoice
         |> Map.from_struct
         |> Map.put(:line_items, line_items)
 
@@ -247,7 +249,7 @@ defmodule Flight.Billing.CreateInvoice do
   def insert_transaction_line_items(invoice, school_context, transaction \\ nil) do
     aircraft = Enum.find(invoice.line_items, &(&1.aircraft_id != nil && &1.type == :aircraft))
     instructor = Enum.find(invoice.line_items, &(&1.instructor_user_id != nil && &1.type == :instructor))
-    
+
     create_transaction_items(aircraft, instructor, invoice, school_context, transaction)
   end
 
@@ -255,14 +257,14 @@ defmodule Flight.Billing.CreateInvoice do
   defp create_transaction_items(aircraft, instructor, _, _, _) when is_nil(aircraft) and is_nil(instructor), do: nil
   defp create_transaction_items(aircraft, instructor, %{id: invoice_id, tax_rate: tax_rate}, school_context, transaction) do
 
-    {_, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details} = 
+    {_, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details} =
       %{tax_rate: tax_rate}
       |> aircraft_details(aircraft)
       |> instructor_details(instructor)
       |>  FlightWeb.API.DetailedTransactionForm.to_transaction(:normal, school_context)
 
     transaction = transaction || Flight.Queries.Transaction.get_invoice_transaction(invoice_id)
-    
+
     with %{id: id, state: "completed"} <- transaction do
       insert_instructor_transaction_item(instructor_line_item, instructor_details, id)
       insert_aircraft_transaction_item(aircraft_line_item, aircraft_details, id)
@@ -330,16 +332,16 @@ defmodule Flight.Billing.CreateInvoice do
 
   def is_demo_invoice?(%Invoice{appointment: %Appointment{demo: demo}}), do: demo
   def is_demo_invoice?(invoice) do
-    demo = 
+    demo =
       Enum.find(invoice.line_items, fn item -> item.description == "Demo Flight" end) != nil
     user = Map.get(invoice, :user) || %{}
     has_cc = Map.get(user, :stripe_customer_id) != nil
-    
+
     if demo && has_cc do
       false
 
     else
       demo
-    end  
+    end
   end
 end

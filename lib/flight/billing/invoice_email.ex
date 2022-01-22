@@ -10,18 +10,18 @@ defmodule Flight.InvoiceEmail do
         |> Map.from_struct
         |> deliver_email(school)
       end
-    
+
     def send_paid_bulk_invoice_email(bulk_invoice, invoices, line_items_map, school_context) do
         user = Flight.Accounts.dangerous_get_user(bulk_invoice.user_id)
         school = Flight.SchoolScope.get_school(school_context)
 
-        payment_date = 
+        payment_date =
         NaiveDateTime.utc_now()
         |> Flight.Walltime.utc_to_walltime(school.timezone)
         |> NaiveDateTime.to_date
 
         invoice_calc =
-        Enum.reduce(invoices, %{}, fn invoice, acc -> 
+        Enum.reduce(invoices, %{}, fn invoice, acc ->
             total = Map.get(acc, :total) || 0
             total_tax = Map.get(acc, :total_tax) || 0
             amount_due = Map.get(acc, :amount_due) || 0
@@ -46,16 +46,28 @@ defmodule Flight.InvoiceEmail do
     end
 
     def deliver_email(invoice, school) do
-        Mondo.Task.start(fn ->
+        # We need to get an email from invoice.payer_email
+        # in case of guest, demo user othervise from user.email
+        #
+        # We're sure that for guest, demo user_id would be empty so
+        # consider getting payer_email instead of invoice.user.email
+        email = if  is_nil(invoice.user_id), do: invoice.payer_email, else: invoice.user.email
 
-            with {:ok, pdf_path} <- convert_to_pdf(invoice, school) do
-                invoice.user.email
-                |> Flight.Email.invoice_email(invoice.id, pdf_path)    
-                |> Flight.Mailer.deliver_now
+        # For guest, demo user is optional we have to apply a check where as well
+        case is_nil(email) or email == "" do
+          true ->
+            {:ok, "Email not provided"}
+          false ->
+            Mondo.Task.start(fn ->
+                with {:ok, pdf_path} <- convert_to_pdf(invoice, school) do
+                    email
+                    |> Flight.Email.invoice_email(invoice.id, pdf_path)
+                    |> Flight.Mailer.deliver_now
 
-                File.rm!(pdf_path)
-            end
-        end)
+                    File.rm!(pdf_path)
+                end
+            end)
+        end
     end
 
     def convert_to_pdf(invoice, school) do
@@ -64,7 +76,7 @@ defmodule Flight.InvoiceEmail do
             base_url: Application.get_env(:flight, :web_base_url),
             invoice: invoice
         }
-        
+
         with true <- Enum.count(invoice.line_items) > 0,
             html <- Flight.InvoiceEmail.render(assigns) do
                 pdf_from_html(invoice.id, html)

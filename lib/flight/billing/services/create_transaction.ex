@@ -11,7 +11,7 @@ defmodule CreateTransaction do
         state: "pending",
         type: "debit",
         user_id: user && user.id,
-        email: user && user.email,
+        email: (if is_nil(user), do: attrs[:payer_email], else: user && user.email),
         first_name: first_name,
         last_name: user && user.last_name,
         creator_user_id: school_context.assigns.current_user.id,

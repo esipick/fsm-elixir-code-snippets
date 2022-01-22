@@ -35,6 +35,7 @@ defmodule Flight.Billing.Invoice do
     field(:archived_at, :naive_datetime)
     field(:appointment_updated_at, :naive_datetime)
     field(:notes, :string)
+    field(:payer_email, :string, default: nil)
 
     field(:aircraft_info, :map, null: true)
     field(:session_id, :string, null: true)
@@ -61,7 +62,7 @@ defmodule Flight.Billing.Invoice do
     invoice
     |> cast(attrs, @required_fields)
     |> cast(attrs, @payer_fields)
-    |> cast(attrs, [:aircraft_info, :appointment_id, :archived, :is_visible, :status, :appointment_updated_at, :demo, :session_id, :course_id, :is_admin_invoice, :notes])
+    |> cast(attrs, [:aircraft_info, :appointment_id, :archived, :is_visible, :status, :appointment_updated_at, :demo, :session_id, :course_id, :is_admin_invoice, :notes, :payer_email])
     |> cast_assoc(:line_items)
     |> assoc_constraint(:user)
     |> assoc_constraint(:school)

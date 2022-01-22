@@ -61,6 +61,7 @@ class Form extends Component {
       balance_warning_accepted: false,
       payment_method: this.getPaymentMethod(props.payment_method, demo),
       notes: props.notes,
+      payer_email: props.payer_email,
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
@@ -136,6 +137,7 @@ class Form extends Component {
           line_items: invoice.line_items || [],
           payment_method: payment_method,
           notes: invoice.notes,
+          payer_email: invoice.payer_email,
           demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
@@ -341,6 +343,7 @@ class Form extends Component {
       date: date.toISOString(),
       tax_rate: sales_tax,
       notes: this.state.notes,
+      payer_email: this.state.payer_email,
       total,
       total_tax,
       total_amount_due,
@@ -781,6 +784,26 @@ class Form extends Component {
               </div>
 
                 <div className="form-group">
+                {
+                    (demo || student?.guest) && (
+                      <>
+                        <label>
+                          Email
+                        </label>
+                        <div className="invoice-select-wrapper">
+                          <input className="form-control"
+                            type="email"
+                            placeholder="Enter demo or guest user email"
+                            value={this.state.payer_email || ''}
+                            onChange={(event) =>  this.setState({
+                              payer_email: event.target.value
+                            })
+                          } 
+                          />
+                        </div>
+                      </>
+                    )
+                  }
                   <label>
                     Add Notes
                   </label>
