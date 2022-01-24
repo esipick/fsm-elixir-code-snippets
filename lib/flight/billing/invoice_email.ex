@@ -54,9 +54,10 @@ defmodule Flight.InvoiceEmail do
         email = if  is_nil(invoice.user_id), do: invoice.payer_email, else: invoice.user.email
 
         # For guest, demo user is optional we have to apply a check where as well
-        case is_nil(email) or email == "" do
+        case is_nil(email) or !String.match?(email, ~r/^\S+@\S+\.\S+$/) or email == "" do
           true ->
-            {:ok, "Email not provided"}
+            IO.inspect("Invalid email for walk-in purchase")
+            {:ok, "Invalid email"}
           false ->
             Mondo.Task.start(fn ->
                 with {:ok, pdf_path} <- convert_to_pdf(invoice, school) do

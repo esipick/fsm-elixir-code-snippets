@@ -89,7 +89,17 @@ defmodule Flight.Billing.CreateInvoice do
 
         insert_transaction_line_items(invoice, school_context)
 
-        if invoice.user_id && invoice.status == :paid do
+        # As we intend to send email for walk-in purchases (issue # 563),
+        # we need to remove check invoice.user_id, because we don't have
+        # actual user account for walk-in purchases
+
+        # FROM
+        # if invoice.user_id && invoice.status == :paid do
+        # TO
+        # if invoice.status == :paid do
+        # Note: we also have guard conditions
+
+        if invoice.status == :paid do
           Flight.InvoiceEmail.send_paid_invoice_email(invoice, school_context)
         end
 
