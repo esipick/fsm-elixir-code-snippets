@@ -118,7 +118,7 @@ defmodule FlightWeb.Router do
     pipe_through([:browser, :admin_layout, :student_authenticate, :admin_metrics_namespace])
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
-
+    get("/profile/add-funds", ProfileController, :add_funds)
     resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true) do
       put("/update_card", ProfileController, :update_card)
     end
@@ -128,6 +128,7 @@ defmodule FlightWeb.Router do
     pipe_through([:browser, :admin_layout, :renter_authenticate, :admin_metrics_namespace])
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
+    get("/profile/add-funds", ProfileController, :add_funds)
     resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true) do
       put("/update_card", ProfileController, :update_card)
     end
