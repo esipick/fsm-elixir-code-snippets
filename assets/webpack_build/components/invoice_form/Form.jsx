@@ -788,7 +788,7 @@ class Form extends Component {
                     (demo || student?.guest) && (
                       <>
                         <label>
-                          Email
+                          Add Email to Send this Invoice
                         </label>
                         <div className="invoice-select-wrapper">
                           <input className="form-control"
