@@ -204,6 +204,10 @@
                     </div>
                   <% end %>
                 </div>
+                  <div class="field">
+                    <h3>Notes</h3>
+                    <p class="text-lowercase"><%= @user.notes%></p>
+                  </div>
               </div>
             </div>
           </div>

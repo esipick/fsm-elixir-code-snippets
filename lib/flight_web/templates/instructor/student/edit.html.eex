@@ -248,6 +248,17 @@
                   </div>
                 </div>
               </div>
+
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Notes</label>
+                    <%= textarea f, :notes, class: "form-control" %>
+                    <%= full_error_tag f, :notes %>
+                  </div>
+                </div>
+              </div>
+
             <% end %>
             <%= if has_pay_rates?(@user) do %>
               <div class="row">

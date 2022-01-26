@@ -56,6 +56,7 @@ defmodule Flight.Accounts.User do
     field(:archived, :boolean, default: false)
     field(:stripe_customer_id, :string)
     field(:avatar, AvatarUploader.Type)
+    field(:notes, :string, default: nil)
     belongs_to(:main_instructor, User)
     belongs_to(:school, Flight.Accounts.School)
     has_many(:documents, Flight.Accounts.Document, on_replace: :delete, on_delete: :delete_all)
@@ -165,7 +166,8 @@ defmodule Flight.Accounts.User do
       :state,
       :zipcode,
       :main_instructor_id,
-      :school_id
+      :school_id,
+      :notes
     ])
     |> cast_avatar(attrs)
     |> validate_required([
@@ -274,6 +276,7 @@ defmodule Flight.Accounts.User do
       :medical_expires_at,
       :certificate_number,
       :awards,
+      :notes,
 
       :date_of_birth,
       :gender,
@@ -329,6 +332,7 @@ defmodule Flight.Accounts.User do
       :billing_rate,
       :pay_rate,
       :awards,
+      :notes,
 
       :date_of_birth,
       :gender,
