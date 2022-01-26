@@ -95,7 +95,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       invoice.total == 0 ->
         0
       invoice.status == :paid ->
-        invoice.total_amount_due
+        invoice.total
       true ->
         amount_paid(invoice)
     end
