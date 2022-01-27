@@ -21,15 +21,15 @@ function getPlainDate(start_at) {
         <span class="col-md-3 d-flex flex-column">
           <h7>Amount Spent</h7>
           <h2 class="mb-2"><%= currency @total_amount_spent %></h2>
-        </span>      
+        </span>
     </div>
   <% end %>
 
     <div class="text-center mb-2 mt-2 d-flex justify-content-center">
       <!-- Button trigger modal -->
-      <button type="button" class="btn btn-primary" id="addFundsButton">
+      <%# <button type="button" class="btn btn-primary" id="addFundsButton">
         add funds
-      </button>
+      </button> %>
 
       <!-- Modal -->
       <div class="modal fade" id="addFundsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -126,7 +126,7 @@ function getPlainDate(start_at) {
   <% end %>
 </div>
 <script>
-  
+
   $("#addFundsButton").on("click", function() {
     $("#addFundsModal").modal();
     $("#addFundsAmount")[0].value = "";
