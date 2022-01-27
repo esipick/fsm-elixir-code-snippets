@@ -6,7 +6,7 @@ defmodule FlightWeb.Billing.TransactionStruct do
 
   defstruct ~w(
     id invoice_id school student_name amount_due amount_paid state completed_at
-    payment_method error_message created title bulk_invoices
+    payment_method error_message created title bulk_invoices guest payer_email
   )a
 
   def build(transaction, opts \\ %{}) do
@@ -22,6 +22,7 @@ defmodule FlightWeb.Billing.TransactionStruct do
       school: transaction.school,
       invoice_id: transaction.invoice_id,
       student_name: student_name(transaction),
+      payer_email: transaction.email,
       amount_due: (if transaction.state == "completed", do: 0, else: transaction.total),
       amount_paid: (if transaction.state == "completed", do: transaction.total, else: 0),
       state: transaction.state,
@@ -29,7 +30,8 @@ defmodule FlightWeb.Billing.TransactionStruct do
       payment_method: transaction.payment_option,
       error_message: transaction.error_message,
       bulk_invoices: if(opts[:render_invoices], do: bulk_invoices(transaction), else: []),
-      title: title(transaction)
+      title: title(transaction),
+      guest: is_nil(transaction.user)
     }
   end
 

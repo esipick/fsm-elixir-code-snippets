@@ -57,6 +57,10 @@ function getPlainDate(start_at) {
                 <dt>Payer names</dt>
                 <dd><%= @invoice.payer_name %></dd>
               </dl>
+               <dl class="d-flex justify-content-between">
+                <dt>Payer Email</dt>
+                <dd><%= @invoice.payer_email %></dd>
+              </dl>
 
               <%= if @invoice.appointment do %>
                 <dl>

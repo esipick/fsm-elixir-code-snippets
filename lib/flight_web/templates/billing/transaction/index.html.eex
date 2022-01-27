@@ -120,6 +120,9 @@ function exportTableToCSV(filename) {
                 <% end %>
                 <th>Invoice ID</th>
                 <th>Person Name</th>
+                <%= if Authorization.staff_member?(@conn.assigns.current_user) do %>
+                  <th>Demo User</th>
+                <% end %>
                 <th>Amount Due</th>
                 <th>Amount Paid</th>
                 <th>Status</th>
@@ -150,6 +153,9 @@ function exportTableToCSV(filename) {
                     <% end %>
                   </td>
                   <td><%= transaction.student_name %></td>
+                  <%= if Authorization.staff_member?(@conn.assigns.current_user) do %>
+                    <td><%= if transaction.guest, do: "Yes", else: "No" %></td>
+                  <% end %>
                   <td><%= currency(transaction.amount_due) %></td>
                   <td><%= currency(transaction.amount_paid) %></td>
                   <td><%= transaction.state %></td>
