@@ -1,11 +1,19 @@
 defmodule Flight.Email do
   import Bamboo.Email
+  import Bamboo.SendGridHelper
   use Bamboo.Phoenix, view: FlightWeb.EmailView
 
-  alias Flight.Accounts.{Invitation, SchoolInvitation}
+  alias Flight.Accounts.{Invitation, SchoolInvitation, User}
   alias Flight.Repo
 
-  # System Emails
+  def unavailability_email(%User{} = user) do
+    new_email()
+    |> to(user.email)
+    |> from({"Flight School Manager", "noreply@flightschoolmanager.co"})
+    |> with_template(Application.get_env(:flight, :appointment_unavailability_template_id))
+    |> add_dynamic_field("FIRST_NAME", user.first_name)
+    |> IO.inspect()
+  end
 
   def invitation_email(%Invitation{} = invitation) do
     role = Flight.Accounts.get_role(invitation.role_id)
@@ -56,13 +64,13 @@ defmodule Flight.Email do
 
   # def invoice_email(to, _invoice_no, html) when is_nil(to) or is_nil(html), do: :error
   # def invoice_email(to, invoice_no, html) do
-    
-  #   new_email()
-  #   |> to(to)
-  #   |> from("noreply@flightschoolmanager.co")
-  #   |> subject("Invoice# #{invoice_no} - Flight School Manager")
-  #   |> html_body(html)
-  # end 
+
+    # new_email()
+    # |> to(to)
+    # |> from("noreply@flightschoolmanager.co")
+    # |> subject("Invoice# #{invoice_no} - Flight School Manager")
+    # |> html_body(html)
+  # end
 
   def invoice_email(to, _invoice_no, path) when is_nil(to) or is_nil(path), do: :error
   def invoice_email(to, invoice_no, path) do
@@ -75,7 +83,7 @@ defmodule Flight.Email do
     |> html_body("Invoice# #{invoice_no} - Flight School Manager")
     |> put_attachment(attachment)
     # |> html_body(invoice_html)
-  end 
+  end
 
   def invitation_link(%Invitation{} = invitation) do
     Application.get_env(:flight, :web_base_url) <> "/invitations/token?token=#{invitation.token}"

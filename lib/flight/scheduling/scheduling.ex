@@ -841,6 +841,9 @@ defmodule Flight.Scheduling do
         |> Mondo.PushService.publish()
       end
     end)
+
+    # send email to appointment.user
+    Flight.Email.unavailability_email(appointment.user)
   end
 
   def send_unavailibility_notification(attrs, school_context) do
