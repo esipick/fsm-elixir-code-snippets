@@ -210,6 +210,12 @@
                       <% end %>
                     </div>
                   <% end %>
+                  <%= if Accounts.has_role?(@user, "renter") or Accounts.has_role?(@user, "student") do %>
+                    <div class="field">
+                      <h3>Notes</h3>
+                      <p class="text-lowercase"><%= @user.notes%></p>
+                    </div>
+                  <% end %>
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 defmodule Fsm.Billing.CreateInvoice do
     import Ecto.Query
-  
+
     alias Flight.Repo
     alias Fsm.Accounts.User
     alias Fsm.Accounts
@@ -14,7 +14,7 @@ defmodule Fsm.Billing.CreateInvoice do
     alias Flight.Billing.InvoiceLineItem
 
     require Logger
-  
+
     def run(invoice_params, pay_off, school_id, user_id) do
 
       ## archive course invoice if there is
@@ -91,7 +91,7 @@ defmodule Fsm.Billing.CreateInvoice do
         error -> error
       end
     end
-  
+
     def pay(invoice, school_context) do
       invoice
       |> Repo.preload(user: from(i in User, lock: "FOR UPDATE NOWAIT"))
@@ -99,25 +99,35 @@ defmodule Fsm.Billing.CreateInvoice do
       |> process_payment(school_context)
       |> case do
         {:ok, invoice} ->
-          # here make transaction line items and insert.        
+          # here make transaction line items and insert.
           if invoice.appointment && invoice.status == :paid do
             Appointment.paid(invoice.appointment)
           end
-  
+
           insert_transaction_line_items(invoice, school_context)
-  
-          if invoice.user_id && invoice.status == :paid do
+
+          # As we intend to send email for walk-in purchases (issue # 563),
+          # we need to remove check invoice.user_id, because we don't have
+          # actual user account for walk-in purchases
+
+          # FROM
+          # if invoice.user_id && invoice.status == :paid do
+          # TO
+          # if invoice.status == :paid do
+          # Note: we also have guard conditions
+
+          if invoice.status == :paid do
             Flight.InvoiceEmail.send_paid_invoice_email(invoice, school_context)
           end
-  
+
           {:ok, invoice}
-  
+
         {:error, changeset} ->
           {:error, changeset}
       end
-  
+
     end
-  
+
     defp process_payment(%{total_amount_due: due_amount} = invoice, _school_context) when due_amount <= 0 do
       Invoice.paid(invoice)
     end
@@ -132,18 +142,18 @@ defmodule Fsm.Billing.CreateInvoice do
         :cc ->
           is_demo = is_demo_invoice?(invoice)
           pay_off_cc(invoice, school_context, is_demo, x_device)
-        
+
         _ -> pay_off_manually(invoice, school_context)
       end
     end
-  
+
     defp pay_off_balance(%Invoice{appointment: %Appointment{demo: true}}, _context) do
       {:error, "Payment method not available for demo flights."}
     end
-  
+
     defp pay_off_balance(invoice, school_context) do
       total_amount_due = InvoiceStruct.build(invoice).amount_remainder
-  
+
       transaction_attrs =
         transaction_attributes(invoice)
         |> Map.merge(%{total: total_amount_due})
@@ -158,28 +168,28 @@ defmodule Fsm.Billing.CreateInvoice do
         {:error, :balance_is_empty} ->
           is_demo = is_demo_invoice?(invoice)
           pay_off_cc(invoice, school_context, is_demo, nil, total_amount_due)
-  
+
         {:error, changeset} ->
           {:error, changeset}
       end
     end
-  
-    defp pay_off_cc(invoice, 
+
+    defp pay_off_cc(invoice,
       %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, "ios") do
       Flight.StripeSinglePayment.get_payment_intent_secret(invoice, school_id)
       |> case do
-        {:ok, %{intent_id: id} = session} -> 
+        {:ok, %{intent_id: id} = session} ->
           Flight.Bills.delete_invoice_pending_transactions(invoice.id, invoice.user_id, school_id)
           transaction_attrs = transaction_attributes(invoice)
           CreateTransaction.run(invoice.user, school_context, transaction_attrs)
-  
+
           Invoice.save_invoice(invoice, %{session_id: id})
           {:ok, Map.merge(invoice, session)}
-  
+
         error -> error
       end
     end
-  
+
     defp pay_off_cc(%{stripe_token: stripe_token} = invoice,
       %{assigns: %{current_user: %{school_id: school_id}}} = school_context, true, _) when not is_nil(stripe_token) do
 
@@ -194,7 +204,7 @@ defmodule Fsm.Billing.CreateInvoice do
           CreateTransaction.run(invoice.user, school_context, transaction_attrs)
           Invoice.save_invoice(oldInvoice,  Map.merge(%{payment_option: :cc, status: :paid},session))
           {:ok, Map.merge(invoice, session)}
-  
+
         error ->
           error
       end
@@ -216,21 +226,21 @@ defmodule Fsm.Billing.CreateInvoice do
         error -> error
       end
     end
-  
+
     defp pay_off_cc(invoice, school_context, _, _, amount \\ nil) do
 
       amount = amount || invoice.total_amount_due
-  
+
       transaction_attrs =
         transaction_attributes(invoice)
         |> Map.merge(%{type: "credit", total: amount, payment_option: :cc})
-  
+
       case PayOff.credit_card(invoice.user, transaction_attrs, school_context) do
         {:ok, _} -> Invoice.paid_by_cc(invoice)
         {:error, changeset} -> {:error, changeset}
       end
     end
-  
+
     defp pay_off_manually(invoice, school_context) do
       transaction_attrs = transaction_attributes(invoice)
       case PayOff.manually(invoice.user, transaction_attrs, school_context) do
@@ -238,70 +248,71 @@ defmodule Fsm.Billing.CreateInvoice do
         {:error, changeset} -> {:error, changeset}
       end
     end
-  
+
     defp transaction_attributes(invoice) do
       %{
         total: invoice.total_amount_due,
         payment_option: invoice.payment_option,
         payer_name: invoice.payer_name,
+        payer_email: invoice.payer_email,
         invoice_id: invoice.id
       }
     end
-  
+
     defp get_invoice_line_items([]), do: []
     defp get_invoice_line_items(invoice_ids) do
       from(ili in InvoiceLineItem, select: ili, where: ili.invoice_id in ^invoice_ids)
       |> Repo.all
     end
-  
+
     def insert_bulk_invoice_line_items(_, [], _school_context), do: {:ok, :done}
     def insert_bulk_invoice_line_items(%{id: bulk_invoice_id} = bulk_invoice, invoices, school_context) do
       ids = Enum.map(invoices, & &1.id)
-      line_items_map = 
+      line_items_map =
         get_invoice_line_items(ids)
         |> Enum.group_by(& &1.invoice_id)
-  
+
       Enum.map(invoices, fn invoice ->
         line_items = Map.get(line_items_map, invoice.id)
         invoice =
-          invoice 
+          invoice
           |> Map.from_struct
           |> Map.put(:line_items, line_items)
-  
+
         transaction = Flight.Queries.Transaction.get_bulk_invoice_transaction(bulk_invoice_id)
         insert_transaction_line_items(invoice, school_context, transaction)
       end)
-  
+
       Flight.InvoiceEmail.send_paid_bulk_invoice_email(bulk_invoice, invoices, line_items_map, school_context)
-  
+
       {:ok, :done}
     end
-  
+
     def insert_transaction_line_items(invoice, school_context, transaction \\ nil) do
       aircraft = Enum.find(invoice.line_items, &(&1.aircraft_id != nil && &1.type == :aircraft))
       instructor = Enum.find(invoice.line_items, &(&1.instructor_user_id != nil && &1.type == :instructor))
-      
+
       create_transaction_items(aircraft, instructor, invoice, school_context, transaction)
     end
-  
+
     # defp create_transaction_items(aircraft, instructor, invoice, school_context, transaction \\ nil)
     defp create_transaction_items(aircraft, instructor, _, _, _) when is_nil(aircraft) and is_nil(instructor), do: nil
     defp create_transaction_items(aircraft, instructor, %{id: invoice_id, tax_rate: tax_rate}, school_context, transaction) do
-  
-      {_, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details} = 
+
+      {_, instructor_line_item, instructor_details, aircraft_line_item, aircraft_details} =
         %{tax_rate: tax_rate}
         |> aircraft_details(aircraft)
         |> instructor_details(instructor)
         |>  FlightWeb.API.DetailedTransactionForm.to_transaction(:normal, school_context)
-  
+
       transaction = transaction || Flight.Queries.Transaction.get_invoice_transaction(invoice_id)
-      
+
       with %{id: id, state: "completed"} <- transaction do
         insert_instructor_transaction_item(instructor_line_item, instructor_details, id)
         insert_aircraft_transaction_item(aircraft_line_item, aircraft_details, id)
       end
     end
-  
+
     defp insert_instructor_transaction_item(nil, _item_details, _transaction_id), do: {:ok, %{}}
     defp insert_instructor_transaction_item(item, item_details, transaction_id) do
         item
@@ -312,11 +323,11 @@ defmodule Fsm.Billing.CreateInvoice do
               item_details
               |> Flight.Billing.InstructorLineItemDetail.changeset(%{transaction_line_item_id: id})
               |> Repo.insert
-  
+
           error -> error
         end
     end
-  
+
     defp insert_aircraft_transaction_item(nil, _item_details, _transaction_id), do: {:ok, %{}}
     defp insert_aircraft_transaction_item(item, item_details, transaction_id) do
         item
@@ -327,11 +338,11 @@ defmodule Fsm.Billing.CreateInvoice do
               item_details
               |> Flight.Billing.AircraftLineItemDetail.changeset(%{transaction_line_item_id: id})
               |> Repo.insert
-  
+
           error -> error
         end
     end
-  
+
     defp aircraft_details(form, nil), do: form
     defp aircraft_details(form, line_item) do
       details = %{
@@ -344,10 +355,10 @@ defmodule Fsm.Billing.CreateInvoice do
         block_rate_per_hour: 0,
         taxable: line_item.taxable
       }
-  
+
       Map.put(form, :aircraft_details, details)
     end
-  
+
     defp instructor_details(form, nil), do: form
     defp instructor_details(form, line_item) do
       details = %{
@@ -357,20 +368,20 @@ defmodule Fsm.Billing.CreateInvoice do
         pay_rate: 0,
         taxable: line_item.taxable
       }
-  
+
       Map.put(form, :instructor_details, details)
     end
-  
+
     def is_demo_invoice?(%Invoice{appointment: %Appointment{demo: demo}}), do: demo
     def is_demo_invoice?(invoice) do
-      demo = 
+      demo =
         Enum.find(invoice.line_items, fn item -> item.description == "Demo Flight" end) != nil
       user = Map.get(invoice, :user) || %{}
       has_cc = Map.get(user, :stripe_customer_id) != nil
-      
+
       if demo && has_cc do
         false
-  
+
       else
         demo
       end

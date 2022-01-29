@@ -159,4 +159,25 @@ defmodule FlightWeb.Student.ProfileController do
         )
     end
   end
+
+  def add_funds(conn, params) do
+    user = Repo.preload(conn.assigns.current_user, [:roles, :aircrafts, :instructors, :main_instructor])
+
+    transactions =
+      Billing.get_filtered_transactions(%{"user_id" => user.id}, conn)
+      |> Repo.preload([:line_items, :user, :creator_user])
+
+    total_amount_spent = Billing.calculate_amount_spent_in_transactions(transactions)
+
+    render(
+      conn,
+      "add_funds.html",
+      user: user,
+      transactions: transactions,
+      total_amount_spent: total_amount_spent,
+      show_student_accounts_summary: user.school.show_student_accounts_summary,
+      skip_shool_select: true
+    )
+  end
+
 end

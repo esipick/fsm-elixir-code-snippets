@@ -61,6 +61,7 @@ class Form extends Component {
       balance_warning_accepted: false,
       payment_method: this.getPaymentMethod(props.payment_method, demo),
       notes: props.notes,
+      payer_email: props.payer_email,
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
@@ -136,6 +137,7 @@ class Form extends Component {
           line_items: invoice.line_items || [],
           payment_method: payment_method,
           notes: invoice.notes,
+          payer_email: invoice.payer_email,
           demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
@@ -258,13 +260,14 @@ class Form extends Component {
     });
   }
 
-  accountBalance = () => {
-    if (this.state.student && this.state.appointment && this.state.appointment.demo){
+  accountBalance = (student) => {
+    const std = student ?? this.state.student
+    if (std && this.state.appointment && this.state.appointment.demo){
       return "";
-    } else if (!this.state.student) {
+    } else if (!std) {
       return "0.00";
     } else {
-      return (this.state.student.balance * 1.0 / 100).toFixed(2);
+      return (std.balance * 1.0 / 100).toFixed(2);
     }
   }
 
@@ -279,8 +282,12 @@ class Form extends Component {
         appointment = null;
       }
       
-      const payment_method = this.getPaymentMethod(BALANCE)
-      this.setState({payment_method: payment_method, student, appointment }, () => { this.loadAppointments(); });
+      const accountBalance = this.accountBalance(student);
+      const paymentMethod =  (accountBalance === "0.00" || accountBalance === "") ? DEFAULT_PAYMENT_OPTION : this.getPaymentMethod(BALANCE);
+
+      this.setState({payment_method: paymentMethod, student, appointment }, () => {
+          this.loadAppointments(); 
+      });
 
     } else {
       this.setState({ student, appointment: null, appointments: [], payment_method: {} });
@@ -341,6 +348,7 @@ class Form extends Component {
       date: date.toISOString(),
       tax_rate: sales_tax,
       notes: this.state.notes,
+      payer_email: this.state.payer_email,
       total,
       total_tax,
       total_amount_due,
@@ -672,7 +680,11 @@ class Form extends Component {
 
     // In case of guest user don't have credit card payment option
     // so they have to pay in cash, venmo, or check
-    let paymentOptions = PAYMENT_OPTIONS;
+
+    // if student balance is zero, we have to remove balance payment method
+    // because we do different calculations based on payment method
+    const accountBalance = this.accountBalance();
+    let paymentOptions =  (accountBalance === "0.00" || accountBalance === "") ? PAYMENT_OPTIONS.filter(option => option.value !== BALANCE) : PAYMENT_OPTIONS;
     
     if(demo) {
       paymentOptions = DEMO_PAYMENT_OPTIONS;
@@ -781,6 +793,26 @@ class Form extends Component {
               </div>
 
                 <div className="form-group">
+                {
+                    (demo || student?.guest) && (
+                      <>
+                        <label>
+                          Add Email to Send this Invoice
+                        </label>
+                        <div className="invoice-select-wrapper">
+                          <input className="form-control"
+                            type="email"
+                            placeholder="Enter demo or guest user email"
+                            value={this.state.payer_email || ''}
+                            onChange={(event) =>  this.setState({
+                              payer_email: event.target.value
+                            })
+                          } 
+                          />
+                        </div>
+                      </>
+                    )
+                  }
                   <label>
                     Add Notes
                   </label>

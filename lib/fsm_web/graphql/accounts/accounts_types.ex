@@ -1,6 +1,6 @@
 defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     use Absinthe.Schema.Notation
-  
+
     alias FsmWeb.GraphQL.Middleware
     alias FsmWeb.GraphQL.Accounts.AccountsResolvers
 
@@ -50,7 +50,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         resolve &AccountsResolvers.list_instructors/3
       end
     end
-  
+
     # MUTATIONS
     object :accounts_mutations do
       field :login, :session do
@@ -101,7 +101,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         arg :password_confirmation, non_null(:string)
 #        middleware Middleware.Authorize
         resolve &AccountsResolvers.reset_submit/3
-      end 
+      end
 
       field :create_user, :user do
         arg :user_input, non_null(:user_input)
@@ -118,7 +118,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         resolve &AccountsResolvers.update_user/3
       end
     end
-  
+
     # TYPES
     object :session do
         field :user, non_null(:user)
@@ -128,47 +128,48 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     object :user do
       field :id, :integer
       field :email, :string
-  
+
       field :date_of_birth, :string
-      field :gender, :string  
-      field :emergency_contact_no, :string  
-      field :d_license_no, :string  
-      field :d_license_expires_at, :string  
-      field :d_license_country, :string  
-      field :d_license_state, :string  
-      field :passport_no, :string  
-      field :passport_expires_at, :string 
-      field :passport_country, :string  
-      field :passport_issuer_name, :string  
-      field :last_faa_flight_review_at, :string 
-      field :renter_policy_no, :string  
-      field :renter_insurance_expires_at, :string 
-  
-      field :pilot_current_certificate, list_of(:string) 
-      field :pilot_aircraft_categories, list_of(:string) 
-      field :pilot_class, list_of(:string)  
-      field :pilot_ratings, list_of(:string)  
+      field :gender, :string
+      field :emergency_contact_no, :string
+      field :d_license_no, :string
+      field :d_license_expires_at, :string
+      field :d_license_country, :string
+      field :d_license_state, :string
+      field :passport_no, :string
+      field :passport_expires_at, :string
+      field :passport_country, :string
+      field :passport_issuer_name, :string
+      field :last_faa_flight_review_at, :string
+      field :renter_policy_no, :string
+      field :renter_insurance_expires_at, :string
+
+      field :pilot_current_certificate, list_of(:string)
+      field :pilot_aircraft_categories, list_of(:string)
+      field :pilot_class, list_of(:string)
+      field :pilot_ratings, list_of(:string)
       field :pilot_endorsements, list_of(:string)
-      field :pilot_certificate_number, :string  
-      field :pilot_certificate_expires_at, :string 
-  
-      field :first_name, :string  
-      field :last_name, :string  
-      field :balance, :integer 
-      field :phone_number, :string  
+      field :pilot_certificate_number, :string
+      field :pilot_certificate_expires_at, :string
+
+      field :first_name, :string
+      field :last_name, :string
+      field :balance, :integer
+      field :phone_number, :string
       field :address_1, :string
-      field :city, :string  
-      field :state, :string  
-      field :zipcode, :string  
-      field :flight_training_number, :string  
-      field :medical_rating, :integer  
+      field :city, :string
+      field :state, :string
+      field :zipcode, :string
+      field :flight_training_number, :string
+      field :medical_rating, :integer
       field :medical_expires_at, :string
-      field :certificate_number, :string  
+      field :certificate_number, :string
       field :billing_rate, :string
       field :pay_rate, :string
-      field :awards, :string  
+      field :awards, :string
+      field :notes, :string
       field :archived, :boolean
-      field :stripe_customer_id, :string  
+      field :stripe_customer_id, :string
       field :avatar, :avatar_type
       field :roles, list_of(:string)
       field :school, :school
@@ -193,7 +194,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
 
   input_object :user_input do
     field :email, :string
-#
+
     field :date_of_birth, :string
     field :gender, :user_gender
     field :emergency_contact_no, :string
@@ -208,7 +209,6 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     field :last_faa_flight_review_at, :string
     field :renter_policy_no, :string
     field :renter_insurance_expires_at, :string
-#
     field :pilot_current_certificate, list_of(:string)
     field :pilot_aircraft_categories, list_of(:string)
     field :pilot_class, list_of(:string)
@@ -216,10 +216,8 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     field :pilot_endorsements, list_of(:string)
     field :pilot_certificate_number, :string
     field :pilot_certificate_expires_at, :string
-#
     field :first_name, :string
     field :last_name, :string
-#    field :balance, :integer
     field :phone_number, :string
     field :address_1, :string
     field :city, :string
@@ -233,10 +231,9 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     field :pay_rate, :string
     field :awards, :string
     field :archived, :boolean
-#    field :stripe_customer_id, :string
     field :avatar, :upload
     field :avatar_binary, :string
-#    field :roles, list_of(:string)
+    field :notes, :string
   end
 
   object :input_avatar do
@@ -245,4 +242,3 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     field :path, :string
   end
 end
-  

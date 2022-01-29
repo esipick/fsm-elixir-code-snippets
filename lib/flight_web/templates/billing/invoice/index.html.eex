@@ -34,6 +34,13 @@ function getPlainDate(start_at) {
                 Transactions
               </a>
             </li>
+            <%= if Flight.Auth.InvoicePolicy.can_see_add_funds?(@conn.assigns.current_user) do %>
+               <li class="nav-item">
+                <a class="nav-link" href="/<%= if Flight.Accounts.has_role?(@conn.assigns.current_user, "student"), do: "student", else: "renter" %>/profile/add-funds" role="tablist" aria-expanded="true">
+                  Add Funds
+                </a>
+              </li>
+            <% end %>
           </ul>
 
           <div class="text-right">
@@ -90,6 +97,9 @@ function getPlainDate(start_at) {
                   <th>School</th>
                 <% end %>
                 <th>Person Name</th>
+                <%= if Authorization.staff_member?(@conn.assigns.current_user) do %>
+                  <th>Demo User</th>
+                <% end %>
                 <th>Amount Due</th>
                 <th>Amount Paid</th>
                 <th>Status</th>
@@ -111,6 +121,9 @@ function getPlainDate(start_at) {
                     <td><a href="/admin/schools/<%= invoice.school.id %>"><%= invoice.school.name %></a></td>
                   <% end %>
                   <td><%= invoice.payer_name %></td>
+                  <%= if Authorization.staff_member?(@conn.assigns.current_user) do %>
+                    <td><%= if is_nil(invoice.user_id), do: "Yes", else: "No" %></td>
+                  <% end %>
                   <td><%= currency(invoice.amount_due) %></td>
                   <td><%= currency(invoice.amount_paid) %></td>
                   <td><%= invoice.status %></td>
@@ -193,4 +206,3 @@ $(document).ready(function() {
   });
 });
 </script>
-

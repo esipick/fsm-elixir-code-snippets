@@ -5,8 +5,8 @@ defmodule FlightWeb.Billing.InvoiceStruct do
 
   defstruct ~w(
     appointment id school payer_name amount_due amount_paid status payment_date
-    editable title total tax_rate total_tax line_items transactions
-    amount_remainder created payment_method user_id bulk_transaction user is_admin_invoice notes
+    editable title total tax_rate total_tax line_items transactions demo
+    amount_remainder created payment_method user_id bulk_transaction user is_admin_invoice notes payer_email
   )a
 
   def build(invoice) do
@@ -31,6 +31,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       amount_remainder: amount_remainder(invoice),
       status: invoice.status,
       notes: invoice.notes,
+      payer_email: invoice.payer_email,
       payment_date: invoice.date,
       payment_method: invoice.payment_option,
       editable: editable(invoice),
@@ -48,6 +49,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
         ),
       appointment: invoice.appointment,
       is_admin_invoice: invoice.is_admin_invoice,
+      demo: invoice.demo
     }
   end
 
@@ -93,7 +95,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       invoice.total == 0 ->
         0
       invoice.status == :paid ->
-        invoice.total_amount_due
+        invoice.total + invoice.total_tax
       true ->
         amount_paid(invoice)
     end

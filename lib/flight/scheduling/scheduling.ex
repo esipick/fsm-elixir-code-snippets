@@ -349,7 +349,6 @@ defmodule Flight.Scheduling do
           hours + acc
         end
       end)
-    
     hours = Integer.floor_div(hours, 10) |> to_string
 
     hours <> "h"
@@ -753,7 +752,7 @@ defmodule Flight.Scheduling do
       res = Repo.insert_or_update(changeset)
       case res do
         {:ok, unavailability} ->
-          send_unavailibility_notification(changeset, school_context)
+          send_unavailibility_notification(attrs, school_context)
           {:ok, unavailability}
         {:error, changeset} ->
           {:error, changeset}
@@ -842,39 +841,51 @@ defmodule Flight.Scheduling do
         |> Mondo.PushService.publish()
       end
     end)
+
+    # send email to appointment.user
+    Flight.Email.unavailability_email(appointment.user)
   end
 
-  def send_unavailibility_notification(changeset, school_context) do
-    changes = changeset.changes;
-    belongs = changes.belongs;
+  def send_unavailibility_notification(attrs, school_context) do
+    %{
+      "aircraft_id" => aircraft_id,
+      "belongs" => belongs,
+      "end_at" => end_at,
+      "instructor_user_id" => instructor_user_id,
+      "note" => note,
+      "room_id" => room_id,
+      "simulator_id" => simulator_id,
+      "start_at" => start_at
+    } = attrs
+
     case belongs do
       "Instructor" ->
         options = %{
-          "instructor_user_id" => changes.instructor_user_id,
-          "from" => NaiveDateTime.to_string(changes.start_at),
-          "to" => NaiveDateTime.to_string(changes.end_at)
-        }
+          "instructor_user_id" => instructor_user_id,
+          "from" => start_at,
+          "to" => end_at
+       }
         del_appointments_due_to_unavailability(options, school_context)
       "Aircraft" ->
         options = %{
-          "aircraft_id" => changes.aircraft_id,
-          "from" => NaiveDateTime.to_string(changes.start_at),
-          "to" => NaiveDateTime.to_string(changes.end_at)
-        }
+          "aircraft_id" => aircraft_id,
+          "from" => start_at,
+          "to" => end_at
+       }
         del_appointments_due_to_unavailability(options, school_context)
       "Room" ->
         options = %{
-          "room_id" => changes.room_id,
-          "from" => NaiveDateTime.to_string(changes.start_at),
-          "to" => NaiveDateTime.to_string(changes.end_at)
-        }
+          "room_id" => room_id,
+          "from" => start_at,
+          "to" => end_at
+       }
         del_appointments_due_to_unavailability(options, school_context)
       "Simulator" ->
         options = %{
-          "simulator_id" => changes.simulator_id,
-          "from" => NaiveDateTime.to_string(changes.start_at),
-          "to" => NaiveDateTime.to_string(changes.end_at)
-        }
+          "simulator_id" => simulator_id,
+          "from" => start_at,
+          "to" => end_at
+       }
         del_appointments_due_to_unavailability(options, school_context)
     end
   end

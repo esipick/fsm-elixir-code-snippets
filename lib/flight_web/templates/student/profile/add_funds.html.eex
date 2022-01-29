@@ -1,0 +1,20 @@
+<div class="panel-header"></div>
+<div class="content profile">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header" data-background-color="gray">
+          <%= render(
+            "_billing.html",
+            user: @user,
+            transactions: @transactions,
+            total_amount_spent: @total_amount_spent,
+            show_student_accounts_summary: @show_student_accounts_summary,
+            conn: @conn)
+          %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>

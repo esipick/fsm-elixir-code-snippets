@@ -24,13 +24,17 @@ defmodule Flight.Auth.InvoicePolicy do
     case invoice do
       nil ->
         false
-      _ -> 
+      _ ->
         invoice.status == :paid && staff_member?(user)
     end
   end
 
   def can_send_bulk_invoice?(user) do
     staff_member?(user)
+  end
+
+  def can_see_add_funds?(user) do
+    !(is_admin?(user) || staff_member?(user))
   end
 
   def delete?(user, invoice) do

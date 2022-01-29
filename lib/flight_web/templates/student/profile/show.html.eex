@@ -298,7 +298,9 @@
             </div>
           </div>
           <nav class="tabs">
-            <a <%= if @tab == :billing, do: "class=active" %> href="/<%= url_role %>/profile?tab=billing">Billing</a>
+            <%= if !(Accounts.has_role?(@user, "student") || Accounts.has_role?(@user, "renter")) do %>
+              <a <%= if @tab == :billing, do: "class=active" %> href="/<%= url_role %>/profile?tab=billing">Billing</a>
+            <% end %>
             <a <%= if @tab == :schedule, do: "class=active" %> href="/<%= url_role %>/profile?tab=schedule">Schedule</a>
             <a <%= if @tab == :documents, do: "class=active" %> href="/<%= url_role %>/profile?tab=documents">Documents</a>
             <%# <a id="click_navigate_to_lms" class="active" href="#">Visit LMS</a> %>
@@ -370,7 +372,7 @@ user[lastname]=${lastName}`,
 
         if(loginurl) {
             console.log(loginurl)
-            // to preserve current session, just replace url 
+            // to preserve current session, just replace url
             window.location.href=loginurl
             // window.location.replace(loginurl)
         } else {

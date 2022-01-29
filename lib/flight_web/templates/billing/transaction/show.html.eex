@@ -34,6 +34,11 @@ function getPlainDate(start_at) {
                 <dd><%= @transaction.student_name %></dd>
               </dl>
 
+               <dl class="d-flex justify-content-between">
+                <dt>Payer Email</dt>
+                <dd><%= @transaction.payer_email %></dd>
+              </dl>
+
               <dl class="d-flex justify-content-between">
                 <dt>Payment date</dt>
                 <script>
