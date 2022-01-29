@@ -144,17 +144,25 @@ defmodule Flight.Billing.CalculateInvoice do
 
     # demo = Map.get(detailed_params, :aircraft_details) || %{}
     # demo = Map.get(demo, :demo)
-    
-    {rate, amount} = 
-      if line_item["enable_rate"] != nil && line_item["rate"] > 0 do
+
+    {rate, amount} =
+      # To make sure everything fine and not to update apps again on,
+      # we're disabling enable_rate check for now because we're not
+      # passing from mobile side. issue #1043
+      #
+      # FROM
+      # line_item["enable_rate"] != nil && line_item["rate"] > 0
+      # TO
+      # line_item["rate"] > 0
+      if line_item["rate"] > 0 do
         rate = line_item["rate"]
         amount = Billing.aircraft_cost!(form.aircraft_details.hobbs_start, form.aircraft_details.hobbs_end, rate, 0.0)
         {rate, amount}
 
       else
         {rate, transaction.total}
-      end 
-    
+      end
+
     Map.merge(line_item, %{
       "amount" => round(amount),
       "rate" => rate,
@@ -167,17 +175,17 @@ defmodule Flight.Billing.CalculateInvoice do
   defp validate_aircraft_item(line_item, detailed_params) do
     changeset = DetailedTransactionForm.changeset(%DetailedTransactionForm{}, detailed_params)
 
-    {line_item, should_validate} = 
+    {line_item, should_validate} =
       with {:ok, appointment} <- Flight.Scheduling.get_appointment_dangrous(Map.get(detailed_params, :appointment_id)) do
           fix_aircraft_hours(appointment, line_item)
       else
-        _ -> {line_item, true}        
+        _ -> {line_item, true}
       end
-    
+
     with true <- should_validate,
       {:ok, _} <- Ecto.Changeset.apply_action(changeset, :insert) do
         line_item
-    
+
     else
       {:error, errors} ->
         Map.merge(line_item, %{"errors" => ViewHelpers.translate_errors(errors)})
@@ -187,22 +195,22 @@ defmodule Flight.Billing.CalculateInvoice do
   end
 
   defp fix_aircraft_hours(appointment, aircraft) do
-      aircraft = 
+      aircraft =
           if appointment.start_tach_time, do: Map.put(aircraft, "tach_start", appointment.start_tach_time), else: aircraft
-        
-        aircraft = 
+
+        aircraft =
           if appointment.end_tach_time do
               Map.put(aircraft, "tach_end", appointment.end_tach_time)
-          else 
+          else
             aircraft
           end
 
-        aircraft = 
+        aircraft =
           if appointment.start_hobbs_time, do: Map.put(aircraft, "hobbs_start", appointment.start_hobbs_time), else: aircraft
-        
-        aircraft = 
+
+        aircraft =
           if appointment.end_hobbs_time do
-              Map.put(aircraft, "hobbs_end", appointment.end_hobbs_time) 
+              Map.put(aircraft, "hobbs_end", appointment.end_hobbs_time)
           else
               aircraft
           end
