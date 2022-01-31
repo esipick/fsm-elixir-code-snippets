@@ -99,7 +99,7 @@ defmodule FlightWeb.SidebarItem do
     [
       %SidebarItem{
         path: "/instructor/profile",
-        label: "Profile",
+        label: "Home",
         icon_class: "users_single-02",
         active: false
       },
@@ -141,7 +141,7 @@ defmodule FlightWeb.SidebarItem do
     [
       %SidebarItem{
         path: "/student/profile",
-        label: "Profile",
+        label: "Home",
         icon_class: "users_single-02",
         active: false
       },
@@ -177,7 +177,7 @@ defmodule FlightWeb.SidebarItem do
     [
       %SidebarItem{
         path: "/renter/profile",
-        label: "Profile",
+        label: "Home",
         icon_class: "users_single-02",
         active: false
       },
