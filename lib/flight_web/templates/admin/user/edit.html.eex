@@ -542,7 +542,7 @@
                 <input type="submit" class="btn btn-fill btn-primary" value="Save">
                 <!-- Button trigger modal -->
                 <button id="delete_user_button" type="button" class="btn btn-danger float-right">
-                  Delete User
+                  Archive User
                 </button>
               </div>
             </div>

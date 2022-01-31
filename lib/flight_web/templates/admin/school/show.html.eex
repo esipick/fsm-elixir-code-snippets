@@ -182,7 +182,7 @@
 
             <!-- Button trigger modal -->
             <button type="button" id="delete_button" class="btn btn-danger float-right">
-              Delete School
+              Archive School
             </button>
 
 

@@ -99,7 +99,7 @@
     <%= if @is_edit do %>
       <!-- Button trigger modal -->
       <button type="button" id="delete_button" class="btn btn-danger float-right">
-        Delete aircraft
+        Archive aircraft
       </button>
     <% end %>
   </div>
