@@ -90,11 +90,17 @@ defmodule FlightWeb.Billing.InvoiceController do
 
   def send_invoice(conn, %{"id" => id}) when not is_nil(id) do
     invoice = Repo.get(Invoice, id)
-    Flight.InvoiceEmail.send_paid_invoice_email(invoice, conn)
+    case Flight.InvoiceEmail.send_paid_invoice_email(invoice, conn) do
+      {:error, error} ->
+        conn
+        |> put_flash(:error, error)
+        |> redirect(to: "/billing/invoices")
+      _ ->
+        conn
+        |> put_flash(:success, "Invoice sent successfully")
+        |> redirect(to: "/billing/invoices")
 
-    conn
-    |> put_flash(:success, "Invoice sent successfully")
-    |> redirect(to: "/billing/invoices")
+    end
   end
 
   def delete(conn, params) do
