@@ -51,6 +51,7 @@ defmodule Fsm.Billing.CreateInvoice do
           }
         )
 
+      send_receipt_email = Map.get(invoice_params, :send_receipt_email)
 
       with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
           {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
@@ -72,7 +73,7 @@ defmodule Fsm.Billing.CreateInvoice do
                 else
                   invoice
                 end
-              case pay(invoice, school_context) do
+              case pay(invoice, school_context, send_receipt_email) do
                 {:ok, invoice} ->
                   Invoice.paid(invoice)
                   #If course invoice enroll student at LMS.
@@ -92,7 +93,7 @@ defmodule Fsm.Billing.CreateInvoice do
       end
     end
 
-    def pay(invoice, school_context) do
+    def pay(invoice, school_context, send_receipt_email) do
       invoice
       |> Repo.preload(user: from(i in User, lock: "FOR UPDATE NOWAIT"))
       |> Repo.preload(:appointment)
@@ -116,7 +117,7 @@ defmodule Fsm.Billing.CreateInvoice do
           # if invoice.status == :paid do
           # Note: we also have guard conditions
 
-          if invoice.status == :paid do
+          if invoice.status == :paid and (send_receipt_email == true or send_receipt_email == nil) do
             Flight.InvoiceEmail.send_paid_invoice_email(invoice, school_context)
           end
 

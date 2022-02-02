@@ -62,6 +62,7 @@ class Form extends Component {
       payment_method: this.getPaymentMethod(props.payment_method, demo),
       notes: props.notes,
       payer_email: props.payer_email,
+      send_receipt_email: true,
       line_items: [],
       is_visible: true,
       student: staff_member ? undefined : creator,
@@ -331,7 +332,7 @@ class Form extends Component {
   payload = () => {
     const {
       appointment, student, sales_tax, total, total_tax, total_amount_due, date,
-      payment_method, action, is_visible
+      payment_method, action, is_visible, send_receipt_email
     } = this.state;
     const is_edit = action == 'edit';
 
@@ -355,7 +356,8 @@ class Form extends Component {
       payment_option: payment_method.value,
       is_visible: is_visible,
       appointment_id: appointment && appointment.id,
-      course_id: isEmpty(this.props.course) ? null : this.props.course.id
+      course_id: isEmpty(this.props.course) ? null : this.props.course.id,
+      send_receipt_email
     }
   }
 
@@ -827,6 +829,7 @@ class Form extends Component {
                       }
                     />
                   </div>
+
                   <label>
                     Payment method
                     <Error text={errors.payment_option} />
@@ -840,6 +843,25 @@ class Form extends Component {
                       required={true} />
                   </div>
                   <div><Error text={stripe_error} /></div>
+
+                  <div class="checkbox-radios">
+                      <div class="form-check">
+                        <label class="form-check-label">
+                          <input 
+                            type="checkbox" 
+                            name="send_invoice_receipt" 
+                            checked={this.state.send_receipt_email}
+                            onChange={(event) => this.setState({
+                                send_receipt_email: !this.state.send_receipt_email
+                              })
+                            }
+                          />
+                          <span class="form-check-sign"></span>
+                          Send invoice receipt email
+                        </label>
+                      </div>
+                  </div>
+
                 </div>
 
                 <div id="save_and_pay" className="form-group invoice-save-buttons">

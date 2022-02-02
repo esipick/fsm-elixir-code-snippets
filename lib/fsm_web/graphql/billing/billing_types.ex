@@ -228,6 +228,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:line_items, list_of(:line_item_input))
     field(:notes, :string)
     field(:payer_email, :string)
+    field(:send_receipt_email, :boolean)
   end
 
   input_object :update_invoice_input do
@@ -247,6 +248,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:line_items, list_of(:line_item_input))
     field(:notes, :string)
     field(:payer_email, :string)
+    field(:send_receipt_email, :boolean)
   end
 
   input_object :transactions_filters do
