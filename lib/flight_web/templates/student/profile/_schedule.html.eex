@@ -53,6 +53,7 @@
             '<dd>'+getLocalUserAppointmentDateTime('<%= appointment.end_at %>')+'</dd>'
             ); </script>
           </dl>
+
           <%= if appointment.aircraft_id do %>
             <dl class="d-flex justify-content-between">
               <dt>Aircraft</dt>
@@ -64,10 +65,25 @@
                   <% else %>
                     <dd><a href="/admin/aircrafts/<%= appointment.aircraft_id %>"><%= aircraft_display_name appointment.aircraft %></a></dd>
                   <% end %>
-
               <% end %>
             </dl>
           <% end %>
+
+          <%= if appointment.simulator_id do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Aircraft</dt>
+              <%= if appointment.simulator.archived do %>
+                <dd><%= aircraft_display_name appointment.simulator %></dd>
+              <% else %>
+                  <%= if regular_user do %>
+                    <dd><%= aircraft_display_name appointment.aircraft %></dd>
+                  <% else %>
+                    <dd><a href="/admin/simulators/<%= appointment.simulator_id %>"><%= aircraft_display_name appointment.simulator %></a></dd>
+                  <% end %>
+              <% end %>
+            </dl>
+          <% end %>
+
           <%= if appointment.instructor_user_id do %>
             <dl class="d-flex justify-content-between">
               <dt>Instructor</dt>
