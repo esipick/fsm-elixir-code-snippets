@@ -733,6 +733,9 @@ fieldset[disabled] .fc button:hover {
 .fc-event.event-yellow {
   background: #FFCA3A;
 }
+.fc-event.event-orange {
+  background: #FFA500;
+}
 .fc-event.event-light-green {
   background: #8AC926;
 }

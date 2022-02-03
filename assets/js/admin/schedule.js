@@ -1487,6 +1487,8 @@ $(document).ready(function () {
                 color_class = "event-light-green"
               } else if (appointment.type === "check_ride") {
                 color_class = "event-purple"
+              } else if(appointment.type === "maintenance") {
+                color_class = "event-orange"
               }
 
 
