@@ -77,7 +77,7 @@
                 <dd><%= aircraft_display_name appointment.simulator %></dd>
               <% else %>
                   <%= if regular_user do %>
-                    <dd><%= aircraft_display_name appointment.aircraft %></dd>
+                    <dd><%= aircraft_display_name appointment.simulator %></dd>
                   <% else %>
                     <dd><a href="/admin/simulators/<%= appointment.simulator_id %>"><%= aircraft_display_name appointment.simulator %></a></dd>
                   <% end %>
