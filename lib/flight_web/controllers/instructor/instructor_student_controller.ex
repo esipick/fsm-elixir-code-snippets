@@ -41,7 +41,7 @@ defmodule FlightWeb.Instructor.StudentController do
 
     appointments =
       Scheduling.get_appointments(options, conn)
-      |> Flight.Repo.preload([:aircraft, :instructor_user, :simulator])
+      |> Flight.Repo.preload([:aircraft, :instructor_user, :simulator, :room])
 
     render(
       conn,

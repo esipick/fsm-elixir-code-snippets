@@ -7,7 +7,7 @@ defmodule FlightWeb.Student.ProfileController do
   require Logger
 
   def show(%{assigns: %{current_user: current_user}} = conn, %{"tab" => "schedule"}) do
-    user = Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
+    user = Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor, :simulator, :room])
 
     options =
       cond do

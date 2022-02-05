@@ -53,6 +53,7 @@
               <% end %>
             </dl>
           <% end %>
+
           <%= if appointment.simulator_id do %>
             <dl class="d-flex justify-content-between">
               <dt>Simulator</dt>
@@ -60,6 +61,16 @@
                 <dd><%= aircraft_display_name appointment.simulator %></dd>
               <% else %>
                 <dd><a href="/admin/simulators/<%= appointment.simulator_id %>"><%= aircraft_display_name appointment.simulator %></a></dd>
+              <% end %>
+            </dl>
+          <% end %>
+          <%= if appointment.room_id do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Room</dt>
+              <%= if appointment.room.archived do %>
+                <dd><%= appointment.room.location %></dd>
+              <% else %>
+                <dd><a href="/admin/rooms/<%= appointment.room_id %>"><%= appointment.room.location %></a></dd>
               <% end %>
             </dl>
           <% end %>

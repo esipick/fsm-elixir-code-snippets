@@ -55,6 +55,12 @@
               <dd><%= aircraft_display_name appointment.simulator %></dd>
             </dl>
           <% end %>
+          <%= if appointment.room_id do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Room</dt>
+              <dd><%= appointment.room.location %></dd>
+            </dl>
+          <% end %>
           <%= if appointment.instructor_user_id do %>
             <dl class="d-flex justify-content-between">
               <dt>Instructor</dt>

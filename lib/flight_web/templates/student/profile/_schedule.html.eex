@@ -33,6 +33,7 @@
   </div>
 <% end %>
 
+
 <%= if Enum.any?(@appointments) do %>
   <div class="tab-pane detail-list list-billing" id="link3">
     <%= for appointment <- @appointments do %>
@@ -71,7 +72,7 @@
 
           <%= if appointment.simulator_id do %>
             <dl class="d-flex justify-content-between">
-              <dt>Aircraft</dt>
+              <dt>Simulator</dt>
               <%= if appointment.simulator.archived do %>
                 <dd><%= aircraft_display_name appointment.simulator %></dd>
               <% else %>
@@ -79,6 +80,21 @@
                     <dd><%= aircraft_display_name appointment.aircraft %></dd>
                   <% else %>
                     <dd><a href="/admin/simulators/<%= appointment.simulator_id %>"><%= aircraft_display_name appointment.simulator %></a></dd>
+                  <% end %>
+              <% end %>
+            </dl>
+          <% end %>
+
+           <%= if appointment.room_id do %>
+            <dl class="d-flex justify-content-between">
+              <dt>Room</dt>
+              <%= if appointment.room.archived do %>
+                <dd><%= appointment.room.location %></dd>
+              <% else %>
+                  <%= if regular_user do %>
+                    <dd><%= appointment.room.location %></dd>
+                  <% else %>
+                    <dd><a href="/admin/rooms/<%= appointment.room_id %>"><%= appointment.room.location %></a></dd>
                   <% end %>
               <% end %>
             </dl>
