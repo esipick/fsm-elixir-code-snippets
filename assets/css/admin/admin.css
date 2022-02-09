@@ -722,28 +722,28 @@ fieldset[disabled] .fc button:hover {
   background: #e7e7f0;
 }
 .fc-event.event-green {
-  background: #2EBA45;
+  background: #8ccb8b;
 }
 .fc-event.event-light-blue {
-  background: #2AA9E8;
+  background: #A9D2EA;
 }
 .fc-event.event-red {
-  background: #FF595E;
+  background: #D78B7A;
 }
 .fc-event.event-yellow {
-  background: #FFCA3A;
+  background: #FAE57A;
 }
 .fc-event.event-orange {
-  background: #FFA500;
+  background: #F8AF7A;
 }
 .fc-event.event-light-green {
   background: #8AC926;
 }
 .fc-event.event-purple {
-  background: #6A4C93;
+  background: #AB9DBF;
 }
 .fc-event.event-default .fc-title, .fc-event.event-default .fc-time{
-  color: #444;
+  color: #B1AEAD;
 }
 .fc-unthemed .fc-divider,
 .fc-unthemed .fc-list-heading td,
