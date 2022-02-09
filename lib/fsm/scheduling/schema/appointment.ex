@@ -36,7 +36,7 @@ defmodule Fsm.Scheduling.Appointment do
     timestamps()
   end
 
-  def types(), do: ["solo_flight", "demo_flight", "check_ride", "flight_lesson", "unavailable", "meeting", "maintenance"]
+  def types(), do: ["airplane_rental", "demo_flight", "check_ride", "flight_lesson", "unavailable", "meeting", "maintenance"]
 
   def __test_changeset(appointment, attrs, timezone) do
     appointment

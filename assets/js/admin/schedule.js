@@ -1481,7 +1481,7 @@ $(document).ready(function () {
                 color_class = 'event-light-blue'
               } else if (appointment.type === "demo_flight") {
                 color_class = "event-yellow"
-              } else if (appointment.type === "solo_flight") {
+              } else if (appointment.type === "airplane_rental") {
                 color_class = "event-red"
               } else if (appointment.type === "meeting") {
                 color_class = "event-light-green"
