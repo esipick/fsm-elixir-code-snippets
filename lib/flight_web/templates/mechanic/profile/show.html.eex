@@ -1,0 +1,194 @@
+<div class="panel-header"></div>
+<div class="content profile">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header" data-background-color="gray">
+          <div class="user-info">
+            <div class=mobile>
+              <div class="photo">
+                <img src="<%= avatar_url(@conn, @user) %>"/>
+              </div>
+              <h2><%= @user.first_name %> <%= @user.last_name %></h2>
+              <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
+              <p class="enrolled"><small>Enrolled <%= display_date(@user.inserted_at, :student) %></small></p>
+                  <a class="btn  btn-primary" href="/mechanic/profile/edit">Edit Profile</a>
+              <div class="contacts">
+                <div class="contact">
+                  <img src="<%= static_path(@conn, "/images/phone.svg") %>"/>
+                  <div class="tip">
+                    <a href="tel:<%= @user.phone_number %>"><%= @user.phone_number %></a>
+                  </div>
+                </div>
+                <div class="contact">
+                  <img src="<%= static_path(@conn, "/images/email.svg") %>"/>
+                  <div class="tip">
+                    <a href="mailto:<%= @user.email %>"><%= @user.email %></a>
+                  </div>
+                </div>
+                <%= if has_address?(@user) && should_display_address?(@user) do %>
+                  <div class="contact">
+                    <img src="<%= static_path(@conn, "/images/address.svg") %>"/>
+                    <div class="tip"><%= @user.address_1 %> <%= @user.city %>, <%= @user.state %> <%= @user.zipcode %></div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <div class=desktop>
+              <div class="photo-container">
+                <div class="photo">
+                  <img src="<%= avatar_url(@conn, @user) %>"/>
+                </div>
+                <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
+              </div>
+              <div class="details">
+                <h2>
+                  <%= @user.first_name %> <%= @user.last_name %>
+                  <a href="/mechanic/profile/edit" class="edit">Edit Profile</a>
+                </h2>
+                <div class="contacts">
+                  <a class="contact" href="tel:<%= @user.phone_number %>" title="<%= @user.phone_number %>">
+                    <img src="<%= static_path(@conn, "/images/phone-blue.svg") %>"/>
+                    <%= @user.phone_number %>
+                  </a>
+                  <a class="contact" href="mailto:<%= @user.email %>" title="<%= @user.email %>">
+                    <img src="<%= static_path(@conn, "/images/email-blue.svg") %>"/>
+                    <%= @user.email %>
+                  </a>
+                  <%= if has_address?(@user) && should_display_address?(@user) do %>
+                    <div class="contact" title="<%= @user.address_1 %><%= @user.city %>, <%= @user.state %> <%= @user.zipcode %>">
+                      <img src="<%= static_path(@conn, "/images/address-blue.svg") %>"/>
+                      <%= @user.address_1 %><%= @user.city %>, <%= @user.state %> <%= @user.zipcode %>
+                    </div>
+                  <% end %>
+                </div>
+
+                <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
+                  <div class="desktop">
+                    <div class="field">
+                      <h3>Start Date</h3>
+                      <p id="start_date"></p>
+                    </div>
+                    <div class="field">
+                      <h3>Date of Birth (DOB)</h3>
+                      <p><%= standard_date_format(@user.date_of_birth)  || "-" %></p>
+                    </div>
+                    <div class="field">
+                      <h3>Gender</h3>
+                      <p><%= @user.gender  || "-" %></p>
+                    </div>
+                    <div class="field">
+                      <h3>Emergency Contact</h3>
+                      <p>
+                        <%= if @user.emergency_contact_no do %>
+                          <small><%= @user.emergency_contact_no || "N/A" %></small>,
+                        <% else %> -
+                        <% end %>
+                      </p>
+                    </div>
+                    <div class="field">
+                      <h3>Driving License</h3>
+                      <p>
+                        <%= if @user.d_license_no do %>
+                        <span># : <%= @user.d_license_no %></span>
+                          <small>Expires : <%= standard_date_format(@user.d_license_expires_at) || "N/A" %></small>,
+                          <small>Country : <%= @user.d_license_country || "N/A" %></small>,
+                          <small>State : <%= @user.d_license_state || "N/A" %></small>
+                        <% else %> -
+                        <% end %>
+                      </p>
+                    </div>
+                    <div class="field">
+                      <h3>Passport</h3>
+                      <p>
+                        <%= if @user.passport_no do %>
+                        <span># : <%= @user.passport_no %></span>
+                          <small>Expires : <%= standard_date_format(@user.passport_expires_at) || "N/A" %></small>,
+                          <small>Country : <%= @user.passport_country || "N/A" %></small>,
+                          <small>Issuer : <%= @user.passport_issuer_name || "N/A" %></small>
+                        <% else %> -
+                        <% end %>
+                      </p>
+                    </div>
+                  </div>
+                 <% end %>
+
+                <div class="desktop">
+                  <%= if has_medical?(@user) do %>
+                    <div class="field">
+                      <h3>Medical</h3>
+                      <p>
+                        <span><%= human_readable_medical_rating(@user.medical_rating) %></span>
+                        <%= if medical_rating_exist?(@user) do %>
+                          <small>expires: <%= standard_date_format(@user.medical_expires_at) %></small>
+                        <% end %>
+                      </p>
+                    </div>
+                  <% end %>
+
+                  <div class="field">
+                    <h3>Aircraft Name</h3>
+                    <%= if Enum.any?(@user.aircrafts) do %>
+                      <a href="#" id="click_show_aircrafts">>> Show</a>
+                      <div id="show_aircrafts" style="display: none;">
+                      <%= for aircraft <- @user.aircrafts do %>
+                        <%= if aircraft.archived do %>
+                          <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
+                        <% else %>
+                          <p><a href="/admin/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a></p>
+                        <% end %>
+                      <% end %>
+                      </div>
+                    <% else %>
+                      <p>-</p>
+                    <% end %>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <div class=mobile>
+            <div class="fields-container">
+                <div class="field">
+                  <h3>Aircraft Name</h3>
+                  <%= if Enum.any?(@user.aircrafts) do %>
+                    <%= for aircraft <- @user.aircrafts do %>
+                      <%= if aircraft.archived do %>
+                        <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
+                      <% else %>
+                        <p><a href="/admin/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a></p>
+                      <% end %>
+                    <% end %>
+                  <% else %>
+                    <p>-</p>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- end card-header -->
+      </div>
+      <!-- end card -->
+    </div>
+</div>
+
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
+<script>
+ $('#click_show_aircrafts').click(function() {
+      $('#show_aircrafts').slideToggle();;
+  });
+</script>
+<!-- end content -->
+
+<script>
+  $(document).ready(function() {
+    var dt = '<%= @user.inserted_at %>'
+    var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+    var date = new Date(date_time);
+    date = date_time.format('DD/MM/YYYY')
+    document.getElementById("start_date").innerHTML =  date;
+  })
+</script>

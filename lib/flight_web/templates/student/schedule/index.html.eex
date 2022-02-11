@@ -5,6 +5,7 @@
     instructors: @instructors,
     aircrafts: @aircrafts,
     simulators: @simulators,
+    mechanics: @mechanics,
     rooms: @rooms,
     types: @types,
     instructor_user_id: nil,

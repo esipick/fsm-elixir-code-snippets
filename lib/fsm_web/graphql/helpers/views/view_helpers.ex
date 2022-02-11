@@ -121,6 +121,7 @@ defmodule FsmWeb.ViewHelpers do
       "student" -> "Students"
       "renter" -> "Renters"
       "dispatcher" -> "Dispatchers"
+      "mechanic" -> "Mechanics"
       "user" -> "Users"
     end
   end
@@ -132,6 +133,7 @@ defmodule FsmWeb.ViewHelpers do
       "student" -> "Student"
       "renter" -> "Renter"
       "dispatcher" -> "Dispatcher"
+      "mechanic" -> "Mechanic"
       "user" -> "User"
     end
   end
@@ -287,7 +289,7 @@ defmodule FsmWeb.ViewHelpers do
   def appointment_type(type) do
     type
     |> String.replace("_", " ")
-    |> String.split 
+    |> String.split
     |> Enum.map(&String.capitalize/1)
     |> Enum.join(" ")
   end

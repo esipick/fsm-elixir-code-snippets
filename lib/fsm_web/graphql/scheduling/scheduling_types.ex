@@ -5,7 +5,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   alias FsmWeb.GraphQL.Scheduling.SchedulingResolvers
 
   enum :appointment_search_criteria, values: [:payer_name]
-  enum :belongs, values: ["Instructor", "Simulator", "Room", "Aircraft"]
+  enum :belongs, values: ["Instructor", "Simulator", "Room", "Aircraft", "Mechanic"]
   enum :appointment_sort_fields, values: [:first_name, :last_name, :email]
 
   #Enum
@@ -109,8 +109,8 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       resolve &SchedulingResolvers.delete_appointment/3
     end
   end
-  
-  
+
+
   # TYPES
   object :appointment do
     field :id, :integer
@@ -190,31 +190,31 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   end
 
   input_object :appointment_input do
-    field :aircraft_id, :integer 
+    field :aircraft_id, :integer
     field :demo, :boolean
-    field :end_at, :string 
+    field :end_at, :string
     field :instructor_user_id, :integer
     field :note, :string
-    field :payer_name, :string 
-    field :start_at, :string  
+    field :payer_name, :string
+    field :start_at, :string
     field :type, :string
     field :user_id, :integer
     field :room_id, :integer
-    field :simulator_id, :integer  
+    field :simulator_id, :integer
   end
 
   input_object :edit_appointment_input do
-    field :id, :integer 
-    field :aircraft_id, :integer 
+    field :id, :integer
+    field :aircraft_id, :integer
     field :demo, :boolean
-    field :end_at, :string 
+    field :end_at, :string
     field :instructor_user_id, :integer
     field :note, :string
-    field :payer_name, :string 
-    field :start_at, :string  
+    field :payer_name, :string
+    field :start_at, :string
     field :user_id, :integer
     field :room_id, :integer
-    field :simulator_id, :integer  
+    field :simulator_id, :integer
   end
 
   input_object :appointment_filters do
@@ -247,4 +247,3 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :assigned, :boolean
   end
 end
-  

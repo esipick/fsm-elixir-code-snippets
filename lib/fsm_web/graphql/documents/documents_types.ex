@@ -19,7 +19,7 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsTypes do
       arg(:sort_order, :document_order_by)
       arg(:filter, :documents_filters)
 
-      middleware(Middleware.Authorize, ["admin", "dispatcher", "instructor", "student", "renter"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "instructor", "student", "renter", "mechanic"])
       resolve(&DocumentsResolvers.list_documents/3)
     end
   end
@@ -29,14 +29,14 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsTypes do
     field :update_document, :document_output do
       arg :document_input, non_null(:document_input)
       arg :user_id, non_null(:integer)
-      middleware Middleware.Authorize, ["admin", "dispatcher", "instructor", "student", "renter"]
+      middleware Middleware.Authorize, ["admin", "dispatcher", "instructor", "student", "renter", "mechanic"]
       resolve &DocumentsResolvers.update_document/3
     end
 
     field :delete_document, :string do
       arg :document_id, non_null(:integer)
       arg :user_id, non_null(:integer)
-      middleware Middleware.Authorize, ["admin", "dispatcher", "instructor", "student", "renter"]
+      middleware Middleware.Authorize, ["admin", "dispatcher", "instructor", "student", "renter", "mechanic"]
       resolve &DocumentsResolvers.delete_document/3
     end
   end
@@ -55,14 +55,14 @@ defmodule FsmWeb.GraphQL.Documents.DocumentsTypes do
     field(:expires_at, :string)
     field(:title, :string)
     field(:file, :file)
-  end 
+  end
   object :document do
     field(:id, non_null(:integer))
     field(:expires_at, :string)
     field(:title, :string)
     field(:file, :file)
-  end  
-  
+  end
+
   object :file do
     field(:name, :string)
     field(:url, :string)

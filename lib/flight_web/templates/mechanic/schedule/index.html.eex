@@ -5,9 +5,10 @@
     instructors: @instructors,
     mechanics: @mechanics,
     aircrafts: @aircrafts,
-    instructor_user_id: @user_id,
+    instructor_user_id: nil,
     simulators: @simulators,
     rooms: @rooms,
     types: @types,
+    mechanic_id: @user_id,
     student_id: nil)
 %>

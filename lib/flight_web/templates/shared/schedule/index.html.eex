@@ -150,7 +150,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div id="apptFieldSimulator" class="row">
               <label class="col-md-3 col-form-label">Simulator *</label>
               <div class="col-md-9">
@@ -178,7 +178,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="row">
               <label class="col-md-3 col-form-label">Note</label>
               <div class="col-md-9">

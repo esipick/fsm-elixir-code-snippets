@@ -6,12 +6,21 @@ defmodule FlightWeb.Admin.ScheduleController do
   def index(conn, _) do
     renters = Flight.Accounts.users_with_roles([Role.student(), Role.renter()], conn)
     instructors = Flight.Accounts.users_with_roles([Role.instructor()], conn)
+    mechanics = Flight.Accounts.users_with_roles([Role.mechanic()], conn)
     aircrafts = Flight.Scheduling.visible_aircrafts(conn)
     simulators = Flight.Scheduling.visible_simulators(conn)
     rooms = Flight.SchoolAssets.visible_rooms(conn)
     types = Flight.Scheduling.Appointment.types()
-    
-    render(conn, "index.html", renters: renters, instructors: instructors, aircrafts: aircrafts, simulators: simulators, rooms: rooms, types: types)
+
+    render(conn, "index.html",
+      renters: renters,
+      instructors: instructors,
+      aircrafts: aircrafts,
+      simulators: simulators,
+      rooms: rooms,
+      types: types,
+      mechanics: mechanics
+    )
   end
 
   def show(conn, _) do

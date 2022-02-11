@@ -5,7 +5,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
     alias FsmWeb.GraphQL.Accounts.AccountsResolvers
 
     enum :user_search_criteria, values: [:first_name, :last_name, :email, :full_name]
-    enum :roles, values: ["admin", "dispatcher","student", "renter", "instructor"]
+    enum :roles, values: ["admin", "dispatcher","student", "renter", "instructor", "mechanic"]
     enum :user_sort_fields, values: [:first_name, :last_name, :email]
     enum :user_gender, values: ["Male", "Female"]
 
@@ -19,10 +19,10 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         resolve &AccountsResolvers.get_current_user/3
       end
 
-      @desc "Get user by id ('admin', 'dispatcher', 'instructor')"
+      @desc "Get user by id ('admin', 'dispatcher', 'instructor', 'admin')"
       field :get_user, :user do
         arg :id, non_null(:id)
-        middleware Middleware.Authorize, ["admin", "dispatcher", "instructor"]
+        middleware Middleware.Authorize, ["admin", "dispatcher", "instructor", "mechanic"]
         resolve &AccountsResolvers.get_user/3
       end
 
@@ -34,7 +34,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         arg :sort_order, :order_by
         arg :filter, :user_filters
 
-        middleware Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student"]
+        middleware Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student", "mechanic"]
         resolve &AccountsResolvers.list_users/3
       end
 
@@ -46,7 +46,7 @@ defmodule FsmWeb.GraphQL.Accounts.AccountsTypes do
         arg :sort_order, :order_by
         arg :filter, :user_filters
 
-        middleware Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student"]
+        middleware Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student", "mechanic"]
         resolve &AccountsResolvers.list_instructors/3
       end
     end
