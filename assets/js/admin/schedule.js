@@ -4,6 +4,7 @@ var userInfo = null;
 var allInstructors = null;
 var allAircrafts = null;
 var allStudents = null;
+var allMechanics = null;
 
 function userTitle(user) {
   if (!user) return '';
@@ -16,11 +17,19 @@ function aircraftDisplayName(aircraft) {
 }
 
 function appointmentTitle(appointment) {
-  return (appointment.demo) ? "Demo Flight" : userTitle(appointment.user) || userTitle(appointment.instructor_user);
+  if(appointment.demo) {
+    return "Demo Flight";
+  }
+
+  return userTitle(appointment.user) || userTitle(appointment.instructor_user) || userTitle(appointment.mechanic_user);
 }
 
 function payerTitle(appointment) {
-  return (appointment.demo) ? appointment.payer_name : userTitle(appointment.user) || userTitle(appointment.instructor_user);
+  if (appointment.demo) {
+    return appointment.payer_name;
+  }
+  
+  return userTitle(appointment.user) || userTitle(appointment.instructor_user) || userTitle(appointment.mechanic_user);
 }
 
 function retrieveAircraftId(resources) {
@@ -75,6 +84,22 @@ function retrieveRoomId(resources) {
   return id;
 }
 
+function retrieveMechanicId(resources) {
+  let id = null;
+  if ( !resources || resources.length < 1 ) return id;
+  
+  for ( let i = 0; i < resources.length; i++ )
+  {
+    if ( resources[i].includes('mechanic') )
+    {
+      id = resources[i].split(':')[1]
+      break;
+    }
+  }
+  
+  return id;
+}
+
 function checkDuplicates(a) {
   const noDups = new Set(a);
   return a.length !== noDups.size;
@@ -85,7 +110,8 @@ function groupResources(resources) {
     aircraft: [],
     instructor: [],
     simulator: [],
-    room: []
+    room: [],
+    mechanic: []
   };
   
   resources.forEach(resource => {
@@ -150,7 +176,8 @@ $(document).ready(function () {
     if ( user.roles && 
       !user.roles.includes('admin') &&
       !user.roles.includes('dispatcher') &&
-      !user.roles.includes('instructor') )
+      !user.roles.includes('instructor') &&
+      !user.roles.includes('mechanic'))
     {
       const school = schoolInfo;
       if ( user.roles.includes('renter') )
@@ -273,6 +300,7 @@ $(document).ready(function () {
         demoFlightView(true);
         regularView(false);
         unavailabilityView(false);
+        maintenanceView(false);
         eventType = "demoAppt";
         break;
 
@@ -280,6 +308,7 @@ $(document).ready(function () {
         unavailabilityView(true);
         demoFlightView(false);
         regularView(false);
+        maintenanceView(false);
         eventType = "unavail"
         break;
 
@@ -287,13 +316,23 @@ $(document).ready(function () {
         unavailabilityView(true);
         demoFlightView(false);
         regularView(false);
+        maintenanceView(false);
         eventType = "unavail"
+        break;
+    
+      case "maintenance":
+        unavailabilityView(false);
+        demoFlightView(false);
+        regularView(false);
+        maintenanceView(true);
+        eventType = "maintenance"
         break;
 
       default:
         regularView(true);
         unavailabilityView(false);
         demoFlightView(false);
+        maintenanceView(false);
         eventType = "appt";
         break;
 
@@ -323,6 +362,16 @@ $(document).ready(function () {
       $('#unavailabilityForm.tab-pane').removeClass("active");
     }
   }
+
+
+  function maintenanceView(show) {
+    if (show) {
+      $('#maintenanceForm.tab-pane').addClass("active");
+    } else {
+      $('#maintenanceForm.tab-pane').removeClass("active");
+    }
+  }
+
 
   $('#apptFor').on('change', function () {
     displayForAppointment(this.value)
@@ -404,6 +453,10 @@ $(document).ready(function () {
     $('#unavailAircraft').val(null).selectpicker("refresh")
     $('#unavailInstructor').val(null).selectpicker("refresh")
     $('#unavailSimulator').val(null).selectpicker("refresh")
+  })
+
+  $('#maintenanceMechanic').on('change', function (e) {
+    $('#maintenanceAircraft').val(null).selectpicker("refresh")
   })
 
   // navigate calendar to selected date
@@ -572,6 +625,41 @@ $(document).ready(function () {
           headers: AUTH_HEADERS
         })
       }
+    } else if (eventType === "maintenance") {
+  
+      var eventMechanic = safeParseInt($('#maintenanceMechanic').val());
+
+      var eventAircraft = safeParseInt($('#maintenanceAircraft').val());
+      var eventApptType = $('#apptType').val();
+
+      var eventStart = (moment.utc($('#maintenanceStart').val()).add(-(moment($('#maintenanceStart').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+      var eventEnd = (moment.utc($('#maintenanceEnd').val()).add(-(moment($('#maintenanceEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+
+      var eventNote = $('#maintenanceNote').val()
+
+      var eventData = {
+        start_at: eventStart,
+        end_at: eventEnd,
+        aircraft_id: eventAircraft,
+        note: eventNote,
+        type: eventApptType,
+        mechanic_user_id: eventMechanic
+      };
+
+      if (appointmentOrUnavailabilityId) {
+        promise = $.ajax({
+          method: "put",
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          data: { data: eventData },
+          headers: AUTH_HEADERS
+        })
+      } else {
+        promise = $.post({
+          url: "/api/appointments" + addSchoolIdParam('?'),
+          data: { data: eventData },
+          headers: AUTH_HEADERS
+        })
+      }
     }
     else {
       alert('nothing selected');
@@ -583,6 +671,8 @@ $(document).ready(function () {
         event = "appointment"
       } else if (eventType == "demoAppt") {
         event = "demo flight appointment"
+      } else if (eventType === "maintenance") {
+        eventType = "maintenance appointment"
       } else {
         event = "unavailability"
       }
@@ -656,6 +746,12 @@ $(document).ready(function () {
           url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
           headers: AUTH_HEADERS
         })
+      } else if(eventType === "maintenance") {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          headers: AUTH_HEADERS
+        })
       } else {
         promise = $.ajax({
           method: "delete",
@@ -669,6 +765,8 @@ $(document).ready(function () {
         event = "appointment"
       } else if (eventType == "demoAppt") {
         event = "demo flight appointment"
+      } else if (eventType === "maintenance") {
+        event = "maintenance appointment"
       } else {
         event = "unavailability"
       }
@@ -704,6 +802,7 @@ $(document).ready(function () {
       appointmentOrUnavailabilityId = initialData.id;
       const isStudent = userInfo.roles.includes("student")
       const isInstructor = userInfo.roles.includes("instructor")
+      const isMechanic = userInfo.roles.includes("mechanic")
 
       if (userInfo && userInfo.roles && isStudent) {
         $("#apptAssignedPerson").hide()
@@ -735,6 +834,7 @@ $(document).ready(function () {
         $('#apptType').attr('disabled', true);
 
         var initialDataType = initialData.type;
+
         if (initialDataType === "none") {
           var o = new Option("None", "none");
           $(o).html("None");
@@ -801,6 +901,7 @@ $(document).ready(function () {
       regularView(false);
       unavailabilityView(true);
       demoFlightView(false);
+      maintenanceView(false);
       eventType = "unavail"
       $('#btnInvoice').hide()
       $('#navUnavail').tab("show")
@@ -810,12 +911,12 @@ $(document).ready(function () {
       } else {
         $('#apptTitle').text("Create New")
       }
-    }
-    else if (initialData.type == "demoAppointment" || initialData.type == "demo_flight"){
+    } else if (initialData.type == "demoAppointment" || initialData.type == "demo_flight"){
 
       demoFlightView(true);
       regularView(false);
       unavailabilityView(false);
+      maintenanceView(false);
       eventType = "demoAppt";
       appointmentId = initialData.id;
       if (appointmentId) {
@@ -830,10 +931,31 @@ $(document).ready(function () {
       } else {
         $('#apptTitle').text("Create New")
       }
+    } else if(initialData.type == "maintenance" || initialData.type == "maintenance") {
+      maintenanceView(true);
+      demoFlightView(false);
+      regularView(false);
+      unavailabilityView(false);
+      eventType = "maintenance";
+      appointmentId = initialData.id;
+      if (appointmentId) {
+        $('#btnInvoice').show()
+      } else {
+        $('#btnInvoice').hide()
+      }
+
+      $('#navAppt').tab("show")
+      if (appointmentOrUnavailabilityId) {
+        $('#apptTitle').text("Edit Appointment")
+      } else {
+        $('#apptTitle').text("Create New")
+      }
     } else {
       regularView(true);
       unavailabilityView(false);
       demoFlightView(false);
+      maintenanceView(false);
+
       eventType = "appt";
 
       appointmentId = initialData.id;
@@ -897,6 +1019,14 @@ $(document).ready(function () {
     $('#demoApptNote').val(initialData.note);
     $('#demoApptCustomer').val(initialData.payer_name);
 
+    $('#maintenanceStart').val(initialData.start_at.format(displayFormat))
+    $('#maintenanceEnd').val(initialData.end_at.format(displayFormat))
+    
+    $('#maintenanceMechanic').val(initialData.mechanic_user_id).selectpicker("refresh");
+    $('#maintenanceAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+    $('#maintenanceNote').val(initialData.note);
+
+
     $('#calendarNewModal').modal({
       backdrop: 'static',   // This disable for click outside event
       keyboard: true        // This for keyboard event
@@ -915,11 +1045,13 @@ $(document).ready(function () {
     $('#btnSave').attr("disabled", true);
   }
 
-  function fsmCalendar(instructors, aircrafts, simulators, rooms, students, current_user) {
+  function fsmCalendar(instructors, mechanics, aircrafts, simulators, rooms, students, current_user) {
+  
     userInfo = current_user;
     allInstructors = instructors;
     allAircrafts = aircrafts;
     allStudents = students;
+    allMechanics = mechanics;
 
     var resources = instructors.map(function (instructor) {
       return {
@@ -957,6 +1089,15 @@ $(document).ready(function () {
       }
     }))
 
+    resources = resources.concat(allMechanics.map(function (mechanic) {
+      return {
+        id: "mechanic:" + mechanic.id,
+        type: "Mechanics",
+        title: fullName(mechanic),
+        current_user: current_user
+      }
+    }))
+
     // resources = resources.concat(students.map(function (student) {
     //   return {
     //     id: "student:" + student.id,
@@ -980,6 +1121,27 @@ $(document).ready(function () {
     }
 
     if (current_user && current_user.roles.includes("instructor")) {
+      customButtons.mySchedules = {
+        text: 'My Schedules',
+        click: function () {
+          showMySchedules = !showMySchedules;
+          var classToRemove = 'fc-state-active'
+          var classToAdd = 'fc-state-default'
+
+          if (showMySchedules) {
+            classToRemove = 'fc-state-default'
+            classToAdd = 'fc-state-active'
+          }
+
+          $('#fullCalendar button.fc-mySchedules-button').addClass(classToAdd);
+          $('#fullCalendar button.fc-mySchedules-button').removeClass(classToRemove);
+
+          $calendar.fullCalendar('rerenderEvents');
+        }
+      }
+    }
+
+    if (current_user && current_user.roles.includes("mechanic")) {
       customButtons.mySchedules = {
         text: 'My Schedules',
         click: function () {
@@ -1077,6 +1239,7 @@ $(document).ready(function () {
           const instructor_id = retrieveInstructorId(resource)
           const simulator_id = retrieveSimulatorId(resource)
           const room_id = retrieveRoomId(resource)
+
           let UnavailablityFor =  '';
           if ( aircraft_id != null )
           {
@@ -1151,6 +1314,7 @@ $(document).ready(function () {
           const instructor_id = res.instructor[1] ? res.instructor[1] : null
           const simulator_id = res.simulator[1] ? res.simulator[1] : null
           const room_id = res.room[1] ? res.room[1] : null
+          const mechanic_user_id = res.mechanic?.[1] ?? null
 
           var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
           var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
@@ -1164,7 +1328,8 @@ $(document).ready(function () {
             simulator_id: simulator_id,
             room_id: room_id,
             note: appointment.note,
-            type: appointment.type
+            type: appointment.type,
+            mechanic_user_id
           };
 
           $.ajax({
@@ -1203,7 +1368,7 @@ $(document).ready(function () {
         const instructor_id = retrieveInstructorId(event.resourceIds)
         const simulator_id = retrieveSimulatorId(event.resourceIds)
         const room_id = retrieveRoomId(event.resourceIds)
-
+        const mechanic_user_id = retrieveMechanicId(event.resourceIds)
         var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
         var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
        
@@ -1216,7 +1381,8 @@ $(document).ready(function () {
           simulator_id: simulator_id,
           room_id: room_id,
           note: appointment.note,
-          type: appointment.type
+          type: appointment.type,
+          mechanic_user_id
         };
        
         $.ajax({
@@ -1250,18 +1416,23 @@ $(document).ready(function () {
         })
       },
       drop:function( date, allDay, jsEvent, ui ) {
-        console.log('drop1122')
-        console.log('date',date)
-        console.log('allDay',allDay)
-        console.log('jsEvent',jsEvent)
-        console.log('ui',ui)
+        console.log({date, allDay, jsEvent, ui})
       },
       eventRender: function eventRender( event, element, view ) {
-        if (!showMySchedules) {return true}
+        if (!showMySchedules) {
+          return true
+        }
+        
         var id = event.appointment && event.appointment.instructor_user && event.appointment.instructor_user.id
+        
+        if (!id) {
+          id = event.appointment && event.appointment.mechanic_user && event.appointment.mechanic_user.id
+        }
+
         if (!id) {
           id = event.unavailability && event.unavailability.instructor_user && event.unavailability.instructor_user.id
         }
+
         return current_user && current_user.id === id
       },
       select: function (start, end, notSure, notSure2, resource) {
@@ -1271,7 +1442,7 @@ $(document).ready(function () {
         var aircraftId = null;
         var simulatorId = null;
         var roomId = null;
-        // var studentId = null;
+        var mechanicId = null;
 
         if (resource) {
           var split = resource.id.split(":")
@@ -1286,10 +1457,9 @@ $(document).ready(function () {
             simulatorId = id
           } else if (type == "room") {
             roomId = id
+          } else if (type == "mechanic") {
+            mechanicId = id
           }
-          //  else if (type == "student") {
-          //   studentId = id
-          // }
         }
 
         var eventType = "appt"; // setting default event type to appt
@@ -1302,11 +1472,11 @@ $(document).ready(function () {
           instructor_user_id: instructorId,
           aircraft_id: aircraftId,
           simulator_id: simulatorId,
-          room_id: roomId
-          // user_id: studentId
+          room_id: roomId,
+          mechanic_user_id: mechanicId
         }
 
-        if (resource.current_user && resource.current_user.roles.length == 1 && ["student", "renter"].includes(resource.current_user.roles[0])) {
+        if (resource.current_user && resource.current_user.roles.length == 1 && ["student", "renter", "mechanic"].includes(resource.current_user.roles[0])) {
           params.user_name = fullName(resource.current_user)
           params.user_id = resource.current_user.id
         }
@@ -1349,7 +1519,8 @@ $(document).ready(function () {
           })
           return;
         }
-        else if (calEvent.appointment.demo) {
+        
+        if (calEvent.appointment.demo) {
           var appointment = calEvent.appointment
 
           var instructor_user_id = null;
@@ -1379,12 +1550,21 @@ $(document).ready(function () {
             payer_name: payerTitle(appointment),
             id: appointment.id
           })
+
+          return;
         }
-        else if (calEvent.appointment) {
+        
+        if (calEvent.appointment) {
           var appointment = calEvent.appointment
           var instructor_user_id = null;
+          let mechanic_user_id = null;
+
           if (appointment.instructor_user) {
             instructor_user_id = appointment.instructor_user.id
+          }
+
+          if(appointment.mechanic_user) {
+            mechanic_user_id =  appointment.mechanic_user.id
           }
 
           var aircraft_id = null;
@@ -1415,7 +1595,8 @@ $(document).ready(function () {
             user_id: appointment.user ? appointment.user.id : null,
             user_name: appointmentTitle(appointment),
             id: appointment.id,
-            type: appointment.type
+            type: appointment.type,
+            mechanic_user_id
           })
         }
 
@@ -1446,6 +1627,10 @@ $(document).ready(function () {
 
             if (appointment.instructor_user) {
               resourceIds.push("instructor:" + appointment.instructor_user.id)
+            }
+
+            if(appointment.mechanic_user) {
+              resourceIds.push("mechanic:" + appointment.mechanic_user.id)
             }
 
             if (appointment.aircraft) {
@@ -1523,6 +1708,11 @@ $(document).ready(function () {
             if (unavailability.room) {
               resourceIds.push("room:" + unavailability.room.id)
             }
+
+            if(unavailability.mechanic) {
+              resourceIds.push("mechanic:" + unavailability.mechanic.id)
+            }
+
             return {
               title: "Unavailable",
               start: moment.utc(unavailability.start_at).add(+(moment(unavailability.start_at).utcOffset()), 'm'),
@@ -1550,14 +1740,19 @@ $(document).ready(function () {
   var current_user = $.get({ url: "/api/user_info", headers: AUTH_HEADERS })
 
   Promise.all([users, aircrafts, rooms, current_user, students]).then(function (values) {
-    var instructors = values[0].data.filter(function (user) {
+    const instructors = values[0].data.filter(function (user) {
       return user.roles.indexOf("instructor") != -1
     });
+
+    const mechanics = values[0].data.filter(function (user) {
+      return user.roles.indexOf("mechanic") != -1
+    });
+
 
     const aircrafts = values[1].data.filter(function(item) {return !item.simulator})
     const simulators = values[1].data.filter(function(item) {return item.simulator})
 
-    fsmCalendar(instructors, aircrafts, simulators, values[2].data, values[4].data, values[3]);
+    fsmCalendar(instructors, mechanics, aircrafts, simulators, values[2].data, values[4].data, values[3]);
   });
 
 

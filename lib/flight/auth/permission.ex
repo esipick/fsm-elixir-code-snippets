@@ -20,6 +20,7 @@ defmodule Flight.Auth.Permission do
     :aircraft,
     :appointment,
     :appointment_instructor,
+    :appointment_mechanic,
     :appointment_student,
     :appointment_user,
     :documents,

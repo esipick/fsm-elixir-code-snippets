@@ -75,6 +75,24 @@ defmodule Flight.Scheduling.Availability do
     )
   end
 
+  def mechanic_availability(
+        start_at,
+        end_at,
+        excluded_appointment_ids,
+        excluded_unavailability_ids,
+        school_context
+      ) do
+    users_with_permission_availability(
+      :all,
+      permission_slug(:appointment_mechanic, :modify, :personal),
+      start_at,
+      end_at,
+      excluded_appointment_ids,
+      excluded_unavailability_ids,
+      school_context
+    )
+  end
+
   def user_with_permission_status(
         scope \\ :all,
         permission_slug,
@@ -194,6 +212,8 @@ defmodule Flight.Scheduling.Availability do
 
   def select_for_permission_slug(query, permission_slug) do
     instructor_slug = permission_slug(:appointment_instructor, :modify, :personal)
+    mechanic_slug = permission_slug(:appointment_mechanic, :modify, :personal)
+
 
     user_slug = permission_slug(:appointment_user, :modify, :personal)
     student_slug = permission_slug(:appointment_student, :modify, :personal)
@@ -201,6 +221,8 @@ defmodule Flight.Scheduling.Availability do
     case permission_slug do
       ^instructor_slug ->
         from(a in query, select: a.instructor_user_id)
+      ^mechanic_slug ->
+        from(a in query, select: a.mechanic_user_id)
 
       slug when slug in [user_slug, student_slug] ->
         from(a in query, select: a.user_id)
@@ -268,7 +290,7 @@ defmodule Flight.Scheduling.Availability do
       else
         MapSet.new()
       end
-        
+
     unavailability_aircraft_ids =
       if scope in [:all, :unavailability] do
         Unavailability
@@ -338,7 +360,7 @@ defmodule Flight.Scheduling.Availability do
       school_context
       |> SchoolAssets.visible_room_query() # school scope query already composed inside visible room query.
       |> Repo.all()
-      
+
     appointment_unavailable_room_ids =
       if scope in [:all, :appointment] do
         from(a in Appointment, where: a.archived == false)

@@ -97,7 +97,7 @@ defmodule Fsm.Scheduling do
       end
     end
   end
-  
+
   def update_appointment(
       %{
         context: %{
@@ -111,7 +111,7 @@ defmodule Fsm.Scheduling do
     ) do
 
       appointment = get_appointment(Map.get(appointment_data, :id))
-      
+
       %{ roles: _roles, user: current_user } = Accounts.get_user(user_id)
 
       context = %{
@@ -141,7 +141,7 @@ defmodule Fsm.Scheduling do
             ) do
           {:ok, appointment} ->
             appointment = get_appointment_full_object(Map.get(appointment_data, :id))
-            {:ok, appointment} 
+            {:ok, appointment}
 
           {:error, changeset} ->
             {:error, FsmWeb.ViewHelpers.human_error_messages(changeset)}
@@ -204,12 +204,15 @@ defmodule Fsm.Scheduling do
     school = SchoolScope.get_school(school_context.school_id)
     role = List.first(Repo.preload(modifying_user, :roles).roles)
 
-    attrs =
-      if Map.get(attrs, :instructor_user_id) in [nil, ""] and Map.get(role, :slug) == "instructor" do
-        Map.put(attrs, :owner_user_id, modifying_user.id)
-      else
+    attrs = cond do
+      Map.get(attrs, :instructor_user_id) in [nil, ""] and Map.get(role, :slug)  == "instructor" ->
+        Map.put(attrs, "owner_user_id", modifying_user.id)
+      Map.get(attrs, :mechanic_user_id) in [nil, ""] and Map.get(role, :slug)  == "mechanic" ->
+        Map.put(attrs, "owner_user_id", modifying_user.id)
+      true ->
         attrs
-      end
+    end
+
     changeset =
       appointment
       |> SchoolScope.school_changeset(school_context)
@@ -238,6 +241,7 @@ defmodule Fsm.Scheduling do
       end_at = get_field(changeset, :end_at)
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
+      mechanic_user_id = get_field(changeset, :mechanic_user_id)
       aircraft_id = get_field(changeset, :aircraft_id) || get_field(changeset, :simulator_id)
       room_id = get_field(changeset, :room_id)
       _type = get_field(changeset, :type)
@@ -249,7 +253,7 @@ defmodule Fsm.Scheduling do
           []
         end
 
-      # if appointment has started. do not let instructor and 
+      # if appointment has started. do not let instructor and
 
       status =
          if user_id && user_id != "" do
@@ -293,6 +297,27 @@ defmodule Fsm.Scheduling do
           case status do
             :available -> changeset
             other -> add_error(changeset, :instructor, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+      changeset =
+        if mechanic_user_id do
+          status =
+              Availability.user_with_permission_status(
+                Permission.permission_slug(:appointment_mechanic, :modify, :personal),
+                mechanic_user_id,
+                start_at,
+                end_at,
+                excluded_appointment_ids,
+                [],
+                school_context
+              )
+
+          case status do
+            :available -> changeset
+            other -> add_error(changeset, :mechanic, "is #{other}", status: status)
           end
         else
           changeset
@@ -442,7 +467,7 @@ defmodule Fsm.Scheduling do
 
       {:error, changeset} ->
         error_messages = FsmWeb.ViewHelpers.human_error_messages(changeset)
-        
+
         {:error, error_messages}
     end
   end
@@ -510,13 +535,13 @@ defmodule Fsm.Scheduling do
       unavailability
       |> SchoolScope.school_changeset(school)
       |> Unavailability.changeset(attrs, school.timezone)
-      
+
     if changeset.valid? do
       {:ok, _} = apply_action(changeset, :insert)
       instructor_user_id = get_field(changeset, :instructor_user_id)
       aircraft_id = get_field(changeset, :aircraft_id) || get_field(changeset, :simulator_id)
       room_id = get_field(changeset, :room_id)
-      
+
       excluded_unavailability_ids = if unavailability.id, do: [unavailability.id], else: []
 
       changeset =
@@ -539,16 +564,16 @@ defmodule Fsm.Scheduling do
         else
         changeset
         end
-      
+
         start_at = get_field(changeset, :start_at) #|> utc_to_walltime(school.timezone)
         end_at = get_field(changeset, :end_at) #|> utc_to_walltime(school.timezone)
-  
+
         changeset =
         if aircraft_id do
           status =
             Availability.aircraft_status(:unavailability, aircraft_id, start_at, end_at, [], excluded_unavailability_ids, school_context
         )
-        
+
           case status do
           :available -> changeset
           :unavailable ->
@@ -611,7 +636,7 @@ defmodule Fsm.Scheduling do
       {:error, "Unavailability not found"}
     end
   end
-  
+
   def list_unavailabilities(options, school_context) do
 
     from_value = Map.get(options, "from")

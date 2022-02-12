@@ -413,12 +413,14 @@ defmodule Flight.Scheduling do
     school = SchoolScope.get_school(school_context)
     role = List.first(Repo.preload(modifying_user, :roles).roles)
 
-    attrs =
-      if Map.get(attrs, :instructor_user_id) in [nil, ""] and Map.get(role, :slug)  == "instructor" do
+    attrs = cond do
+      Map.get(attrs, :instructor_user_id) in [nil, ""] and Map.get(role, :slug)  == "instructor" ->
         Map.put(attrs, "owner_user_id", modifying_user.id)
-      else
+      Map.get(attrs, :mechanic_user_id) in [nil, ""] and Map.get(role, :slug)  == "mechanic" ->
+        Map.put(attrs, "owner_user_id", modifying_user.id)
+      true ->
         attrs
-      end
+    end
 
     changeset =
       appointment
@@ -448,6 +450,7 @@ defmodule Flight.Scheduling do
       end_at = get_field(changeset, :end_at) # |> utc_to_walltime(school.timezone)
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
+      mechanic_user_id = get_field(changeset, :mechanic_user_id)
       aircraft_id = get_field(changeset, :aircraft_id) || get_field(changeset, :simulator_id)
       room_id = get_field(changeset, :room_id)
       _type = get_field(changeset, :type)
@@ -503,6 +506,27 @@ defmodule Flight.Scheduling do
           case status do
             :available -> changeset
             other -> add_error(changeset, :instructor, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+      changeset =
+        if mechanic_user_id do
+          status =
+            Availability.user_with_permission_status(
+              permission_slug(:appointment_mechanic, :modify, :personal),
+              mechanic_user_id,
+              start_at,
+              end_at,
+              excluded_appointment_ids,
+              [],
+              school_context
+            )
+
+          case status do
+            :available -> changeset
+            other -> add_error(changeset, :mechanic, "is #{other}", status: status)
           end
         else
           changeset

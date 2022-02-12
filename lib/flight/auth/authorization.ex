@@ -180,13 +180,13 @@ defmodule Flight.Auth.Authorization do
 
   def mechanic_permission_slugs() do
     MapSet.new([
-      permission_slug(:appointment_user, :modify, :personal),
+      permission_slug(:appointment_mechanic, :modify, :personal),
       permission_slug(:documents, :view, :personal),
       permission_slug(:invoice, :modify, :personal),
       permission_slug(:invoice, :view, :personal),
+      permission_slug(:school, :view, :personal),
       permission_slug(:objective_score, :view, :personal),
       permission_slug(:push_token, :modify, :personal),
-      permission_slug(:school, :view, :personal),
       permission_slug(:transaction, :view, :personal),
       permission_slug(:transaction_creator, :modify, :personal),
       permission_slug(:transaction_user, :view, :personal),

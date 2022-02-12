@@ -12,6 +12,7 @@ defmodule FlightWeb.Instructor.ScheduleController do
     simulators = Flight.Scheduling.visible_simulators(conn)
     rooms = Flight.SchoolAssets.visible_rooms(conn)
     types = Flight.Scheduling.Appointment.types()
+      |> Enum.filter(fn x -> x != "maintenance" end)
 
     render(conn, "index.html",
       renters: renters,

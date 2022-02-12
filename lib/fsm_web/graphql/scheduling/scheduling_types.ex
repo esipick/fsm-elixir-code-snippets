@@ -134,6 +134,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
     field :school_id, :integer
     field :instructor_user_id, :integer
+    field :mechanic_user_id, :integer
     field :owner_user_id, :integer
     field :user_id, :integer
     field :aircraft_id, :integer
@@ -194,6 +195,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :demo, :boolean
     field :end_at, :string
     field :instructor_user_id, :integer
+    field :mechanic_user_id, :integer
     field :note, :string
     field :payer_name, :string
     field :start_at, :string
@@ -209,6 +211,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :demo, :boolean
     field :end_at, :string
     field :instructor_user_id, :integer
+    field :mechanic_user_id, :integer
     field :note, :string
     field :payer_name, :string
     field :start_at, :string
@@ -219,6 +222,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
   input_object :appointment_filters do
     field :instructor_user_id, :integer
+    field :mechanic_user_id, :integer
     field :owner_user_id, :integer
     field :user_id, :integer
     field :aircraft_id, :integer

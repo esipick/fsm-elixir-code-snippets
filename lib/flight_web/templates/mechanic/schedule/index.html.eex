@@ -9,6 +9,6 @@
     simulators: @simulators,
     rooms: @rooms,
     types: @types,
-    mechanic_id: @user_id,
+    mechanic_user_id: @user_id,
     student_id: nil)
 %>
