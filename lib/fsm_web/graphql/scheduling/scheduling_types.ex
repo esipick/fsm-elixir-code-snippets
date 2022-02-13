@@ -143,6 +143,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :room_id, :integer
     field :user, :user
     field :instructor, :user
+    field :mechanic, :user
     field :aircraft, :aircraft
     field :room, :room
     field :simulator, :simulator
