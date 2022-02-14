@@ -666,16 +666,14 @@ $(document).ready(function () {
     }
 
     if (promise) {
-      var event;
-      if (eventType == "appt") {
-        event = "appointment"
-      } else if (eventType == "demoAppt") {
-        event = "demo flight appointment"
-      } else if (eventType === "maintenance") {
-        eventType = "maintenance appointment"
-      } else {
-        event = "unavailability"
+      const apptEvents = {
+        "appt": "appointment",
+        "demoAppt": "demo flight appointment",
+        "maintenance": "maintenance appointment",
+        "unavail": "unavailability"
       }
+
+      const event = apptEvents[eventType]
 
       promise.then(function () {
         $('#calendarNewModal').modal('hide')
