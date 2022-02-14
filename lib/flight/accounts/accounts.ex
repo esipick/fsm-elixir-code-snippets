@@ -165,7 +165,7 @@ defmodule Flight.Accounts do
   end
 
   def roles_visible_to("mechanic") do
-    [:instructor, :admin, :dispatcher]
+    [:instructor, :admin, :dispatcher, :mechanic]
   end
 
   def get_users(school_context) do
