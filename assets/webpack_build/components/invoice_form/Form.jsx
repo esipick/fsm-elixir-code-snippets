@@ -844,9 +844,9 @@ class Form extends Component {
                   </div>
                   <div><Error text={stripe_error} /></div>
 
-                  <div class="checkbox-radios">
-                      <div class="form-check">
-                        <label class="form-check-label">
+                  <div className="checkbox-radios">
+                      <div className="form-check">
+                        <label className="form-check-label">
                           <input 
                             type="checkbox" 
                             name="send_invoice_receipt" 
@@ -856,7 +856,7 @@ class Form extends Component {
                               })
                             }
                           />
-                          <span class="form-check-sign"></span>
+                          <span className="form-check-sign"></span>
                           Send invoice receipt email
                         </label>
                       </div>
