@@ -34,7 +34,7 @@ function getPlainDate(start_at) {
                 Transactions
               </a>
             </li>
-            <%= if Flight.Auth.InvoicePolicy.can_see_add_funds?(@conn.assigns.current_user) do %>
+            <%= if Flight.Auth.InvoicePolicy.can_see_add_funds?(@conn.assigns.current_user) and !Flight.Accounts.has_role?(@conn.assigns.current_user, "mechanic") do %>
                <li class="nav-item">
                 <a class="nav-link" href="/<%= if Flight.Accounts.has_role?(@conn.assigns.current_user, "student"), do: "student", else: "renter" %>/profile/add-funds" role="tablist" aria-expanded="true">
                   Add Funds

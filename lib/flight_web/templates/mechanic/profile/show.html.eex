@@ -11,7 +11,7 @@
               </div>
               <h2><%= @user.first_name %> <%= @user.last_name %></h2>
               <p><%= for role <- @user.roles do %><%= human_role(role.slug) %><br><% end %></p>
-              <p class="enrolled"><small>Enrolled <%= display_date(@user.inserted_at, :student) %></small></p>
+              <p class="enrolled"><small>Enrolled <%= display_date(@user.inserted_at, :mechanic) %></small></p>
                   <a class="btn  btn-primary" href="/mechanic/profile/edit">Edit Profile</a>
               <div class="contacts">
                 <div class="contact">
@@ -63,56 +63,6 @@
                   <% end %>
                 </div>
 
-                <%= if has_cirriculum?(@user) or Accounts.has_role?(@user, "renter") do %>
-                  <div class="desktop">
-                    <div class="field">
-                      <h3>Start Date</h3>
-                      <p id="start_date"></p>
-                    </div>
-                    <div class="field">
-                      <h3>Date of Birth (DOB)</h3>
-                      <p><%= standard_date_format(@user.date_of_birth)  || "-" %></p>
-                    </div>
-                    <div class="field">
-                      <h3>Gender</h3>
-                      <p><%= @user.gender  || "-" %></p>
-                    </div>
-                    <div class="field">
-                      <h3>Emergency Contact</h3>
-                      <p>
-                        <%= if @user.emergency_contact_no do %>
-                          <small><%= @user.emergency_contact_no || "N/A" %></small>,
-                        <% else %> -
-                        <% end %>
-                      </p>
-                    </div>
-                    <div class="field">
-                      <h3>Driving License</h3>
-                      <p>
-                        <%= if @user.d_license_no do %>
-                        <span># : <%= @user.d_license_no %></span>
-                          <small>Expires : <%= standard_date_format(@user.d_license_expires_at) || "N/A" %></small>,
-                          <small>Country : <%= @user.d_license_country || "N/A" %></small>,
-                          <small>State : <%= @user.d_license_state || "N/A" %></small>
-                        <% else %> -
-                        <% end %>
-                      </p>
-                    </div>
-                    <div class="field">
-                      <h3>Passport</h3>
-                      <p>
-                        <%= if @user.passport_no do %>
-                        <span># : <%= @user.passport_no %></span>
-                          <small>Expires : <%= standard_date_format(@user.passport_expires_at) || "N/A" %></small>,
-                          <small>Country : <%= @user.passport_country || "N/A" %></small>,
-                          <small>Issuer : <%= @user.passport_issuer_name || "N/A" %></small>
-                        <% else %> -
-                        <% end %>
-                      </p>
-                    </div>
-                  </div>
-                 <% end %>
-
                 <div class="desktop">
                   <%= if has_medical?(@user) do %>
                     <div class="field">
@@ -135,7 +85,7 @@
                         <%= if aircraft.archived do %>
                           <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
                         <% else %>
-                          <p><a href="/admin/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a></p>
+                          <p><a href="/mechanic/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a></p>
                         <% end %>
                       <% end %>
                       </div>
@@ -157,7 +107,7 @@
                       <%= if aircraft.archived do %>
                         <p><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</p>
                       <% else %>
-                        <p><a href="/admin/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a></p>
+                        <p><a href="/mechanic/aircrafts/<%= aircraft.id %>"><%= aircraft.make %> <%= aircraft.model %> (<%= aircraft.tail_number %>)</a></p>
                       <% end %>
                     <% end %>
                   <% else %>
