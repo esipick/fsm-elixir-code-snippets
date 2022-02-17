@@ -270,15 +270,14 @@ defmodule Fsm.Scheduling do
            :available
          end
 
-      changeset =
+        changeset =
         case status do
           :available ->
             changeset
-
+          :unavailable ->
+            add_error(changeset, :renter_student, "is #{status}.", status: status)
           _ ->
-            add_error(changeset, :renter_student, "already has an appointment at this time.",
-              status: :unavailable
-            )
+            add_error(changeset, :renter_student, "does not exist against #{user_id} user id.", status: status)
         end
 
       changeset =
@@ -295,8 +294,14 @@ defmodule Fsm.Scheduling do
              )
 
           case status do
-            :available -> changeset
-            other -> add_error(changeset, :instructor, "is #{other}", status: status)
+            :available ->
+              changeset
+            :unavailable ->
+              add_error(changeset, :instructor, "is #{status}", status: status)
+            _ ->
+              add_error(changeset, :instructor, "does not exist against #{instructor_user_id} instructor user id.",
+                status: status
+              )
           end
         else
           changeset
@@ -317,7 +322,11 @@ defmodule Fsm.Scheduling do
 
           case status do
             :available -> changeset
-            other -> add_error(changeset, :mechanic, "is #{other}", status: status)
+            :unavailable -> add_error(changeset, :mechanic, "is #{status}", status: status)
+            _ ->
+              add_error(changeset, :instructor, "does not exist against #{mechanic_user_id} mechanic user id.",
+                status: status
+              )
           end
         else
           changeset
