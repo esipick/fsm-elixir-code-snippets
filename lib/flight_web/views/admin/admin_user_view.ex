@@ -13,7 +13,7 @@ defmodule FlightWeb.Admin.UserView do
   end
 
   def has_appointments?(user) do
-    Accounts.has_any_role?(user, ["renter", "instructor", "student"])
+    Accounts.has_any_role?(user, ["renter", "instructor", "student", "mechanic"])
   end
 
   def medical_approval_inputs() do

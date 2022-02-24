@@ -6,6 +6,7 @@ export const INSTRUCTOR_HOURS = "Instructor Hours";
 export const DEMO_FLIGHT = "Demo Flight"
 export const ROOM = "Room"
 export const COURSE = "Course"
+export const PARTS = "Parts"
 
 export const DEFAULT_TYPE = "other";
 export const TYPES = {
@@ -14,7 +15,8 @@ export const TYPES = {
   [DEMO_FLIGHT]: "aircraft",
   [ROOM]: "room",
   [INSTRUCTOR_HOURS]: "instructor",
-  [COURSE]: "course"
+  [COURSE]: "course",
+  [PARTS]: "parts"
 }
 
 export const DESCRIPTION_OPTS = [
@@ -23,7 +25,8 @@ export const DESCRIPTION_OPTS = [
   {label: DEMO_FLIGHT, value: DEMO_FLIGHT, taxable: true, deductible: false},
   {label: INSTRUCTOR_HOURS, value: INSTRUCTOR_HOURS, taxable: false, deductible: false},
   {label: ROOM, value: ROOM, taxable: false, deductible: false},
-  {label: COURSE, value: COURSE, taxable: true, deductible: false}
+  {label: COURSE, value: COURSE, taxable: true, deductible: false},
+  {label: PARTS, value: PARTS, taxable: false, deductible: false}
 ];
 
 export const DEFAULT_RATE = 0;
@@ -70,7 +73,9 @@ export class LineItemRecord {
     this.course_id = params.course_id
     this.aircraft = params.aircraft || params.simulator;
     this.aircraft_id = (params.aircraft && params.aircraft.id) || (params.simulator && params.simulator.id);
-    
+    this.part_cost = params.part_cost;
+    this.part_number = params.part_number;
+
     this.taxable = params.taxable;
     this.deductible = params.deductible;
     
@@ -183,6 +188,13 @@ export const courseItem = (course) => {
   })
 }
 
+export const partsItem = (parts) => {
+  return new LineItemRecord({
+    part_number: parts.part_number,
+    part_cost: parts.part_cost
+  })
+}
+
 const fromAircraft = (aircraft, type, duration) => {
   var desc = FLIGHT_HOURS;
   if (type === "demo_flight") {desc = DEMO_FLIGHT}
@@ -245,6 +257,10 @@ export const containsSimulator = (line_items) => {
 
 export const containsDemoFlight = (line_items) => {
   return line_items.find(function(item) {return item.description === DEMO_FLIGHT})
+}
+
+export const containsParts = (line_items) => {
+  return line_items.find(function(item) {return item.description === PARTS})
 }
 
 function findItem(line_items, type){

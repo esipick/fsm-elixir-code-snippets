@@ -6,7 +6,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   alias Flight.Billing.{Invoice, CalculateInvoice, CreateInvoice, UpdateInvoice}
 
   @invoice_line_item_excluded_types ~w(aircraft instructor room)a
-  @invoice_line_item_fields ~w(id description rate amount quantity creator_id type taxable deductible)a
+  @invoice_line_item_fields ~w(id description rate amount quantity creator_id type taxable deductible, part_number, part_cost)a
 
   def run(appointment_id, params, school_context) do
     appointment = get_appointment(appointment_id)
@@ -61,7 +61,7 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   defp create_invoice_from_appointment(appointment, params, school_context) do
     invoice_payload = get_invoice_payload(appointment, params, school_context)
-  
+
     case CalculateInvoice.run(invoice_payload, school_context) do
       {:ok, invoice_params} ->
         CreateInvoice.run(invoice_params, school_context)
@@ -73,20 +73,24 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   defp get_appointment(appointment_id) do
     Repo.get(Appointment, appointment_id)
-    |> Repo.preload([:user, :instructor_user, :aircraft, :room, :simulator])
+    |> Repo.preload([:user, :instructor_user, :mechanic_user, :aircraft, :room, :simulator])
   end
 
   def get_invoice_payload(appointment, params, school_context) do
     school = school(school_context)
     current_user = school_context.assigns.current_user
-    user_id = 
+    user_id =
       cond do
-        appointment.user_id not in [nil, "", " "] -> appointment.user_id
-        !appointment.demo -> appointment.instructor_user_id
+        appointment.user_id not in [nil, "", " "] ->
+          appointment.user_id
+        !appointment.demo ->
+          appointment.instructor_user_id
+        appointment.mechanic_user_id not in [nil, "", " "] ->
+          appointment.mechanic_user_id
         true -> nil
       end
 
-    payload = 
+    payload =
       %{
         "school_id" => school.id,
         "appointment_id" => appointment.id,
@@ -101,14 +105,16 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
     payment_option = Map.get(params, "payment_option")
 
     cond do
-      payment_option -> Map.put(payload, "payment_option", payment_option)
+      payment_option ->
+        Map.put(payload, "payment_option", payment_option)
       # !appointment.demo -> Map.put(payload, "payment_option", Map.get(params, "payment_option", "balance"))
-      true -> payload
+      true ->
+        payload
     end
   end
 
   defp payer_name_from(appointment) do
-    if appointment.demo, do: appointment.payer_name, else: Flight.Accounts.User.full_name(appointment.user || appointment.instructor_user)
+    if appointment.demo, do: appointment.payer_name, else: Flight.Accounts.User.full_name(appointment.user || appointment.instructor_user || appointment.mechanic_user)
   end
 
   defp line_items_from(appointment, params, current_user) do

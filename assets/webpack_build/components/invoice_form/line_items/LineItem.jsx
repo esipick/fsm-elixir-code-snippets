@@ -12,7 +12,9 @@ class InvoiceLineItem extends PureComponent {
       rate: o.default_rate,
       value: o.description,
       taxable: o.taxable,
-      deductible: o.deductible
+      deductible: o.deductible,
+      part_number: o.part_number,
+      part_cost: o.part_cost
     })))
 
     const additionalOptions = this.props.line_items.filter(line_item => (
@@ -22,7 +24,9 @@ class InvoiceLineItem extends PureComponent {
       rate: line_item.rate,
       value: line_item.description,
       taxable: line_item.taxable,
-      deductible: line_item.deductible
+      deductible: line_item.deductible,
+      part_cost: line_item.part_cost,
+      part_number: line_item.part_number
     }));
 
     return [...options, ...additionalOptions];
@@ -40,7 +44,9 @@ class InvoiceLineItem extends PureComponent {
       taxable: option.taxable,
       deductible: option.deductible,
       quantity: type === "aircraft" || type === "instructor" ? 0 : (quantity || 1),
-      amount: rate * quantity
+      amount: rate * quantity,
+      part_number: option.part_number,
+      part_cost: option.part_cost
     });
   }
 

@@ -181,11 +181,18 @@ class AircraftLineItem extends Component {
     const {
       hobbs_start, hobbs_end, tach_start, tach_end, id, description, disable_flight_hours, enable_rate,
     } = line_item;
+    
     if (this.props.user_roles && (this.props.user_roles.includes("admin") || this.props.user_roles.includes("dispatcher"))) {
       line_item.enable_rate= true
     }else{
       line_item.enable_rate= false
     }
+
+    line_item.enable_rate = this.props.user_roles && (
+      this.props.user_roles.includes("admin") ||
+      this.props.user_roles.includes("dispatcher") ||
+      this.props.user_roles.includes("mechanic")
+    );
 
     const { number, canRemove, errors, lineItemTypeOptions, editable } = this.props;
     const { rate, quantity, amount } = this.props.line_item;

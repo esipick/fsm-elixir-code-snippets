@@ -73,7 +73,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
 
   # TYPES
   # Enum
-  enum(:payment_options, values: [:balance, :cc, :cash, :cheque, :venmo, :fund])
+  enum(:payment_options, values: [:balance, :cc, :cash, :cheque, :venmo, :fund, :maintenance])
   enum(:status, values: [:paid, :pending, :failed])
   # balance: 0, cc: 1, cash: 2, cheque: 3,venmo: 4
 
@@ -185,6 +185,8 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:tach_start, :integer)
     field(:taxable, :boolean)
     field(:type, :string)
+    field(:part_number, :string)
+    field(:part_cost, :integer)
     field(:instructor_user_id, :integer)
     field(:instructor_name, :string)
   end
@@ -206,6 +208,8 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:tach_start, :integer)
     field(:taxable, :boolean)
     field(:type, :string)
+    field(:part_number, :string)
+    field(:part_cost, :integer)
     field(:instructor_user_id, :integer)
     field(:course_id, :integer)
   end

@@ -12,11 +12,24 @@ import { addSchoolIdParam, authHeaders, isEmpty } from '../utils';
 import ConfirmAlert from './ConfirmAlert';
 import ConfirmHobbTachAlert from './ConfirmHobbTachAlert';
 import {
-  BALANCE, DEFAULT_GUEST_PAYMENT_OPTION, DEFAULT_PAYMENT_OPTION, DEMO_PAYMENT_OPTIONS, GUEST_PAYMENT_OPTIONS, PAYMENT_OPTIONS
+  BALANCE,
+  DEFAULT_GUEST_PAYMENT_OPTION,
+  DEFAULT_PAYMENT_OPTION,
+  DEMO_PAYMENT_OPTIONS,
+  GUEST_PAYMENT_OPTIONS,
+  PAYMENT_OPTIONS,
+  MAINTENANCE_PAYMENT_OPTIONS,
+  DEFAULT_MAINTENANCE_PAYMENT_OPTION
 } from './constants';
 import ErrorAlert from './ErrorAlert';
 import LineItemsTable from './LineItemsTable';
-import { containsDemoFlight, containsSimulator, itemsFromAppointment, itemsFromInvoice } from './line_items/line_item_utils';
+import {
+  containsDemoFlight,
+  containsParts,
+  containsSimulator,
+  itemsFromAppointment,
+  itemsFromInvoice 
+ } from './line_items/line_item_utils';
 import LowBalanceAlert from './LowBalanceAlert';
 
 let calculateRequest = () => { };
@@ -32,7 +45,6 @@ class Form extends Component {
     const appointments = appointment ? [appointment] : [];
     
     let id = localStorage.getItem('invoice_id')
-
 
     if  (id && !props.id) {
       localStorage.removeItem('invoice_id')
@@ -59,7 +71,7 @@ class Form extends Component {
       hobb_tach_warning_open: false,
       hobb_tach_warning_accepted: false,
       balance_warning_accepted: false,
-      payment_method: this.getPaymentMethod(props.payment_method, demo),
+      payment_method: this.isMaintenanceInvoice(appointment) ? DEFAULT_MAINTENANCE_PAYMENT_OPTION : this.getPaymentMethod(props.payment_method, demo),
       notes: props.notes,
       payer_email: props.payer_email,
       send_receipt_email: true,
@@ -78,6 +90,10 @@ class Form extends Component {
     } else {
       this.loadData();
     }
+  }
+
+  isMaintenanceInvoice(appointment, line_items = []) {
+     return appointment?.type === "maintenance" || containsParts(line_items)
   }
 
   loadData = () => {
@@ -130,7 +146,8 @@ class Form extends Component {
       .then(r => {
         const invoice = itemsFromInvoice(r.data, this.props.user_roles);
         const demo = invoice.appointment ? invoice.appointment.demo : false
-        const payment_method = this.getPaymentMethod(invoice.payment_option, demo)
+        const maintenanceAppt = invoice.appointment?.type === "maintenance";
+        const payment_method = maintenanceAppt ? DEFAULT_MAINTENANCE_PAYMENT_OPTION : this.getPaymentMethod(invoice.payment_option, demo)
 
         this.setState({
           date: invoice.date ? new Date(invoice.date) : new Date(),
@@ -203,14 +220,14 @@ class Form extends Component {
     this.setState({ appointment_loading: true });
 
     http.get({
-      url: '/api/invoices/appointments?user_id=' + student.id + addSchoolIdParam('&'),
+      url: '/api/invoices/appointments?user_id=' + this.getUserId(student, this.state.appointment) + addSchoolIdParam('&'),
       headers: authHeaders()
     }).then(r => r.json())
       .then(r => {
         let appointments;
-        const { student, default_user, default_appointment } = this.state;
+        const { student, default_user, default_appointment, appointment} = this.state;
 
-        if ((student && student.id) == (default_user && default_user.id)) {
+        if ((this.getUserId(student, appointment )) == (default_user && default_user.id)) {
           appointments = [default_appointment, ...r.data].filter(e => e);
         } else {
           appointments = r.data;
@@ -327,7 +344,17 @@ class Form extends Component {
 
   setPaymentMethod = (option) => { this.setState({ payment_method: option }); }
 
-  onLineItemsTableChange = (values) => { this.setState(values); this.setState({ hobb_tach_warning_accepted: false });}
+  onLineItemsTableChange = (values) => {
+    if(this.isMaintenanceInvoice({}, values.line_items)) {
+       this.setState({
+         ...(values ?? {}),
+         hobb_tach_warning_accepted: false,
+         payment_method: DEFAULT_MAINTENANCE_PAYMENT_OPTION
+      });
+    } else {
+      this.setState({ ...(values ?? {}), hobb_tach_warning_accepted: false });
+    }
+  }
 
   payload = () => {
     const {
@@ -344,7 +371,7 @@ class Form extends Component {
     return {
       ignore_last_time: is_edit,
       line_items,
-      user_id: isEmpty(this.props.course) ? student && student.id : this.props.current_user_id,
+      user_id: isEmpty(this.props.course) ? this.getUserId(student, appointment) : this.props.current_user_id,
       payer_name: student && student.guest ? student.label : '',
       date: date.toISOString(),
       tax_rate: sales_tax,
@@ -358,6 +385,16 @@ class Form extends Component {
       appointment_id: appointment && appointment.id,
       course_id: isEmpty(this.props.course) ? null : this.props.course.id,
       send_receipt_email
+    }
+  }
+
+  getUserId = (student, appointment) => {
+    if(student && student.id) {
+      return student.id;
+    }
+
+    if(appointment?.mechanic_user) {
+      return appointment.mechanic_user_id;
     }
   }
 
@@ -430,10 +467,11 @@ class Form extends Component {
     }
 
     const { student, appointment, action } = this.state;
+  
     const payload = {
       ignore_last_time: action == 'edit',
       line_items,
-      user_id: student && student.id,
+      user_id: this.getUserId(student, appointment),
       appointment_id: appointment && appointment.id
     }
 
@@ -671,15 +709,15 @@ class Form extends Component {
     const { custom_line_items, staff_member } = this.props;
     const { aircrafts, simulators, appointment, appointment_loading, appointments,
       instructors, rooms, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
-      saving, stripe_error, student, total, total_amount_due, total_tax, is_admin_invoice
+      saving, stripe_error, student, total, total_amount_due, total_tax, is_admin_invoice,
     } = this.state;
-    
-    let  { demo } = this.state;
-  
-    if (!demo && containsDemoFlight(line_items)) {
-      demo = true
-    }
 
+    // check if line_items contains maintenance item
+    const maintenanceInvoice = this.isMaintenanceInvoice(appointment, line_items)
+    const mechanic = appointment?.mechanic_user;
+
+    const demo = !this.state.demo && containsDemoFlight(line_items)
+  
     // In case of guest user don't have credit card payment option
     // so they have to pay in cash, venmo, or check
 
@@ -688,7 +726,9 @@ class Form extends Component {
     const accountBalance = this.accountBalance();
     let paymentOptions =  (accountBalance === "0.00" || accountBalance === "") ? PAYMENT_OPTIONS.filter(option => option.value !== BALANCE) : PAYMENT_OPTIONS;
     
-    if(demo) {
+    if(maintenanceInvoice) {
+      paymentOptions = MAINTENANCE_PAYMENT_OPTIONS;
+    } else if(demo) {
       paymentOptions = DEMO_PAYMENT_OPTIONS;
     } else if(student?.guest) {
       paymentOptions = GUEST_PAYMENT_OPTIONS;
@@ -704,15 +744,27 @@ class Form extends Component {
           <div className="invoice-form">
             <div className="form">
               <form ref={this.setFormRef}>
-               {isEmpty(this.props.course) && (
-                  <div className="form-group">
-                    <label>
-                      Person Name
-                      <Error text={this.userErrors(errors.user_id)} />
-                    </label>
-                    { staff_member && this.studentSelect(is_admin_invoice) }
-                    { !staff_member && <div>{student.first_name + ' ' + student.last_name}</div> }
-                  </div>
+               {isEmpty(this.props.course) && ( <>
+                  {
+                    mechanic ? (
+                      <div className="form-group">
+                        <label>
+                          Person Name
+                        </label>
+                        <div>{mechanic.first_name + ' ' + mechanic.last_name}</div>
+                      </div>
+                    ) : (
+                      <div className="form-group">
+                        <label>
+                          Person Name
+                          <Error text={this.userErrors(errors.user_id)} />
+                        </label>
+                        { staff_member && this.studentSelect(is_admin_invoice) }
+                        { !staff_member && <div>{student.first_name + ' ' + student.last_name}</div> }
+                      </div>
+                    )
+                  }
+                  </>
                )}
 
                 {

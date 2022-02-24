@@ -19,7 +19,7 @@ function getPlainDate(start_at) {
 
 <div class="content">
   <div class="row">
-    <div class="col-md-8 col-xs-12">
+    <div class="col-md-8 col-xs-12 <%= if @invoice.payment_method == :maintenance, do: "col-md-10", else: "" %>">
       <div class="card">
         <div class="card-header">
           <div class="text-right">
@@ -54,7 +54,7 @@ function getPlainDate(start_at) {
               </dl>
 
               <dl class="d-flex justify-content-between">
-                <dt>Payer names</dt>
+                <dt>Payer Name</dt>
                 <dd><%= @invoice.payer_name %></dd>
               </dl>
                <dl class="d-flex justify-content-between">
@@ -178,6 +178,10 @@ function getPlainDate(start_at) {
                       <th>Rate</th>
                       <th>Quantity</th>
                       <th>Amount $</th>
+                      <%= if @invoice.payment_method == :maintenance do %>
+                        <th>Part Number</th>
+                        <th>Part Cost</th>
+                      <% end %>
                     </tr>
                   </thead>
 
@@ -194,6 +198,10 @@ function getPlainDate(start_at) {
                         <td class="<%= deductible_class(line_item) %>">
                           <%= currency(line_item.amount) %>
                         </td>
+                        <%= if @invoice.payment_method == :maintenance do %>
+                          <td><%= line_item.part_number %></td>
+                          <td><%= line_item.part_cost %></td>
+                        <% end %>
                       </tr>
                     <% end %>
                   </tbody>
@@ -201,12 +209,12 @@ function getPlainDate(start_at) {
               </div>
               <%= if @invoice.notes do %>
                 <dl class="d-flex justify-content-start">
-                <dt>Notes</dt>
-              </dl>
-              <div>
-                 <%= @invoice.notes %>
-              </div>
-  <%= end%>
+                  <dt>Notes</dt>
+                </dl>
+                <div>
+                    <%= @invoice.notes %>
+                </div>
+              <%= end%>
             </div>
           </div>
         </div>
@@ -215,7 +223,7 @@ function getPlainDate(start_at) {
   </div>
 
   <div class="row">
-    <div class="col-md-8 col-xs-12">
+    <div class="col-md-8 col-xs-12 <%= if @invoice.payment_method == :maintenance, do: "col-md-10", else: "" %>">
       <div class="card">
         <div class="card-header">
           <h3>Transactions</h3>

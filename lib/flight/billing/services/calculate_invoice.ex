@@ -16,6 +16,7 @@ defmodule Flight.Billing.CalculateInvoice do
       )
 
     line_items = calculate_line_items(invoice_attrs, school_context)
+
     total = Enum.map(line_items, &chargeable_amount/1) |> Enum.sum() |> round
 
     total_taxable = Enum.map(line_items, &taxable_amount/1) |> Enum.sum()
@@ -76,7 +77,16 @@ defmodule Flight.Billing.CalculateInvoice do
       qty = line_item["quantity"] || line_item[:quantity] || 0
       amount = qty * rate
 
-      Map.merge(line_item, %{"amount" => round(amount), "rate" => rate, "quantity" => qty})
+      part_number = line_item["part_number"]
+      part_cost = line_item["part_cost"]
+
+      Map.merge(line_item, %{
+        "amount" => round(amount),
+        "rate" => rate,
+        "quantity" => qty,
+        "part_number" => part_number,
+        "part_cost" => part_cost
+      })
     end
   end
 

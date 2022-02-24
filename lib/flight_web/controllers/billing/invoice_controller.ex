@@ -36,7 +36,7 @@ defmodule FlightWeb.Billing.InvoiceController do
     appointment =
       if params["appointment_id"] do
         Repo.get(Flight.Scheduling.Appointment, params["appointment_id"])
-        |> Repo.preload([:aircraft, :instructor_user])
+        |> Repo.preload([:aircraft, :instructor_user, :mechanic_user])
         |> FlightWeb.API.AppointmentView.preload()
       end
 
@@ -50,6 +50,12 @@ defmodule FlightWeb.Billing.InvoiceController do
       else
         props
       end
+
+    props = if "mechanic" in props.user_roles do
+      Map.put(props, :payment_method, :maintenance)
+    else
+      props
+    end
 
     course_id = params["course_id"]
 

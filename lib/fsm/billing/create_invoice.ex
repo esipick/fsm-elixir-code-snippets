@@ -105,7 +105,11 @@ defmodule Fsm.Billing.CreateInvoice do
             Appointment.paid(invoice.appointment)
           end
 
-          insert_transaction_line_items(invoice, school_context)
+          # as a business perspective, we only want to paid
+          # the invoice without creating transaction
+          if(invoice.payment_option != :maintenance) do
+            insert_transaction_line_items(invoice, school_context)
+          end
 
           # As we intend to send email for walk-in purchases (issue # 563),
           # we need to remove check invoice.user_id, because we don't have
@@ -244,9 +248,13 @@ defmodule Fsm.Billing.CreateInvoice do
 
     defp pay_off_manually(invoice, school_context) do
       transaction_attrs = transaction_attributes(invoice)
-      case PayOff.manually(invoice.user, transaction_attrs, school_context) do
-        {:ok, _} -> Invoice.paid(invoice)
-        {:error, changeset} -> {:error, changeset}
+      if(invoice.payment_option == :maintenance) do
+        Invoice.paid(invoice)
+      else
+        case PayOff.manually(invoice.user, transaction_attrs, school_context) do
+          {:ok, _} -> Invoice.paid(invoice)
+          {:error, changeset} -> {:error, changeset}
+        end
       end
     end
 

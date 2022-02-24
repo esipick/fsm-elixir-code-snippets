@@ -18,7 +18,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
         :transactions,
         :bulk_transaction,
         :line_items,
-        [appointment: [:user, :instructor_user, [aircraft: :inspections]]]
+        [appointment: [:user, :instructor_user, :mechanic_user, [aircraft: :inspections]]]
       ])
       %InvoiceStruct{
       id: invoice.id,

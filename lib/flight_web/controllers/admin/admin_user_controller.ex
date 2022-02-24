@@ -41,14 +41,15 @@ defmodule FlightWeb.Admin.UserController do
       cond do
         Accounts.has_role?(user, "instructor") ->
           %{"instructor_user_id" => user.id}
-
+        Accounts.has_role?(user, "mechanic") ->
+          %{"mechanic_user_id" => user.id}
         true ->
           %{"user_id" => user.id}
       end
 
     appointments =
       Scheduling.get_appointments(options, conn)
-      |> Flight.Repo.preload([:aircraft, :instructor_user, :simulator, :room])
+      |> Flight.Repo.preload([:aircraft, :instructor_user, :mechanic_user, :simulator, :room])
 
     render(
       conn,

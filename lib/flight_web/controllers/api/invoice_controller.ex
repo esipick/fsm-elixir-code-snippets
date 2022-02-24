@@ -43,7 +43,7 @@ defmodule FlightWeb.API.InvoiceController do
         {page, page.entries}
       end
 
-    invoices = Repo.preload(invoices, [:user, :line_items, :appointment])
+    invoices = Repo.preload(invoices, [:user, :line_items,  [appointment: [:mechanic_user]]])
 
     conn
     |> put_status(200)
@@ -65,14 +65,13 @@ defmodule FlightWeb.API.InvoiceController do
         conn
         |> put_status(200)
         |> json(calculated_params)
-        
     else
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(422)
         |> json(%{errors: ViewHelpers.translate_errors(changeset)})
 
-      {:error, error} -> 
+      {:error, error} ->
         conn
         |> put_status(422)
         |> json(%{errors: [error]})
@@ -89,7 +88,7 @@ defmodule FlightWeb.API.InvoiceController do
     |> case do
       %Ecto.Changeset{valid?: true} ->
         CreateInvoice.run(invoice_params, conn)
-      
+
       changeset -> {:error, changeset}
     end
     |> render_created_invoice(conn)
@@ -101,10 +100,10 @@ defmodule FlightWeb.API.InvoiceController do
     case UpdateInvoice.run(conn.assigns.invoice, invoice_params, conn) do
       {:ok, invoice} ->
         session_info = Map.take(invoice, [:session_id, :connect_account, :pub_key])
-        
+
         invoice =
           Repo.get(Invoice, invoice.id)
-          |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
+          |> Repo.preload([:line_items, :user, :school, [appointment: [:mechanic_user]]], force: true)
           |> Map.merge(session_info)
 
         conn
@@ -156,7 +155,7 @@ defmodule FlightWeb.API.InvoiceController do
 
   def show(conn, _params) do
     invoice =
-      Repo.preload(conn.assigns.invoice, [:line_items, :user, :school, :appointment], force: true)
+      Repo.preload(conn.assigns.invoice, [:line_items, :user, :school,  [appointment: [:mechanic_user]]], force: true)
 
     conn
     |> put_status(200)
@@ -292,9 +291,9 @@ defmodule FlightWeb.API.InvoiceController do
     case result do
       {:ok, invoice} ->
         session_info = Map.take(invoice, [:session_id, :connect_account, :pub_key])
-        invoice = 
+        invoice =
           invoice
-          |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
+          |> Repo.preload([:line_items, :user, :school,  [appointment: [:mechanic_user]]], force: true)
           |> Map.merge(session_info)
 
         conn
@@ -331,7 +330,7 @@ defmodule FlightWeb.API.InvoiceController do
           error: %{message: "Could not save invoice. Please correct errors in the form."},
           errors: ViewHelpers.translate_errors(changeset)
         })
-      
+
       {:error, id, %Stripe.Error{} = error} ->
         conn
         |> put_status(error.extra.http_status)
