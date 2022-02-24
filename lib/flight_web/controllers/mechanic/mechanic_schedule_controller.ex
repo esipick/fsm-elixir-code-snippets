@@ -19,7 +19,7 @@ defmodule FlightWeb.Mechanic.ScheduleController do
       instructors: [],
       aircrafts: aircrafts,
       mechanics: mechanics,
-      user_id: current_user.id,
+      mechanic_user_id: current_user.id,
       simulators: [],
       rooms: [],
       types: types

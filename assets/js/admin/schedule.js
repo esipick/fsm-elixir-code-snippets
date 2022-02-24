@@ -849,9 +849,10 @@ $(document).ready(function () {
         $('#btnDelete').show()
 
       } else {
-        $('#apptType').attr('disabled', false)
-        $('#apptType').val('flight_lesson').selectpicker("refresh");
-        $('#btnDelete').hide()
+        const appointmentType = isMechanic ? "maintenance" : "flight_lesson"
+        $('#apptType').attr('disabled', isMechanic)
+        $('#apptType').val(appointmentType).selectpicker("refresh");
+        $('#btnDelete').hide();
       }
 
       var unavailType = "Instructor";
@@ -878,22 +879,22 @@ $(document).ready(function () {
       $('#unavailFor').val(unavailType).selectpicker("refresh");
       displayForUnavailability(unavailType)
 
-      var assetType = null
+      var appointmentFor = null
 
       if (initialData.aircraft_id) {
-        assetType = "Aircraft"
+        appointmentFor = "Aircraft"
 
       } else if (initialData.simulator_id) {
-        assetType = "Simulator"
+        appointmentFor = "Simulator"
 
       } else if (initialData.room_id) {
-        assetType = "Room"
+        appointmentFor = "Room"
       }
 
-      displayForAppointment(assetType)
+      displayForAppointment(appointmentFor)
 
-      if (!assetType) {assetType = "Aircraft"}
-      $('#apptFor').val(assetType).selectpicker("refresh");
+      if (!appointmentFor) {appointmentFor = "Aircraft"}
+      $('#apptFor').val(appointmentFor).selectpicker("refresh");
 
     if (initialData.type == "unavailability" || initialData.type == "unavailable") {
       regularView(false);
@@ -929,7 +930,7 @@ $(document).ready(function () {
       } else {
         $('#apptTitle').text("Create New")
       }
-    } else if(initialData.type == "maintenance" || initialData.type == "maintenance") {
+    } else if(initialData.type == "maintenance" || isMechanic) {
       maintenanceView(true);
       demoFlightView(false);
       regularView(false);
@@ -985,6 +986,13 @@ $(document).ready(function () {
       $('#apptStudent').prop("disabled", false).selectpicker("refresh");
     }
 
+    if (initialData.user_name && meta_roles.content == "mechanic") {
+      $('#maintenanceMechanic').append(new Option(initialData.user_name, initialData.mechanic_user_id));
+      $('#maintenanceMechanic').val(initialData.mechanic_user_id);
+      $('#maintenanceMechanic').prop("disabled", false).selectpicker("refresh");
+      $('#maintenanceMechanic').find('option:last').remove();
+    }
+
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#apptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
     $('#apptSimulator').val(initialData.simulator_id).selectpicker("refresh");
@@ -1017,9 +1025,8 @@ $(document).ready(function () {
     $('#demoApptNote').val(initialData.note);
     $('#demoApptCustomer').val(initialData.payer_name);
 
-    $('#maintenanceStart').val(initialData.start_at.format(displayFormat))
-    $('#maintenanceEnd').val(initialData.end_at.format(displayFormat))
-    
+    $('#maintenanceStart').val(initialData.start_at.format(displayFormat));
+    $('#maintenanceEnd').val(initialData.end_at.format(displayFormat));
     $('#maintenanceMechanic').val(initialData.mechanic_user_id).selectpicker("refresh");
     $('#maintenanceAircraft').val(initialData.aircraft_id).selectpicker("refresh");
     $('#maintenanceNote').val(initialData.note);
@@ -1424,7 +1431,7 @@ $(document).ready(function () {
         var id = event.appointment && event.appointment.instructor_user && event.appointment.instructor_user.id
         
         if (!id) {
-          id = event.appointment && event.appointment.mechanic_user && event.appointment.mechanic_user.id
+          id = event?.appointment?.mechanic_user?.id
         }
 
         if (!id) {
@@ -1474,9 +1481,14 @@ $(document).ready(function () {
           mechanic_user_id: mechanicId
         }
 
-        if (resource.current_user && resource.current_user.roles.length == 1 && ["student", "renter", "mechanic"].includes(resource.current_user.roles[0])) {
+        if (resource.current_user && resource.current_user.roles.length == 1 && ["student", "renter"].includes(resource.current_user.roles[0])) {
           params.user_name = fullName(resource.current_user)
           params.user_id = resource.current_user.id
+        }
+
+        if (resource.current_user && resource.current_user.roles.length == 1 && "mechanic" === resource.current_user.roles[0]) {
+          params.user_name = fullName(resource.current_user)
+          params.mechanic_user_id = resource.current_user.id
         }
 
         openAppointmentModal(params)

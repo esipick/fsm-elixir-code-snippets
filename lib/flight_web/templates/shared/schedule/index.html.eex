@@ -4,7 +4,7 @@
   </div>
 </div>
 <input id="customDate" type="text" class="form-control" placeholder="Select Date" value="" hidden>
-<div class="content" id="schedule" data-user-id="<%= @student_id %>" data-instructor-id="<%= @instructor_user_id %>">
+<div class="content" id="schedule" data-user-id="<%= @student_id %>" data-instructor-id="<%= @instructor_user_id %>" data-mechanic-id="<%= @mechanic_user_id %>">
   <div class="row">
     <div class="col-md-12">
       <div class="card card-calendar">
