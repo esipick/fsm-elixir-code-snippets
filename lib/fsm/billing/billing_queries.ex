@@ -74,15 +74,15 @@ defmodule Fsm.Billing.BillingQueries do
             ili.deductible,
             ili.creator_id,
             ili.room_id,
-            ili.part_cost,
-            ili.part_number,
             ac.tail_number,
             ac.make,
             ac.model,
             ac.serial_number,
             ac.name,
             ac.simulator,
-            fragment("concat(?, ' ', ?)", instructor.first_name, instructor.last_name)
+            fragment("concat(?, ' ', ?)", instructor.first_name, instructor.last_name),
+            ili.part_cost,
+            ili.part_number
           ),
         transactions:
           fragment(
@@ -169,15 +169,15 @@ defmodule Fsm.Billing.BillingQueries do
             ili.deductible,
             ili.creator_id,
             ili.room_id,
-            ili.part_cost,
-            ili.part_number,
             ac.tail_number,
             ac.make,
             ac.model,
             ac.serial_number,
             ac.name,
             ac.simulator,
-            fragment("concat(?, ' ', ?)", instructor.first_name, instructor.last_name)
+            fragment("concat(?, ' ', ?)", instructor.first_name, instructor.last_name),
+            ili.part_cost,
+            ili.part_number
           ),
         transactions:
           fragment(
