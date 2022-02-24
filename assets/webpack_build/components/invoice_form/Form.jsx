@@ -389,12 +389,12 @@ class Form extends Component {
   }
 
   getUserId = (student, appointment) => {
-    if(student && student.id) {
+    if(student?.id) {
       return student.id;
     }
 
-    if(appointment?.mechanic_user) {
-      return appointment.mechanic_user_id;
+    if(appointment?.mechanic_user || appointment?.mechanic_user_id) {
+      return appointment.mechanic_user.id || appointment.mechanic_user_id;
     }
   }
 
