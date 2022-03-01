@@ -29,6 +29,13 @@
   min-width: 125px;
 }
 
+.invoice-form .lc-column.maintenance {
+  max-width: 220px;
+}
+.invoice-form .lc-desc-column.maintenance {
+  min-width: 200px;
+}
+
 .invoice-form .lc-row-with-error td {
   padding-bottom: 25px;
   vertical-align: top;

@@ -26,6 +26,8 @@ defmodule FlightWeb.API.InvoiceLineItemView do
       room_id: line_item.room_id,
       part_number: line_item.part_number,
       part_cost: line_item.part_cost,
+      part_name: line_item.part_name,
+      part_description: line_item.part_description,
       aircraft:
         Optional.map(
           line_item.aircraft,

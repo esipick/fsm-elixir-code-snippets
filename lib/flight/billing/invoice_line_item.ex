@@ -12,7 +12,7 @@ defmodule Flight.Billing.InvoiceLineItem do
 
   @required_fields ~w(description rate amount quantity)a
   @hobbs_tach_fields ~w(hobbs_start hobbs_end tach_start tach_end hobbs_tach_used)a
-  @maintenance_fields ~w(part_number part_cost)a
+  @maintenance_fields ~w(part_number part_cost part_name part_description)a
 
   schema "invoice_line_items" do
     field(:rate, :integer)
@@ -30,6 +30,8 @@ defmodule Flight.Billing.InvoiceLineItem do
     field(:course_id, :integer, null: true)
     field(:part_number, :string)
     field(:part_cost, :integer)
+    field(:part_name, :string)
+    field(:part_description, :string)
     belongs_to(:room, Room)
     belongs_to(:creator, User)
     belongs_to(:instructor_user, User)

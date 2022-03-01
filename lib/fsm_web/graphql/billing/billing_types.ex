@@ -187,6 +187,8 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:type, :string)
     field(:part_number, :string)
     field(:part_cost, :integer)
+    field(:part_name, :string)
+    field(:part_description, :string)
     field(:instructor_user_id, :integer)
     field(:instructor_name, :string)
   end
@@ -210,6 +212,8 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:type, :string)
     field(:part_number, :string)
     field(:part_cost, :integer)
+    field(:part_name, :string)
+    field(:part_description, :string)
     field(:instructor_user_id, :integer)
     field(:course_id, :integer)
   end

@@ -148,20 +148,22 @@ function getPlainDate(start_at) {
                 <dd><%= if @invoice.payment_method == :cheque, do: "check", else: @invoice.payment_method %></dd>
               </dl>
 
-              <dl class="d-flex justify-content-between">
-                <dt>Amount excl. taxes</dt>
-                <dd><%= currency(@invoice.total) %></dd>
-              </dl>
+              <%= if @invoice.payment_method != :maintenance do %>
+                <dl class="d-flex justify-content-between">
+                  <dt>Amount excl. taxes</dt>
+                  <dd><%= currency(@invoice.total) %></dd>
+                </dl>
 
-              <dl class="d-flex justify-content-between">
-                <dt>Sales Tax</dt>
-                <dd><%= @invoice.tax_rate %>%</dd>
-              </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Sales Tax</dt>
+                  <dd><%= @invoice.tax_rate %>%</dd>
+                </dl>
 
-              <dl class="d-flex justify-content-between">
-                <dt>Total tax</dt>
-                <dd><%= currency(@invoice.total_tax) %></dd>
-              </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Total tax</dt>
+                  <dd><%= currency(@invoice.total_tax) %></dd>
+                </dl>
+              <%end %>
 
               <dl class="d-flex justify-content-between">
                 <dt>Amount due</dt>
@@ -178,35 +180,30 @@ function getPlainDate(start_at) {
                       <th>Rate</th>
                       <th>Quantity</th>
                       <th>Amount $</th>
-                      <%= if @invoice.payment_method == :maintenance do %>
-                        <th>Part Number</th>
-                        <th>Part Cost</th>
-                      <% end %>
                     </tr>
                   </thead>
 
                   <tbody>
                     <%= for {line_item, i} <- Enum.with_index(@invoice.line_items, 1) do %>
-                      <tr>
-                        <td><%= i %></td>
-                        <td><%= line_item.description %></td>
-                        <td><%= line_item_notes(line_item) %></td>
-                        <td class="<%= deductible_class(line_item) %>">
-                          <%= currency(line_item.rate) %>
-                        </td>
-                        <td><%= line_item.quantity %></td>
-                        <td class="<%= deductible_class(line_item) %>">
-                          <%= currency(line_item.amount) %>
-                        </td>
-                        <%= if @invoice.payment_method == :maintenance do %>
-                          <td><%= line_item.part_number %></td>
-                          <td><%= line_item.part_cost %></td>
-                        <% end %>
-                      </tr>
+                      <%= if line_item.type != :maintenance do %>
+                        <tr>
+                          <td><%= i %></td>
+                          <td><%= line_item.description %></td>
+                          <td><%= line_item_notes(line_item) %></td>
+                          <td class="<%= deductible_class(line_item) %>">
+                            <%= currency(line_item.rate) %>
+                          </td>
+                          <td><%= line_item.quantity %></td>
+                          <td class="<%= deductible_class(line_item) %>">
+                            <%= currency(line_item.amount) %>
+                          </td>
+                        </tr>
+                      <% end %>
                     <% end %>
                   </tbody>
                 </table>
               </div>
+
               <%= if @invoice.notes do %>
                 <dl class="d-flex justify-content-start">
                   <dt>Notes</dt>
@@ -214,7 +211,7 @@ function getPlainDate(start_at) {
                 <div>
                     <%= @invoice.notes %>
                 </div>
-              <%= end%>
+              <% end%>
             </div>
           </div>
         </div>
@@ -222,77 +219,117 @@ function getPlainDate(start_at) {
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-md-8 col-xs-12 <%= if @invoice.payment_method == :maintenance, do: "col-md-10", else: "" %>">
-      <div class="card">
-        <div class="card-header">
-          <h3>Transactions</h3>
+  <%=if @invoice.payment_method == :maintenance do %>
+    <div class="row">
+      <div class="col-md-10 col-xs-12">
+        <div class="card">
+          <div class="card-header">
+            <h3>Parts Detail</h3>
 
-          <div class="table-responsive">
-            <table class="table text-left">
-              <thead class="text-primary" style="font-size: 0.75em;">
-                <tr>
-                  <th>ID</th>
-                  <th>Date</th>
-                  <th>Amount due</th>
-                  <th>Amount paid</th>
-                  <th>Status</th>
-                  <th>Completed at</th>
-                  <th>Payment method</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <%= for transaction <- @invoice.transactions do %>
+            <div class="table-responsive">
+              <table class="table text-left">
+                <thead class="text-primary">
                   <tr>
-                    <td>
-                      <a href="/billing/transactions/<%= transaction.id %>">
-                        <%= transaction.id %>
-                      </a>
-                    </td>
-                  <script> document.write(
-                  '<td class="text-nowrap">'+getPlainDate('<%= transaction.created %>')+'</td>'
-                  ); </script>
-                    <td><%= currency(transaction.amount_due) %></td>
-                    <td><%= currency(transaction.amount_paid) %></td>
-                    <td><%= transaction.state %></td>
-                    <%= if transaction.completed_at != nil do %>
-                      <script> document.write(
-                      '<td class="text-nowrap">'+getPlainDate('<%= transaction.completed_at %>')+'</td>'
-                      ); </script>
-                    <% else %>
-                      <td> </td>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>Cost $</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <%= for {line_item, i} <- Enum.with_index(@invoice.line_items, 1) do %>
+                    <%= if line_item.type == :maintenance do %>
+                      <tr>
+                        <td><%= i %></td>
+                        <td><%= line_item.part_name %></td>
+                        <td><%= line_item.part_number %></td>
+                        <td><%= currency(line_item.part_cost) %></td>
+                        <td><%= line_item.part_description %></td>
+                      </tr>
                     <% end %>
-                    <td><%= if transaction.payment_method == :cheque, do: "check", else: transaction.payment_method %></td>
-                  </tr>
-                <% end %>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <div>
+        </div>
+      </div>
+    </div>
+  <%end %>
+  <%=if @invoice.payment_method != :maintenance do %>
+     <div class="row">
+      <div class="col-md-8 col-xs-12">
+        <div class="card">
+          <div class="card-header">
+            <h3>Transactions</h3>
 
-                <%= if @invoice.bulk_transaction do %>
+            <div class="table-responsive">
+              <table class="table text-left">
+                <thead class="text-primary" style="font-size: 0.75em;">
                   <tr>
-                    <td>
-                      <a href="/billing/transactions/<%= @invoice.bulk_transaction.id %>">
-                        <%= @invoice.bulk_transaction.id %>
-                      </a>
-                    </td>
-                  <script> document.write(
-                  '<td>'+getPlainDate('<%= @invoice.bulk_transaction.created %>')+'</td>'
-                  ); </script>
-                    <td><%= currency(@invoice.bulk_transaction.amount_due) %></td>
-                    <td><%= currency(@invoice.bulk_transaction.amount_paid) %></td>
-                    <td><%= @invoice.bulk_transaction.state %></td>
-                  <script> document.write(
-                  '<td>'+getPlainDate('<%= @invoice.bulk_transaction.completed_at %>')+'</td>'
-                  ); </script>
-                    <td><%= @invoice.bulk_transaction.payment_method %></td>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Amount due</th>
+                    <th>Amount paid</th>
+                    <th>Status</th>
+                    <th>Completed at</th>
+                    <th>Payment method</th>
                   </tr>
-                <% end %>
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody>
+                  <%= for transaction <- @invoice.transactions do %>
+                    <tr>
+                      <td>
+                        <a href="/billing/transactions/<%= transaction.id %>">
+                          <%= transaction.id %>
+                        </a>
+                      </td>
+                    <script> document.write(
+                    '<td class="text-nowrap">'+getPlainDate('<%= transaction.created %>')+'</td>'
+                    ); </script>
+                      <td><%= currency(transaction.amount_due) %></td>
+                      <td><%= currency(transaction.amount_paid) %></td>
+                      <td><%= transaction.state %></td>
+                      <%= if transaction.completed_at != nil do %>
+                        <script> document.write(
+                        '<td class="text-nowrap">'+getPlainDate('<%= transaction.completed_at %>')+'</td>'
+                        ); </script>
+                      <% else %>
+                        <td> </td>
+                      <% end %>
+                      <td><%= if transaction.payment_method == :cheque, do: "check", else: transaction.payment_method %></td>
+                    </tr>
+                  <% end %>
+
+                  <%= if @invoice.bulk_transaction do %>
+                    <tr>
+                      <td>
+                        <a href="/billing/transactions/<%= @invoice.bulk_transaction.id %>">
+                          <%= @invoice.bulk_transaction.id %>
+                        </a>
+                      </td>
+                    <script> document.write(
+                    '<td>'+getPlainDate('<%= @invoice.bulk_transaction.created %>')+'</td>'
+                    ); </script>
+                      <td><%= currency(@invoice.bulk_transaction.amount_due) %></td>
+                      <td><%= currency(@invoice.bulk_transaction.amount_paid) %></td>
+                      <td><%= @invoice.bulk_transaction.state %></td>
+                    <script> document.write(
+                    '<td>'+getPlainDate('<%= @invoice.bulk_transaction.completed_at %>')+'</td>'
+                    ); </script>
+                      <td><%= @invoice.bulk_transaction.payment_method %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <!--

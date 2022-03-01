@@ -73,27 +73,6 @@ class  OtherLineItem extends Component {
     return this.state.line_item.description === ROOM
   }
 
-  setPartCost = (cost) => {
-    const part_cost = cost == null ? "" : cost;
-    let line_item = Object.assign({}, this.state.line_item, { part_cost });
-
-    this.calculateAmount(line_item);
-    this.setState({ line_item })
-  }
-
-  setPartNumber = (number) => {
-    const part_number = number == null ? 0 : number;
-    let line_item = Object.assign({}, this.state.line_item, { part_number });
-
-    this.calculateAmount(line_item);
-    this.setState({ line_item })
-  }
-
-  isParts = () => {
-    return this.state.line_item.description === PARTS
-  }
-
-
   roomSelect = () => {
     const { errors, editable } = this.props;
     const { instructors_loading, room } = this.state;
@@ -172,8 +151,7 @@ class  OtherLineItem extends Component {
   render() {
     const {
       line_item: {
-        id, description, rate, quantity, deductible,
-        part_number, part_cost
+        id, description, rate, quantity, deductible
       }
     } = this.state;
     const { number, canRemove, errors, lineItemTypeOptions, editable, staff_member, line_item: { amount }, user_roles } = this.props;
@@ -210,62 +188,26 @@ class  OtherLineItem extends Component {
         <td className="lc-desc-column">
           {(this.isRoom() && this.roomSelect()) || (this.isInstructorHours() && this.instructorSelect())}
         </td>
-
-        {
-          this.isParts() ? (
-            <>
-             <td className="lc-column">
-                <input
-                  type={"text"}
-                  onChange={(event) => this.setPartNumber(event.target.value)}
-                  value={part_number ?? ""}
-                  disabled={!editable}
-                  className='form-control inherit-font-size'
-                  placeholder='Part Number'
-                />
-              </td>
-             <td className="lc-column">
-              <input
-                  type={"number"}
-                  onChange={(event) => this.setPartCost(event.target.valueAsNumber)}
-                  value={part_cost ?? ""}
-                  disabled={!editable}
-                  className='form-control inherit-font-size'
-                  placeholder='Part Cost'
-                />
-              </td>
-              <td className="lc-column remove-line-item-wrapper">
-                {canRemove && editable &&
-                  <a className="remove-line-item" href="" onClick={this.remove}>&times;</a>}
-              </td>
-            </>
-          )
-          :
-          (
-            <>
-            <td className="lc-column">
-              <input onValueChange={this.setRate}
-                value={rate == null ? null : rate / 100 }
-                disabled={!staff_member || shouldDisableRate || !editable}
-                {...rateOpts} />
-              { errors.rate && <br /> }
-              <Error text={errors.rate} />
-            </td>
-            <td className="lc-column">
-              <input onValueChange={this.setQty}
-                value={quantity}
-                disabled={!editable}
-                {...NUMBER_INPUT_OPTS} />
-              <Error text={errors.quantity} />
-            </td>
-            <td className={amountCss}>${(amount / 100).toFixed(2)}</td>
-            <td className="lc-column remove-line-item-wrapper">
-              {canRemove && editable &&
-                <a className="remove-line-item" href="" onClick={this.remove}>&times;</a>}
-            </td>
-            </>
-          )
-        }
+        <td className="lc-column">
+          <input onValueChange={this.setRate}
+            value={rate == null ? null : rate / 100 }
+            disabled={!staff_member || shouldDisableRate || !editable}
+            {...rateOpts} />
+          { errors.rate && <br /> }
+          <Error text={errors.rate} />
+        </td>
+        <td className="lc-column">
+          <input onValueChange={this.setQty}
+            value={quantity}
+            disabled={!editable}
+            {...NUMBER_INPUT_OPTS} />
+          <Error text={errors.quantity} />
+        </td>
+        <td className={amountCss}>${(amount / 100).toFixed(2)}</td>
+        <td className="lc-column remove-line-item-wrapper">
+          {canRemove && editable &&
+            <a className="remove-line-item" href="" onClick={this.remove}>&times;</a>}
+        </td> 
       </tr>
     )
   }

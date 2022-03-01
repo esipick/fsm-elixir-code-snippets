@@ -80,12 +80,17 @@ defmodule Flight.Billing.CalculateInvoice do
       part_number = line_item["part_number"]
       part_cost = line_item["part_cost"]
 
+      part_name = line_item["part_name"]
+      part_description = line_item["part_description"]
+
       Map.merge(line_item, %{
         "amount" => round(amount),
         "rate" => rate,
         "quantity" => qty,
         "part_number" => part_number,
-        "part_cost" => part_cost
+        "part_cost" => part_cost,
+        "part_name" => part_name,
+        "part_description" => part_description
       })
     end
   end

@@ -6,7 +6,7 @@ export const INSTRUCTOR_HOURS = "Instructor Hours";
 export const DEMO_FLIGHT = "Demo Flight"
 export const ROOM = "Room"
 export const COURSE = "Course"
-export const PARTS = "Parts"
+export const MAINTENANCE = "Maintenance"
 
 export const DEFAULT_TYPE = "other";
 export const TYPES = {
@@ -16,7 +16,7 @@ export const TYPES = {
   [ROOM]: "room",
   [INSTRUCTOR_HOURS]: "instructor",
   [COURSE]: "course",
-  [PARTS]: "parts"
+  [MAINTENANCE]: "maintenance"
 }
 
 export const DESCRIPTION_OPTS = [
@@ -26,7 +26,7 @@ export const DESCRIPTION_OPTS = [
   {label: INSTRUCTOR_HOURS, value: INSTRUCTOR_HOURS, taxable: false, deductible: false},
   {label: ROOM, value: ROOM, taxable: false, deductible: false},
   {label: COURSE, value: COURSE, taxable: true, deductible: false},
-  {label: PARTS, value: PARTS, taxable: false, deductible: false}
+  {label: MAINTENANCE, value: MAINTENANCE, taxable: false, deductible: false}
 ];
 
 export const DEFAULT_RATE = 0;
@@ -75,6 +75,8 @@ export class LineItemRecord {
     this.aircraft_id = (params.aircraft && params.aircraft.id) || (params.simulator && params.simulator.id);
     this.part_cost = params.part_cost;
     this.part_number = params.part_number;
+    this.part_name = params.part_name;
+    this.part_description = params.part_description;
 
     this.taxable = params.taxable;
     this.deductible = params.deductible;
@@ -188,10 +190,12 @@ export const courseItem = (course) => {
   })
 }
 
-export const partsItem = (parts) => {
+export const maintenanceItem = (maintenance) => {
   return new LineItemRecord({
-    part_number: parts.part_number,
-    part_cost: parts.part_cost
+    part_number: maintenance.part_number,
+    part_cost: maintenance.part_cost,
+    part_description: maintenance.part_description,
+    part_name: maintenance.part_name
   })
 }
 
@@ -259,11 +263,16 @@ export const containsDemoFlight = (line_items) => {
   return line_items.find(function(item) {return item.description === DEMO_FLIGHT})
 }
 
-export const containsParts = (line_items) => {
-  return line_items.find(function(item) {return item.description === PARTS})
+
+export const containsMaintenance = (line_items) => {
+  return line_items.find(function(item) {return item.type === "maintenance"})
 }
 
 function findItem(line_items, type){
   const existing_items = line_items || []
   return existing_items.find(function(item) {return item.type == type})
+}
+
+export const isMaintenanceInvoice = (appointment, line_items = []) => {
+  return appointment?.type === "maintenance" || containsMaintenance(line_items)
 }

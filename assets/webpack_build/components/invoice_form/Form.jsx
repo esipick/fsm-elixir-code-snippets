@@ -25,8 +25,9 @@ import ErrorAlert from './ErrorAlert';
 import LineItemsTable from './LineItemsTable';
 import {
   containsDemoFlight,
-  containsParts,
+  containsMaintenance,
   containsSimulator,
+  isMaintenanceInvoice,
   itemsFromAppointment,
   itemsFromInvoice 
  } from './line_items/line_item_utils';
@@ -71,7 +72,7 @@ class Form extends Component {
       hobb_tach_warning_open: false,
       hobb_tach_warning_accepted: false,
       balance_warning_accepted: false,
-      payment_method: this.isMaintenanceInvoice(appointment) ? DEFAULT_MAINTENANCE_PAYMENT_OPTION : this.getPaymentMethod(props.payment_method, demo),
+      payment_method: isMaintenanceInvoice(appointment) ? DEFAULT_MAINTENANCE_PAYMENT_OPTION : this.getPaymentMethod(props.payment_method, demo),
       notes: props.notes,
       payer_email: props.payer_email,
       send_receipt_email: true,
@@ -90,10 +91,6 @@ class Form extends Component {
     } else {
       this.loadData();
     }
-  }
-
-  isMaintenanceInvoice(appointment, line_items = []) {
-     return appointment?.type === "maintenance" || containsParts(line_items)
   }
 
   loadData = () => {
@@ -345,7 +342,7 @@ class Form extends Component {
   setPaymentMethod = (option) => { this.setState({ payment_method: option }); }
 
   onLineItemsTableChange = (values) => {
-    if(this.isMaintenanceInvoice({}, values.line_items)) {
+    if(isMaintenanceInvoice({}, values.line_items)) {
        this.setState({
          ...(values ?? {}),
          hobb_tach_warning_accepted: false,
@@ -517,17 +514,21 @@ class Form extends Component {
     const isInstructorOnly = line_items.length == 1 && line_items[0].type === "instructor"
 
     if (this.state.saving) return;
-    if (!isInstructorOnly && this.state.total < 0) {
-      this.setState({error_alert_total_open: true});
-      return;
-    }
-    if (!isInstructorOnly && this.state.total_amount_due < 0) {
-      this.setState({error_alert_total_due_open: true});
-      return;
-    }
-    if (!isInstructorOnly &&this.state.total_tax < 0) {
-      this.setState({error_alert_total_tax_open: true});
-      return;
+
+    // We don't need to check total amount if invoice is for maintenance
+    if(!isMaintenanceInvoice(this.state.appointment, line_items)) {
+      if (!isInstructorOnly && this.state.total < 0) {
+        this.setState({error_alert_total_open: true});
+        return;
+      }
+      if (!isInstructorOnly && this.state.total_amount_due < 0) {
+        this.setState({error_alert_total_due_open: true});
+        return;
+      }
+      if (!isInstructorOnly &&this.state.total_tax < 0) {
+        this.setState({error_alert_total_tax_open: true});
+        return;
+      }
     }
 
     if ( this.state.line_items.length > 0) {
@@ -713,7 +714,7 @@ class Form extends Component {
     } = this.state;
 
     // check if line_items contains maintenance item
-    const maintenanceInvoice = this.isMaintenanceInvoice(appointment, line_items)
+    const maintenanceInvoice = isMaintenanceInvoice(appointment, line_items)
     const mechanic = appointment?.mechanic_user;
 
     const demo = !this.state.demo && containsDemoFlight(line_items)

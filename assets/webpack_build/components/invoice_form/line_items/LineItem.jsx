@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { isEmpty } from './../../utils';
 import AircraftLineItem from './AircraftLineItem';
 import { DEFAULT_RATE, DEFAULT_TYPE, DESCRIPTION_OPTS, TYPES } from './line_item_utils';
+import MaintenaceLineItem from './maintenance-line-item';
 import OtherLineItem from './OtherLineItem';
 
 class InvoiceLineItem extends PureComponent {
@@ -14,7 +15,9 @@ class InvoiceLineItem extends PureComponent {
       taxable: o.taxable,
       deductible: o.deductible,
       part_number: o.part_number,
-      part_cost: o.part_cost
+      part_cost: o.part_cost,
+      part_name: o.part_name,
+      part_description: o.part_description
     })))
 
     const additionalOptions = this.props.line_items.filter(line_item => (
@@ -26,7 +29,9 @@ class InvoiceLineItem extends PureComponent {
       taxable: line_item.taxable,
       deductible: line_item.deductible,
       part_cost: line_item.part_cost,
-      part_number: line_item.part_number
+      part_number: line_item.part_number,
+      part_name: o.part_name,
+      part_description: o.part_description
     }));
 
     return [...options, ...additionalOptions];
@@ -46,7 +51,9 @@ class InvoiceLineItem extends PureComponent {
       quantity: type === "aircraft" || type === "instructor" ? 0 : (quantity || 1),
       amount: rate * quantity,
       part_number: option.part_number,
-      part_cost: option.part_cost
+      part_cost: option.part_cost,
+      part_name: option.part_name,
+      part_description: option.part_description
     });
   }
 
@@ -66,9 +73,13 @@ class InvoiceLineItem extends PureComponent {
 
     if (line_item.type == 'aircraft') {
       return <AircraftLineItem {...props} />
-    } else {
-      return <OtherLineItem {...props} />
     }
+    
+    if(line_item.type === "maintenance") {
+      return <MaintenaceLineItem {...props} />
+    }
+    
+    return <OtherLineItem {...props} />
   }
 }
 
