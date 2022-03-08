@@ -6,8 +6,8 @@ export const INSTRUCTOR_HOURS = "Instructor Hours";
 export const DEMO_FLIGHT = "Demo Flight"
 export const ROOM = "Room"
 export const COURSE = "Course"
-export const PARTS = "Maintenance Parts"
-export const LABOR = "Maintenance Labor"
+export const PARTS = "Parts"
+export const LABOR = "Labor"
 
 
 export const DEFAULT_TYPE = "other";
@@ -18,8 +18,8 @@ export const TYPES = {
   [ROOM]: "room",
   [INSTRUCTOR_HOURS]: "instructor",
   [COURSE]: "course",
-  [PARTS]: "maintenance_parts",
-  [LABOR]: "maintenance_labor"
+  [PARTS]: "parts",
+  [LABOR]: "labor"
 }
 
 export const DESCRIPTION_OPTIONS = [
