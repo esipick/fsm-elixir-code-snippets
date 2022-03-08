@@ -195,9 +195,17 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:transaction, :view, :personal),
       permission_slug(:transaction_creator, :modify, :personal),
       permission_slug(:transaction_user, :view, :personal),
-      permission_slug(:users, :modify, :personal),
-      permission_slug(:users, :view, :personal),
-      permission_slug(:web_dashboard, :access, :all)
+      permission_slug(:web_dashboard, :access, :all),
+      permission_slug(:appointment, :modify, :all),
+      permission_slug(:invoice, :modify, :all),
+      permission_slug(:invoice, :view, :all),
+      permission_slug(:unavailability, :modify, :all),
+      permission_slug(:user_protected_info, :view, :all),
+      permission_slug(:users, :modify, :all),
+      permission_slug(:users, :view, :all),
+      permission_slug(:staff, :access, :all),
+      permission_slug(:room, :modify, :all),
+      permission_slug(:room, :view, :all)
     ])
   end
 end

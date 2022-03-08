@@ -25,7 +25,6 @@ import ErrorAlert from './ErrorAlert';
 import LineItemsTable from './LineItemsTable';
 import {
   containsDemoFlight,
-  containsMaintenance,
   containsSimulator,
   isMaintenanceInvoice,
   itemsFromAppointment,
@@ -148,7 +147,7 @@ class Form extends Component {
 
         this.setState({
           date: invoice.date ? new Date(invoice.date) : new Date(),
-          student: invoice.user || this.demoGuestPayer(demo, invoice.payer_name),
+          student: invoice.user || invoice.appointment?.mechanic_user || this.demoGuestPayer(demo, invoice.payer_name),
           line_items: invoice.line_items || [],
           payment_method: payment_method,
           notes: invoice.notes,
@@ -869,7 +868,7 @@ class Form extends Component {
                     )
                   }
                   <label>
-                    Add Notes
+                    Invoice Notes
                   </label>
                   <div className="invoice-select-wrapper">
                     <textarea 
@@ -884,7 +883,7 @@ class Form extends Component {
                   </div>
 
                   <label>
-                    Payment method
+                    Payment Method
                     <Error text={errors.payment_option} />
                   </label>
                   <div className="invoice-select-wrapper">

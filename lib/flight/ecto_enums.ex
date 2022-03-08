@@ -23,7 +23,8 @@ defenum(
   course: 5,
   fund: 6,
   course_invoice: 7,
-  maintenance: 8
+  maintenance_parts: 8,
+  maintenance_labor: 9
 )
 
 defenum(AppointmentStatusEnum, pending: 0, paid: 1)

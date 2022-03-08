@@ -1,11 +1,12 @@
 import classnames from 'classnames';
 import React, { Component } from 'react';
-import input from 'react-number-format';
+import NumberFormat from 'react-number-format';
 import Select from 'react-select';
 import Error from '../../common/Error';
 import { getAccountBalance, isEmpty } from '../../utils';
 import {
-  DEFAULT_RATE, DESCRIPTION_SELECT_OPTS, INSTRUCTOR_HOURS, isInstructorHoursEditable, NUMBER_INPUT_OPTS, PARTS, ROOM
+  containsParts,
+  DEFAULT_RATE, DESCRIPTION_SELECT_OPTS, INSTRUCTOR_HOURS, isInstructorHoursEditable, isMaintenanceInvoice, NUMBER_INPUT_OPTS, PARTS, ROOM
 } from './line_item_utils';
 
 class  OtherLineItem extends Component {
@@ -53,6 +54,17 @@ class  OtherLineItem extends Component {
 
     if (floatValue == null) {
       line_item.quantity = null;
+      this.setState({ line_item })
+    }
+  }
+
+  handleInputValueChange = (event) => {
+    const {name, value} = event.target;
+    let line_item = Object.assign({}, this.state.line_item, { [name]: value });
+
+    this.calculateAmount(line_item);
+
+    if (value === "") {
       this.setState({ line_item })
     }
   }
@@ -151,17 +163,17 @@ class  OtherLineItem extends Component {
   render() {
     const {
       line_item: {
-        id, description, rate, quantity, deductible
+        id, description, rate, quantity, deductible, name, notes, serial_number
       }
     } = this.state;
-    const { number, canRemove, errors, lineItemTypeOptions, editable, staff_member, line_item: { amount }, user_roles } = this.props;
+    const { number, canRemove, errors, lineItemTypeOptions, editable, staff_member, line_item: { amount }, user_roles, line_items } = this.props;
     const descriptionOpt = lineItemTypeOptions.find(o => o.value == description);
     const wrapperClass = Object.keys(this.props.errors).length ? 'lc-row-with-error' : '';
     const amountCss = classnames('lc-column', deductible ? 'deductible' : '');
     const rateClass = classnames(
       'form-control inherit-font-size', deductible ? 'deductible' : ''
     );
-    const rateOpts = Object.assign({}, NUMBER_INPUT_OPTS, {className: rateClass});
+    const rateOpts = Object.assign({}, NUMBER_INPUT_OPTS, {className: rateClass, required: isMaintenanceInvoice(line_items)});
     
     var shouldDisableRate = isInstructorHoursEditable(this.state.line_item, user_roles) || this.state.line_item.type === "room" 
 
@@ -173,7 +185,11 @@ class  OtherLineItem extends Component {
       shouldDisableRate = true
     }
 
-    return (
+    shouldDisableRate = !staff_member || shouldDisableRate || !editable
+
+    const partsLineItem = containsParts([this.props.line_item])
+
+    return (<>
       <tr key={id} className={wrapperClass}>
         <td>{number}.</td>
         <td className="lc-desc-column">
@@ -185,19 +201,35 @@ class  OtherLineItem extends Component {
           <Error text={errors.description} />
         </td>
         
-        <td className="lc-desc-column">
-          {(this.isRoom() && this.roomSelect()) || (this.isInstructorHours() && this.instructorSelect())}
-        </td>
+        {
+          partsLineItem ? (
+            <td className="lc-desc-column">
+              <input
+                name="name"
+                type={"text"}
+                onBlur={this.handleInputValueChange}
+                value={name}
+                className="form-control inherit-font-size"
+                placeholder="Part Name"
+              />
+            </td>
+          ) : (
+            <td className="lc-desc-column">
+                  {(this.isRoom() && this.roomSelect()) || (this.isInstructorHours() && this.instructorSelect())}
+            </td>
+          )
+        }
+        
         <td className="lc-column">
-          <input onValueChange={this.setRate}
+          <NumberFormat onValueChange={this.setRate}
             value={rate == null ? null : rate / 100 }
-            disabled={!staff_member || shouldDisableRate || !editable}
+            disabled={shouldDisableRate}
             {...rateOpts} />
           { errors.rate && <br /> }
           <Error text={errors.rate} />
         </td>
         <td className="lc-column">
-          <input onValueChange={this.setQty}
+          <NumberFormat onValueChange={this.setQty}
             value={quantity}
             disabled={!editable}
             {...NUMBER_INPUT_OPTS} />
@@ -209,7 +241,40 @@ class  OtherLineItem extends Component {
             <a className="remove-line-item" href="" onClick={this.remove}>&times;</a>}
         </td> 
       </tr>
-    )
+      {
+        isMaintenanceInvoice({}, line_items) && (
+         <tr  key={id + "-maintenance"} className={wrapperClass}>
+          <td></td>
+            {
+              partsLineItem && (
+                <td className="lc-desc-column">
+                  <label>Serial Number</label>
+                  <input
+                    name="serial_number"
+                    type={"text"}
+                    onBlur={this.handleInputValueChange}
+                    value={serial_number}
+                    className="form-control inherit-font-size"
+                    placeholder="Serial Number"
+                  />
+                </td>
+              )
+            }
+             <td className="lc-column">
+              <label>Notes</label>
+              <textarea
+                name="notes"
+                onBlur={this.handleInputValueChange}
+                className="form-control w-100"
+                aria-label="With textarea"
+                placeholder="Write notes here"
+                value={notes}
+              />
+            </td>
+         </tr>
+        )
+      }
+    </>)
   }
 }
 

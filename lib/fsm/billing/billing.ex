@@ -219,10 +219,9 @@ defmodule Fsm.Billing do
                   creator_id: Map.get(line_item, "creator_id"),
                   room_id: Map.get(line_item, "room_id"),
                   instructor_name: Map.get(line_item, "instructor_name"),
-                  part_number: Map.get(line_item, "part_number"),
-                  part_cost: Map.get(line_item, "part_cost"),
-                  part_name: Map.get(line_item, "part_name"),
-                  part_description: Map.get(line_item, "part_description")
+                  serial_number: Map.get(line_item, "serial_number"),
+                  name: Map.get(line_item, "name"),
+                  notes: Map.get(line_item, "notes")
                 }
               end)
 

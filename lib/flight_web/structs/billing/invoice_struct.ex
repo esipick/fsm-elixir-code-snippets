@@ -26,7 +26,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       created: invoice.inserted_at,
       school: invoice.school,
       payer_name: payer_name(invoice),
-      amount_due: (if invoice.status == :paid or invoice.total == 0, do: 0, else: invoice.total_amount_due),
+      amount_due: (if invoice.status == :paid or invoice.payment_option == :maintenance or invoice.total == 0, do: 0, else: invoice.total_amount_due),
       amount_paid: get_amount_paid(invoice),
       amount_remainder: amount_remainder(invoice),
       status: invoice.status,
@@ -92,6 +92,8 @@ defmodule FlightWeb.Billing.InvoiceStruct do
 
   defp get_amount_paid(invoice) do
     cond do
+      invoice.payment_option == :maintenance ->
+        0
       invoice.total == 0 ->
         0
       invoice.status == :paid ->

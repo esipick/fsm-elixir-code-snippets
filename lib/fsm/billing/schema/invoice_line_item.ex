@@ -12,7 +12,7 @@ defmodule Fsm.Billing.InvoiceLineItem do
 
   @required_fields ~w(description rate amount quantity)a
   @hobbs_tach_fields ~w(hobbs_start hobbs_end tach_start tach_end hobbs_tach_used)a
-  @maintenance_fields ~w(part_number part_cost part_name part_description)a
+  @maintenance_fields ~w(name serial_number notes)a
 
   schema "invoice_line_items" do
     field(:rate, :integer)
@@ -28,10 +28,9 @@ defmodule Fsm.Billing.InvoiceLineItem do
     field(:deductible, :boolean)
     field(:type, InvoiceLineItemTypeEnum, default: :other)
     field(:course_id, :integer)
-    field(:part_number, :string)
-    field(:part_cost, :integer)
-    field(:part_name, :string)
-    field(:part_description, :string)
+    field(:serial_number, :string)
+    field(:name, :string)
+    field(:notes, :string)
     belongs_to(:room, Room)
     belongs_to(:creator, User)
     belongs_to(:instructor_user, User)

@@ -77,20 +77,17 @@ defmodule Flight.Billing.CalculateInvoice do
       qty = line_item["quantity"] || line_item[:quantity] || 0
       amount = qty * rate
 
-      part_number = line_item["part_number"]
-      part_cost = line_item["part_cost"]
-
-      part_name = line_item["part_name"]
-      part_description = line_item["part_description"]
+      notes = line_item["notes"]
+      name = line_item["name"]
+      serial_number = line_item["serial_number"]
 
       Map.merge(line_item, %{
         "amount" => round(amount),
         "rate" => rate,
         "quantity" => qty,
-        "part_number" => part_number,
-        "part_cost" => part_cost,
-        "part_name" => part_name,
-        "part_description" => part_description
+        "serial_number" => serial_number,
+        "name" => name,
+        "notes" => notes
       })
     end
   end
