@@ -185,7 +185,6 @@ function getPlainDate(start_at) {
 
                   <tbody>
                     <%= for {line_item, i} <- Enum.with_index(@invoice.line_items, 1) do %>
-                      <%= if line_item.type != :maintenance do %>
                         <tr>
                           <td><%= i %></td>
                           <td><%= line_item.description %></td>
@@ -198,7 +197,6 @@ function getPlainDate(start_at) {
                             <%= currency(line_item.amount) %>
                           </td>
                         </tr>
-                      <% end %>
                     <% end %>
                   </tbody>
                 </table>
@@ -219,44 +217,6 @@ function getPlainDate(start_at) {
     </div>
   </div>
 
-  <%=if @invoice.payment_method == :maintenance do %>
-    <div class="row">
-      <div class="col-md-10 col-xs-12">
-        <div class="card">
-          <div class="card-header">
-            <h3>Parts Detail</h3>
-
-            <div class="table-responsive">
-              <table class="table text-left">
-                <thead class="text-primary">
-                  <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Number</th>
-                    <th>Cost $</th>
-                    <th>Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <%= for {line_item, i} <- Enum.with_index(@invoice.line_items, 1) do %>
-                    <%= if line_item.type == :maintenance do %>
-                      <tr>
-                        <td><%= i %></td>
-                        <td><%= line_item.part_name %></td>
-                        <td><%= line_item.part_number %></td>
-                        <td><%= currency(line_item.part_cost) %></td>
-                        <td><%= line_item.part_description %></td>
-                      </tr>
-                    <% end %>
-                  <% end %>
-                </tbody>
-              </table>
-            </div>
-          <div>
-        </div>
-      </div>
-    </div>
-  <%end %>
   <%=if @invoice.payment_method != :maintenance do %>
      <div class="row">
       <div class="col-md-8 col-xs-12">
