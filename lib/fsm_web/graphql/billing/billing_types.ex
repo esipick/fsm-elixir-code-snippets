@@ -185,7 +185,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:tach_start, :integer)
     field(:taxable, :boolean)
     field(:type, :string)
-    field(:serial_number, :string)
+    field(:parts_serial_number, :string)
     field(:name, :string)
     field(:notes, :string)
     field(:instructor_user_id, :integer)
