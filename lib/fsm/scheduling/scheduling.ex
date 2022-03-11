@@ -206,9 +206,9 @@ defmodule Fsm.Scheduling do
 
     attrs = cond do
       Map.get(attrs, :instructor_user_id) in [nil, ""] and Map.get(role, :slug)  == "instructor" ->
-        Map.put(attrs, "owner_user_id", modifying_user.id)
+        Map.put(attrs, :owner_user_id, modifying_user.id)
       Map.get(attrs, :mechanic_user_id) in [nil, ""] and Map.get(role, :slug)  == "mechanic" ->
-        Map.put(attrs, "owner_user_id", modifying_user.id)
+        Map.put(attrs, :owner_user_id, modifying_user.id)
       true ->
         attrs
     end
