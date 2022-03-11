@@ -17,9 +17,15 @@ defmodule FlightWeb.Billing.InvoiceController do
   def index(conn, params) do
     page_params = Pagination.params(params)
     user = conn.assigns.current_user
+      |> Repo.preload(:roles)
 
+    roles = Enum.map(user.roles, &(&1.slug))
+
+    # we have to deal mechanic user separately here
+    # because mechanic belong to staff_member but we want
+    # to show own invoices
     result =
-      if staff_member?(user) do
+      if staff_member?(user) and "mechanic" not in roles do
         Flight.Queries.Invoice.all(conn, params)
       else
         Flight.Queries.Invoice.own_invoices(conn, params)
