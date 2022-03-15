@@ -265,10 +265,12 @@ class Main extends Component {
 
     if (documentsToSubmit.length) return this.uploadForm();
 
+    const fileSize = 10 * 1048576;
+
     return (
       <Dropzone maxFiles={1}
         accept=".jpeg,.jpg,.png,.pdf"
-        maxSize={5242880}
+        maxSize={fileSize}
         onDrop={this.acceptFiles}>
         {({ getRootProps, getInputProps }) => (
           <div className="dropzone"
@@ -277,7 +279,7 @@ class Main extends Component {
             <div className="button">
               <p>Drag &amp; Drop a file to upload it.</p>
               <p className="dropzone-description">Allowed file types: .jpeg, .jpg, .png, .pdf.</p>
-              <p className="dropzone-description">Max size: 5MB</p>
+              <p className="dropzone-description">Max size: 10MB</p>
               <p>
                 <button className="btn btn-primary">
                   Browse Files
