@@ -287,7 +287,9 @@ defmodule FlightWeb.Admin.UserController do
 
     case Flight.Billing.update_customer_card(user, params["stripe_token"]) do
       {:ok, _} ->
-        redirect(conn, to: "/admin/users/#{user.id}")
+        conn
+        |> put_flash(:success, "Card info updated successfully")
+        |> redirect(to: "/admin/users/#{user.id}")
 
       {:error, %Stripe.Error{} = error} ->
         user = conn.assigns.requested_user

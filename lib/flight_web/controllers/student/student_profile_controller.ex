@@ -147,7 +147,15 @@ defmodule FlightWeb.Student.ProfileController do
 
     case Billing.update_customer_card(user, params["stripe_token"]) do
       {:ok, _} ->
-        redirect(conn, to: "/student/profile")
+        if Accounts.has_role?(user, "renter") do
+          conn
+          |> put_flash(:success, "Card info updated successfully")
+          |> redirect(to: "/renter/profile")
+        else
+          conn
+          |> put_flash(:success, "Card info updated successfully")
+          |> redirect(to: "/student/profile")
+        end
 
       {:error, %Stripe.Error{} = error} ->
         render(
