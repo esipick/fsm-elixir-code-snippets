@@ -730,6 +730,21 @@ $(document).ready(function () {
       var promise = null;
       var buttonPos = $(this).offset();
 
+      var event;
+      if (eventType == "appt") {
+        event = "appointment"
+      } else if (eventType == "demoAppt") {
+        event = "demo flight appointment"
+      } else if (eventType === "maintenance") {
+        event = "maintenance appointment"
+      } else {
+        event = "unavailability"
+      }
+
+      if(!window.confirm("You cannot undo this action, Are you sure you want to delete this " + event + " ?")){
+        return;
+      }
+
       $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
 
       if (eventType == "appt") {
@@ -756,17 +771,6 @@ $(document).ready(function () {
           url: "/api/unavailabilities/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
           headers: AUTH_HEADERS
         })
-      }
-
-      var event;
-      if (eventType == "appt") {
-        event = "appointment"
-      } else if (eventType == "demoAppt") {
-        event = "demo flight appointment"
-      } else if (eventType === "maintenance") {
-        event = "maintenance appointment"
-      } else {
-        event = "unavailability"
       }
 
       promise.then(function () {
