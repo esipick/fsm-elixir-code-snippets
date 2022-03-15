@@ -3,6 +3,7 @@ export const CREDIT_CARD = 'cc';
 export const CASH = 'cash';
 export const CHEQUE = 'cheque';
 export const VENMO = 'venmo';
+export const MAINTENANCE = 'maintenance';
 
 export const MARK_AS_PAID = 'Save and Mark as paid';
 export const PAY = 'Save and Pay';
@@ -19,6 +20,12 @@ export const DEFAULT_GUEST_PAYMENT_OPTION = {
 }
 
 export const DEFAULT_PAYMENT_OPTION = { value: CREDIT_CARD, label: 'Credit Card' };
+
+export const DEFAULT_MAINTENANCE_PAYMENT_OPTION = {
+  label: 'Maintenance',
+  value: MAINTENANCE
+};
+
 export const PAYMENT_OPTIONS = [
   DEFAULT_PAYMENT_OPTION,
   { value: BALANCE, label: 'Balance' },
@@ -28,6 +35,10 @@ export const DEMO_PAYMENT_OPTIONS = [
   DEFAULT_PAYMENT_OPTION,
   ...GUEST_PAYMENT_OPTIONS
 ];
+
+export const MAINTENANCE_PAYMENT_OPTIONS = [
+  DEFAULT_MAINTENANCE_PAYMENT_OPTION
+]
 
 export const modalStyles = {
   content: {

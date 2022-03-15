@@ -4,7 +4,7 @@ defmodule Flight.Accounts.Role do
 
   alias Flight.Accounts.Role
 
-  @available_role_slugs ["admin", "instructor", "student", "renter", "dispatcher"]
+  @available_role_slugs ["admin", "instructor", "student", "renter", "dispatcher", "mechanic"]
 
   schema "roles" do
     field(:slug, :string)
@@ -60,16 +60,27 @@ defmodule Flight.Accounts.Role do
       |> Flight.Repo.insert!()
   end
 
+  def mechanic do
+    Flight.Repo.get_by(Role, slug: "mechanic") ||
+      %Role{slug: "mechanic"}
+      |> Role.changeset(%{})
+      |> Flight.Repo.insert!()
+  end
+
   def accessible_by("admin") do
-    [:admin, :student, :renter, :instructor, :dispatcher]
+    [:admin, :student, :renter, :instructor, :dispatcher, :mechanic]
   end
 
   def accessible_by("dispatcher") do
-    [:student, :renter, :instructor, :dispatcher]
+    [:student, :renter, :instructor, :dispatcher, :mechanic]
   end
 
   def accessible_by("instructor") do
     [:student, :instructor, :renter]
+  end
+
+  def accessible_by("mechanic") do
+    [:admin, :dispatcher, :instructor]
   end
 
   def accessible_by(_) do

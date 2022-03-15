@@ -14,7 +14,7 @@ defmodule FlightWeb.Shared.ProfileView do
   end
 
   def has_address?(user) do
-    Accounts.has_any_role?(user, ["instructor", "student", "renter"])
+    Accounts.has_any_role?(user, ["instructor", "student", "renter", "mechanic"])
   end
 
   def should_display_address?(user) do
@@ -22,7 +22,7 @@ defmodule FlightWeb.Shared.ProfileView do
   end
 
   def has_medical?(user) do
-    Accounts.has_any_role?(user, ["instructor", "student", "renter"])
+    Accounts.has_any_role?(user, ["instructor", "student", "renter", "mechanic"])
   end
 
   def human_readable_medical_rating(medical_rating) when is_binary(medical_rating) do

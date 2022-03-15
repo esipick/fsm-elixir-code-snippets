@@ -1,0 +1,9 @@
+<div class="form-group">
+  <label>Last Inspection Tach Time</label>
+  <%= number_input @f, :last_inspection, class: "form-control", step: "0.1", required: true %>
+</div>
+
+<div class="form-group">
+  <label>Next Inspection Tach Time</label>
+  <%= number_input @f, :next_inspection, class: "form-control", step: "0.1", required: true %>
+</div>

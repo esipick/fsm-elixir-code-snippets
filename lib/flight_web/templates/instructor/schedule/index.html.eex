@@ -3,10 +3,12 @@
     conn: @conn,
     renters: @renters,
     instructors: @instructors,
+    mechanics: @mechanics,
     aircrafts: @aircrafts,
     instructor_user_id: @user_id,
     simulators: @simulators,
     rooms: @rooms,
     types: @types,
+    mechanic_user_id: nil,
     student_id: nil)
 %>

@@ -24,6 +24,9 @@ defmodule FlightWeb.API.InvoiceLineItemView do
       deductible: line_item.deductible,
       creator_id: line_item.creator_id,
       room_id: line_item.room_id,
+      serial_number: line_item.serial_number,
+      name: line_item.name,
+      notes: line_item.notes,
       aircraft:
         Optional.map(
           line_item.aircraft,

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { isEmpty } from '../utils';
 import LineItem from './line_items/LineItem';
-import { courseItem, itemsFromAppointment, LineItemRecord } from './line_items/line_item_utils';
+import { containsMaintenance, courseItem, isMaintenanceInvoice, itemsFromAppointment, LineItemRecord, maintenanceItem } from './line_items/line_item_utils';
 
 const lineItemsKey = (appointment) => appointment && appointment.id || 'none';
 
@@ -75,7 +75,7 @@ class LineItemsTable extends Component {
 
   render() {
     var { total, total_tax, total_amount_due } = this.state;
-    const { aircrafts, simulators, custom_line_items, errors, instructors, rooms, sales_tax,is_admin_invoice } = this.props;
+    const { aircrafts, simulators, custom_line_items, errors, instructors, rooms, sales_tax,is_admin_invoice, appointment } = this.props;
     const line_items = this.lineItems();
     const line_items_errors = errors.line_items || [];
     

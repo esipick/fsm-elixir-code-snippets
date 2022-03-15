@@ -1,18 +1,28 @@
 import React, { PureComponent } from 'react';
 import { isEmpty } from './../../utils';
 import AircraftLineItem from './AircraftLineItem';
-import { DEFAULT_RATE, DEFAULT_TYPE, DESCRIPTION_OPTS, TYPES } from './line_item_utils';
+import { DEFAULT_RATE, DEFAULT_TYPE, DESCRIPTION_OPTIONS, MAINTENANCE_DESCRIPTION_OPTIONS, TYPES } from './line_item_utils';
 import OtherLineItem from './OtherLineItem';
 
 class InvoiceLineItem extends PureComponent {
 
-  lineItemTypeOptions = () => {
-    const options = DESCRIPTION_OPTS.concat(this.props.custom_line_items.map(o => ({
+  lineItemTypeOptions = (maintenanceOptions) => {
+
+    let options = DESCRIPTION_OPTIONS;
+
+    if(maintenanceOptions) {
+      options = [...options, ...MAINTENANCE_DESCRIPTION_OPTIONS];
+    }
+
+    options = options.concat(this.props.custom_line_items.map(o => ({
       label: o.description,
       rate: o.default_rate,
       value: o.description,
       taxable: o.taxable,
-      deductible: o.deductible
+      deductible: o.deductible,
+      serial_number: o.serial_number,
+      name: o.name,
+      notes: o.notes
     })))
 
     const additionalOptions = this.props.line_items.filter(line_item => (
@@ -22,7 +32,10 @@ class InvoiceLineItem extends PureComponent {
       rate: line_item.rate,
       value: line_item.description,
       taxable: line_item.taxable,
-      deductible: line_item.deductible
+      deductible: line_item.deductible,
+      serial_number: line_item.serial_number,
+      name: line_item.name,
+      notes: line_item.notes
     }));
 
     return [...options, ...additionalOptions];
@@ -40,30 +53,41 @@ class InvoiceLineItem extends PureComponent {
       taxable: option.taxable,
       deductible: option.deductible,
       quantity: type === "aircraft" || type === "instructor" ? 0 : (quantity || 1),
-      amount: rate * quantity
+      amount: rate * quantity,
+      serial_number: option.serial_number,
+      name: option.name,
+      notes: option.notes
     });
   }
 
   render() {
-    const { line_item, creator, staff_member, is_admin_invoice } = this.props;
+    const { line_item, creator, staff_member, is_admin_invoice, user_roles } = this.props;
     let editable = staff_member || !line_item.creator_id || line_item.creator_id == creator.id;
 
     if(!isEmpty(this.props.course) || this.props.is_admin_invoice) {
       editable = false
     }
 
+    const maintenanceOptions = staff_member && (hasRole(user_roles, "admin") ||
+      hasRole(user_roles, "dispatcher") ||
+      hasRole(user_roles, "mechanic"))
+
     const props = Object.assign({}, this.props, {
-      lineItemTypeOptions: this.lineItemTypeOptions(),
+      lineItemTypeOptions: this.lineItemTypeOptions(maintenanceOptions),
       itemFromOption: this.itemFromOption,
       editable,
     });
 
     if (line_item.type == 'aircraft') {
       return <AircraftLineItem {...props} />
-    } else {
-      return <OtherLineItem {...props} />
     }
+    
+    return <OtherLineItem {...props} />
   }
+}
+
+const hasRole = (roles, role) => {
+  return roles?.includes(role)
 }
 
 export default InvoiceLineItem;

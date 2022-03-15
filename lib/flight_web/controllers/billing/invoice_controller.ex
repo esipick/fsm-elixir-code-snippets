@@ -17,9 +17,15 @@ defmodule FlightWeb.Billing.InvoiceController do
   def index(conn, params) do
     page_params = Pagination.params(params)
     user = conn.assigns.current_user
+      |> Repo.preload(:roles)
 
+    roles = Enum.map(user.roles, &(&1.slug))
+
+    # we have to deal mechanic user separately here
+    # because mechanic belong to staff_member but we want
+    # to show own invoices
     result =
-      if staff_member?(user) do
+      if staff_member?(user) and "mechanic" not in roles do
         Flight.Queries.Invoice.all(conn, params)
       else
         Flight.Queries.Invoice.own_invoices(conn, params)
@@ -36,7 +42,7 @@ defmodule FlightWeb.Billing.InvoiceController do
     appointment =
       if params["appointment_id"] do
         Repo.get(Flight.Scheduling.Appointment, params["appointment_id"])
-        |> Repo.preload([:aircraft, :instructor_user])
+        |> Repo.preload([:aircraft, :instructor_user, :mechanic_user])
         |> FlightWeb.API.AppointmentView.preload()
       end
 
@@ -50,6 +56,12 @@ defmodule FlightWeb.Billing.InvoiceController do
       else
         props
       end
+
+    props = if "mechanic" in props.user_roles do
+      Map.put(props, :payment_method, :maintenance)
+    else
+      props
+    end
 
     course_id = params["course_id"]
 
@@ -90,11 +102,17 @@ defmodule FlightWeb.Billing.InvoiceController do
 
   def send_invoice(conn, %{"id" => id}) when not is_nil(id) do
     invoice = Repo.get(Invoice, id)
-    Flight.InvoiceEmail.send_paid_invoice_email(invoice, conn)
+    case Flight.InvoiceEmail.send_paid_invoice_email(invoice, conn) do
+      {:error, error} ->
+        conn
+        |> put_flash(:error, error)
+        |> redirect(to: "/billing/invoices")
+      _ ->
+        conn
+        |> put_flash(:success, "Invoice sent successfully")
+        |> redirect(to: "/billing/invoices")
 
-    conn
-    |> put_flash(:success, "Invoice sent successfully")
-    |> redirect(to: "/billing/invoices")
+    end
   end
 
   def delete(conn, params) do

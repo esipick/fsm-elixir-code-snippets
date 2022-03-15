@@ -17,14 +17,14 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       arg(:sort_order, :transaction_order_by)
       arg(:filter, :transactions_filters)
 
-      middleware(Middleware.Authorize, ["admin", "dispatcher","instructor", "student", "renter"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher","instructor", "student", "renter", "mechanic"])
       resolve(&BillingResolvers.get_all_transactions/3)
     end
 
     field :fetch_card, :card do
       arg(:user_id, :integer)
 
-      middleware(Middleware.Authorize, ["admin", "dispatcher","instructor", "student", "renter"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher","instructor", "student", "renter", "mechanic"])
       resolve(&BillingResolvers.fetch_card/3)
     end
 
@@ -32,7 +32,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
       arg(:page, :integer, default_value: 1)
       arg(:per_page, :integer, default_value: 100)
 
-      middleware(Middleware.Authorize, ["admin", "dispatcher","instructor", "student", "renter"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher","instructor", "student", "renter", "mechanic"])
       resolve(&BillingResolvers.get_transactions/3)
     end
 
@@ -59,21 +59,21 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field :create_invoice, :invoice do
       arg :pay_off, non_null(:boolean)
       arg :invoice, non_null(:create_invoice_input)
-      middleware(Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student" ])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student", "mechanic"])
       resolve &BillingResolvers.create_invoice/3
     end
 
     field :update_invoice, :invoice do
       arg :pay_off, non_null(:boolean)
       arg :invoice, non_null(:update_invoice_input)
-      middleware(Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "renter", "instructor", "student", "mechanic"])
       resolve &BillingResolvers.update_invoice/3
     end
   end
 
   # TYPES
   # Enum
-  enum(:payment_options, values: [:balance, :cc, :cash, :cheque, :venmo, :fund])
+  enum(:payment_options, values: [:balance, :cc, :cash, :cheque, :venmo, :fund, :maintenance])
   enum(:status, values: [:paid, :pending, :failed])
   # balance: 0, cc: 1, cash: 2, cheque: 3,venmo: 4
 
@@ -185,6 +185,9 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:tach_start, :integer)
     field(:taxable, :boolean)
     field(:type, :string)
+    field(:parts_serial_number, :string)
+    field(:name, :string)
+    field(:notes, :string)
     field(:instructor_user_id, :integer)
     field(:instructor_name, :string)
   end
@@ -206,6 +209,9 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:tach_start, :integer)
     field(:taxable, :boolean)
     field(:type, :string)
+    field(:serial_number, :string)
+    field(:name, :string)
+    field(:notes, :string)
     field(:instructor_user_id, :integer)
     field(:course_id, :integer)
   end
@@ -228,6 +234,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:line_items, list_of(:line_item_input))
     field(:notes, :string)
     field(:payer_email, :string)
+    field(:send_receipt_email, :boolean)
   end
 
   input_object :update_invoice_input do
@@ -247,6 +254,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:line_items, list_of(:line_item_input))
     field(:notes, :string)
     field(:payer_email, :string)
+    field(:send_receipt_email, :boolean)
   end
 
   input_object :transactions_filters do

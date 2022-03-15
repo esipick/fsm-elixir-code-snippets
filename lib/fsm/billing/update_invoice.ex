@@ -3,10 +3,12 @@ defmodule Fsm.Billing.UpdateInvoice do
     alias Fsm.Billing.{Invoice, CreateInvoice, LineItemCreator}
     alias Fsm.Scheduling.Aircraft
     alias Fsm.Billing.Services.Utils
-    alias Fsm.Billing  
+    alias Fsm.Billing
     alias Fsm.Accounts
 
     def run(invoice_input, pay_off, school_id, user_id) do
+        send_receipt_email = Map.get(invoice_input, "send_receipt_email")
+
         pay_off = pay_off || false
         invoice_id = Map.get(invoice_input, :id)
         invoice = Billing.get_invoice(invoice_id)
@@ -34,28 +36,28 @@ defmodule Fsm.Billing.UpdateInvoice do
         aircraft_info = Utils.aircraft_info_map(invoice_params)
 
       {:ok, invoice_attribs} = Flight.Billing.CalculateInvoice.run(invoice_attribs, school_context)
-  
-      {invoice_attribs, update_hours} = 
+
+      {invoice_attribs, update_hours} =
         if Map.get(invoice, :aircraft_info) == nil do
           {Map.put(invoice_attribs, "aircraft_info", aircraft_info), true}
-  
-        else 
+
+        else
           {invoice_attribs, false}
         end
-  
+
       line_items = Map.get(invoice_attribs, "line_items") || []
-  
+
       with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
         {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
         {:ok, invoice} <- update_invoice(invoice, invoice_attribs) do
           line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
-  
+
           cond do
             invoice.appointment_id != nil -> Utils.update_aircraft(invoice, current_user)
             update_hours && line_item != nil -> Utils.update_aircraft(line_item.aircraft_id, line_item, current_user)
             true -> :nothing
           end
-  
+
           if pay_off == true do
 
             invoice =
@@ -65,16 +67,16 @@ defmodule Fsm.Billing.UpdateInvoice do
               else
                 invoice
               end
-            CreateInvoice.pay(invoice, school_context)
+            CreateInvoice.pay(invoice, school_context, send_receipt_email)
           else
             {:ok, invoice}
           end
       else
         {:aircrafts, true} -> {:error, "An invoice can have a single item for Flight, Demo Flight or Simulator Hours."}
         {:rooms, true} -> {:error, "The same room cannot be added twice to an invoice."}
-        {:error, changeset} -> 
+        {:error, changeset} ->
           errors = changeset.errors
-          |> Enum.map(fn({key, {value, context}}) -> 
+          |> Enum.map(fn({key, {value, context}}) ->
                [message: "#{key} #{value}", details: context]
              end)
           IO.inspect errors
@@ -83,29 +85,29 @@ defmodule Fsm.Billing.UpdateInvoice do
           {:error, :failed}
       end
     end
-  
+
     defp update_invoice(invoice, invoice_params) do
       Invoice.changeset(invoice, invoice_params) |> Repo.update()
     end
-  
+
     defp invoice_attrs(invoice_params, current_user) do
       case invoice_params["line_items"] do
         nil ->
           invoice_params
-  
+
         raw_line_items ->
           line_items = LineItemCreator.populate_creator(raw_line_items, current_user)
-  
+
           Map.merge(invoice_params, %{"line_items" => line_items})
       end
     end
-  
+
     defp update_aircraft(invoice) do
       line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
-  
+
       if line_item && line_item.hobbs_end && line_item.tach_end do
         aircraft = Repo.get(Aircraft, line_item.aircraft_id)
-  
+
         {:ok, _} =
           aircraft
           |> Aircraft.changeset(%{
@@ -116,4 +118,3 @@ defmodule Fsm.Billing.UpdateInvoice do
       end
     end
   end
-  

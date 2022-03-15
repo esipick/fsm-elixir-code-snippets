@@ -5,7 +5,7 @@ defmodule Flight.Billing.StripeEvents do
     CreateInvoice,
     PayTransaction
   }
-  
+
   def process(%Stripe.Event{
         type: "account.updated",
         data: %{object: %Stripe.Account{} = api_account}
@@ -30,7 +30,7 @@ defmodule Flight.Billing.StripeEvents do
     data: %{object: %Stripe.PaymentIntent{} = session}}) do
       update_invoice_status(session.id)
   end
-  
+
 
   def process(%Stripe.Event{type: "account.application.deauthorized", account: account_id}) do
     stripe_account = Flight.Billing.get_stripe_account_by_account_id(account_id)
@@ -58,7 +58,16 @@ defmodule Flight.Billing.StripeEvents do
 
           with {:ok, transaction} <- PayTransaction.pay_demo_invoice_cc_transaction(invoice.id, invoice.user_id) do
             invoice = Flight.Repo.preload(invoice, [:line_items])
-            CreateInvoice.insert_transaction_line_items(invoice, %{school_id: invoice.school_id}, transaction)
+
+            school_context = %{school_id: invoice.school_id}
+
+            # Here paid check is unnecessary however to just show that
+            # only paid invoice can be sent
+            if(invoice.status == :paid) do
+              Flight.InvoiceEmail.send_paid_invoice_email(invoice, school_context)
+            end
+
+            CreateInvoice.insert_transaction_line_items(invoice, school_context, transaction)
           end
     else
       _ -> {:error, "Couldn't update appointment status"}

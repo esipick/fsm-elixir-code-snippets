@@ -4,6 +4,7 @@ defmodule FlightWeb.API.AppointmentView do
   def render("availability.json", %{
         students_available: students_available,
         instructors_available: instructors_available,
+        mechanics_available: mechanics_available,
         aircrafts_available: aircrafts_available,
         simulators_available: simulators_available,
         rooms_available: rooms_available
@@ -24,6 +25,13 @@ defmodule FlightWeb.API.AppointmentView do
             "availability_user.json",
             as: :availability_user
           ),
+        mechanics:
+          render_many(
+            mechanics_available,
+            FlightWeb.API.AppointmentView,
+            "availability_user.json",
+            as: :availability_user
+          ),
         aircrafts:
           render_many(
             aircrafts_available,
@@ -38,7 +46,7 @@ defmodule FlightWeb.API.AppointmentView do
             "availability_aircraft.json",
             as: :availability_aircraft
           ),
-        rooms: 
+        rooms:
           render_many(
             rooms_available,
             FlightWeb.API.AppointmentView,
@@ -116,6 +124,11 @@ defmodule FlightWeb.API.AppointmentView do
           appointment.instructor_user,
           &render(FlightWeb.API.UserView, "skinny_user.json", user: &1)
         ),
+      mechanic_user:
+        Optional.map(
+          appointment.mechanic_user,
+          &render(FlightWeb.API.UserView, "skinny_user.json", user: &1)
+        ),
       owner_user_id: appointment.owner_user_id,
       start_tach_time: Map.get(appointment, :start_tach_time),
       end_tach_time: Map.get(appointment, :end_tach_time),
@@ -140,6 +153,6 @@ defmodule FlightWeb.API.AppointmentView do
   end
 
   def preload(appointments) do
-      Flight.Repo.preload(appointments, [:user, :instructor_user, :room, [simulator: :inspections], [aircraft: :inspections]])
+      Flight.Repo.preload(appointments, [:user, :instructor_user, :mechanic_user, :room, [simulator: :inspections], [aircraft: :inspections]])
   end
 end

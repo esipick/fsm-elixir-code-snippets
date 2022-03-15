@@ -63,10 +63,10 @@ defmodule Flight.Accounts do
       )
     |> Repo.all
   end
-  
+
   def dangerous_get_user(nil), do: nil
   def dangerous_get_user(id), do: Repo.get(User, id)
-  
+
   # In db table user_instructors, records are saved such as the instructor id goes to user_id column and the user_id goes to instructor_id column
   def get_student_instructor_ids(nil), do: []
   def get_student_instructor_ids(student_id) do
@@ -145,11 +145,11 @@ defmodule Flight.Accounts do
   end
 
   def roles_visible_to("student") do
-    [:instructor, :admin, :dispatcher]
+    [:instructor, :admin, :dispatcher, :mechanic]
   end
 
   def roles_visible_to("instructor") do
-    [:student, :instructor, :admin, :dispatcher]
+    [:student, :instructor, :admin, :dispatcher, :mechanic]
   end
 
   def roles_visible_to("renter") do
@@ -157,11 +157,15 @@ defmodule Flight.Accounts do
   end
 
   def roles_visible_to("admin") do
-    [:admin, :student, :renter, :instructor, :dispatcher]
+    [:admin, :student, :renter, :instructor, :dispatcher, :mechanic]
   end
 
   def roles_visible_to("dispatcher") do
-    [:student, :renter, :instructor, :dispatcher]
+    [:student, :renter, :instructor, :dispatcher, :mechanic]
+  end
+
+  def roles_visible_to("mechanic") do
+    [:instructor, :admin, :dispatcher, :mechanic]
   end
 
   def get_users(school_context) do
@@ -266,7 +270,7 @@ defmodule Flight.Accounts do
        ) do
     user =
       Repo.preload(user, [:roles, :aircrafts, :flyer_certificates, :instructors, :main_instructor])
-    
+
     instructor_ids = instructor_ids || []
     instructor_ids =
       if user.main_instructor_id != nil do
@@ -424,9 +428,9 @@ defmodule Flight.Accounts do
             if attrs["delete_avatar"] == "1" and avatar do
               Flight.AvatarUploader.delete({avatar, updated_user})
             end
-            
+
             instructor_exists = user.main_instructor_id != nil
-            is_main_instructor_updated? = updated_user.main_instructor_id != user.main_instructor_id 
+            is_main_instructor_updated? = updated_user.main_instructor_id != user.main_instructor_id
 
             if is_main_instructor_updated? && instructor_exists do
               delete_user_instructor(user.id, user.main_instructor_id)
@@ -705,6 +709,10 @@ defmodule Flight.Accounts do
   end
 
   def editable_fields_for_role_slug("dispatcher") do
+    [:email, :first_name, :last_name, :phone_number]
+  end
+
+  def editable_fields_for_role_slug("mechanic") do
     [:email, :first_name, :last_name, :phone_number]
   end
 

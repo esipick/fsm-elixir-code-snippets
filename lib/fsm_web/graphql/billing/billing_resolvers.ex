@@ -74,10 +74,10 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
                           {:ok, expiry_date} <- Date.new(exp_year, exp_month, 28),
                           true <- Date.diff(expiry_date, Date.utc_today()) > 0
                       do
-    
+
                        with acc_id <- Map.get(Billing.get_stripe_account_by_school_id(school_id), :stripe_account_id),
                             true <- acc_id != nil do
-    
+
                        token_result =
                          if current_user do
                            token =
@@ -85,7 +85,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
                                %{customer: current_user.stripe_customer_id, card: source_id},
                                connect_account: acc_id
                              )
-    
+
                            case token do
                              {:ok, token} -> {:ok, token.id}
                              error -> error
@@ -106,11 +106,11 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
                              },
                              connect_account: acc_id
                            )
-    
+
                          error ->
                            error
                        end
-    
+
                        resp
                          |> case do
                             {:ok, %Stripe.Charge{status: "succeeded"}=resp} ->
@@ -119,35 +119,35 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
                                 description: description,
                                 user_id: requested_user_id
                               })
-    
+
                             {:error, %Stripe.Error{extra: %{message: message, param: param}}} ->
                               {:error, "Stripe Error in parameter '#{param}': #{message}"}
-    
+
                             {:error, %Stripe.Error{extra: %{raw_error: %{"message" => message, "param" => param}}}} ->
                               {:error, "Stripe Error in parameter '#{param}': #{message}"}
-    
+
                             {:error, %Stripe.Error{extra: %{message: message}}} ->
                               {:error, "Stripe Error: #{message}"}
-    
+
                             {:error, %Stripe.Error{message: message}} ->
                               {:error, "Stripe Error: #{message}"}
-    
+
                             {:error, error} ->
                               {:error, "Stripe Raw Error: #{error}"}
-    
-    
+
+
                             error ->
                               #Logger.info fn -> "Stripe Charge Error: #{inspect error}" end
                               {:error, "Something went wrong! Unable to add funds using card in user profile. Please update another card in profile or check amount and try again"}
                             end
-    
+
                        else
                          nil -> {:error, "Stripe Account not added for this school."}
                          error ->
                            #Logger.info fn -> "Stripe Account for school Error: #{inspect error}" end
                            error
                        end
-    
+
                      else
                      resp ->
                         if !resp do
@@ -155,11 +155,11 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
                         else
                             {:error, "Please attach valid amount to add funds"}
                         end
-    
+
                      end
                    error ->
                      #Logger.info fn -> "Stripe Error: #{inspect error}" end
-    
+
                      {:error, "Please attach valid card in user profile"}
                  end
               else
@@ -238,7 +238,8 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
       2 => "CASH",
       3 => "CHEQUE",
       4 => "VENMO",
-      5 => "FUND"
+      5 => "FUND",
+      6 => "MAINTENANCE"
     }
     matched_option = Map.get(payment_options, payment_option)
     {:ok, matched_option}

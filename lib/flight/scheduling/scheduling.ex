@@ -413,12 +413,14 @@ defmodule Flight.Scheduling do
     school = SchoolScope.get_school(school_context)
     role = List.first(Repo.preload(modifying_user, :roles).roles)
 
-    attrs =
-      if Map.get(attrs, :instructor_user_id) in [nil, ""] and Map.get(role, :slug)  == "instructor" do
+    attrs = cond do
+      Map.get(attrs, :instructor_user_id) in [nil, ""] and Map.get(role, :slug)  == "instructor" ->
         Map.put(attrs, "owner_user_id", modifying_user.id)
-      else
+      Map.get(attrs, :mechanic_user_id) in [nil, ""] and Map.get(role, :slug)  == "mechanic" ->
+        Map.put(attrs, "owner_user_id", modifying_user.id)
+      true ->
         attrs
-      end
+    end
 
     changeset =
       appointment
@@ -448,6 +450,7 @@ defmodule Flight.Scheduling do
       end_at = get_field(changeset, :end_at) # |> utc_to_walltime(school.timezone)
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
+      mechanic_user_id = get_field(changeset, :mechanic_user_id)
       aircraft_id = get_field(changeset, :aircraft_id) || get_field(changeset, :simulator_id)
       room_id = get_field(changeset, :room_id)
       _type = get_field(changeset, :type)
@@ -503,6 +506,27 @@ defmodule Flight.Scheduling do
           case status do
             :available -> changeset
             other -> add_error(changeset, :instructor, "is #{other}", status: status)
+          end
+        else
+          changeset
+        end
+
+      changeset =
+        if mechanic_user_id do
+          status =
+            Availability.user_with_permission_status(
+              permission_slug(:appointment_mechanic, :modify, :personal),
+              mechanic_user_id,
+              start_at,
+              end_at,
+              excluded_appointment_ids,
+              [],
+              school_context
+            )
+
+          case status do
+            :available -> changeset
+            other -> add_error(changeset, :mechanic, "is #{other}", status: status)
           end
         else
           changeset
@@ -843,20 +867,21 @@ defmodule Flight.Scheduling do
     end)
 
     # send email to appointment.user
-    Flight.Email.unavailability_email(appointment.user)
+    if(appointment.user) do
+      Flight.Email.unavailability_email(appointment.user)
+    end
   end
 
   def send_unavailibility_notification(attrs, school_context) do
-    %{
-      "aircraft_id" => aircraft_id,
-      "belongs" => belongs,
-      "end_at" => end_at,
-      "instructor_user_id" => instructor_user_id,
-      "note" => note,
-      "room_id" => room_id,
-      "simulator_id" => simulator_id,
-      "start_at" => start_at
-    } = attrs
+
+    aircraft_id = Map.get("aircraft_id")
+    simulator_id = Map.get("simulator_id")
+    room_id = Map.get("room_id")
+    belongs = Map.get("belongs")
+    instructor_user_id = Map.get("instructor_user_id")
+    end_at = Map.get("end_at")
+    start_at = Map.get("start_at")
+    note = Map.get("note")
 
     case belongs do
       "Instructor" ->
@@ -864,37 +889,39 @@ defmodule Flight.Scheduling do
           "instructor_user_id" => instructor_user_id,
           "from" => start_at,
           "to" => end_at
-       }
-        del_appointments_due_to_unavailability(options, school_context)
+        }
+        delete_appointments_on_unavailability(options, school_context)
       "Aircraft" ->
         options = %{
           "aircraft_id" => aircraft_id,
           "from" => start_at,
           "to" => end_at
-       }
-        del_appointments_due_to_unavailability(options, school_context)
+        }
+        delete_appointments_on_unavailability(options, school_context)
       "Room" ->
         options = %{
           "room_id" => room_id,
           "from" => start_at,
           "to" => end_at
-       }
-        del_appointments_due_to_unavailability(options, school_context)
+        }
+        delete_appointments_on_unavailability(options, school_context)
       "Simulator" ->
         options = %{
           "simulator_id" => simulator_id,
           "from" => start_at,
           "to" => end_at
-       }
-        del_appointments_due_to_unavailability(options, school_context)
+        }
+        delete_appointments_on_unavailability(options, school_context)
     end
   end
 
-  def del_appointments_due_to_unavailability(options, school_context) do
+  defp delete_appointments_on_unavailability(options, school_context) do
     appointments = get_appointments(options, school_context)
 
-    Enum.map(appointments, fn appointment ->
-      delete_appointment(appointment.id, school_context.assigns.current_user, school_context)
+    Enum.each(appointments, fn appointment ->
+      if (appointment) do
+        delete_appointment(appointment.id, school_context.assigns.current_user, school_context)
+      end
     end)
   end
 end

@@ -71,6 +71,7 @@ defmodule FlightWeb.API.InvoiceView do
         :user,
         :school,
         :instructor_user,
+        :mechanic_user,
         :room,
         [aircraft: :inspections],
         [simulator: :inspections]

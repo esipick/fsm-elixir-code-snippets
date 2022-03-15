@@ -53,6 +53,7 @@ defmodule Flight.Auth.Authorization do
       "student" -> student_permission_slugs()
       "renter" -> renter_permission_slugs()
       "dispatcher" -> dispatcher_permission_slugs()
+      "mechanic" -> mechanic_permission_slugs()
     end
   end
 
@@ -174,6 +175,37 @@ defmodule Flight.Auth.Authorization do
       permission_slug(:users, :modify, :personal),
       permission_slug(:users, :view, :personal),
       permission_slug(:web_dashboard, :access, :all)
+    ])
+  end
+
+  def mechanic_permission_slugs() do
+    MapSet.new([
+      permission_slug(:aircraft, :view, :all),
+      permission_slug(:appointment, :view, :all),
+      permission_slug(:unavailability, :view, :all),
+      permission_slug(:documents, :view, :all),
+      permission_slug(:appointment_mechanic, :modify, :personal),
+      permission_slug(:documents, :view, :personal),
+      permission_slug(:invoice, :modify, :personal),
+      permission_slug(:invoice, :view, :personal),
+      permission_slug(:school, :view, :personal),
+      permission_slug(:role, :view, :all),
+      permission_slug(:objective_score, :view, :personal),
+      permission_slug(:push_token, :modify, :personal),
+      permission_slug(:transaction, :view, :personal),
+      permission_slug(:transaction_creator, :modify, :personal),
+      permission_slug(:transaction_user, :view, :personal),
+      permission_slug(:web_dashboard, :access, :all),
+      permission_slug(:appointment, :modify, :all),
+      permission_slug(:invoice, :modify, :all),
+      permission_slug(:invoice, :view, :all),
+      permission_slug(:unavailability, :modify, :all),
+      permission_slug(:user_protected_info, :view, :all),
+      permission_slug(:users, :modify, :all),
+      permission_slug(:users, :view, :all),
+      permission_slug(:staff, :access, :all),
+      permission_slug(:room, :modify, :all),
+      permission_slug(:room, :view, :all)
     ])
   end
 end

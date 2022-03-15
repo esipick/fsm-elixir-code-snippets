@@ -20,7 +20,7 @@ defmodule Mix.Tasks.FixDates do
       Appointment
       |> where([a], a.inserted_at > ^from)
       |> Repo.all()
-      |> Repo.preload([:aircraft, :instructor_user, :school, :transaction, :user])
+      |> Repo.preload([:aircraft, :instructor_user, :school, :transaction, :user, :mechanic_user])
 
     IO.puts("Update appointments")
 

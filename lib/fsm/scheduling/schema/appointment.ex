@@ -26,6 +26,7 @@ defmodule Fsm.Scheduling.Appointment do
 
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
+    belongs_to(:mechanic_user, Flight.Accounts.User)
     belongs_to(:owner_user, Flight.Accounts.User)
     belongs_to(:user, Flight.Accounts.User)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
@@ -36,7 +37,7 @@ defmodule Fsm.Scheduling.Appointment do
     timestamps()
   end
 
-  def types(), do: ["solo_flight", "demo_flight", "check_ride", "flight_lesson", "unavailable", "meeting"]
+  def types(), do: ["airplane_rental", "demo_flight", "check_ride", "flight_lesson", "unavailable", "meeting", "maintenance"]
 
   def __test_changeset(appointment, attrs, timezone) do
     appointment
@@ -45,6 +46,7 @@ defmodule Fsm.Scheduling.Appointment do
       :end_at,
       :user_id,
       :instructor_user_id,
+      :mechanic_user_id,
       :owner_user_id,
       :aircraft_id,
       :note,
@@ -146,6 +148,8 @@ defmodule Fsm.Scheduling.Appointment do
     cond do
       get_field(changeset, :demo) ->
         changeset
+      get_field(changeset, :type) == "maintenance" and get_field(changeset, :aircraft_id) == nil ->
+        add_error(changeset, :aircraft, " is required.")
 
       get_field(changeset, :instructor_user_id) || get_field(changeset, :aircraft_id) ||
       get_field(changeset, :simulator_id) || get_field(changeset, :room_id) ->
@@ -167,6 +171,8 @@ defmodule Fsm.Scheduling.Appointment do
   defp validate_user_instructor_different(changeset) do
     cond do
       get_field(changeset, :demo) ->
+        changeset
+      get_field(changeset, :type) == "maintenance" ->
         changeset
 
       get_field(changeset, :instructor_user_id) || get_field(changeset, :user_id) ->

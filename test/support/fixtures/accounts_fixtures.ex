@@ -121,6 +121,10 @@ defmodule Flight.AccountsFixtures do
     user_fixture(attrs, school) |> assign_role("dispatcher")
   end
 
+  def dispatcher_fixture(attrs \\ %{}, school \\ default_school_fixture()) do
+    user_fixture(attrs, school) |> assign_role("mechanic")
+  end
+
   def role_fixture(attrs \\ %{}) do
     role =
       %Accounts.Role{

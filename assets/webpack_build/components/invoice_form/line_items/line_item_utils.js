@@ -6,6 +6,9 @@ export const INSTRUCTOR_HOURS = "Instructor Hours";
 export const DEMO_FLIGHT = "Demo Flight"
 export const ROOM = "Room"
 export const COURSE = "Course"
+export const PARTS = "Parts"
+export const LABOR = "Labor"
+
 
 export const DEFAULT_TYPE = "other";
 export const TYPES = {
@@ -14,10 +17,12 @@ export const TYPES = {
   [DEMO_FLIGHT]: "aircraft",
   [ROOM]: "room",
   [INSTRUCTOR_HOURS]: "instructor",
-  [COURSE]: "course"
+  [COURSE]: "course",
+  [PARTS]: "parts",
+  [LABOR]: "labor"
 }
 
-export const DESCRIPTION_OPTS = [
+export const DESCRIPTION_OPTIONS = [
   {label: FLIGHT_HOURS, value: FLIGHT_HOURS, taxable: true, deductible: false},
   {label: SIMULATOR_HOURS, value: SIMULATOR_HOURS, taxable: true, deductible: false},
   {label: DEMO_FLIGHT, value: DEMO_FLIGHT, taxable: true, deductible: false},
@@ -25,6 +30,11 @@ export const DESCRIPTION_OPTS = [
   {label: ROOM, value: ROOM, taxable: false, deductible: false},
   {label: COURSE, value: COURSE, taxable: true, deductible: false}
 ];
+
+export const MAINTENANCE_DESCRIPTION_OPTIONS = [
+  {label: PARTS, value: PARTS, taxable: false, deductible: false},
+  {label: LABOR, value: LABOR, taxable: false, deductible: false},
+]
 
 export const DEFAULT_RATE = 0;
 
@@ -70,7 +80,10 @@ export class LineItemRecord {
     this.course_id = params.course_id
     this.aircraft = params.aircraft || params.simulator;
     this.aircraft_id = (params.aircraft && params.aircraft.id) || (params.simulator && params.simulator.id);
-    
+    this.serial_number = params.serial_number;
+    this.name = params.name;
+    this.notes = params.notes;
+
     this.taxable = params.taxable;
     this.deductible = params.deductible;
     
@@ -183,6 +196,28 @@ export const courseItem = (course) => {
   })
 }
 
+export const laborItem = (labor) => {
+  return new LineItemRecord({
+    quantity: 1,
+    rate: labor.rate,
+    taxable: false,
+    deductible: false,
+    notes: labor.notes
+  })
+}
+
+export const partItem = (part) => {
+  return new LineItemRecord({
+    quantity: 1,
+    rate: part.rate,
+    taxable: false,
+    deductible: false,
+    name: part.name,
+    serial_number: part.serial_number,
+    notes: part.notes
+  })
+}
+
 const fromAircraft = (aircraft, type, duration) => {
   var desc = FLIGHT_HOURS;
   if (type === "demo_flight") {desc = DEMO_FLIGHT}
@@ -247,7 +282,19 @@ export const containsDemoFlight = (line_items) => {
   return line_items.find(function(item) {return item.description === DEMO_FLIGHT})
 }
 
+export const containsParts = (line_items) => {
+  return line_items.find(function(item) {return item.type === TYPES[PARTS]})
+}
+
+export const containsLabor = (line_items) => {
+  return line_items.find(function(item) {return item.type === TYPES[LABOR]})
+}
+
 function findItem(line_items, type){
   const existing_items = line_items || []
   return existing_items.find(function(item) {return item.type == type})
+}
+
+export const isMaintenanceInvoice = (appointment, line_items = []) => {
+  return appointment?.type === "maintenance" || containsParts(line_items) || containsLabor(line_items)
 }

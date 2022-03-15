@@ -51,6 +51,7 @@ defmodule Fsm.Billing.CreateInvoice do
           }
         )
 
+      send_receipt_email = Map.get(invoice_params, :send_receipt_email)
 
       with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
           {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
@@ -72,7 +73,7 @@ defmodule Fsm.Billing.CreateInvoice do
                 else
                   invoice
                 end
-              case pay(invoice, school_context) do
+              case pay(invoice, school_context, send_receipt_email) do
                 {:ok, invoice} ->
                   Invoice.paid(invoice)
                   #If course invoice enroll student at LMS.
@@ -92,7 +93,7 @@ defmodule Fsm.Billing.CreateInvoice do
       end
     end
 
-    def pay(invoice, school_context) do
+    def pay(invoice, school_context, send_receipt_email) do
       invoice
       |> Repo.preload(user: from(i in User, lock: "FOR UPDATE NOWAIT"))
       |> Repo.preload(:appointment)
@@ -104,7 +105,11 @@ defmodule Fsm.Billing.CreateInvoice do
             Appointment.paid(invoice.appointment)
           end
 
-          insert_transaction_line_items(invoice, school_context)
+          # as a business perspective, we only want to paid
+          # the invoice without creating transaction
+          if(invoice.payment_option != :maintenance) do
+            insert_transaction_line_items(invoice, school_context)
+          end
 
           # As we intend to send email for walk-in purchases (issue # 563),
           # we need to remove check invoice.user_id, because we don't have
@@ -116,7 +121,7 @@ defmodule Fsm.Billing.CreateInvoice do
           # if invoice.status == :paid do
           # Note: we also have guard conditions
 
-          if invoice.status == :paid do
+          if invoice.status == :paid and (send_receipt_email == true or send_receipt_email == nil) do
             Flight.InvoiceEmail.send_paid_invoice_email(invoice, school_context)
           end
 
@@ -243,9 +248,13 @@ defmodule Fsm.Billing.CreateInvoice do
 
     defp pay_off_manually(invoice, school_context) do
       transaction_attrs = transaction_attributes(invoice)
-      case PayOff.manually(invoice.user, transaction_attrs, school_context) do
-        {:ok, _} -> Invoice.paid(invoice)
-        {:error, changeset} -> {:error, changeset}
+      if(invoice.payment_option == :maintenance) do
+        Invoice.paid(invoice)
+      else
+        case PayOff.manually(invoice.user, transaction_attrs, school_context) do
+          {:ok, _} -> Invoice.paid(invoice)
+          {:error, changeset} -> {:error, changeset}
+        end
       end
     end
 

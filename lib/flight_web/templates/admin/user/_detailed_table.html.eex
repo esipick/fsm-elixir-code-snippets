@@ -24,7 +24,7 @@
             <%= if @tab == :main do %>
               <a href="/admin/users/<%= row.user_id %>" class="btn btn-primary btn-sm">view</a>
               <button type="button" class="btn btn-danger btn-sm _delete_button" data-school-id="<%= row.user_id %>">
-                Delete
+                Archive
               </button>
             <% else %>
               <a href="/admin/users/<%= row.user_id %>/restore?role=<%= @role %>&from_contacts=<%= @from_contacts%>" class="btn btn-primary btn-sm">Restore</a>

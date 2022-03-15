@@ -20,7 +20,7 @@ defmodule FlightWeb.Student.ProfileController do
 
     appointments =
       Scheduling.get_appointments(options, conn)
-      |> Repo.preload([:aircraft, :instructor_user])
+      |> Repo.preload([:aircraft, :instructor_user, :simulator, :simulator, :room])
 
     # total_hrs_spent = Scheduling.calculate_appointments_duration(appointments)
     flight_hrs_billed = Scheduling.calculate_appointments_billing_duration(appointments)

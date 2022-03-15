@@ -34,7 +34,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.InspectionsTypes do
     @desc "Add inspection"
     field :add_inspection, :inspection do
       arg(:inspection_input, non_null(:inspection_input))
-      middleware(Middleware.Authorize, ["admin"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "mechanic"])
       resolve(&InspectionsResolvers.add_inspection/3)
     end
 
@@ -42,21 +42,21 @@ defmodule FsmWeb.GraphQL.Aircrafts.InspectionsTypes do
     field :update_inspection, :boolean do
       arg(:id, non_null(:id))
       arg(:data, list_of(non_null(:inspection_keyval)))
-      middleware(Middleware.Authorize, ["admin"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "mechanic"])
       resolve(&InspectionsResolvers.update_inspection/3)
     end
 
     @desc "Complete inspection"
     field :complete_inspection, :inspection do
       arg(:completion_input, non_null(:completion_input))
-      middleware(Middleware.Authorize, ["admin"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "mechanic"])
       resolve(&InspectionsResolvers.complete_inspection/3)
     end
 
     @desc "Delete inspection"
     field :delete_inspection, :inspection do
       arg(:id, non_null(:id))
-      middleware(Middleware.Authorize, ["admin"])
+      middleware(Middleware.Authorize, ["admin", "dispatcher", "mechanic"])
       resolve(&InspectionsResolvers.delete_inspection/3)
     end
   end

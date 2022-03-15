@@ -64,7 +64,7 @@ defmodule FlightWeb.Admin.UserListData do
 
   def table_data_for_role(role, search_term, from_date, to_date, school_context, page_params, archived) do
     case role.slug do
-      slug when slug in ["renter", "instructor", "student"] ->
+      slug when slug in ["renter", "instructor", "student", "mechanic"] ->
         user_table_data(:detailed, role, search_term, from_date, to_date, school_context, page_params, archived)
 
       slug when slug in ["admin", "dispatcher"] ->

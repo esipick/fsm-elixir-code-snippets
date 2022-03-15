@@ -15,6 +15,10 @@ defmodule Flight.Email do
     |> IO.inspect()
   end
 
+  def unavailability_email(user) when user == nil do
+    IO.puts "User is undefined"
+  end
+
   def invitation_email(%Invitation{} = invitation) do
     role = Flight.Accounts.get_role(invitation.role_id)
     invitation = Repo.preload(invitation, :school)

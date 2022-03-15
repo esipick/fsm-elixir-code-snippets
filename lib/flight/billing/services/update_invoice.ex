@@ -6,18 +6,20 @@ defmodule Flight.Billing.UpdateInvoice do
 
 
   def run(invoice, invoice_params, %{assigns: %{current_user: user}} = school_context) do
+    send_receipt_email = Map.get(invoice_params, "send_receipt_email")
+
     pay_off = Map.get(school_context.params, "pay_off", false)
     current_user = school_context.assigns.current_user
     invoice_attribs = invoice_attrs(invoice_params, current_user)
     aircraft_info = Utils.aircraft_info_map(invoice_params)
-    
+
     {:ok, invoice_attribs} = Flight.Billing.CalculateInvoice.run(invoice_attribs, school_context)
 
-    {invoice_attribs, update_hours} = 
+    {invoice_attribs, update_hours} =
       if Map.get(invoice, :aircraft_info) == nil do
         {Map.put(invoice_attribs, "aircraft_info", aircraft_info), true}
 
-      else 
+      else
         {invoice_attribs, false}
       end
 
@@ -35,7 +37,7 @@ defmodule Flight.Billing.UpdateInvoice do
         end
 
         if pay_off == true do
-          CreateInvoice.pay(invoice, school_context)
+          CreateInvoice.pay(invoice, school_context, send_receipt_email)
         else
           {:ok, invoice}
         end

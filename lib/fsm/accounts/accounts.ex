@@ -36,10 +36,10 @@ defmodule Fsm.Accounts do
         true ->
           case check_password(user, password) do
             {:ok, user} ->
-              user = user 
+              user = user
                |> FlightWeb.API.UserView.show_preload()
                |> set_custom_school_name()
-  
+
               {:ok, %{ user: user,  token: FlightWeb.Fsm.AuthenticateApiUser.token(user) }}
             {:error, _} ->
               {:error, "Invalid email or password."}
@@ -188,7 +188,7 @@ defmodule Fsm.Accounts do
   end
 
   def roles_visible_to(_) do
-    ["admin", "dispatcher", "instructor", "student", "renter"]
+    ["admin", "dispatcher", "instructor", "student", "renter", "mechanic"]
   end
 
   defp get_visible_roles(roles_visible, nil) do
@@ -204,7 +204,7 @@ defmodule Fsm.Accounts do
     user = get_user(user_id)
 
     roles_filter = Map.get(filter, :roles)
-    roles_visible = Enum.fetch!(roles, 0) 
+    roles_visible = Enum.fetch!(roles, 0)
                     |> roles_visible_to
 
     allowed_roles = get_visible_roles(roles_visible, roles_filter)
@@ -234,7 +234,7 @@ defmodule Fsm.Accounts do
       AccountsQueries.get_user_by_email_query(email)
       |> Repo.one()
       |> case do
-          nil -> 
+          nil ->
             nil
           user ->
             (Map.get(user, :user) || %{})
@@ -261,7 +261,7 @@ defmodule Fsm.Accounts do
 #      &User.admin_update_changeset/3
     )
   end
-  
+
   defp update_user_profile(
          user,
          attrs,

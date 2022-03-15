@@ -99,7 +99,7 @@ defmodule FlightWeb.SidebarItem do
     [
       %SidebarItem{
         path: "/instructor/profile",
-        label: "Profile",
+        label: "Home",
         icon_class: "users_single-02",
         active: false
       },
@@ -141,7 +141,7 @@ defmodule FlightWeb.SidebarItem do
     [
       %SidebarItem{
         path: "/student/profile",
-        label: "Profile",
+        label: "Home",
         icon_class: "users_single-02",
         active: false
       },
@@ -177,7 +177,7 @@ defmodule FlightWeb.SidebarItem do
     [
       %SidebarItem{
         path: "/renter/profile",
-        label: "Profile",
+        label: "Home",
         icon_class: "users_single-02",
         active: false
       },
@@ -209,6 +209,42 @@ defmodule FlightWeb.SidebarItem do
     ]
   end
 
+  def mechanic_sidebar do
+    [
+      %SidebarItem{
+        path: "/mechanic/profile",
+        label: "Home",
+        icon_class: "users_single-02",
+        active: false
+      },
+      %SidebarItem{
+        path: "/billing/invoices",
+        label: "Billing",
+        icon_class: "business_money-coins",
+        active: false,
+        prefix: "/billing"
+      },
+      %SidebarItem{
+        path: "/mechanic/schedule",
+        label: "Schedule",
+        icon_class: "ui-1_calendar-60",
+        active: false
+      },
+      # %SidebarItem{
+      #   path: "/mechanic/maintenance",
+      #   label: "Maintenance",
+      #   icon_class: "objects_spaceship",
+      #   active: false
+      # },
+      %SidebarItem{
+        path: "/logout",
+        label: "Log out",
+        icon_class: "media-1_button-power",
+        active: false
+      }
+    ]
+  end
+
   def build(path, query_string, user) do
     appended =
       if String.length(query_string) > 0 do
@@ -225,6 +261,7 @@ defmodule FlightWeb.SidebarItem do
         "instructor" -> instructor_sidebar()
         "student" -> student_sidebar()
         "renter" -> renter_sidebar()
+        "mechanic" -> mechanic_sidebar()
       end
 
     items

@@ -64,7 +64,7 @@
                 </div>
 
                 <%= if has_cirriculum?(@user) do %>
-                  <div class="fields">
+                  <div class="desktop">
                     <div class="field">
                       <h3>Start Date</h3>
                       <p id="start_date"></p>
@@ -126,7 +126,7 @@
                     </div>
                   </div>
                  <% end %>
-                <div class="fields">
+                <div class="desktop">
                   <%= if has_cirriculum?(@user) do %>
                     <div class="field">
                       <h3>Flight Training # (FTN)</h3>
@@ -245,7 +245,7 @@
                   </div>
                 <% end %>
               </div>
-              <div class="fields">
+              <div class="desktop">
                 <div class="field">
                   <h3>Instructor</h3>
                   <%= if @user.main_instructor_id do %>

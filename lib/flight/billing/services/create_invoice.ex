@@ -12,6 +12,8 @@ defmodule Flight.Billing.CreateInvoice do
   require Logger
 
   def run(invoice_params, %{assigns: %{current_user: user}} = school_context) do
+    send_receipt_email = Map.get(invoice_params, "send_receipt_email")
+
     ## archive course invoice if there is
     if Map.get(invoice_params, "course_id", false) do
       invoices = Flight.Queries.Invoice.course_invoices_by_course(user.id, Map.get(invoice_params, "course_id"))
@@ -56,7 +58,7 @@ defmodule Flight.Billing.CreateInvoice do
 
           if pay_off == true do
             #Logger.info fn -> "invoice990000-----------------: #{inspect invoice}" end
-          case pay(invoice, school_context) do
+          case pay(invoice, school_context, send_receipt_email) do
               {:ok, invoice} ->
                 #If course invoice enroll student at LMS.
                 if Map.get(invoice_params, "course_id", false) do
@@ -75,7 +77,7 @@ defmodule Flight.Billing.CreateInvoice do
     end
   end
 
-  def pay(invoice, school_context) do
+  def pay(invoice, school_context, send_receipt_email) do
     invoice
     |> Repo.preload(user: from(i in User, lock: "FOR UPDATE NOWAIT"))
     |> Repo.preload(:appointment)
@@ -87,7 +89,9 @@ defmodule Flight.Billing.CreateInvoice do
           Appointment.paid(invoice.appointment)
         end
 
-        insert_transaction_line_items(invoice, school_context)
+        if(invoice.payment_option != :maintenance) do
+          insert_transaction_line_items(invoice, school_context)
+        end
 
         # As we intend to send email for walk-in purchases (issue # 563),
         # we need to remove check invoice.user_id, because we don't have
@@ -99,7 +103,7 @@ defmodule Flight.Billing.CreateInvoice do
         # if invoice.status == :paid do
         # Note: we also have guard conditions
 
-        if invoice.status == :paid do
+        if invoice.status == :paid and (send_receipt_email == true or send_receipt_email == nil) do
           Flight.InvoiceEmail.send_paid_invoice_email(invoice, school_context)
         end
 
@@ -208,12 +212,14 @@ defmodule Flight.Billing.CreateInvoice do
   end
 
   defp pay_off_manually(invoice, school_context) do
-    transaction_attrs = transaction_attributes(invoice)
-
-
-    case PayOff.manually(invoice.user, transaction_attrs, school_context) do
-      {:ok, _} -> Invoice.paid(invoice)
-      {:error, changeset} -> {:error, changeset}
+    if(invoice.payment_option == :maintenance) do
+      Invoice.paid(invoice)
+    else
+      transaction_attrs = transaction_attributes(invoice)
+      case PayOff.manually(invoice.user, transaction_attrs, school_context) do
+        {:ok, _} -> Invoice.paid(invoice)
+        {:error, changeset} -> {:error, changeset}
+      end
     end
   end
 

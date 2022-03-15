@@ -22,6 +22,11 @@ defmodule FlightWeb.API.AppointmentController do
     instructors_available =
       Availability.instructor_availability(start_at, end_at, excluded_appointment_ids, [], conn)
 
+
+    mechanics_available =
+      Availability.mechanic_availability(start_at, end_at, excluded_appointment_ids, [], conn)
+
+
     aircrafts_available =
       Availability.aircraft_availability(start_at, end_at, excluded_appointment_ids, [], conn)
 
@@ -36,6 +41,7 @@ defmodule FlightWeb.API.AppointmentController do
       "availability.json",
       students_available: students_available,
       instructors_available: instructors_available,
+      mechanics_available: mechanics_available,
       aircrafts_available: aircrafts_available,
       simulators_available: simulators_available,
       rooms_available: rooms_available
@@ -119,13 +125,27 @@ defmodule FlightWeb.API.AppointmentController do
         instructor_user_id = Map.get(appointment, :instructor_user_id)
         owner_user_id = Map.get(appointment, :owner_user_id)
 
-        owner_instructor_permission =
+        mechanic_user_id = Map.get(appointment, :mechanic_user_id)
+
+        owner_permission =
           if owner_user_id == user.id do
             [
               Permission.new(
                 :appointment_instructor,
                 :modify,
                 {:personal, owner_user_id})
+            ]
+          else
+            []
+          end
+
+        owner_permission =
+          if mechanic_user_id == user.id do
+            [
+              Permission.new(
+                :appointment_mechanic,
+                :modify,
+                {:personal, mechanic_user_id})
             ]
           else
             []
@@ -138,14 +158,26 @@ defmodule FlightWeb.API.AppointmentController do
             instructor_user_id
           end
 
+        mechanic_user_id =
+          if mechanic_user_id == "" do
+            nil
+          else
+            mechanic_user_id
+          end
+
         if user_can?(user, [
                              Permission.new(:appointment_user, :modify, {:personal, appointment.user_id}),
                              Permission.new(
                                :appointment_instructor,
                                :modify,
                                {:personal, instructor_user_id}
+                             ),
+                             Permission.new(
+                               :appointment_mechanic,
+                               :modify,
+                               {:personal, mechanic_user_id}
                              )
-                           ] ++ owner_instructor_permission) do
+                           ] ++ owner_permission) do
           delete_appointment(appointment, user, conn)
         else
           conn
@@ -181,16 +213,26 @@ defmodule FlightWeb.API.AppointmentController do
       else
         _ -> current_user.id
       end
-    
+
+    mechanic_id_param = conn.params["data"] |> Optional.map(& &1["mechanic_user_id"])
+
+    owner_mechanic_user_id =
+      with %Scheduling.Appointment{} = appointment <- conn.assigns[:appointment],
+            true <- mechanic_id_param == nil or mechanic_id_param == "" or appointment.owner_user_id != current_user.id do
+        appointment.owner_user_id
+      else
+        _ -> current_user.id
+    end
+
     apnmt = conn.assigns[:appointment]
     now = NaiveDateTime.utc_now()
     apnmt_end_at = # because end_at can be nil because of the with condition on line 164
       if apnmt != nil && apnmt.end_at != nil, do: NaiveDateTime.add(apnmt.end_at, twenty_four_hours), else: nil
-      
+
     restrict_modify =
       if apnmt_end_at && NaiveDateTime.compare(apnmt_end_at, now) == :lt, do: true, else: false
-    
-    owner_instructor_permisssions = 
+
+    owner_instructor_permissions =
       if conn.assigns[:appointment] && (end_at == nil or NaiveDateTime.compare(end_at, now) == :gt) && !restrict_modify do
         Permission.new(:appointment_instructor, :modify, {:personal, owner_instructor_user_id})
 
@@ -213,7 +255,7 @@ defmodule FlightWeb.API.AppointmentController do
         instructor_user_id_from_appointment
       end
 
-    instructor_permisssions = 
+    instructor_permissions =
       if restrict_modify do
         Permission.new(:appointment_instructor, :view, {:personal, instructor_user_id})
 
@@ -221,10 +263,43 @@ defmodule FlightWeb.API.AppointmentController do
         Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id})
       end
 
+    owner_mechanic_permissions =
+      if conn.assigns[:appointment] && (end_at == nil or NaiveDateTime.compare(end_at, now) == :gt) && !restrict_modify do
+        Permission.new(:appointment_mechanic, :modify, {:personal, owner_mechanic_user_id})
+
+      else
+        Permission.new(:appointment_mechanic, :view, {:personal, owner_mechanic_user_id})
+      end
+
+    mechanic_user_id_from_appointment =
+      case conn.assigns do
+        %{appointment: %{mechanic_user_id: nil}} -> owner_mechanic_user_id
+        %{appointment: %{mechanic_user_id: id}} -> id
+        _ -> owner_mechanic_user_id
+      end
+
+    mechanic_user_id =
+      if (conn.params["data"] |> Optional.map(& &1["mechanic_user_id"])) not in [nil, ""] and
+         (conn.assigns[:appointment] != nil and conn.assigns[:appointment].mechanic_user_id == current_user.id and conn.assigns[:appointment].status != :paid) do
+        (conn.params["data"] |> Optional.map(& &1["mechanic_user_id"]))
+      else
+        mechanic_user_id_from_appointment
+      end
+
+    mechanic_permissions =
+      if restrict_modify do
+        Permission.new(:appointment_mechanic, :view, {:personal, mechanic_user_id})
+
+      else
+        Permission.new(:appointment_mechanic, :modify, {:personal, mechanic_user_id})
+      end
+
     cond do
       user_can?(current_user,
-        [instructor_permisssions,
-          owner_instructor_permisssions,
+        [instructor_permissions,
+          owner_instructor_permissions,
+          mechanic_permissions,
+          owner_mechanic_permissions,
           Permission.new(:appointment, :modify, :all)]) ->
         conn
 

@@ -121,6 +121,7 @@ defmodule FlightWeb.ViewHelpers do
       "student" -> "Students"
       "renter" -> "Renters"
       "dispatcher" -> "Dispatchers"
+      "mechanic" -> "Mechanics"
       "user" -> "Users"
     end
   end
@@ -132,6 +133,7 @@ defmodule FlightWeb.ViewHelpers do
       "student" -> "Student"
       "renter" -> "Renter"
       "dispatcher" -> "Dispatcher"
+      "mechanic" -> "Mechanic"
       "user" -> "User"
     end
   end
@@ -158,6 +160,10 @@ defmodule FlightWeb.ViewHelpers do
   end
 
   def display_date(date, :student) do
+    Timex.format!(date, "%d/%m/%Y", :strftime)
+  end
+
+  def display_date(date, :mechanic) do
     Timex.format!(date, "%d/%m/%Y", :strftime)
   end
 
@@ -302,7 +308,7 @@ defmodule FlightWeb.ViewHelpers do
   def appointment_type(type) do
     type
     |> String.replace("_", " ")
-    |> String.split 
+    |> String.split
     |> Enum.map(&String.capitalize/1)
     |> Enum.join(" ")
   end
