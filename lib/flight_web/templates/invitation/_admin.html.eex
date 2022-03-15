@@ -11,7 +11,7 @@
   </div>
     <p>You may also login to the web dashboard by clicking
     <span class="logo-container">
-        <a href="/login"><img style="width: 20px !important;
-                                         height: 20px !important;" src="<%= static_path(@conn, "/images/fsm-icon.png") %>"/></a>
+        <a href="/login"><img style="width: 40px !important;
+                                         height: 40px !important;" src="<%= static_path(@conn, "/images/fsm-icon.png") %>"/></a>
       </span></p>
 </div>
