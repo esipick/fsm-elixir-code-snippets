@@ -8,6 +8,8 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
   @invoice_line_item_excluded_types ~w(aircraft instructor room)a
   @invoice_line_item_fields ~w(id description rate amount quantity creator_id type taxable deductible name serial_number notes)a
 
+  require Logger
+
   def run(appointment_id, params, school_context) do
     appointment = get_appointment(appointment_id)
 
@@ -168,7 +170,14 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   def aircraft_item(appointment, quantity, params, current_user) do
     if appointment.aircraft do
-      rate = appointment.aircraft.rate_per_hour
+
+      rate =
+        if appointment.user_id != nil && appointment.user.balance > 0 do
+          appointment.aircraft.block_rate_per_hour
+        else
+          appointment.aircraft.rate_per_hour
+        end
+
       hobbs_end = Map.get(params, "hobbs_time", nil)
       tach_end = Map.get(params, "tach_time", nil)
       aircraft = appointment.aircraft

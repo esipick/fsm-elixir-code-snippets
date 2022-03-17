@@ -133,6 +133,14 @@ export const itemsFromAppointment = (appointment, line_items, user_roles) => {
       if (!item) {
         item = appointment.aircraft || appointment.simulator
         item = fromAircraft(item, appointment.type)
+        console.log(item);
+        console.log(appointment);
+        if (appointment.aircraft 
+          && !appointment.demo 
+          && appointment.user 
+          && appointment.user.balance > 0) {
+            item.rate = appointment.aircraft.block_rate_per_hour || item.rate
+        }
       }       
       
       item.hobbs_start = appointment.start_hobbs_time || item.hobbs_start;
