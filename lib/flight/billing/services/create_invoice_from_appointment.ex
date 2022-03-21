@@ -121,11 +121,14 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   defp line_items_from(appointment, params, current_user) do
     duration = Timex.diff(appointment.end_at, appointment.start_at, :minutes) / 60.0
+    inst_start_at = appointment.inst_start_at || appointment.start_at
+    inst_end_at = appointment.inst_end_at || appointment.end_at
+    inst_duration = Timex.diff(inst_end_at, inst_start_at, :minutes) / 60
 
     [
       aircraft_item(appointment, duration, params, current_user),
       simulator_item(appointment, duration, params, current_user),
-      instructor_item(appointment, duration, current_user),
+      instructor_item(appointment, inst_duration, current_user),
       room_item(appointment, 1, current_user)
     ]
     |> Enum.filter(fn x -> x end)

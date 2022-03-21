@@ -106,13 +106,17 @@ export const itemsFromAppointment = (appointment, line_items, user_roles) => {
   line_items = line_items || []
 
   if (appointment) {
+    const inst_start_at = appointment.inst_start_at || appointment.start_at
+    const inst_end_at = appointment.inst_end_at || appointment.end_at
+
     const duration = (new Date(appointment.end_at) - new Date(appointment.start_at)) / HOUR_IN_MILLIS;
+    const inst_duration = (new Date(inst_end_at) - new Date(appointment.inst_start_at)) / HOUR_IN_MILLIS;
     const items = [];
     if (appointment.instructor_user) {
       var item = findItem(line_items, "instructor")
       
       if (!item) {
-        item = instructorItem(appointment.instructor_user, duration);
+        item = instructorItem(appointment.instructor_user, inst_duration);
       }
 
       items.push(item)
