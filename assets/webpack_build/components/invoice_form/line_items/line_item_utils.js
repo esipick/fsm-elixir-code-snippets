@@ -1,4 +1,5 @@
 import shortid from 'shortid';
+import { getAccountBalance } from '../../utils';
 
 export const FLIGHT_HOURS = "Flight Hours";
 export const SIMULATOR_HOURS = "Simulator Hours"
@@ -103,7 +104,7 @@ const HOUR_IN_MILLIS = 3600000;
 
 export const itemsFromAppointment = (appointment, line_items, user_roles) => {
   line_items = line_items || []
-  
+
   if (appointment) {
     const duration = (new Date(appointment.end_at) - new Date(appointment.start_at)) / HOUR_IN_MILLIS;
     const items = [];
@@ -128,20 +129,18 @@ export const itemsFromAppointment = (appointment, line_items, user_roles) => {
     }
 
     if (appointment.aircraft || appointment.simulator) {
-      var item = findItem(line_items, "aircraft")
+      const item = findItem(line_items, "aircraft")
 
       if (!item) {
         item = appointment.aircraft || appointment.simulator
         item = fromAircraft(item, appointment.type)
-        console.log(item);
-        console.log(appointment);
-        if (appointment.aircraft 
-          && !appointment.demo 
-          && appointment.user 
-          && appointment.user.balance > 0) {
-            item.rate = appointment.aircraft.block_rate_per_hour || item.rate
-        }
       }       
+
+      if (appointment.aircraft 
+        && !appointment.demo 
+        && getAccountBalance(appointment.user) > 0) {
+          item.rate = appointment.aircraft.block_rate_per_hour || item.rate
+      }
       
       item.hobbs_start = appointment.start_hobbs_time || item.hobbs_start;
       item.hobbs_end = appointment.end_hobbs_time || item.hobbs_end;
@@ -265,7 +264,7 @@ export const itemsFromInvoice = (invoice, user_roles) => {
     aircraft.persist_rate = true // Do not let AircraftLineItem.jsx overwrite the rate with block rate and hour rate.
     aircraft.enable_rate = true
   }
-
+  
   if (aircraft && aircraft.hobbs_end > 0) {aircraft.disable_flight_hours = true}
 
   if (aircraft.description === DEMO_FLIGHT) {aircraft.enable_rate = false}

@@ -64,8 +64,8 @@ class AircraftLineItem extends Component {
     }
 
     const { aircraft } = this.state;
-    
-    if (line_item.aircraft && (getAccountBalance(this.props.student) === 0 )) {
+
+    if (line_item.aircraft && (getAccountBalance(this.props.student) > 0 )) {
       // this.setState({ rate: this.props.line_item.aircraft.block_rate_per_hour });
       line_item.rate = this.props.line_item.aircraft.block_rate_per_hour;
     }
