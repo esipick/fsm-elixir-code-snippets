@@ -129,6 +129,9 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :start_hobbs_time, :integer
     field :end_hobbs_time, :integer
 
+    field :inst_start_at, :naive_datetime
+    field :inst_end_at, :naive_datetime
+
     field :simulator_id, :integer
     field :room_id, :integer
 
@@ -200,6 +203,8 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :note, :string
     field :payer_name, :string
     field :start_at, :string
+    field :inst_start_at, :naive_datetime
+    field :inst_end_at, :naive_datetime
     field :type, :string
     field :user_id, :integer
     field :room_id, :integer
@@ -216,6 +221,8 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :note, :string
     field :payer_name, :string
     field :start_at, :string
+    field :inst_start_at, :naive_datetime
+    field :inst_end_at, :naive_datetime
     field :user_id, :integer
     field :room_id, :integer
     field :simulator_id, :integer

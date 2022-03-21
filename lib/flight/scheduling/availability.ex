@@ -114,7 +114,6 @@ defmodule Flight.Scheduling.Availability do
         excluded_unavailability_ids,
         school_context
       )
-
     user_status = Enum.find(user_statuses, &(&1.user.id == id))
 
     if user_status do
@@ -138,6 +137,7 @@ defmodule Flight.Scheduling.Availability do
     role_slugs = role_slugs_for_permission_slug(permission_slug)
     roles = from(r in Role, where: r.slug in ^role_slugs) |> Repo.all()
     visible_users = Flight.Accounts.users_with_roles(roles, school_context, params)
+    is_instructor_availability = instructor_availability(permission_slug)
 
     appointment_unavailable_user_ids =
       if scope in [:all, :appointment] do
@@ -146,7 +146,9 @@ defmodule Flight.Scheduling.Availability do
         |> select_for_permission_slug(permission_slug)
         |> exclude_appointment_or_unavailability_query(excluded_appointment_ids)
         |> pass_unless(params["user_id"], &where(&1, [t], t.user_id == ^params["user_id"]))
-        |> overlap_query(start_at, end_at)
+        |> pass_unless(!is_instructor_availability, &overlap_query(&1, start_at, end_at))
+        |> pass_unless(is_instructor_availability, &appointment_instructor_overlap_query(&1, start_at, end_at))
+        # |> overlap_query(start_at, end_at)
         |> Repo.all()
         |> MapSet.new()
       else
@@ -187,7 +189,8 @@ defmodule Flight.Scheduling.Availability do
                 [a],
                 a.instructor_user_id == ^instuctor_id
               )
-              |> overlap_query(start_at, end_at)
+              |> appointment_instructor_overlap_query(start_at, end_at)
+              # |> overlap_query(start_at, end_at)
               |> Repo.all()
               |> Enum.map(& &1.instructor_user_id)
               |> MapSet.new()
@@ -230,6 +233,10 @@ defmodule Flight.Scheduling.Availability do
       _ ->
         raise "Attempting to request invalid permission slug: #{permission_slug}"
     end
+  end
+
+  defp instructor_availability(permission_slug) do
+     permission_slug == permission_slug(:appointment_instructor, :modify, :personal)
   end
 
   def aircraft_status(
@@ -416,6 +423,16 @@ defmodule Flight.Scheduling.Availability do
         (^start_at >= a.start_at and ^start_at < a.end_at) or
           (^end_at > a.start_at and ^end_at <= a.end_at) or
           (^start_at <= a.start_at and ^end_at >= a.end_at)
+    )
+  end
+
+  def appointment_instructor_overlap_query(query, start_at, end_at) do
+    from(
+      a in query,
+      where:
+        (^start_at >= a.inst_start_at and ^start_at < a.inst_end_at) or
+          (^end_at > a.inst_start_at and ^end_at <= a.inst_end_at) or
+          (^start_at <= a.inst_start_at and ^end_at >= a.inst_end_at)
     )
   end
 

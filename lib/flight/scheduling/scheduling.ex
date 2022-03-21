@@ -492,6 +492,8 @@ defmodule Flight.Scheduling do
 
       changeset =
         if instructor_user_id do
+          # instructor_start_at = start_at + pre-time
+          # instructor_end_at = end_at + post-time
           status =
             Availability.user_with_permission_status(
               permission_slug(:appointment_instructor, :modify, :personal),

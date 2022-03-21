@@ -14,6 +14,7 @@ defmodule Fsm.Inspections do
     alias Fsm.Aircrafts.Inspection
     alias Fsm.Aircrafts.InspectionData
     alias Fsm.Attachments.Attachment
+    alias Fsm.Aircrafts.InspectionNotesAuditTrail
 
     def get_inspection(id) do
         Inspection
@@ -78,10 +79,10 @@ defmodule Fsm.Inspections do
             |> Repo.preload([[inspection_data: inspection_data_query], :attachments])
 
         Enum.map(inspections, fn(is) ->
-            changed_data = Enum.map(is.inspection_data, fn(d) -> 
+            changed_data = Enum.map(is.inspection_data, fn(d) ->
                 %{d | value: InspectionData.value_from_t_field(d)}
             end)
-    
+
             %{is | inspection_data: changed_data}
         end)
     end
@@ -97,12 +98,12 @@ defmodule Fsm.Inspections do
             |> with_undeleted
             |> Repo.all
             |> Repo.preload([[inspection_data: inspection_data_query], :attachments])
-            
+
         Enum.map(inspections, fn(is) ->
-            changed_data = Enum.map(is.inspection_data, fn(d) -> 
+            changed_data = Enum.map(is.inspection_data, fn(d) ->
                 %{d | value: InspectionData.value_from_t_field(d)}
             end)
-    
+
             %{is | inspection_data: changed_data}
         end)
     end
@@ -172,17 +173,45 @@ defmodule Fsm.Inspections do
         end)
     end
 
+    defp notes_audit_trail(inspection_id, params) do
+        user_id = Map.get(params, :user_id)
+        notes = Map.get(params, :notes)
+        notes = if notes == "", do: nil, else: notes
+        status = if Map.has_key?(params, :notes), do: :ok, else: :no_update
+
+        {status, %{user_id: user_id, inspection_id: inspection_id, notes: notes}}
+    end
+
     @doc """
     Update an inspection with inspection data
     """
-    def update_inspection(id, inspection_data) when is_list(inspection_data) do
+    def update_inspection(id, params, inspection_data) when is_list(inspection_data) do
         case update_inspection_data(id, inspection_data) do
-            true ->                         
+            true ->
                 case is_inspection_values_set(id) do
                     {:true, inspection} ->
+                        {status, audit_trail} = notes_audit_trail(id, params)
+                        notes = Map.get(audit_trail, :notes)
+
+                        insp_params = %{updated: true}
+                        insp_params =
+                            if status == :ok, do: Map.put(insp_params, :notes, notes), else: insp_params
+
                         inspection
-                        |> Inspection.changeset(%{updated: true})
+                        |> Inspection.changeset(insp_params)
                         |> Repo.update
+                        |> case do
+                            {:ok, new_inspection} ->
+
+                                if status == :ok do
+                                    update_notes_if_can(audit_trail, inspection)
+                                end
+
+                                {:ok, new_inspection}
+
+                            other ->
+                                other
+                        end
                 end
 
                 {:ok, true}
@@ -197,17 +226,17 @@ defmodule Fsm.Inspections do
     def is_inspection_values_set(id) do
         inspection = get_inspection(id)
 
-        case Enum.filter(inspection.inspection_data, fn(s) -> 
+        case Enum.filter(inspection.inspection_data, fn(s) ->
             InspectionData.value_from_t_field(s) == ""
         end) do
-            [] -> 
+            [] ->
                 {:true, inspection}
             [hd | _] ->
                 {:false}
         end
     end
 
-    def update_inspection(id, inspection_data) do
+    def update_inspection(id, _, inspection_data) do
         {:error, "invalid format"}
     end
 
@@ -215,7 +244,7 @@ defmodule Fsm.Inspections do
         case get_inspection(id) do
             nil ->
                 false
-            inspection -> 
+            inspection ->
                 updates = Enum.map(inspection_data, fn(kv) ->
                     db_insp_data = Enum.filter(inspection.inspection_data, fn(d) -> d.class_name == kv.class_name end)
                     update_inspection_data_row(db_insp_data, kv)
@@ -260,7 +289,7 @@ defmodule Fsm.Inspections do
               #Logger.info fn -> "new_value.value: #{inspect new_value.value}" end
               #Logger.info fn -> "Date.from_iso8601(new_value.value): #{inspect Date.from_iso8601(new_value.value)}" end
                 case Date.from_iso8601(new_value.value) do
-                    {:ok, iso_date} -> 
+                    {:ok, iso_date} ->
                         isd = Ecto.Changeset.change hd, t_date: iso_date
                         Repo.update isd
                     {:error, reason} ->
@@ -406,6 +435,20 @@ defmodule Fsm.Inspections do
         %Inspection{}
         |> Inspection.changeset(inspectionAttrs)
         |> Repo.insert()
+        |> case do
+            {:ok, %{notes: notes} = inspection} ->
+                trail = %{
+                    notes: notes,
+                    user_id: inspection.user_id,
+                    inspection_id: inspection.id
+                }
+                create_notes_audit_trail(trail, false)
+
+                {:ok, inspection}
+
+            other ->
+                other
+        end
     end
 
     defp map_inspection_data_value_to_field(inspections_data) do
@@ -436,6 +479,20 @@ defmodule Fsm.Inspections do
                 Map.put(inspection_data, :t_float, float_val)
             end
         end)
+    end
+
+    defp update_notes_if_can(%{user_id: nil}, nil), do: {:error, "user_id can't be nil."}
+    defp update_notes_if_can(%{notes: notes}, %Inspection{notes: notes}), do: {:error, "nothing to update"}
+    defp update_notes_if_can(params, %Inspection{} = inspection) do
+        create_notes_audit_trail(params, true)
+        {:ok, :done}
+    end
+
+    defp create_notes_audit_trail(%{notes: nil}, false = _force_insert_nil), do: {:error, "notes cannot be nil"}
+    defp create_notes_audit_trail(params, _) do
+        %InspectionNotesAuditTrail{}
+        |> InspectionNotesAuditTrail.changeset(params)
+        |> Repo.insert
     end
 
     @doc """

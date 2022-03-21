@@ -101,6 +101,7 @@
                 </div>
               </div>
             </div>
+
             <div class="row">
               <label class="col-md-3 col-form-label">Instructor *</label>
               <div class="col-md-9">
@@ -117,6 +118,31 @@
                   </select>
                 </div>
               </div>
+            </div>
+
+            <div class="row" id="instructorHours">
+              <label class="col-md-4 col-form-label">Instructor Times *</label>
+               <div class="col-md-4">
+                <div class="form-group">
+                  <select id="apptInstructorPreTime" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Pre-Time">
+                    <option value="">None</option>
+                    <%= for instructor <- @instructors do %>
+                      <option value="<%= instructor.id %>"><%= display_name(instructor) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <select id="apptInstructorPostTime" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Post-Time">
+                    <option value="">None</option>
+                    <%= for instructor <- @instructors do %>
+                      <option value="<%= instructor.id %>"><%= display_name(instructor) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+
             </div>
 
             <div class="row">

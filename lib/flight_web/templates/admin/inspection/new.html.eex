@@ -43,7 +43,13 @@
               :tach -> render("_tach_inputs.html", f: f, changeset: @changeset)
               :date -> render("_date_inputs.html", f: f, changeset: @changeset)
             end %>
+
+            <div class="form-group">
+            <label>Notes</label>
+            <%= textarea f, :notes, class: "form-control", placeholder: "Notes" %>
+            </div>
           </div>
+
           <div class="card-footer ">
             <a href="/admin/<%= @asset_namespace %>/<%= @aircraft.id %>" class="btn btn-fill btn-default mr-2">Cancel</a>
             <input type="submit" class="btn btn-fill btn-primary" value="Save">
