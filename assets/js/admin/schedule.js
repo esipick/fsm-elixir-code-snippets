@@ -212,6 +212,10 @@ $(document).ready(function () {
 
     pickerDidChangeStateForUser('#apptInstructor', this.checked, userInstructorsIds, allInstructors)
     $('#apptInstructor').val(initVal).selectpicker("refresh")
+    var preTimeInitVal = safeParseInt($('#apptInstructorPreTime').val());
+    var postTimeInitVal = safeParseInt($('#apptInstructorPostTime').val());
+    $('#apptInstructorPreTime').val(preTimeInitVal).selectpicker("refresh")
+    $('#apptInstructorPostTime').val(postTimeInitVal).selectpicker("refresh")
   });
 
   $("#apptAssignedAircraftBox").change(function() {
@@ -505,6 +509,11 @@ $(document).ready(function () {
     if (eventType == "appt") {
       var eventRenter = safeParseInt($('#apptStudent').val());
       var eventInstructor = safeParseInt($('#apptInstructor').val());
+
+
+      var eventInstructorPreTime = safeParseInt($('#apptInstructorPreTime').val())
+      var eventInstructorPostTime = safeParseInt($('#apptInstructorPreTime').val())
+
       var eventAircraft = safeParseInt($('#apptAircraft').val());
       var eventSimulator = safeParseInt($('#apptSimulator').val());
       var eventRoom = safeParseInt($('#apptRoom').val());
@@ -520,13 +529,14 @@ $(document).ready(function () {
         end_at: eventEnd,
         user_id: eventRenter,
         instructor_user_id: eventInstructor,
+        instructor_pre_time: eventInstructorPreTime,
+        instructor_pre_time: eventInstructorPreTime,
         aircraft_id: eventAircraft,
         simulator_id: eventSimulator,
         room_id: eventRoom,
         note: eventNote,
         type: eventApptType
       };
-
       if (appointmentOrUnavailabilityId) {
         promise = $.ajax({
           method: "put",
@@ -811,6 +821,8 @@ $(document).ready(function () {
 
         $("#apptAssignedInstBox").prop("checked", true);
         $("#apptAssignedAircraftBox").prop("checked", true);
+        $('#apptInstructorPreTime').val(initialData.instructor_pre_time).selectpicker("refresh");
+        $('#apptInstructorPostTime').val(initialData.instructor_post_time).selectpicker("refresh");
 
         const userInstructorsIds = userInfo && userInfo.instructors;
         pickerDidChangeStateForUser('#apptInstructor', true, userInstructorsIds, allInstructors)
@@ -998,6 +1010,8 @@ $(document).ready(function () {
     }
 
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
+    $('#apptInstructorPreTime').val(initialData.instructor_pre_time).selectpicker("refresh");
+    $('#apptInstructorPostTime').val(initialData.instructor_post_time).selectpicker("refresh");
     $('#apptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
     $('#apptSimulator').val(initialData.simulator_id).selectpicker("refresh");
     $('#apptRoom').val(initialData.room_id).selectpicker("refresh");
@@ -1047,6 +1061,8 @@ $(document).ready(function () {
     $('#apptEnd').attr("disabled", true);
     $('#apptStudent').prop("disabled", false).selectpicker("refresh");
     $('#apptInstructor').attr("disabled", true);
+    $('#apptInstructorPreTime').attr("disabled", true);
+    $('#apptInstructorPostTime').attr("disabled", true);
     $('#apptFor').attr("disabled", true);
     $('#apptAircraft').attr("disabled", true);
     $('#apptNote').attr("disabled", true);
@@ -1597,11 +1613,19 @@ $(document).ready(function () {
           if( appointment.status == "paid") {
             alert("This appointment has been successfully paid!");
           }
+          // alert(moment.utc(appointment.start_at));
+          // alert(moment.utc(appointment.inst_start_at));
+          // alert(moment().diff(moment.utc(appointment.start_at), moment.utc(appointment.inst_start_at)))
+
 
           openAppointmentModal({
             start_at: moment.utc(appointment.start_at).add(+(moment(appointment.start_at).utcOffset()), 'm'),
             end_at: moment.utc(appointment.end_at).add(+(moment(appointment.end_at).utcOffset()), 'm'),
             instructor_user_id: instructor_user_id,
+            // instructor_pre_time: moment.diff(appointment.start_at, appointment.inst_start_at, 'seconds'),
+            // instructor_post_time: moment.diff(appointment.inst_start_at, appointment.end_at, 'seconds'),
+            instructor_pre_time: 0,
+            instructor_post_time: 0,
             aircraft_id: aircraft_id,
             simulator_id: simulator_id,
             room_id: room_id,

@@ -120,29 +120,30 @@
               </div>
             </div>
 
-            <div class="row" id="instructorHours">
-              <label class="col-md-4 col-form-label">Instructor Times *</label>
-               <div class="col-md-4">
+            <div class="row" id="instructorPreTime">
+              <label class="col-md-3 col-form-label">Instructor Pre Time *</label>
+               <div class="col-md-9">
                 <div class="form-group">
                   <select id="apptInstructorPreTime" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Pre-Time">
-                    <option value="">None</option>
-                    <%= for instructor <- @instructors do %>
-                      <option value="<%= instructor.id %>"><%= display_name(instructor) %></option>
+                    <%= for {instructor_time_string, instructor_time_seconds} <- @instructor_times do %>
+                      <option value="<%= instructor_time_seconds %>"><%= instructor_time_string %></option>
                     <% end %>
                   </select>
                 </div>
               </div>
-              <div class="col-md-4">
+            </div>
+
+            <div class="row" id="instructorPostTime">
+              <label class="col-md-3 col-form-label">Instructor Post Time *</label>
+              <div class="col-md-9">
                 <div class="form-group">
                   <select id="apptInstructorPostTime" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Post-Time">
-                    <option value="">None</option>
-                    <%= for instructor <- @instructors do %>
-                      <option value="<%= instructor.id %>"><%= display_name(instructor) %></option>
+                    <%= for {instructor_time_string, instructor_time_seconds} <- @instructor_times do %>
+                      <option value="<%= instructor_time_seconds %>"><%= instructor_time_string %></option>
                     <% end %>
                   </select>
                 </div>
               </div>
-
             </div>
 
             <div class="row">
