@@ -20,6 +20,7 @@ defmodule Flight.Billing.UpdateInvoice do
         "fail" -> :fail
         _ -> :none
       end
+
     {:ok, invoice_attribs} = Flight.Billing.CalculateInvoice.run(invoice_attribs, school_context)
 
     {invoice_attribs, update_hours} =

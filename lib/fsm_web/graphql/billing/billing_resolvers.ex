@@ -226,6 +226,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingResolvers do
         |> case do
           {:error, message} ->
             {:error, message}
+            
           data ->
             {:ok, data}
         end

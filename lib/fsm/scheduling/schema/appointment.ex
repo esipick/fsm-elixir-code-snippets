@@ -100,6 +100,7 @@ defmodule Fsm.Scheduling.Appointment do
     |> normalize_instructor_times
   end
 
+  def update_check_ride_status(_, nil), do: {:error, "Checkride status cannot be nil."}
   def update_check_ride_status(%Appointment{type: "check_ride"} = appt, status) do
     appt
     |> Appointment.changeset(%{appt_status: status}, 0)

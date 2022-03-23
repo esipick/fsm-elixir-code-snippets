@@ -53,7 +53,11 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
     case CalculateInvoice.run(invoice_payload, school_context) do
       {:ok, invoice_params} ->
-        invoice_params = update_invoice_params(invoice, invoice_params)
+        invoice_params =
+          invoice
+          |> update_invoice_params(invoice_params)
+          |> Map.put("appt_status", to_string(appointment.appt_status))
+
         UpdateInvoice.run(invoice, invoice_params, school_context)
 
       {:error, errors} ->
@@ -66,7 +70,9 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
     case CalculateInvoice.run(invoice_payload, school_context) do
       {:ok, invoice_params} ->
-        CreateInvoice.run(invoice_params, school_context)
+        invoice_params
+        |> Map.put("appt_status", to_string(appointment.appt_status))
+        |> CreateInvoice.run(school_context)
 
       {:error, errors} ->
         {:error, errors}
@@ -101,7 +107,8 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "demo" => appointment.demo,
         "date" => NaiveDateTime.to_date(appointment.end_at),
         "line_items" => line_items_from(appointment, params, current_user),
-        "appointment_updated_at" => appointment.updated_at
+        "appointment_updated_at" => appointment.updated_at,
+        "appt_status" => appointment.appt_status,
       }
 
     payment_option = Map.get(params, "payment_option")
