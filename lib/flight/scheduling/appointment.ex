@@ -26,6 +26,7 @@ defmodule Flight.Scheduling.Appointment do
 
     field(:inst_start_at, :naive_datetime)
     field(:inst_end_at, :naive_datetime)
+    field(:appt_status, CheckRideStatus, default: :none)
 
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
@@ -59,7 +60,8 @@ defmodule Flight.Scheduling.Appointment do
       :type,
       :status,
       :inst_start_at,
-      :inst_end_at
+      :inst_end_at,
+      :appt_status
     ])
     |> validate_required([
       :start_at,

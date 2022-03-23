@@ -29,6 +29,15 @@ defmodule Flight.Billing.CreateInvoice do
     line_items = LineItemCreator.populate_creator(invoice_params["line_items"], current_user)
     aircraft_info = Utils.aircraft_info_map(invoice_params)
 
+    checkride_status = Map.get(invoice_params,:appt_status) || Map.get(invoice_params, "appt_status")
+    checkride_status =
+      checkride_status
+      |> case do
+        "pass" -> :pass
+        "fail" -> :fail
+        _ -> :none
+      end
+
     invoice_attrs =
       Map.merge(
 
@@ -44,8 +53,7 @@ defmodule Flight.Billing.CreateInvoice do
     with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
         {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
         {:ok, invoice} <- Invoice.create(invoice_attrs) do
-
-
+          Fsm.Scheduling.Appointment.update_check_ride_status(invoice.appointment_id, checkride_status)
 
       #Logger.info fn -> "invoice_params-----------------: #{inspect invoice_params}" end
           line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)

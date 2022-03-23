@@ -16,7 +16,7 @@ defmodule Flight.Billing.CalculateInvoice do
       )
 
     line_items = calculate_line_items(invoice_attrs, school_context)
-
+    
     total = Enum.map(line_items, &chargeable_amount/1) |> Enum.sum() |> round
 
     total_taxable = Enum.map(line_items, &taxable_amount/1) |> Enum.sum()

@@ -51,11 +51,21 @@ defmodule Fsm.Billing.CreateInvoice do
           }
         )
 
+      checkride_status = Map.get(invoice_params,:appt_status) || Map.get(invoice_params, "appt_status")
+      checkride_status =
+        checkride_status
+        |> case do
+          "pass" -> :pass
+          "fail" -> :fail
+          _ -> :none
+        end
+
       send_receipt_email = Map.get(invoice_params, :send_receipt_email)
 
       with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
           {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
           {:ok, invoice} <- Invoice.create(invoice_attrs) do
+            Fsm.Scheduling.Appointment.update_check_ride_status(invoice.appointment_id, checkride_status)
 
             line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
 

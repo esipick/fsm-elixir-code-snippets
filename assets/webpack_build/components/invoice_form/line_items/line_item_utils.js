@@ -133,7 +133,7 @@ export const itemsFromAppointment = (appointment, line_items, user_roles) => {
     }
 
     if (appointment.aircraft || appointment.simulator) {
-      const item = findItem(line_items, "aircraft")
+      var item = findItem(line_items, "aircraft")
 
       if (!item) {
         item = appointment.aircraft || appointment.simulator

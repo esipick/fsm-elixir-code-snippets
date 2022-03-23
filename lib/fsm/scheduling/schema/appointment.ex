@@ -4,6 +4,7 @@ defmodule Fsm.Scheduling.Appointment do
   import Ecto.Changeset
   alias Fsm.Scheduling
   alias Flight.SchoolAssets.Room
+  alias Fsm.Scheduling.Appointment
 
   schema "appointments" do
     field(:end_at, :naive_datetime)
@@ -26,6 +27,8 @@ defmodule Fsm.Scheduling.Appointment do
 
     field(:simulator_id, :integer)
     field(:room_id, :integer)
+
+    field(:appt_status, CheckRideStatus, default: :none)
 
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
@@ -95,6 +98,19 @@ defmodule Fsm.Scheduling.Appointment do
     |> validate_demo_aircraft_set
     |> validate_assets
     |> normalize_instructor_times
+  end
+
+  def update_check_ride_status(%Appointment{type: "check_ride"} = appt, status) do
+    appt
+    |> Appointment.changeset(%{appt_status: status}, 0)
+    |> Flight.Repo.update()
+  end
+  def update_check_ride_status(%Appointment{} = changeset, _), do: {:ok, changeset}
+  def update_check_ride_status(nil, _), do: {:error, "id cannot be nil."}
+  def update_check_ride_status(appt_id, status) do
+    Appointment
+    |> Flight.Repo.get(appt_id)
+    |> update_check_ride_status(status)
   end
 
   def update_transaction_changeset(appointment, attrs),

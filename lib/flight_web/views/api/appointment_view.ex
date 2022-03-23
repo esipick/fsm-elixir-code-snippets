@@ -120,6 +120,7 @@ defmodule FlightWeb.API.AppointmentView do
       payer_name: appointment.payer_name,
       demo: appointment.demo,
       status: appointment.status,
+      appt_status: appointment.appt_status,
       type: appointment.type,
       instructor_user:
         Optional.map(

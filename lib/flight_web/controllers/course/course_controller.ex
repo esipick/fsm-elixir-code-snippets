@@ -2,7 +2,6 @@ defmodule FlightWeb.Course.CourseController do
   use FlightWeb, :controller
   alias Flight.Auth.Authorization
   alias Flight.Billing.{Invoice, InvoiceCustomLineItem}
-  alias Flight.Repo
   require Logger
 
   def index(%{assigns: %{current_user: current_user}} = conn, _) do

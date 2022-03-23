@@ -12,7 +12,14 @@ defmodule Flight.Billing.UpdateInvoice do
     current_user = school_context.assigns.current_user
     invoice_attribs = invoice_attrs(invoice_params, current_user)
     aircraft_info = Utils.aircraft_info_map(invoice_params)
-
+    checkride_status = Map.get(invoice_params, "appt_status")
+    checkride_status =
+      checkride_status
+      |> case do
+        "pass" -> :pass
+        "fail" -> :fail
+        _ -> :none
+      end
     {:ok, invoice_attribs} = Flight.Billing.CalculateInvoice.run(invoice_attribs, school_context)
 
     {invoice_attribs, update_hours} =
@@ -28,6 +35,8 @@ defmodule Flight.Billing.UpdateInvoice do
     with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
       {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
       {:ok, invoice} <- update_invoice(invoice, invoice_attribs) do
+        Fsm.Scheduling.Appointment.update_check_ride_status(invoice.appointment_id, checkride_status)
+
         line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
 
         cond do
