@@ -26,4 +26,26 @@ defmodule Flight.Scheduling.Search.Aircraft do
         )
     end
   end
+
+  def compositeRun(query, search_term) do
+    case normalized_term = Utils.normalize(search_term) do
+      "" ->
+        query
+
+      _ ->
+        where(
+          query,
+          [l, a],
+          fragment(
+            "to_tsvector(
+              'english',
+              coalesce(tail_number, ' ') || ' ' ||
+              coalesce(?, ' ')
+            ) @@ to_tsquery(?)",
+            a.name,
+            ^Utils.prefix_search(normalized_term)
+          )
+        )
+    end
+  end
 end
