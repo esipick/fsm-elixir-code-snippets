@@ -511,9 +511,6 @@ $(document).ready(function () {
       var eventInstructor = safeParseInt($('#apptInstructor').val());
 
 
-      var eventInstructorPreTime = safeParseInt($('#apptInstructorPreTime').val())
-      var eventInstructorPostTime = safeParseInt($('#apptInstructorPreTime').val())
-
       var eventAircraft = safeParseInt($('#apptAircraft').val());
       var eventSimulator = safeParseInt($('#apptSimulator').val());
       var eventRoom = safeParseInt($('#apptRoom').val());
@@ -522,6 +519,16 @@ $(document).ready(function () {
       var eventStart = (moment.utc($('#apptStart').val()).add(-(moment($('#apptStart').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
       var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment($('#apptEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
 
+
+      var eventInstructorPreTime = moment.utc($('#apptStart').val()).add(-(moment($('#apptStart').val()).utcOffset()), 'm').set({second:0,millisecond:0}).add(-(safeParseInt($('#apptInstructorPreTime').val())), 'seconds').format()
+      var eventInstructorPostTime = moment.utc($('#apptEnd').val()).add(-(moment($('#apptEnd').val()).utcOffset()), 'm').set({second:0,millisecond:0}).add(safeParseInt($('#apptInstructorPostTime').val()), 'seconds').format()
+
+      alert(eventStart)
+      // alert(safeParseInt($('#apptInstructorPreTime').val()))
+      alert(eventInstructorPreTime)
+      alert(eventEnd)
+      // alert(safeParseInt($('#apptInstructorPostTime').val()))
+      alert(eventInstructorPostTime)
       var eventNote = $('#apptNote').val()
 
       var eventData = {
@@ -815,14 +822,11 @@ $(document).ready(function () {
       const isStudent = userInfo.roles.includes("student")
       const isInstructor = userInfo.roles.includes("instructor")
       const isMechanic = userInfo.roles.includes("mechanic")
-
       if (userInfo && userInfo.roles && isStudent) {
         $("#apptAssignedPerson").hide()
 
         $("#apptAssignedInstBox").prop("checked", true);
         $("#apptAssignedAircraftBox").prop("checked", true);
-        $('#apptInstructorPreTime').val(initialData.instructor_pre_time).selectpicker("refresh");
-        $('#apptInstructorPostTime').val(initialData.instructor_post_time).selectpicker("refresh");
 
         const userInstructorsIds = userInfo && userInfo.instructors;
         pickerDidChangeStateForUser('#apptInstructor', true, userInstructorsIds, allInstructors)
@@ -842,6 +846,7 @@ $(document).ready(function () {
         $("#apptAssignedPerson").hide()
         $("#apptAssignedAircraft").hide()
         $("#apptAssignedInstructor").hide()
+        alert(JSON.stringify(initialData));
       }
 
       if (appointmentOrUnavailabilityId) {
@@ -1010,6 +1015,8 @@ $(document).ready(function () {
     }
 
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
+    // $('#apptInstructorPreTime').val(900).selectpicker("refresh");
+    // $('#apptInstructorPostTime').val(900).selectpicker("refresh");
     $('#apptInstructorPreTime').val(initialData.instructor_pre_time).selectpicker("refresh");
     $('#apptInstructorPostTime').val(initialData.instructor_post_time).selectpicker("refresh");
     $('#apptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
@@ -1495,11 +1502,16 @@ $(document).ready(function () {
           start_at: start,
           end_at: moment(start).add(1, 'hours'),
           instructor_user_id: instructorId,
+          instructor_pre_time: 0,
+          instructor_post_time: 0,
+          // instructor_pre_time: 1800,
+          // instructor_post_time: 1800,
           aircraft_id: aircraftId,
           simulator_id: simulatorId,
           room_id: roomId,
           mechanic_user_id: mechanicId
         }
+
 
         if (resource.current_user && resource.current_user.roles.length == 1 && ["student", "renter"].includes(resource.current_user.roles[0])) {
           params.user_name = fullName(resource.current_user)
@@ -1573,6 +1585,8 @@ $(document).ready(function () {
             start_at: moment.utc(appointment.start_at).add(+(moment(appointment.start_at).utcOffset()), 'm'),
             end_at: moment.utc(appointment.end_at).add(+(moment(appointment.end_at).utcOffset()), 'm'),
             instructor_user_id: instructor_user_id,
+            instructor_pre_time: moment.diff(appointment.start_at, appointment.inst_start_at, 'seconds'),
+            instructor_post_time: moment.diff(appointment.inst_start_at, appointment.end_at, 'seconds'),
             aircraft_id: aircraft_id,
             note: appointment.note,
             demo: appointment.demo,
@@ -1617,15 +1631,18 @@ $(document).ready(function () {
           // alert(moment.utc(appointment.inst_start_at));
           // alert(moment().diff(moment.utc(appointment.start_at), moment.utc(appointment.inst_start_at)))
 
+          alert((moment.utc(appointment.start_at)-moment.utc(appointment.inst_start_at))/1000)
 
+          // alert(moment.utc(appointment.start_at))
+          // alert(moment().diff(appointment.start_at, appointment.inst_start_at, 'seconds'))
           openAppointmentModal({
             start_at: moment.utc(appointment.start_at).add(+(moment(appointment.start_at).utcOffset()), 'm'),
             end_at: moment.utc(appointment.end_at).add(+(moment(appointment.end_at).utcOffset()), 'm'),
             instructor_user_id: instructor_user_id,
-            // instructor_pre_time: moment.diff(appointment.start_at, appointment.inst_start_at, 'seconds'),
-            // instructor_post_time: moment.diff(appointment.inst_start_at, appointment.end_at, 'seconds'),
-            instructor_pre_time: 0,
-            instructor_post_time: 0,
+            instructor_pre_time: (moment.utc(appointment.start_at)-moment.utc(appointment.inst_start_at))/1000,
+            instructor_post_time: (moment.utc(appointment.inst_end_at)-moment.utc(appointment.end_at))/1000,
+            // instructor_pre_time: 1800,
+            // instructor_post_time: 1800,
             aircraft_id: aircraft_id,
             simulator_id: simulator_id,
             room_id: room_id,
