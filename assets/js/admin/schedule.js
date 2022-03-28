@@ -332,6 +332,14 @@ $(document).ready(function () {
         eventType = "maintenance"
         break;
 
+      case "flight_lesson":
+        regularFlightLessonView(true);
+        unavailabilityView(false);
+        demoFlightView(false);
+        maintenanceView(false);
+        eventType = "appt";
+        break;
+
       default:
         regularView(true);
         unavailabilityView(false);
@@ -343,12 +351,30 @@ $(document).ready(function () {
     }
   })
 
-  function regularView(show) {
+  function regularFlightLessonView(show) {
     if (show) {
+      $('#appointmentResouceForm.tab-pane').addClass("active");
       $('#appointmentForm.tab-pane').addClass("active");
     } else {
+      $('#appointmentResouceForm.tab-pane').removeClass("active");
       $('#appointmentForm.tab-pane').removeClass("active");
     }
+
+    // $('#apptInstructorPreTime').hide();
+    // $('#apptInstructorPostTime').hide();
+  }
+
+  function regularView(show) {
+    if (show) {
+      $('#appointmentResouceForm.tab-pane').addClass("active");
+      $('#appointmentForm.tab-pane').addClass("active");
+    } else {
+      $('#appointmentResouceForm.tab-pane').removeClass("active");
+      $('#appointmentForm.tab-pane').removeClass("active");
+    }
+
+    // $('#apptInstructorPreTime').hide();
+    // $('#apptInstructorPostTime').hide();
   }
 
   function demoFlightView(show) {
@@ -357,6 +383,9 @@ $(document).ready(function () {
     } else {
       $('#demoAppointmentForm.tab-pane').removeClass("active");
     }
+
+    $('#apptInstructorPreTime').hide();
+    $('#apptInstructorPostTime').hide();
   }
 
   function unavailabilityView(show) {
@@ -365,6 +394,9 @@ $(document).ready(function () {
     } else {
       $('#unavailabilityForm.tab-pane').removeClass("active");
     }
+
+    $('#apptInstructorPreTime').hide();
+    $('#apptInstructorPostTime').hide();
   }
 
 
@@ -374,6 +406,9 @@ $(document).ready(function () {
     } else {
       $('#maintenanceForm.tab-pane').removeClass("active");
     }
+
+    $('#apptInstructorPreTime').hide();
+    $('#apptInstructorPostTime').hide();
   }
 
 
@@ -390,6 +425,9 @@ $(document).ready(function () {
       $('#apptAircraft').val(null).selectpicker("refresh");
       $('#apptRoom').val(null).selectpicker("refresh");
 
+    $('#instructorPreTime').hide();
+    $('#instructorPostTime').hide();
+
     } else if (type == "Room") {
       $('#apptFieldAircraft').hide();
       $('#apptFieldSimulator').hide();
@@ -398,10 +436,16 @@ $(document).ready(function () {
       $('#apptAircraft').val(null).selectpicker("refresh");
       $('#apptSimulator').val(null).selectpicker("refresh");
 
+    $('#instructorPreTime').hide();
+    $('#instructorPostTime').hide();
+
     } else {
       $('#apptFieldAircraft').show();
       $('#apptFieldSimulator').hide();
       $('#apptFieldRoom').hide();
+
+      $('#instructorPreTime').show();
+      $('#instructorPostTime').show();
 
       $('#apptSimulator').val(null).selectpicker("refresh");
       $('#apptRoom').val(null).selectpicker("refresh");
@@ -523,12 +567,6 @@ $(document).ready(function () {
       var eventInstructorPreTime = moment.utc($('#apptStart').val()).add(-(moment($('#apptStart').val()).utcOffset()), 'm').set({second:0,millisecond:0}).add(-(safeParseInt($('#apptInstructorPreTime').val())), 'seconds').format()
       var eventInstructorPostTime = moment.utc($('#apptEnd').val()).add(-(moment($('#apptEnd').val()).utcOffset()), 'm').set({second:0,millisecond:0}).add(safeParseInt($('#apptInstructorPostTime').val()), 'seconds').format()
 
-      alert(eventStart)
-      // alert(safeParseInt($('#apptInstructorPreTime').val()))
-      alert(eventInstructorPreTime)
-      alert(eventEnd)
-      // alert(safeParseInt($('#apptInstructorPostTime').val()))
-      alert(eventInstructorPostTime)
       var eventNote = $('#apptNote').val()
 
       var eventData = {
@@ -536,8 +574,8 @@ $(document).ready(function () {
         end_at: eventEnd,
         user_id: eventRenter,
         instructor_user_id: eventInstructor,
-        instructor_pre_time: eventInstructorPreTime,
-        instructor_pre_time: eventInstructorPreTime,
+        inst_start_at: eventInstructorPreTime,
+        inst_end_at: eventInstructorPostTime,
         aircraft_id: eventAircraft,
         simulator_id: eventSimulator,
         room_id: eventRoom,
@@ -846,7 +884,6 @@ $(document).ready(function () {
         $("#apptAssignedPerson").hide()
         $("#apptAssignedAircraft").hide()
         $("#apptAssignedInstructor").hide()
-        alert(JSON.stringify(initialData));
       }
 
       if (appointmentOrUnavailabilityId) {
@@ -1015,8 +1052,6 @@ $(document).ready(function () {
     }
 
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
-    // $('#apptInstructorPreTime').val(900).selectpicker("refresh");
-    // $('#apptInstructorPostTime').val(900).selectpicker("refresh");
     $('#apptInstructorPreTime').val(initialData.instructor_pre_time).selectpicker("refresh");
     $('#apptInstructorPostTime').val(initialData.instructor_post_time).selectpicker("refresh");
     $('#apptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
@@ -1627,22 +1662,13 @@ $(document).ready(function () {
           if( appointment.status == "paid") {
             alert("This appointment has been successfully paid!");
           }
-          // alert(moment.utc(appointment.start_at));
-          // alert(moment.utc(appointment.inst_start_at));
-          // alert(moment().diff(moment.utc(appointment.start_at), moment.utc(appointment.inst_start_at)))
 
-          alert((moment.utc(appointment.start_at)-moment.utc(appointment.inst_start_at))/1000)
-
-          // alert(moment.utc(appointment.start_at))
-          // alert(moment().diff(appointment.start_at, appointment.inst_start_at, 'seconds'))
           openAppointmentModal({
             start_at: moment.utc(appointment.start_at).add(+(moment(appointment.start_at).utcOffset()), 'm'),
             end_at: moment.utc(appointment.end_at).add(+(moment(appointment.end_at).utcOffset()), 'm'),
             instructor_user_id: instructor_user_id,
             instructor_pre_time: (moment.utc(appointment.start_at)-moment.utc(appointment.inst_start_at))/1000,
             instructor_post_time: (moment.utc(appointment.inst_end_at)-moment.utc(appointment.end_at))/1000,
-            // instructor_pre_time: 1800,
-            // instructor_post_time: 1800,
             aircraft_id: aircraft_id,
             simulator_id: simulator_id,
             room_id: room_id,
