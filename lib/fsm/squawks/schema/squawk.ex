@@ -4,7 +4,7 @@ defmodule Fsm.Squawks.Squawk do
     import Ecto.SoftDelete.Schema
     alias Fsm.Accounts.User
     alias Fsm.Scheduling.Aircraft
-    
+
     schema "squawks" do
       field :title, :string
       field :severity, SquawkSeverity
@@ -14,14 +14,18 @@ defmodule Fsm.Squawks.Squawk do
       has_many(:attachments, Fsm.Attachments.Attachment)
       belongs_to(:user, User)
       belongs_to(:aircraft, Aircraft)
-  
+
       soft_delete_schema()
       timestamps()
     end
-  
+
     @doc false
     def changeset(squawk, attrs) do
       squawk
       |> cast(attrs, [:title, :severity, :description, :resolved,:system_affected, :user_id, :aircraft_id])
+    end
+
+    def new_changeset() do
+      changeset(%Fsm.Squawks.Squawk{}, %{})
     end
 end

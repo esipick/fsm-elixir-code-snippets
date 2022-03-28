@@ -63,8 +63,10 @@ defmodule FlightWeb.Admin.AircraftController do
         Map.put(inspection, :expiration, expiration)
       end)
 
+    squawks = Fsm.Squawks.get_squawks({aircraft.id, user.id})
+
     conn
-    |> render("show.html", aircraft: aircraft, inspections: inspections, skip_shool_select: true)
+    |> render("show.html", aircraft: aircraft, squawks: squawks, inspections: inspections, skip_shool_select: true)
   end
 
   def logs(conn, params) do

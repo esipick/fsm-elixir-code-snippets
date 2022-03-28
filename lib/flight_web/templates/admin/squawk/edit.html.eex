@@ -1,0 +1,79 @@
+<div class="panel-header panel-header-sm"></div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Edit Squawk</h3>
+        </div>
+        <%= form_for @changeset, "/admin/squawks/#{@squawk.id}", [as: :squawk, method: "put", class: "form-horizontal"], fn f -> %>
+          <div class="card-body">
+            <%= hidden_input f, :aircraft_id, value: @squawk.aircraft_id %>
+            <div class="form-group">
+              <label>Title *</label>
+              <%= text_input f, :title, class: "form-control", placeholder: "Type squawk title", value: "#{@squawk.title}", required: true %>
+              <%= full_error_tag f, :title %>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3 pr-1">
+                <div class="form-group">
+                  <label>System Affected</label>
+                  <%= select f, :system_affected, ["COCKPIT": "COCKPIT", "ENGINE": "ENGINE", "FUSELAGE": "FUSELAGE", "LANDING_GEAR": "LANDING_GEAR", "PROPELLER": "PROPELLER", "TAIL": "TAIL", "WING": "WING"], selected: "#{String.upcase(to_string(@squawk.system_affected))}", class: "selectpicker" %>
+                  <%= full_error_tag f, :system_affected %>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3 pr-1">
+                <div class="form-group">
+                  <label>Severity</label>
+                  <%= select f, :severity, ["GROUNDED": "GROUNDED", "MONITOR": "MONITOR", "WARNING": "WARNING"], selected: "#{String.upcase(to_string(@squawk.severity))}", class: "selectpicker" %>
+                  <%= full_error_tag f, :severity %>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+                <Label>Description *</label>
+                <%= textarea f, :description, class: "form-control", placeholder: "Description", value: "#{@squawk.description}", required: true %>
+                <%= full_error_tag f, :title %>
+            </div>
+          <div class="card-footer text-right">
+            <div class="pull-left">
+              <button type="button" onclick="history.back()" class="btn btn-fill btn-default mr-2">Cancel</button>
+              <input type="submit" class="btn btn-fill btn-primary" value="Save">
+            </div>
+            <button
+              style="margin-left: 4px;"
+              type="button"
+              class="btn btn-danger btn-fill _delete_button"
+                data-squawk-id="<%= @squawk.id %>">Remove</button>
+          </div>
+        <% end %>
+      </div>
+      <!-- end card -->
+    </div>
+  </div>
+</div>
+<!-- end content -->
+<%= render FlightWeb.Admin.PartialView,
+          "_shared_delete_form.html",
+          %{message: "This Squawk will be removed from the system.",
+            path: "/admin/squawks/",
+            attribute: "squawk"} %>
+<script>
+
+  const error = "<%= get_flash(@conn, :error) %>"
+
+  if(error) {
+    $.notify({
+              message: error
+            }, {
+              type: "danger",
+              placement: { align: "center" }
+            })
+  }
+</script>
