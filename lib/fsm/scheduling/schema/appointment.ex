@@ -29,7 +29,8 @@ defmodule Fsm.Scheduling.Appointment do
     field(:room_id, :integer)
 
     field(:appt_status, CheckRideStatus, default: :none)
-
+    field(:parent_id, :integer)
+    
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:mechanic_user, Flight.Accounts.User)

@@ -91,6 +91,12 @@ defmodule FlightWeb.API.AppointmentView do
     }
   end
 
+  def render("show.json", %{appointment: appointment}) do
+    %{
+      data: render("appointment.json", appointment: appointment)
+    }
+  end
+
   def render("index.json", %{appointments: appointments}) do
     %{
       data:

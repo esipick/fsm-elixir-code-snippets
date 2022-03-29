@@ -27,7 +27,8 @@ defmodule Flight.Scheduling.Appointment do
     field(:inst_start_at, :naive_datetime)
     field(:inst_end_at, :naive_datetime)
     field(:appt_status, CheckRideStatus, default: :none)
-
+    field(:parent_id, :integer)
+    
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:mechanic_user, Flight.Accounts.User)
