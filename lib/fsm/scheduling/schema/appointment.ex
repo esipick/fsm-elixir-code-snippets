@@ -4,6 +4,7 @@ defmodule Fsm.Scheduling.Appointment do
   import Ecto.Changeset
   alias Fsm.Scheduling
   alias Flight.SchoolAssets.Room
+  alias Fsm.Scheduling.Appointment
 
   schema "appointments" do
     field(:end_at, :naive_datetime)
@@ -21,8 +22,13 @@ defmodule Fsm.Scheduling.Appointment do
     field(:start_hobbs_time, Flight.HourTenth, null: true)
     field(:end_hobbs_time, Flight.HourTenth, null: true)
 
+    field(:inst_start_at, :naive_datetime)
+    field(:inst_end_at, :naive_datetime)
+
     field(:simulator_id, :integer)
     field(:room_id, :integer)
+
+    field(:appt_status, CheckRideStatus, default: :none)
 
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
@@ -68,6 +74,7 @@ defmodule Fsm.Scheduling.Appointment do
     |> validate_user_instructor_different
     |> validate_either_instructor_or_aircraft_set
     |> validate_demo_aircraft_set
+    |> normalize_instructor_times
   end
 
   @doc false
@@ -90,6 +97,21 @@ defmodule Fsm.Scheduling.Appointment do
     |> validate_either_instructor_or_aircraft_set
     |> validate_demo_aircraft_set
     |> validate_assets
+    |> normalize_instructor_times
+  end
+
+  def update_check_ride_status(_, nil), do: {:error, "Checkride status cannot be nil."}
+  def update_check_ride_status(%Appointment{type: "check_ride"} = appt, status) do
+    appt
+    |> Appointment.changeset(%{appt_status: status}, 0)
+    |> Flight.Repo.update()
+  end
+  def update_check_ride_status(%Appointment{} = changeset, _), do: {:ok, changeset}
+  def update_check_ride_status(nil, _), do: {:error, "id cannot be nil."}
+  def update_check_ride_status(appt_id, status) do
+    Appointment
+    |> Flight.Repo.get(appt_id)
+    |> update_check_ride_status(status)
   end
 
   def update_transaction_changeset(appointment, attrs),
@@ -193,6 +215,36 @@ defmodule Fsm.Scheduling.Appointment do
          NaiveDateTime.compare(get_field(changeset, :end_at), get_field(changeset, :start_at)) !=
            :gt do
       add_error(changeset, :end_at, "must come after start time.")
+    else
+      changeset
+    end
+  end
+
+  defp normalize_instructor_times(changeset) do
+    if changeset.valid? do
+      inst_id = get_field(changeset, :instructor_user_id)
+
+      start_at = get_field(changeset, :start_at)
+      end_at = get_field(changeset, :end_at)
+
+      inst_started_at = get_field(changeset, :inst_start_at)
+      inst_ended_at = get_field(changeset, :inst_end_at)
+
+      # if appointment has instructor,
+      # inst_start_at should be non nil otherwise it should be nil.
+      {inst_started_at, inst_ended_at} =
+        if !is_nil(inst_id) do
+          inst_started_at = inst_started_at || start_at
+          inst_ended_at = inst_ended_at || end_at
+          {inst_started_at, inst_ended_at}
+        else
+          {nil, nil}
+        end
+
+      changeset
+      |> put_change(:inst_start_at, inst_started_at)
+      |> put_change(:inst_end_at, inst_ended_at)
+
     else
       changeset
     end

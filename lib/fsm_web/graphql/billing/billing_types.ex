@@ -75,6 +75,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
   # Enum
   enum(:payment_options, values: [:balance, :cc, :cash, :cheque, :venmo, :fund, :maintenance])
   enum(:status, values: [:paid, :pending, :failed])
+  enum(:checkride_status, values: [:none, :pass, :fail])
   # balance: 0, cc: 1, cash: 2, cheque: 3,venmo: 4
 
   object :card do
@@ -102,30 +103,31 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
 
   object :invoice do
     field(:id, :integer)
-      field(:date, :string)
-      field(:total, :integer)
-      field(:tax_rate, :string)
-      field(:total_tax, :integer)
-      field(:total_amount_due, :integer)
-      field(:status, :status)
-      field(:payment_option, :payment_options)
-      field(:payer_name, :string)
-      field(:demo, :boolean)
-      field(:archived, :boolean)
-      field(:is_visible, :boolean)
-      field(:archived_at, :string)
-      field(:appointment_updated_at, :string)
-      field(:inserted_at, :string)
-      field(:appointment_id, :integer)
-      field(:notes, :string)
-      field(:payer_email, :string)
-      # field(:aircraft_info, :string)
-      field(:session_id, :string)
-      field(:transactions, list_of(:transaction))
-      field(:line_items, list_of(:line_item))
-      field(:user, :user)
-      field(:room, :room)
-      field(:is_admin_invoice, :boolean)
+    field(:date, :string)
+    field(:total, :integer)
+    field(:tax_rate, :string)
+    field(:total_tax, :integer)
+    field(:total_amount_due, :integer)
+    field(:status, :status)
+    field(:payment_option, :payment_options)
+    field(:payer_name, :string)
+    field(:demo, :boolean)
+    field(:archived, :boolean)
+    field(:is_visible, :boolean)
+    field(:archived_at, :string)
+    field(:appointment_updated_at, :string)
+    field(:inserted_at, :string)
+    field(:appointment_id, :integer)
+    field(:notes, :string)
+    field(:payer_email, :string)
+    # field(:aircraft_info, :string)
+    field(:session_id, :string)
+    field(:transactions, list_of(:transaction))
+    field(:line_items, list_of(:line_item))
+    field(:user, :user)
+    field(:room, :room)
+    field(:is_admin_invoice, :boolean)
+    field(:appt_status, :checkride_status)
   end
 
   object :transaction do
@@ -235,6 +237,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:notes, :string)
     field(:payer_email, :string)
     field(:send_receipt_email, :boolean)
+    field(:appt_status, :checkride_status)
   end
 
   input_object :update_invoice_input do
@@ -254,6 +257,7 @@ defmodule FsmWeb.GraphQL.Billing.BillingTypes do
     field(:line_items, list_of(:line_item_input))
     field(:notes, :string)
     field(:payer_email, :string)
+    field(:appt_status, :checkride_status)
     field(:send_receipt_email, :boolean)
   end
 

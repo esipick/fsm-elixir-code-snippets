@@ -53,7 +53,11 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
     case CalculateInvoice.run(invoice_payload, school_context) do
       {:ok, invoice_params} ->
-        invoice_params = update_invoice_params(invoice, invoice_params)
+        invoice_params =
+          invoice
+          |> update_invoice_params(invoice_params)
+          |> Map.put("appt_status", to_string(appointment.appt_status))
+
         UpdateInvoice.run(invoice, invoice_params, school_context)
 
       {:error, errors} ->
@@ -66,7 +70,9 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
     case CalculateInvoice.run(invoice_payload, school_context) do
       {:ok, invoice_params} ->
-        CreateInvoice.run(invoice_params, school_context)
+        invoice_params
+        |> Map.put("appt_status", to_string(appointment.appt_status))
+        |> CreateInvoice.run(school_context)
 
       {:error, errors} ->
         {:error, errors}
@@ -101,7 +107,8 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
         "demo" => appointment.demo,
         "date" => NaiveDateTime.to_date(appointment.end_at),
         "line_items" => line_items_from(appointment, params, current_user),
-        "appointment_updated_at" => appointment.updated_at
+        "appointment_updated_at" => appointment.updated_at,
+        "appt_status" => appointment.appt_status,
       }
 
     payment_option = Map.get(params, "payment_option")
@@ -121,11 +128,14 @@ defmodule Flight.Billing.CreateInvoiceFromAppointment do
 
   defp line_items_from(appointment, params, current_user) do
     duration = Timex.diff(appointment.end_at, appointment.start_at, :minutes) / 60.0
+    inst_start_at = appointment.inst_start_at || appointment.start_at
+    inst_end_at = appointment.inst_end_at || appointment.end_at
+    inst_duration = Timex.diff(inst_end_at, inst_start_at, :minutes) / 60
 
     [
       aircraft_item(appointment, duration, params, current_user),
       simulator_item(appointment, duration, params, current_user),
-      instructor_item(appointment, duration, current_user),
+      instructor_item(appointment, inst_duration, current_user),
       room_item(appointment, 1, current_user)
     ]
     |> Enum.filter(fn x -> x end)

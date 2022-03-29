@@ -33,7 +33,7 @@ defmodule Fsm.Billing.CreateInvoice do
       school = Fsm.SchoolScope.get_school(school_id)
       %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
       school_context = %Plug.Conn{assigns: %{current_user: current_user}}
-
+      checkride_status = Map.get(invoice_params,:appt_status)
       #Logger.info fn -> " Map.get(invoice_params, :line_items): #{inspect  Map.get(invoice_params, :line_items) }" end
       line_items =   LineItemCreator.populate_creator(Map.get(invoice_params, :line_items), current_user)
 
@@ -56,6 +56,7 @@ defmodule Fsm.Billing.CreateInvoice do
       with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
           {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
           {:ok, invoice} <- Invoice.create(invoice_attrs) do
+            Fsm.Scheduling.Appointment.update_check_ride_status(invoice.appointment_id, checkride_status)
 
             line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
 
@@ -80,11 +81,11 @@ defmodule Fsm.Billing.CreateInvoice do
                   if Map.get(invoice_params, :course_id, false) do
                     Flight.General.enroll_student(current_user ,Map.get(invoice_params, :course_id) )
                   end
-                  {:ok, invoice}
+                  {:ok, Map.put(invoice, :appt_status, checkride_status)}
                 {:error, error} -> {:error, "Invoice Id:" <> inspect(invoice.id)<> " " <> error.message}
               end
             else
-              {:ok, invoice}
+              {:ok, Map.put(invoice, :appt_status, checkride_status)}
             end
       else
         {:aircrafts, true} -> {:error, "An invoice can have a single item for Flight, Demo Flight or Simulator Hours."}

@@ -212,6 +212,10 @@ $(document).ready(function () {
 
     pickerDidChangeStateForUser('#apptInstructor', this.checked, userInstructorsIds, allInstructors)
     $('#apptInstructor').val(initVal).selectpicker("refresh")
+    var preTimeInitVal = safeParseInt($('#apptInstructorPreTime').val());
+    var postTimeInitVal = safeParseInt($('#apptInstructorPostTime').val());
+    $('#apptInstructorPreTime').val(preTimeInitVal).selectpicker("refresh")
+    $('#apptInstructorPostTime').val(postTimeInitVal).selectpicker("refresh")
   });
 
   $("#apptAssignedAircraftBox").change(function() {
@@ -328,6 +332,14 @@ $(document).ready(function () {
         eventType = "maintenance"
         break;
 
+      case "flight_lesson":
+        regularFlightLessonView(true);
+        unavailabilityView(false);
+        demoFlightView(false);
+        maintenanceView(false);
+        eventType = "appt";
+        break;
+
       default:
         regularView(true);
         unavailabilityView(false);
@@ -339,12 +351,30 @@ $(document).ready(function () {
     }
   })
 
-  function regularView(show) {
+  function regularFlightLessonView(show) {
     if (show) {
+      $('#appointmentResouceForm.tab-pane').addClass("active");
       $('#appointmentForm.tab-pane').addClass("active");
     } else {
+      $('#appointmentResouceForm.tab-pane').removeClass("active");
       $('#appointmentForm.tab-pane').removeClass("active");
     }
+
+    // $('#apptInstructorPreTime').hide();
+    // $('#apptInstructorPostTime').hide();
+  }
+
+  function regularView(show) {
+    if (show) {
+      $('#appointmentResouceForm.tab-pane').addClass("active");
+      $('#appointmentForm.tab-pane').addClass("active");
+    } else {
+      $('#appointmentResouceForm.tab-pane').removeClass("active");
+      $('#appointmentForm.tab-pane').removeClass("active");
+    }
+
+    // $('#apptInstructorPreTime').hide();
+    // $('#apptInstructorPostTime').hide();
   }
 
   function demoFlightView(show) {
@@ -353,6 +383,9 @@ $(document).ready(function () {
     } else {
       $('#demoAppointmentForm.tab-pane').removeClass("active");
     }
+
+    $('#apptInstructorPreTime').hide();
+    $('#apptInstructorPostTime').hide();
   }
 
   function unavailabilityView(show) {
@@ -361,6 +394,9 @@ $(document).ready(function () {
     } else {
       $('#unavailabilityForm.tab-pane').removeClass("active");
     }
+
+    $('#apptInstructorPreTime').hide();
+    $('#apptInstructorPostTime').hide();
   }
 
 
@@ -370,6 +406,9 @@ $(document).ready(function () {
     } else {
       $('#maintenanceForm.tab-pane').removeClass("active");
     }
+
+    $('#apptInstructorPreTime').hide();
+    $('#apptInstructorPostTime').hide();
   }
 
 
@@ -386,6 +425,9 @@ $(document).ready(function () {
       $('#apptAircraft').val(null).selectpicker("refresh");
       $('#apptRoom').val(null).selectpicker("refresh");
 
+    $('#instructorPreTime').hide();
+    $('#instructorPostTime').hide();
+
     } else if (type == "Room") {
       $('#apptFieldAircraft').hide();
       $('#apptFieldSimulator').hide();
@@ -394,10 +436,16 @@ $(document).ready(function () {
       $('#apptAircraft').val(null).selectpicker("refresh");
       $('#apptSimulator').val(null).selectpicker("refresh");
 
+    $('#instructorPreTime').hide();
+    $('#instructorPostTime').hide();
+
     } else {
       $('#apptFieldAircraft').show();
       $('#apptFieldSimulator').hide();
       $('#apptFieldRoom').hide();
+
+      $('#instructorPreTime').show();
+      $('#instructorPostTime').show();
 
       $('#apptSimulator').val(null).selectpicker("refresh");
       $('#apptRoom').val(null).selectpicker("refresh");
@@ -505,6 +553,8 @@ $(document).ready(function () {
     if (eventType == "appt") {
       var eventRenter = safeParseInt($('#apptStudent').val());
       var eventInstructor = safeParseInt($('#apptInstructor').val());
+
+
       var eventAircraft = safeParseInt($('#apptAircraft').val());
       var eventSimulator = safeParseInt($('#apptSimulator').val());
       var eventRoom = safeParseInt($('#apptRoom').val());
@@ -513,6 +563,10 @@ $(document).ready(function () {
       var eventStart = (moment.utc($('#apptStart').val()).add(-(moment($('#apptStart').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
       var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment($('#apptEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
 
+
+      var eventInstructorPreTime = moment.utc($('#apptStart').val()).add(-(moment($('#apptStart').val()).utcOffset()), 'm').set({second:0,millisecond:0}).add(-(safeParseInt($('#apptInstructorPreTime').val())), 'seconds').format()
+      var eventInstructorPostTime = moment.utc($('#apptEnd').val()).add(-(moment($('#apptEnd').val()).utcOffset()), 'm').set({second:0,millisecond:0}).add(safeParseInt($('#apptInstructorPostTime').val()), 'seconds').format()
+
       var eventNote = $('#apptNote').val()
 
       var eventData = {
@@ -520,13 +574,14 @@ $(document).ready(function () {
         end_at: eventEnd,
         user_id: eventRenter,
         instructor_user_id: eventInstructor,
+        inst_start_at: eventInstructorPreTime,
+        inst_end_at: eventInstructorPostTime,
         aircraft_id: eventAircraft,
         simulator_id: eventSimulator,
         room_id: eventRoom,
         note: eventNote,
         type: eventApptType
       };
-
       if (appointmentOrUnavailabilityId) {
         promise = $.ajax({
           method: "put",
@@ -805,7 +860,6 @@ $(document).ready(function () {
       const isStudent = userInfo.roles.includes("student")
       const isInstructor = userInfo.roles.includes("instructor")
       const isMechanic = userInfo.roles.includes("mechanic")
-
       if (userInfo && userInfo.roles && isStudent) {
         $("#apptAssignedPerson").hide()
 
@@ -998,6 +1052,8 @@ $(document).ready(function () {
     }
 
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
+    $('#apptInstructorPreTime').val(initialData.instructor_pre_time).selectpicker("refresh");
+    $('#apptInstructorPostTime').val(initialData.instructor_post_time).selectpicker("refresh");
     $('#apptAircraft').val(initialData.aircraft_id).selectpicker("refresh");
     $('#apptSimulator').val(initialData.simulator_id).selectpicker("refresh");
     $('#apptRoom').val(initialData.room_id).selectpicker("refresh");
@@ -1047,6 +1103,8 @@ $(document).ready(function () {
     $('#apptEnd').attr("disabled", true);
     $('#apptStudent').prop("disabled", false).selectpicker("refresh");
     $('#apptInstructor').attr("disabled", true);
+    $('#apptInstructorPreTime').attr("disabled", true);
+    $('#apptInstructorPostTime').attr("disabled", true);
     $('#apptFor').attr("disabled", true);
     $('#apptAircraft').attr("disabled", true);
     $('#apptNote').attr("disabled", true);
@@ -1479,11 +1537,16 @@ $(document).ready(function () {
           start_at: start,
           end_at: moment(start).add(1, 'hours'),
           instructor_user_id: instructorId,
+          instructor_pre_time: 0,
+          instructor_post_time: 0,
+          // instructor_pre_time: 1800,
+          // instructor_post_time: 1800,
           aircraft_id: aircraftId,
           simulator_id: simulatorId,
           room_id: roomId,
           mechanic_user_id: mechanicId
         }
+
 
         if (resource.current_user && resource.current_user.roles.length == 1 && ["student", "renter"].includes(resource.current_user.roles[0])) {
           params.user_name = fullName(resource.current_user)
@@ -1557,6 +1620,8 @@ $(document).ready(function () {
             start_at: moment.utc(appointment.start_at).add(+(moment(appointment.start_at).utcOffset()), 'm'),
             end_at: moment.utc(appointment.end_at).add(+(moment(appointment.end_at).utcOffset()), 'm'),
             instructor_user_id: instructor_user_id,
+            instructor_pre_time: moment.diff(appointment.start_at, appointment.inst_start_at, 'seconds'),
+            instructor_post_time: moment.diff(appointment.inst_start_at, appointment.end_at, 'seconds'),
             aircraft_id: aircraft_id,
             note: appointment.note,
             demo: appointment.demo,
@@ -1602,6 +1667,8 @@ $(document).ready(function () {
             start_at: moment.utc(appointment.start_at).add(+(moment(appointment.start_at).utcOffset()), 'm'),
             end_at: moment.utc(appointment.end_at).add(+(moment(appointment.end_at).utcOffset()), 'm'),
             instructor_user_id: instructor_user_id,
+            instructor_pre_time: (moment.utc(appointment.start_at)-moment.utc(appointment.inst_start_at))/1000,
+            instructor_post_time: (moment.utc(appointment.inst_end_at)-moment.utc(appointment.end_at))/1000,
             aircraft_id: aircraft_id,
             simulator_id: simulator_id,
             room_id: room_id,

@@ -558,13 +558,15 @@ defmodule Fsm.Scheduling do
         start_at = get_field(changeset, :start_at) # utc time for instructor
         end_at = get_field(changeset, :end_at) # utc time for instructor
         status =
-          Availability.user_with_permission_status( :unavailability, Permission.permission_slug(:appointment_instructor, :modify, :personal),
-          instructor_user_id,
-          start_at,
-          end_at,
-          [],
-          excluded_unavailability_ids,
-          school_context
+          Availability.user_with_permission_status(
+            :unavailability,
+            Permission.permission_slug(:appointment_instructor, :modify, :personal),
+            instructor_user_id,
+            start_at,
+            end_at,
+            [],
+            excluded_unavailability_ids,
+            school_context
         )
         case status do
           :available -> changeset

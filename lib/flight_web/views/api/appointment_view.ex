@@ -108,6 +108,8 @@ defmodule FlightWeb.API.AppointmentView do
       id: appointment.id,
       start_at: appointment.start_at, # utc response
       end_at: appointment.end_at, # utc response
+      inst_start_at: appointment.inst_start_at,
+      inst_end_at: appointment.inst_end_at,
       user:
         Optional.map(
           appointment.user,
@@ -118,6 +120,7 @@ defmodule FlightWeb.API.AppointmentView do
       payer_name: appointment.payer_name,
       demo: appointment.demo,
       status: appointment.status,
+      appt_status: appointment.appt_status,
       type: appointment.type,
       instructor_user:
         Optional.map(

@@ -11,6 +11,7 @@ defmodule FlightWeb.Admin.ScheduleController do
     simulators = Flight.Scheduling.visible_simulators(conn)
     rooms = Flight.SchoolAssets.visible_rooms(conn)
     types = Flight.Scheduling.Appointment.types()
+    instructor_times = Flight.Scheduling.Appointment.instructor_times()
 
     render(conn, "index.html",
       renters: renters,
@@ -19,7 +20,8 @@ defmodule FlightWeb.Admin.ScheduleController do
       simulators: simulators,
       rooms: rooms,
       types: types,
-      mechanics: mechanics
+      mechanics: mechanics,
+      instructor_times: instructor_times
     )
   end
 
