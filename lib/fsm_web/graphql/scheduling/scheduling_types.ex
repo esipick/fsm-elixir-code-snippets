@@ -7,6 +7,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   enum :appointment_search_criteria, values: [:payer_name]
   enum :belongs, values: ["Instructor", "Simulator", "Room", "Aircraft", "Mechanic"]
   enum :appointment_sort_fields, values: [:first_name, :last_name, :email]
+  enum :repeat_type, values: [:weekly, :monthly]
 
   #Enum
   # QUERIES
@@ -91,11 +92,17 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       resolve &SchedulingResolvers.delete_unavailability/3
     end
 
-     field :create_appointment, :appointment do
-       arg :appointment, :appointment_input
-       middleware Middleware.Authorize
-       resolve &SchedulingResolvers.create_appointment/3
-     end
+    field :create_appointment, :appointment do
+      arg :appointment, :appointment_input
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.create_appointment/3
+    end
+
+    field :create_recurring_appointment, :recurring_appointment do
+      arg :appointment, :appointment_input
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.create_recurring_appointment/3
+    end
 
      field :edit_appointment, :appointment do
       arg :appointment, :edit_appointment_input
@@ -182,6 +189,10 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
   end
 
+  object :recurring_appointment do
+    field :human_errors, :json
+  end
+
   input_object :unavailability_input do
     field :simulator_id, :integer
     field :room_id, :integer
@@ -209,6 +220,13 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :user_id, :integer
     field :room_id, :integer
     field :simulator_id, :integer
+    field :recurrence, :recurrence_input
+  end
+
+  input_object :recurrence_input do
+    field :type, non_null(:repeat_type)
+    field :days, list_of(non_null(:integer))
+    field :end_at, non_null(:naive_datetime)
   end
 
   input_object :edit_appointment_input do

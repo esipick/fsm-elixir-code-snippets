@@ -419,7 +419,7 @@ defmodule Flight.Scheduling do
           {:error, changeset} ->
             errors = Map.get(acc, :errors)
             new_errors = Map.put(errors, start_at, changeset)
-            IO.inspect(new_errors, label: "Errors")
+
             {:ok, Map.put(acc, :errors, new_errors)}
 
           {:ok, appointment} ->

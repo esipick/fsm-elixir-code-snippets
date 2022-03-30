@@ -35,6 +35,23 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
 #    Log.response(resp, __ENV__.function)
 #  end
 
+  def create_recurring_appointment(parent, %{
+    appointment: %{
+      recurrence: recurrence
+      }
+      } = args, %{context: %{current_user: %{school_id: school_id}}}=context) do
+    Log.request(args, __ENV__.function)
+
+    type = if Map.get(recurrence, :type) == :weekly, do: 0, else: 1
+    recurrence = Map.put(recurrence, :type, type)
+    appointment =
+      args
+      |> Map.get(:appointment)
+      |> Map.put(:recurrence, recurrence)
+
+      Scheduling.create_recurring_appointment(context, appointment)
+  end
+
   def create_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
     Log.request(args, __ENV__.function)
     appointment = Map.get(args, :appointment)
@@ -229,4 +246,3 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     Log.response(resp, __ENV__.function, :info)
   end
 end
-  

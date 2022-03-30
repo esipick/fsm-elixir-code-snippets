@@ -1,6 +1,6 @@
 defmodule FsmWeb.GraphQL.Schema do
     use Absinthe.Schema
-  
+
     import_types FsmWeb.GraphQL.Accounts.AccountsTypes
     import_types FsmWeb.GraphQL.Billing.BillingTypes
     import_types FsmWeb.GraphQL.Documents.DocumentsTypes
@@ -18,7 +18,8 @@ defmodule FsmWeb.GraphQL.Schema do
     import_types FsmWeb.GraphQL.Courses.CoursesTypes
     import_types Absinthe.Plug.Types
     import_types Absinthe.Type.Custom
-
+    import_types FsmWeb.Schema.Types.Custom.JSON
+    
     query do
       @desc "say hello"
       field :say_hello, :string do
@@ -41,7 +42,7 @@ defmodule FsmWeb.GraphQL.Schema do
       import_fields :user_logs_queries
       import_fields :courses_queries
     end
-  
+
     mutation do
       import_fields :accounts_mutations
       import_fields :billing_mutations
@@ -58,12 +59,12 @@ defmodule FsmWeb.GraphQL.Schema do
       import_fields :user_logs_mutations
       import_fields :courses_mutations
     end
-  
+
     # # exectute changeset error middleware for each mutation
     # def middleware(middleware, _field, %{identifier: :mutation}) do
     #   middleware ++ [Middleware.ChangesetErrors]
     # end
-  
+
     # def middleware(middleware, _field, _object) do
     #   middleware
     # end

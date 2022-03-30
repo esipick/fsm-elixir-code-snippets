@@ -446,6 +446,65 @@ defmodule Fsm.Scheduling do
     end
   end
 
+  def create_recurring_appointment(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, appointment_data) do
+    %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
+    school = Fsm.SchoolScope.get_school(school_id)
+    context = %{assigns: %{current_user: current_user}, school_id: school_id, params: %{"school_id" => to_string(school_id)}, request_path: "/api/appointments"}
+
+    {:ok, data} = insert_recurring_appointments(appointment_data, Repo.preload(context.assigns.current_user, :school), context)
+
+    errors = Map.get(data, :errors) || %{}
+
+    human_errors = Enum.reduce(errors, %{}, fn {time, anError}, acc ->
+      errors = FlightWeb.ViewHelpers.human_error_messages(anError)
+      Map.put(acc, time, errors)
+    end)
+    IO.inspect(human_errors, label: "Errors::")
+    {:ok, %{human_errors: human_errors}}
+  end
+
+  def insert_recurring_appointments(
+    attrs,
+    modifying_user,
+    context
+  ) do
+    recurrence = Map.get(attrs, "recurrence") || Map.get(attrs, :recurrence) || %{}
+    type = Map.get(recurrence, "type") || Map.get(recurrence, :type) || "" # 0 weekly, 1 monthly
+    days = Map.get(recurrence, "days") || Map.get(recurrence, :days) || []
+    end_date = Map.get(recurrence, "end_at") || Map.get(recurrence, :end_at)
+    type = string_to_int(type)
+    days = integer_list(days)
+    type = if type == 0, do: :week, else: :month
+
+    start_at = Map.get(attrs, "start_at") || Map.get(attrs, :start_at)
+    end_at = Map.get(attrs, "end_at") || Map.get(attrs, :end_at)
+
+    calculateSchedules(type, days, end_date, start_at, end_at)
+    |> Enum.reduce({:ok, %{parent_id: nil, appointments: [], errors: %{}}}, fn {start_at, end_at}, acc ->
+        {:ok, acc} = acc
+        parent_id = Map.get(acc, :parent_id)
+        attrs =
+            attrs
+            |> Map.put(:start_at, start_at)
+            |> Map.put(:end_at, end_at)
+            |> Map.put(:parent_id, parent_id)
+
+        insert_or_update_appointment(%Appointment{}, attrs, modifying_user, context)
+        |> case do
+          {:error, changeset} ->
+            errors = Map.get(acc, :errors)
+            new_errors = Map.put(errors, start_at, changeset)
+
+            {:ok, Map.put(acc, :errors, new_errors)}
+
+          {:ok, appointment} ->
+            acc = if parent_id == nil, do: Map.put(acc, :parent_id, appointment.id), else: acc
+            appointments = Map.get(acc, :appointments)
+            {:ok, Map.put(acc, :appointments, [appointment | appointments])}
+        end
+      end)
+  end
+
   def insert_or_update_appointment(
         appointment,
         attrs,
@@ -697,6 +756,81 @@ defmodule Fsm.Scheduling do
     case get_change(changeset, key) do
       nil -> changeset
       change -> put_change(changeset, key, walltime_to_utc(change, timezone))
+    end
+  end
+
+  defp calculateSchedules(type, days, end_at, appt_start, appt_end) when is_nil(end_at) or is_nil(type) or is_nil(days), do: {appt_start, appt_end}
+  defp calculateSchedules(type, days, end_at, appt_start, appt_end) when is_list(days) do
+    {:ok, appt_start} = if is_binary(appt_start), do: NaiveDateTime.from_iso8601(appt_start), else: {:ok, appt_start}
+    {:ok, appt_end} = if is_binary(appt_end), do: NaiveDateTime.from_iso8601(appt_end), else: {:ok, appt_end}
+    {:ok, end_at} = if is_binary(end_at), do: NaiveDateTime.from_iso8601(end_at), else: {:ok, end_at}
+
+    first = {appt_start, appt_end}
+    schedules = generate_ranges(type, days, appt_start, appt_end, end_at, false)
+
+    [first | schedules]
+  end
+
+  defp generate_ranges(type, days, appt_start, appt_end, end_at, next_iteration, schedules \\ []) do
+    num_of_seconds_in_day = 86400
+    today_num =  if type == :week, do: Timex.weekday(appt_start), else: appt_start.day
+    days = Enum.sort(days, &(&1 < &2))
+
+    iter_schedules =
+      Enum.reduce(days, [], fn day, acc ->
+        same_day = day <= today_num && !next_iteration
+
+        if !same_day || day > today_num do
+          diff = day - today_num
+          duration = %Timex.Duration{seconds: diff * 86400, megaseconds: 0, microseconds: 0}
+          next_end_at = Timex.add(appt_end, duration)
+
+          if Timex.compare(end_at, next_end_at) >= 0 do
+            next_start_at = Timex.add(appt_start, duration)
+            schedule = {next_start_at, next_end_at}
+
+            [schedule | acc]
+          else
+            acc
+          end
+        else
+          acc
+        end
+      end)
+
+    duration = %Timex.Duration{seconds: 1, megaseconds: 0, microseconds: 0}
+    next_start = if type == :week, do: Timex.end_of_week(appt_start), else: Timex.end_of_month(appt_start)
+    next_end = if type == :week, do: Timex.end_of_week(appt_end), else: Timex.end_of_month(appt_end)
+    next_start = Timex.add(next_start, duration) # start of next day
+    next_end = Timex.add(next_end, duration) # start of next day
+
+    appt_start = %{next_start | hour: appt_start.hour, minute: appt_start.minute, second: appt_start.second}
+    appt_end = %{next_end | hour: appt_end.hour, minute: appt_end.minute, second: appt_end.second}
+
+    iterations = Timex.diff(end_at, appt_end, type) # number of months/weeks in duration
+
+    if iterations >= 0 do
+      generate_ranges(type, days, appt_start, appt_end, end_at, true, iter_schedules ++ schedules)
+
+    else
+      iter_schedules ++ schedules
+    end
+  end
+
+  defp integer_list(items) do
+    Enum.reduce(items, [], fn item, acc ->
+      int = string_to_int(item)
+      if int != nil, do: [int | acc], else: acc
+    end)
+  end
+
+  defp string_to_int(nil), do: nil
+  defp string_to_int(str) when is_integer(str), do: str
+  defp string_to_int(str) do
+    Integer.parse(str)
+    |> case do
+      {int, _} -> int
+      _ -> nil
     end
   end
 end
