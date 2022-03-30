@@ -258,6 +258,7 @@ defmodule FlightWeb.Router do
     resources("/aircrafts", AircraftController) do
       get("/logs", AircraftController, :logs)
       resources("/inspections", InspectionController, only: [:create, :new])
+      resources("/squawks", SquawkController, only: [:create, :new])
     end
 
     resources("/simulators", SimulatorController) do
@@ -267,6 +268,7 @@ defmodule FlightWeb.Router do
     resources("/rooms", RoomController)
 
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
+    resources("/squawks", SquawkController, only: [:edit, :update, :delete])
 
     post("/maintenance", MaintenanceController, :create)
     get("/maintenance", MaintenanceController, :index)

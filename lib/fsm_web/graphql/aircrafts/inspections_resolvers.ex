@@ -55,7 +55,7 @@ defmodule FsmWeb.GraphQL.Aircrafts.InspectionsResolvers do
   Update inspection data
   """
   def update_inspection(_parent, %{id: id, data: data}, %{context: %{current_user: current_user}}) do
-    case Inspections.update_inspection(id, data) do
+    case Inspections.update_inspection(id, %{user_id: current_user.id}, data) do
       {:ok, _updated_record} ->
         {:ok, true}
 

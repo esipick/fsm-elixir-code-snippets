@@ -1,7 +1,7 @@
 import EctoEnum
 
 defenum(InvoiceStatusEnum, pending: 0, paid: 1)
-
+defenum(CheckRideStatus, none: -1, pass: 1, fail: 0)
 defenum(
   InvoicePaymentOptionEnum,
   balance: 0,

@@ -16,6 +16,7 @@ defmodule Fsm.Aircrafts.Inspection do
       field :is_email_notified, :boolean, default: false
       field :is_system_defined, :boolean
       field :completed_at, :naive_datetime
+      field :notes, :string
 
       field :tach_hours, :float, virtual: true
       field :last_inspection, InspectionDataType, virtual: true
@@ -25,6 +26,7 @@ defmodule Fsm.Aircrafts.Inspection do
       belongs_to :aircraft, Fsm.Scheduling.Aircraft
       has_many(:inspection_data, Fsm.Aircrafts.InspectionData)
       has_many(:attachments, Fsm.Attachments.Attachment)
+      has_many(:notes_audit_trail, Fsm.Aircrafts.InspectionNotesAuditTrail, on_delete: :delete_all)
       belongs_to(:aircraft_engine, Fsm.Aircrafts.Engine)
       belongs_to(:user, Fsm.Accounts.User)
 
@@ -35,7 +37,7 @@ defmodule Fsm.Aircrafts.Inspection do
   @doc false
   def changeset(inspection, attrs) do
       inspection
-      |> cast(attrs, [:name,:type, :updated, :is_completed, :aircraft_id, :date_tach, :is_repeated, :repeat_every_days, :is_notified, :is_email_notified, :is_system_defined, :aircraft_engine_id, :user_id, :completed_at])
+      |> cast(attrs, [:name,:type, :updated, :is_completed, :aircraft_id, :date_tach, :is_repeated, :repeat_every_days, :is_notified, :is_email_notified, :is_system_defined, :notes, :aircraft_engine_id, :user_id, :completed_at])
       |> validate_required([:name,:type, :aircraft_id])
       |> cast_assoc(:inspection_data)
   end
