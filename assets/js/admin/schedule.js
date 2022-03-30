@@ -295,6 +295,7 @@ $(document).ready(function () {
   var eventType = "appt";
 
   $('#apptType').on('change', function() {
+    $('.repeat').addClass('d-none')
     switch(this.value) {
       case "demo_flight":
         demoFlightView(true);
@@ -464,6 +465,36 @@ $(document).ready(function () {
     $('#dateSelectModal').modal('hide')
     $calendar.fullCalendar('gotoDate', moment($('#datepickercustom').val()).format())
   })
+
+  // Repeat Event feature code start
+  // repeat button clicked
+  $('#repeatBtn').click(function () {
+    console.log('test')
+    var elem = $('.repeat');
+    if ( elem.hasClass('d-none') ) {
+      elem.removeClass("d-none");
+      $('#repeatType').val('Weekly').selectpicker("refresh")
+      $('.weekly').removeClass('d-none');
+      $('.monthly').addClass('d-none');
+      return;
+    }
+    elem.addClass('d-none');
+    $('.weekly').addClass('d-none');
+    $('.monthly').addClass('d-none');
+  })
+
+  $('#repeatType').on('change', function (event) {
+    const repeatType = event.target.value
+    if ( repeatType === 'Monthly' ) {
+      $('.weekly').addClass('d-none');
+      $('.monthly').removeClass('d-none');
+      return;
+    }
+    $('.weekly').removeClass('d-none');
+    $('.monthly').addClass('d-none');
+  });
+
+  // Repeat Event feature code end
 
   var showError = function (errors, event) {
     if (errors.filter(s => s.includes("already removed")).length) {
@@ -1817,6 +1848,42 @@ $(document).ready(function () {
         close: 'fa fa-remove'
       },
       format: 'L'
+    });
+    $('.repeatdatepickerstart').datetimepicker({
+      format: 'MM/DD/YYYY',
+      icons: {
+        date: "now-ui-icons ui-1_calendar-60",
+        up: "fa fa-chevron-up",
+        down: "fa fa-chevron-down",
+        previous: 'now-ui-icons arrows-1_minimal-left',
+        next: 'now-ui-icons arrows-1_minimal-right',
+        today: 'fa fa-screenshot',
+        clear: 'fa fa-trash',
+        close: 'fa fa-remove'
+      }
+    });
+    $('.repeatdatepickerend').datetimepicker({
+      format: 'MM/DD/YYYY',
+      icons: {
+        date: "now-ui-icons ui-1_calendar-60",
+        up: "fa fa-chevron-up",
+        down: "fa fa-chevron-down",
+        previous: 'now-ui-icons arrows-1_minimal-left',
+        next: 'now-ui-icons arrows-1_minimal-right',
+        today: 'fa fa-screenshot',
+        clear: 'fa fa-trash',
+        close: 'fa fa-remove'
+      },
+      widgetPositioning: {
+        horizontal: 'left',
+        vertical: 'top'
+      }
+    });
+    $(".datetimepickerstart").on("dp.change", function (e) {
+      $('.repeatdatepickerstart').data("DateTimePicker").date(e.date);
+    });
+    $(".datetimepickerend").on("dp.change", function (e) {
+      $('.repeatdatepickerend').data("DateTimePicker").date(e.date);
     });
   }
   initDateTimePicker();
