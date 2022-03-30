@@ -918,14 +918,14 @@ defmodule Flight.Scheduling do
 
   def send_unavailibility_notification(attrs, school_context) do
 
-    aircraft_id = Map.get("aircraft_id")
-    simulator_id = Map.get("simulator_id")
-    room_id = Map.get("room_id")
-    belongs = Map.get("belongs")
-    instructor_user_id = Map.get("instructor_user_id")
-    end_at = Map.get("end_at")
-    start_at = Map.get("start_at")
-    note = Map.get("note")
+    aircraft_id = Map.get(attrs, "aircraft_id")
+    simulator_id = Map.get(attrs, "simulator_id")
+    room_id = Map.get(attrs, "room_id")
+    belongs = Map.get(attrs, "belongs")
+    instructor_user_id = Map.get(attrs, "instructor_user_id")
+    end_at = Map.get(attrs, "end_at")
+    start_at = Map.get(attrs, "start_at")
+    note = Map.get(attrs, "note")
 
     case belongs do
       "Instructor" ->
