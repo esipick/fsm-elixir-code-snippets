@@ -299,7 +299,7 @@ $(document).ready(function () {
   var eventType = "appt";
 
   $('#apptType').on('change', function() {
-    $('.repeat').addClass('d-none')
+    resetRepeatForm(this.value);
     switch(this.value) {
       case "demo_flight":
         demoFlightView(true);
@@ -516,12 +516,11 @@ $(document).ready(function () {
 
   // Repeat Event feature code start
   // repeat button clicked
-  $('#repeatBtn').click(function () {
-    console.log('test')
+  $('.repeatBtn').click(function () {
     var elem = $('.repeat');
     if ( elem.hasClass('d-none') ) {
       elem.removeClass("d-none");
-      $('#repeatType').val('Weekly').selectpicker("refresh")
+      $('.repeatType').val('0').selectpicker("refresh")
       $('.weekly').removeClass('d-none');
       $('.monthly').addClass('d-none');
       return;
@@ -531,9 +530,9 @@ $(document).ready(function () {
     $('.monthly').addClass('d-none');
   })
 
-  $('#repeatType').on('change', function (event) {
+  $('.repeatType').on('change', function (event) {
     const repeatType = event.target.value
-    if ( repeatType === 'Monthly' ) {
+    if ( repeatType === '1' ) {
       $('.weekly').addClass('d-none');
       $('.monthly').removeClass('d-none');
       return;
@@ -541,6 +540,39 @@ $(document).ready(function () {
     $('.weekly').removeClass('d-none');
     $('.monthly').addClass('d-none');
   });
+
+  function getRecurrenceObject(eventData) {
+    const repeatType = parseInt($('.repeatType').val());
+    let days = [];
+    if ( repeatType == 0 ) {
+      const week_days_checked = $('input[name=week_days]:checked');
+      days = week_days_checked.map(function(_, el) {
+        return parseInt($(el).val());
+      }).get();
+    } 
+    else {
+      const onDay = parseInt($('#monthOnDay').val());
+      days.push(onDay);
+    }
+    var eventEnd = (moment.utc().add(-(moment($('#repeatEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format('YYYY-MM-DD')
+    eventEnd += 'T23:59:00Z'
+    return {
+      type: repeatType,
+      days: days, // array of integer, in case of week, 1 represents monday, in case of monthly, 1 represents 1st date and so on
+      end_at: eventEnd
+    }
+  }
+
+  function resetRepeatForm(eventType) {
+    $('#repeatOption').removeClass('d-none');
+    if ( eventType === 'demo_flight' || eventType === 'check_ride' ) {
+      $('#repeatOption').addClass('d-none');
+    }
+    $('.repeat').addClass('d-none')
+    $('.repeatBtn').prop("checked", false);
+    $('input[name=week_days]').prop('checked',false);
+    $('#monthOnDay').val('0').selectpicker("refresh");
+  }
 
   // Repeat Event feature code end
 
@@ -580,7 +612,8 @@ $(document).ready(function () {
     }, 3000);
 
     var promise = null;
-
+    const isRecurring = $('.repeatBtn').is(":checked");
+    
     if (eventType == "appt") {
       var eventRenter = safeParseInt($('#apptStudent').val());
       var eventInstructor = safeParseInt($('#apptInstructor').val());
@@ -621,6 +654,10 @@ $(document).ready(function () {
           headers: AUTH_HEADERS
         })
       } else {
+        if ( isRecurring ) {
+          eventData.recurring = true;
+          eventData.recurrence = getRecurrenceObject(eventData) 
+        }
         promise = $.post({
           url: "/api/appointments" + addSchoolIdParam('?'),
           data: { data: eventData },
@@ -705,6 +742,10 @@ $(document).ready(function () {
           headers: AUTH_HEADERS
         })
       } else {
+        if ( isRecurring ) {
+          eventData.recurring = true;
+          eventData.recurrence = getRecurrenceObject(eventData) 
+        }
         promise = $.post({
           url: "/api/unavailabilities" + addSchoolIdParam('?'),
           data: { data: eventData },
@@ -740,6 +781,10 @@ $(document).ready(function () {
           headers: AUTH_HEADERS
         })
       } else {
+        if ( isRecurring ) {
+          eventData.recurring = true;
+          eventData.recurrence = getRecurrenceObject(eventData) 
+        }
         promise = $.post({
           url: "/api/appointments" + addSchoolIdParam('?'),
           data: { data: eventData },
@@ -891,6 +936,7 @@ $(document).ready(function () {
       const isStudent = userInfo.roles.includes("student")
       const isInstructor = userInfo.roles.includes("instructor")
       const isMechanic = userInfo.roles.includes("mechanic")
+      resetRepeatForm(null);
       if (userInfo && userInfo.roles && isStudent) {
         $("#apptAssignedPerson").hide()
 
@@ -936,12 +982,14 @@ $(document).ready(function () {
           $('#apptType').val(initialDataType).selectpicker("refresh");
         }
         $('#btnDelete').show()
-
+        $('#repeatOption').addClass('d-none');
       } else {
         const appointmentType = isMechanic ? "maintenance" : "flight_lesson"
         $('#apptType').attr('disabled', isMechanic)
         $('#apptType').val(appointmentType).selectpicker("refresh");
         $('#btnDelete').hide();
+        $('#btnDelete').hide();    
+        $('#repeatOption').removeClass('d-none');    
       }
 
       var unavailType = "Instructor";
