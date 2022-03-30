@@ -28,7 +28,7 @@ defmodule Flight.Scheduling.Appointment do
     field(:inst_end_at, :naive_datetime)
     field(:appt_status, CheckRideStatus, default: :none)
     field(:parent_id, :integer)
-    
+
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:mechanic_user, Flight.Accounts.User)
@@ -73,7 +73,7 @@ defmodule Flight.Scheduling.Appointment do
     |> apply_utc_timezone_changeset(timezone)
     |> validate_end_at_after_start_at
     |> validate_user_instructor_different
-    |> validate_either_instructor_or_aircraft_set
+    |> validate_instructor_and_resource_set
     |> validate_demo_aircraft_set
   end
 
@@ -92,7 +92,7 @@ defmodule Flight.Scheduling.Appointment do
     |> check_demo_flight
     |> validate_end_at_after_start_at
     |> validate_user_instructor_different
-    |> validate_either_instructor_or_aircraft_set
+    |> validate_instructor_and_resource_set
     |> validate_demo_aircraft_set
     |> validate_assets
     |> normalize_instructor_times
@@ -130,16 +130,48 @@ defmodule Flight.Scheduling.Appointment do
   end
   def check_demo_flight(changeset), do: changeset
 
-  defp validate_either_instructor_or_aircraft_set(changeset) do
+  defp validate_instructor_and_resource_set(changeset) do
     cond do
       get_field(changeset, :demo) ->
         changeset
-      get_field(changeset, :type) == "maintenance" and get_field(changeset, :aircraft_id) == nil ->
-        add_error(changeset, :aircraft, " is required.")
 
-      get_field(changeset, :instructor_user_id) || get_field(changeset, :aircraft_id) ||
+      get_field(changeset, :type) == "maintenance" ->
+        if (get_field(changeset, :aircraft_id) == nil or get_field(changeset, :mechanic_user_id) == nil) do
+          add_error(changeset, :aircraft, "and mechanic is required.")
+        else
+          changeset
+        end
+
+      get_field(changeset, :type) == "flight_lesson" and
+      ( get_field(changeset, :simulator_id) != nil or get_field(changeset, :room_id) != nil) ->
+        changeset
+
+      get_field(changeset, :type) == "flight_lesson" and
+      ( get_field(changeset, :aircraft_id) == nil and
+        get_field(changeset, :simulator_id) == nil and get_field(changeset, :room_id) == nil) ->
+
+        add_error(changeset, :resource, "(aircraft or simulator or room) is required.")
+
+      (get_field(changeset, :instructor_user_id) && get_field(changeset, :aircraft_id)) ||
       get_field(changeset, :simulator_id) || get_field(changeset, :room_id) ->
         changeset
+
+      get_field(changeset, :type) == "flight_lesson" and (get_field(changeset, :instructor_user_id) == nil || get_field(changeset, :aircraft_id) == nil)->
+        add_error(changeset, :aircraft, "and instructor is required.")
+
+      (get_field(changeset, :type) == "airplane_rental" or get_field(changeset, :type) == "check_ride") ->
+        if get_field(changeset, :aircraft_id) == nil do
+          add_error(changeset, :aircraft, "is required.")
+        else
+          changeset
+        end
+
+      get_field(changeset, :type) == "meeting" ->
+        if get_field(changeset, :room_id) == nil or get_field(changeset, :instructor_user_id) == nil do
+          add_error(changeset, :room, "and instructor is required.")
+        else
+          changeset
+        end
 
       true ->
         add_error(changeset, :aircraft, "or instructor is required.")
@@ -197,11 +229,19 @@ defmodule Flight.Scheduling.Appointment do
              true <- user_id == get_field(changeset, :instructor_user_id) do
           add_error(changeset, :instructor, "cannot be the same person as the renter.")
         else
-          _ -> changeset
+          _ ->
+            if get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :aircraft_id) != nil and (get_field(changeset, :user_id) == nil or  get_field(changeset, :instructor_user_id) == nil) do
+              add_error(changeset, :instructor, "and pilot is required.")
+            else
+              changeset
+            end
         end
 
+        (get_field(changeset, :type) == "flight_lesson" or get_field(changeset, :type) == "airplane_rental" or get_field(changeset, :type) == "check_ride" or get_field(changeset, :type) == "meeting") and get_field(changeset, :user_id) == nil ->
+          add_error(changeset, :pilot, "is required.")
+
       true ->
-        add_error(changeset, :instructor, "or student is required.")
+        add_error(changeset, :instructor, "or pilot is required.")
     end
   end
 
