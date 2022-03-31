@@ -333,8 +333,8 @@ $(document).ready(function () {
         eventType = "maintenance"
         break;
 
-      case "flight_lesson":
-        regularFlightLessonView(true);
+      case "meeting":
+        meetingView(true);
         unavailabilityView(false);
         demoFlightView(false);
         maintenanceView(false);
@@ -352,19 +352,6 @@ $(document).ready(function () {
     }
   })
 
-  function regularFlightLessonView(show) {
-    if (show) {
-      $('#appointmentResouceForm.tab-pane').addClass("active");
-      $('#appointmentForm.tab-pane').addClass("active");
-    } else {
-      $('#appointmentResouceForm.tab-pane').removeClass("active");
-      $('#appointmentForm.tab-pane').removeClass("active");
-    }
-
-    // $('#apptInstructorPreTime').hide();
-    // $('#apptInstructorPostTime').hide();
-  }
-
   function regularView(show) {
     if (show) {
       $('#appointmentResouceForm.tab-pane').addClass("active");
@@ -373,9 +360,32 @@ $(document).ready(function () {
       $('#appointmentResouceForm.tab-pane').removeClass("active");
       $('#appointmentForm.tab-pane').removeClass("active");
     }
+  }
 
-    // $('#apptInstructorPreTime').hide();
-    // $('#apptInstructorPostTime').hide();
+  function meetingView(show) {
+    if (show) {
+      $('#appointmentResouceForm.tab-pane').removeClass("active");
+      $('#appointmentForm.tab-pane').addClass("active");
+
+      $('#apptAircraft').val(null).selectpicker("refresh");
+      $('#apptSimulator').val(null).selectpicker("refresh");
+
+      $('#apptFieldAircraft').hide();
+      $('#apptFieldSimulator').hide();
+      $('#apptFieldRoom').show();
+    } else {
+      $('#appointmentForm.tab-pane').removeClass("active");
+
+      $('#apptFieldAircraft').show();
+      $('#apptFieldSimulator').show();
+      $('#apptFieldRoom').hide();
+
+      $('#apptAircraft').val(null).selectpicker("refresh");
+      $('#apptSimulator').val(null).selectpicker("refresh");
+    }
+    
+    $('#instructorPreTime').hide();
+    $('#instructorPostTime').hide();
   }
 
   function demoFlightView(show) {
@@ -1087,7 +1097,12 @@ $(document).ready(function () {
         $('#apptTitle').text("Create New")
       }
     } else {
-      regularView(true);
+      if (initialData.type == "meeting") {
+        meetingView(true);
+      } else {
+        regularView(true);
+      }
+      
       unavailabilityView(false);
       demoFlightView(false);
       maintenanceView(false);

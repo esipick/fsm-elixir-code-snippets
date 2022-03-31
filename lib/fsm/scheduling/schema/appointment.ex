@@ -189,7 +189,7 @@ defmodule Fsm.Scheduling.Appointment do
         add_error(changeset, :resource, "(aircraft or simulator or room) is required.")
 
       (get_field(changeset, :instructor_user_id) && get_field(changeset, :aircraft_id)) ||
-      get_field(changeset, :simulator_id) || get_field(changeset, :room_id) ->
+      get_field(changeset, :type) != "meeting" && (get_field(changeset, :simulator_id) || get_field(changeset, :room_id)) ->
         changeset
 
       get_field(changeset, :type) == "flight_lesson" and (get_field(changeset, :instructor_user_id) == nil || get_field(changeset, :aircraft_id) == nil)->
