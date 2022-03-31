@@ -1449,6 +1449,7 @@ $(document).ready(function () {
           return;
         }
         const appointment = event.appointment
+
         if ( event.resourceId )
         {
           event.resourceIds = [event.resourceId]
@@ -1782,11 +1783,14 @@ $(document).ready(function () {
         });
 
         Promise.all([appointmentsPromise, unavailabilityPromise]).then(function (resp) {
-          var appointments = resp[0].data.map(function (appointment) {
+          var appointments = resp[0].data.reduce(function(appointments, appointment) {
             var resourceIds = []
-
+            
             if (appointment.instructor_user) {
-              resourceIds.push("instructor:" + appointment.instructor_user.id)
+                let instructorResourceId = "instructor:" + appointment.instructor_user.id
+                let start_at = appointment.inst_start_at || start_at
+                let end_at = appointment.inst_end_at || end_at
+                appointments.push(modelFromAppointment(appointment, [instructorResourceId], start_at, end_at, true))
             }
 
             if(appointment.mechanic_user) {
@@ -1804,52 +1808,55 @@ $(document).ready(function () {
             if (appointment.room) {
               resourceIds.push("room:" + appointment.room.id)
             }
-
-            // if (appointment.user) {
-            //   resourceIds.push("student:" + appointment.user.id)
-            // }
-
-            if (appointment.status == "paid") {
-              return {
-                title: appointmentTitle(appointment),
-                start: moment.utc(appointment.start_at).add(+(moment(appointment.start_at).utcOffset()), 'm'),
-                end: moment.utc(appointment.end_at).add(+(moment(appointment.end_at).utcOffset()), 'm'),
-                id: "appointment:" + appointment.id,
-                appointment: appointment,
-                resourceIds: resourceIds,
-                className: 'event-green'
-              }
-
-            } else {
-              var color_class = 'event-blue'
-              if (appointment.type === "flight_lesson") {
-                color_class = 'event-light-blue'
-              } else if (appointment.type === "demo_flight") {
-                color_class = "event-yellow"
-              } else if (appointment.type === "airplane_rental") {
-                color_class = "event-red"
-              } else if (appointment.type === "meeting") {
-                color_class = "event-light-green"
-              } else if (appointment.type === "check_ride") {
-                color_class = "event-purple"
-              } else if(appointment.type === "maintenance") {
-                color_class = "event-orange"
-              }
-
-
-              return {
-                title: appointmentTitle(appointment),
-                start: moment.utc(appointment.start_at).add(+(moment(appointment.start_at).utcOffset()), 'm'),
-                end: moment.utc(appointment.end_at).add(+(moment(appointment.end_at).utcOffset()), 'm'),
-                id: "appointment:" + appointment.id,
-                appointment: appointment,
-                resourceIds: resourceIds,
-                className: color_class
-              }
-
+            
+            if (resourceIds.length > 0) {
+              appointments.push(modelFromAppointment(appointment, resourceIds, appointment.start_at, appointment.end_at, false))
             }
-          })
 
+            function modelFromAppointment(appointment, resourceIds, start_at, end_at, isSpecialEvent) {
+              let eventId = isSpecialEvent ? "appointment-s:" + appointment.id : "appointment:" + appointment.id
+              if (appointment.status == "paid") {
+                return {
+                  title: appointmentTitle(appointment),
+                  start: moment.utc(start_at).add(+(moment(start_at).utcOffset()), 'm'),
+                  end: moment.utc(end_at).add(+(moment(end_at).utcOffset()), 'm'),
+                  id: eventId,
+                  appointment: appointment,
+                  resourceIds: resourceIds,
+                  className: 'event-green'
+                }
+
+              } else {
+                var color_class = 'event-blue'
+                if (appointment.type === "flight_lesson") {
+                  color_class = 'event-light-blue'
+                } else if (appointment.type === "demo_flight") {
+                  color_class = "event-yellow"
+                } else if (appointment.type === "airplane_rental") {
+                  color_class = "event-red"
+                } else if (appointment.type === "meeting") {
+                  color_class = "event-light-green"
+                } else if (appointment.type === "check_ride") {
+                  color_class = "event-purple"
+                } else if(appointment.type === "maintenance") {
+                  color_class = "event-orange"
+                }
+
+                return {
+                  title: appointmentTitle(appointment),
+                  start: moment.utc(start_at).add(+(moment(start_at).utcOffset()), 'm'),
+                  end: moment.utc(end_at).add(+(moment(end_at).utcOffset()), 'm'),
+                  id: eventId,
+                  appointment: appointment,
+                  resourceIds: resourceIds,
+                  className: color_class
+                }
+              }
+            }
+
+          return appointments;
+          }, [])
+          
           var unavailabilities = resp[1].data.map(function (unavailability) {
             var resourceIds = []
 
@@ -1883,13 +1890,12 @@ $(document).ready(function () {
               className: 'event-default'
             }
           })
+          
           $('#loader').hide();
           callback(appointments.concat(unavailabilities))
         })
       }
     });
-
-
   }
 
   var users = $.get({ url: "/api/users?form=directory" + addSchoolIdParam('&'), headers: AUTH_HEADERS })
