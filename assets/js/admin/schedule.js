@@ -2000,9 +2000,6 @@ $(document).ready(function () {
         vertical: 'top'
       }
     });
-    $(".datetimepickerstart").on("dp.change", function (e) {
-      $('.repeatdatepickerstart').data("DateTimePicker").date(e.date);
-    });
     $(".datetimepickerend").on("dp.change", function (e) {
       $('.repeatdatepickerend').data("DateTimePicker").date(e.date);
     });
