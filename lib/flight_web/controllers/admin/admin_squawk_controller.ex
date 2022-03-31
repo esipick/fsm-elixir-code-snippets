@@ -78,7 +78,6 @@ defmodule FlightWeb.Admin.SquawkController do
     squawk =
       conn.assigns.squawk
       |> Map.from_struct()
-
     render(
       conn,
       "edit.html",
@@ -89,27 +88,53 @@ defmodule FlightWeb.Admin.SquawkController do
   end
 
   def update(conn, %{"squawk" => squawk}) do
+    user_id = conn.assigns.current_user.id
     squawk_input = transform_squawk(squawk)
     changeset = conn.assigns.squawk
 
-    Squawks.update_squawk(changeset, squawk_input)
-    |> case do
+    attachments = Map.get(squawk, "attachments") || []
+
+    with {:ok, _} <- Fsm.AttachmentUploader.validate_attachment(attachments),
+      {:ok, %{id: id} = squawk_changeset} <- Squawks.update_squawk(changeset, squawk_input) do
+        Fsm.AttachmentUploader.upload_files_to_s3(id, attachments)
+        |> case do
+          {:error, msg} ->
+            render_squawk_error(conn, squawk_input, msg)
+
+          {:ok, attachments} ->
+            attachments =
+              Enum.map(attachments, fn attch ->
+                attch
+                |> Map.put(:attachment_type, :squawk)
+                |> Map.put(:user_id, user_id)
+                |> Map.put(:squawk_id, id)
+              end)
+
+            Squawks.add_multiple_squawk_images(attachments)
+            |> case do
+              {:error, error} ->
+                Squawks.delete_squawk(squawk_changeset)
+                render_squawk_error(conn, squawk_input, "Couldn't create squawk attachment. Please try again")
+
+              {:ok, _attachments_changeset} ->
+                conn
+                |> put_flash(:success, "Successfully updated squawk")
+                |> redirect(to: "/admin/aircrafts/#{changeset.aircraft_id}")
+            end
+        end
+    else
       {:error, changeset} ->
         conn
         |> put_flash(:error, "Couldn't update squawk.")
         |> render("edit.html", squawk: changeset, changeset: changeset, skip_school_select: true)
-
-      {:ok, changeset} ->
-        conn
-        |> put_flash(:success, "Successfully updated squawk")
-        |> redirect(to: "/admin/aircrafts/#{changeset.aircraft_id}")
     end
+
   end
 
   def delete(conn, _) do
     squawk = conn.assigns.squawk
     Squawks.delete_squawk(squawk)
-    
+
     conn
     |> put_flash(:success, "Squawk deleted")
     |> redirect(to: "/admin/aircrafts/#{squawk.aircraft_id}")

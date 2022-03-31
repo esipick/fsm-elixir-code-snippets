@@ -57,70 +57,67 @@
                 <dt>Block Rate Per Hour</dt>
                 <dd><%= currency @aircraft.block_rate_per_hour %></dd>
               </dl>
+              <dl class="d-flex justify-content-between border-none">
+                <dt>Inspections</dt>
+                <dd></dd>
+              </dl>
 
+              <div class="table-responsive">
+                <table class="table text-left">
+                  <thead class="text-primary">
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th class="text-center">Date/Tach</th>
+                      <th>Due</th>
+                      <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new" class="btn btn-primary btn-sm">Add New</a></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    <%= for inspection <- @inspections do %>
+                      <tr>
+                        <td><%= inspection.name %></td>
+                        <td><%= inspection.type %></td>
+                        <td class="text-center text-capitalize"><%= inspection.date_tach %></td>
+                        <td><%= inspection.expiration %></td>
+                        <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
+                      </tr>
+                    <% end %>
+
+                  </tbody>
+                </table>
+              </div>
 
               <dl class="d-flex justify-content-between border-none">
                 <dt>Squawks</dt>
                 <dd></dd>
               </dl>
 
-                <div class="table-responsive">
-                    <table class="table text-left">
-                      <thead class="text-primary">
-                        <tr>
-                          <th>Title</th>
-                          <th>Severity</th>
-                          <th >System Affected</th>
-                          <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/squawks/new" class="btn btn-primary btn-sm">Add New</a></th>
-                        </tr>
-                      </thead>
-                      <tbody>
+              <div class="table-responsive">
+                <table class="table text-left">
+                  <thead class="text-primary">
+                    <tr>
+                      <th>Title</th>
+                      <th>Severity</th>
+                      <th >System Affected</th>
+                      <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/squawks/new" class="btn btn-primary btn-sm">Add New</a></th>
+                    </tr>
+                  </thead>
+                  <tbody>
 
-                        <%= for squawk <- @squawks do %>
-                          <tr>
-                            <td><%= squawk.title %></td>
-                            <td><%= squawk.severity %></td>
-                            <td><%= squawk.system_affected %></td>
-                            <td class="text-right"><a href="/admin/squawks/<%= squawk.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
-                          </tr>
-                        <% end %>
+                    <%= for squawk <- @squawks do %>
+                      <tr>
+                        <td><%= squawk.title %></td>
+                        <td><%= squawk.severity %></td>
+                        <td><%= squawk.system_affected %></td>
+                        <td class="text-right"><a href="/admin/squawks/<%= squawk.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
+                      </tr>
+                    <% end %>
 
-                      </tbody>
-                    </table>
-                  </div>
-
-
-              <dl class="d-flex justify-content-between border-none">
-                <dt>Inspections</dt>
-                <dd></dd>
-              </dl>
-
-                <div class="table-responsive">
-                    <table class="table text-left">
-                      <thead class="text-primary">
-                        <tr>
-                          <th>Name</th>
-                          <th>Type</th>
-                          <th class="text-center">Date/Tach</th>
-                          <th>Due</th>
-                          <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new" class="btn btn-primary btn-sm">Add New</a></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-
-                        <%= for inspection <- @inspections do %>
-                          <tr>
-                            <td><%= inspection.name %></td>
-                            <td><%= inspection.type %></td>
-                            <td class="text-center text-capitalize"><%= inspection.date_tach %></td>
-                            <td><%= inspection.expiration %></td>
-                            <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
-                          </tr>
-                        <% end %>
-
-                      </tbody>
-                    </table>
-                  </div>
+                  </tbody>
+                </table>
+              </div>              
             </div>
         </div>
       </div> <!-- end card -->
