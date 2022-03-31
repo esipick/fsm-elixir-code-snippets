@@ -1,0 +1,222 @@
+<script>
+  function getLocalUserAppointmentDate(dt) {
+    if (dt) {
+      var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+      var date = new Date(date_time);
+      date = date.toLocaleString('default', { weekday: 'long' })+' '+date.toLocaleString('default', { month: 'long' })+ date_time.format(' DD, YYYY')
+      return date;
+    }
+    else {
+      return "";
+    }
+  }
+  function getLocalUserAppointmentDateTime(dt) {
+    if (dt) {
+      var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+      var date = new Date(date_time);
+      var d_time = date_time.format('D ')+date.toLocaleString('default', { month: 'long' })+date_time.format(' h:mmA')
+      return d_time;
+    }
+    else {
+      return "";
+    }
+  }
+</script>
+<div class="panel-header panel-header-sm">
+  <div class="header text-center">
+
+  </div>
+</div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons users_single-02"></i>
+                  </div>
+                  <h3 class="info-title"><%= @instructor_count %></h3>
+                  <h6 class="stats-title">Instructors</h6>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons objects_spaceship"></i>
+                  </div>
+                  <h3 class="info-title"><%= @aircraft_count %></h3>
+                  <h6 class="stats-title">Aircraft</h6>
+                </div>
+              </div>
+            </div>
+            <%= if @show_student_flight_hours do%>
+              <div class="col-md-3">
+                <div class="statistics">
+                  <div class="info">
+                    <div class="icon icon-primary">
+                      <i class="now-ui-icons ui-2_time-alarm"></i>
+                    </div>
+                    <h3 class="info-title"><%= @hours %></h3>
+                    <h6 class="stats-title">Hours</h6>
+                  </div>
+                </div>
+              </div>
+            <% end%>
+            <%= if @show_student_accounts_summary do%>
+              <div class="col-md-3">
+                <div class="statistics">
+                  <div class="info">
+                    <div class="icon icon-primary">
+                      <i class="now-ui-icons business_bank"></i>
+                    </div>
+                    <h3 class="info-title"><%= @user.balance %></h3>
+                    <h6 class="stats-title">Balance</h6>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- end row -->
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Airworthiness Status</h5>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Medical Type with Expiration</li>
+            <li>FTN</li>
+            <li>Student/Pilot License with Last Flight Review Expiration</li>
+            <li>Drivers License with Expiration</li>
+            <li>Passport with Expiration</li>
+            <li>Insurance with Expiration</li>
+          </ul>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Appointments</h5>
+        </div>
+        <div class="card-body">
+          <% regular_user = (Accounts.has_role?(@user, "student") or Accounts.has_role?(@user, "renter") ) %>
+          <%= if Enum.any?(@appointments) do %>
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Start Time</th>
+                  <th scope="col">End Time</th>
+                  <th scope="col">Asset</th>
+                </tr>
+              </thead>
+              <tbody>
+                <%= for appointment <- @appointments do %>
+                <tr>
+                  <td>
+                      <script> document.write(
+                      '<dd>'+getLocalUserAppointmentDateTime('<%= appointment.start_at %>')+'</dd>'
+                      ); </script>
+                  </td>
+                  <td>
+                    <script> document.write(
+                    '<dd>'+getLocalUserAppointmentDateTime('<%= appointment.end_at %>')+'</dd>'
+                    ); </script>
+                  </td>
+                  <td>
+                    <%= if appointment.aircraft_id do %>
+                      <dl class="d-flex justify-content-between">
+                        <dt>Aircraft</dt>
+                        <%= if appointment.aircraft.archived do %>
+                          <dd><%= aircraft_display_name appointment.aircraft %></dd>
+                        <% else %>
+                            <%= if regular_user do %>
+                              <dd><%= aircraft_display_name appointment.aircraft %></dd>
+                            <% else %>
+                              <dd><a href="/admin/aircrafts/<%= appointment.aircraft_id %>"><%= aircraft_display_name appointment.aircraft %></a></dd>
+                            <% end %>
+                        <% end %>
+                      </dl>
+                    <% end %>
+
+                    <%= if appointment.simulator_id do %>
+                      <dl class="d-flex justify-content-between">
+                        <dt>Simulator</dt>
+                        <%= if appointment.simulator.archived do %>
+                          <dd><%= aircraft_display_name appointment.simulator %></dd>
+                        <% else %>
+                            <%= if regular_user do %>
+                              <dd><%= aircraft_display_name appointment.simulator %></dd>
+                            <% else %>
+                              <dd><a href="/admin/simulators/<%= appointment.simulator_id %>"><%= aircraft_display_name appointment.simulator %></a></dd>
+                            <% end %>
+                        <% end %>
+                      </dl>
+                    <% end %>
+
+                    <%= if appointment.room_id do %>
+                      <dl class="d-flex justify-content-between">
+                        <dt>Room</dt>
+                        <%= if appointment.room.archived do %>
+                          <dd><%= appointment.room.location %></dd>
+                        <% else %>
+                            <%= if regular_user do %>
+                              <dd><%= appointment.room.location %></dd>
+                            <% else %>
+                              <dd><a href="/admin/rooms/<%= appointment.room_id %>"><%= appointment.room.location %></a></dd>
+                            <% end %>
+                        <% end %>
+                      </dl>
+                    <% end %>
+
+                    <%= if appointment.instructor_user_id do %>
+                      <dl class="d-flex justify-content-between">
+                        <dt>Instructor</dt>
+                        <%= if appointment.instructor_user.archived do %>
+                          <dd><%= display_name appointment.instructor_user %></dd>
+                        <% else %>
+                            <%= if regular_user do %>
+                              <dd><%= display_name appointment.instructor_user %></dd>
+                            <% else %>
+                              <dd><a href="/admin/users/<%= appointment.instructor_user_id %>"><%= display_name appointment.instructor_user %></a></dd>
+                            <% end %>
+                        <% end %>
+                      </dl>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <h5>No appointments</h5>
+          <% end %>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- end row -->
+</div>
+<!-- end content -->
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
