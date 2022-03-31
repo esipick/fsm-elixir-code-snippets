@@ -7,7 +7,7 @@
         <div class="card-header">
           <h3 class="card-title">Edit Squawk</h3>
         </div>
-        <%= form_for @changeset, "/admin/squawks/#{@squawk.id}", [as: :squawk, method: "put", class: "form-horizontal"], fn f -> %>
+        <%= form_for @changeset, "/admin/squawks/#{@squawk.id}", [as: :squawk, method: "put", class: "form-horizontal", multipart: true], fn f -> %>
           <div class="card-body">
             <%= hidden_input f, :aircraft_id, value: @squawk.aircraft_id %>
             <div class="form-group">
@@ -38,8 +38,27 @@
 
             <div class="form-group">
                 <Label>Description *</label>
-                <%= textarea f, :description, class: "form-control", placeholder: "Description", value: "#{@squawk.description}", required: true %>
+                <%= textarea f, :description, class: "form-control", placeholder: "Description", value: "#{@squawk.description}", required: false %>
                 <%= full_error_tag f, :title %>
+            </div>
+            <div class="drag-area">
+              <%# <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div> %>
+              <header>Drag and Drop a file to upload it.</header>
+              <span>Allowed file types: jpeg, .jpg, .png, .pdf</span>
+              <span>Max size: 5MB.</span>
+              <button class="btn btn-fill btn-primary" id="browseBtn">Browse Files</button>
+              <%= file_input f, :attachments, id: "file_upload", class: "input-file", accept: "application/pdf, image/*", multiple: true, hidden: true %>
+              <%= full_error_tag f, :attachments %>
+              <ul class="fileList">                 
+              </ul>
+            </div>
+            <div class="attachments">
+              <label>Attachments:</label>
+              <ul>
+                <%= for attachment <- @squawk.attachments do %>
+                  <li><%= attachment.file_name %></li>
+                <% end %>
+              </ul>
             </div>
           <div class="card-footer text-right">
             <div class="pull-left">
@@ -50,7 +69,7 @@
               style="margin-left: 4px;"
               type="button"
               class="btn btn-danger btn-fill _delete_button"
-                data-squawk-id="<%= @squawk.id %>">Remove</button>
+                data-squawk-id="<%= @squawk.id %>">Resolve squawk</button>
           </div>
         <% end %>
       </div>
@@ -64,7 +83,82 @@
           %{message: "This Squawk will be removed from the system.",
             path: "/admin/squawks/",
             attribute: "squawk"} %>
+<style>
+    .drag-area{
+      border: 1px dashed #92b0b3;
+      border-radius: 5px;
+      background: #ffffff;
+      height: 250px;
+      width: 100%;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .drag-area .icon{
+      font-size: 100px;
+      color: #fff;
+    }
+    .drag-area header, .drag-area span{
+      font-size: 20px;
+      color: #3f8188;
+      text-align: center;
+      font-weight: 200;
+    }
+    .drag-area span{
+      font-size: 15px;
+    }
+    .drag-area button{
+      border-radius: 30px;
+    }
+    .drag-area img{
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+</style>
+
 <script>
+  //selecting all required elements
+  const dropArea = document.querySelector(".drag-area");
+  const button = dropArea.querySelector("#browseBtn");
+  const input = dropArea.querySelector("#file_upload");
+  const fileList = dropArea.querySelector(".fileList");
+
+
+  function showFiles() {
+    console.log(input.files)
+    let list = '';
+    for (let i = 0; i < input.files.length; i++ ) {
+      list += '<li>'+input.files[i].name+'</li>';
+    }
+    fileList.innerHTML = list;
+  }
+
+  button.onclick = (event)=>{
+    event.preventDefault();
+    input.click(); //if user click on the button then the input also clicked
+  }
+
+  input.addEventListener("change", function(){
+    showFiles();
+  });
+
+
+  //If user Drag File Over DropArea
+  dropArea.addEventListener("dragover", (event)=>{
+    event.preventDefault(); //preventing from default behaviour
+  });
+
+  //If user drop File on DropArea
+  dropArea.addEventListener("drop", (event)=>{
+    event.preventDefault(); //preventing from default behaviour
+    input.files = event.dataTransfer.files;   
+    showFiles();
+  });
 
   const error = "<%= get_flash(@conn, :error) %>"
 
