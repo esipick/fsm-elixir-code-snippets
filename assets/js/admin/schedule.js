@@ -964,7 +964,7 @@ $(document).ready(function () {
       }
 
       if (appointmentOrUnavailabilityId) {
-        $('#apptType').attr('disabled', true);
+        // $('#apptType').attr('disabled', true);
 
         var initialDataType = initialData.type;
 
@@ -1694,14 +1694,14 @@ $(document).ready(function () {
           if( appointment.status == "paid") {
             alert("This appointment has been successfully paid!");
           }
-
+          console.log(appointment)
           openAppointmentModal({
             type: "demoAppointment",
             start_at: moment.utc(appointment.start_at).add(+(moment(appointment.start_at).utcOffset()), 'm'),
             end_at: moment.utc(appointment.end_at).add(+(moment(appointment.end_at).utcOffset()), 'm'),
             instructor_user_id: instructor_user_id,
-            instructor_pre_time: moment.diff(appointment.start_at, appointment.inst_start_at, 'seconds'),
-            instructor_post_time: moment.diff(appointment.inst_start_at, appointment.end_at, 'seconds'),
+            instructor_pre_time: moment(appointment.start_at).diff(moment(appointment.inst_start_at), 'seconds'),
+            instructor_post_time: moment(appointment.inst_start_at).diff(moment(appointment.end_at), 'seconds'),
             aircraft_id: aircraft_id,
             note: appointment.note,
             demo: appointment.demo,
@@ -1999,9 +1999,6 @@ $(document).ready(function () {
         horizontal: 'left',
         vertical: 'top'
       }
-    });
-    $(".datetimepickerstart").on("dp.change", function (e) {
-      $('.repeatdatepickerstart').data("DateTimePicker").date(e.date);
     });
     $(".datetimepickerend").on("dp.change", function (e) {
       $('.repeatdatepickerend').data("DateTimePicker").date(e.date);

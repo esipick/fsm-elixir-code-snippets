@@ -43,7 +43,7 @@ defmodule Flight.Scheduling.Appointment do
   end
 
   def types(), do: ["airplane_rental", "demo_flight", "check_ride", "flight_lesson", "unavailable", "meeting", "maintenance"]
-  def instructor_times(), do: [{"None", 0}, {"15 minutes", 900}, {"30 minutes", 1800}, {"45 minutes", 2700}, {"1 hour", 3600}, {"1 h 15 min", 4500}, {"1 h 30 min", 5400}, {"1 h 45 min", 6300}, {"2 hours", 7200}]
+  def instructor_times(), do: [{"None", 0}, {"30 minutes", 1800}, {"1 hour", 3600}, {"1 h 30 min", 5400}, {"2 hours", 7200}]
 
   def __test_changeset(appointment, attrs, timezone) do
     appointment
