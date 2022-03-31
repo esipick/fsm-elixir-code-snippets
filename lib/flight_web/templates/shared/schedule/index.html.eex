@@ -220,7 +220,7 @@
                   <textarea id="apptNote" class="form-control"></textarea>
                 </div>
               </div>
-            </div>            
+            </div>
           </div>
 
           <div class="tab-pane" id="unavailabilityForm">
@@ -310,6 +310,19 @@
 
           <div class="tab-pane" id="maintenanceForm">
 
+            <div id="fieldAircraft" class="row">
+              <label class="col-md-3 col-form-label">Aircraft *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="maintenanceAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Aircraft">
+                    <%= for aircraft <- @aircrafts do %>
+                      <option value="<%= aircraft.id %>"><%= aircraft_display_name(aircraft, :short) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+
             <div class="row"><label class="col-md-3 col-form-label">Start Time *</label>
               <div class="col-md-9">
                 <div class="form-group"><input id="maintenanceStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div>
@@ -322,25 +335,12 @@
             </div>
 
             <div id="fieldMechanic" class="row">
-              <label class="col-md-3 col-form-label">Mechanic </label>
+              <label class="col-md-3 col-form-label">Mechanic * </label>
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="maintenanceMechanic" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Mechanic">
                     <%= for mechanic <- @mechanics do %>
                       <option value="<%= mechanic.id %>"><%= display_name(mechanic) %></option>
-                    <% end %>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div id="fieldAircraft" class="row">
-              <label class="col-md-3 col-form-label">Aircraft *</label>
-              <div class="col-md-9">
-                <div class="form-group">
-                  <select id="maintenanceAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Aircraft">
-                    <%= for aircraft <- @aircrafts do %>
-                      <option value="<%= aircraft.id %>"><%= aircraft_display_name(aircraft, :short) %></option>
                     <% end %>
                   </select>
                 </div>
@@ -406,7 +406,7 @@
                   <textarea id="demoApptNote" class="form-control"></textarea>
                 </div>
               </div>
-            </div>            
+            </div>
           </div>
           <div id="repeatOption">
             <div class="row">
