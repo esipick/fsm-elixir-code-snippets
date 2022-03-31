@@ -130,7 +130,6 @@
 
 
   function showFiles() {
-    console.log(input.files)
     let list = '';
     for (let i = 0; i < input.files.length; i++ ) {
       list += '<li>'+input.files[i].name+'</li>';
