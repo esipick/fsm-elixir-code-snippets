@@ -554,6 +554,9 @@
           </div>
         </div>
       </div>
+      <div class="modal-body d-flex flex-row-reverse">
+        <button id="btnICSFile" type="button" class="btn btn-link">Download *.ics</button>
+      </div>
       <div class="modal-footer d-flex justify-content-between">
         <div>
           <button id="btnDelete" type="button" class="btn btn-danger ml-0">Delete</button>

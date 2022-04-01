@@ -134,6 +134,7 @@ $(document).ready(function () {
   var showMySchedules = false
   var showMyAssigned = false
   var AUTH_HEADERS = { "Authorization": window.fsm_token };
+  var AUTH_HEADERS_BEARER = {"authorization": 'Bearer ' + window.fsm_token}
   var meta_roles = document.head.querySelector('meta[name="roles"]');
 
   var fullName = function (user) {
@@ -865,6 +866,66 @@ $(document).ready(function () {
     }
   });
 
+  $('#btnICSFile').click(function () {
+    if (!appointmentOrUnavailabilityId) {return}
+
+    let payload = {
+      "query": "query appointmentIcsUrl($id: ID) {appointmentIcsUrl(appointmentId: $id)}",
+      "operationName": "appointmentIcsUrl",
+      "variables": {"id": appointmentOrUnavailabilityId}
+    }
+    var buttonPos = $(this).offset();
+
+    $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 200 }).show();
+
+    let promise = $.ajax({
+      method: "post",
+      url: "/api/graphiql/",
+      headers: AUTH_HEADERS_BEARER,
+      data: payload
+    }).then(function (response) {
+
+      if (response.errors) {
+        let errors = response.errors || []
+        var message = "There was an error downloading ics file, Please try again."
+
+        if (errors.length > 0) {
+          message = errors[0]["message"] || message 
+        }
+
+        $.notify({
+          message: message
+        }, {
+          type: "danger",
+          placement: { align: "center" }
+        })
+        
+      } else if (response.data) {
+        let url = response.data.appointmentIcsUrl
+
+        $.get(url)
+      }
+
+      $('#loader').hide();
+
+    }).catch(function (e) {
+        let errors = e.responseJSON.errors || []
+        var message = "There was an error downloading ics file, Please try again."
+
+        if (errors.length > 0) {
+          message = errors[0]["message"] || message 
+        }
+
+        $.notify({
+          message: message
+        }, {
+          type: "danger",
+          placement: { align: "center" }
+        })
+
+        $('#loader').hide();
+    })
+  });
 
   $('#btnDelete').click(function () {
     if (appointmentOrUnavailabilityId) {
@@ -1044,6 +1105,8 @@ $(document).ready(function () {
       $('#apptFor').val(appointmentFor).selectpicker("refresh");
 
     if (initialData.type == "unavailability" || initialData.type == "unavailable") {
+      $("#btnICSFile").hide();
+
       regularView(false);
       unavailabilityView(true);
       demoFlightView(false);
@@ -1074,8 +1137,10 @@ $(document).ready(function () {
       $('#navDemoAppt').tab("show")
       if (appointmentOrUnavailabilityId) {
         $('#apptTitle').text("Edit Appointment")
+        $("#btnICSFile").show();
       } else {
         $('#apptTitle').text("Create New")
+        $("#btnICSFile").hide();
       }
     } else if(initialData.type == "maintenance" || isMechanic) {
       maintenanceView(true);
@@ -1086,8 +1151,11 @@ $(document).ready(function () {
       appointmentId = initialData.id;
       if (appointmentId) {
         $('#btnInvoice').show()
+        $("#btnICSFile").show();
+
       } else {
         $('#btnInvoice').hide()
+        $("#btnICSFile").hide();
       }
 
       $('#navAppt').tab("show")
@@ -1112,8 +1180,11 @@ $(document).ready(function () {
       appointmentId = initialData.id;
       if (appointmentId) {
         $('#btnInvoice').show()
+        $("#btnICSFile").show();
+
       } else {
         $('#btnInvoice').hide()
+        $("#btnICSFile").hide();
       }
 
       $('#navAppt').tab("show")

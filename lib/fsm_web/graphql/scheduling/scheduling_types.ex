@@ -69,6 +69,14 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       middleware Middleware.Authorize
       resolve &SchedulingResolvers.list_unavailabilities/3
     end
+
+    @desc "Appointment ICS file"
+    field :appointment_ics_url, :string do
+      arg :appointment_id, non_null(:id)
+
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.appointment_ics_url/3
+    end
   end
 
   # MUTATIONS

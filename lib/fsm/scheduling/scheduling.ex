@@ -752,6 +752,17 @@ defmodule Fsm.Scheduling do
     |> Repo.one()
   end
 
+  def ics_for_appointment(id) do
+    with %{id: id, school_id: school_id} = appointment <- get_appointment_full_object(id),
+      %{id: school_id} = school <- SchoolScope.get_school(school_id) do
+        appointment
+        |> Map.put(:school, school)
+        |> Fsm.Scheduling.Utils.url_for_appointment_ics
+      else
+        _ -> {:error, "Appointment with id: #{id} does not exists."}
+    end
+  end
+
   def apply_utc_timezone(changeset, key, timezone) do
     case get_change(changeset, key) do
       nil -> changeset

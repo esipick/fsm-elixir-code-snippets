@@ -245,4 +245,10 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     resp = {:ok, response}
     Log.response(resp, __ENV__.function, :info)
   end
+
+  def appointment_ics_url(parent, %{appointment_id: appointment_id} = args, context) do
+    Log.request(args, __ENV__.function)
+
+    Scheduling.ics_for_appointment(appointment_id)
+  end
 end
