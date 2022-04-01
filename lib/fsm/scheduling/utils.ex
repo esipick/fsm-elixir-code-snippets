@@ -46,20 +46,20 @@ defmodule Fsm.Scheduling.Utils do
       |> Enum.filter(&(&1 != ""))
       |> Enum.join(", ")
 
-    title =
-      cond do
-        appointment.demo -> "Demo Flight"
-        appointment.user != nil -> appointment.user.first_name <> appointment.user.last_name
-        appointment.instructor != nil -> appointment.instructor.first_name <> appointment.instructor.last_name
-        appointment.mechanic != nil -> appointment.mechanic.first_name <> appointment.mechanice.last_name
-        true -> "Scheduled Appointment at #{school.name}"
-      end
-
     type =
       appointment.type
       |> to_string
       |> String.replace("_", "")
       |> String.capitalize
+
+    title =
+      cond do
+        appointment.demo -> "Demo Flight"
+        appointment.user != nil -> appointment.user.first_name <> " " <> appointment.user.last_name <> "'s #{type}"
+        appointment.instructor != nil -> appointment.instructor.first_name <> " " <> appointment.instructor.last_name <> "'s #{type}"
+        appointment.mechanic != nil -> appointment.mechanic.first_name <> " " <> appointment.mechanice.last_name <> "'s #{type}"
+        true -> "Scheduled Appointment at #{school.name}"
+      end
 
     event =
       %FsmCal.Event{

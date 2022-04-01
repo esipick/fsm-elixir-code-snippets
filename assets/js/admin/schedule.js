@@ -903,7 +903,7 @@ $(document).ready(function () {
       } else if (response.data) {
         let url = response.data.appointmentIcsUrl
 
-        $.get(url)
+        window.open(url)
       }
 
       $('#loader').hide();
