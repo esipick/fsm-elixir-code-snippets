@@ -1,0 +1,213 @@
+<script>
+  function getLocalUserAppointmentDate(dt) {
+    if (dt) {
+      var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+      var date = new Date(date_time);
+      date = date.toLocaleString('default', { weekday: 'long' })+' '+date.toLocaleString('default', { month: 'long' })+ date_time.format(' DD, YYYY')
+      return date;
+    }
+    else {
+      return "";
+    }
+  }
+  function getLocalUserAppointmentDateTime(dt) {
+    if (dt) {
+      var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+      var date = new Date(date_time);
+      var d_time = date_time.format('D ')+date.toLocaleString('default', { month: 'long' })+date_time.format(' h:mmA')
+      return d_time;
+    }
+    else {
+      return "";
+    }
+  }
+</script>
+<div class="panel-header panel-header-sm">
+  <div class="header text-center">
+
+  </div>
+</div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons users_single-02"></i>
+                  </div>
+                  <h3 class="info-title"><%= @instructor_count %></h3>
+                  <h6 class="stats-title">Instructors</h6>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons objects_spaceship"></i>
+                  </div>
+                  <h3 class="info-title"><%= @aircraft_count %></h3>
+                  <h6 class="stats-title">Aircraft</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- end row -->
+  <div class="row">
+    <div class="col-md-6">
+      <%# <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Squawks</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table text-left">
+              <thead class="text-primary">
+                <tr>
+                  <th>Title</th>
+                  <th>Severity</th>
+                  <th >System Affected</th>
+                </tr>
+              </thead>
+              <tbody id="squawksList">               
+                <tr>
+                  <td>No results found!</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>  
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div> %>
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Upcoming Inspections</h5>
+          <h1 class="card-title"><%= Enum.count(@expired_inspections) %></h1>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <tbody>
+                <%= for inspection <- @expired_inspections do %>
+                  <%
+                    inspection_class = case inspection.status do
+                      :good -> ""
+                      :expiring -> "text-expiring"
+                      :expired -> "text-expired"
+                    end
+                  %>
+                  <tr>
+                    <td class="text-nowrap"><a href="/admin/aircrafts/<%= inspection.aircraft.id %>"><span class="photo"><img src="/images/archer.jpg"></span><%= aircraft_display_name(inspection.aircraft) %></a></td>
+                    <td class="text-right">
+                      <a href="/admin/inspections/<%= inspection.inspection.id %>/edit"><%= inspection.inspection.name %> </a>
+                      <br />
+                      <p class="<%= inspection_class %>"><%= inspection.description %></p>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>      
+    </div>
+    <div class="col-md-6">
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Appointments (Maintenance)</h5>
+        </div>
+        <div class="card-body">
+          <%= if Enum.any?(@appointments) do %>
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Start Time</th>
+                  <th scope="col">End Time</th>
+                  <th scope="col">Aircraft</th>
+                </tr>
+              </thead>
+              <tbody>
+                <%= for appointment <- @appointments do %>
+                <tr>
+                  <td>
+                      <script> document.write(
+                      '<dd>'+getLocalUserAppointmentDateTime('<%= appointment.start_at %>')+'</dd>'
+                      ); </script>
+                  </td>
+                  <td>
+                    <script> document.write(
+                    '<dd>'+getLocalUserAppointmentDateTime('<%= appointment.end_at %>')+'</dd>'
+                    ); </script>
+                  </td>
+                  <td>
+                    <%= if appointment.aircraft_id do %>
+                      <dl class="d-flex justify-content-between">
+                        <dd><%= aircraft_display_name appointment.aircraft %></dd>
+                      </dl>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <h5>No appointments</h5>
+          <% end %>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- end row -->
+</div>
+<!-- end content -->
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
+<script>
+  function getSquawks() {
+    
+    var AUTH_HEADERS = { "Authorization": window.fsm_token };
+    $.ajax({
+          method: "GET",
+          url: "/api/maintenance/squawks",
+          headers: AUTH_HEADERS
+    }).then(response => {
+      if ( response.results ) {
+        const htmlList = response.results.map(squawk => {
+            return  '<tr>' +
+                      '<td>' + squawk.title + '</td>' +
+                      '<td>' + squawk.severity + '</td>' +
+                      '<td>' + squawk.system_affected + '</td>'  +          
+                    '</tr>';          
+        });
+        $('#squawksList').html(htmlList);
+      }
+    })
+    .catch(error => {
+      console.log(error);
+    })
+  }
+  $(document).ready(() => {
+    //getSquawks();
+  });
+</script>

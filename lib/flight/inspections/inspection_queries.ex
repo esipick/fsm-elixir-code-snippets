@@ -16,7 +16,7 @@ defmodule Flight.Inspections.Queries do
     }
 
     def get_maintenance_query(filter) do
-        query = 
+        query =
             from m in Maintenance,
                 select: m
 
@@ -25,7 +25,7 @@ defmodule Flight.Inspections.Queries do
 
     # filter based on status, i-e not completed.
     def get_all_maintenance_query(page, per_page, sort_field, sort_order, filter) do
-        query = 
+        query =
             from m in Maintenance,
                 inner_join: am in AircraftMaintenance, on: am.maintenance_id == m.id,
                 inner_join: a in Aircraft, on: a.id == am.aircraft_id,
@@ -52,7 +52,7 @@ defmodule Flight.Inspections.Queries do
     end
 
     def get_aircraft_maintenance_query(filter) do
-        query = 
+        query =
             from m in Maintenance,
                 inner_join: am in AircraftMaintenance, on: am.maintenance_id == m.id,
                 inner_join: a in Aircraft, on: a.id == am.aircraft_id,
@@ -74,11 +74,11 @@ defmodule Flight.Inspections.Queries do
 
         query
         |> filter_maintenance_by(filter)
-        
+
     end
 
     def get_aircraft_maintenance(sort_field, sort_order, filter) do
-        query = 
+        query =
             from m in Maintenance,
                 inner_join: am in AircraftMaintenance, on: am.maintenance_id == m.id,
                 inner_join: a in Aircraft, on: a.id == am.aircraft_id,
@@ -118,7 +118,7 @@ defmodule Flight.Inspections.Queries do
                     due_date: s.created_at,
                     resolved_at: s.resolved_at
                 }
-        
+
         query
         |> paginate(page, per_page)
         |> sort_squawks_by(sort_field, sort_order)
@@ -126,7 +126,7 @@ defmodule Flight.Inspections.Queries do
     end
 
     def get_all_checklists_query(page, per_page, sort_field, sort_order, filter) do
-        query = 
+        query =
             from c in CheckList, select: c
 
         query
@@ -141,10 +141,10 @@ defmodule Flight.Inspections.Queries do
     end
 
     def get_aircraft_maintenance_attachment_query(filter) do
-        query = 
+        query =
             from ama in AircraftMaintenanceAttachment,
                 inner_join: am in AircraftMaintenance, on: ama.aircraft_maintenance_id == am.id,
-                inner_join: m in Maintenance, on: am.maintenance_id == m.id, 
+                inner_join: m in Maintenance, on: am.maintenance_id == m.id,
                 select: ama
 
         filter_by(query, filter)
@@ -190,7 +190,7 @@ defmodule Flight.Inspections.Queries do
     end
 
     def get_checklist_items_query(filter) do
-        query = 
+        query =
             from cd in CheckListDetails,
                 left_join: cli in CheckListLineItem, on: cli.checklist_details_id == cd.id,
                 select: %{
@@ -218,9 +218,9 @@ defmodule Flight.Inspections.Queries do
          order_by: [{^sort_order, field(q, ^sort_field)}]
     end
 
-    defp filter_by(query, nil), do: query 
+    defp filter_by(query, nil), do: query
     defp filter_by(query, filter) do
-        Enum.reduce(filter, query, fn({key, value}, query) -> 
+        Enum.reduce(filter, query, fn({key, value}, query) ->
             case key do
                 :school_id ->
                     from q in query,
@@ -238,11 +238,11 @@ defmodule Flight.Inspections.Queries do
                     from q in query,
                         where: q.id in ^value
 
-                :attachment_school_id -> 
+                :attachment_school_id ->
                     from [_, _, m] in query,
                         where: m.school_id == ^value
 
-                :maintenance_checklist_ids -> 
+                :maintenance_checklist_ids ->
                     from q in query,
                         where: q.maintenance_checklist_id in ^value
 
@@ -278,7 +278,7 @@ defmodule Flight.Inspections.Queries do
 
             :tach_time_remaining ->
                 sort_order = if sort_order == :asc, do: :asc_nulls_last, else: :desc_nulls_last
-                
+
                 from [_m, am, a] in query,
                     order_by: [{^sort_order, fragment("? - ?", am.due_tach_hours, a.last_tach_time)}]
 
@@ -291,20 +291,20 @@ defmodule Flight.Inspections.Queries do
         end
     end
 
-    defp filter_maintenance_by(query, nil), do: query 
+    defp filter_maintenance_by(query, nil), do: query
     defp filter_maintenance_by(query, filter) do
-        Enum.reduce(filter, query, fn({key, value}, query) -> 
+        Enum.reduce(filter, query, fn({key, value}, query) ->
             case key do
                 :aircraft_id ->
                     from [m, am] in query,
                         where: am.aircraft_id == ^value
 
-                :status -> 
+                :status ->
                     from [_, am, _] in query,
                         where: am.status == ^value
-                
+
                 :urgency -> # #can only be applied when status is pending, [extream, high, normal, low, lowest]
-                    {low_perc, high_perc} = 
+                    {low_perc, high_perc} =
                         case value do
                             "extream" -> {0, 0}
                             "high" -> {0.01, 0.05}
@@ -312,10 +312,10 @@ defmodule Flight.Inspections.Queries do
                             "low" -> {0.11, 0.20}
                             _ -> {0.21, 1000000.0}
                         end
-                    
+
                     from [m, am, a] in query,
                         where: (m.tach_hours > 0 and fragment("((?-?)::float/?::float) BETWEEN ? AND ?", am.due_tach_hours, a.last_tach_time, m.tach_hours, ^low_perc, ^high_perc)) or
-                            (not is_nil(am.due_date) and not is_nil(am.start_date) and 
+                            (not is_nil(am.due_date) and not is_nil(am.start_date) and
                             fragment("(DATE_PART('day',?::timestamp-now()::timestamp)/DATE_PART('day',?::timestamp-?::timestamp)) BETWEEN ? AND ?", am.due_date, am.due_date, am.start_date, ^low_perc, ^high_perc))
 
                 :occurance ->
@@ -330,9 +330,9 @@ defmodule Flight.Inspections.Queries do
                             "current_month" -> {Timex.beginning_of_month(now), Timex.end_of_month(now)}
                             "current_year" -> {Timex.beginning_of_year(now), Timex.end_of_year(now)}
                             "any_time" -> {nil, nil}
-                            _ -> Utils.date_range_from_str(value) 
+                            _ -> Utils.date_range_from_str(value)
                         end
-                    
+
                     status = Map.get(filter, :status) || "pending"
                     cond do
                         status == "pending" && start_date ->
@@ -341,19 +341,19 @@ defmodule Flight.Inspections.Queries do
 
                         status == "completed" && start_date ->
                             from [_m, am, _] in  query,
-                                where: am.end_et >= ^start_date and am.end_et <= ^end_date 
+                                where: am.end_et >= ^start_date and am.end_et <= ^end_date
                         true ->
-                            query   
-                    end                    
+                            query
+                    end
 
                 :name ->
                     from m in query,
                         where: ilike(m.name, ^"%#{value}%")
-    
+
                 :aircraft_name ->
                     from [_, _, a] in query,
-                        where: ilike(fragment("concat(?, ' ', ?)", a.make, a.model), ^"%#{value}%")  
-                        
+                        where: ilike(fragment("concat(?, ' ', ?)", a.make, a.model), ^"%#{value}%")
+
                 :school_id ->
                     from [m, _, _a] in query,
                         where: m.school_id == ^value
@@ -377,12 +377,12 @@ defmodule Flight.Inspections.Queries do
             :status ->
                 from [s, _a] in query,
                     order_by: [{^sort_order, s.resolved_at}]
-            
-            :name -> 
+
+            :name ->
                 from [s, _a] in query,
                     order_by: [{^sort_order, s.description}]
-            
-            :date -> 
+
+            :date ->
                 from [s, _q] in query,
                     order_by: [{^sort_order, s.created_at}]
 
@@ -395,9 +395,9 @@ defmodule Flight.Inspections.Queries do
         end
     end
 
-    defp filter_squawks_by(query, nil), do: query 
+    defp filter_squawks_by(query, nil), do: query
     defp filter_squawks_by(query, filter) do
-        Enum.reduce(filter, query, fn({key, value}, query) -> 
+        Enum.reduce(filter, query, fn({key, value}, query) ->
             case key do
                 :aircraft_id ->
                     from [s, _a] in query,
@@ -407,8 +407,8 @@ defmodule Flight.Inspections.Queries do
                     from [s, _a] in query,
                         where: s.school_id == ^value
 
-                :status -> 
-                    
+                :status ->
+
                     if value == "pending" do
                         from [s, _a] in query,
                             where: is_nil(s.resolved_at)
