@@ -52,13 +52,30 @@
               <ul class="fileList">                 
               </ul>
             </div>
-            <div class="attachments">
-              <label>Attachments:</label>
-              <ul>
-                <%= for attachment <- @squawk.attachments do %>
-                  <li><%= attachment.file_name %></li>
-                <% end %>
-              </ul>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Attachments:</label>
+                <div class="d-flex justify-content-start flex-wrap">
+                  <%= for attachment <- @squawk.attachments do %>
+                    <%= if attachment.file_extension == "pdf" do %>
+                      <div class="d-flex justify-content-start mr-div">
+                        <div class="icon icon-primary">
+                          <i class="now-ui-icons files_paper" style="font-size:70px"></i>
+                          <p><%= attachment.file_name%></p>
+                        </div>
+                        <i class="now-ui-icons ui-1_simple-remove deleteFile" onclick="deleteSquawkImage(<%= attachment.id%>)" data-toggle="tooltip" data-placement="top" title="Delete file: <%= attachment.file_name%>"></i>
+                      </div>
+                    <% else %>
+                    <div class="d-flex justify-content-start mr-div">
+                      <div class="img-container">                    
+                        <img src="<%= attachment.url%>"/>
+                      </div>
+                      <i class="now-ui-icons ui-1_simple-remove deleteFile" onclick="deleteSquawkImage(<%= attachment.id%>)" data-toggle="tooltip" data-placement="top" title="Delete file: <%= attachment.file_name%>"></i>
+                    </div>
+                    <% end %>                  
+                  <% end %>
+                </div>
+              </div>
             </div>
           <div class="card-footer text-right">
             <div class="pull-left">
@@ -88,7 +105,8 @@
       border: 1px dashed #92b0b3;
       border-radius: 5px;
       background: #ffffff;
-      height: 250px;
+      height: fit-content;
+      padding: 20px 0px;
       width: 100%;
       border-radius: 5px;
       display: flex;
@@ -119,6 +137,17 @@
       object-fit: cover;
       border-radius: 5px;
     }
+    .img-container img{
+      object-fit:contain;
+      height: 100px;
+    }
+    .deleteFile {
+      cursor: pointer;
+      color: red;
+    }
+    .mr-div {
+      margin-right: 5rem;
+    }
 </style>
 
 <script>
@@ -135,6 +164,48 @@
       list += '<li>'+input.files[i].name+'</li>';
     }
     fileList.innerHTML = list;
+  }
+
+  function deleteSquawkImage(id) {
+    
+    var AUTH_HEADERS = { "Authorization": "Bearer "+window.graphql_token };
+    const mutation = {
+      "query": "mutation deleteSquawkAttachment($id: ID) {deleteSquawkImage(id: $id) {id}}",
+      "operationName": "deleteSquawkAttachment",
+      "variables": {"id": id}
+    }
+    $.ajax({
+          method: "POST",
+          url: "/api/graphql",
+          data: mutation,
+          headers: AUTH_HEADERS
+    }).then(response => {
+      if ( response.errors && response.errors.length > 0 ) {
+        $.notify({
+          message: 'Unable to delete file.'
+        }, {
+          type: "danger",
+          placement: { align: "center" }
+        });
+        return;
+      }
+      
+      window.location.reload();
+      $.notify({
+          message: 'File deleted successfully.'
+        }, {
+          type: "success",
+          placement: { align: "center" }
+        });
+    })
+    .catch(error => {
+      $.notify({
+          message: 'Unable to delete file.'
+        }, {
+          type: "danger",
+          placement: { align: "center" }
+        });
+    })
   }
 
   button.onclick = (event)=>{
@@ -169,4 +240,7 @@
               placement: { align: "center" }
             })
   }
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  })
 </script>
