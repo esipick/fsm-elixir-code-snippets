@@ -286,6 +286,7 @@ defmodule Flight.Scheduling do
 
     user_id_value = options["user_id"]
     instructor_user_id_value = options["instructor_user_id"]
+    mechanic_user_id_value = options["mechanic_user_id"]
     aircraft_id_value = options["aircraft_id"]
     simulator_id_value = options["simulator_id"]
     room_id_value = options["room_id"]
@@ -305,7 +306,11 @@ defmodule Flight.Scheduling do
     |> pass_unless(
       instructor_user_id_value,
       &from(a in &1, where: a.instructor_user_id == ^instructor_user_id_value)
-   )
+    )
+    |> pass_unless(
+      mechanic_user_id_value,
+      &from(a in &1, where: a.mechanic_user_id == ^mechanic_user_id_value)
+    )
     |> pass_unless(assigned_value,
        &from(a in &1,
         distinct: a.id,

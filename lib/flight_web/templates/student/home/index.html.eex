@@ -89,7 +89,7 @@
     </div>
   </div> <!-- end row -->
   <div class="row">
-    <div class="col-md-6">
+    <%# <div class="col-md-6">
       <div class="card card-chart">
         <div class="card-header">
           <h5 class="card-category">Airworthiness Status</h5>
@@ -110,7 +110,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> %>
     <div class="col-md-6">
       <div class="card card-chart">
         <div class="card-header">
