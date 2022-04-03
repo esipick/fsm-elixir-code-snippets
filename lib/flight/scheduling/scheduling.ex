@@ -21,6 +21,7 @@ defmodule Flight.Scheduling do
   import Pipe
   import Flight.Walltime, only: [walltime_to_utc: 2, utc_to_walltime: 2]
   alias Flight.Inspections
+  alias Fsm.Scheduling.Utils
 
   def admin_create_aircraft(%{"maintenance_ids" => m_ids } = attrs, %{
       assigns: %{
@@ -266,16 +267,26 @@ defmodule Flight.Scheduling do
   ##
 
   def get_appointments(options, %{assigns: %{current_user: %{id: user_id}}} = school_context) do
+    from = options["from"]
     from_value =
-      case NaiveDateTime.from_iso8601(options["from"] || "") do
-        {:ok, date} -> date
-        _ -> nil
+      if is_binary(from) do
+        case NaiveDateTime.from_iso8601(options["from"] || "") do
+          {:ok, date} -> date
+          _ -> nil
+        end
+      else
+        from
       end
 
+    to = options["to"]
     to_value =
-      case NaiveDateTime.from_iso8601(options["to"] || "") do
-        {:ok, date} -> date
-        _ -> nil
+      if is_binary(to) do
+        case NaiveDateTime.from_iso8601(options["to"] || "") do
+          {:ok, date} -> date
+          _ -> nil
+        end
+      else
+        to
       end
 
     start_at_after_value =
@@ -402,14 +413,14 @@ defmodule Flight.Scheduling do
     type = Map.get(recurrence, "type") || Map.get(recurrence, :type) || "" # 0 weekly, 1 monthly
     days = Map.get(recurrence, "days") || Map.get(recurrence, :days) || []
     end_date = Map.get(recurrence, "end_at") || Map.get(recurrence, :end_at)
-    type = string_to_int(type)
-    days = integer_list(days)
+    type = Utils.string_to_int(type)
+    days = Utils.integer_list(days)
     type = if type == 0, do: :week, else: :month
 
     start_at = Map.get(attrs, "start_at") || Map.get(attrs, :start_at)
     end_at = Map.get(attrs, "end_at") || Map.get(attrs, :end_at)
 
-    calculateSchedules(type, days, end_date, start_at, end_at)
+    Utils.calculateSchedules(type, days, end_date, start_at, end_at)
     |> Enum.reduce({:ok, %{parent_id: nil, appointments: [], errors: %{}}}, fn {start_at, end_at}, acc ->
         {:ok, acc} = acc
         parent_id = Map.get(acc, :parent_id)
@@ -727,6 +738,47 @@ defmodule Flight.Scheduling do
     |> Repo.all()
   end
 
+  def create_recurring_unavailabilities(
+    attrs,
+    context
+  ) do
+    recurrence = Map.get(attrs, "recurrence") || Map.get(attrs, :recurrence) || %{}
+    type = Map.get(recurrence, "type") || Map.get(recurrence, :type) || "" # 0 weekly, 1 monthly
+    days = Map.get(recurrence, "days") || Map.get(recurrence, :days) || []
+    end_date = Map.get(recurrence, "end_at") || Map.get(recurrence, :end_at)
+    type = Utils.string_to_int(type)
+    days = Utils.integer_list(days)
+    type = if type == 0, do: :week, else: :month
+
+    start_at = Map.get(attrs, "start_at") || Map.get(attrs, :start_at)
+    end_at = Map.get(attrs, "end_at") || Map.get(attrs, :end_at)
+
+    Utils.calculateSchedules(type, days, end_date, start_at, end_at)
+    |> Enum.reduce({:ok, %{parent_id: nil, unavailabilities: [], errors: %{}}}, fn {start_at, end_at}, acc ->
+        {:ok, acc} = acc
+        parent_id = Map.get(acc, :parent_id)
+        attrs =
+            attrs
+            |> Map.put("start_at", start_at)
+            |> Map.put("end_at", end_at)
+            |> Map.put("parent_id", parent_id)
+
+        insert_or_update_unavailability(%Unavailability{}, attrs, context)
+        |> case do
+          {:error, changeset} ->
+            errors = Map.get(acc, :errors)
+            new_errors = Map.put(errors, start_at, changeset)
+
+            {:ok, Map.put(acc, :errors, new_errors)}
+
+          {:ok, unavailability} ->
+            acc = if parent_id == nil, do: Map.put(acc, :parent_id, unavailability.id), else: acc
+            unavailabilities = Map.get(acc, :unavailabilities)
+            {:ok, Map.put(acc, :unavailabilities, [unavailability | unavailabilities])}
+        end
+      end)
+  end
+
   def insert_or_update_unavailability(
         unavailability,
         attrs,
@@ -972,80 +1024,5 @@ defmodule Flight.Scheduling do
         delete_appointment(appointment.id, school_context.assigns.current_user, school_context)
       end
     end)
-  end
-
-  defp calculateSchedules(type, days, end_at, appt_start, appt_end) when is_nil(end_at) or is_nil(type) or is_nil(days), do: {appt_start, appt_end}
-  defp calculateSchedules(type, days, end_at, appt_start, appt_end) when is_list(days) do
-    {:ok, appt_start} = NaiveDateTime.from_iso8601(appt_start)
-    {:ok, appt_end} = NaiveDateTime.from_iso8601(appt_end)
-    {:ok, end_at} = NaiveDateTime.from_iso8601(end_at)
-
-    first = {appt_start, appt_end}
-    schedules = generate_ranges(type, days, appt_start, appt_end, end_at, false)
-
-    [first | schedules]
-  end
-
-  defp generate_ranges(type, days, appt_start, appt_end, end_at, next_iteration, schedules \\ []) do
-    num_of_seconds_in_day = 86400
-    today_num =  if type == :week, do: Timex.weekday(appt_start), else: appt_start.day
-    days = Enum.sort(days, &(&1 < &2))
-
-    iter_schedules =
-      Enum.reduce(days, [], fn day, acc ->
-        same_day = day <= today_num && !next_iteration
-
-        if !same_day || day > today_num do
-          diff = day - today_num
-          duration = %Timex.Duration{seconds: diff * 86400, megaseconds: 0, microseconds: 0}
-          next_end_at = Timex.add(appt_end, duration)
-
-          if Timex.compare(end_at, next_end_at) >= 0 do
-            next_start_at = Timex.add(appt_start, duration)
-            schedule = {next_start_at, next_end_at}
-
-            [schedule | acc]
-          else
-            acc
-          end
-        else
-          acc
-        end
-      end)
-
-    duration = %Timex.Duration{seconds: 1, megaseconds: 0, microseconds: 0}
-    next_start = if type == :week, do: Timex.end_of_week(appt_start), else: Timex.end_of_month(appt_start)
-    next_end = if type == :week, do: Timex.end_of_week(appt_end), else: Timex.end_of_month(appt_end)
-    next_start = Timex.add(next_start, duration) # start of next day
-    next_end = Timex.add(next_end, duration) # start of next day
-
-    appt_start = %{next_start | hour: appt_start.hour, minute: appt_start.minute, second: appt_start.second}
-    appt_end = %{next_end | hour: appt_end.hour, minute: appt_end.minute, second: appt_end.second}
-
-    iterations = Timex.diff(end_at, appt_end, type) # number of months/weeks in duration
-
-    if iterations >= 0 do
-      generate_ranges(type, days, appt_start, appt_end, end_at, true, iter_schedules ++ schedules)
-
-    else
-      iter_schedules ++ schedules
-    end
-  end
-
-  defp integer_list(items) do
-    Enum.reduce(items, [], fn item, acc ->
-      int = string_to_int(item)
-      if int != nil, do: [int | acc], else: acc
-    end)
-  end
-
-  defp string_to_int(nil), do: nil
-  defp string_to_int(str) when is_integer(str), do: str
-  defp string_to_int(str) do
-    Integer.parse(str)
-    |> case do
-      {int, _} -> int
-      _ -> nil
-    end
   end
 end

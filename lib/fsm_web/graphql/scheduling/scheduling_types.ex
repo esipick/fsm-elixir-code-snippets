@@ -87,6 +87,12 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       resolve &SchedulingResolvers.create_unavailability/3
     end
 
+    field :create_recurring_unavailability, :recurring_unavailability do
+      arg :unavailability, :unavailability_input
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.create_recurring_unavailability/3
+    end
+
     field :edit_unavailability, :unavailability do
       arg :id, non_null(:integer)
       arg :unavailability, :unavailability_input
@@ -201,6 +207,10 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :human_errors, :json
   end
 
+  object :recurring_unavailability do
+    field :human_errors, :json
+  end
+
   input_object :unavailability_input do
     field :simulator_id, :integer
     field :room_id, :integer
@@ -211,6 +221,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :note, :string
     field :end_at, :string
     field :start_at, :string
+    field :recurrence, :recurrence_input
   end
 
   input_object :appointment_input do

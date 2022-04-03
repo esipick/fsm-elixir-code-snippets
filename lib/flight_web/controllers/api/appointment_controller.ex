@@ -69,7 +69,7 @@ defmodule FlightWeb.API.AppointmentController do
     render(conn, "show.json", appointment: appointment)
   end
 
-  def create(conn, %{"data" => %{"recurring" => true} = appointment_data}) do
+  def create(conn, %{"data" => %{"recurring" => "true"} = appointment_data}) do
     {:ok, data} = Flight.Scheduling.insert_recurring_appointments(
       appointment_data,
       Repo.preload(conn.assigns.current_user, :school),

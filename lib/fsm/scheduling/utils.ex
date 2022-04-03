@@ -1,6 +1,10 @@
 defmodule Fsm.Scheduling.Utils do
   require Logger
 
+  @doc """
+    Appointment ICS Generation
+  """
+
   def url_for_appointment_ics(%{id: id} = appointment) do
     # create url and make a head request
     # if not present, make event file and upload.
@@ -13,7 +17,6 @@ defmodule Fsm.Scheduling.Utils do
         result
     end
   end
-
 
   defp create_event_file(%{id: id, school: school} = appointment) do
     # attendees = [
@@ -117,5 +120,83 @@ defmodule Fsm.Scheduling.Utils do
   defp make_url(filename) do
     bucket = Application.get_env(:ex_aws_s3, :s3)[:bucket_name]
     "https://s3.amazonaws.com/"<>bucket<>"/"<>filename
+  end
+
+  @doc """
+    Appointment scheduling
+  """
+  def calculateSchedules(type, days, end_at, appt_start, appt_end) when is_nil(end_at) or is_nil(type) or is_nil(days), do: {appt_start, appt_end}
+  def calculateSchedules(type, days, end_at, appt_start, appt_end) when is_list(days) do
+    {:ok, appt_start} = if is_binary(appt_start), do: NaiveDateTime.from_iso8601(appt_start), else: {:ok, appt_start}
+    {:ok, appt_end} = if is_binary(appt_end), do: NaiveDateTime.from_iso8601(appt_end), else: {:ok, appt_end}
+    {:ok, end_at} = if is_binary(end_at), do: NaiveDateTime.from_iso8601(end_at), else: {:ok, end_at}
+
+    first = {appt_start, appt_end}
+    schedules = generate_ranges(type, days, appt_start, appt_end, end_at, false)
+
+    [first | schedules]
+  end
+
+  defp generate_ranges(type, days, appt_start, appt_end, end_at, next_iteration, schedules \\ []) do
+    num_of_seconds_in_day = 86400
+    today_num =  if type == :week, do: Timex.weekday(appt_start), else: appt_start.day
+    days = Enum.sort(days, &(&1 < &2))
+
+    iter_schedules =
+      Enum.reduce(days, [], fn day, acc ->
+        same_day = day <= today_num && !next_iteration
+
+        if !same_day || day > today_num do
+          diff = day - today_num
+          duration = %Timex.Duration{seconds: diff * 86400, megaseconds: 0, microseconds: 0}
+          next_end_at = Timex.add(appt_end, duration)
+
+          if Timex.compare(end_at, next_end_at) >= 0 do
+            next_start_at = Timex.add(appt_start, duration)
+            schedule = {next_start_at, next_end_at}
+
+            [schedule | acc]
+          else
+            acc
+          end
+        else
+          acc
+        end
+      end)
+
+    duration = %Timex.Duration{seconds: 1, megaseconds: 0, microseconds: 0}
+    next_start = if type == :week, do: Timex.end_of_week(appt_start), else: Timex.end_of_month(appt_start)
+    next_end = if type == :week, do: Timex.end_of_week(appt_end), else: Timex.end_of_month(appt_end)
+    next_start = Timex.add(next_start, duration) # start of next day
+    next_end = Timex.add(next_end, duration) # start of next day
+
+    appt_start = %{next_start | hour: appt_start.hour, minute: appt_start.minute, second: appt_start.second}
+    appt_end = %{next_end | hour: appt_end.hour, minute: appt_end.minute, second: appt_end.second}
+
+    iterations = Timex.diff(end_at, appt_end, type) # number of months/weeks in duration
+
+    if iterations >= 0 do
+      generate_ranges(type, days, appt_start, appt_end, end_at, true, iter_schedules ++ schedules)
+
+    else
+      iter_schedules ++ schedules
+    end
+  end
+
+  def integer_list(items) do
+    Enum.reduce(items, [], fn item, acc ->
+      int = string_to_int(item)
+      if int != nil, do: [int | acc], else: acc
+    end)
+  end
+
+  def string_to_int(nil), do: nil
+  def string_to_int(str) when is_integer(str), do: str
+  def string_to_int(str) do
+    Integer.parse(str)
+    |> case do
+      {int, _} -> int
+      _ -> nil
+    end
   end
 end
