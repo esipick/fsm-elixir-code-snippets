@@ -24,7 +24,8 @@ class Main extends Component {
       page_size: page_size,
       search: '',
       total_entries: total_entries,
-      total_pages: total_pages
+      total_pages: total_pages,
+      errorMessage: ''
     }
   }
 
@@ -127,7 +128,7 @@ class Main extends Component {
   }
 
   openDropzone = () => {
-    this.setState({ dropzone: true })
+    this.setState({ dropzone: true, errorMessage: '' })
   }
 
   removeDocument = (id) => {
@@ -164,6 +165,17 @@ class Main extends Component {
 
   setPage = (page_number) => {
     this.getDocuments({ page_number: page_number })
+  }
+
+  filesRejected = (files, event) => {
+    let message = ''
+    files.forEach(file => {
+      if ( file.size > 10000000 ) {
+        message += `${file.name} exceeds upload limit \n`
+      }
+    });
+    this.setState({ errorMessage: message })
+
   }
 
   editDocument = (id) => {
@@ -271,7 +283,9 @@ class Main extends Component {
       <Dropzone maxFiles={1}
         accept=".jpeg,.jpg,.png,.pdf"
         maxSize={fileSize}
-        onDrop={this.acceptFiles}>
+        onDrop={this.acceptFiles}
+        onDropRejected={this.filesRejected}
+        >
         {({ getRootProps, getInputProps }) => (
           <div className="dropzone"
             {...getRootProps()}>
@@ -281,7 +295,7 @@ class Main extends Component {
               <p className="dropzone-description">Allowed file types: .jpeg, .jpg, .png, .pdf.</p>
               <p className="dropzone-description">Max size: 10MB</p>
               <p>
-                <button className="btn btn-primary">
+                <button  onClick={this.setErrorMessage} className="btn btn-primary">
                   Browse Files
                   </button>
               </p>
@@ -410,7 +424,7 @@ class Main extends Component {
               updateDocumentsToSubmit={this.updateDocumentsToSubmit}>
             </SelectedFile>
           ))}
-        </div>
+        </div>       
         <div className="action">
           <button className="btn btn-primary"
             disabled={saving}
@@ -420,6 +434,10 @@ class Main extends Component {
         </div>
       </div>
     )
+  }
+
+  setErrorMessage = () => {
+    this.setState({ errorMessage: ''})
   }
 
   render() {
@@ -432,6 +450,7 @@ class Main extends Component {
         {admin && dropzone && this.adminDropzone()}
 
         {!dropzone && (documentsToSubmit.length ? this.uploadForm({wrapperClass: "files"}) : this.documentsTable())}
+        <p className='text-danger'>{this.state.errorMessage}</p>
       </div>
     )
   }
