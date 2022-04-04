@@ -302,6 +302,7 @@ $(document).ready(function () {
     resetRepeatForm(this.value);
     switch(this.value) {
       case "demo_flight":
+        meetingView(false)
         demoFlightView(true);
         regularView(false);
         unavailabilityView(false);
@@ -310,6 +311,7 @@ $(document).ready(function () {
         break;
 
       case "unavailable":
+        meetingView(false)
         unavailabilityView(true);
         demoFlightView(false);
         regularView(false);
@@ -318,6 +320,7 @@ $(document).ready(function () {
         break;
 
       case "unavailability":
+        meetingView(false)
         unavailabilityView(true);
         demoFlightView(false);
         regularView(false);
@@ -326,6 +329,7 @@ $(document).ready(function () {
         break;
     
       case "maintenance":
+        meetingView(false)
         unavailabilityView(false);
         demoFlightView(false);
         regularView(false);
@@ -342,6 +346,7 @@ $(document).ready(function () {
         break;
 
       default:
+        meetingView(false);
         regularView(true);
         unavailabilityView(false);
         demoFlightView(false);
@@ -373,19 +378,20 @@ $(document).ready(function () {
       $('#apptFieldAircraft').hide();
       $('#apptFieldSimulator').hide();
       $('#apptFieldRoom').show();
+
+      $('#instructorPreTime').hide();
+      $('#instructorPostTime').hide();
     } else {
       $('#appointmentForm.tab-pane').removeClass("active");
 
-      $('#apptFieldAircraft').show();
-      $('#apptFieldSimulator').show();
-      $('#apptFieldRoom').hide();
-
       $('#apptAircraft').val(null).selectpicker("refresh");
       $('#apptSimulator').val(null).selectpicker("refresh");
+      $('#apptRoom').val(null).selectpicker("refresh");
+
+      // $('#apptFieldAircraft').show();
+      // $('#apptFieldSimulator').show();
+      // $('#apptFieldRoom').show();
     }
-    
-    $('#instructorPreTime').hide();
-    $('#instructorPostTime').hide();
   }
 
   function demoFlightView(show) {
@@ -1100,6 +1106,7 @@ $(document).ready(function () {
       if (initialData.type == "meeting") {
         meetingView(true);
       } else {
+        meetingView(false);
         regularView(true);
       }
       
