@@ -235,10 +235,15 @@ defmodule Fsm.Scheduling.Appointment do
           add_error(changeset, :instructor, "cannot be the same person as the renter.")
         else
           _ ->
-            if get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :aircraft_id) != nil and (get_field(changeset, :user_id) == nil or get_field(changeset, :instructor_user_id) == nil) do
-              add_error(changeset, :instructor, "and pilot is required.")
-            else
-              changeset
+            cond do
+              get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :aircraft_id) != nil and (get_field(changeset, :user_id) == nil or  get_field(changeset, :instructor_user_id) == nil) ->
+                add_error(changeset, :instructor, "and pilot is required.")
+
+              (get_field(changeset, :type) == "flight_lesson" or get_field(changeset, :type) == "airplane_rental" or get_field(changeset, :type) == "check_ride" or get_field(changeset, :type) == "meeting") and get_field(changeset, :user_id) == nil ->
+                add_error(changeset, :pilot, "is required.")
+
+              true ->
+                changeset
             end
         end
 
@@ -291,9 +296,24 @@ defmodule Fsm.Scheduling.Appointment do
   end
 
   defp validate_assets(changeset) do
-    aircraft_id = get_field(changeset, :aircraft_id) || get_change(changeset, :aircraft_id)
-    simulator_id = get_field(changeset, :simulator_id) || get_change(changeset, :simulator_id)
-    room_id = get_field(changeset, :room_id) || get_change(changeset, :room_id)
+    
+    {changeset, aircraft_id, simulator_id, room_id} =
+      cond do
+        get_field(changeset, :type) == "maintenance" ->
+          changeset = put_change(changeset, :room_id, nil)
+          changeset = put_change(changeset, :simulator_id, nil)
+          {changeset, get_field(changeset, :aircraft_id) || get_change(changeset, :aircraft_id), get_change(changeset, :simulator_id), get_change(changeset, :room_id)}
+
+        get_field(changeset, :type) == "meeting" ->
+          changeset = put_change(changeset, :aircraft_id, nil)
+          changeset = put_change(changeset, :simulator_id, nil)
+          changeset = put_change(changeset, :mechanic_user_id, nil)
+          {changeset, get_change(changeset, :aircraft_id), get_change(changeset, :simulator_id), get_change(changeset, :room_id)}
+
+        true ->
+          changeset = put_change(changeset, :mechanic_user_id, nil)
+        {changeset, get_field(changeset, :aircraft_id) || get_change(changeset, :aircraft_id), get_field(changeset, :simulator_id) || get_change(changeset, :simulator_id), get_field(changeset, :room_id) || get_change(changeset, :room_id)}
+      end
 
     cond do
       aircraft_id && simulator_id && room_id ->
