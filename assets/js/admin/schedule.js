@@ -2083,6 +2083,7 @@ $(document).ready(function () {
    
     $('.repeatdatepickerend').datetimepicker({
       format: 'YYYY-MM-DD',
+      defaultDate: moment(new Date()).add(2, 'M'),
       icons: {
         date: "now-ui-icons ui-1_calendar-60",
         up: "fa fa-chevron-up",
