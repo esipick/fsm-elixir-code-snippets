@@ -97,7 +97,7 @@
 <!-- end content -->
 <%= render FlightWeb.Admin.PartialView,
           "_shared_delete_form.html",
-          %{message: "This Squawk will be removed from the system.",
+          %{message: "We are resolving the squawk.",
             path: "/admin/squawks/",
             attribute: "squawk"} %>
 <style>
