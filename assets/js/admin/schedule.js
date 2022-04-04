@@ -554,7 +554,7 @@ $(document).ready(function () {
 
   function getRecurrenceObject(eventData) {
     const repeatType = parseInt($('#repeatType').val());
-    console.log(repeatType)
+   
     let days = [];
     if ( repeatType == 0 ) {
       const week_days_checked = $('input[name=week_days]:checked');
