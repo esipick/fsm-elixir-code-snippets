@@ -531,7 +531,7 @@ $(document).ready(function () {
     var elem = $('.repeat');
     if ( elem.hasClass('d-none') ) {
       elem.removeClass("d-none");
-      $('.repeatType').val('0').selectpicker("refresh")
+      $('#repeatType').val('0').selectpicker("refresh")
       $('.weekly').removeClass('d-none');
       $('.monthly').addClass('d-none');
       return;
@@ -541,7 +541,7 @@ $(document).ready(function () {
     $('.monthly').addClass('d-none');
   })
 
-  $('.repeatType').on('change', function (event) {
+  $('#repeatType').on('change', function (event) {
     const repeatType = event.target.value
     if ( repeatType === '1' ) {
       $('.weekly').addClass('d-none');
@@ -553,7 +553,8 @@ $(document).ready(function () {
   });
 
   function getRecurrenceObject(eventData) {
-    const repeatType = parseInt($('.repeatType').val());
+    const repeatType = parseInt($('#repeatType').val());
+    console.log(repeatType)
     let days = [];
     if ( repeatType == 0 ) {
       const week_days_checked = $('input[name=week_days]:checked');
