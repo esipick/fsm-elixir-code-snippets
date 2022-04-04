@@ -565,8 +565,11 @@ $(document).ready(function () {
       const onDay = parseInt($('#monthOnDay').val());
       days.push(onDay);
     }
-    var eventEnd = (moment.utc().add(-(moment($('#repeatEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format('YYYY-MM-DD')
+    // console.log($('#repeatEnd').val());
+    // console.log(moment.utc().add(-(moment($('#repeatEnd').val()).utcOffset()), 'm'));
+    var eventEnd = $('#repeatEnd').val();
     eventEnd += 'T23:59:00Z'
+    // console.log(eventEnd)
     return {
       type: repeatType,
       days: days, // array of integer, in case of week, 1 represents monday, in case of monthly, 1 represents 1st date and so on
@@ -817,8 +820,29 @@ $(document).ready(function () {
 
       const event = apptEvents[eventType]
 
-      promise.then(function () {
+      promise.then(function (response) {
+        
         $('#calendarNewModal').modal('hide')
+        let errors = Object.entries(response.human_errors);
+        if ( errors && errors.length > 0 ) {
+          $('#loader').hide();
+          for (const [key, value] of errors) {
+            let message = '';
+            for (let i = 0; i < value.length; i++) {
+              message += value[i]
+              if ( !(i === value.length - 1) ) message += ', ' 
+            }
+            $.notify({
+              message: key+ ' : '+message
+            }, {
+              type: "danger",
+              placement: { align: "center" }
+            })
+          }
+                   
+          return;
+        }
+
         $calendar.fullCalendar('refetchEvents')
 
         $.notify({
@@ -2056,21 +2080,9 @@ $(document).ready(function () {
       },
       format: 'L'
     });
-    $('.repeatdatepickerstart').datetimepicker({
-      format: 'MM/DD/YYYY',
-      icons: {
-        date: "now-ui-icons ui-1_calendar-60",
-        up: "fa fa-chevron-up",
-        down: "fa fa-chevron-down",
-        previous: 'now-ui-icons arrows-1_minimal-left',
-        next: 'now-ui-icons arrows-1_minimal-right',
-        today: 'fa fa-screenshot',
-        clear: 'fa fa-trash',
-        close: 'fa fa-remove'
-      }
-    });
+   
     $('.repeatdatepickerend').datetimepicker({
-      format: 'MM/DD/YYYY',
+      format: 'YYYY-MM-DD',
       icons: {
         date: "now-ui-icons ui-1_calendar-60",
         up: "fa fa-chevron-up",
