@@ -169,7 +169,7 @@
               </div>
             </div>
 
-            <div class="row">
+            <div class="row" id="apptFieldInstructor">
               <label class="col-md-3 col-form-label">Instructor *</label>
               <div class="col-md-9">
                 <div class="form-group">
