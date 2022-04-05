@@ -362,6 +362,20 @@ $(document).ready(function () {
     if (show) {
       $('#appointmentResouceForm.tab-pane').addClass("active");
       $('#appointmentForm.tab-pane').addClass("active");
+
+      if ($('#apptType').val() != "flight_lesson") {
+        $('#appointmentResouceForm.tab-pane').removeClass("active");
+        $('#apptRoom').val(null).selectpicker("refresh");
+        $('#apptSimulator').val(null).selectpicker("refresh");
+        $('#apptFieldAircraft').show();
+        $('#apptFieldSimulator').hide();
+        $('#apptFieldRoom').hide();
+        $('#apptInstructor').val(null).selectpicker("refresh");
+        $('#apptFieldInstructor').hide();
+
+        $('#instructorPreTime').hide();
+        $('#instructorPostTime').hide();
+      }
     } else {
       $('#appointmentResouceForm.tab-pane').removeClass("active");
       $('#appointmentForm.tab-pane').removeClass("active");
@@ -401,9 +415,6 @@ $(document).ready(function () {
     } else {
       $('#demoAppointmentForm.tab-pane').removeClass("active");
     }
-
-    $('#apptInstructorPreTime').hide();
-    $('#apptInstructorPostTime').hide();
   }
 
   function unavailabilityView(show) {
@@ -412,9 +423,6 @@ $(document).ready(function () {
     } else {
       $('#unavailabilityForm.tab-pane').removeClass("active");
     }
-
-    $('#apptInstructorPreTime').hide();
-    $('#apptInstructorPostTime').hide();
   }
 
 
@@ -424,9 +432,6 @@ $(document).ready(function () {
     } else {
       $('#maintenanceForm.tab-pane').removeClass("active");
     }
-
-    $('#apptInstructorPreTime').hide();
-    $('#apptInstructorPostTime').hide();
   }
 
 
