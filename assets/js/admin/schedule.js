@@ -830,14 +830,17 @@ $(document).ready(function () {
       promise.then(function (response) {
         
         $('#calendarNewModal').modal('hide')
-        let errors = Object.entries(response.human_errors);
-        if ( errors && errors.length > 0 ) {
+        
+        if ( response.human_errors ) {
           $('#loader').hide();
+          let errors = Object.entries(response.human_errors);
+          if ( errors && errors.length > 0 ) {
+
           for (const [key, value] of errors) {
             let message = '';
             for (let i = 0; i < value.length; i++) {
-              message += value[i]
-              if ( !(i === value.length - 1) ) message += ', ' 
+                message += value[i]
+                if ( !(i === value.length - 1) ) message += ', ' 
             }
             $.notify({
               message: key+ ' : '+message
@@ -845,9 +848,9 @@ $(document).ready(function () {
               type: "danger",
               placement: { align: "center" }
             })
-          }
-                   
+          }                    
           return;
+          }
         }
 
         $calendar.fullCalendar('refetchEvents')

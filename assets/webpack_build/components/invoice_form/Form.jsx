@@ -708,11 +708,13 @@ class Form extends Component {
     )
   }
 
-  checkBoxClicked = () => {
-    const appt_status = this.state.appt_status;
+  checkBoxClicked = (e) => {
+    console.log(e.target.value)
+    //console.log('tesetset')
+    //const appt_status = this.state.appt_status;
     
     this.setState({
-      appt_status: appt_status == "pass" ? "fail" : "pass" 
+      appt_status: e.target.value
     })
   }
 
@@ -728,7 +730,7 @@ class Form extends Component {
 
     const demo = !this.state.demo && containsDemoFlight(line_items)
     const isCheckRide = appointment && appointment.type == "check_ride" 
-    const isChecked = appt_status == "pass" 
+    // const isChecked = appt_status == "pass" 
 
     // In case of guest user don't have credit card payment option
     // so they have to pay in cash, venmo, or check
@@ -821,12 +823,34 @@ class Form extends Component {
                 </div>}
                 
                 {isCheckRide && <div className="form-group col-md-10">
-                    <div className="row col-md-6">
-                      <label>Pass/Fail</label>
-                     </div>
-                   
-                    <div className="row col-md-6">
-                        <input className="form-check-input" type="checkbox" value="" defaultChecked = {isChecked} onClick={this.checkBoxClicked}/>
+                    <div className="row">
+                      <div className="form-check form-check-inline">
+                        <div className="form-check">
+                          <label className="form-check-label">
+                            <input className="form-check-input" type="checkbox" name="appt_status" checked = {this.state.appt_status === "pass"} value="pass" onChange={this.checkBoxClicked}/>
+                            <span className="form-check-sign"></span>
+                            Pass
+                          </label>
+                        </div>
+                      </div>
+                      <div className="form-check form-check-inline">
+                        <div className="form-check">
+                          <label className="form-check-label">
+                            <input className="form-check-input" name="appt_status" type="checkbox" checked = {this.state.appt_status === "fail"} value="fail" onChange={this.checkBoxClicked} />
+                            <span className="form-check-sign" ></span>
+                            Fail
+                          </label>
+                        </div>
+                      </div>                      
+                      {this.state.appt_status === 'fail' && 
+                        <div className="form-check form-check-inline">
+                          <div className="form-check">
+                            <label className="form-check-label">
+                              Please enter Fail reason in invoice notes.
+                            </label>
+                          </div>
+                        </div>
+                      }
                     </div>
                   </div>}
                 </div>
