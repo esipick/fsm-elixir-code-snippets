@@ -192,8 +192,11 @@ defmodule Fsm.Scheduling.Appointment do
       get_field(changeset, :type) != "meeting" && (get_field(changeset, :simulator_id) || get_field(changeset, :room_id)) ->
         changeset
 
-      get_field(changeset, :type) == "flight_lesson" and (get_field(changeset, :instructor_user_id) == nil || get_field(changeset, :aircraft_id) == nil)->
-        add_error(changeset, :aircraft, "and instructor is required.")
+      get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :instructor_user_id) == nil->
+        add_error(changeset, :instructor, "is required.")
+
+      get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :aircraft_id) == nil->
+        add_error(changeset, :aircraft, "is required.")
 
       (get_field(changeset, :type) == "airplane_rental" or get_field(changeset, :type) == "check_ride") ->
         if get_field(changeset, :aircraft_id) == nil do
@@ -236,8 +239,8 @@ defmodule Fsm.Scheduling.Appointment do
         else
           _ ->
             cond do
-              get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :aircraft_id) != nil and (get_field(changeset, :user_id) == nil or  get_field(changeset, :instructor_user_id) == nil) ->
-                add_error(changeset, :instructor, "and pilot is required.")
+              get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :aircraft_id) != nil and get_field(changeset, :user_id) == nil ->
+                add_error(changeset, :pilot, "is required.")
 
               (get_field(changeset, :type) == "flight_lesson" or get_field(changeset, :type) == "airplane_rental" or get_field(changeset, :type) == "check_ride" or get_field(changeset, :type) == "meeting") and get_field(changeset, :user_id) == nil ->
                 add_error(changeset, :pilot, "is required.")
@@ -296,7 +299,7 @@ defmodule Fsm.Scheduling.Appointment do
   end
 
   defp validate_assets(changeset) do
-    
+
     {changeset, aircraft_id, simulator_id, room_id} =
       cond do
         get_field(changeset, :type) == "maintenance" ->
