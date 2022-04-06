@@ -310,6 +310,14 @@ $(document).ready(function () {
 
   $('#apptType').on('change', function() {
     resetRepeatForm(this.value);
+    if ( this.value == 'flight_lesson' ) {
+      $('#instructorPreTime').show();
+      $('#instructorPostTime').show();
+    }
+    else {
+      $('#instructorPreTime').hide();
+      $('#instructorPostTime').hide();
+    }
     switch(this.value) {
       case "demo_flight":
         meetingView(false)
