@@ -196,6 +196,15 @@ $(document).ready(function () {
     else return true;
   }
 
+  function showAlert(message, type) {
+    $.notify({
+      message: message
+    }, {
+      type: type,
+      placement: { align: "center" }
+    })
+  }
+
   var $calendar = $('#fullCalendar');
 
   var displayFormat = 'MM/DD/YYYY h:mm A';
@@ -362,20 +371,6 @@ $(document).ready(function () {
     if (show) {
       $('#appointmentResouceForm.tab-pane').addClass("active");
       $('#appointmentForm.tab-pane').addClass("active");
-
-      if ($('#apptType').val() != "flight_lesson") {
-        $('#appointmentResouceForm.tab-pane').removeClass("active");
-        $('#apptRoom').val(null).selectpicker("refresh");
-        $('#apptSimulator').val(null).selectpicker("refresh");
-        $('#apptFieldAircraft').show();
-        $('#apptFieldSimulator').hide();
-        $('#apptFieldRoom').hide();
-        $('#apptInstructor').val(null).selectpicker("refresh");
-        $('#apptFieldInstructor').hide();
-
-        $('#instructorPreTime').hide();
-        $('#instructorPostTime').hide();
-      }
     } else {
       $('#appointmentResouceForm.tab-pane').removeClass("active");
       $('#appointmentForm.tab-pane').removeClass("active");
@@ -415,6 +410,9 @@ $(document).ready(function () {
     } else {
       $('#demoAppointmentForm.tab-pane').removeClass("active");
     }
+
+    $('#apptInstructorPreTime').hide();
+    $('#apptInstructorPostTime').hide();
   }
 
   function unavailabilityView(show) {
@@ -423,6 +421,9 @@ $(document).ready(function () {
     } else {
       $('#unavailabilityForm.tab-pane').removeClass("active");
     }
+
+    $('#apptInstructorPreTime').hide();
+    $('#apptInstructorPostTime').hide();
   }
 
 
@@ -432,6 +433,9 @@ $(document).ready(function () {
     } else {
       $('#maintenanceForm.tab-pane').removeClass("active");
     }
+
+    $('#apptInstructorPreTime').hide();
+    $('#apptInstructorPostTime').hide();
   }
 
 
@@ -628,6 +632,14 @@ $(document).ready(function () {
   // collect event data on save and send to server
   $('#btnSave').click(function () {
     console.log("save Button Clicked")
+    const isRecurring = $('.repeatBtn').is(":checked");
+    if ( isRecurring ) {
+      var eventEnd = $('#repeatEnd').val();
+      if ( !eventEnd ) {
+        showAlert('End Date is required.', 'danger');
+        return;
+      } 
+    }
     var buttonPos = $(this).offset();
 
     $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 170 }).show();
@@ -638,7 +650,6 @@ $(document).ready(function () {
     }, 3000);
 
     var promise = null;
-    const isRecurring = $('.repeatBtn').is(":checked");
     
     if (eventType == "appt") {
       var eventRenter = safeParseInt($('#apptStudent').val());
@@ -2100,6 +2111,7 @@ $(document).ready(function () {
     $('.repeatdatepickerend').datetimepicker({
       format: 'YYYY-MM-DD',
       defaultDate: moment(new Date()).add(2, 'M'),
+      minDate : new Date(),
       icons: {
         date: "now-ui-icons ui-1_calendar-60",
         up: "fa fa-chevron-up",
