@@ -40,6 +40,7 @@ class Form extends Component {
     super(props);
 
     this.formRef = null;
+    console.log(props)
     const { creator, staff_member, appointment } = props;
     const demo = appointment && appointment.demo
     const appointments = appointment ? [appointment] : [];
@@ -822,7 +823,7 @@ class Form extends Component {
                   <div>{id}</div>
                 </div>}
                 
-                {isCheckRide && <div className="form-group col-md-10">
+                {isCheckRide && this.enableCheckRideStatus() && <div className="form-group col-md-10">
                     <div className="row">
                       <div className="form-check form-check-inline">
                         <div className="form-check">
@@ -1038,6 +1039,13 @@ class Form extends Component {
 
       </div>
     );
+  }
+
+  enableCheckRideStatus() {
+    if ( this.props.user_roles.includes('admin') || this.props.user_roles.includes('instructor') ) {
+      return true;
+    }
+    return false;
   }
 }
 
