@@ -310,6 +310,8 @@ $(document).ready(function () {
 
   $('#apptType').on('change', function() {
     resetRepeatForm(this.value);
+    $('#apptFieldRoom').show();
+    $('#apptFieldSimulator').show();
     if ( this.value == 'flight_lesson' ) {
       $('#instructorPreTime').show();
       $('#instructorPostTime').show();
@@ -318,8 +320,10 @@ $(document).ready(function () {
       $('#instructorPreTime').hide();
       $('#instructorPostTime').hide();
     }
+    
     switch(this.value) {
       case "demo_flight":
+        airplaneRentalView(false)
         meetingView(false)
         demoFlightView(true);
         regularView(false);
@@ -329,6 +333,7 @@ $(document).ready(function () {
         break;
 
       case "unavailable":
+        airplaneRentalView(false)
         meetingView(false)
         unavailabilityView(true);
         demoFlightView(false);
@@ -338,6 +343,7 @@ $(document).ready(function () {
         break;
 
       case "unavailability":
+        airplaneRentalView(false)
         meetingView(false)
         unavailabilityView(true);
         demoFlightView(false);
@@ -347,6 +353,7 @@ $(document).ready(function () {
         break;
     
       case "maintenance":
+        airplaneRentalView(false)
         meetingView(false)
         unavailabilityView(false);
         demoFlightView(false);
@@ -356,14 +363,33 @@ $(document).ready(function () {
         break;
 
       case "meeting":
+        airplaneRentalView(false)
         meetingView(true);
         unavailabilityView(false);
         demoFlightView(false);
         maintenanceView(false);
         eventType = "appt";
         break;
-
+      case "airplane_rental":        
+        meetingView(false);
+        regularView(false);
+        unavailabilityView(false);
+        demoFlightView(false);
+        maintenanceView(false);
+        airplaneRentalView(true)
+        eventType = "appt";
+        break;
+      case "check_ride":        
+        meetingView(false);
+        regularView(false);
+        unavailabilityView(false);
+        demoFlightView(false);
+        maintenanceView(false);
+        airplaneRentalView(true)
+        eventType = "appt";
+        break;
       default:
+        airplaneRentalView(false)
         meetingView(false);
         regularView(true);
         unavailabilityView(false);
@@ -379,6 +405,7 @@ $(document).ready(function () {
     if (show) {
       $('#appointmentResouceForm.tab-pane').addClass("active");
       $('#appointmentForm.tab-pane').addClass("active");
+      $('#apptFieldInstructor').show();
     } else {
       $('#appointmentResouceForm.tab-pane').removeClass("active");
       $('#appointmentForm.tab-pane').removeClass("active");
@@ -432,6 +459,35 @@ $(document).ready(function () {
 
     $('#apptInstructorPreTime').hide();
     $('#apptInstructorPostTime').hide();
+  }
+
+  function airplaneRentalView(show) {
+    if (show) {
+      $('#appointmentResouceForm.tab-pane').removeClass("active");
+      $('#appointmentForm.tab-pane').addClass("active");
+
+      $('#apptRoom').val(null).selectpicker("refresh");
+      $('#apptSimulator').val(null).selectpicker("refresh");
+
+      $('#apptFieldSimulator').hide();
+      $('#apptFieldRoom').hide();
+      $('#apptFieldInstructor').hide();
+      
+
+      $('#instructorPreTime').hide();
+      $('#instructorPostTime').hide();
+    } else {
+      $('#appointmentForm.tab-pane').removeClass("active");
+
+      $('#apptAircraft').val(null).selectpicker("refresh");
+      $('#apptSimulator').val(null).selectpicker("refresh");
+      $('#apptRoom').val(null).selectpicker("refresh");
+      $('#apptInstructor').val(null).selectpicker("refresh");
+
+      // $('#apptFieldAircraft').show();
+      // $('#apptFieldSimulator').show();
+      // $('#apptFieldRoom').show();
+    }
   }
 
 
@@ -673,7 +729,24 @@ $(document).ready(function () {
       var eventSimulator = safeParseInt($('#apptSimulator').val());
       var eventRoom = safeParseInt($('#apptRoom').val());
       var eventApptType = $('#apptType').val();
-
+      if ( eventApptType == 'flight_lesson' ) {
+        const aptFor = $('#apptFor').val();
+        if ( aptFor == 'Aircraft' && !eventAircraft ) {
+          showAlert('Aircraft is required.', 'danger')
+          $('#loader').hide();
+          return;
+        }
+        if ( aptFor == 'Simulator' && !eventSimulator ) {
+          showAlert('Simulator is required.', 'danger')
+          $('#loader').hide();
+          return;
+        }
+        if ( aptFor == 'Room' && !eventRoom ) {
+          showAlert('Room is required.', 'danger')
+          $('#loader').hide();
+          return;
+        }
+      }
       var eventStart = (moment.utc($('#apptStart').val()).add(-(moment($('#apptStart').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
       var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment($('#apptEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
 
