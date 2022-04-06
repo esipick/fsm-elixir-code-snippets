@@ -507,8 +507,8 @@ dl .disc.expired {background-color: #FF5572;}
 #repeatBtn {
   cursor: pointer;
 }
-
-.end-date .bootstrap-datetimepicker-widget {
+/*Fix for: https://github.com/randonrussell/fsm-backend-and-web/issues/1118*/
+.bootstrap-datetimepicker-widget {
   height: fit-content !important;
 }
 

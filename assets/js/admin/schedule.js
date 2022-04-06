@@ -2061,7 +2061,7 @@ $(document).ready(function () {
 
   function initDateTimePicker() {
     $('.datetimepickerstart').datetimepicker({
-      // debug: true,
+      //debug: true,
       stepping: 30,
       icons: {
         time: "now-ui-icons tech_watch-time",
@@ -2076,7 +2076,7 @@ $(document).ready(function () {
       }
     });
     $('.datetimepickerend').datetimepicker({
-      // debug: true,
+      //debug: true,
       useCurrent: false, //Important! See issue #1075
       stepping: 30,
       icons: {
@@ -2092,7 +2092,7 @@ $(document).ready(function () {
       }
     });
     $('#datepickercustom').datetimepicker({
-      // debug: true,
+      //debug: true,
       stepping: 30,
       icons: {
         time: "now-ui-icons tech_watch-time",
@@ -2109,6 +2109,7 @@ $(document).ready(function () {
     });
    
     $('.repeatdatepickerend').datetimepicker({
+      //debug: true,
       format: 'YYYY-MM-DD',
       defaultDate: moment(new Date()).add(2, 'M'),
       minDate : new Date(),
