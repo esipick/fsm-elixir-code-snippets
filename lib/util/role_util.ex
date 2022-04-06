@@ -3,9 +3,9 @@ defmodule FlightWeb.RoleUtil do
     case access_level(user) do
       "admin" -> "/admin/home"
       "instructor" -> "/instructor/profile"
-      "student" -> "/student/home"
-      "renter" -> "/renter/home"
-      "mechanic" -> "/mechanic/home"
+      "student" -> "/student/profile"
+      "renter" -> "/renter/profile"
+      "mechanic" -> "/mechanic/profile"
       _ -> nil
     end
   end
