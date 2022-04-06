@@ -634,6 +634,11 @@ $(document).ready(function () {
     console.log("save Button Clicked")
     const isRecurring = $('.repeatBtn').is(":checked");
     if ( isRecurring ) {
+      const repeatType = parseInt($('#repeatType').val());
+      if (repeatType == 0 && $('input[name=week_days]:checked').length === 0) {
+        showAlert('Please select the days.', 'danger');
+        return;
+      }
       var eventEnd = $('#repeatEnd').val();
       if ( !eventEnd ) {
         showAlert('End Date is required.', 'danger');
