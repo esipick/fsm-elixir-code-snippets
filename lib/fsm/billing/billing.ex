@@ -244,6 +244,7 @@ defmodule Fsm.Billing do
               total_tax: i.total_tax,
               total_amount_due: i.total_amount_due,
               status: i.status,
+              appt_status: i.appt_status,
               payment_option: i.payment_option,
               payer_name: payer_name(i),
               demo: i.demo,

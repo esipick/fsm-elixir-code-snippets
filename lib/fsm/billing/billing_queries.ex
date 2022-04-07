@@ -13,6 +13,7 @@ defmodule Fsm.Billing.BillingQueries do
   alias Fsm.Billing.InvoiceLineItem
   alias Fsm.Aircrafts.Aircraft
   alias Fsm.SchoolAssets.Room
+  alias Fsm.Scheduling.Appointment
 
   require Logger
 
@@ -24,6 +25,8 @@ defmodule Fsm.Billing.BillingQueries do
       on: (i.id == ili.invoice_id),
       left_join: ac in Aircraft,
       on: (ac.id == ili.aircraft_id),
+      left_join: a in Appointment,
+      on: (a.id == i.appointment_id),
       left_join: u in User,
       on: i.user_id == u.id,
       left_join: instructor in User,
@@ -36,6 +39,7 @@ defmodule Fsm.Billing.BillingQueries do
         total_tax: i.total_tax,
         total_amount_due: i.total_amount_due,
         status: i.status,
+        appt_status: a.appt_status,
         payment_option: i.payment_option,
         payer_name: i.payer_name,
         demo: i.demo,
@@ -108,7 +112,7 @@ defmodule Fsm.Billing.BillingQueries do
           ),
         user: u
       },
-      group_by: [i.id, u.id],
+      group_by: [i.id, u.id, a.appt_status],
       where: i.archived == false and i.is_visible == true
     )
   end
@@ -119,6 +123,8 @@ defmodule Fsm.Billing.BillingQueries do
       on: (i.id == t.invoice_id or i.bulk_invoice_id == t.bulk_invoice_id),
       inner_join: ili in InvoiceLineItem,
       on: (i.id == ili.invoice_id),
+      left_join: a in Appointment,
+      on: (a.id == i.appointment_id),
       left_join: ac in Aircraft,
       on: (ac.id == ili.aircraft_id),
       inner_join: u in User,
@@ -133,6 +139,7 @@ defmodule Fsm.Billing.BillingQueries do
         total_tax: i.total_tax,
         total_amount_due: i.total_amount_due,
         status: i.status,
+        appt_status: a.appt_status,
         payment_option: i.payment_option,
         payer_name: i.payer_name,
         demo: i.demo,
@@ -204,7 +211,7 @@ defmodule Fsm.Billing.BillingQueries do
           ),
         user: u
       },
-      group_by: [i.id, u.id],
+      group_by: [i.id, u.id, a.appt_status],
       where: i.user_id == ^user_id and i.archived == false and i.is_visible == true
     )
   end
