@@ -765,7 +765,7 @@ $(document).ready(function () {
           return;
         }
         if ( !$('#apptInstructor').val() ) {
-          showAlert('Room is required.', 'danger')
+          showAlert('Instructor is required.', 'danger')
           $('#loader').hide();
           return;
         }
