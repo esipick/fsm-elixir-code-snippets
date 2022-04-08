@@ -310,8 +310,7 @@ $(document).ready(function () {
 
   $('#apptType').on('change', function() {
     resetRepeatForm(this.value);
-    $('#apptFieldRoom').show();
-    $('#apptFieldSimulator').show();
+    regularView();
     if ( this.value == 'flight_lesson' ) {
       $('#instructorPreTime').show();
       $('#instructorPostTime').show();
@@ -324,31 +323,31 @@ $(document).ready(function () {
     switch(this.value) {
       case "demo_flight":
         airplaneRentalView(false)
-        meetingView(false)
-        demoFlightView(true);
-        regularView(false);
+        meetingView(false)        
+        flightLessonView(false);
         unavailabilityView(false);
         maintenanceView(false);
+        demoFlightView(true);
         eventType = "demoAppt";
         break;
 
       case "unavailable":
         airplaneRentalView(false)
-        meetingView(false)
-        unavailabilityView(true);
+        meetingView(false)        
         demoFlightView(false);
-        regularView(false);
+        flightLessonView(false);
         maintenanceView(false);
+        unavailabilityView(true);
         eventType = "unavail"
         break;
 
       case "unavailability":
         airplaneRentalView(false)
-        meetingView(false)
-        unavailabilityView(true);
+        meetingView(false)        
         demoFlightView(false);
-        regularView(false);
+        flightLessonView(false);
         maintenanceView(false);
+        unavailabilityView(true);
         eventType = "unavail"
         break;
     
@@ -357,7 +356,7 @@ $(document).ready(function () {
         meetingView(false)
         unavailabilityView(false);
         demoFlightView(false);
-        regularView(false);
+        flightLessonView(false);
         maintenanceView(true);
         eventType = "maintenance"
         break;
@@ -372,7 +371,7 @@ $(document).ready(function () {
         break;
       case "airplane_rental":        
         meetingView(false);
-        regularView(false);
+        flightLessonView(false);
         unavailabilityView(false);
         demoFlightView(false);
         maintenanceView(false);
@@ -381,7 +380,7 @@ $(document).ready(function () {
         break;
       case "check_ride":        
         meetingView(false);
-        regularView(false);
+        flightLessonView(false);
         unavailabilityView(false);
         demoFlightView(false);
         maintenanceView(false);
@@ -391,25 +390,30 @@ $(document).ready(function () {
       default:
         airplaneRentalView(false)
         meetingView(false);
-        regularView(true);
         unavailabilityView(false);
         demoFlightView(false);
         maintenanceView(false);
+        flightLessonView(true);
         eventType = "appt";
         break;
 
     }
   })
 
-  function regularView(show) {
-    if (show) {
-      $('#appointmentResouceForm.tab-pane').addClass("active");
-      $('#appointmentForm.tab-pane').addClass("active");
-      $('#apptFieldInstructor').show();
-    } else {
-      $('#appointmentResouceForm.tab-pane').removeClass("active");
-      $('#appointmentForm.tab-pane').removeClass("active");
-    }
+  function regularView() {
+    $('#apptFieldRoom').show();
+    $('#apptFieldSimulator').show();
+    $('#apptFieldAircraft').show();
+    $('#apptFieldInstructor').show();
+    $('#apptFor').val('Aircraft').selectpicker("refresh");
+    // if (show) {
+    //   $('#appointmentResouceForm.tab-pane').addClass("active");
+    //   $('#appointmentForm.tab-pane').addClass("active");
+    //   $('#apptFieldInstructor').show();
+    // } else {
+    //   $('#appointmentResouceForm.tab-pane').removeClass("active");
+    //   $('#appointmentForm.tab-pane').removeClass("active");
+    // }
   }
 
   function meetingView(show) {
@@ -490,16 +494,30 @@ $(document).ready(function () {
     }
   }
 
-
   function maintenanceView(show) {
     if (show) {
       $('#maintenanceForm.tab-pane').addClass("active");
+      $('#apptFieldRoom').hide();
+      $('#apptFieldSimulator').hide();
     } else {
       $('#maintenanceForm.tab-pane').removeClass("active");
     }
 
     $('#apptInstructorPreTime').hide();
     $('#apptInstructorPostTime').hide();
+  }
+
+  function flightLessonView(show) {
+    if (show) {
+      $('#appointmentResouceForm.tab-pane').addClass("active");
+      $('#appointmentForm.tab-pane').addClass("active");
+      $('#apptFieldSimulator').hide();
+      $('#apptFieldRoom').hide();
+      
+    } else {
+      $('#appointmentResouceForm.tab-pane').removeClass("active");
+      $('#appointmentForm.tab-pane').removeClass("active");
+    }
   }
 
 
@@ -742,6 +760,11 @@ $(document).ready(function () {
           return;
         }
         if ( aptFor == 'Room' && !eventRoom ) {
+          showAlert('Room is required.', 'danger')
+          $('#loader').hide();
+          return;
+        }
+        if ( !$('#apptInstructor').val() ) {
           showAlert('Room is required.', 'danger')
           $('#loader').hide();
           return;
@@ -1243,7 +1266,7 @@ $(document).ready(function () {
     if (initialData.type == "unavailability" || initialData.type == "unavailable") {
       $("#btnICSFile").hide();
 
-      regularView(false);
+      flightLessonView(false);
       unavailabilityView(true);
       demoFlightView(false);
       maintenanceView(false);
@@ -1259,7 +1282,7 @@ $(document).ready(function () {
     } else if (initialData.type == "demoAppointment" || initialData.type == "demo_flight"){
 
       demoFlightView(true);
-      regularView(false);
+      flightLessonView(false);
       unavailabilityView(false);
       maintenanceView(false);
       eventType = "demoAppt";
@@ -1281,7 +1304,7 @@ $(document).ready(function () {
     } else if(initialData.type == "maintenance" || isMechanic) {
       maintenanceView(true);
       demoFlightView(false);
-      regularView(false);
+      flightLessonView(false);
       unavailabilityView(false);
       eventType = "maintenance";
       appointmentId = initialData.id;
@@ -1305,7 +1328,7 @@ $(document).ready(function () {
         meetingView(true);
       } else {
         meetingView(false);
-        regularView(true);
+        flightLessonView(true);
       }
       
       unavailabilityView(false);
