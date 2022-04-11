@@ -1324,11 +1324,23 @@ $(document).ready(function () {
         $('#apptTitle').text("Create New")
       }
     } else {
+      
       if (initialData.type == "meeting") {
         meetingView(true);
-      } else {
-        meetingView(false);
+      } 
+      else if (initialData.type == "flight_lesson") {
         flightLessonView(true);
+        if ( appointmentFor == "Simulator" ) {
+          $('#apptFieldAircraft').hide();
+          $('#apptFieldSimulator').show();
+        }
+        else if ( appointmentFor == "Room" ) {
+          $('#apptFieldAircraft').hide();
+          $('#apptFieldRoom').show();
+        }
+      }
+      else if (initialData.type === "check_ride" || initialData.type === "airplane_rental") {
+        airplaneRentalView(true);
       }
       
       unavailabilityView(false);
