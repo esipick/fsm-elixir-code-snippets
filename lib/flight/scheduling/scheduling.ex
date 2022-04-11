@@ -420,14 +420,24 @@ defmodule Flight.Scheduling do
     start_at = Map.get(attrs, "start_at") || Map.get(attrs, :start_at)
     end_at = Map.get(attrs, "end_at") || Map.get(attrs, :end_at)
 
+    {pre_time, post_time} = Utils.pre_post_instructor_duration(attrs)
+
     Utils.calculateSchedules(type, days, end_date, start_at, end_at)
     |> Enum.reduce({:ok, %{parent_id: nil, appointments: [], errors: %{}}}, fn {start_at, end_at}, acc ->
         {:ok, acc} = acc
         parent_id = Map.get(acc, :parent_id)
+        pre_duration = %Timex.Duration{seconds: -pre_time, megaseconds: 0, microseconds: 0}
+        inst_start_at = Timex.add(start_at, pre_duration)
+
+        post_duration = %Timex.Duration{seconds: post_time, megaseconds: 0, microseconds: 0}
+        inst_end_at = Timex.add(end_at, post_duration)
+
         attrs =
             attrs
             |> Map.put("start_at", start_at)
             |> Map.put("end_at", end_at)
+            |> Map.put("inst_start_at", inst_start_at)
+            |> Map.put("inst_end_at", inst_end_at)
             |> Map.put("parent_id", parent_id)
 
         insert_or_update_appointment(%Appointment{}, attrs, modifying_user, context)

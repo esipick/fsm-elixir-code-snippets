@@ -2054,8 +2054,8 @@ $(document).ready(function () {
             
             if (appointment.instructor_user) {
                 let instructorResourceId = "instructor:" + appointment.instructor_user.id
-                let start_at = appointment.inst_start_at || start_at
-                let end_at = appointment.inst_end_at || end_at
+                let start_at = appointment.inst_start_at || appointment.start_at
+                let end_at = appointment.inst_end_at || appointment.end_at
                 appointments.push(modelFromAppointment(appointment, [instructorResourceId], start_at, end_at, true))
             }
 

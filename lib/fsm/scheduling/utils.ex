@@ -137,6 +137,24 @@ defmodule Fsm.Scheduling.Utils do
     [first | schedules]
   end
 
+
+  def pre_post_instructor_duration(attrs) do
+    start_at = Map.get(attrs, :start_at) || Map.get(attrs, "start_at")
+    end_at = Map.get(attrs, :end_at) || Map.get(attrs, "end_at")
+    inst_start_at = Map.get(attrs, :inst_start_at) || Map.get(attrs, "inst_start_at") || start_at
+    inst_end_at = Map.get(attrs, :inst_end_at) || Map.get(attrs, "inst_end_at") || end_at
+
+    {:ok, appt_start} = if is_binary(start_at), do: NaiveDateTime.from_iso8601(start_at), else: {:ok, start_at}
+    {:ok, appt_end} = if is_binary(end_at), do: NaiveDateTime.from_iso8601(end_at), else: {:ok, end_at}
+    {:ok, inst_start_at} = if is_binary(inst_start_at), do: NaiveDateTime.from_iso8601(inst_start_at), else: {:ok, inst_start_at}
+    {:ok, inst_end_at} = if is_binary(inst_end_at), do: NaiveDateTime.from_iso8601(inst_end_at), else: {:ok, inst_end_at}
+
+    pre_time = Timex.diff(appt_start, inst_start_at, :seconds)
+    post_time = Timex.diff(inst_end_at, appt_end, :seconds)
+
+    {abs(pre_time), abs(post_time)}
+  end
+
   defp generate_ranges(type, days, appt_start, appt_end, end_at, next_iteration, schedules \\ []) do
     num_of_seconds_in_day = 86400
     today_num =  if type == :week, do: Timex.weekday(appt_start), else: appt_start.day
