@@ -310,6 +310,7 @@ $(document).ready(function () {
 
   $('#apptType').on('change', function() {
     resetRepeatForm(this.value);
+    resetFormValues();
     regularView();
     if ( this.value == 'flight_lesson' ) {
       $('#instructorPreTime').show();
@@ -400,10 +401,18 @@ $(document).ready(function () {
     }
   })
 
+  function hideInstructorTime() {
+    $('#instructorPreTime').hide();
+    $('#instructorPostTime').hide();
+  }
+
   function regularView() {
     $('#apptFieldRoom').show();
     $('#apptFieldSimulator').show();
     $('#apptFieldAircraft').show();
+    $('#apptFieldInstructor').show();
+    $('#instructorPreTime').show();
+    $('#instructorPostTime').show();
     $('#apptFieldInstructor').show();
     $('#apptFor').val('Aircraft').selectpicker("refresh");
     // if (show) {
@@ -428,8 +437,7 @@ $(document).ready(function () {
       $('#apptFieldSimulator').hide();
       $('#apptFieldRoom').show();
 
-      $('#instructorPreTime').hide();
-      $('#instructorPostTime').hide();
+      hideInstructorTime();
     } else {
       $('#appointmentForm.tab-pane').removeClass("active");
 
@@ -446,23 +454,22 @@ $(document).ready(function () {
   function demoFlightView(show) {
     if (show) {
       $('#demoAppointmentForm.tab-pane').addClass("active");
+      hideInstructorTime();
     } else {
       $('#demoAppointmentForm.tab-pane').removeClass("active");
     }
 
-    $('#apptInstructorPreTime').hide();
-    $('#apptInstructorPostTime').hide();
   }
 
   function unavailabilityView(show) {
     if (show) {
       $('#unavailabilityForm.tab-pane').addClass("active");
+      hideInstructorTime();
     } else {
       $('#unavailabilityForm.tab-pane').removeClass("active");
     }
 
-    $('#apptInstructorPreTime').hide();
-    $('#apptInstructorPostTime').hide();
+    
   }
 
   function airplaneRentalView(show) {
@@ -475,11 +482,9 @@ $(document).ready(function () {
 
       $('#apptFieldSimulator').hide();
       $('#apptFieldRoom').hide();
-      $('#apptFieldInstructor').hide();
-      
+      $('#apptFieldInstructor').hide();      
 
-      $('#instructorPreTime').hide();
-      $('#instructorPostTime').hide();
+      hideInstructorTime();
     } else {
       $('#appointmentForm.tab-pane').removeClass("active");
 
@@ -499,12 +504,10 @@ $(document).ready(function () {
       $('#maintenanceForm.tab-pane').addClass("active");
       $('#apptFieldRoom').hide();
       $('#apptFieldSimulator').hide();
+      hideInstructorTime();
     } else {
       $('#maintenanceForm.tab-pane').removeClass("active");
     }
-
-    $('#apptInstructorPreTime').hide();
-    $('#apptInstructorPostTime').hide();
   }
 
   function flightLessonView(show) {
@@ -520,8 +523,17 @@ $(document).ready(function () {
     }
   }
 
-
-  $('#apptFor').on('change', function () {
+  function resetFormValues() {
+    $('#apptInstructor').val(null).selectpicker("refresh");
+    $('#apptInstructorPreTime').val(0).selectpicker("refresh");
+    $('#apptInstructorPostTime').val(0).selectpicker("refresh");
+    $('#apptAircraft').val(null).selectpicker("refresh");
+    $('#apptSimulator').val(null).selectpicker("refresh");
+    $('#apptRoom').val(null).selectpicker("refresh");
+    $('#apptNote').val(null);
+  }
+  $('#apptFor').on('change', function () { 
+    resetFormValues();  
     displayForAppointment(this.value)
   });
 
@@ -533,10 +545,6 @@ $(document).ready(function () {
 
       $('#apptAircraft').val(null).selectpicker("refresh");
       $('#apptRoom').val(null).selectpicker("refresh");
-
-    $('#instructorPreTime').hide();
-    $('#instructorPostTime').hide();
-
     } else if (type == "Room") {
       $('#apptFieldAircraft').hide();
       $('#apptFieldSimulator').hide();
@@ -545,16 +553,13 @@ $(document).ready(function () {
       $('#apptAircraft').val(null).selectpicker("refresh");
       $('#apptSimulator').val(null).selectpicker("refresh");
 
-    $('#instructorPreTime').hide();
-    $('#instructorPostTime').hide();
-
     } else {
       $('#apptFieldAircraft').show();
       $('#apptFieldSimulator').hide();
       $('#apptFieldRoom').hide();
 
-      $('#instructorPreTime').show();
-      $('#instructorPostTime').show();
+      // $('#instructorPreTime').show();
+      // $('#instructorPostTime').show();
 
       $('#apptSimulator').val(null).selectpicker("refresh");
       $('#apptRoom').val(null).selectpicker("refresh");
@@ -1162,106 +1167,107 @@ $(document).ready(function () {
   });
 
   var openAppointmentModal = function (initialData) {
-      appointmentOrUnavailabilityId = initialData.id;
-      const isStudent = userInfo.roles.includes("student")
-      const isInstructor = userInfo.roles.includes("instructor")
-      const isMechanic = userInfo.roles.includes("mechanic")
-      resetRepeatForm(null);
-      if (userInfo && userInfo.roles && isStudent) {
-        $("#apptAssignedPerson").hide()
+    appointmentOrUnavailabilityId = initialData.id;
+    const isStudent = userInfo.roles.includes("student")
+    const isInstructor = userInfo.roles.includes("instructor")
+    const isMechanic = userInfo.roles.includes("mechanic")
+    regularView();
+    resetRepeatForm(null);
+    if (userInfo && userInfo.roles && isStudent) {
+      $("#apptAssignedPerson").hide()
 
-        $("#apptAssignedInstBox").prop("checked", true);
-        $("#apptAssignedAircraftBox").prop("checked", true);
+      $("#apptAssignedInstBox").prop("checked", true);
+      $("#apptAssignedAircraftBox").prop("checked", true);
 
-        const userInstructorsIds = userInfo && userInfo.instructors;
-        pickerDidChangeStateForUser('#apptInstructor', true, userInstructorsIds, allInstructors)
+      const userInstructorsIds = userInfo && userInfo.instructors;
+      pickerDidChangeStateForUser('#apptInstructor', true, userInstructorsIds, allInstructors)
 
-        const userAircraftIds = userInfo && userInfo.aircrafts;
-        pickerDidChangeStateForUser('#apptAircraft', true, userAircraftIds, allAircrafts)
+      const userAircraftIds = userInfo && userInfo.aircrafts;
+      pickerDidChangeStateForUser('#apptAircraft', true, userAircraftIds, allAircrafts)
 
-      } else if (userInfo && userInfo.roles && isInstructor) {
-        $("#apptAssignedAircraft").hide()
-        $("#apptAssignedInstructor").hide()
+    } else if (userInfo && userInfo.roles && isInstructor) {
+      $("#apptAssignedAircraft").hide()
+      $("#apptAssignedInstructor").hide()
 
-        $("#apptAssignedPersonBox").prop("checked", true);
-        const userStudentIds = userInfo && userInfo.students;
-        pickerDidChangeStateForUser('#apptStudent', true, userStudentIds, allStudents)
+      $("#apptAssignedPersonBox").prop("checked", true);
+      const userStudentIds = userInfo && userInfo.students;
+      pickerDidChangeStateForUser('#apptStudent', true, userStudentIds, allStudents)
 
+    } else {
+      $("#apptAssignedPerson").hide()
+      $("#apptAssignedAircraft").hide()
+      $("#apptAssignedInstructor").hide()
+    }
+
+    if (appointmentOrUnavailabilityId) {
+      // $('#apptType').attr('disabled', true);
+
+      var initialDataType = initialData.type;
+
+      if (initialDataType === "none") {
+        var o = new Option("None", "none");
+        $(o).html("None");
+        $("#apptType").append(o);
+        $('#apptType').val(initialDataType).selectpicker("refresh");
+      } else if (initialDataType === "lesson") {
+        var o = new Option("Lesson", "none");
+        $(o).html("Lesson");
+        $("#apptType").append(o);
+        $('#apptType').val(initialDataType).selectpicker("refresh");
       } else {
-        $("#apptAssignedPerson").hide()
-        $("#apptAssignedAircraft").hide()
-        $("#apptAssignedInstructor").hide()
+        $('#apptType').val(initialDataType).selectpicker("refresh");
       }
+      $('#btnDelete').show()
+      $('#repeatOption').addClass('d-none');
+    } else {
+      const appointmentType = isMechanic ? "maintenance" : "flight_lesson"
+      $('#apptType').attr('disabled', isMechanic)
+      $('#apptType').val(appointmentType).selectpicker("refresh");
+      $('#btnDelete').hide();
+      $('#btnDelete').hide();    
+      $('#repeatOption').removeClass('d-none');    
+    }
 
-      if (appointmentOrUnavailabilityId) {
-        // $('#apptType').attr('disabled', true);
+    var unavailType = "Instructor";
 
-        var initialDataType = initialData.type;
+    $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
+    $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+    $('#unavailSimulator').val(initialData.simulator_id).selectpicker("refresh");
+    $('#unavailRoom').val(initialData.room_id).selectpicker("refresh");
+    $('#unavailNote').val(initialData.note);
 
-        if (initialDataType === "none") {
-          var o = new Option("None", "none");
-          $(o).html("None");
-          $("#apptType").append(o);
-          $('#apptType').val(initialDataType).selectpicker("refresh");
-        } else if (initialDataType === "lesson") {
-          var o = new Option("Lesson", "none");
-          $(o).html("Lesson");
-          $("#apptType").append(o);
-          $('#apptType').val(initialDataType).selectpicker("refresh");
-        } else {
-          $('#apptType').val(initialDataType).selectpicker("refresh");
-        }
-        $('#btnDelete').show()
-        $('#repeatOption').addClass('d-none');
-      } else {
-        const appointmentType = isMechanic ? "maintenance" : "flight_lesson"
-        $('#apptType').attr('disabled', isMechanic)
-        $('#apptType').val(appointmentType).selectpicker("refresh");
-        $('#btnDelete').hide();
-        $('#btnDelete').hide();    
-        $('#repeatOption').removeClass('d-none');    
-      }
+    if (initialData.instructor_user_id) {
+      unavailType = "Instructor"
 
-      var unavailType = "Instructor";
+    } else if (initialData.aircraft_id) {
+      unavailType = "Aircraft"
 
-      $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
-      $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
-      $('#unavailSimulator').val(initialData.simulator_id).selectpicker("refresh");
-      $('#unavailRoom').val(initialData.room_id).selectpicker("refresh");
-      $('#unavailNote').val(initialData.note);
+    } else if (initialData.simulator_id) {
+      unavailType = "Simulator"
 
-      if (initialData.instructor_user_id) {
-        unavailType = "Instructor"
+    } else {
+      unavailType = "Room"
+    }
 
-      } else if (initialData.aircraft_id) {
-        unavailType = "Aircraft"
+    $('#unavailFor').val(unavailType).selectpicker("refresh");
+    displayForUnavailability(unavailType)
 
-      } else if (initialData.simulator_id) {
-        unavailType = "Simulator"
+    var appointmentFor = null
 
-      } else {
-        unavailType = "Room"
-      }
+    if (initialData.aircraft_id) {
+      appointmentFor = "Aircraft"
 
-      $('#unavailFor').val(unavailType).selectpicker("refresh");
-      displayForUnavailability(unavailType)
+    } else if (initialData.simulator_id) {
+      appointmentFor = "Simulator"
 
-      var appointmentFor = null
+    } else if (initialData.room_id) {
+      appointmentFor = "Room"
+    }
 
-      if (initialData.aircraft_id) {
-        appointmentFor = "Aircraft"
+    
 
-      } else if (initialData.simulator_id) {
-        appointmentFor = "Simulator"
-
-      } else if (initialData.room_id) {
-        appointmentFor = "Room"
-      }
-
-      displayForAppointment(appointmentFor)
-
-      if (!appointmentFor) {appointmentFor = "Aircraft"}
-      $('#apptFor').val(appointmentFor).selectpicker("refresh");
+    if (!appointmentFor) {appointmentFor = "Aircraft"}
+    $('#apptFor').val(appointmentFor).selectpicker("refresh");
 
     if (initialData.type == "unavailability" || initialData.type == "unavailable") {
       $("#btnICSFile").hide();
@@ -1323,24 +1329,26 @@ $(document).ready(function () {
       } else {
         $('#apptTitle').text("Create New")
       }
-    } else {
-      
+    } else {     
       if (initialData.type == "meeting") {
         meetingView(true);
       } 
       else if (initialData.type == "flight_lesson") {
         flightLessonView(true);
-        if ( appointmentFor == "Simulator" ) {
-          $('#apptFieldAircraft').hide();
-          $('#apptFieldSimulator').show();
-        }
-        else if ( appointmentFor == "Room" ) {
-          $('#apptFieldAircraft').hide();
-          $('#apptFieldRoom').show();
-        }
+        // if ( appointmentFor == "Simulator" ) {
+        //   $('#apptFieldAircraft').hide();
+        //   $('#apptFieldSimulator').show();
+        // }
+        // else if ( appointmentFor == "Room" ) {
+        //   $('#apptFieldAircraft').hide();
+        //   $('#apptFieldRoom').show();
+        // }
       }
-      else if (initialData.type === "check_ride" || initialData.type === "airplane_rental") {
+      else if (initialData.type == "check_ride" || initialData.type == "airplane_rental") {
         airplaneRentalView(true);
+      }
+      else {
+        flightLessonView(true)
       }
       
       unavailabilityView(false);
@@ -1366,7 +1374,7 @@ $(document).ready(function () {
         $('#apptTitle').text("Create New")
       }
     }
-
+    displayForAppointment(appointmentFor)
     $('#apptStart').val(initialData.start_at.format(displayFormat))
     $('#apptEnd').val(initialData.end_at.format(displayFormat))
 
@@ -1387,7 +1395,7 @@ $(document).ready(function () {
       $('#maintenanceMechanic').prop("disabled", false).selectpicker("refresh");
       $('#maintenanceMechanic').find('option:last').remove();
     }
-
+    
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#apptInstructorPreTime').val(initialData.instructor_pre_time).selectpicker("refresh");
     $('#apptInstructorPostTime').val(initialData.instructor_post_time).selectpicker("refresh");
@@ -1841,6 +1849,7 @@ $(document).ready(function () {
         return current_user && current_user.id === id
       },
       select: function (start, end, notSure, notSure2, resource) {
+        
         const canProceed = checkRole();
         if ( !canProceed ) return;
         var instructorId = null;
@@ -1952,7 +1961,6 @@ $(document).ready(function () {
           if( appointment.status == "paid") {
             alert("This appointment has been successfully paid!");
           }
-          console.log(appointment)
           openAppointmentModal({
             type: "demoAppointment",
             start_at: moment.utc(appointment.start_at).add(+(moment(appointment.start_at).utcOffset()), 'm'),
