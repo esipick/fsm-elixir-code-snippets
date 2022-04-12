@@ -245,6 +245,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   input_object :recurrence_input do
     field :type, non_null(:repeat_type)
     field :days, list_of(non_null(:integer))
+    field :timezone_offset, non_null(:integer)
     field :end_at, non_null(:naive_datetime)
   end
 

@@ -125,18 +125,30 @@ defmodule Fsm.Scheduling.Utils do
   @doc """
     Appointment scheduling
   """
-  def calculateSchedules(type, days, end_at, appt_start, appt_end) when is_nil(end_at) or is_nil(type) or is_nil(days), do: {appt_start, appt_end}
-  def calculateSchedules(type, days, end_at, appt_start, appt_end) when is_list(days) do
+  def calculateSchedules(type, days, end_at, appt_start, appt_end, _timezone_offset) when is_nil(end_at) or is_nil(type) or is_nil(days), do: {appt_start, appt_end}
+  def calculateSchedules(type, days, end_at, appt_start, appt_end, timezone_offset \\ 0) when is_list(days) do
     {:ok, appt_start} = if is_binary(appt_start), do: NaiveDateTime.from_iso8601(appt_start), else: {:ok, appt_start}
     {:ok, appt_end} = if is_binary(appt_end), do: NaiveDateTime.from_iso8601(appt_end), else: {:ok, appt_end}
     {:ok, end_at} = if is_binary(end_at), do: NaiveDateTime.from_iso8601(end_at), else: {:ok, end_at}
 
-    first = {appt_start, appt_end}
-    schedules = generate_ranges(type, days, appt_start, appt_end, end_at, false)
+    duration = %Timex.Duration{seconds: timezone_offset, megaseconds: 0, microseconds: 0}
+    local_appt_start = Timex.add(appt_start, duration)
+    local_appt_end = Timex.add(appt_end, duration)
+    local_end_at = Timex.add(end_at, duration)
 
-    [first | schedules]
+    first = {local_appt_start, local_appt_end}
+    schedules = generate_ranges(type, days, local_appt_start, local_appt_end, local_end_at, false)
+
+    all = [first | schedules]
+
+    Enum.map([first | schedules], fn {local_start_at, local_end_at} ->
+      duration = %Timex.Duration{seconds: -timezone_offset, megaseconds: 0, microseconds: 0}
+      appt_start = Timex.add(local_start_at, duration)
+      appt_end = Timex.add(local_end_at, duration)
+
+      {appt_start, appt_end}
+    end)
   end
-
 
   def pre_post_instructor_duration(attrs) do
     start_at = Map.get(attrs, :start_at) || Map.get(attrs, "start_at")
