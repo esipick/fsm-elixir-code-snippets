@@ -676,6 +676,7 @@ $(document).ready(function () {
     return {
       type: repeatType,
       days: days, // array of integer, in case of week, 1 represents monday, in case of monthly, 1 represents 1st date and so on
+      timezone_offset: (moment().utcOffset()||0)*60,
       end_at: eventEnd
     }
   }

@@ -412,6 +412,7 @@ defmodule Flight.Scheduling do
     recurrence = Map.get(attrs, "recurrence") || Map.get(attrs, :recurrence) || %{}
     type = Map.get(recurrence, "type") || Map.get(recurrence, :type) || "" # 0 weekly, 1 monthly
     days = Map.get(recurrence, "days") || Map.get(recurrence, :days) || []
+    timezone_offset = (Map.get(recurrence, "timezone_offset") || Map.get(recurrence, :timezone_offset) || 0 ) |> Utils.string_to_int
     end_date = Map.get(recurrence, "end_at") || Map.get(recurrence, :end_at)
     type = Utils.string_to_int(type)
     days = Utils.integer_list(days)
@@ -422,7 +423,7 @@ defmodule Flight.Scheduling do
 
     {pre_time, post_time} = Utils.pre_post_instructor_duration(attrs)
 
-    Utils.calculateSchedules(type, days, end_date, start_at, end_at)
+    Utils.calculateSchedules(type, days, end_date, start_at, end_at, timezone_offset)
     |> Enum.reduce({:ok, %{parent_id: nil, appointments: [], errors: %{}}}, fn {start_at, end_at}, acc ->
         {:ok, acc} = acc
         parent_id = Map.get(acc, :parent_id)
@@ -755,6 +756,7 @@ defmodule Flight.Scheduling do
     recurrence = Map.get(attrs, "recurrence") || Map.get(attrs, :recurrence) || %{}
     type = Map.get(recurrence, "type") || Map.get(recurrence, :type) || "" # 0 weekly, 1 monthly
     days = Map.get(recurrence, "days") || Map.get(recurrence, :days) || []
+    timezone_offset = (Map.get(recurrence, "timezone_offset") || Map.get(recurrence, :timezone_offset) || 0 ) |> Utils.string_to_int
     end_date = Map.get(recurrence, "end_at") || Map.get(recurrence, :end_at)
     type = Utils.string_to_int(type)
     days = Utils.integer_list(days)
@@ -763,7 +765,7 @@ defmodule Flight.Scheduling do
     start_at = Map.get(attrs, "start_at") || Map.get(attrs, :start_at)
     end_at = Map.get(attrs, "end_at") || Map.get(attrs, :end_at)
 
-    Utils.calculateSchedules(type, days, end_date, start_at, end_at)
+    Utils.calculateSchedules(type, days, end_date, start_at, end_at, timezone_offset)
     |> Enum.reduce({:ok, %{parent_id: nil, unavailabilities: [], errors: %{}}}, fn {start_at, end_at}, acc ->
         {:ok, acc} = acc
         parent_id = Map.get(acc, :parent_id)
