@@ -20,7 +20,7 @@ defmodule FlightWeb.Course.CourseController do
     courses =   Flight.General.get_lms_courses(current_user, isAdmin)
     #Logger.info fn -> "loginUrl: #{inspect loginUrl}" end
     #Logger.info fn -> "courses: #{inspect courses}" end
-
+    IO.inspect(courses, label: "courses")
 
     render(conn, "index.html",
       courses: courses,
@@ -103,6 +103,20 @@ defmodule FlightWeb.Course.CourseController do
   def get_course_progress(participant_course) when is_nil(participant_course), do: 0
   def get_course_progress(participant_course) do
     participant_course.total_lessons_completed || 0
+  end
+
+  def get_user_courses_progress(current_user) do
+    courses =   Flight.General.get_lms_courses(current_user, false)
+    courses_info = Enum.map(courses, fn course ->
+                      participant_course = Flight.General.get_participant_course_lessons(current_user, course.id, current_user.id)
+                      course_info = %{
+                        id: course.id,
+                        course_name: course.course_name,
+                        progress: get_course_progress(participant_course)
+                      }
+                      course_info
+                   end)
+    courses_info
   end
 
 end

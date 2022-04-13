@@ -207,6 +207,35 @@
           </div>
         </div>
       </div>
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">LMS Status</h5>
+        </div>
+        <div class="card-body">
+          <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+            <thead>
+              <tr>
+                <th>Course Name</th>
+                <th>Progress</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <%= for course <- @courses_info do %>
+                <tr>
+                  <td><a href="/course/detail/<%= course.id %>"><%= course.course_name %></a></td>
+                  <td><%= course.progress %> % </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
     </div>
   </div> <!-- end row -->
 </div>

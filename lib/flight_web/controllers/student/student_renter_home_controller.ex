@@ -3,14 +3,13 @@ defmodule FlightWeb.Student.HomeController do
 
   alias Flight.{Accounts, Repo, Scheduling, Queries}
   alias Fsm.Aircrafts
-  alias FlightWeb.{Billing.InvoiceStruct, SharedView}
+  alias FlightWeb.{Billing.InvoiceStruct, SharedView, Course}
+  alias FlightWeb.Course.CourseController, as: Course
 
   def index(%{assigns: %{current_user: current_user}} = conn, _) do
     instructor_count = Accounts.get_user_count(Accounts.Role.instructor(), conn)
     aircrafts = Scheduling.visible_air_assets(conn)
     aircraft_count = Enum.count(aircrafts)
-    #aircrafts = aircrafts
-    #            |> Repo.preload([:inspections])
 
     user = Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
     options =
@@ -41,6 +40,7 @@ defmodule FlightWeb.Student.HomeController do
                       nil -> false
                       _  -> SharedView.expired?(card)
                     end
+    courses_info = Course.get_user_courses_progress(current_user)
 
     render(
       conn,
@@ -54,7 +54,8 @@ defmodule FlightWeb.Student.HomeController do
       appointments: appointments,
       inspections: inspections,
       invoices: invoices,
-      card_expired: card_expired
+      card_expired: card_expired,
+      courses_info: courses_info
     )
   end
 end
