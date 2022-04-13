@@ -194,14 +194,13 @@ defmodule Fsm.Scheduling.Utils do
         end
       end)
 
+    appt_duration = abs(Timex.diff(appt_end, appt_start, :seconds))
+    appt_duration = %Timex.Duration{seconds: appt_duration, megaseconds: 0, microseconds: 0}
     duration = %Timex.Duration{seconds: 1, megaseconds: 0, microseconds: 0}
     next_start = if type == :week, do: Timex.end_of_week(appt_start), else: Timex.end_of_month(appt_start)
-    next_end = if type == :week, do: Timex.end_of_week(appt_end), else: Timex.end_of_month(appt_end)
-    next_start = Timex.add(next_start, duration) # start of next day
-    next_end = Timex.add(next_end, duration) # start of next day
-
+    next_start = Timex.add(next_start, duration)
     appt_start = %{next_start | hour: appt_start.hour, minute: appt_start.minute, second: appt_start.second}
-    appt_end = %{next_end | hour: appt_end.hour, minute: appt_end.minute, second: appt_end.second}
+    appt_end = Timex.add(appt_start, appt_duration)
 
     iterations = Timex.diff(end_at, appt_end, type) # number of months/weeks in duration
 
