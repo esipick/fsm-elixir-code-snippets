@@ -4,8 +4,8 @@ defmodule FlightWeb.RoleUtil do
       "admin" -> "/admin/home"
       "instructor" -> "/instructor/profile"
       "student" -> "/student/home"
-      "renter" -> "/renter/profile"
-      "mechanic" -> "/mechanic/profile"
+      "renter" -> "/renter/home"
+      "mechanic" -> "/mechanic/home"
       _ -> nil
     end
   end
