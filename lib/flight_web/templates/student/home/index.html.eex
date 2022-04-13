@@ -31,6 +31,10 @@
       return "";
     }
   }
+  function getAppointmentType(type) {
+    const names = type.split('_').map(  element => element.charAt(0).toUpperCase() + element.substring(1).toLowerCase());
+    return names.join(' ');
+  }
 </script>
 <div class="panel-header panel-header-sm">
   <div class="header text-center">
@@ -229,6 +233,84 @@
               <% end %>
             </tbody>
           </table>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Appointments</h5>
+        </div>
+        <div class="card-body">
+          <%= if Enum.any?(@appointments) do %>
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Start Time</th>
+                  <th scope="col">End Time</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Asset</th>
+                </tr>
+              </thead>
+              <tbody>
+                <%= for appointment <- @appointments do %>
+                <tr>
+                  <td>
+                      <script> document.write(
+                      '<dd>'+getLocalUserAppointmentDateTime('<%= appointment.start_at %>')+'</dd>'
+                      ); </script>
+                  </td>
+                  <td>
+                    <script> document.write(
+                    '<dd>'+getLocalUserAppointmentDateTime('<%= appointment.end_at %>')+'</dd>'
+                    ); </script>
+                  </td>
+                  <td>
+                    <script> document.write(
+                    '<dd>'+getAppointmentType('<%= appointment.type %>')+'</dd>'
+                    ); </script>
+                  </td>
+                  <td>
+                    <%= if appointment.aircraft_id do %>
+                      <dl class="d-flex justify-content-between">
+                        <dt>Aircraft</dt>
+                        <dd><%= aircraft_display_name appointment.aircraft %></dd>
+                      </dl>
+                    <% end %>
+
+                    <%= if appointment.simulator_id do %>
+                      <dl class="d-flex justify-content-between">
+                        <dt>Simulator</dt>
+                        <dd><%= aircraft_display_name appointment.simulator %></dd>
+                      </dl>
+                    <% end %>
+
+                    <%= if appointment.room_id do %>
+                      <dl class="d-flex justify-content-between">
+                        <dt>Room</dt>
+                        <dd><%= appointment.room.location %></dd>
+                      </dl>
+                    <% end %>
+
+                    <%= if appointment.instructor_user_id do %>
+                      <dl class="d-flex justify-content-between">
+                        <dt>Instructor</dt>
+                        <dd><%= display_name appointment.instructor_user %></dd>
+                      </dl>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <h5>No appointments</h5>
+          <% end %>
         </div>
         <div class="card-footer">
           <div class="stats">
