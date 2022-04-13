@@ -12,14 +12,7 @@ defmodule FlightWeb.Student.HomeController do
     aircraft_count = Enum.count(aircrafts)
 
     user = Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
-    options =
-      cond do
-        Accounts.has_role?(user, "instructor") ->
-          %{"instructor_user_id" => user.id}
-
-        true ->
-          %{"user_id" => user.id}
-      end
+    options = %{"user_id" => user.id}
     appointments =
       Scheduling.get_appointments(options, conn)
       |> Repo.preload([:aircraft, :instructor_user, :simulator, :simulator, :room])
@@ -41,7 +34,7 @@ defmodule FlightWeb.Student.HomeController do
                       _  -> SharedView.expired?(card)
                     end
     courses_info = Course.get_user_courses_progress(current_user)
-
+    IO.inspect(appointments, label: "Appointments")
     render(
       conn,
       "index.html",
