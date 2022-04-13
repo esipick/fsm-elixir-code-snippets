@@ -302,7 +302,11 @@ defmodule Flight.Scheduling do
     simulator_id_value = options["simulator_id"]
     room_id_value = options["room_id"]
     assigned_value = if !!options["assigned"] and options["assigned"] not in [false, "false", "", " ", nil], do: options["assigned"], else: ""
-
+    sort_order =  if options["sort_order"] == "asc" do
+                    [asc: :start_at]
+                  else
+                    [desc: :start_at]
+                  end
     from(a in Appointment, where: a.archived == false)
     |> SchoolScope.scope_query(school_context)
     |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at >= ^start_at_after_value))
@@ -332,7 +336,8 @@ defmodule Flight.Scheduling do
     )
     |> pass_unless(options["status"], &where(&1, [a], a.status == ^options["status"]))
     # |> limit(200)
-    |> order_by([a], desc: a.start_at)
+    # |> order_by([a], desc: a.start_at)
+    |> order_by(^sort_order)
     |> Repo.all()
   end
 
