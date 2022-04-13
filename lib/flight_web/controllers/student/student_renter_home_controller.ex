@@ -16,7 +16,7 @@ defmodule FlightWeb.Student.HomeController do
     now = NaiveDateTime.utc_now()
     {from, to} = {Timex.beginning_of_week(now), Timex.end_of_week(now)}
 
-    options = %{"user_id" => user.id, "from" => from, "to" => to}
+    options = %{"user_id" => user.id, "from" => from, "to" => to, "sort_order" => "asc"}
     appointments =
       Scheduling.get_appointments(options, conn)
       |> Repo.preload([:aircraft, :instructor_user, :simulator, :simulator, :room])
@@ -38,7 +38,7 @@ defmodule FlightWeb.Student.HomeController do
                       _  -> SharedView.expired?(card)
                     end
     courses_info = Course.get_user_courses_progress(current_user)
-    IO.inspect(appointments, label: "Appointments")
+
     render(
       conn,
       "index.html",
