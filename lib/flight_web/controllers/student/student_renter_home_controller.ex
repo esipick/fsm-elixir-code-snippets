@@ -12,7 +12,11 @@ defmodule FlightWeb.Student.HomeController do
     aircraft_count = Enum.count(aircrafts)
 
     user = Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
-    options = %{"user_id" => user.id}
+
+    now = NaiveDateTime.utc_now()
+    {from, to} = {Timex.beginning_of_week(now), Timex.end_of_week(now)}
+
+    options = %{"user_id" => user.id, "from" => from, "to" => to}
     appointments =
       Scheduling.get_appointments(options, conn)
       |> Repo.preload([:aircraft, :instructor_user, :simulator, :simulator, :room])
