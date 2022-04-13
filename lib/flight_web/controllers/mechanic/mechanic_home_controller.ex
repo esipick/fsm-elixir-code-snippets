@@ -8,7 +8,7 @@ defmodule FlightWeb.Mechanic.HomeController do
     aircrafts = Scheduling.visible_air_assets(conn)
 
     user = Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
-    options = %{"mechanic_user_id" => user.id}
+    options = %{"mechanic_user_id" => user.id, "sort_order" => "asc"}
     appointments =
       Scheduling.get_appointments(options, conn)
       |> Repo.preload([:aircraft])
