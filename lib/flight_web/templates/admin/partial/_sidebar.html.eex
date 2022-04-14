@@ -26,10 +26,9 @@ Tip 2: you can also add an image using data-image tag
             <a href="<%=FlightWeb.RoleUtil.default_redirect_path(@conn.assigns.current_user)%>" class="collapsed text-center">
                 <span><%= @conn.assigns.current_user.first_name %> <%= @conn.assigns.current_user.last_name %></span>
             </a>
-
-
-
-            <div class="clearfix"></div>
+        </div>
+        <div class="d-flex justify-content-center">
+          <span class="text-center text-light"><%= user_roles(@conn.assigns.current_user) %></span>
         </div>
     </div>
     <ul class="nav">

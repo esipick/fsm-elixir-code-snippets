@@ -22,6 +22,20 @@ defmodule FlightWeb.API.UnavailabilityController do
     render(conn, "show.json", unavailability: unavailability)
   end
 
+  def create(conn, %{"data" => %{"recurring" => "true"} = unavailability_data}) do
+    {:ok, data} =
+      Flight.Scheduling.create_recurring_unavailabilities(unavailability_data, conn)
+
+    errors = Map.get(data, :errors) || %{}
+    human_errors = Enum.reduce(errors, %{}, fn {time, anError}, acc ->
+      errors = FlightWeb.ViewHelpers.human_error_messages(anError)
+      Map.put(acc, time, errors)
+    end)
+
+    conn
+    |> json(%{human_errors: human_errors})
+  end
+
   def create(conn, %{"data" => unavailability_data}) do
     case Flight.Scheduling.insert_or_update_unavailability(
            %Scheduling.Unavailability{},

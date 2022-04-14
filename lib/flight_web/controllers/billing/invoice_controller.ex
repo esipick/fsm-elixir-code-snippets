@@ -226,7 +226,7 @@ defmodule FlightWeb.Billing.InvoiceController do
       |> Repo.preload(:roles)
 
     roles = Enum.map(current_user.roles, &(&1.slug))
-
+      
     %{
       user_roles: roles,
       current_user_id: current_user.id,

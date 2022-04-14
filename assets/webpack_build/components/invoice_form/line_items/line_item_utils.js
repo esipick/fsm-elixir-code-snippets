@@ -1,4 +1,5 @@
 import shortid from 'shortid';
+import { getAccountBalance } from '../../utils';
 
 export const FLIGHT_HOURS = "Flight Hours";
 export const SIMULATOR_HOURS = "Simulator Hours"
@@ -103,15 +104,19 @@ const HOUR_IN_MILLIS = 3600000;
 
 export const itemsFromAppointment = (appointment, line_items, user_roles) => {
   line_items = line_items || []
-  
+
   if (appointment) {
+    const inst_start_at = appointment.inst_start_at || appointment.start_at
+    const inst_end_at = appointment.inst_end_at || appointment.end_at
+
     const duration = (new Date(appointment.end_at) - new Date(appointment.start_at)) / HOUR_IN_MILLIS;
+    const inst_duration = (new Date(inst_end_at) - new Date(appointment.inst_start_at)) / HOUR_IN_MILLIS;
     const items = [];
     if (appointment.instructor_user) {
       var item = findItem(line_items, "instructor")
       
       if (!item) {
-        item = instructorItem(appointment.instructor_user, duration);
+        item = instructorItem(appointment.instructor_user, inst_duration);
       }
 
       items.push(item)
@@ -134,6 +139,12 @@ export const itemsFromAppointment = (appointment, line_items, user_roles) => {
         item = appointment.aircraft || appointment.simulator
         item = fromAircraft(item, appointment.type)
       }       
+
+      if (appointment.aircraft 
+        && !appointment.demo 
+        && getAccountBalance(appointment.user) > 0) {
+          item.rate = appointment.aircraft.block_rate_per_hour || item.rate
+      }
       
       item.hobbs_start = appointment.start_hobbs_time || item.hobbs_start;
       item.hobbs_end = appointment.end_hobbs_time || item.hobbs_end;
@@ -257,7 +268,7 @@ export const itemsFromInvoice = (invoice, user_roles) => {
     aircraft.persist_rate = true // Do not let AircraftLineItem.jsx overwrite the rate with block rate and hour rate.
     aircraft.enable_rate = true
   }
-
+  
   if (aircraft && aircraft.hobbs_end > 0) {aircraft.disable_flight_hours = true}
 
   if (aircraft.description === DEMO_FLIGHT) {aircraft.enable_rate = false}

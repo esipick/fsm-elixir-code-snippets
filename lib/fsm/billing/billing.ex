@@ -105,7 +105,10 @@ defmodule Fsm.Billing do
 
         invoice = Repo.get(Invoice, invoice.id)
           |> Repo.preload([:line_items, :user, :school, :appointment], force: true)
+          |> Map.from_struct()
           |> Map.merge(session_info)
+
+        Map.put(invoice, :appt_status, invoice.appointment.appt_status)
 
       {:error, %Ecto.Changeset{errors: [invoice: {message, []}]} = changeset} ->
         {:error, changeset}
@@ -241,6 +244,7 @@ defmodule Fsm.Billing do
               total_tax: i.total_tax,
               total_amount_due: i.total_amount_due,
               status: i.status,
+              appt_status: i.appt_status,
               payment_option: i.payment_option,
               payer_name: payer_name(i),
               demo: i.demo,

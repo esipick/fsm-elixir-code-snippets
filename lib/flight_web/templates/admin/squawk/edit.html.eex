@@ -1,0 +1,246 @@
+<div class="panel-header panel-header-sm"></div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Edit Squawk</h3>
+        </div>
+        <%= form_for @changeset, "/admin/squawks/#{@squawk.id}", [as: :squawk, method: "put", class: "form-horizontal", multipart: true], fn f -> %>
+          <div class="card-body">
+            <%= hidden_input f, :aircraft_id, value: @squawk.aircraft_id %>
+            <div class="form-group">
+              <label>Title *</label>
+              <%= text_input f, :title, class: "form-control", placeholder: "Type squawk title", value: "#{@squawk.title}", required: true %>
+              <%= full_error_tag f, :title %>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3 pr-1">
+                <div class="form-group">
+                  <label>System Affected</label>
+                  <%= select f, :system_affected, ["COCKPIT": "COCKPIT", "ENGINE": "ENGINE", "FUSELAGE": "FUSELAGE", "LANDING_GEAR": "LANDING_GEAR", "PROPELLER": "PROPELLER", "TAIL": "TAIL", "WING": "WING"], selected: "#{String.upcase(to_string(@squawk.system_affected))}", class: "selectpicker" %>
+                  <%= full_error_tag f, :system_affected %>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3 pr-1">
+                <div class="form-group">
+                  <label>Severity</label>
+                  <%= select f, :severity, ["GROUNDED": "GROUNDED", "MONITOR": "MONITOR", "WARNING": "WARNING"], selected: "#{String.upcase(to_string(@squawk.severity))}", class: "selectpicker" %>
+                  <%= full_error_tag f, :severity %>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+                <Label>Description *</label>
+                <%= textarea f, :description, class: "form-control", placeholder: "Description", value: "#{@squawk.description}", required: false %>
+                <%= full_error_tag f, :title %>
+            </div>
+            <div class="drag-area">
+              <%# <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div> %>
+              <header>Drag and Drop a file to upload it.</header>
+              <span>Allowed file types: jpeg, .jpg, .png, .pdf</span>
+              <span>Max size: 5MB.</span>
+              <button class="btn btn-fill btn-primary" id="browseBtn">Browse Files</button>
+              <%= file_input f, :attachments, id: "file_upload", class: "input-file", accept: "application/pdf, image/*", multiple: true, hidden: true %>
+              <%= full_error_tag f, :attachments %>
+              <ul class="fileList">                 
+              </ul>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Attachments:</label>
+                <div class="d-flex justify-content-start flex-wrap">
+                  <%= for attachment <- @squawk.attachments do %>
+                    <%= if attachment.file_extension == "pdf" do %>
+                      <div class="d-flex justify-content-start mr-div">
+                        <div class="icon icon-primary">
+                          <i class="now-ui-icons files_paper" style="font-size:70px"></i>
+                          <p><%= attachment.file_name%></p>
+                        </div>
+                        <i class="now-ui-icons ui-1_simple-remove deleteFile" onclick="deleteSquawkImage(<%= attachment.id%>)" data-toggle="tooltip" data-placement="top" title="Delete file: <%= attachment.file_name%>"></i>
+                      </div>
+                    <% else %>
+                    <div class="d-flex justify-content-start mr-div">
+                      <div class="img-container">                    
+                        <img src="<%= attachment.url%>"/>
+                      </div>
+                      <i class="now-ui-icons ui-1_simple-remove deleteFile" onclick="deleteSquawkImage(<%= attachment.id%>)" data-toggle="tooltip" data-placement="top" title="Delete file: <%= attachment.file_name%>"></i>
+                    </div>
+                    <% end %>                  
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <div class="card-footer text-right">
+            <div class="pull-left">
+              <button type="button" onclick="history.back()" class="btn btn-fill btn-default mr-2">Cancel</button>
+              <input type="submit" class="btn btn-fill btn-primary" value="Save">
+            </div>
+            <button
+              style="margin-left: 4px;"
+              type="button"
+              class="btn btn-danger btn-fill _delete_button"
+                data-squawk-id="<%= @squawk.id %>">Resolve squawk</button>
+          </div>
+        <% end %>
+      </div>
+      <!-- end card -->
+    </div>
+  </div>
+</div>
+<!-- end content -->
+<%= render FlightWeb.Admin.PartialView,
+          "_shared_delete_form.html",
+          %{message: "We are resolving the squawk.",
+            path: "/admin/squawks/",
+            attribute: "squawk"} %>
+<style>
+    .drag-area{
+      border: 1px dashed #92b0b3;
+      border-radius: 5px;
+      background: #ffffff;
+      height: fit-content;
+      padding: 20px 0px;
+      width: 100%;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .drag-area .icon{
+      font-size: 100px;
+      color: #fff;
+    }
+    .drag-area header, .drag-area span{
+      font-size: 20px;
+      color: #3f8188;
+      text-align: center;
+      font-weight: 200;
+    }
+    .drag-area span{
+      font-size: 15px;
+    }
+    .drag-area button{
+      border-radius: 30px;
+    }
+    .drag-area img{
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    .img-container img{
+      object-fit:contain;
+      height: 100px;
+    }
+    .deleteFile {
+      cursor: pointer;
+      color: red;
+    }
+    .mr-div {
+      margin-right: 5rem;
+    }
+</style>
+
+<script>
+  //selecting all required elements
+  const dropArea = document.querySelector(".drag-area");
+  const button = dropArea.querySelector("#browseBtn");
+  const input = dropArea.querySelector("#file_upload");
+  const fileList = dropArea.querySelector(".fileList");
+
+
+  function showFiles() {
+    let list = '';
+    for (let i = 0; i < input.files.length; i++ ) {
+      list += '<li>'+input.files[i].name+'</li>';
+    }
+    fileList.innerHTML = list;
+  }
+
+  function deleteSquawkImage(id) {
+    
+    var AUTH_HEADERS = { "Authorization": "Bearer "+window.graphql_token };
+    const mutation = {
+      "query": "mutation deleteSquawkAttachment($id: ID) {deleteSquawkImage(id: $id) {id}}",
+      "operationName": "deleteSquawkAttachment",
+      "variables": {"id": id}
+    }
+    $.ajax({
+          method: "POST",
+          url: "/api/graphql",
+          data: mutation,
+          headers: AUTH_HEADERS
+    }).then(response => {
+      if ( response.errors && response.errors.length > 0 ) {
+        $.notify({
+          message: 'Unable to delete file.'
+        }, {
+          type: "danger",
+          placement: { align: "center" }
+        });
+        return;
+      }
+      
+      window.location.reload();
+      $.notify({
+          message: 'File deleted successfully.'
+        }, {
+          type: "success",
+          placement: { align: "center" }
+        });
+    })
+    .catch(error => {
+      $.notify({
+          message: 'Unable to delete file.'
+        }, {
+          type: "danger",
+          placement: { align: "center" }
+        });
+    })
+  }
+
+  button.onclick = (event)=>{
+    event.preventDefault();
+    input.click(); //if user click on the button then the input also clicked
+  }
+
+  input.addEventListener("change", function(){
+    showFiles();
+  });
+
+
+  //If user Drag File Over DropArea
+  dropArea.addEventListener("dragover", (event)=>{
+    event.preventDefault(); //preventing from default behaviour
+  });
+
+  //If user drop File on DropArea
+  dropArea.addEventListener("drop", (event)=>{
+    event.preventDefault(); //preventing from default behaviour
+    input.files = event.dataTransfer.files;   
+    showFiles();
+  });
+
+  const error = "<%= get_flash(@conn, :error) %>"
+
+  if(error) {
+    $.notify({
+              message: error
+            }, {
+              type: "danger",
+              placement: { align: "center" }
+            })
+  }
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>

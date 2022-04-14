@@ -69,6 +69,22 @@ defmodule FlightWeb.API.AppointmentController do
     render(conn, "show.json", appointment: appointment)
   end
 
+  def create(conn, %{"data" => %{"recurring" => "true"} = appointment_data}) do
+    {:ok, data} = Flight.Scheduling.insert_recurring_appointments(
+      appointment_data,
+      Repo.preload(conn.assigns.current_user, :school),
+      conn)
+
+    errors = Map.get(data, :errors) || %{}
+    human_errors = Enum.reduce(errors, %{}, fn {time, anError}, acc ->
+      errors = FlightWeb.ViewHelpers.human_error_messages(anError)
+      Map.put(acc, time, errors)
+    end)
+
+    conn
+    |> json(%{human_errors: human_errors})
+  end
+
   def create(conn, %{"data" => appointment_data}) do
     case Flight.Scheduling.insert_or_update_appointment(
            %Scheduling.Appointment{},

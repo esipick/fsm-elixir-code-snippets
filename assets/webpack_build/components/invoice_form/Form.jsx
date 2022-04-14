@@ -40,6 +40,7 @@ class Form extends Component {
     super(props);
 
     this.formRef = null;
+    console.log(props)
     const { creator, staff_member, appointment } = props;
     const demo = appointment && appointment.demo
     const appointments = appointment ? [appointment] : [];
@@ -53,6 +54,7 @@ class Form extends Component {
     
     this.state = {
       appointment,
+      appt_status: appointment && appointment.appt_status,
       appointments,
       id: props.id || '',
       current_user_id: props.current_user_id,
@@ -152,6 +154,7 @@ class Form extends Component {
           payment_method: payment_method,
           notes: invoice.notes,
           payer_email: invoice.payer_email,
+          appt_status: invoice.appt_status,
           demo: demo,
           sales_tax: invoice.tax_rate,
           total: invoice.total || 0,
@@ -355,7 +358,7 @@ class Form extends Component {
   payload = () => {
     const {
       appointment, student, sales_tax, total, total_tax, total_amount_due, date,
-      payment_method, action, is_visible, send_receipt_email
+      payment_method, action, is_visible, send_receipt_email, appt_status
     } = this.state;
     const is_edit = action == 'edit';
 
@@ -380,7 +383,8 @@ class Form extends Component {
       is_visible: is_visible,
       appointment_id: appointment && appointment.id,
       course_id: isEmpty(this.props.course) ? null : this.props.course.id,
-      send_receipt_email
+      send_receipt_email,
+      appt_status
     }
   }
 
@@ -463,7 +467,7 @@ class Form extends Component {
     }
 
     const { student, appointment, action } = this.state;
-  
+    
     const payload = {
       ignore_last_time: action == 'edit',
       line_items,
@@ -511,7 +515,7 @@ class Form extends Component {
   submitForm = ({ pay_off }) => {
     const line_items = this.state.line_items || []
     const isInstructorOnly = line_items.length == 1 && line_items[0].type === "instructor"
-
+    
     if (this.state.saving) return;
 
     // We don't need to check total amount if invoice is for maintenance
@@ -705,19 +709,30 @@ class Form extends Component {
     )
   }
 
+  checkBoxClicked = (e) => {
+    console.log(e.target.value)
+    //console.log('tesetset')
+    //const appt_status = this.state.appt_status;
+    
+    this.setState({
+      appt_status: e.target.value
+    })
+  }
+
   render() {
     const { custom_line_items, staff_member } = this.props;
-    const { aircrafts, simulators, appointment, appointment_loading, appointments,
+    const {appt_status, aircrafts, simulators, appointment, appointment_loading, appointments,
       instructors, rooms, date, errors, id, invoice_loading, line_items, payment_method, sales_tax,
       saving, stripe_error, student, total, total_amount_due, total_tax, is_admin_invoice,
     } = this.state;
-
     // check if line_items contains maintenance item
     const maintenanceInvoice = isMaintenanceInvoice(appointment, line_items)
     const mechanic = appointment?.mechanic_user;
 
     const demo = !this.state.demo && containsDemoFlight(line_items)
-  
+    const isCheckRide = appointment && appointment.type == "check_ride" 
+    // const isChecked = appt_status == "pass" 
+
     // In case of guest user don't have credit card payment option
     // so they have to pay in cash, venmo, or check
 
@@ -802,10 +817,44 @@ class Form extends Component {
                   <div>${this.accountBalance()}</div>
                 </div>
 
-                {id && <div className="form-group">
+                <div className="row">
+                {id && <div className="form-group col-md-2">
                   <label>Invoice #</label>
                   <div>{id}</div>
                 </div>}
+                
+                {isCheckRide && this.enableCheckRideStatus() && <div className="form-group col-md-10">
+                    <div className="row">
+                      <div className="form-check form-check-inline">
+                        <div className="form-check">
+                          <label className="form-check-label">
+                            <input className="form-check-input" type="checkbox" name="appt_status" checked = {this.state.appt_status === "pass"} value="pass" onChange={this.checkBoxClicked}/>
+                            <span className="form-check-sign"></span>
+                            Pass
+                          </label>
+                        </div>
+                      </div>
+                      <div className="form-check form-check-inline">
+                        <div className="form-check">
+                          <label className="form-check-label">
+                            <input className="form-check-input" name="appt_status" type="checkbox" checked = {this.state.appt_status === "fail"} value="fail" onChange={this.checkBoxClicked} />
+                            <span className="form-check-sign" ></span>
+                            Fail
+                          </label>
+                        </div>
+                      </div>                      
+                      {this.state.appt_status === 'fail' && 
+                        <div className="form-check form-check-inline">
+                          <div className="form-check">
+                            <label className="form-check-label">
+                              Please enter Fail reason in invoice notes.
+                            </label>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>}
+                </div>
 
                 <div className="form-group">
                   <label>
@@ -990,6 +1039,13 @@ class Form extends Component {
 
       </div>
     );
+  }
+
+  enableCheckRideStatus() {
+    if ( this.props.user_roles.includes('admin') || this.props.user_roles.includes('instructor') ) {
+      return true;
+    }
+    return false;
   }
 }
 

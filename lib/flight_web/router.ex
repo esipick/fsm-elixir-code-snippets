@@ -127,6 +127,7 @@ defmodule FlightWeb.Router do
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
     get("/profile/add-funds", ProfileController, :add_funds)
+    get("/home", HomeController, :index)
     resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true) do
       put("/update_card", ProfileController, :update_card)
     end
@@ -137,6 +138,7 @@ defmodule FlightWeb.Router do
 
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
     get("/profile/add-funds", ProfileController, :add_funds)
+    get("/home", HomeController, :index)
     resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true) do
       put("/update_card", ProfileController, :update_card)
     end
@@ -158,6 +160,7 @@ defmodule FlightWeb.Router do
     pipe_through([:browser, :admin_layout, :mechanic_authenticate, :admin_metrics_namespace])
     resources("/profile", ProfileController, only: [:show, :edit, :update], singleton: true)
     resources("/schedule", ScheduleController, only: [:index, :show, :edit])
+    get("/home", HomeController, :index)
   end
 
   scope("/course", FlightWeb.Course, as: :course) do
@@ -256,6 +259,7 @@ defmodule FlightWeb.Router do
     resources("/aircrafts", AircraftController) do
       get("/logs", AircraftController, :logs)
       resources("/inspections", InspectionController, only: [:create, :new])
+      resources("/squawks", SquawkController, only: [:create, :new])
     end
 
     resources("/simulators", SimulatorController) do
@@ -265,6 +269,7 @@ defmodule FlightWeb.Router do
     resources("/rooms", RoomController)
 
     resources("/inspections", InspectionController, only: [:edit, :update, :delete])
+    resources("/squawks", SquawkController, only: [:edit, :update, :delete])
 
     post("/maintenance", MaintenanceController, :create)
     get("/maintenance", MaintenanceController, :index)

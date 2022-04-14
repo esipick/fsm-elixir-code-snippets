@@ -13,12 +13,13 @@ defmodule FlightWeb.Mechanic.ScheduleController do
     # source for appointment types
     types = Flight.Scheduling.Appointment.types()
       |> Enum.filter(fn x -> x == "maintenance" end)
-
+    instructor_times = Flight.Scheduling.Appointment.instructor_times()
     render(conn, "index.html",
       renters: [],
       instructors: [],
       aircrafts: aircrafts,
       mechanics: mechanics,
+      instructor_times: instructor_times,
       mechanic_user_id: current_user.id,
       simulators: [],
       rooms: [],

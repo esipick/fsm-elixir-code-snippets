@@ -33,16 +33,16 @@ defmodule Flight.Inspections.AircraftMaintenanceAttachment do
 
     defp validate_file_size(changeset, %{attachment: attachment}) do
         {:ok, %{size: size}} = File.stat(attachment.path)
-    
-        file_size = Application.get_env(:flight, :file_size, 5_242_880)
+
+        file_size = Application.get_env(:flight, :file_size)
         human_size = Size.humanize!(file_size, spacer: "")
-    
+
         case size > file_size do
           true -> add_error(changeset, :file, "size should not exceed #{human_size}")
           false -> changeset
         end
       end
-    
+
     # defp validate_type(changeset, %{attachment: attachment}) do
     #     case Enum.member?(@allowed_file_types, attachment.content_type) do
     #       true -> changeset

@@ -16,6 +16,8 @@ defmodule Flight.Scheduling.Unavailability do
     field(:simulator_id, :integer)
     field(:room_id, :integer)
 
+    field(:parent_id, :integer)
+
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
@@ -58,6 +60,7 @@ defmodule Flight.Scheduling.Unavailability do
       :aircraft_id,
       :simulator_id,
       :room_id,
+      :parent_id,
       :belongs
     ])
     |> validate_required([:start_at, :end_at, :available, :type, :school_id])
@@ -68,7 +71,6 @@ defmodule Flight.Scheduling.Unavailability do
     |> validate_inclusion(:type, ["time_off"])
     |> validate_resources
   end
-
 
   defp remove_seconds_from_start_at(changeset) do
     with %Ecto.Changeset{valid?: true, changes: %{start_at: start_at}} <- changeset,

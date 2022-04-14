@@ -116,7 +116,7 @@ defmodule Flight.Queries.Invoice do
           join: a in assoc(i, :aircraft),
           select: %{invoice_id: i.invoice_id}
         )
-        |> Flight.Scheduling.Search.Aircraft.run(search_term)
+        |> Flight.Scheduling.Search.Aircraft.compositeRun(search_term)
         |> Repo.all()
         |> Enum.map(fn i -> i.invoice_id end)
     end

@@ -26,7 +26,7 @@ defmodule Fsm.Scheduling do
   import Pipe
   import Fsm.Walltime, only: [walltime_to_utc: 2, utc_to_walltime: 2]
   alias Flight.Inspections
-
+  alias Fsm.Scheduling.Utils
 
   def get_appointment(appointment_id) do
     Repo.get(Appointment, appointment_id)
@@ -446,6 +446,76 @@ defmodule Fsm.Scheduling do
     end
   end
 
+  def create_recurring_appointment(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, appointment_data) do
+    %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
+    school = Fsm.SchoolScope.get_school(school_id)
+    context = %{assigns: %{current_user: current_user}, school_id: school_id, params: %{"school_id" => to_string(school_id)}, request_path: "/api/appointments"}
+
+    {:ok, data} = insert_recurring_appointments(appointment_data, Repo.preload(context.assigns.current_user, :school), context)
+
+    errors = Map.get(data, :errors) || %{}
+
+    human_errors = Enum.reduce(errors, %{}, fn {time, anError}, acc ->
+      errors = FlightWeb.ViewHelpers.human_error_messages(anError)
+      Map.put(acc, time, errors)
+    end)
+
+    {:ok, %{human_errors: human_errors}}
+  end
+
+  def insert_recurring_appointments(
+    attrs,
+    modifying_user,
+    context
+  ) do
+    recurrence = Map.get(attrs, "recurrence") || Map.get(attrs, :recurrence) || %{}
+    type = Map.get(recurrence, "type") || Map.get(recurrence, :type) || "" # 0 weekly, 1 monthly
+    days = Map.get(recurrence, "days") || Map.get(recurrence, :days) || []
+    timezone_offset = (Map.get(recurrence, "timezone_offset") || Map.get(recurrence, :timezone_offset) || 0 ) |> Utils.string_to_int
+    end_date = Map.get(recurrence, "end_at") || Map.get(recurrence, :end_at)
+    type = Utils.string_to_int(type)
+    days = Utils.integer_list(days)
+    type = if type == 0, do: :week, else: :month
+
+    start_at = Map.get(attrs, "start_at") || Map.get(attrs, :start_at)
+    end_at = Map.get(attrs, "end_at") || Map.get(attrs, :end_at)
+
+    {pre_time, post_time} = Utils.pre_post_instructor_duration(attrs)
+
+    Utils.calculateSchedules(type, days, end_date, start_at, end_at, timezone_offset)
+    |> Enum.reduce({:ok, %{parent_id: nil, appointments: [], errors: %{}}}, fn {start_at, end_at}, acc ->
+        {:ok, acc} = acc
+        parent_id = Map.get(acc, :parent_id)
+        pre_duration = %Timex.Duration{seconds: -pre_time, megaseconds: 0, microseconds: 0}
+        inst_start_at = Timex.add(start_at, pre_duration)
+
+        post_duration = %Timex.Duration{seconds: post_time, megaseconds: 0, microseconds: 0}
+        inst_end_at = Timex.add(end_at, post_duration)
+
+        attrs =
+            attrs
+            |> Map.put(:start_at, start_at)
+            |> Map.put(:end_at, end_at)
+            |> Map.put(:inst_start_at, inst_start_at)
+            |> Map.put(:inst_end_at, inst_end_at)
+            |> Map.put(:parent_id, parent_id)
+
+        insert_or_update_appointment(%Appointment{}, attrs, modifying_user, context)
+        |> case do
+          {:error, changeset} ->
+            errors = Map.get(acc, :errors)
+            new_errors = Map.put(errors, start_at, changeset)
+
+            {:ok, Map.put(acc, :errors, new_errors)}
+
+          {:ok, appointment} ->
+            acc = if parent_id == nil, do: Map.put(acc, :parent_id, appointment.id), else: acc
+            appointments = Map.get(acc, :appointments)
+            {:ok, Map.put(acc, :appointments, [appointment | appointments])}
+        end
+    end)
+  end
+
   def insert_or_update_appointment(
         appointment,
         attrs,
@@ -536,6 +606,58 @@ defmodule Fsm.Scheduling do
     #    |> FlightWeb.API.AppointmentView.preload()
   end
 
+  def create_recurring_unavailability(
+    attrs,
+    context
+  ) do
+    recurrence = Map.get(attrs, "recurrence") || Map.get(attrs, :recurrence) || %{}
+    type = Map.get(recurrence, "type") || Map.get(recurrence, :type) || "" # 0 weekly, 1 monthly
+    days = Map.get(recurrence, "days") || Map.get(recurrence, :days) || []
+    timezone_offset = (Map.get(recurrence, "timezone_offset") || Map.get(recurrence, :timezone_offset) || 0 ) |> Utils.string_to_int
+    end_date = Map.get(recurrence, "end_at") || Map.get(recurrence, :end_at)
+    type = Utils.string_to_int(type)
+    days = Utils.integer_list(days)
+    type = if type == 0, do: :week, else: :month
+
+    start_at = Map.get(attrs, "start_at") || Map.get(attrs, :start_at)
+    end_at = Map.get(attrs, "end_at") || Map.get(attrs, :end_at)
+
+    {:ok, data} =
+    Utils.calculateSchedules(type, days, end_date, start_at, end_at, timezone_offset)
+    |> Enum.reduce({:ok, %{parent_id: nil, unavailabilities: [], errors: %{}}}, fn {start_at, end_at}, acc ->
+        {:ok, acc} = acc
+        parent_id = Map.get(acc, :parent_id)
+        attrs =
+            attrs
+            |> Map.put(:start_at, start_at)
+            |> Map.put(:end_at, end_at)
+            |> Map.put(:parent_id, parent_id)
+
+        insert_or_update_unavailability(context, %Unavailability{}, attrs)
+        |> case do
+          {:error, changeset} ->
+            errors = Map.get(acc, :errors)
+            new_errors = Map.put(errors, start_at, changeset)
+
+            {:ok, Map.put(acc, :errors, new_errors)}
+
+          {:ok, unavailability} ->
+            acc = if parent_id == nil, do: Map.put(acc, :parent_id, unavailability.id), else: acc
+            unavailabilities = Map.get(acc, :unavailabilities)
+            {:ok, Map.put(acc, :unavailabilities, [unavailability | unavailabilities])}
+        end
+    end)
+
+    errors = Map.get(data, :errors) || %{}
+
+    human_errors = Enum.reduce(errors, %{}, fn {time, anError}, acc ->
+      errors = FlightWeb.ViewHelpers.human_error_messages(anError)
+      Map.put(acc, time, errors)
+    end)
+
+    {:ok, %{human_errors: human_errors}}
+  end
+
   def insert_or_update_unavailability(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, unavailability, attrs) do
     school = Fsm.SchoolScope.get_school(school_id)
     %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
@@ -558,13 +680,15 @@ defmodule Fsm.Scheduling do
         start_at = get_field(changeset, :start_at) # utc time for instructor
         end_at = get_field(changeset, :end_at) # utc time for instructor
         status =
-          Availability.user_with_permission_status( :unavailability, Permission.permission_slug(:appointment_instructor, :modify, :personal),
-          instructor_user_id,
-          start_at,
-          end_at,
-          [],
-          excluded_unavailability_ids,
-          school_context
+          Availability.user_with_permission_status(
+            :unavailability,
+            Permission.permission_slug(:appointment_instructor, :modify, :personal),
+            instructor_user_id,
+            start_at,
+            end_at,
+            [],
+            excluded_unavailability_ids,
+            school_context
         )
         case status do
           :available -> changeset
@@ -689,6 +813,17 @@ defmodule Fsm.Scheduling do
     aircraft_query(school_context)
     |> where([a], a.id == ^id)
     |> Repo.one()
+  end
+
+  def ics_for_appointment(id) do
+    with %{id: id, school_id: school_id} = appointment <- get_appointment_full_object(id),
+      %{id: school_id} = school <- SchoolScope.get_school(school_id) do
+        appointment
+        |> Map.put(:school, school)
+        |> Utils.url_for_appointment_ics
+      else
+        _ -> {:error, "Appointment with id: #{id} does not exists."}
+    end
   end
 
   def apply_utc_timezone(changeset, key, timezone) do

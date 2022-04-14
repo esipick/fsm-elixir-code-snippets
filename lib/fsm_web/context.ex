@@ -8,7 +8,6 @@ defmodule FlightWeb.Context do
 
   def call(conn, _) do
     context = build_context(conn)
-    IO.inspect(context, label: "context")
     Absinthe.Plug.put_options(conn, context: context)
   end
 
@@ -49,7 +48,10 @@ defmodule FlightWeb.Context do
       {:ok, %{user_id: id, token: password_token}} ->
         {:ok, id, password_token}
 
-      {:ok, _} ->
+      {:ok, %{user: id, token: password_token}} ->
+        {:ok, id, password_token}
+
+      {:ok, other} ->
         {:error, :unknown_type}
 
       _ = error ->

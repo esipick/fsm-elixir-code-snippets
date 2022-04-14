@@ -7,6 +7,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   enum :appointment_search_criteria, values: [:payer_name]
   enum :belongs, values: ["Instructor", "Simulator", "Room", "Aircraft", "Mechanic"]
   enum :appointment_sort_fields, values: [:first_name, :last_name, :email]
+  enum :repeat_type, values: [:weekly, :monthly]
 
   #Enum
   # QUERIES
@@ -68,6 +69,14 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       middleware Middleware.Authorize
       resolve &SchedulingResolvers.list_unavailabilities/3
     end
+
+    @desc "Appointment ICS file"
+    field :appointment_ics_url, :string do
+      arg :appointment_id, non_null(:id)
+
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.appointment_ics_url/3
+    end
   end
 
   # MUTATIONS
@@ -76,6 +85,12 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       arg :unavailability, :unavailability_input
       middleware Middleware.Authorize
       resolve &SchedulingResolvers.create_unavailability/3
+    end
+
+    field :create_recurring_unavailability, :recurring_unavailability do
+      arg :unavailability, :unavailability_input
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.create_recurring_unavailability/3
     end
 
     field :edit_unavailability, :unavailability do
@@ -91,11 +106,17 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       resolve &SchedulingResolvers.delete_unavailability/3
     end
 
-     field :create_appointment, :appointment do
-       arg :appointment, :appointment_input
-       middleware Middleware.Authorize
-       resolve &SchedulingResolvers.create_appointment/3
-     end
+    field :create_appointment, :appointment do
+      arg :appointment, :appointment_input
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.create_appointment/3
+    end
+
+    field :create_recurring_appointment, :recurring_appointment do
+      arg :appointment, :appointment_input
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.create_recurring_appointment/3
+    end
 
      field :edit_appointment, :appointment do
       arg :appointment, :edit_appointment_input
@@ -128,6 +149,9 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
     field :start_hobbs_time, :integer
     field :end_hobbs_time, :integer
+
+    field :inst_start_at, :naive_datetime
+    field :inst_end_at, :naive_datetime
 
     field :simulator_id, :integer
     field :room_id, :integer
@@ -179,6 +203,14 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
   end
 
+  object :recurring_appointment do
+    field :human_errors, :json
+  end
+
+  object :recurring_unavailability do
+    field :human_errors, :json
+  end
+
   input_object :unavailability_input do
     field :simulator_id, :integer
     field :room_id, :integer
@@ -189,6 +221,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :note, :string
     field :end_at, :string
     field :start_at, :string
+    field :recurrence, :recurrence_input
   end
 
   input_object :appointment_input do
@@ -200,10 +233,20 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :note, :string
     field :payer_name, :string
     field :start_at, :string
+    field :inst_start_at, :naive_datetime
+    field :inst_end_at, :naive_datetime
     field :type, :string
     field :user_id, :integer
     field :room_id, :integer
     field :simulator_id, :integer
+    field :recurrence, :recurrence_input
+  end
+
+  input_object :recurrence_input do
+    field :type, non_null(:repeat_type)
+    field :days, list_of(non_null(:integer))
+    field :timezone_offset, non_null(:integer)
+    field :end_at, non_null(:naive_datetime)
   end
 
   input_object :edit_appointment_input do
@@ -216,6 +259,8 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :note, :string
     field :payer_name, :string
     field :start_at, :string
+    field :inst_start_at, :naive_datetime
+    field :inst_end_at, :naive_datetime
     field :user_id, :integer
     field :room_id, :integer
     field :simulator_id, :integer

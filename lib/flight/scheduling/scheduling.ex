@@ -21,6 +21,7 @@ defmodule Flight.Scheduling do
   import Pipe
   import Flight.Walltime, only: [walltime_to_utc: 2, utc_to_walltime: 2]
   alias Flight.Inspections
+  alias Fsm.Scheduling.Utils
 
   def admin_create_aircraft(%{"maintenance_ids" => m_ids } = attrs, %{
       assigns: %{
@@ -266,16 +267,26 @@ defmodule Flight.Scheduling do
   ##
 
   def get_appointments(options, %{assigns: %{current_user: %{id: user_id}}} = school_context) do
+    from = options["from"]
     from_value =
-      case NaiveDateTime.from_iso8601(options["from"] || "") do
-        {:ok, date} -> date
-        _ -> nil
+      if is_binary(from) do
+        case NaiveDateTime.from_iso8601(options["from"] || "") do
+          {:ok, date} -> date
+          _ -> nil
+        end
+      else
+        from
       end
 
+    to = options["to"]
     to_value =
-      case NaiveDateTime.from_iso8601(options["to"] || "") do
-        {:ok, date} -> date
-        _ -> nil
+      if is_binary(to) do
+        case NaiveDateTime.from_iso8601(options["to"] || "") do
+          {:ok, date} -> date
+          _ -> nil
+        end
+      else
+        to
       end
 
     start_at_after_value =
@@ -286,6 +297,7 @@ defmodule Flight.Scheduling do
 
     user_id_value = options["user_id"]
     instructor_user_id_value = options["instructor_user_id"]
+    mechanic_user_id_value = options["mechanic_user_id"]
     aircraft_id_value = options["aircraft_id"]
     simulator_id_value = options["simulator_id"]
     room_id_value = options["room_id"]
@@ -305,7 +317,11 @@ defmodule Flight.Scheduling do
     |> pass_unless(
       instructor_user_id_value,
       &from(a in &1, where: a.instructor_user_id == ^instructor_user_id_value)
-   )
+    )
+    |> pass_unless(
+      mechanic_user_id_value,
+      &from(a in &1, where: a.mechanic_user_id == ^mechanic_user_id_value)
+    )
     |> pass_unless(assigned_value,
        &from(a in &1,
         distinct: a.id,
@@ -386,6 +402,59 @@ defmodule Flight.Scheduling do
         nil -> {:error, "Appiontment with id: #{id} not found."}
         appointment -> {:ok, appointment}
     end
+  end
+
+  def insert_recurring_appointments(
+    attrs,
+    modifying_user,
+    context
+  ) do
+    recurrence = Map.get(attrs, "recurrence") || Map.get(attrs, :recurrence) || %{}
+    type = Map.get(recurrence, "type") || Map.get(recurrence, :type) || "" # 0 weekly, 1 monthly
+    days = Map.get(recurrence, "days") || Map.get(recurrence, :days) || []
+    timezone_offset = (Map.get(recurrence, "timezone_offset") || Map.get(recurrence, :timezone_offset) || 0 ) |> Utils.string_to_int
+    end_date = Map.get(recurrence, "end_at") || Map.get(recurrence, :end_at)
+    type = Utils.string_to_int(type)
+    days = Utils.integer_list(days)
+    type = if type == 0, do: :week, else: :month
+
+    start_at = Map.get(attrs, "start_at") || Map.get(attrs, :start_at)
+    end_at = Map.get(attrs, "end_at") || Map.get(attrs, :end_at)
+
+    {pre_time, post_time} = Utils.pre_post_instructor_duration(attrs)
+
+    Utils.calculateSchedules(type, days, end_date, start_at, end_at, timezone_offset)
+    |> Enum.reduce({:ok, %{parent_id: nil, appointments: [], errors: %{}}}, fn {start_at, end_at}, acc ->
+        {:ok, acc} = acc
+        parent_id = Map.get(acc, :parent_id)
+        pre_duration = %Timex.Duration{seconds: -pre_time, megaseconds: 0, microseconds: 0}
+        inst_start_at = Timex.add(start_at, pre_duration)
+
+        post_duration = %Timex.Duration{seconds: post_time, megaseconds: 0, microseconds: 0}
+        inst_end_at = Timex.add(end_at, post_duration)
+
+        attrs =
+            attrs
+            |> Map.put("start_at", start_at)
+            |> Map.put("end_at", end_at)
+            |> Map.put("inst_start_at", inst_start_at)
+            |> Map.put("inst_end_at", inst_end_at)
+            |> Map.put("parent_id", parent_id)
+
+        insert_or_update_appointment(%Appointment{}, attrs, modifying_user, context)
+        |> case do
+          {:error, changeset} ->
+            errors = Map.get(acc, :errors)
+            new_errors = Map.put(errors, start_at, changeset)
+
+            {:ok, Map.put(acc, :errors, new_errors)}
+
+          {:ok, appointment} ->
+            acc = if parent_id == nil, do: Map.put(acc, :parent_id, appointment.id), else: acc
+            appointments = Map.get(acc, :appointments)
+            {:ok, Map.put(acc, :appointments, [appointment | appointments])}
+        end
+      end)
   end
 
   def insert_or_update_appointment(
@@ -492,6 +561,8 @@ defmodule Flight.Scheduling do
 
       changeset =
         if instructor_user_id do
+          # instructor_start_at = start_at + pre-time
+          # instructor_end_at = end_at + post-time
           status =
             Availability.user_with_permission_status(
               permission_slug(:appointment_instructor, :modify, :personal),
@@ -676,6 +747,48 @@ defmodule Flight.Scheduling do
     # |> limit(200)
     |> order_by([a], desc: a.start_at)
     |> Repo.all()
+  end
+
+  def create_recurring_unavailabilities(
+    attrs,
+    context
+  ) do
+    recurrence = Map.get(attrs, "recurrence") || Map.get(attrs, :recurrence) || %{}
+    type = Map.get(recurrence, "type") || Map.get(recurrence, :type) || "" # 0 weekly, 1 monthly
+    days = Map.get(recurrence, "days") || Map.get(recurrence, :days) || []
+    timezone_offset = (Map.get(recurrence, "timezone_offset") || Map.get(recurrence, :timezone_offset) || 0 ) |> Utils.string_to_int
+    end_date = Map.get(recurrence, "end_at") || Map.get(recurrence, :end_at)
+    type = Utils.string_to_int(type)
+    days = Utils.integer_list(days)
+    type = if type == 0, do: :week, else: :month
+
+    start_at = Map.get(attrs, "start_at") || Map.get(attrs, :start_at)
+    end_at = Map.get(attrs, "end_at") || Map.get(attrs, :end_at)
+
+    Utils.calculateSchedules(type, days, end_date, start_at, end_at, timezone_offset)
+    |> Enum.reduce({:ok, %{parent_id: nil, unavailabilities: [], errors: %{}}}, fn {start_at, end_at}, acc ->
+        {:ok, acc} = acc
+        parent_id = Map.get(acc, :parent_id)
+        attrs =
+            attrs
+            |> Map.put("start_at", start_at)
+            |> Map.put("end_at", end_at)
+            |> Map.put("parent_id", parent_id)
+
+        insert_or_update_unavailability(%Unavailability{}, attrs, context)
+        |> case do
+          {:error, changeset} ->
+            errors = Map.get(acc, :errors)
+            new_errors = Map.put(errors, start_at, changeset)
+
+            {:ok, Map.put(acc, :errors, new_errors)}
+
+          {:ok, unavailability} ->
+            acc = if parent_id == nil, do: Map.put(acc, :parent_id, unavailability.id), else: acc
+            unavailabilities = Map.get(acc, :unavailabilities)
+            {:ok, Map.put(acc, :unavailabilities, [unavailability | unavailabilities])}
+        end
+      end)
   end
 
   def insert_or_update_unavailability(
@@ -874,14 +987,14 @@ defmodule Flight.Scheduling do
 
   def send_unavailibility_notification(attrs, school_context) do
 
-    aircraft_id = Map.get("aircraft_id")
-    simulator_id = Map.get("simulator_id")
-    room_id = Map.get("room_id")
-    belongs = Map.get("belongs")
-    instructor_user_id = Map.get("instructor_user_id")
-    end_at = Map.get("end_at")
-    start_at = Map.get("start_at")
-    note = Map.get("note")
+    aircraft_id = Map.get(attrs, "aircraft_id")
+    simulator_id = Map.get(attrs, "simulator_id")
+    room_id = Map.get(attrs, "room_id")
+    belongs = Map.get(attrs, "belongs")
+    instructor_user_id = Map.get(attrs, "instructor_user_id")
+    end_at = Map.get(attrs, "end_at")
+    start_at = Map.get(attrs, "start_at")
+    note = Map.get(attrs, "note")
 
     case belongs do
       "Instructor" ->

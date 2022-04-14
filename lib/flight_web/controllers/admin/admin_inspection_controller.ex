@@ -12,6 +12,7 @@ defmodule FlightWeb.Admin.InspectionController do
   alias Fsm.Inspections
   alias Flight.Accounts.Role
   alias Flight.Auth.Authorization
+  require Logger
 
   def create(conn, %{"date_inspection" => date_inspection_data}) do
 
@@ -39,6 +40,7 @@ defmodule FlightWeb.Admin.InspectionController do
       name: Map.get(date_inspection_data, "name"),
       aircraft_id: conn.assigns.aircraft.id,
       date_tach: :date,
+      notes: Map.get(date_inspection_data, "notes"),
       inspection_data: [
         last_inspection_data,
         next_inspection_data,
@@ -56,7 +58,7 @@ defmodule FlightWeb.Admin.InspectionController do
       case Inspections.add_inspection(inspection, user) do
         {:ok, inspection} ->
             redirect_to_asset(conn, inspection)
-  
+
         {:error, changeset} ->
           render(
             conn,
@@ -66,7 +68,7 @@ defmodule FlightWeb.Admin.InspectionController do
             changeset: changeset,
             form_type: :date
           )
-      end      
+      end
     end
   end
 
@@ -98,6 +100,7 @@ defmodule FlightWeb.Admin.InspectionController do
       type: Map.get(tach_inspection_data, "type"),
       name: Map.get(tach_inspection_data, "name"),
       aircraft_id: conn.assigns.aircraft.id,
+      notes: Map.get(tach_inspection_data, "notes"),
       date_tach: :tach,
       inspection_data: [
         get_merged_inspection_data(last_value_type, last_inspection_data),
@@ -138,7 +141,7 @@ defmodule FlightWeb.Admin.InspectionController do
   end
 
   def new(conn, %{"type" => type}) do
-    form_type = 
+    form_type =
       case type do
         "date" -> :date
         "tach" -> :tach
@@ -167,7 +170,7 @@ defmodule FlightWeb.Admin.InspectionController do
   def edit(conn, _params) do
 
     form_type = conn.assigns.inspection.date_tach
-    
+
     # using case here to make sure to handle
     # future requests for :tach and :date
     inspection_data = case form_type do
@@ -222,6 +225,10 @@ defmodule FlightWeb.Admin.InspectionController do
 
     last_value = Map.get(inspection_data, "last_inspection")
     next_value = Map.get(inspection_data, "next_inspection")
+    params = %{
+      notes: Map.get(inspection_data, "notes"),
+      user_id: user.id
+    }
 
     inspection_data_list = case inspection.date_tach do
       :date ->
@@ -265,7 +272,7 @@ defmodule FlightWeb.Admin.InspectionController do
     else
       last_value_type  = get_inspection_value_type(last_value)
       next_value_type  = get_inspection_value_type(next_value)
-      
+
       last_value = if last_value_type == :int or last_value_type == :float do
         {last_value, _} = if last_value_type == :int, do: Integer.parse(last_value), else: Float.parse(last_value)
         last_value
@@ -282,7 +289,7 @@ defmodule FlightWeb.Admin.InspectionController do
     if message != nil do
       render_edit_inspection_error(conn, inspection_data, message, inspection.date_tach)
     else
-      case Inspections.update_inspection(inspection.id, inspection_data_list) do
+      case Inspections.update_inspection(inspection.id, params, inspection_data_list) do
         {:ok, inspection} ->
           aircraft = conn.assigns.inspection.aircraft
           namespace = asset_namespace(aircraft)

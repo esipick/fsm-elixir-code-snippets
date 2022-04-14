@@ -17,4 +17,15 @@ defmodule FlightWeb.Admin.PartialView do
         nil
     end
   end
+
+  def user_roles(user) do
+
+    user = Flight.Repo.preload(user, :roles)
+    roles =
+      user.roles
+      |> Enum.map(& &1.slug)
+      |> Enum.map(&String.capitalize/1)
+      |> Enum.join(", ")
+    roles
+  end
 end

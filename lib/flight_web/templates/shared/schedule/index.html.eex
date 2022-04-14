@@ -60,65 +60,8 @@
           <li class="nav-item"><a id="navDemoAppt" class="nav-link" data-toggle="tab" href="#" role="tablist">Demo Flight</a></li>
         </ul> %>
         <div class="tab-content mt-2 mb-2">
-            <div class="row">
-              <label class="col-md-3 col-form-label">Type *</label>
-              <div class="col-md-9">
-                <div class="form-group">
-                  <select id="apptType" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Appointment Type" placeholder="Appointment Type">
-                    <%= for type <- @types do %>
-                      <option value="<%= type %>"><%= appointment_type(type) %></option>
-                    <% end %>
-                  </select>
-                </div>
-              </div>
-            </div>
 
-          <div class="tab-pane active" id="appointmentForm">
-            <div class="row"><label class="col-md-3 col-form-label">Start Time *</label>
-              <div class="col-md-9">
-                <div class="form-group"><input id="apptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value=""></div>
-              </div>
-            </div>
-            <div class="row"><label class="col-md-3 col-form-label">End Time *</label>
-              <div class="col-md-9">
-                <div class="form-group"><input id="apptEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div>
-              </div>
-            </div>
-            <div class="row">
-              <label class="col-md-3 col-form-label">Person *</label>
-              <div class="col-md-9">
-                <div class="form-group">
-                  <div id= "apptAssignedPerson">
-                    <input type="checkbox" id="apptAssignedPersonBox" checked>
-                    <label>Assigned Person only</label>
-                  </div>
-
-                  <select id="apptStudent" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Person Name" placeholder="Student">
-                    <%= for renter <- @renters do %>
-                      <option value="<%= renter.id %>"><%= display_name(renter) %></option>
-                    <% end %>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <label class="col-md-3 col-form-label">Instructor *</label>
-              <div class="col-md-9">
-                <div class="form-group">
-                  <div id= "apptAssignedInstructor">
-                    <input type="checkbox" id="apptAssignedInstBox" checked>
-                    <label>Assigned Instructors only</label>
-                  </div>
-                  <select id="apptInstructor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
-                    <option value="">None</option>
-                    <%= for instructor <- @instructors do %>
-                      <option value="<%= instructor.id %>"><%= display_name(instructor) %></option>
-                    <% end %>
-                  </select>
-                </div>
-              </div>
-            </div>
-
+          <div class="tab-pane active" id="appointmentResouceForm">
             <div class="row">
               <label class="col-md-3 col-form-label">Resource *</label>
               <div class="col-md-9">
@@ -131,6 +74,42 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <div class="row">
+            <label class="col-md-3 col-form-label">Type *</label>
+            <div class="col-md-9">
+              <div class="form-group">
+                <select id="apptType" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Appointment Type" placeholder="Appointment Type">
+                  <%= for type <- @types do %>
+                    <option value="<%= type %>"><%= appointment_type(type) %></option>
+                  <% end %>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane active" id="appointmentForm">
+
+            <div class="row">
+              <label class="col-md-3 col-form-label">Pilot *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <div id= "apptAssignedPerson">
+                    <input type="checkbox" id="apptAssignedPersonBox" checked>
+                    <label>Assigned Pilot only</label>
+                  </div>
+
+                  <select id="apptStudent" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Person Name" placeholder="Student">
+                    <%= for renter <- @renters do %>
+                      <option value="<%= renter.id %>"><%= display_name(renter) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+
 
             <div id="apptFieldAircraft" class="row">
               <label class="col-md-3 col-form-label">Aircraft *</label>
@@ -173,6 +152,61 @@
                     <option value="">None</option>
                     <%= for room <- @rooms do %>
                       <option value="<%= room.id %>"><%= room.location %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row"><label class="col-md-3 col-form-label">Start Time *</label>
+              <div class="col-md-9">
+                <div class="form-group"><input id="apptStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value=""></div>
+              </div>
+            </div>
+            <div class="row"><label class="col-md-3 col-form-label">End Time *</label>
+              <div class="col-md-9">
+                <div class="form-group"><input id="apptEnd" type="text" class="form-control datetimepickerend" placeholder="End Time" value=""></div>
+              </div>
+            </div>
+
+            <div class="row" id="apptFieldInstructor">
+              <label class="col-md-3 col-form-label">Instructor *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <div id= "apptAssignedInstructor">
+                    <input type="checkbox" id="apptAssignedInstBox" checked>
+                    <label>Assigned Instructors only</label>
+                  </div>
+                  <select id="apptInstructor" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Instructor">
+                    <option value="">None</option>
+                    <%= for instructor <- @instructors do %>
+                      <option value="<%= instructor.id %>"><%= display_name(instructor) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row" id="instructorPreTime">
+              <label class="col-md-3 col-form-label">Instructor Pre Time </label>
+               <div class="col-md-9">
+                <div class="form-group">
+                  <select id="apptInstructorPreTime" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Pre-Time">
+                    <%= for {instructor_time_string, instructor_time_seconds} <- @instructor_times do %>
+                      <option value="<%= instructor_time_seconds %>"><%= instructor_time_string %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row" id="instructorPostTime">
+              <label class="col-md-3 col-form-label">Instructor Post Time </label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="apptInstructorPostTime" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Post-Time">
+                    <%= for {instructor_time_string, instructor_time_seconds} <- @instructor_times do %>
+                      <option value="<%= instructor_time_seconds %>"><%= instructor_time_string %></option>
                     <% end %>
                   </select>
                 </div>
@@ -276,6 +310,19 @@
 
           <div class="tab-pane" id="maintenanceForm">
 
+            <div id="fieldAircraft" class="row">
+              <label class="col-md-3 col-form-label">Aircraft *</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="maintenanceAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Aircraft">
+                    <%= for aircraft <- @aircrafts do %>
+                      <option value="<%= aircraft.id %>"><%= aircraft_display_name(aircraft, :short) %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
+
             <div class="row"><label class="col-md-3 col-form-label">Start Time *</label>
               <div class="col-md-9">
                 <div class="form-group"><input id="maintenanceStart" type="text" class="form-control datetimepickerstart" placeholder="Start Time" value="'+startTime+'"></div>
@@ -288,25 +335,12 @@
             </div>
 
             <div id="fieldMechanic" class="row">
-              <label class="col-md-3 col-form-label">Mechanic </label>
+              <label class="col-md-3 col-form-label">Mechanic *</label>
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="maintenanceMechanic" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Mechanic">
                     <%= for mechanic <- @mechanics do %>
                       <option value="<%= mechanic.id %>"><%= display_name(mechanic) %></option>
-                    <% end %>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div id="fieldAircraft" class="row">
-              <label class="col-md-3 col-form-label">Aircraft *</label>
-              <div class="col-md-9">
-                <div class="form-group">
-                  <select id="maintenanceAircraft" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Aircraft">
-                    <%= for aircraft <- @aircrafts do %>
-                      <option value="<%= aircraft.id %>"><%= aircraft_display_name(aircraft, :short) %></option>
                     <% end %>
                   </select>
                 </div>
@@ -374,8 +408,154 @@
               </div>
             </div>
           </div>
-
+          <div id="repeatOption">
+            <div class="row">
+              <label class="col-md-3">Repeat</label>
+              <div class="col-md-9">
+                <label class="switch">
+                  <input type="checkbox" class="repeatBtn" >
+                  <span class="slider round"></span>
+                </label>
+              </div>
+            </div>
+            <div class="repeat d-none">
+              <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-9">
+                  <div class="form-group">
+                    <select class="selectpicker" id="repeatType" data-style="btn btn-default btn-round btn-simple">
+                      <option selected value="0">Weekly</option>
+                      <option value="1">Monthly</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row weekly d-none">
+                <div class="col-md-3"></div>
+                <div class="col-md-9">
+                  <div class="form-check form-check-inline">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="form-check-input" type="checkbox" name="week_days" value="1">
+                        <span class="form-check-sign"></span>
+                        Mon
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="form-check-input" type="checkbox" name="week_days" value="2">
+                        <span class="form-check-sign"></span>
+                        Tue
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="form-check-input" type="checkbox" name="week_days" value="3">
+                        <span class="form-check-sign"></span>
+                        Wed
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="form-check-input" type="checkbox" name="week_days" value="4">
+                        <span class="form-check-sign"></span>
+                        Thu
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row weekly d-none">
+                <div class="col-md-3"></div>
+                <div class="col-md-9">
+                  <div class="form-check form-check-inline">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="form-check-input" type="checkbox" name="week_days" value="5">
+                        <span class="form-check-sign"></span>
+                        Fri
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="form-check-input" type="checkbox" name="week_days" value="6">
+                        <span class="form-check-sign"></span>
+                        Sat
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="form-check-input" type="checkbox" name="week_days" value="7">
+                        <span class="form-check-sign"></span>
+                        Sun
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row monthly d-none">
+                <div class="col-md-3">On Day</div>
+                <div class="col-md-9">
+                  <div class="form-group">
+                    <select id="monthOnDay" class="selectpicker" data-size="7" data-style="btn btn-default btn-round btn-simple">
+                      <option selected value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                      <option value="11">11</option>
+                      <option value="12">12</option>
+                      <option value="13">13</option>
+                      <option value="14">14</option>
+                      <option value="15">15</option>
+                      <option value="16">16</option>
+                      <option value="17">17</option>
+                      <option value="18">18</option>
+                      <option value="19">19</option>
+                      <option value="20">20</option>
+                      <option value="21">21</option>
+                      <option value="22">22</option>
+                      <option value="23">23</option>
+                      <option value="24">24</option>
+                      <option value="25">25</option>
+                      <option value="26">26</option>
+                      <option value="27">27</option>
+                      <option value="28">28</option>
+                      <option value="29">29</option>
+                      <option value="30">30</option>
+                      <option value="31">31</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row"><label class="col-md-3 col-form-label">End Repeat:</label>
+                <div class="col-md-9">
+                  <div class="form-group end-date">
+                    <input id="repeatEnd" type="text" class="form-control repeatdatepickerend" placeholder="End" value="">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="modal-body d-flex flex-row-reverse">
+        <button id="btnICSFile" type="button" class="btn btn-link">Download *.ics</button>
       </div>
       <div class="modal-footer d-flex justify-content-between">
         <div>

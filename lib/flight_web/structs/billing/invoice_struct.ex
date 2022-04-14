@@ -31,7 +31,7 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       amount_remainder: amount_remainder(invoice),
       status: invoice.status,
       notes: invoice.notes,
-      payer_email: invoice.payer_email,
+      payer_email: payer_email(invoice),
       payment_date: invoice.date,
       payment_method: invoice.payment_option,
       editable: editable(invoice),
@@ -87,6 +87,19 @@ defmodule FlightWeb.Billing.InvoiceStruct do
       User.full_name(invoice.user)
     else
       invoice.payer_name
+    end
+  end
+
+  defp payer_email(invoice) do
+    cond do
+      invoice.payer_email ->
+        invoice.payer_email
+      invoice.user ->
+        invoice.user.email
+      invoice.appointment && invoice.appointment.mechanic_user ->
+        invoice.appointment.mechanic_user.email
+      true ->
+        ""
     end
   end
 

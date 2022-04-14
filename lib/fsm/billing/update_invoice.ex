@@ -46,11 +46,13 @@ defmodule Fsm.Billing.UpdateInvoice do
         end
 
       line_items = Map.get(invoice_attribs, "line_items") || []
+      checkride_status = Map.get(invoice_input, :appt_status)
 
       with {:aircrafts, false} <- Utils.multiple_aircrafts?(line_items),
         {:rooms, false} <- Utils.same_room_multiple_items?(line_items),
         {:ok, invoice} <- update_invoice(invoice, invoice_attribs) do
           line_item = Enum.find(invoice.line_items, fn i -> i.type == :aircraft end)
+          Fsm.Scheduling.Appointment.update_check_ride_status(invoice.appointment_id, checkride_status)
 
           cond do
             invoice.appointment_id != nil -> Utils.update_aircraft(invoice, current_user)
@@ -79,7 +81,7 @@ defmodule Fsm.Billing.UpdateInvoice do
           |> Enum.map(fn({key, {value, context}}) ->
                [message: "#{key} #{value}", details: context]
              end)
-          IO.inspect errors
+          IO.inspect changeset
           {:error, errors}
         _ ->
           {:error, :failed}
