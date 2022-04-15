@@ -21,6 +21,20 @@
       return "";
     }
   }
+  function getPlainDate(start_at) {
+    if (start_at) {
+      var date_time = moment.utc(start_at).add(+(moment().utcOffset()), 'm');
+      var date = date_time.format('YYYY-MM-DD')
+      return date;
+    }
+    else {
+      return "";
+    }
+  }
+  function getAppointmentType(type) {
+    const names = type.split('_').map(  element => element.charAt(0).toUpperCase() + element.substring(1).toLowerCase());
+    return names.join(' ');
+  }
 </script>
 <div class="panel-header panel-header-sm">
   <div class="header text-center">
@@ -110,20 +124,136 @@
           </div>
         </div>
       </div>
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Airworthiness Status</h5>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Medical Type with Expiration</li>
+            <li>FTN</li>
+            <li>Student/Pilot License with Last Flight Review Expiration</li>
+            <li>Drivers License with Expiration</li>
+            <li>Passport with Expiration</li>
+            <li>Insurance with Expiration</li>
+          </ul>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
     </div> %>
+    <div class="col-md-6">
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Asset Alerts</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+              <table class="table">
+                <tbody>
+                
+                </tbody>
+              </table>
+            </div>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Billing Alerts</h5>
+        </div>
+        <div class="card-body">
+          <%= if @card_expired do %>
+            <ul>
+              <li> <span class="ml-1 mb-16 text-expired">Your Credit Card has expired. Please update your card details.</span> </li>
+            </ul>            
+          <% end %>
+          <div>
+
+          </div>
+          <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Invoice Date</th>
+                <th>Amount Due</th>
+                <th>Amount Paid</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <%= for invoice <- @invoices do %>
+
+                <tr>
+                  <td><a href="/billing/invoices/<%= invoice.id %>"><%= invoice.id %></a></td>
+                <script> document.write(
+                '<td class="text-nowrap">'+getPlainDate('<%= invoice.created %>')+'</td>'
+                ); </script>
+                  <td><%= currency(invoice.amount_due) %></td>
+                  <td><%= currency(invoice.amount_paid) %></td>
+                  <td><%= invoice.status %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">LMS Status</h5>
+        </div>
+        <div class="card-body">
+          <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+            <thead>
+              <tr>
+                <th>Course Name</th>
+                <th>Progress</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <%= for course <- @courses_info do %>
+                <tr>
+                  <td><a href="/course/detail/<%= course.id %>"><%= course.course_name %></a></td>
+                  <td><%= course.progress %> % </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="col-md-6">
       <div class="card card-chart">
         <div class="card-header">
           <h5 class="card-category">Appointments</h5>
         </div>
         <div class="card-body">
-          <% regular_user = (Accounts.has_role?(@user, "student") or Accounts.has_role?(@user, "renter") ) %>
           <%= if Enum.any?(@appointments) do %>
             <table class="table table-striped table-hover">
               <thead>
                 <tr>
                   <th scope="col">Start Time</th>
                   <th scope="col">End Time</th>
+                  <th scope="col">Type</th>
                   <th scope="col">Asset</th>
                 </tr>
               </thead>
@@ -141,63 +271,36 @@
                     ); </script>
                   </td>
                   <td>
+                    <script> document.write(
+                    '<dd>'+getAppointmentType('<%= appointment.type %>')+'</dd>'
+                    ); </script>
+                  </td>
+                  <td>
                     <%= if appointment.aircraft_id do %>
                       <dl class="d-flex justify-content-between">
                         <dt>Aircraft</dt>
-                        <%= if appointment.aircraft.archived do %>
-                          <dd><%= aircraft_display_name appointment.aircraft %></dd>
-                        <% else %>
-                            <%= if regular_user do %>
-                              <dd><%= aircraft_display_name appointment.aircraft %></dd>
-                            <% else %>
-                              <dd><a href="/admin/aircrafts/<%= appointment.aircraft_id %>"><%= aircraft_display_name appointment.aircraft %></a></dd>
-                            <% end %>
-                        <% end %>
+                        <dd><%= aircraft_display_name appointment.aircraft %></dd>
                       </dl>
                     <% end %>
 
                     <%= if appointment.simulator_id do %>
                       <dl class="d-flex justify-content-between">
                         <dt>Simulator</dt>
-                        <%= if appointment.simulator.archived do %>
-                          <dd><%= aircraft_display_name appointment.simulator %></dd>
-                        <% else %>
-                            <%= if regular_user do %>
-                              <dd><%= aircraft_display_name appointment.simulator %></dd>
-                            <% else %>
-                              <dd><a href="/admin/simulators/<%= appointment.simulator_id %>"><%= aircraft_display_name appointment.simulator %></a></dd>
-                            <% end %>
-                        <% end %>
+                        <dd><%= aircraft_display_name appointment.simulator %></dd>
                       </dl>
                     <% end %>
 
                     <%= if appointment.room_id do %>
                       <dl class="d-flex justify-content-between">
                         <dt>Room</dt>
-                        <%= if appointment.room.archived do %>
-                          <dd><%= appointment.room.location %></dd>
-                        <% else %>
-                            <%= if regular_user do %>
-                              <dd><%= appointment.room.location %></dd>
-                            <% else %>
-                              <dd><a href="/admin/rooms/<%= appointment.room_id %>"><%= appointment.room.location %></a></dd>
-                            <% end %>
-                        <% end %>
+                        <dd><%= appointment.room.location %></dd>
                       </dl>
                     <% end %>
 
                     <%= if appointment.instructor_user_id do %>
                       <dl class="d-flex justify-content-between">
                         <dt>Instructor</dt>
-                        <%= if appointment.instructor_user.archived do %>
-                          <dd><%= display_name appointment.instructor_user %></dd>
-                        <% else %>
-                            <%= if regular_user do %>
-                              <dd><%= display_name appointment.instructor_user %></dd>
-                            <% else %>
-                              <dd><a href="/admin/users/<%= appointment.instructor_user_id %>"><%= display_name appointment.instructor_user %></a></dd>
-                            <% end %>
-                        <% end %>
+                        <dd><%= display_name appointment.instructor_user %></dd>
                       </dl>
                     <% end %>
                   </td>

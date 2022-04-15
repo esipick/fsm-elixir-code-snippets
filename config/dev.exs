@@ -125,7 +125,7 @@ config :flight, :webtoken_key, System.get_env("WEBTOKEN_KEY") || "FSMM"
 config :flight, :webtoken_secret_key, System.get_env("WEBTOKEN_SECRET_KEY") || ".jG<T9qX6sNk3.Z3"
 config :flight, :per_course_price, String.to_integer(System.get_env("PER_COURSE_PRICE") || "10")
 config :flight, :monthly_invoice_creator, String.to_integer(System.get_env("MONTHLY_INVOICE_CREATOR") || "1")
-config :flight, :enable_lms_for_all, System.get_env("ENABLE_LMS_FOR_ALL") || "NO"
+config :flight, :enable_lms_for_all, System.get_env("ENABLE_LMS_FOR_ALL") || "YES"
 config :flight, :appointment_unavailability_template_id, System.get_env("APPOINTMENT_UNAVAILABILITY_TEMPLATE_ID") || "d-54653246c8204f0bb62d31bc85ebdf09"
 
 # upload file config
