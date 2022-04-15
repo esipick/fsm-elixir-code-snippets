@@ -81,6 +81,7 @@
                         <td><%= inspection.type %></td>
                         <td class="text-center text-capitalize"><%= inspection.date_tach %></td>
                         <td><%= inspection.expiration %></td>
+                        <td class="text-right"><a onclick="inspectnow(<%= inspection.id %>)" class="btn btn-primary btn-sm text-white">Inspect Now</a></td>
                         <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
                       </tr>
                     <% end %>
@@ -124,4 +125,123 @@
     </div>
   </div>
 </div> <!-- end content -->
+<div id="inspectNow" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-centered" role="document" >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Inspect Now</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <label class="col-md-3 col-form-label">Note</label>
+          <div class="col-md-9">
+            <div class="form-group">
+              <textarea id="note" class="form-control"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <label class="col-md-3">Repeat inspection?</label>
+          <div class="col-md-9">
+            <label class="switch">
+              <input type="checkbox" id="repeatInspection" >
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+        <div class="row" id="nextInspectionField">
+          <label class="col-md-3">Next Inspection</label>
+          <div class="col-md-9">
+            <div class="form-group end-date">
+              <input id="nextInspection" type="text" class="form-control" value="">
+            </div>
+          </div>
+        </div>
+        <div class="drag-area">
+              <header>Drag and Drop a file to upload it.</header>
+              <span>Allowed file types: jpeg, .jpg, .png, .pdf</span>
+              <span>Max size: 5MB.</span>
+              <button class="btn btn-fill btn-primary" id="browseBtn">Browse Files</button>
+              <input id= "file_upload" class= "input-file" multiple hidden />
+              <ul class="fileList">
+              </ul>
+            </div>
+      </div>
+    </div>
+  </div>
+</div>
 <%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
+<style>
+    .drag-area{
+      border: 1px dashed #92b0b3;
+      border-radius: 5px;
+      background: #ffffff;
+      height: 250px;
+      width: 100%;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .drag-area .icon{
+      font-size: 100px;
+      color: #fff;
+    }
+    .drag-area header, .drag-area span{
+      font-size: 20px;
+      color: #3f8188;
+      text-align: center;
+      font-weight: 200;
+    }
+    .drag-area span{
+      font-size: 15px;
+    }
+    .drag-area button{
+      border-radius: 30px;
+    }
+    .drag-area img{
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+</style>
+<script>
+  function inspectnow(id) {
+    $('#inspectNow').modal({
+      backdrop: 'static',   // This disable for click outside event
+      keyboard: true        // This for keyboard event
+    });    
+  }
+  function initDateTimePicker() {   
+    $('#nextInspection').datetimepicker({
+      //debug: true,
+      format: 'YYYY-MM-DD',
+      defaultDate: moment(new Date()).add(2, 'M'),
+      minDate : new Date(),
+      icons: {
+        date: "now-ui-icons ui-1_calendar-60",
+        up: "fa fa-chevron-up",
+        down: "fa fa-chevron-down",
+        previous: 'now-ui-icons arrows-1_minimal-left',
+        next: 'now-ui-icons arrows-1_minimal-right',
+        today: 'fa fa-screenshot',
+        clear: 'fa fa-trash',
+        close: 'fa fa-remove'
+      }
+    });
+  }
+  $('#nextInspectionField').hide()
+  $('#repeatInspection').click(function () {
+    if ( this.checked ) {
+      $('#nextInspectionField').show()
+    }
+    else {
+      $('#nextInspectionField').hide()
+    }
+  })
+  initDateTimePicker();
+</script>
