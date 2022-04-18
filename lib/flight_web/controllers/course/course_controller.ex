@@ -106,8 +106,9 @@ defmodule FlightWeb.Course.CourseController do
   end
 
   def get_user_courses_progress(current_user) do
-    courses =   Flight.General.get_lms_courses(current_user, false)
-    courses_info = Enum.map(courses, fn course ->
+    courses_info =  Flight.General.get_lms_courses(current_user, false)
+               |> Enum.filter(fn course -> course.is_paid end)
+               |>  Enum.map(fn course ->
                       participant_course = Flight.General.get_participant_course_lessons(current_user, course.id, current_user.id)
                       course_info = %{
                         id: course.id,
@@ -115,8 +116,18 @@ defmodule FlightWeb.Course.CourseController do
                         progress: get_course_progress(participant_course)
                       }
                       course_info
-                   end)
-    courses_info
+                  end)
+
+  #  courses_info = Enum.map(courses, fn course ->
+  #                    participant_course = Flight.General.get_participant_course_lessons(current_user, course.id, current_user.id)
+  #                    course_info = %{
+  #                      id: course.id,
+  #                      course_name: course.course_name,
+  #                      progress: get_course_progress(participant_course)
+  #                    }
+  #                    course_info
+  #                 end)
+   courses_info
   end
 
 end
