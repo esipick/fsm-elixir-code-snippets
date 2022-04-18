@@ -109,7 +109,9 @@ defmodule FlightWeb.Course.CourseController do
     courses_info =  Flight.General.get_lms_courses(current_user, false)
                |> Enum.filter(fn course -> course.is_paid end)
                |>  Enum.map(fn course ->
-                      participant_course = Flight.General.get_participant_course_lessons(current_user, course.id, current_user.id)
+                      user_id = "fsm2m" <> to_string(current_user.id)
+                      participant_course = Flight.General.get_participant_course_lessons(current_user, course.id, user_id)
+
                       course_info = %{
                         id: course.id,
                         course_name: course.course_name,
@@ -117,7 +119,6 @@ defmodule FlightWeb.Course.CourseController do
                       }
                       course_info
                   end)
-
   #  courses_info = Enum.map(courses, fn course ->
   #                    participant_course = Flight.General.get_participant_course_lessons(current_user, course.id, current_user.id)
   #                    course_info = %{
