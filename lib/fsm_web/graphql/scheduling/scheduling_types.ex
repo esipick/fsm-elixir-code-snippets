@@ -261,6 +261,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :start_at, :string
     field :inst_start_at, :naive_datetime
     field :inst_end_at, :naive_datetime
+    field :type, :string
     field :user_id, :integer
     field :room_id, :integer
     field :simulator_id, :integer
