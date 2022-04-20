@@ -34,7 +34,7 @@
       <div class="card card-stats card-raised">
         <div class="card-body">
           <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-6">
               <div class="statistics">
                 <div class="info">
                   <div class="icon icon-primary">
@@ -45,8 +45,8 @@
                 </div>
               </div>
             </div>
-            
-            <div class="col-md-3">
+
+            <div class="col-md-6">
               <div class="statistics">
                 <div class="info">
                   <div class="icon icon-primary">
@@ -78,13 +78,13 @@
                   <th >System Affected</th>
                 </tr>
               </thead>
-              <tbody id="squawksList">               
+              <tbody id="squawksList">
                 <tr>
                   <td>No results found!</td>
                 </tr>
               </tbody>
             </table>
-          </div>  
+          </div>
         </div>
         <div class="card-footer">
           <div class="stats">
@@ -92,6 +92,50 @@
           </div>
         </div>
       </div> %>
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Squawks</h5>
+          <h1 class="card-title"><%= Enum.count(@squawks) %></h1>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="text-primary">
+                <tr>
+                  <th>Aircraft</th>
+                  <th>Title</th>
+                  <th>Severity</th>
+                  <th >System Affected</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                <%= for squawk <- @squawks do %>
+                  <%
+                    squawk_class = case squawk.severity do
+                      :monitor -> ""
+                      :warning -> "text-expiring"
+                      :grounded -> "text-expired"
+                    end
+                  %>
+                  <tr>
+                    <td class="text-nowrap text-primary"><span class="photo"><img src="/images/archer.jpg"></span><%= aircraft_display_name(squawk.aircraft) %></td>
+                    <td class="text-primary"><%= squawk.title %></td>
+                    <td class="<%= squawk_class %>"><%= squawk.severity %></td>
+                    <td><%= squawk.system_affected %></td>
+                  </tr>
+                <% end %>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
       <div class="card card-chart">
         <div class="card-header">
           <h5 class="card-category">Upcoming Inspections</h5>
@@ -110,9 +154,9 @@
                     end
                   %>
                   <tr>
-                    <td class="text-nowrap"><a href="/admin/aircrafts/<%= inspection.aircraft.id %>"><span class="photo"><img src="/images/archer.jpg"></span><%= aircraft_display_name(inspection.aircraft) %></a></td>
-                    <td class="text-right">
-                      <a href="/admin/inspections/<%= inspection.inspection.id %>/edit"><%= inspection.inspection.name %> </a>
+                    <td class="text-nowrap text-primary"><span class="photo "><img src="/images/archer.jpg"></span><%= aircraft_display_name(inspection.aircraft) %></td>
+                    <td class="text-right text-primary">
+                      <%= inspection.inspection.name %>
                       <br />
                       <p class="<%= inspection_class %>"><%= inspection.description %></p>
                     </td>
@@ -127,7 +171,7 @@
             <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
           </div>
         </div>
-      </div>      
+      </div>
     </div>
     <div class="col-md-6">
       <div class="card card-chart">
@@ -137,7 +181,7 @@
         <div class="card-body">
           <%= if Enum.any?(@appointments) do %>
             <table class="table table-striped table-hover">
-              <thead>
+              <thead class="text-primary">
                 <tr>
                   <th scope="col">Start Time</th>
                   <th scope="col">End Time</th>
@@ -185,7 +229,7 @@
 <%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
 <script>
   function getSquawks() {
-    
+
     var AUTH_HEADERS = { "Authorization": window.fsm_token };
     $.ajax({
           method: "GET",
@@ -197,8 +241,8 @@
             return  '<tr>' +
                       '<td>' + squawk.title + '</td>' +
                       '<td>' + squawk.severity + '</td>' +
-                      '<td>' + squawk.system_affected + '</td>'  +          
-                    '</tr>';          
+                      '<td>' + squawk.system_affected + '</td>'  +
+                    '</tr>';
         });
         $('#squawksList').html(htmlList);
       }

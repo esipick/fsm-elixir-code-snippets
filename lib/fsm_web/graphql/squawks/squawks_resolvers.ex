@@ -1,6 +1,7 @@
 defmodule FsmWeb.GraphQL.Squawks.SquawksResolvers do
     use FsmWeb.GraphQL.Errors
     alias Fsm.Squawks
+    alias Fsm.Scheduling
     alias FsmWeb.GraphQL.EctoHelpers
     require Logger
 
@@ -8,19 +9,24 @@ defmodule FsmWeb.GraphQL.Squawks.SquawksResolvers do
         squawk = Squawks.get_squawk(squawk_id)
         {:ok, squawk}
     end
-
     def get_squawk(_parent, _args, _context), do: @not_authenticated
 
-    def get_squawks(_parent, args, %{context: %{current_user: current_user}}) do
-        
-        aircraft_id = Map.get(args, :aircraft_id)
-        user_id = current_user.id
-        
-        squawks = Squawks.get_squawks({aircraft_id, user_id})
+    def get_squawks(_parent, args, %{context: %{current_user: %{id: user_id, roles: roles}}}=context) do
+        squawks =
+            cond do
+                "mechanic" in roles ->
+                    aircrafts = Map.get(args, :aircraft_id) || Scheduling.visible_air_assets(context)
+                    Squawks.get_squawks(aircrafts)
 
-        resp = {:ok, %{squawks: squawks}}
+                true ->
+                    aircraft_id = Map.get(args, :aircraft_id)
+
+                    Squawks.get_squawks({aircraft_id, user_id})
+
+            end
+
+        {:ok, %{squawks: squawks}}
     end
-    
     def get_squawks(_parent, _args, _context), do: @not_authenticated
 
     def update_squawk(_parent, args, %{context: %{current_user: current_user}}) do

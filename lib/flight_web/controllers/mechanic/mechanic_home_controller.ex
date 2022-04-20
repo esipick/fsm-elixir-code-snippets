@@ -15,6 +15,7 @@ defmodule FlightWeb.Mechanic.HomeController do
 
 
     expired_inspections = Fsm.Aircrafts.ExpiredInspection.inspections_for_aircrafts(aircrafts)
+    squawks = Fsm.Squawks.get_squawks(aircrafts)
 
     render(
       conn,
@@ -23,7 +24,8 @@ defmodule FlightWeb.Mechanic.HomeController do
       instructor_count: instructor_count,
       aircraft_count: Enum.count(aircrafts),
       appointments: appointments,
-      expired_inspections: expired_inspections
+      expired_inspections: expired_inspections,
+      squawks: squawks
     )
   end
 end

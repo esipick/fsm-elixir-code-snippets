@@ -7,6 +7,7 @@ defmodule Fsm.Squawks do
     alias Flight.Repo
     require Logger
     alias Fsm.Squawks.Squawk
+    alias Fsm.Aircrafts.Aircraft
     alias Fsm.Attachments.Attachment
     import Ecto.SoftDelete.Query
     alias Ecto.Multi
@@ -110,6 +111,31 @@ defmodule Fsm.Squawks do
 
           Repo.all(query)
       end
+    end
+
+    def get_squawks(aircrafts) when is_list(aircrafts)do
+      aircraft_ids = Enum.map(aircrafts, & &1.id)
+
+      query = from s in Squawk,
+      left_join: a in Aircraft, on: a.id == s.aircraft_id,
+      left_join: at in Attachment, on: at.squawk_id == s.id and   is_nil(at.deleted_at),
+      order_by: [desc: s.inserted_at],
+      where: s.aircraft_id in ^aircraft_ids and is_nil(s.deleted_at) and s.resolved == false,
+      preload: [attachments: at, aircraft: a]
+
+      Repo.all(query)
+    end
+
+    def get_squawks(aircraft_id) do
+
+      query = from s in Squawk,
+      left_join: a in Aircraft, on: a.id == s.aircraft_id,
+      left_join: at in Attachment, on: at.squawk_id == s.id and   is_nil(at.deleted_at),
+      order_by: [desc: s.inserted_at],
+      where: s.aircraft_id == ^aircraft_id and is_nil(s.deleted_at) and s.resolved == false,
+      preload: [attachments: at, aircraft: a]
+
+      Repo.all(query)
     end
 
     def update_squawk(squawk, attrs) do
