@@ -569,6 +569,7 @@ $(document).ready(function () {
 
   var appointmentId = null;
   var appointmentOrUnavailabilityId = null;
+  var appointmentData = null;
 
   // change event type based on user choice
   // $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -1092,7 +1093,15 @@ $(document).ready(function () {
     })
   });
 
+  
   $('#btnDelete').click(function () {
+    if (appointmentOrUnavailabilityId && appointmentData.parent_id ) {
+      $('#deleteRecurringEvent').modal({
+        backdrop: 'static',
+        keyboard: true
+      });
+      return;
+    }
     if (appointmentOrUnavailabilityId) {
       var promise = null;
       var buttonPos = $(this).offset();
@@ -1167,8 +1176,123 @@ $(document).ready(function () {
     }
   });
 
+  $('#btnDeleteAll').click(function () {
+    console.log(appointmentData)
+    var buttonPos = $(this).offset();
+    $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
+    let promise = $.ajax({
+      method: "post",
+      data: {
+        start_date: moment(appointmentData.start_at).format('YYYY-MM-DD HH:mm:ss'),
+        parent_id: appointmentData.parent_id
+      },
+      url: "/api/appointments/delete_recurring"+ addSchoolIdParam('?'),
+      headers: AUTH_HEADERS
+    })
+    promise.then(function (res) {
+      console.log(res)
+      $('#calendarNewModal').modal('hide')
+      $('#deleteRecurringEvent').modal('hide')
+      $calendar.fullCalendar('refetchEvents')
+
+      res.response.forEach(event => {
+        if ( event.delete ) {
+          showAlert("Successfully deleted event at "+moment(event.start_at).format('YYYY-MM-DD HH:mm'), 'success')
+        }
+        else {
+          showAlert("Couldn't deleted event at "+moment(event.start_at).format('YYYY-MM-DD HH:mm')+"\n"+event.reason, 'danger')
+        }
+      });
+      $('#loader').hide();
+    }).catch(function (e) {
+      console.log(e);
+      $('#calendarNewModal').modal('hide')
+      $('#deleteRecurringEvent').modal('hide')
+      $.notify({
+        message: "There was an error deleting the events"
+      }, {
+        type: "danger",
+        placement: { align: "center" }
+      })
+      $('#loader').hide();
+    })
+  });
+
+  $('#btnDeleteThis').click(function () {
+    if (appointmentOrUnavailabilityId) {
+      var promise = null;
+      var buttonPos = $(this).offset();
+
+      var event;
+      if (eventType == "appt") {
+        event = "appointment"
+      } else if (eventType == "demoAppt") {
+        event = "demo flight appointment"
+      } else if (eventType === "maintenance") {
+        event = "maintenance appointment"
+      } else {
+        event = "unavailability"
+      }
+
+      $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
+
+      if (eventType == "appt") {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          headers: AUTH_HEADERS
+        })
+      } else if (eventType == "demoAppt") {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          headers: AUTH_HEADERS
+        })
+      } else if(eventType === "maintenance") {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          headers: AUTH_HEADERS
+        })
+      } else {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          headers: AUTH_HEADERS
+        })
+      }
+
+      promise.then(function () {
+        $('#calendarNewModal').modal('hide')
+        $('#deleteRecurringEvent').modal('hide')
+        $calendar.fullCalendar('refetchEvents')
+
+        $.notify({
+          message: "Successfully deleted " + event
+        }, {
+          type: "success",
+          placement: { align: "center" }
+        })
+
+      }).catch(function (e) {
+        if (e.responseJSON.human_errors) {
+          showError(e.responseJSON.human_errors, event)
+        } else {
+          $.notify({
+            message: "There was an error deleting the event"
+          }, {
+            type: "danger",
+            placement: { align: "center" }
+          })
+        }
+        $('#loader').hide();
+      })
+    }
+  });
+
   var openAppointmentModal = function (initialData) {
     appointmentOrUnavailabilityId = initialData.id;
+    appointmentData = initialData
     const isStudent = userInfo.roles.includes("student")
     const isInstructor = userInfo.roles.includes("instructor")
     const isMechanic = userInfo.roles.includes("mechanic")
@@ -1940,6 +2064,7 @@ $(document).ready(function () {
             room_id: room_id,
             note: calEvent.unavailability.note,
             id: calEvent.unavailability.id,
+            parent_id: appointment.parent_id,
             type: "unavailable"
           })
           return;
@@ -1974,7 +2099,8 @@ $(document).ready(function () {
             demo: appointment.demo,
             type: appointment.type,
             payer_name: payerTitle(appointment),
-            id: appointment.id
+            id: appointment.id,
+            parent_id: appointment.parent_id
           })
 
           return;
@@ -2023,6 +2149,7 @@ $(document).ready(function () {
             user_id: appointment.user ? appointment.user.id : null,
             user_name: appointmentTitle(appointment),
             id: appointment.id,
+            parent_id: appointment.parent_id,
             type: appointment.type,
             mechanic_user_id
           })

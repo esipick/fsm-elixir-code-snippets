@@ -143,6 +143,7 @@ defmodule FlightWeb.API.AppointmentView do
       end_tach_time: Map.get(appointment, :end_tach_time),
       start_hobbs_time: Map.get(appointment, :start_hobbs_time),
       end_hobbs_time: Map.get(appointment, :end_hobbs_time),
+      parent_id: Map.get(appointment, :parent_id),
       room:
         Optional.map(
           appointment.room,
