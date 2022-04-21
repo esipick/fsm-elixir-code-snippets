@@ -129,6 +129,13 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       middleware Middleware.Authorize
       resolve &SchedulingResolvers.delete_appointment/3
     end
+
+    field :delete_recurring_appointment, list_of(:delete_recurring_appointment_response) do
+      arg :start_date, non_null(:string)
+      arg :parent_id, non_null(:string)
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.delete_recurring_appointment/3
+    end
   end
 
 
@@ -201,6 +208,11 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 #    field :room, :room
 #    field :simulator, :simulator
 
+  end
+  object :delete_recurring_appointment_response do
+    field :appointment, :appointment
+    field :delete, :boolean
+    field :reason,  :string
   end
 
   object :recurring_appointment do
