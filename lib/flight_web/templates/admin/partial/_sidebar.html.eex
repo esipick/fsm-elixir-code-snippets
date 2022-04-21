@@ -37,13 +37,7 @@ Tip 2: you can also add an image using data-image tag
         <li class="<%= if item.active, do: "active", else: "" %>">
             <a href="<%= item.path %>">
                 <i class="now-ui-icons <%= item.icon_class %>"></i>
-                <p>
-                  <%= if item.label == "Courses" do%>
-                    <%= item.label %> <span class="bg-danger rounded text-white text-sm ml-1 p-1">BETA</span>
-                  <%= else %>
-                    <%= item.label %>
-                  <%=end%>
-                </p>
+                <p><%= item.label %></p>
             </a>
         </li>
       <% end %>
