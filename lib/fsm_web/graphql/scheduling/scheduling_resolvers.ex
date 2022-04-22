@@ -193,6 +193,28 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     Scheduling.delete_appointment(context, appointment_id)
   end
 
+  def delete_recurring_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}=school_context}}=context) do
+    appointments = Flight.Scheduling.get_recurring_appointments_for_deletion(args, school_context)
+    response = Enum.map(appointments, fn appointment ->
+                  with {:ok, true } <- Scheduling.delete_appointment(context, appointment.id) do
+                    %{
+                      appointment: appointment,
+                      delete: true,
+                      reason: ""
+                    }
+                  else
+                    {:error, reason }  ->
+                      %{
+                        appointment: appointment,
+                        delete: false,
+                        reason: reason
+                      }
+                  end
+               end)
+
+    resp = {:ok, response}
+  end
+
   def list_aircraft_appointments(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
     Log.request(args, __ENV__.function)
     page = Map.get(args, :page)

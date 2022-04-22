@@ -130,7 +130,7 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def delete(%{assigns: %{appointment: appointment, current_user: user}} = conn, _) do
-    IO.inspect(appointment, label: "APPT: ")
+
     if user_can?(user, [Permission.new(:appointment, :modify, :all)]) do
       delete_appointment(appointment, user, conn)
     else
@@ -205,7 +205,11 @@ defmodule FlightWeb.API.AppointmentController do
     end
   end
 
-  def delete_recurring_appointment(%{assigns: %{current_user: user}} = conn, options) do
+  def delete_recurring_appointment(%{assigns: %{current_user: user}} = conn, args) do
+    options = %{
+      start_date: args["start_date"],
+      parent_id: args["parent_id"]
+    }
     appointments = Scheduling.get_recurring_appointments_for_deletion(options, conn)
     twenty_four_hours = 24 * 60 * 60
     response = Enum.map(appointments, fn appointment ->
