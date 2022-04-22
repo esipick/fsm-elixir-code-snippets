@@ -401,16 +401,13 @@ defmodule Flight.Scheduling do
   end
 
   #get recurring appointsment for deletion based on parent_id, id & future_date
-  def get_recurring_appointments_for_deletion(options, school_context) do
-    start_date = options.start_date
-    parent_id = options.parent_id
+  def get_recurring_appointments_for_deletion(%{start_date: start_date, parent_id: parent_id} = options, school_context) do
     start_at_after_value =
       case NaiveDateTime.from_iso8601(start_date || "") do
         {:ok, date} -> date
         _ -> nil
       end
-    IO.inspect(start_at_after_value, label: "AFT")
-    IO.inspect(parent_id, label: "PAR")
+
     from(a in Appointment, where: a.archived == false)
     |> SchoolScope.scope_query(school_context)
     |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at > ^start_at_after_value))
