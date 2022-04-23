@@ -79,6 +79,42 @@ defmodule Flight.PushNotifications do
     }
   end
 
+  def squawk_created_notification(destination_user, creating_user, squawk) do
+    %PushNotification{
+      title: "Squawk Created",
+      body:
+        "A new squawk for plane #{squawk.aircraft.make} #{squawk.aircraft.model} - #{squawk.aircraft.tail_number} has been created by #{creating_user.first_name} #{creating_user.last_name}.",
+      sound: true,
+      user_id: destination_user.id,
+      data: %{
+        destination: "aircrafts/#{squawk.aircraft_id}"
+      }
+    }
+  end
+
+  def squawk_updated_notification(destination_user, updating_user, squawk) do
+    %PushNotification{
+      title: "Squawk Updated",
+      body:
+      "A squawk for plane #{squawk.aircraft.make} #{squawk.aircraft.model} - #{squawk.aircraft.tail_number} has been updated by #{updating_user.first_name} #{updating_user.last_name}.",
+      sound: true,
+      user_id: destination_user.id,
+      data: %{
+        destination: "aircrafts/#{squawk.aircraft_id}"
+      }
+    }
+  end
+
+  def squawk_deleted_notification(destination_user, deleting_user, squawk) do
+    %PushNotification{
+      title: "Squawk Deleted",
+      body:
+      "A squawk for plane #{squawk.aircraft.make} #{squawk.aircraft.model} - #{squawk.aircraft.tail_number} has been updated by #{deleting_user.first_name} #{deleting_user.last_name}.",
+      sound: true,
+      user_id: destination_user.id
+    }
+  end
+
   def payment_request_notification(destination_user, requesting_user, transaction) do
     %PushNotification{
       title: "Payment Request",

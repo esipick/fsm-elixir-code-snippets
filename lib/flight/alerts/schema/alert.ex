@@ -9,14 +9,14 @@ defmodule Flight.Alerts.Alert do
     }
 
     schema "alerts" do
-        field(:code, AlertCodeEnum, null: false)
-        field(:title, :string, null: false)
-        field(:description, :string, null: false)
+        field(:code, AlertCodeEnum, null: true)
+        field(:title, :string, null: true)
+        field(:description, :string, null: true)
 
         field(:priority, AlertPriorityEnum, default: :low)
 
         field(:receiver_id, :id, null: true) # if receiver_id is null this is a broadcast alert. The school id should be non nil for broadcast alert.
-        field(:sender_id, :id, null: false)
+        field(:sender_id, :id, null: true)
 
         field(:additional_info, :map, null: true)
 
@@ -27,7 +27,7 @@ defmodule Flight.Alerts.Alert do
         timestamps([inserted_at: :created_at])
     end
 
-    defp required_fields(), do: ~w(code title description sender_id school_id)a
+    defp required_fields(), do: ~w(school_id)a
 
     def changeset(%Alert{} = alert, attrs \\ %{}) do
         alert

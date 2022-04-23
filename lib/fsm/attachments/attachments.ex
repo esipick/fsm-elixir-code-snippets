@@ -4,7 +4,7 @@ defmodule Fsm.Attachments do
   """
 
   import Ecto.Query, warn: false
-  alias Fsm.Repo
+  alias Flight.Repo
   alias Ecto.Multi
   alias Fsm.Helpers
   require Logger

@@ -32,6 +32,11 @@ defmodule Fsm.Scheduling do
     Repo.get(Appointment, appointment_id)
   end
 
+  def get_aircraft_appointments_mechanic_user_ids(aircraft_id) do
+    SchedulingQueries.get_aircraft_appointments_mechanic_user_ids_query(aircraft_id)
+  |> Repo.all
+  end
+
   def get_appointment_full_object(appointment_id) do
     SchedulingQueries.get_appointment_query(appointment_id)
     |> Ecto.Query.first
