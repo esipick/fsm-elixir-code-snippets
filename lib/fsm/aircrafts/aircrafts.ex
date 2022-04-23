@@ -16,6 +16,11 @@ defmodule Fsm.Aircrafts do
       |> Repo.preload(:squawks)
   end
 
+  def get_aircraft_record_by_id(id) do
+      AircraftsQueries.get_aircraft_record_by_id_query(id)
+      |> Repo.one
+  end
+
   def list_aircrafts(page, per_page, sort_field, sort_order, filter, context) do
 
     inspections_query = from p in Fsm.Aircrafts.Inspection
@@ -27,7 +32,7 @@ defmodule Fsm.Aircrafts do
     |> Enum.reduce([], fn(aircraft, agg) ->
 
       inspections = Enum.map(aircraft.inspections, fn(is) ->
-        changed_data = Enum.map(is.inspection_data, fn(d) -> 
+        changed_data = Enum.map(is.inspection_data, fn(d) ->
             %{d | value: InspectionData.value_from_t_field(d)}
         end)
         %{is | inspection_data: changed_data}

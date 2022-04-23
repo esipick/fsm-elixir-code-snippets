@@ -14,13 +14,13 @@ defmodule FlightWeb.Admin.SquawkController do
   alias Fsm.Squawks
   alias Fsm.Attachments.Attachment
 
-  def create(conn, %{"squawk" => squawk}) do
-    user_id = conn.assigns.current_user.id
+  def create(%{assigns: %{current_user: %{id: user_id, school_id: school_id}}} = conn, %{"squawk" => squawk}) do
     aircraft_id = Map.get(squawk, "aircraft_id")
     squawk_input =
       squawk
       |> transform_squawk
       |> Map.put(:user_id, user_id)
+      |> Map.put(:school_id, school_id)
 
     attachments = Map.get(squawk, "attachments") || []
 
@@ -87,10 +87,12 @@ defmodule FlightWeb.Admin.SquawkController do
     )
   end
 
-  def update(conn, %{"squawk" => squawk}) do
-    user_id = conn.assigns.current_user.id
+  def update(%{assigns: %{current_user: %{id: user_id, school_id: school_id}}} = conn, %{"squawk" => squawk}) do
     squawk_input = transform_squawk(squawk)
-    changeset = conn.assigns.squawk
+    changeset =
+      conn.assigns.squawk
+      |> Map.put(:user_id, user_id)
+      |> Map.put(:school_id, school_id)
 
     attachments = Map.get(squawk, "attachments") || []
 
@@ -113,6 +115,11 @@ defmodule FlightWeb.Admin.SquawkController do
             Squawks.add_multiple_squawk_images(attachments)
             |> case do
               {:error, error} ->
+                squawk_changeset =
+                  squawk_changeset
+                  |> Map.put(:user_id, user_id)
+                  |> Map.put(:school_id, school_id)
+
                 Squawks.delete_squawk(squawk_changeset)
                 render_squawk_error(conn, squawk_input, "Couldn't create squawk attachment. Please try again")
 
@@ -131,8 +138,12 @@ defmodule FlightWeb.Admin.SquawkController do
 
   end
 
-  def delete(conn, _) do
-    squawk = conn.assigns.squawk
+  def delete(%{assigns: %{current_user: %{id: user_id, school_id: school_id}}} = conn, _) do
+    squawk =
+      conn.assigns.squawk
+      |> Map.put(:user_id, user_id)
+      |> Map.put(:school_id, school_id)
+
     Squawks.delete_squawk(squawk)
 
     conn
