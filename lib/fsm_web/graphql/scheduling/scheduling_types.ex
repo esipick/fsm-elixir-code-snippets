@@ -178,6 +178,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :aircraft, :aircraft
     field :room, :room
     field :simulator, :simulator
+    field :parent_id, :integer
 
   end
 
@@ -202,6 +203,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
     field(:simulator_id, :integer)
     field(:room_id, :integer)
+    field :parent_id, :integer
 #    field :user, :user
 #    field :instructor, :user
 #    field :aircraft, :aircraft
