@@ -937,6 +937,21 @@ defmodule Flight.Scheduling do
     Repo.delete!(unavailability)
   end
 
+  #delete recurring unavailability based on parent_id & future_date
+  def delete_recurring_unavailability(%{start_date: start_date, parent_id: parent_id} = options, school_context) do
+    start_at_after_value =
+      case NaiveDateTime.from_iso8601(start_date || "") do
+        {:ok, date} -> date
+        _ -> nil
+      end
+
+    from(a in Unavailability)
+    |> SchoolScope.scope_query(school_context)
+    |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at > ^start_at_after_value))
+    |> pass_unless(parent_id, &where(&1, [a], a.parent_id == ^parent_id))
+    |> Repo.delete_all()
+  end
+
   def send_created_notifications(appointment, modifying_user) do
     appointment = Repo.preload(appointment, [:user, :instructor_user])
 
