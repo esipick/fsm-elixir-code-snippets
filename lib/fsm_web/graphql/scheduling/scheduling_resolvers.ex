@@ -215,6 +215,27 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     resp = {:ok, response}
   end
 
+  def delete_recurring_unavailability(parent, args, %{context: %{current_user: %{school_id: school_id}=school_context}}=context) do
+    with %{resp_body: nil} <- authorize_modify(args, context) do
+      Log.request(args, __ENV__.function)
+      with {records_deleted, nil} <- Flight.Scheduling.delete_recurring_unavailability(args, school_context) do
+        IO.inspect(records_deleted, label: "RD")
+        response = %{
+          message: "Unavailabilities Deleted Successfully",
+          error: false
+        }
+        {:ok, response}
+      else
+        response = {records_deleted, :error } ->
+          %{
+            message: :error,
+            error: true
+          }
+        {:ok, response}
+      end
+    end
+  end
+
   def list_aircraft_appointments(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
     Log.request(args, __ENV__.function)
     page = Map.get(args, :page)

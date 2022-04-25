@@ -1177,9 +1177,66 @@ $(document).ready(function () {
   });
 
   $('#btnDeleteAll').click(function () {
-    console.log(appointmentData)
     var buttonPos = $(this).offset();
     $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
+    if (appointmentData.type == "unavailable" || appointmentData.type == "unavailablity") {
+      let payload = {
+        "query": `mutation {
+          deleteRecurringUnavailability(id: ${appointmentOrUnavailabilityId}, parentId: ${appointmentData.parent_id}, startDate: "${moment(appointmentData.start_at).format('YYYY-MM-DD HH:mm:ss')}") {
+            message,
+            error
+          }
+        }`,
+        "variables": null
+      }
+      $.ajax({
+        method: "post",
+        url: "/api/graphiql/",
+        headers: AUTH_HEADERS_BEARER,
+        data: payload
+      }).then(function (response) {
+        $('#calendarNewModal').modal('hide')
+        $('#deleteRecurringEvent').modal('hide')
+        if (response.errors) {
+          let errors = response.errors || []
+          var message = "There was an deleting unavailability, Please try again."
+  
+          if (errors.length > 0) {
+            message = errors[0]["message"] || message 
+          }
+  
+          showAlert(message, 'danger')
+          
+        } else if (response.data) {
+          let res = response.data.deleteRecurringUnavailability;
+          if (!res.error) {
+            $calendar.fullCalendar('refetchEvents')
+            showAlert(res.message, 'success')
+          }
+          else {
+            showAlert(res.message, 'danger')
+          }
+          
+        }
+  
+        $('#loader').hide();
+  
+      }).catch(function (e) {
+          $('#calendarNewModal').modal('hide')
+          $('#deleteRecurringEvent').modal('hide')
+          let errors = e.responseJSON.errors || []
+          var message = "There was an error downloading ics file, Please try again."
+  
+          if (errors.length > 0) {
+            message = errors[0]["message"] || message 
+          }
+  
+          showAlert(message, 'danger');
+  
+          $('#loader').hide();
+      });
+      return;
+    }
     let promise = $.ajax({
       method: "post",
       data: {
@@ -1190,7 +1247,6 @@ $(document).ready(function () {
       headers: AUTH_HEADERS
     })
     promise.then(function (res) {
-      console.log(res)
       $('#calendarNewModal').modal('hide')
       $('#deleteRecurringEvent').modal('hide')
       $calendar.fullCalendar('refetchEvents')
@@ -1205,7 +1261,7 @@ $(document).ready(function () {
       });
       $('#loader').hide();
     }).catch(function (e) {
-      console.log(e);
+
       $('#calendarNewModal').modal('hide')
       $('#deleteRecurringEvent').modal('hide')
       $.notify({
@@ -1561,7 +1617,7 @@ $(document).ready(function () {
     $('#maintenanceAircraft').val(initialData.aircraft_id).selectpicker("refresh");
     $('#maintenanceNote').val(initialData.note);
 
-
+   
     $('#calendarNewModal').modal({
       backdrop: 'static',   // This disable for click outside event
       keyboard: true        // This for keyboard event
@@ -2036,11 +2092,14 @@ $(document).ready(function () {
       editable: editable,
       eventClick: function (calEvent, jsEvent, view) {
         const canProceed = checkRole();
+        console.log(canProceed)
         if ( !canProceed ){
           disableEditAppointment()
           return;
         }
+        
         if (calEvent.unavailability) {
+          
           var instructor_user_id = null;
           if (calEvent.unavailability.instructor_user) {
             instructor_user_id = calEvent.unavailability.instructor_user.id
@@ -2064,7 +2123,7 @@ $(document).ready(function () {
             room_id: room_id,
             note: calEvent.unavailability.note,
             id: calEvent.unavailability.id,
-            parent_id: appointment.parent_id,
+            parent_id: calEvent.unavailability.parent_id,
             type: "unavailable"
           })
           return;
