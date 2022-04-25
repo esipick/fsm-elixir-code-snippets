@@ -1225,7 +1225,7 @@ $(document).ready(function () {
           $('#calendarNewModal').modal('hide')
           $('#deleteRecurringEvent').modal('hide')
           let errors = e.responseJSON.errors || []
-          var message = "There was an error downloading ics file, Please try again."
+          var message = "There was an deleting unavailability, Please try again."
   
           if (errors.length > 0) {
             message = errors[0]["message"] || message 

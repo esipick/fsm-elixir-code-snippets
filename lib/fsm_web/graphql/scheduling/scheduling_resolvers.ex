@@ -219,7 +219,6 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     with %{resp_body: nil} <- authorize_modify(args, context) do
       Log.request(args, __ENV__.function)
       with {records_deleted, nil} <- Flight.Scheduling.delete_recurring_unavailability(args, school_context) do
-        IO.inspect(records_deleted, label: "RD")
         response = %{
           message: "Unavailabilities Deleted Successfully",
           error: false
