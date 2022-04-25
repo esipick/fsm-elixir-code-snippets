@@ -212,6 +212,7 @@ $(document).ready(function () {
   // dynamic unavailability form
   var unavailType = 'Instructor';
   $('#fieldAircraft').hide(); // hide aircraft by default
+  $('#fieldSquawk').hide(); // hide squawk by default
   $('#fieldSimulator').hide(); // hide simulator by default
   $('#fieldRoom').hide(); // hide room by default
 
@@ -282,24 +283,28 @@ $(document).ready(function () {
   function displayForUnavailability(type) {
     if (type == "Aircraft") {
       $('#fieldAircraft').show();
+      $('#fieldSquawk').show();
       $('#fieldInstructor').hide();
       $('#fieldSimulator').hide();
       $('#fieldRoom').hide();
 
     } else if (type == "Instructor") {
       $('#fieldAircraft').hide();
+      $('#fieldSquawk').hide();
       $('#fieldInstructor').show();
       $('#fieldSimulator').hide();
       $('#fieldRoom').hide();
 
     } else if (type == "Simulator") {
       $('#fieldAircraft').hide();
+      $('#fieldSquawk').hide();
       $('#fieldInstructor').hide();
       $('#fieldSimulator').show();
       $('#fieldRoom').hide();
 
     } else if (type == "Room") {
       $('#fieldAircraft').hide();
+      $('#fieldSquawk').hide();
       $('#fieldInstructor').hide();
       $('#fieldSimulator').hide();
       $('#fieldRoom').show();
@@ -596,11 +601,13 @@ $(document).ready(function () {
 
   $('#unavailInstructor').on('change', function (e) {
     $('#unavailAircraft').val(null).selectpicker("refresh")
+    $('#unavailSquawk').val(null).selectpicker("refresh")
     $('#unavailSimulator').val(null).selectpicker("refresh")
     $('#unavailRoom').val(null).selectpicker("refresh")
   })
 
   $('#unavailAircraft').on('change', function (e) {
+    $('#unavailSquawk').val(null).selectpicker("refresh")
     $('#unavailInstructor').val(null).selectpicker("refresh")
     $('#unavailSimulator').val(null).selectpicker("refresh")
     $('#unavailRoom').val(null).selectpicker("refresh")
@@ -608,12 +615,14 @@ $(document).ready(function () {
 
   $('#unavailSimulator').on('change', function (e) {
     $('#unavailAircraft').val(null).selectpicker("refresh")
+    $('#unavailSquawk').val(null).selectpicker("refresh")
     $('#unavailInstructor').val(null).selectpicker("refresh")
     $('#unavailRoom').val(null).selectpicker("refresh")
   })
 
   $('#unavailRoom').on('change', function (e) {
     $('#unavailAircraft').val(null).selectpicker("refresh")
+    $('#unavailSquawk').val(null).selectpicker("refresh")
     $('#unavailInstructor').val(null).selectpicker("refresh")
     $('#unavailSimulator').val(null).selectpicker("refresh")
   })
@@ -862,6 +871,7 @@ $(document).ready(function () {
       var eventFor = $('#unavailFor').val();
       var eventInstructor = safeParseInt($('#unavailInstructor').val());
       var eventAircraft = safeParseInt($('#unavailAircraft').val());
+      var eventSquawk = safeParseInt($('#unavailSquawk').val());
       var eventSimulator = safeParseInt($('#unavailSimulator').val());
       var eventRoom = safeParseInt($('#unavailRoom').val());
 
@@ -878,6 +888,7 @@ $(document).ready(function () {
         end_at: eventEnd,
         instructor_user_id: eventInstructor,
         aircraft_id: eventAircraft,
+        squawk_id: eventSquawk,
         room_id: eventRoom,
         simulator_id: eventSimulator,
         note: eventNote,
@@ -1413,6 +1424,7 @@ $(document).ready(function () {
 
     $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+    $('#unavailSquawk').val(initialData.squawk_id).selectpicker("refresh");
     $('#unavailSimulator').val(initialData.simulator_id).selectpicker("refresh");
     $('#unavailRoom').val(initialData.room_id).selectpicker("refresh");
     $('#unavailNote').val(initialData.note);
@@ -2124,6 +2136,7 @@ $(document).ready(function () {
             note: calEvent.unavailability.note,
             id: calEvent.unavailability.id,
             parent_id: calEvent.unavailability.parent_id,
+            squawk_id: calEvent.unavailability.squawk_id,
             type: "unavailable"
           })
           return;

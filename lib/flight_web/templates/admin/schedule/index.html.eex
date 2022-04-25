@@ -4,6 +4,7 @@
     renters: @renters,
     instructors: @instructors,
     aircrafts: @aircrafts,
+    squawks: @squawks,
     mechanics: @mechanics,
     simulators: @simulators,
     rooms: @rooms,

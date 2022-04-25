@@ -27,6 +27,7 @@ defmodule FlightWeb.API.UnavailabilityView do
       note: unavailability.note,
       type: unavailability.type,
       parent_id: unavailability.parent_id,
+      squawk_id: unavailability.squawk_id,
       instructor_user:
         Optional.map(
           unavailability.instructor_user,

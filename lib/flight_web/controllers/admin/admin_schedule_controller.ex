@@ -13,10 +13,13 @@ defmodule FlightWeb.Admin.ScheduleController do
     types = Flight.Scheduling.Appointment.types()
     instructor_times = Flight.Scheduling.Appointment.instructor_times()
 
+    squawks = Fsm.Squawks.get_squawks(aircrafts)
+
     render(conn, "index.html",
       renters: renters,
       instructors: instructors,
       aircrafts: aircrafts,
+      squawks: squawks,
       simulators: simulators,
       rooms: rooms,
       types: types,

@@ -194,6 +194,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :id, :integer
     field :simulator_id, :integer
     field :room_id, :integer
+    field :squawk_id, :integer
 
     field :school_id, :integer
     field :instructor_user_id, :integer
@@ -240,6 +241,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   input_object :unavailability_input do
     field :simulator_id, :integer
     field :room_id, :integer
+    field :squawk_id, :integer
 
     field :instructor_user_id, :integer
     field :aircraft_id, :integer

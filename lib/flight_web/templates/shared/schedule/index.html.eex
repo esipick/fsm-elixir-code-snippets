@@ -261,6 +261,19 @@
                 </div>
               </div>
             </div>
+            <div id="fieldSquawk" class="row">
+              <label class="col-md-3 col-form-label">Squawk</label>
+              <div class="col-md-9">
+                <div class="form-group">
+                  <select id="unavailSquawk" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Squawk">
+                    <option value="">None</option>
+                    <%= for squawk <- @squawks do %>
+                      <option value="<%= squawk.id %>"><%= squawk.title %></option>
+                    <% end %>
+                  </select>
+                </div>
+              </div>
+            </div>
 
             <div id="fieldSimulator" class="row">
               <label class="col-md-3 col-form-label">Simulator *</label>
