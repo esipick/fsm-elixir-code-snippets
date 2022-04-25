@@ -2064,7 +2064,7 @@ $(document).ready(function () {
             room_id: room_id,
             note: calEvent.unavailability.note,
             id: calEvent.unavailability.id,
-            parent_id: appointment.parent_id,
+            parent_id: calEvent.unavailability.parent_id,
             type: "unavailable"
           })
           return;

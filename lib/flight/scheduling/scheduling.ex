@@ -470,7 +470,13 @@ defmodule Flight.Scheduling do
             {:ok, Map.put(acc, :errors, new_errors)}
 
           {:ok, appointment} ->
-            acc = if parent_id == nil, do: Map.put(acc, :parent_id, appointment.id), else: acc
+            acc =
+              if parent_id == nil do
+                insert_or_update_appointment(appointment, %{"parent_id" => appointment.id}, modifying_user, context)
+                 Map.put(acc, :parent_id, appointment.id)
+              else
+                acc
+              end
             appointments = Map.get(acc, :appointments)
             {:ok, Map.put(acc, :appointments, [appointment | appointments])}
         end
@@ -804,7 +810,13 @@ defmodule Flight.Scheduling do
             {:ok, Map.put(acc, :errors, new_errors)}
 
           {:ok, unavailability} ->
-            acc = if parent_id == nil, do: Map.put(acc, :parent_id, unavailability.id), else: acc
+            acc =
+              if parent_id == nil do
+                insert_or_update_unavailability(unavailability, %{"parent_id" => unavailability.id}, context)
+                 Map.put(acc, :parent_id, unavailability.id)
+              else
+                acc
+              end
             unavailabilities = Map.get(acc, :unavailabilities)
             {:ok, Map.put(acc, :unavailabilities, [unavailability | unavailabilities])}
         end
@@ -1045,6 +1057,8 @@ defmodule Flight.Scheduling do
           "to" => end_at
         }
         delete_appointments_on_unavailability(options, school_context)
+
+      _ -> true
     end
   end
 
