@@ -193,9 +193,17 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     Scheduling.delete_appointment(context, appointment_id)
   end
 
-  def delete_recurring_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}=school_context}}=context) do
-    appointments = Flight.Scheduling.get_recurring_appointments_for_deletion(args, school_context)
+  def delete_recurring_appointment(parent, %{id: id, parent_id: parent_id} = args, %{context: %{current_user: %{school_id: school_id}=school_context}}=context) do
+    appt = Flight.Scheduling.get_appointment(id, school_context)
+    options = %{
+      start_date: appt.start_at,
+      parent_id: parent_id
+    }
+
+    appointments = Flight.Scheduling.get_recurring_appointments_for_deletion(options, school_context)
+
     response = Enum.map(appointments, fn appointment ->
+
                   with {:ok, true } <- Scheduling.delete_appointment(context, appointment.id) do
                     %{
                       appointment: appointment,
@@ -215,10 +223,15 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
     resp = {:ok, response}
   end
 
-  def delete_recurring_unavailability(parent, args, %{context: %{current_user: %{school_id: school_id}=school_context}}=context) do
+  def delete_recurring_unavailability(parent,%{id: id, parent_id: parent_id} = args, %{context: %{current_user: %{school_id: school_id}=school_context}}=context) do
+    Log.request(args, __ENV__.function)
     with %{resp_body: nil} <- authorize_modify(args, context) do
-      Log.request(args, __ENV__.function)
-      with {records_deleted, nil} <- Flight.Scheduling.delete_recurring_unavailability(args, school_context) do
+      unavailability = Scheduling.get_unavailability(id, context)
+      options = %{
+        start_date: unavailability.start_at,
+        parent_id: parent_id
+      }
+      with {records_deleted, nil} <- Flight.Scheduling.delete_recurring_unavailability(options, school_context) do
         response = %{
           message: "Unavailabilities Deleted Successfully",
           error: false
