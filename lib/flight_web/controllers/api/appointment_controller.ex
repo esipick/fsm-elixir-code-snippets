@@ -217,23 +217,13 @@ defmodule FlightWeb.API.AppointmentController do
                     if appointment.end_at, do: NaiveDateTime.add(appointment.end_at, twenty_four_hours), else: nil
 
                   if user_can?(user, [Permission.new(:appointment, :modify, :all)]) && !Scheduling.Appointment.is_paid?(appointment) do
-                    if (end_at == nil or NaiveDateTime.compare(NaiveDateTime.utc_now(), end_at) == :lt) do
-                      delete_appointment(appointment, user, conn)
-                      res = %{
-                        appointment: appointment,
-                        delete: true,
-                        reason: "",
-                        end_at: end_at
-                      }
-                      res
-                    else
-                      res = %{
-                        appointment: appointment,
-                        delete: false,
-                        reason: "You are not authorized to change an appointment after 24 hours of its end time. Please talk to your assigned Instructor, Dispatcher or school's Admin."
-                      }
-                      res
-                    end
+                    delete_appointment(appointment, user, conn)
+                    res = %{
+                      appointment: appointment,
+                      delete: true,
+                      reason: ""
+                    }
+                    res
                   else
                     if Scheduling.Appointment.is_paid?(appointment) do
                       res = %{

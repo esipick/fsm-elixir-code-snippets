@@ -4,6 +4,7 @@ defmodule FlightWeb.Admin.ScheduleController do
   alias Flight.Accounts.Role
 
   def index(conn, _) do
+    current_user = conn.assigns.current_user
     renters = Flight.Accounts.users_with_roles([Role.student(), Role.renter()], conn)
     instructors = Flight.Accounts.users_with_roles([Role.instructor()], conn)
     mechanics = Flight.Accounts.users_with_roles([Role.mechanic()], conn)
