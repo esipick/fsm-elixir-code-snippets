@@ -973,7 +973,7 @@ $(document).ready(function () {
       promise.then(function (response) {
         
         $('#calendarNewModal').modal('hide')
-        
+        $calendar.fullCalendar('refetchEvents')
         if ( response.human_errors ) {
           $('#loader').hide();
           let errors = Object.entries(response.human_errors);
@@ -996,7 +996,7 @@ $(document).ready(function () {
           }
         }
 
-        $calendar.fullCalendar('refetchEvents')
+        
 
         $.notify({
           message: "Successfully saved " + event

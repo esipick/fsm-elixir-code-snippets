@@ -14,10 +14,12 @@ defmodule FlightWeb.Mechanic.ScheduleController do
     types = Flight.Scheduling.Appointment.types()
       |> Enum.filter(fn x -> x == "maintenance" end)
     instructor_times = Flight.Scheduling.Appointment.instructor_times()
+    squawks = Fsm.Squawks.get_squawks(aircrafts)
     render(conn, "index.html",
       renters: [],
       instructors: [],
       aircrafts: aircrafts,
+      squawks: squawks,
       mechanics: mechanics,
       instructor_times: instructor_times,
       mechanic_user_id: current_user.id,

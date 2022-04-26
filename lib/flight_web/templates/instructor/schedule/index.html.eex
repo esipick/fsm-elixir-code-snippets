@@ -5,6 +5,7 @@
     instructors: @instructors,
     mechanics: @mechanics,
     aircrafts: @aircrafts,
+    squawks: @squawks,
     instructor_user_id: @user_id,
     simulators: @simulators,
     rooms: @rooms,

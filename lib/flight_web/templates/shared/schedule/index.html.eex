@@ -261,20 +261,21 @@
                 </div>
               </div>
             </div>
-            <div id="fieldSquawk" class="row">
-              <label class="col-md-3 col-form-label">Squawk</label>
-              <div class="col-md-9">
-                <div class="form-group">
-                  <select id="unavailSquawk" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Squawk">
-                    <option value="">None</option>
-                    <%= for squawk <- @squawks do %>
-                      <option value="<%= squawk.id %>"><%= squawk.title %></option>
-                    <% end %>
-                  </select>
+            <%= if Accounts.has_role?(@conn.assigns.current_user, "admin") || Accounts.has_role?(@conn.assigns.current_user, "mechanic") do%>
+              <div id="fieldSquawk" class="row">
+                <label class="col-md-3 col-form-label">Squawk</label>
+                <div class="col-md-9">
+                  <div class="form-group">
+                    <select id="unavailSquawk" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Squawk">
+                      <option value="">None</option>
+                      <%= for squawk <- @squawks do %>
+                        <option value="<%= squawk.id %>"><%= squawk.title %></option>
+                      <% end %>
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
-
+            <% end %>
             <div id="fieldSimulator" class="row">
               <label class="col-md-3 col-form-label">Simulator *</label>
               <div class="col-md-9">
@@ -595,7 +596,7 @@
       </div>
       <div class="modal-body">
         <div class="d-flex flex-column">
-            <p class="font-weight-bold">You're deleting an event.</p>
+            <p class="font-weight-bold">You're deleting a recurring event.</p>
             <p>Do you want to delete this event or all future occurences of this event?</p>
             <button id="btnDeleteThis" type="button" class="btn btn-danger ml-0">Delete Only This Event</button>
             <button id="btnDeleteAll" type="button" class="btn btn-primary ml-0">Delete All Future Events</button>
