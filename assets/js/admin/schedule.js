@@ -1193,7 +1193,7 @@ $(document).ready(function () {
     if (appointmentData.type == "unavailable" || appointmentData.type == "unavailablity") {
       let payload = {
         "query": `mutation {
-          deleteRecurringUnavailability(id: ${appointmentOrUnavailabilityId}, parentId: ${appointmentData.parent_id}, startDate: "${moment(appointmentData.start_at).format('YYYY-MM-DD HH:mm:ss')}") {
+          deleteRecurringUnavailability(id: ${appointmentOrUnavailabilityId}, parentId: ${appointmentData.parent_id}) {
             message,
             error
           }
@@ -1248,29 +1248,44 @@ $(document).ready(function () {
       });
       return;
     }
-    let promise = $.ajax({
+    let payload = {
+      "query": `mutation {
+        deleteRecurringAppointment(id: ${appointmentOrUnavailabilityId}, parentId: ${appointmentData.parent_id}) {
+          delete,
+          reason,
+          appointment {
+            id,
+            note,
+            startAt
+          }
+        }
+      }`,
+      "variables": null
+    }
+    $.ajax({
       method: "post",
-      data: {
-        start_date: moment(appointmentData.start_at).format('YYYY-MM-DD HH:mm:ss'),
-        parent_id: appointmentData.parent_id
-      },
-      url: "/api/appointments/delete_recurring"+ addSchoolIdParam('?'),
-      headers: AUTH_HEADERS
-    })
-    promise.then(function (res) {
+      url: "/api/graphiql/",
+      headers: AUTH_HEADERS_BEARER,
+      data: payload
+    }).then(function (response) {
       $('#calendarNewModal').modal('hide')
       $('#deleteRecurringEvent').modal('hide')
+      $('#loader').hide();
       $calendar.fullCalendar('refetchEvents')
-
-      res.response.forEach(event => {
+      if (response.errors) {
+        var message = "There was an deleting unavailability, Please try again."
+        showAlert(message, 'danger')
+        return;
+      }
+      response.data.deleteRecurringAppointment.forEach(event => {
         if ( event.delete ) {
-          showAlert("Successfully deleted event at "+moment(event.start_at).format('YYYY-MM-DD HH:mm'), 'success')
+          showAlert("Successfully deleted event at "+moment(event.appointment.startAt).format('YYYY-MM-DD HH:mm'), 'success')
         }
         else {
-          showAlert("Couldn't deleted event at "+moment(event.start_at).format('YYYY-MM-DD HH:mm')+"\n"+event.reason, 'danger')
+          showAlert("Couldn't delete event at "+moment(event.appointment.startAt).format('YYYY-MM-DD HH:mm')+"\n "+event.reason, 'danger')
         }
       });
-      $('#loader').hide();
+      
     }).catch(function (e) {
 
       $('#calendarNewModal').modal('hide')

@@ -402,15 +402,9 @@ defmodule Flight.Scheduling do
 
   #get recurring appointsment for deletion based on parent_id, id & future_date
   def get_recurring_appointments_for_deletion(%{start_date: start_date, parent_id: parent_id} = options, school_context) do
-    start_at_after_value =
-      case NaiveDateTime.from_iso8601(start_date || "") do
-        {:ok, date} -> date
-        _ -> nil
-      end
-
     from(a in Appointment, where: a.archived == false)
     |> SchoolScope.scope_query(school_context)
-    |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at > ^start_at_after_value))
+    |> pass_unless(start_date, &where(&1, [a], a.start_at > ^start_date))
     |> pass_unless(parent_id, &where(&1, [a], a.parent_id == ^parent_id))
     |> Repo.all()
   end
@@ -939,15 +933,9 @@ defmodule Flight.Scheduling do
 
   #delete recurring unavailability based on parent_id & future_date
   def delete_recurring_unavailability(%{start_date: start_date, parent_id: parent_id} = options, school_context) do
-    start_at_after_value =
-      case NaiveDateTime.from_iso8601(start_date || "") do
-        {:ok, date} -> date
-        _ -> nil
-      end
-
     from(a in Unavailability)
     |> SchoolScope.scope_query(school_context)
-    |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at > ^start_at_after_value))
+    |> pass_unless(start_date, &where(&1, [a], a.start_at > ^start_date))
     |> pass_unless(parent_id, &where(&1, [a], a.parent_id == ^parent_id))
     |> Repo.delete_all()
   end
@@ -1030,6 +1018,7 @@ defmodule Flight.Scheduling do
     if(appointment.user) do
       Flight.Email.unavailability_email(appointment.user)
     end
+    {:ok, true}
   end
 
   def send_unavailibility_notification(attrs, school_context) do
