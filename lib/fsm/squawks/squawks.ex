@@ -85,6 +85,9 @@ defmodule Fsm.Squawks do
         Enum.map(users_to_notify, fn destination_user ->
           Flight.PushNotifications.squawk_created_notification(destination_user, creating_user, squawk_input)
           |> Mondo.PushService.publish()
+
+          Flight.Email.squawk_created_email_notification(destination_user, creating_user, squawk_input)
+          |> Flight.Mailer.deliver_later()
         end)
 
         Logger.info("Job:squawk_created_notification -- Sent notifications to #{users_count} users.")
@@ -108,6 +111,9 @@ defmodule Fsm.Squawks do
         Enum.map(users_to_notify, fn destination_user ->
           Flight.PushNotifications.squawk_updated_notification(destination_user, creating_user, old_squawk)
           |> Mondo.PushService.publish()
+
+          Flight.Email.squawk_updated_email_notification(destination_user, creating_user, old_squawk)
+          |> Flight.Mailer.deliver_later()
         end)
 
         Logger.info(
@@ -134,6 +140,9 @@ defmodule Fsm.Squawks do
         Enum.map(users_to_notify, fn destination_user ->
           Flight.PushNotifications.squawk_deleted_notification(destination_user, creating_user, squawk_input)
           |> Mondo.PushService.publish()
+
+          Flight.Email.squawk_deleted_email_notification(destination_user, creating_user, squawk_input)
+          |> Flight.Mailer.deliver_later()
         end)
 
         Logger.info(
