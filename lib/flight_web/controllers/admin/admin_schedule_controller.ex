@@ -25,8 +25,7 @@ defmodule FlightWeb.Admin.ScheduleController do
       rooms: rooms,
       types: types,
       mechanics: mechanics,
-      instructor_times: instructor_times,
-      user: current_user
+      instructor_times: instructor_times
     )
   end
 
