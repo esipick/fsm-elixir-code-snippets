@@ -81,7 +81,7 @@
                         <td><%= inspection.type %></td>
                         <td class="text-center text-capitalize"><%= inspection.date_tach %></td>
                         <td><%= inspection.expiration %></td>
-                        <td class="text-right"><a onclick="inspectnow(<%= inspection.id %>)" class="btn btn-primary btn-sm text-white">Inspect Now</a></td>
+                        <td class="text-right d-none"><a onclick="inspectnow(<%= inspection.id %>)" class="btn btn-primary btn-sm text-white">Inspect Now</a></td>
                         <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
                       </tr>
                     <% end %>
