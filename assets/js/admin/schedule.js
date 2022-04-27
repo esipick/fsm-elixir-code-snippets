@@ -627,9 +627,9 @@ $(document).ready(function () {
     $('#unavailSimulator').val(null).selectpicker("refresh")
   })
 
-  $('#maintenanceMechanic').on('change', function (e) {
-    $('#maintenanceAircraft').val(null).selectpicker("refresh")
-  })
+  // $('#maintenanceMechanic').on('change', function (e) {
+  //   $('#maintenanceAircraft').val(null).selectpicker("refresh")
+  // })
 
   // navigate calendar to selected date
   $('#btnGo').click(function () {
