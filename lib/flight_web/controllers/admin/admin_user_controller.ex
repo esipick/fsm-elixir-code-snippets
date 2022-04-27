@@ -285,7 +285,7 @@ defmodule FlightWeb.Admin.UserController do
 
   def update_card(conn, params) do
     user = conn.assigns.requested_user
-    tab =  "personal"
+    tab = Map.get(params, "tab") || "personal"
     case Flight.Billing.update_customer_card(user, params["stripe_token"]) do
       {:ok, _} ->
         conn
@@ -302,7 +302,7 @@ defmodule FlightWeb.Admin.UserController do
           conn,
           "edit.html",
           aircrafts: aircrafts,
-          changeset: Accounts.user_changeset(%Accounts.User{}, %{}, user),
+          changeset: Accounts.User.create_changeset(user, %{}),
           instructors: instructors,
           skip_shool_select: true,
           user: user,
