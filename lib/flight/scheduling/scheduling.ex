@@ -404,7 +404,7 @@ defmodule Flight.Scheduling do
   def get_recurring_appointments_for_deletion(%{start_date: start_date, parent_id: parent_id} = options, school_context) do
     from(a in Appointment, where: a.archived == false)
     |> SchoolScope.scope_query(school_context)
-    |> pass_unless(start_date, &where(&1, [a], a.start_at > ^start_date))
+    |> pass_unless(start_date, &where(&1, [a], a.start_at >= ^start_date))
     |> pass_unless(parent_id, &where(&1, [a], a.parent_id == ^parent_id))
     |> Repo.all()
   end
@@ -935,7 +935,7 @@ defmodule Flight.Scheduling do
   def delete_recurring_unavailability(%{start_date: start_date, parent_id: parent_id} = options, school_context) do
     from(a in Unavailability)
     |> SchoolScope.scope_query(school_context)
-    |> pass_unless(start_date, &where(&1, [a], a.start_at > ^start_date))
+    |> pass_unless(start_date, &where(&1, [a], a.start_at >= ^start_date))
     |> pass_unless(parent_id, &where(&1, [a], a.parent_id == ^parent_id))
     |> Repo.delete_all()
   end
