@@ -4,6 +4,7 @@
     renters: @renters,
     instructors: @instructors,
     mechanics: @mechanics,
+    squawks: @squawks,
     aircrafts: @aircrafts,
     instructor_user_id: nil,
     simulators: @simulators,
