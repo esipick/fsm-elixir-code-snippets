@@ -75,9 +75,7 @@ defmodule Fsm.Squawks do
         squawk_input = Map.put(squawk_input, :aircraft, Aircrafts.get_aircraft_record_by_id(squawk_input.aircraft_id))
 
         users_to_notify =
-          fetch_aircraft_mechanic_user_ids(squawk_input.aircraft_id)
-          ++
-          fetch_role_slug_user_ids(squawk_input.school_id, ["admin", "dispatcher"])
+          fetch_role_slug_user_ids(squawk_input.school_id, ["admin", "dispatcher", "mechanic"])
           |> Enum.uniq()
           |> Accounts.get_users_by_user_ids
         users_count = Enum.count(users_to_notify)
@@ -101,9 +99,7 @@ defmodule Fsm.Squawks do
         creating_user = Accounts.get_user_by_user_id(old_squawk.user_id)
         old_squawk = Map.put(old_squawk, :aircraft, Aircrafts.get_aircraft_record_by_id(old_squawk.aircraft_id))
         users_to_notify =
-          fetch_aircraft_mechanic_user_ids(old_squawk.aircraft_id)
-          ++
-          fetch_role_slug_user_ids(old_squawk.school_id, ["admin", "dispatcher"])
+          fetch_role_slug_user_ids(squawk_input.school_id, ["admin", "dispatcher", "mechanic"])
           |> Enum.uniq()
           |> Accounts.get_users_by_user_ids
 
@@ -130,9 +126,7 @@ defmodule Fsm.Squawks do
         creating_user = Accounts.get_user_by_user_id(squawk_input.user_id)
         squawk_input = Map.put(squawk_input, :aircraft, Aircrafts.get_aircraft_record_by_id(squawk_input.aircraft_id))
         users_to_notify =
-          fetch_aircraft_mechanic_user_ids(squawk_input.aircraft_id)
-          ++
-          fetch_role_slug_user_ids(squawk_input.school_id, ["admin", "dispatcher"])
+          fetch_role_slug_user_ids(squawk_input.school_id, ["admin", "dispatcher", "mechanic"])
           |> Enum.uniq()
           |> Accounts.get_users_by_user_ids
 
