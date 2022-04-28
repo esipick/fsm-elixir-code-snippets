@@ -9,7 +9,12 @@ defmodule FlightWeb.API.InvoiceView do
 
   def render("invoice.json", %{invoice: invoice}) do
     line_items = invoice.line_items |> Enum.sort_by(fn x -> x.description end)
-
+    appt_status = case Map.get(invoice, :appointment) do
+      nil ->
+        ""
+      appointment ->
+        Map.get(appointment, :appt_status)
+    end
     %{
       id: invoice.id,
       user:
@@ -26,7 +31,7 @@ defmodule FlightWeb.API.InvoiceView do
       total_tax: invoice.total_tax,
       total_amount_due: invoice.total_amount_due,
       status: invoice.status,
-      appt_status: invoice.appointment.appt_status,
+      appt_status: appt_status,
       is_admin_invoice: invoice.is_admin_invoice,
       notes: invoice.notes,
       payer_email: invoice.payer_email,
