@@ -8,13 +8,14 @@ defmodule FlightWeb.Mechanic.HomeController do
     aircrafts = Scheduling.visible_air_assets(conn)
 
     user = Repo.preload(current_user, [:roles, :aircrafts, :instructors, :main_instructor])
-    options = %{"mechanic_user_id" => user.id}
+    options = %{"mechanic_user_id" => user.id, "sort_order" => "asc"}
     appointments =
       Scheduling.get_appointments(options, conn)
       |> Repo.preload([:aircraft])
 
 
     expired_inspections = Fsm.Aircrafts.ExpiredInspection.inspections_for_aircrafts(aircrafts)
+    squawks = Fsm.Squawks.get_squawks(aircrafts)
 
     render(
       conn,
@@ -23,7 +24,8 @@ defmodule FlightWeb.Mechanic.HomeController do
       instructor_count: instructor_count,
       aircraft_count: Enum.count(aircrafts),
       appointments: appointments,
-      expired_inspections: expired_inspections
+      expired_inspections: expired_inspections,
+      squawks: squawks
     )
   end
 end

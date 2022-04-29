@@ -7,7 +7,11 @@ defmodule Fsm.Squawks do
     alias Flight.Repo
     require Logger
     alias Fsm.Squawks.Squawk
+    alias Fsm.Aircrafts.Aircraft
+    alias Fsm.Aircrafts
+    alias Fsm.Accounts
     alias Fsm.Attachments.Attachment
+    alias Fsm.Scheduling
     import Ecto.SoftDelete.Query
     alias Ecto.Multi
 
@@ -36,15 +40,111 @@ defmodule Fsm.Squawks do
 
     def add_squawk_only(squawk_input)do
       #Logger.info fn -> "squawk_input----------------------: #{inspect squawk_input}" end
-      %Squawk{}
-      |> Squawk.changeset(squawk_input)
-      |> Repo.insert()
+      resp  =
+        %Squawk{}
+        |> Squawk.changeset(squawk_input)
+        |> Repo.insert()
+
+      notify_squawk(:create, squawk_input)
+      resp
     end
 
     def add_squawk(squawk_input, _, _)do
-      %Squawk{}
-      |> Squawk.changeset(squawk_input)
-      |> Repo.insert()
+      resp =
+        %Squawk{}
+        |> Squawk.changeset(squawk_input)
+        |> Repo.insert()
+
+      notify_squawk(:create, squawk_input)
+      resp
+    end
+
+    def fetch_aircraft_mechanic_user_ids(aircraft_id) do
+      Scheduling.get_aircraft_appointments_mechanic_user_ids(aircraft_id)
+    end
+
+    def fetch_role_slug_user_ids(school_id, role_slugs) do
+      Accounts.get_all_school_role_slug_user_ids(school_id, role_slugs)
+    end
+
+    def notify_squawk(:create, squawk_input) do
+      Mondo.Task.start(fn ->
+        Logger.info("Job:squawk_created_notification -- Sending...")
+
+        creating_user = Accounts.get_user_by_user_id(squawk_input.user_id)
+        squawk_input = Map.put(squawk_input, :aircraft, Aircrafts.get_aircraft_record_by_id(squawk_input.aircraft_id))
+
+        users_to_notify =
+          fetch_role_slug_user_ids(squawk_input.school_id, ["admin", "dispatcher", "mechanic"])
+          |> Enum.uniq()
+          |> Accounts.get_users_by_user_ids
+        users_count = Enum.count(users_to_notify)
+
+        Enum.map(users_to_notify, fn destination_user ->
+          Flight.PushNotifications.squawk_created_notification(destination_user, creating_user, squawk_input)
+          |> Mondo.PushService.publish()
+
+          Flight.Email.squawk_created_email_notification(destination_user, creating_user, squawk_input)
+          |> Flight.Mailer.deliver_later()
+        end)
+
+        Logger.info("Job:squawk_created_notification -- Sent notifications to #{users_count} users.")
+      end)
+    end
+
+    def notify_squawk(:update, old_squawk, squawk_input)do
+      Mondo.Task.start(fn ->
+        Logger.info("Job:squawk_updated_notification -- Sending...")
+
+        creating_user = Accounts.get_user_by_user_id(old_squawk.user_id)
+        old_squawk = Map.put(old_squawk, :aircraft, Aircrafts.get_aircraft_record_by_id(old_squawk.aircraft_id))
+        users_to_notify =
+          fetch_role_slug_user_ids(squawk_input.school_id, ["admin", "dispatcher", "mechanic"])
+          |> Enum.uniq()
+          |> Accounts.get_users_by_user_ids
+
+        users_count = Enum.count(users_to_notify)
+        Enum.map(users_to_notify, fn destination_user ->
+          Flight.PushNotifications.squawk_updated_notification(destination_user, creating_user, old_squawk)
+          |> Mondo.PushService.publish()
+
+          Flight.Email.squawk_updated_email_notification(destination_user, creating_user, old_squawk)
+          |> Flight.Mailer.deliver_later()
+        end)
+
+        Logger.info(
+          "Job:squawk_updated_notification -- Sent notifications to #{users_count} users."
+        )
+      end)
+    end
+
+
+    def notify_squawk(:delete, squawk_input)do
+      Mondo.Task.start(fn ->
+        Logger.info("Job:squawk_deleted_notification -- Sending...")
+
+        creating_user = Accounts.get_user_by_user_id(squawk_input.user_id)
+        squawk_input = Map.put(squawk_input, :aircraft, Aircrafts.get_aircraft_record_by_id(squawk_input.aircraft_id))
+        users_to_notify =
+          fetch_role_slug_user_ids(squawk_input.school_id, ["admin", "dispatcher", "mechanic"])
+          |> Enum.uniq()
+          |> Accounts.get_users_by_user_ids
+
+        users_count = Enum.count(users_to_notify)
+        Enum.map(users_to_notify, fn destination_user ->
+          Flight.PushNotifications.squawk_deleted_notification(destination_user, creating_user, squawk_input)
+          |> Mondo.PushService.publish()
+
+          Flight.Email.squawk_deleted_email_notification(destination_user, creating_user, squawk_input)
+          |> Flight.Mailer.deliver_later()
+        end)
+
+        Logger.info(
+          "Job:squawk_deleted_notification -- Sent notifications to #{
+            users_count
+          } users."
+        )
+      end)
     end
 
     def add_multiple_squawk_images(squawk_images_input) do
@@ -91,6 +191,7 @@ defmodule Fsm.Squawks do
       |> Repo.transaction
       |> case  do
            {:ok, result} ->
+            notify_squawk(:create, squawk_input)
              {:ok, result.add_squawk}
            {:error, _error, error, %{}} ->
              {:error, error}
@@ -112,14 +213,47 @@ defmodule Fsm.Squawks do
       end
     end
 
+    def get_squawks(aircrafts) when is_list(aircrafts)do
+      aircraft_ids = Enum.map(aircrafts, & &1.id)
+
+      query = from s in Squawk,
+      left_join: a in Aircraft, on: a.id == s.aircraft_id,
+      left_join: at in Attachment, on: at.squawk_id == s.id and   is_nil(at.deleted_at),
+      order_by: [desc: s.inserted_at],
+      where: s.aircraft_id in ^aircraft_ids and is_nil(s.deleted_at) and s.resolved == false,
+      preload: [attachments: at, aircraft: a]
+
+      Repo.all(query)
+    end
+
+    def get_squawks(aircraft_id) do
+
+      query = from s in Squawk,
+      left_join: a in Aircraft, on: a.id == s.aircraft_id,
+      left_join: at in Attachment, on: at.squawk_id == s.id and   is_nil(at.deleted_at),
+      order_by: [desc: s.inserted_at],
+      where: s.aircraft_id == ^aircraft_id and is_nil(s.deleted_at) and s.resolved == false,
+      preload: [attachments: at, aircraft: a]
+
+      Repo.all(query)
+    end
+
     def update_squawk(squawk, attrs) do
-      squawk
-      |> Squawk.changeset(attrs)
-      |> Repo.update()
+      resp =
+        squawk
+        |> Squawk.changeset(attrs)
+        |> Repo.update()
+
+      notify_squawk(:update, squawk, attrs)
+      resp
     end
 
     def delete_squawk(squawk) do
-      Repo.soft_delete(squawk)
+      resp =
+        Repo.soft_delete(squawk)
+
+      notify_squawk(:delete, squawk)
+      resp
     end
 
     def add_squawk_image(attrs) do

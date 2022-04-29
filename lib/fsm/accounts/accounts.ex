@@ -223,6 +223,16 @@ defmodule Fsm.Accounts do
     |> Repo.all()
   end
 
+  def get_all_school_role_slug_user_ids(school_id, role_slugs) do
+    AccountsQueries.get_all_school_role_slug_user_ids_query(school_id, role_slugs)
+    |> Repo.all()
+  end
+
+  def get_all_user_role_ids_query(id, role_slugs) do
+    AccountsQueries.get_all_user_role_ids_query(id, role_slugs)
+    |> Repo.all()
+  end
+
   def send_invitation_email(invitation) do
     Fsm.Email.invitation_email(invitation)
     |> Flight.Mailer.deliver_later()
@@ -240,6 +250,16 @@ defmodule Fsm.Accounts do
             (Map.get(user, :user) || %{})
             |> Map.merge(%{roles: Map.get(user, :roles)})
         end
+  end
+
+  def get_user_by_user_id(user_id) do
+    from(u in User, select: u, where: u.archived == ^false and u.id == ^user_id)
+    |> Repo.one
+  end
+
+  def get_users_by_user_ids(user_ids) do
+    from(u in User, select: u, where: u.archived == ^false and u.id in ^user_ids)
+    |> Repo.all()
   end
 
   def admin_update_user_profile(

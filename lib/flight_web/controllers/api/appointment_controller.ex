@@ -130,6 +130,7 @@ defmodule FlightWeb.API.AppointmentController do
   end
 
   def delete(%{assigns: %{appointment: appointment, current_user: user}} = conn, _) do
+
     if user_can?(user, [Permission.new(:appointment, :modify, :all)]) do
       delete_appointment(appointment, user, conn)
     else
@@ -202,6 +203,126 @@ defmodule FlightWeb.API.AppointmentController do
         end
       end
     end
+  end
+
+  def delete_recurring_appointment(%{assigns: %{current_user: user}} = conn, args) do
+    appt = Scheduling.get_appointment(args["id"], conn)
+    options = %{
+      start_date: appt.start_date,
+      parent_id: args["parent_id"]
+    }
+    appointments = Scheduling.get_recurring_appointments_for_deletion(options, conn)
+    twenty_four_hours = 24 * 60 * 60
+    response = Enum.map(appointments, fn appointment ->
+                  IO.inspect(appointment, label: "App")
+                  end_at =
+                    if appointment.end_at, do: NaiveDateTime.add(appointment.end_at, twenty_four_hours), else: nil
+
+                  if user_can?(user, [Permission.new(:appointment, :modify, :all)]) && !Scheduling.Appointment.is_paid?(appointment) do
+                    delete_appointment(appointment, user, conn)
+                    res = %{
+                      appointment: appointment,
+                      delete: true,
+                      reason: ""
+                    }
+                    res
+                  else
+                    if Scheduling.Appointment.is_paid?(appointment) do
+                      res = %{
+                        appointment: appointment,
+                        delete: false,
+                        reason: "Can't delete paid appointment."
+                      }
+                      res
+                    else
+                      instructor_user_id = Map.get(appointment, :instructor_user_id)
+                      owner_user_id = Map.get(appointment, :owner_user_id)
+
+                      mechanic_user_id = Map.get(appointment, :mechanic_user_id)
+
+                      owner_permission =
+                        if owner_user_id == user.id do
+                          [
+                            Permission.new(
+                              :appointment_instructor,
+                              :modify,
+                              {:personal, owner_user_id})
+                          ]
+                        else
+                          []
+                        end
+
+                      owner_permission =
+                        if mechanic_user_id == user.id do
+                          [
+                            Permission.new(
+                              :appointment_mechanic,
+                              :modify,
+                              {:personal, mechanic_user_id})
+                          ]
+                        else
+                          []
+                        end
+
+                      instructor_user_id =
+                        if instructor_user_id == "" do
+                          nil
+                        else
+                          instructor_user_id
+                        end
+
+                      mechanic_user_id =
+                        if mechanic_user_id == "" do
+                          nil
+                        else
+                          mechanic_user_id
+                        end
+
+                      if user_can?(user, [
+                                          Permission.new(:appointment_user, :modify, {:personal, appointment.user_id}),
+                                          Permission.new(
+                                            :appointment_instructor,
+                                            :modify,
+                                            {:personal, instructor_user_id}
+                                          ),
+                                          Permission.new(
+                                            :appointment_mechanic,
+                                            :modify,
+                                            {:personal, mechanic_user_id}
+                                          )
+                                        ] ++ owner_permission) do
+                        if (end_at == nil or NaiveDateTime.compare(NaiveDateTime.utc_now(), end_at) == :lt) do
+                          delete_appointment(appointment, user, conn)
+                          res = %{
+                            appointment: appointment,
+                            delete: true,
+                            reason: "",
+                            end_at: end_at
+                          }
+                          res
+                        else
+                          res = %{
+                            appointment: appointment,
+                            delete: false,
+                            reason: "You are not authorized to change an appointment after 24 hours of its end time. Please talk to your assigned Instructor, Dispatcher or school's Admin."
+                          }
+                          res
+                        end
+                      else
+                        res = %{
+                          appointment: appointment,
+                          delete: false,
+                          reason: "Can't delete appointment associated with other user."
+                        }
+                        res
+                      end
+                    end
+                  end
+               end)
+
+    conn
+    |> put_status(200)
+    |> json(%{response: response})
   end
 
   defp authorize_modify(conn, _) do

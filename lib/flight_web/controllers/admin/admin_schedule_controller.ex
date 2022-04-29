@@ -4,6 +4,7 @@ defmodule FlightWeb.Admin.ScheduleController do
   alias Flight.Accounts.Role
 
   def index(conn, _) do
+    current_user = conn.assigns.current_user
     renters = Flight.Accounts.users_with_roles([Role.student(), Role.renter()], conn)
     instructors = Flight.Accounts.users_with_roles([Role.instructor()], conn)
     mechanics = Flight.Accounts.users_with_roles([Role.mechanic()], conn)
@@ -13,10 +14,13 @@ defmodule FlightWeb.Admin.ScheduleController do
     types = Flight.Scheduling.Appointment.types()
     instructor_times = Flight.Scheduling.Appointment.instructor_times()
 
+    squawks = Fsm.Squawks.get_squawks(aircrafts)
+
     render(conn, "index.html",
       renters: renters,
       instructors: instructors,
       aircrafts: aircrafts,
+      squawks: squawks,
       simulators: simulators,
       rooms: rooms,
       types: types,

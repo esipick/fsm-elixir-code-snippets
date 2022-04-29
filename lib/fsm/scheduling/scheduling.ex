@@ -32,6 +32,11 @@ defmodule Fsm.Scheduling do
     Repo.get(Appointment, appointment_id)
   end
 
+  def get_aircraft_appointments_mechanic_user_ids(aircraft_id) do
+    SchedulingQueries.get_aircraft_appointments_mechanic_user_ids_query(aircraft_id)
+  |> Repo.all
+  end
+
   def get_appointment_full_object(appointment_id) do
     SchedulingQueries.get_appointment_query(appointment_id)
     |> Ecto.Query.first
@@ -509,7 +514,13 @@ defmodule Fsm.Scheduling do
             {:ok, Map.put(acc, :errors, new_errors)}
 
           {:ok, appointment} ->
-            acc = if parent_id == nil, do: Map.put(acc, :parent_id, appointment.id), else: acc
+            acc =
+              if parent_id == nil do
+                insert_or_update_appointment(appointment, %{parent_id: appointment.id}, modifying_user, context)
+                 Map.put(acc, :parent_id, appointment.id)
+              else
+                acc
+              end
             appointments = Map.get(acc, :appointments)
             {:ok, Map.put(acc, :appointments, [appointment | appointments])}
         end
@@ -642,7 +653,13 @@ defmodule Fsm.Scheduling do
             {:ok, Map.put(acc, :errors, new_errors)}
 
           {:ok, unavailability} ->
-            acc = if parent_id == nil, do: Map.put(acc, :parent_id, unavailability.id), else: acc
+            acc =
+              if parent_id == nil do
+                insert_or_update_unavailability(context, unavailability, %{parent_id: unavailability.id})
+                 Map.put(acc, :parent_id, unavailability.id)
+              else
+                acc
+              end
             unavailabilities = Map.get(acc, :unavailabilities)
             {:ok, Map.put(acc, :unavailabilities, [unavailability | unavailabilities])}
         end

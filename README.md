@@ -48,8 +48,9 @@ Staging application is being deployed automatically from develop branch to https
 
 ```
 git remote add develop https://git.heroku.com/randon-aviation-staging.git
-git push develop master
+git push develop develop:master -f
 ```
+
 
 ### Production application
 
@@ -57,8 +58,8 @@ Production application is being deployed automatically from master branch to htt
 we need to deploy to master manually:
 
 ```
-git remote add master https://git.heroku.com/randon-aviation.git
-git push master master
+git remote add prod https://git.heroku.com/randon-aviation.git
+git push prod prod:master
 ```
 
 **Note**: Also we can trigger deployment from heroku dashboard for both staging and production from any branch. We also need to be careful application slug size (build size) which has soft limit of `300MB` and `500MB` as hard limit. If build failed because of application slug-size, we can do following activities:

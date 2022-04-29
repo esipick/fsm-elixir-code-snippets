@@ -1,0 +1,50 @@
+<table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+      <tr>
+        <td style="padding:0px 0px 0px 0px;"
+            height="100%"
+            valign="top"
+            bgcolor="">
+            <div style="text-align: center;">
+
+
+              Hey <%= @destination_user_first_name %>!<br />
+<br />
+A squawk for plane <%= @squawk_aircraft_make %> <%= @squawk_aircraft_model %> - <%= @squawk_aircraft_tail_number %> has been <%= @operation %> by <%= @by_user_name %>.</div>
+
+<div style="text-align: center;">&nbsp;</div>
+
+        </td>
+      </tr>
+    </table>
+    <table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+          <tr>
+            <td style="padding:18px 0px 0px 0px;line-height:22px;text-align:inherit;"
+                height="100%"
+                valign="top"
+                bgcolor="">
+                <div style="text-align: center;">
+
+
+                  <h6><a href="https://itunes.apple.com/nz/app/flight-school-manager/id1079676025?mt=8" target="_blank">Get The iOSApp</a></h6>
+                    <h6><a href="https://play.google.com/store/apps/details?id=com.russellaviation.flightschool&hl=en_US&gl=US" target="_blank">Get The Android App</a></h6>
+    <br />
+    </div>
+
+    <div style="text-align: center;">&nbsp;</div>
+
+            </td>
+          </tr>
+    </table>
+    <table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+      <tr>
+        <td style="padding:18px 0px 0px 0px;line-height:22px;text-align:inherit;"
+            height="100%"
+            valign="top"
+            bgcolor="">
+            <div style="text-align: center;"><span style="font-size:12px;">Or search “Flight School Manager” in the app store on your iOS device.</span></div>
+            <div style="text-align: center;"><span style="font-size:12px;">You may also login to the web dashboard <a href="https://app.flightschoolmanager.co/login">here.</a></span></div>
+            <div style="text-align: center;"><span style="font-size:12px;">If you need help, please contact&nbsp;<a href="https://support.flightschoolmanager.co">Flight School Manager support</a>.&nbsp;</span></div>
+
+        </td>
+      </tr>
+    </table>

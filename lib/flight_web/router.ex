@@ -390,6 +390,8 @@ defmodule FlightWeb.Router do
       only: [:create, :index, :update, :show, :delete]
     )
 
+    post("/appointments/delete_recurring", AppointmentController, :delete_recurring_appointment)
+
     resources(
       "/unavailabilities",
       UnavailabilityController,

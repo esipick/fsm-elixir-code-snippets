@@ -26,6 +26,8 @@ defmodule FlightWeb.API.UnavailabilityView do
       end_at: unavailability.end_at, # utc time response
       note: unavailability.note,
       type: unavailability.type,
+      parent_id: unavailability.parent_id,
+      squawk_id: unavailability.squawk_id,
       instructor_user:
         Optional.map(
           unavailability.instructor_user,

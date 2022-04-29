@@ -302,7 +302,11 @@ defmodule Flight.Scheduling do
     simulator_id_value = options["simulator_id"]
     room_id_value = options["room_id"]
     assigned_value = if !!options["assigned"] and options["assigned"] not in [false, "false", "", " ", nil], do: options["assigned"], else: ""
-
+    sort_order =  if options["sort_order"] == "asc" do
+                    [asc: :start_at]
+                  else
+                    [desc: :start_at]
+                  end
     from(a in Appointment, where: a.archived == false)
     |> SchoolScope.scope_query(school_context)
     |> pass_unless(start_at_after_value, &where(&1, [a], a.start_at >= ^start_at_after_value))
@@ -332,7 +336,8 @@ defmodule Flight.Scheduling do
     )
     |> pass_unless(options["status"], &where(&1, [a], a.status == ^options["status"]))
     # |> limit(200)
-    |> order_by([a], desc: a.start_at)
+    # |> order_by([a], desc: a.start_at)
+    |> order_by(^sort_order)
     |> Repo.all()
   end
 
@@ -395,6 +400,15 @@ defmodule Flight.Scheduling do
     |> Repo.one()
   end
 
+  #get recurring appointsment for deletion based on parent_id, id & future_date
+  def get_recurring_appointments_for_deletion(%{start_date: start_date, parent_id: parent_id} = options, school_context) do
+    from(a in Appointment, where: a.archived == false)
+    |> SchoolScope.scope_query(school_context)
+    |> pass_unless(start_date, &where(&1, [a], a.start_at >= ^start_date))
+    |> pass_unless(parent_id, &where(&1, [a], a.parent_id == ^parent_id))
+    |> Repo.all()
+  end
+
   def get_appointment_dangrous(nil), do: {:error, "id cannot be nil."}
   def get_appointment_dangrous(id) do
     Repo.get(Appointment, id)
@@ -450,7 +464,13 @@ defmodule Flight.Scheduling do
             {:ok, Map.put(acc, :errors, new_errors)}
 
           {:ok, appointment} ->
-            acc = if parent_id == nil, do: Map.put(acc, :parent_id, appointment.id), else: acc
+            acc =
+              if parent_id == nil do
+                insert_or_update_appointment(appointment, %{"parent_id" => appointment.id}, modifying_user, context)
+                 Map.put(acc, :parent_id, appointment.id)
+              else
+                acc
+              end
             appointments = Map.get(acc, :appointments)
             {:ok, Map.put(acc, :appointments, [appointment | appointments])}
         end
@@ -784,7 +804,13 @@ defmodule Flight.Scheduling do
             {:ok, Map.put(acc, :errors, new_errors)}
 
           {:ok, unavailability} ->
-            acc = if parent_id == nil, do: Map.put(acc, :parent_id, unavailability.id), else: acc
+            acc =
+              if parent_id == nil do
+                insert_or_update_unavailability(unavailability, %{"parent_id" => unavailability.id}, context)
+                 Map.put(acc, :parent_id, unavailability.id)
+              else
+                acc
+              end
             unavailabilities = Map.get(acc, :unavailabilities)
             {:ok, Map.put(acc, :unavailabilities, [unavailability | unavailabilities])}
         end
@@ -905,6 +931,15 @@ defmodule Flight.Scheduling do
     Repo.delete!(unavailability)
   end
 
+  #delete recurring unavailability based on parent_id & future_date
+  def delete_recurring_unavailability(%{start_date: start_date, parent_id: parent_id} = options, school_context) do
+    from(a in Unavailability)
+    |> SchoolScope.scope_query(school_context)
+    |> pass_unless(start_date, &where(&1, [a], a.start_at >= ^start_date))
+    |> pass_unless(parent_id, &where(&1, [a], a.parent_id == ^parent_id))
+    |> Repo.delete_all()
+  end
+
   def send_created_notifications(appointment, modifying_user) do
     appointment = Repo.preload(appointment, [:user, :instructor_user])
 
@@ -983,6 +1018,7 @@ defmodule Flight.Scheduling do
     if(appointment.user) do
       Flight.Email.unavailability_email(appointment.user)
     end
+    {:ok, true}
   end
 
   def send_unavailibility_notification(attrs, school_context) do
@@ -1025,6 +1061,8 @@ defmodule Flight.Scheduling do
           "to" => end_at
         }
         delete_appointments_on_unavailability(options, school_context)
+
+      _ -> true
     end
   end
 

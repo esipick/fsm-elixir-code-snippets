@@ -216,10 +216,10 @@ defmodule Fsm.Scheduling.Appointment do
         add_error(changeset, :aircraft, "or instructor is required.")
     end
   end
-
+  
   defp validate_demo_aircraft_set(changeset) do
     cond do
-      !get_field(changeset, :demo) -> changeset
+      !(get_field(changeset, :type) == "demo_flight") -> changeset
       get_field(changeset, :aircraft_id) -> changeset
       true -> add_error(changeset, :aircraft, "is required for demo flights.")
     end

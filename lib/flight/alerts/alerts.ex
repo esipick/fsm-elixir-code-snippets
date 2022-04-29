@@ -17,13 +17,13 @@ defmodule Flight.Alerts do
             additional_info: %{squawk_id: squawk_id}
         }
 
-        alerts = 
+        alerts =
             school_id
             |> Accounts.get_school_users_by_roles(roles)
             # |> Enum.map(&(Map.put(alert, :receiver_id, &1.id)))
             |> MapSet.new
-            |> Enum.map(fn(item) -> 
-                Alert.changeset(%Alert{}, Map.put(alert, :receiver_id, item.id)) 
+            |> Enum.map(fn(item) ->
+                Alert.changeset(%Alert{}, Map.put(alert, :receiver_id, item.id))
             end)
 
         valid = Enum.all?(alerts, &(&1.valid?))
@@ -41,6 +41,6 @@ defmodule Flight.Alerts do
     # defp create_alert(attrs) do
     #     %Alert{}
     #     |> Alert.changeset(attrs)
-    #     |> Repo.insert    
+    #     |> Repo.insert
     # end
 end

@@ -4,6 +4,7 @@ defmodule Flight.Scheduling.Unavailability do
   import Ecto.Changeset
   alias Flight.Scheduling
   alias Flight.SchoolAssets.Room
+  alias Flight.SchoolAssets.Room
 
   schema "unavailabilities" do
     field(:available, :boolean, default: false)
@@ -17,12 +18,14 @@ defmodule Flight.Scheduling.Unavailability do
     field(:room_id, :integer)
 
     field(:parent_id, :integer)
+    field(:squawk_id, :integer)
 
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:aircraft, Flight.Scheduling.Aircraft)
     belongs_to(:simulator, Flight.Scheduling.Aircraft, foreign_key: :simulator_id, references: :id, define_field: false)
     belongs_to(:room, Room, define_field: false)
+    belongs_to(:squawk, Fsm.Squawks.Squawk, define_field: false)
 
     timestamps()
   end
@@ -61,6 +64,7 @@ defmodule Flight.Scheduling.Unavailability do
       :simulator_id,
       :room_id,
       :parent_id,
+      :squawk_id,
       :belongs
     ])
     |> validate_required([:start_at, :end_at, :available, :type, :school_id])

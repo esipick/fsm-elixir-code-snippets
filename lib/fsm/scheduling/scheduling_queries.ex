@@ -53,6 +53,12 @@ defmodule Fsm.Scheduling.SchedulingQueries do
           select: %{appointment: a, user: u, instructor: i, aircraft: ar, room: r, simulator: s, mechanic: m}
     end
 
+    def get_aircraft_appointments_mechanic_user_ids_query(id) do
+      from a in Appointment,
+          where: a.archived == false and a.aircraft_id == ^id,
+          select: a.mechanic_user_id
+    end
+
     defp show_appointments(roles) do
 #      if is_list(roles) and roles != [] and
 #         (Enum.member?(roles, "admin") or Enum.member?(roles, "dispatcher") or Enum.member?(roles, "instructor")) do

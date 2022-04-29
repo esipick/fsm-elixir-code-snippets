@@ -129,6 +129,20 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
       middleware Middleware.Authorize
       resolve &SchedulingResolvers.delete_appointment/3
     end
+
+    field :delete_recurring_appointment, list_of(:delete_recurring_appointment_response) do
+      arg :id, non_null(:integer)
+      arg :parent_id, non_null(:integer)
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.delete_recurring_appointment/3
+    end
+
+    field :delete_recurring_unavailability, :delete_recurring_unavailability_response do
+      arg :id, non_null(:integer)
+      arg :parent_id, non_null(:integer)
+      middleware Middleware.Authorize
+      resolve &SchedulingResolvers.delete_recurring_unavailability/3
+    end
   end
 
 
@@ -171,6 +185,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :aircraft, :aircraft
     field :room, :room
     field :simulator, :simulator
+    field :parent_id, :integer
 
   end
 
@@ -178,6 +193,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :id, :integer
     field :simulator_id, :integer
     field :room_id, :integer
+    field :squawk_id, :integer
 
     field :school_id, :integer
     field :instructor_user_id, :integer
@@ -195,12 +211,22 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
     field(:simulator_id, :integer)
     field(:room_id, :integer)
+    field :parent_id, :integer
 #    field :user, :user
 #    field :instructor, :user
 #    field :aircraft, :aircraft
 #    field :room, :room
 #    field :simulator, :simulator
 
+  end
+  object :delete_recurring_appointment_response do
+    field :appointment, :appointment
+    field :delete, :boolean
+    field :reason,  :string
+  end
+  object :delete_recurring_unavailability_response do
+    field :message, :string
+    field :error, :boolean
   end
 
   object :recurring_appointment do
@@ -214,6 +240,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
   input_object :unavailability_input do
     field :simulator_id, :integer
     field :room_id, :integer
+    field :squawk_id, :integer
 
     field :instructor_user_id, :integer
     field :aircraft_id, :integer
@@ -261,6 +288,7 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :start_at, :string
     field :inst_start_at, :naive_datetime
     field :inst_end_at, :naive_datetime
+    field :type, :string
     field :user_id, :integer
     field :room_id, :integer
     field :simulator_id, :integer

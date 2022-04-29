@@ -212,6 +212,7 @@ $(document).ready(function () {
   // dynamic unavailability form
   var unavailType = 'Instructor';
   $('#fieldAircraft').hide(); // hide aircraft by default
+  $('#fieldSquawk').hide(); // hide squawk by default
   $('#fieldSimulator').hide(); // hide simulator by default
   $('#fieldRoom').hide(); // hide room by default
 
@@ -282,24 +283,28 @@ $(document).ready(function () {
   function displayForUnavailability(type) {
     if (type == "Aircraft") {
       $('#fieldAircraft').show();
+      $('#fieldSquawk').show();
       $('#fieldInstructor').hide();
       $('#fieldSimulator').hide();
       $('#fieldRoom').hide();
 
     } else if (type == "Instructor") {
       $('#fieldAircraft').hide();
+      $('#fieldSquawk').hide();
       $('#fieldInstructor').show();
       $('#fieldSimulator').hide();
       $('#fieldRoom').hide();
 
     } else if (type == "Simulator") {
       $('#fieldAircraft').hide();
+      $('#fieldSquawk').hide();
       $('#fieldInstructor').hide();
       $('#fieldSimulator').show();
       $('#fieldRoom').hide();
 
     } else if (type == "Room") {
       $('#fieldAircraft').hide();
+      $('#fieldSquawk').hide();
       $('#fieldInstructor').hide();
       $('#fieldSimulator').hide();
       $('#fieldRoom').show();
@@ -569,6 +574,7 @@ $(document).ready(function () {
 
   var appointmentId = null;
   var appointmentOrUnavailabilityId = null;
+  var appointmentData = null;
 
   // change event type based on user choice
   // $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -595,11 +601,13 @@ $(document).ready(function () {
 
   $('#unavailInstructor').on('change', function (e) {
     $('#unavailAircraft').val(null).selectpicker("refresh")
+    $('#unavailSquawk').val(null).selectpicker("refresh")
     $('#unavailSimulator').val(null).selectpicker("refresh")
     $('#unavailRoom').val(null).selectpicker("refresh")
   })
 
   $('#unavailAircraft').on('change', function (e) {
+    $('#unavailSquawk').val(null).selectpicker("refresh")
     $('#unavailInstructor').val(null).selectpicker("refresh")
     $('#unavailSimulator').val(null).selectpicker("refresh")
     $('#unavailRoom').val(null).selectpicker("refresh")
@@ -607,19 +615,21 @@ $(document).ready(function () {
 
   $('#unavailSimulator').on('change', function (e) {
     $('#unavailAircraft').val(null).selectpicker("refresh")
+    $('#unavailSquawk').val(null).selectpicker("refresh")
     $('#unavailInstructor').val(null).selectpicker("refresh")
     $('#unavailRoom').val(null).selectpicker("refresh")
   })
 
   $('#unavailRoom').on('change', function (e) {
     $('#unavailAircraft').val(null).selectpicker("refresh")
+    $('#unavailSquawk').val(null).selectpicker("refresh")
     $('#unavailInstructor').val(null).selectpicker("refresh")
     $('#unavailSimulator').val(null).selectpicker("refresh")
   })
 
-  $('#maintenanceMechanic').on('change', function (e) {
-    $('#maintenanceAircraft').val(null).selectpicker("refresh")
-  })
+  // $('#maintenanceMechanic').on('change', function (e) {
+  //   $('#maintenanceAircraft').val(null).selectpicker("refresh")
+  // })
 
   // navigate calendar to selected date
   $('#btnGo').click(function () {
@@ -861,6 +871,7 @@ $(document).ready(function () {
       var eventFor = $('#unavailFor').val();
       var eventInstructor = safeParseInt($('#unavailInstructor').val());
       var eventAircraft = safeParseInt($('#unavailAircraft').val());
+      var eventSquawk = safeParseInt($('#unavailSquawk').val());
       var eventSimulator = safeParseInt($('#unavailSimulator').val());
       var eventRoom = safeParseInt($('#unavailRoom').val());
 
@@ -877,6 +888,7 @@ $(document).ready(function () {
         end_at: eventEnd,
         instructor_user_id: eventInstructor,
         aircraft_id: eventAircraft,
+        squawk_id: eventSquawk,
         room_id: eventRoom,
         simulator_id: eventSimulator,
         note: eventNote,
@@ -961,7 +973,7 @@ $(document).ready(function () {
       promise.then(function (response) {
         
         $('#calendarNewModal').modal('hide')
-        
+        $calendar.fullCalendar('refetchEvents')
         if ( response.human_errors ) {
           $('#loader').hide();
           let errors = Object.entries(response.human_errors);
@@ -984,7 +996,7 @@ $(document).ready(function () {
           }
         }
 
-        $calendar.fullCalendar('refetchEvents')
+        
 
         $.notify({
           message: "Successfully saved " + event
@@ -1092,7 +1104,15 @@ $(document).ready(function () {
     })
   });
 
+  
   $('#btnDelete').click(function () {
+    if (appointmentOrUnavailabilityId && appointmentData.parent_id ) {
+      $('#deleteRecurringEvent').modal({
+        backdrop: 'static',
+        keyboard: true
+      });
+      return;
+    }
     if (appointmentOrUnavailabilityId) {
       var promise = null;
       var buttonPos = $(this).offset();
@@ -1167,8 +1187,194 @@ $(document).ready(function () {
     }
   });
 
+  $('#btnDeleteAll').click(function () {
+    var buttonPos = $(this).offset();
+    $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
+    if (appointmentData.type == "unavailable" || appointmentData.type == "unavailablity") {
+      let payload = {
+        "query": `mutation {
+          deleteRecurringUnavailability(id: ${appointmentOrUnavailabilityId}, parentId: ${appointmentData.parent_id}) {
+            message,
+            error
+          }
+        }`,
+        "variables": null
+      }
+      $.ajax({
+        method: "post",
+        url: "/api/graphiql/",
+        headers: AUTH_HEADERS_BEARER,
+        data: payload
+      }).then(function (response) {
+        $('#calendarNewModal').modal('hide')
+        $('#deleteRecurringEvent').modal('hide')
+        if (response.errors) {
+          let errors = response.errors || []
+          var message = "There was an deleting unavailability, Please try again."
+  
+          if (errors.length > 0) {
+            message = errors[0]["message"] || message 
+          }
+  
+          showAlert(message, 'danger')
+          
+        } else if (response.data) {
+          let res = response.data.deleteRecurringUnavailability;
+          if (!res.error) {
+            $calendar.fullCalendar('refetchEvents')
+            showAlert(res.message, 'success')
+          }
+          else {
+            showAlert(res.message, 'danger')
+          }
+          
+        }
+  
+        $('#loader').hide();
+  
+      }).catch(function (e) {
+          $('#calendarNewModal').modal('hide')
+          $('#deleteRecurringEvent').modal('hide')
+          let errors = e.responseJSON.errors || []
+          var message = "There was an deleting unavailability, Please try again."
+  
+          if (errors.length > 0) {
+            message = errors[0]["message"] || message 
+          }
+  
+          showAlert(message, 'danger');
+  
+          $('#loader').hide();
+      });
+      return;
+    }
+    let payload = {
+      "query": `mutation {
+        deleteRecurringAppointment(id: ${appointmentOrUnavailabilityId}, parentId: ${appointmentData.parent_id}) {
+          delete,
+          reason,
+          appointment {
+            id,
+            note,
+            startAt
+          }
+        }
+      }`,
+      "variables": null
+    }
+    $.ajax({
+      method: "post",
+      url: "/api/graphiql/",
+      headers: AUTH_HEADERS_BEARER,
+      data: payload
+    }).then(function (response) {
+      $('#calendarNewModal').modal('hide')
+      $('#deleteRecurringEvent').modal('hide')
+      $('#loader').hide();
+      $calendar.fullCalendar('refetchEvents')
+      if (response.errors) {
+        var message = "There was an deleting unavailability, Please try again."
+        showAlert(message, 'danger')
+        return;
+      }
+      response.data.deleteRecurringAppointment.forEach(event => {
+        if ( event.delete ) {
+          showAlert("Successfully deleted event at "+moment(event.appointment.startAt).format('YYYY-MM-DD HH:mm'), 'success')
+        }
+        else {
+          showAlert("Couldn't delete event at "+moment(event.appointment.startAt).format('YYYY-MM-DD HH:mm')+"\n "+event.reason, 'danger')
+        }
+      });
+      
+    }).catch(function (e) {
+
+      $('#calendarNewModal').modal('hide')
+      $('#deleteRecurringEvent').modal('hide')
+      $.notify({
+        message: "There was an error deleting the events"
+      }, {
+        type: "danger",
+        placement: { align: "center" }
+      })
+      $('#loader').hide();
+    })
+  });
+
+  $('#btnDeleteThis').click(function () {
+    if (appointmentOrUnavailabilityId) {
+      var promise = null;
+      var buttonPos = $(this).offset();
+
+      var event;
+      if (eventType == "appt") {
+        event = "appointment"
+      } else if (eventType == "demoAppt") {
+        event = "demo flight appointment"
+      } else if (eventType === "maintenance") {
+        event = "maintenance appointment"
+      } else {
+        event = "unavailability"
+      }
+
+      $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
+
+      if (eventType == "appt") {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          headers: AUTH_HEADERS
+        })
+      } else if (eventType == "demoAppt") {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          headers: AUTH_HEADERS
+        })
+      } else if(eventType === "maintenance") {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          headers: AUTH_HEADERS
+        })
+      } else {
+        promise = $.ajax({
+          method: "delete",
+          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+          headers: AUTH_HEADERS
+        })
+      }
+
+      promise.then(function () {
+        $('#calendarNewModal').modal('hide')
+        $('#deleteRecurringEvent').modal('hide')
+        $calendar.fullCalendar('refetchEvents')
+
+        $.notify({
+          message: "Successfully deleted " + event
+        }, {
+          type: "success",
+          placement: { align: "center" }
+        })
+
+      }).catch(function (e) {
+        if (e.responseJSON.human_errors) {
+          showError(e.responseJSON.human_errors, event)
+        } else {
+          $.notify({
+            message: "There was an error deleting the event"
+          }, {
+            type: "danger",
+            placement: { align: "center" }
+          })
+        }
+        $('#loader').hide();
+      })
+    }
+  });
+
   var openAppointmentModal = function (initialData) {
     appointmentOrUnavailabilityId = initialData.id;
+    appointmentData = initialData
     const isStudent = userInfo.roles.includes("student")
     const isInstructor = userInfo.roles.includes("instructor")
     const isMechanic = userInfo.roles.includes("mechanic")
@@ -1233,6 +1439,7 @@ $(document).ready(function () {
 
     $('#unavailInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#unavailAircraft').val(initialData.aircraft_id).selectpicker("refresh");
+    $('#unavailSquawk').val(initialData.squawk_id).selectpicker("refresh");
     $('#unavailSimulator').val(initialData.simulator_id).selectpicker("refresh");
     $('#unavailRoom').val(initialData.room_id).selectpicker("refresh");
     $('#unavailNote').val(initialData.note);
@@ -1437,7 +1644,7 @@ $(document).ready(function () {
     $('#maintenanceAircraft').val(initialData.aircraft_id).selectpicker("refresh");
     $('#maintenanceNote').val(initialData.note);
 
-
+   
     $('#calendarNewModal').modal({
       backdrop: 'static',   // This disable for click outside event
       keyboard: true        // This for keyboard event
@@ -1912,11 +2119,14 @@ $(document).ready(function () {
       editable: editable,
       eventClick: function (calEvent, jsEvent, view) {
         const canProceed = checkRole();
+        console.log(canProceed)
         if ( !canProceed ){
           disableEditAppointment()
           return;
         }
+        
         if (calEvent.unavailability) {
+          
           var instructor_user_id = null;
           if (calEvent.unavailability.instructor_user) {
             instructor_user_id = calEvent.unavailability.instructor_user.id
@@ -1940,6 +2150,8 @@ $(document).ready(function () {
             room_id: room_id,
             note: calEvent.unavailability.note,
             id: calEvent.unavailability.id,
+            parent_id: calEvent.unavailability.parent_id,
+            squawk_id: calEvent.unavailability.squawk_id,
             type: "unavailable"
           })
           return;
@@ -1974,7 +2186,8 @@ $(document).ready(function () {
             demo: appointment.demo,
             type: appointment.type,
             payer_name: payerTitle(appointment),
-            id: appointment.id
+            id: appointment.id,
+            parent_id: appointment.parent_id
           })
 
           return;
@@ -2023,6 +2236,7 @@ $(document).ready(function () {
             user_id: appointment.user ? appointment.user.id : null,
             user_name: appointmentTitle(appointment),
             id: appointment.id,
+            parent_id: appointment.parent_id,
             type: appointment.type,
             mechanic_user_id
           })

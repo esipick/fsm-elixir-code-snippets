@@ -27,6 +27,14 @@ defmodule Fsm.Accounts.AccountsQueries do
         where: ur.slug in ^role_slugs
     end
 
+    def get_all_school_role_slug_user_ids_query(school_id, role_slugs) do
+      from u in User,
+        inner_join: ur in UserRole, on: ur.user_id == u.id,
+        inner_join: r in Role, on: r.id == ur.role_id,
+        select: u.id,
+        where: r.slug in ^role_slugs and u.school_id == ^school_id
+    end
+
     def get_role_by_slug_query(slug) do
       from ur in Role,
         select: %{id: ur.id, slug: ur.slug},

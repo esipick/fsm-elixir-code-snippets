@@ -12,7 +12,7 @@ defmodule Flight.Squawks do
         Queries.get_all_squawks_query(page, per_page, sort_field, sort_order, filter)
         |> Repo.all
     end
-    
+
     def get_squawk(id, school_id) do
         Squawk
         |> Repo.get_by(id: id, school_id: school_id)
@@ -29,7 +29,7 @@ defmodule Flight.Squawks do
         school_id = Map.get(attrs, "school_id")
         created_by_id = Map.get(attrs, "created_by_id")
 
-        Repo.transaction(fn -> 
+        Repo.transaction(fn ->
             with {:ok, %{id: id} = squawk} <- create_squawk(attrs),
             {:ok, _} <- upload_squawk_attachments(id, Map.get(attrs, "attachments")) do
                 Alerts.create_squawk_alert_and_notify_roles(id, school_id, created_by_id, roles)
@@ -41,9 +41,9 @@ defmodule Flight.Squawks do
     end
 
     def delete_squawk_attachment(id, squawk_id, school_id) do
-        query = 
+        query =
             Queries.squawk_attachment_query(id, squawk_id, school_id)
-    
+
         with %{id: _} = attach <- Repo.get_by(query, []),
             {:ok, _} <- Repo.delete(attach) do
                 Flight.SquawksUploader.delete({attach.attachment, attach})
@@ -85,11 +85,11 @@ defmodule Flight.Squawks do
 
     defp map_squawk_attachment_urls(nil), do: nil
     defp map_squawk_attachment_urls(squawk) do
-        attachments = 
-            Enum.map(squawk.attachments, fn item -> 
+        attachments =
+            Enum.map(squawk.attachments, fn item ->
                 urls = Flight.SquawksUploader.urls({item.attachment, item})
                 urls = %{original: urls[:original], thumb: urls[:thumb]}
-                
+
                 item
                 |> Map.delete(:__struct__)
                 |> Map.merge(urls)
