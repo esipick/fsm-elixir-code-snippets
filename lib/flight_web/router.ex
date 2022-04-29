@@ -275,6 +275,14 @@ defmodule FlightWeb.Router do
     get("/maintenance", MaintenanceController, :index)
   end
 
+  scope("/notifications", FlightWeb.Notification) do
+    pipe_through([ :browser,
+      :admin_layout,
+      :web_user_authenticate
+      ])
+    get("/", NotificationController, :index)
+  end
+
   ###
   # API Routes
   ###

@@ -5,7 +5,7 @@
         </div>
         <div class="card-body">
             <ul>
-                <li class="noti-item">
+                <li class="noti-item" onclick="">
                     <p class="noti-item-title">Appointment Deleted!</p>
                     <p class="noti-item-desc">Your Appointment at April 22nd at 5:00 P.M was removed due to Aircraft Unavailibility.</p>
                 </li>
@@ -25,3 +25,8 @@
      background-color: teal;
  }
 </style>
+<script>
+ function goToNotificationDetailView() {
+     window.href = '/notifications';
+ }
+</script>
