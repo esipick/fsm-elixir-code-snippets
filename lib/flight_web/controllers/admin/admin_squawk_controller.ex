@@ -6,6 +6,7 @@ defmodule FlightWeb.Admin.SquawkController do
   plug(:get_squawk when action in [:edit, :update, :delete])
 
   alias Flight.Repo
+  alias Flight.Accounts
   alias Flight.Accounts.Role
   alias Flight.Auth.Authorization
   alias Flight.Scheduling
@@ -13,6 +14,7 @@ defmodule FlightWeb.Admin.SquawkController do
   alias Fsm.Squawks.Squawk
   alias Fsm.Squawks
   alias Fsm.Attachments.Attachment
+
 
   def create(%{assigns: %{current_user: %{id: user_id, school_id: school_id}}} = conn, %{"squawk" => squawk}) do
     aircraft_id = Map.get(squawk, "aircraft_id")
@@ -155,7 +157,7 @@ defmodule FlightWeb.Admin.SquawkController do
     user = Repo.preload(conn.assigns.current_user, [:roles])
     roles = Role |> Flight.Repo.all()
 
-    if Authorization.is_admin?(user) do
+    if Authorization.is_admin?(user) || Accounts.has_role?(user, "dispatcher") do
       conn
     else
       Authorization.Extensions.redirect_unathorized_user(conn)

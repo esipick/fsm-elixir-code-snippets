@@ -258,6 +258,7 @@ defmodule FlightWeb.SidebarItem do
     items =
       case FlightWeb.RoleUtil.access_level(user) do
         "admin" -> admin_sidebar(user)
+        "dispatcher" -> admin_sidebar(user)
         "instructor" -> instructor_sidebar()
         "student" -> student_sidebar()
         "renter" -> renter_sidebar()

@@ -6,6 +6,7 @@ defmodule FlightWeb.RoleUtil do
       "student" -> "/student/home"
       "renter" -> "/renter/home"
       "mechanic" -> "/mechanic/home"
+      "dispatcher" -> "/dispatcher/home"
       _ -> nil
     end
   end
@@ -15,8 +16,11 @@ defmodule FlightWeb.RoleUtil do
     roles = Enum.map(user.roles, fn r -> r.slug end)
 
     cond do
-      Enum.member?(roles, "admin") || Enum.member?(roles, "dispatcher") ->
+      Enum.member?(roles, "admin") ->
         "admin"
+
+      Enum.member?(roles, "dispatcher") ->
+        "dispatcher"
 
       Enum.member?(roles, "instructor") ->
         "instructor"
