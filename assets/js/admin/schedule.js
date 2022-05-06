@@ -28,7 +28,7 @@ function payerTitle(appointment) {
   if (appointment.demo) {
     return appointment.payer_name;
   }
-  
+
   return userTitle(appointment.user) || userTitle(appointment.instructor_user) || userTitle(appointment.mechanic_user);
 }
 
@@ -87,7 +87,7 @@ function retrieveRoomId(resources) {
 function retrieveMechanicId(resources) {
   let id = null;
   if ( !resources || resources.length < 1 ) return id;
-  
+
   for ( let i = 0; i < resources.length; i++ )
   {
     if ( resources[i].includes('mechanic') )
@@ -96,7 +96,7 @@ function retrieveMechanicId(resources) {
       break;
     }
   }
-  
+
   return id;
 }
 
@@ -113,7 +113,7 @@ function groupResources(resources) {
     room: [],
     mechanic: []
   };
-  
+
   resources.forEach(resource => {
     const res = resource.split(':');
     const resourceType = res[0];
@@ -174,7 +174,7 @@ $(document).ready(function () {
 
   function checkRole() {
     const user = userInfo;
-    if ( user.roles && 
+    if ( user.roles &&
       !user.roles.includes('admin') &&
       !user.roles.includes('dispatcher') &&
       !user.roles.includes('instructor') &&
@@ -325,11 +325,11 @@ $(document).ready(function () {
       $('#instructorPreTime').hide();
       $('#instructorPostTime').hide();
     }
-    
+
     switch(this.value) {
       case "demo_flight":
         airplaneRentalView(false)
-        meetingView(false)        
+        meetingView(false)
         flightLessonView(false);
         unavailabilityView(false);
         maintenanceView(false);
@@ -339,7 +339,7 @@ $(document).ready(function () {
 
       case "unavailable":
         airplaneRentalView(false)
-        meetingView(false)        
+        meetingView(false)
         demoFlightView(false);
         flightLessonView(false);
         maintenanceView(false);
@@ -349,14 +349,14 @@ $(document).ready(function () {
 
       case "unavailability":
         airplaneRentalView(false)
-        meetingView(false)        
+        meetingView(false)
         demoFlightView(false);
         flightLessonView(false);
         maintenanceView(false);
         unavailabilityView(true);
         eventType = "unavail"
         break;
-    
+
       case "maintenance":
         airplaneRentalView(false)
         meetingView(false)
@@ -375,7 +375,7 @@ $(document).ready(function () {
         maintenanceView(false);
         eventType = "appt";
         break;
-      case "airplane_rental":        
+      case "airplane_rental":
         meetingView(false);
         flightLessonView(false);
         unavailabilityView(false);
@@ -384,7 +384,7 @@ $(document).ready(function () {
         airplaneRentalView(true)
         eventType = "appt";
         break;
-      case "check_ride":        
+      case "check_ride":
         meetingView(false);
         flightLessonView(false);
         unavailabilityView(false);
@@ -401,10 +401,20 @@ $(document).ready(function () {
         maintenanceView(false);
         flightLessonView(true);
         eventType = "appt";
+        setDefaultAircraft()
         break;
 
     }
   })
+
+  function setDefaultAircraft(){
+    if(appointmentData.aircraft_id){
+      $('#apptAircraft').val(safeParseInt(appointmentData.aircraft_id)).selectpicker("refresh");
+    }else{
+      console.log('no appointmentId')
+      $('#apptAircraft').val(null).selectpicker("refresh");
+    }
+  }
 
   function hideInstructorTime() {
     $('#instructorPreTime').hide();
@@ -435,7 +445,7 @@ $(document).ready(function () {
       $('#appointmentResouceForm.tab-pane').removeClass("active");
       $('#appointmentForm.tab-pane').addClass("active");
 
-      $('#apptAircraft').val(null).selectpicker("refresh");
+      setDefaultAircraft()
       $('#apptSimulator').val(null).selectpicker("refresh");
 
       $('#apptFieldAircraft').hide();
@@ -446,7 +456,7 @@ $(document).ready(function () {
     } else {
       $('#appointmentForm.tab-pane').removeClass("active");
 
-      $('#apptAircraft').val(null).selectpicker("refresh");
+      setDefaultAircraft()
       $('#apptSimulator').val(null).selectpicker("refresh");
       $('#apptRoom').val(null).selectpicker("refresh");
 
@@ -474,7 +484,7 @@ $(document).ready(function () {
       $('#unavailabilityForm.tab-pane').removeClass("active");
     }
 
-    
+
   }
 
   function airplaneRentalView(show) {
@@ -487,13 +497,13 @@ $(document).ready(function () {
 
       $('#apptFieldSimulator').hide();
       $('#apptFieldRoom').hide();
-      $('#apptFieldInstructor').hide();      
+      $('#apptFieldInstructor').hide();
 
       hideInstructorTime();
     } else {
       $('#appointmentForm.tab-pane').removeClass("active");
 
-      $('#apptAircraft').val(null).selectpicker("refresh");
+      setDefaultAircraft()
       $('#apptSimulator').val(null).selectpicker("refresh");
       $('#apptRoom').val(null).selectpicker("refresh");
       $('#apptInstructor').val(null).selectpicker("refresh");
@@ -521,7 +531,7 @@ $(document).ready(function () {
       $('#appointmentForm.tab-pane').addClass("active");
       $('#apptFieldSimulator').hide();
       $('#apptFieldRoom').hide();
-      
+
     } else {
       $('#appointmentResouceForm.tab-pane').removeClass("active");
       $('#appointmentForm.tab-pane').removeClass("active");
@@ -532,13 +542,13 @@ $(document).ready(function () {
     $('#apptInstructor').val(null).selectpicker("refresh");
     $('#apptInstructorPreTime').val(0).selectpicker("refresh");
     $('#apptInstructorPostTime').val(0).selectpicker("refresh");
-    $('#apptAircraft').val(null).selectpicker("refresh");
+    setDefaultAircraft()
     $('#apptSimulator').val(null).selectpicker("refresh");
     $('#apptRoom').val(null).selectpicker("refresh");
     $('#apptNote').val(null);
   }
-  $('#apptFor').on('change', function () { 
-    resetFormValues();  
+  $('#apptFor').on('change', function () {
+    resetFormValues();
     displayForAppointment(this.value)
   });
 
@@ -548,14 +558,14 @@ $(document).ready(function () {
       $('#apptFieldSimulator').show();
       $('#apptFieldRoom').hide();
 
-      $('#apptAircraft').val(null).selectpicker("refresh");
+      setDefaultAircraft()
       $('#apptRoom').val(null).selectpicker("refresh");
     } else if (type == "Room") {
       $('#apptFieldAircraft').hide();
       $('#apptFieldSimulator').hide();
       $('#apptFieldRoom').show();
 
-      $('#apptAircraft').val(null).selectpicker("refresh");
+      setDefaultAircraft()
       $('#apptSimulator').val(null).selectpicker("refresh");
 
     } else {
@@ -666,14 +676,14 @@ $(document).ready(function () {
 
   function getRecurrenceObject(eventData) {
     const repeatType = parseInt($('#repeatType').val());
-   
+
     let days = [];
     if ( repeatType == 0 ) {
       const week_days_checked = $('input[name=week_days]:checked');
       days = week_days_checked.map(function(_, el) {
         return parseInt($(el).val());
       }).get();
-    } 
+    }
     else {
       const onDay = parseInt($('#monthOnDay').val());
       days.push(onDay);
@@ -741,7 +751,7 @@ $(document).ready(function () {
       if ( !eventEnd ) {
         showAlert('End Date is required.', 'danger');
         return;
-      } 
+      }
     }
     var buttonPos = $(this).offset();
 
@@ -753,7 +763,7 @@ $(document).ready(function () {
     }, 3000);
 
     var promise = null;
-    
+
     if (eventType == "appt") {
       var eventRenter = safeParseInt($('#apptStudent').val());
       var eventInstructor = safeParseInt($('#apptInstructor').val());
@@ -818,7 +828,7 @@ $(document).ready(function () {
       } else {
         if ( isRecurring ) {
           eventData.recurring = true;
-          eventData.recurrence = getRecurrenceObject(eventData) 
+          eventData.recurrence = getRecurrenceObject(eventData)
         }
         promise = $.post({
           url: "/api/appointments" + addSchoolIdParam('?'),
@@ -908,7 +918,7 @@ $(document).ready(function () {
       } else {
         if ( isRecurring ) {
           eventData.recurring = true;
-          eventData.recurrence = getRecurrenceObject(eventData) 
+          eventData.recurrence = getRecurrenceObject(eventData)
         }
         promise = $.post({
           url: "/api/unavailabilities" + addSchoolIdParam('?'),
@@ -917,7 +927,7 @@ $(document).ready(function () {
         })
       }
     } else if (eventType === "maintenance") {
-  
+
       var eventMechanic = safeParseInt($('#maintenanceMechanic').val());
 
       var eventAircraft = safeParseInt($('#maintenanceAircraft').val());
@@ -947,7 +957,7 @@ $(document).ready(function () {
       } else {
         if ( isRecurring ) {
           eventData.recurring = true;
-          eventData.recurrence = getRecurrenceObject(eventData) 
+          eventData.recurrence = getRecurrenceObject(eventData)
         }
         promise = $.post({
           url: "/api/appointments" + addSchoolIdParam('?'),
@@ -971,7 +981,7 @@ $(document).ready(function () {
       const event = apptEvents[eventType]
 
       promise.then(function (response) {
-        
+
         $('#calendarNewModal').modal('hide')
         $calendar.fullCalendar('refetchEvents')
         if ( response.human_errors ) {
@@ -983,7 +993,7 @@ $(document).ready(function () {
             let message = '';
             for (let i = 0; i < value.length; i++) {
                 message += value[i]
-                if ( !(i === value.length - 1) ) message += ', ' 
+                if ( !(i === value.length - 1) ) message += ', '
             }
             $.notify({
               message: key+ ' : '+message
@@ -991,12 +1001,12 @@ $(document).ready(function () {
               type: "danger",
               placement: { align: "center" }
             })
-          }                    
+          }
           return;
           }
         }
 
-        
+
 
         $.notify({
           message: "Successfully saved " + event
@@ -1067,7 +1077,7 @@ $(document).ready(function () {
         var message = "There was an error downloading ics file, Please try again."
 
         if (errors.length > 0) {
-          message = errors[0]["message"] || message 
+          message = errors[0]["message"] || message
         }
 
         $.notify({
@@ -1076,7 +1086,7 @@ $(document).ready(function () {
           type: "danger",
           placement: { align: "center" }
         })
-        
+
       } else if (response.data) {
         let url = response.data.appointmentIcsUrl
 
@@ -1090,7 +1100,7 @@ $(document).ready(function () {
         var message = "There was an error downloading ics file, Please try again."
 
         if (errors.length > 0) {
-          message = errors[0]["message"] || message 
+          message = errors[0]["message"] || message
         }
 
         $.notify({
@@ -1104,7 +1114,7 @@ $(document).ready(function () {
     })
   });
 
-  
+
   $('#btnDelete').click(function () {
     if (appointmentOrUnavailabilityId && appointmentData.parent_id ) {
       $('#deleteRecurringEvent').modal({
@@ -1211,13 +1221,13 @@ $(document).ready(function () {
         if (response.errors) {
           let errors = response.errors || []
           var message = "There was an deleting unavailability, Please try again."
-  
+
           if (errors.length > 0) {
-            message = errors[0]["message"] || message 
+            message = errors[0]["message"] || message
           }
-  
+
           showAlert(message, 'danger')
-          
+
         } else if (response.data) {
           let res = response.data.deleteRecurringUnavailability;
           if (!res.error) {
@@ -1227,23 +1237,23 @@ $(document).ready(function () {
           else {
             showAlert(res.message, 'danger')
           }
-          
+
         }
-  
+
         $('#loader').hide();
-  
+
       }).catch(function (e) {
           $('#calendarNewModal').modal('hide')
           $('#deleteRecurringEvent').modal('hide')
           let errors = e.responseJSON.errors || []
           var message = "There was an deleting unavailability, Please try again."
-  
+
           if (errors.length > 0) {
-            message = errors[0]["message"] || message 
+            message = errors[0]["message"] || message
           }
-  
+
           showAlert(message, 'danger');
-  
+
           $('#loader').hide();
       });
       return;
@@ -1285,7 +1295,7 @@ $(document).ready(function () {
           showAlert("Couldn't delete event at "+moment(event.appointment.startAt).format('YYYY-MM-DD HH:mm')+"\n "+event.reason, 'danger')
         }
       });
-      
+
     }).catch(function (e) {
 
       $('#calendarNewModal').modal('hide')
@@ -1431,8 +1441,8 @@ $(document).ready(function () {
       $('#apptType').attr('disabled', isMechanic)
       $('#apptType').val(appointmentType).selectpicker("refresh");
       $('#btnDelete').hide();
-      $('#btnDelete').hide();    
-      $('#repeatOption').removeClass('d-none');    
+      $('#btnDelete').hide();
+      $('#repeatOption').removeClass('d-none');
     }
 
     var unavailType = "Instructor";
@@ -1472,7 +1482,7 @@ $(document).ready(function () {
       appointmentFor = "Room"
     }
 
-    
+
 
     if (!appointmentFor) {appointmentFor = "Aircraft"}
     $('#apptFor').val(appointmentFor).selectpicker("refresh");
@@ -1537,10 +1547,10 @@ $(document).ready(function () {
       } else {
         $('#apptTitle').text("Create New")
       }
-    } else {     
+    } else {
       if (initialData.type == "meeting") {
         meetingView(true);
-      } 
+      }
       else if (initialData.type == "flight_lesson") {
         flightLessonView(true);
         // if ( appointmentFor == "Simulator" ) {
@@ -1558,7 +1568,7 @@ $(document).ready(function () {
       else {
         flightLessonView(true)
       }
-      
+
       unavailabilityView(false);
       demoFlightView(false);
       maintenanceView(false);
@@ -1603,7 +1613,7 @@ $(document).ready(function () {
       $('#maintenanceMechanic').prop("disabled", false).selectpicker("refresh");
       $('#maintenanceMechanic').find('option:last').remove();
     }
-    
+
     $('#apptInstructor').val(initialData.instructor_user_id).selectpicker("refresh");
     $('#apptInstructorPreTime').val(initialData.instructor_pre_time).selectpicker("refresh");
     $('#apptInstructorPostTime').val(initialData.instructor_post_time).selectpicker("refresh");
@@ -1644,7 +1654,7 @@ $(document).ready(function () {
     $('#maintenanceAircraft').val(initialData.aircraft_id).selectpicker("refresh");
     $('#maintenanceNote').val(initialData.note);
 
-   
+
     $('#calendarNewModal').modal({
       backdrop: 'static',   // This disable for click outside event
       keyboard: true        // This for keyboard event
@@ -1666,7 +1676,7 @@ $(document).ready(function () {
   }
 
   function fsmCalendar(instructors, mechanics, aircrafts, simulators, rooms, students, current_user) {
-  
+
     userInfo = current_user;
     allInstructors = instructors;
     allAircrafts = aircrafts;
@@ -1880,7 +1890,7 @@ $(document).ready(function () {
 
           var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
           var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
-        
+
           var eventData = {
             start_at: eventStart,
             end_at: eventEnd,
@@ -1898,14 +1908,14 @@ $(document).ready(function () {
             headers: AUTH_HEADERS
           })
           .then(function () {
-            $calendar.fullCalendar('refetchEvents')  
+            $calendar.fullCalendar('refetchEvents')
             $.notify({
               message: "Successfully updated Unavailability"
             }, {
               type: "success",
               placement: { align: "center" }
             })
-    
+
           }).catch(function (e) {
             $calendar.fullCalendar('refetchEvents')
             if (e.responseJSON.human_errors) {
@@ -1927,7 +1937,7 @@ $(document).ready(function () {
         if ( event.resourceId )
         {
           event.resourceIds = [event.resourceId]
-        } 
+        }
         else if ( hasDuplicates(event.resourceIds) )
         {
           const res = groupResources(event.resourceIds);
@@ -1939,7 +1949,7 @@ $(document).ready(function () {
 
           var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
           var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
-        
+
           var eventData = {
             start_at: eventStart,
             end_at: eventEnd,
@@ -1960,14 +1970,14 @@ $(document).ready(function () {
             headers: AUTH_HEADERS
           })
           .then(function () {
-            $calendar.fullCalendar('refetchEvents')  
+            $calendar.fullCalendar('refetchEvents')
             $.notify({
               message: "Successfully updated " + event.title
             }, {
               type: "success",
               placement: { align: "center" }
             })
-    
+
           }).catch(function (e) {
             $calendar.fullCalendar('refetchEvents')
             if (e.responseJSON.human_errors) {
@@ -1984,7 +1994,7 @@ $(document).ready(function () {
           })
           return;
         }
-        
+
         const aircraft_id = retrieveAircraftId(event.resourceIds)
         const instructor_id = retrieveInstructorId(event.resourceIds)
         const simulator_id = retrieveSimulatorId(event.resourceIds)
@@ -1992,7 +2002,7 @@ $(document).ready(function () {
         const mechanic_user_id = retrieveMechanicId(event.resourceIds)
         var eventStart = (moment.utc(event.start.utc().format()).add(-(moment(event.start.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
         var eventEnd = (moment.utc(event.end.utc().format()).add(-(moment(event.end.utc().format()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
-       
+
         var eventData = {
           start_at: eventStart,
           end_at: eventEnd,
@@ -2005,7 +2015,7 @@ $(document).ready(function () {
           type: appointment.type,
           mechanic_user_id
         };
-       
+
         $.ajax({
           method: "put",
           url: "/api/appointments/" + appointment.id + addSchoolIdParam('?'),
@@ -2013,14 +2023,14 @@ $(document).ready(function () {
           headers: AUTH_HEADERS
         })
         .then(function () {
-          $calendar.fullCalendar('refetchEvents')  
+          $calendar.fullCalendar('refetchEvents')
           $.notify({
             message: "Successfully updated " + event.title
           }, {
             type: "success",
             placement: { align: "center" }
           })
-  
+
         }).catch(function (e) {
           $calendar.fullCalendar('refetchEvents')
           if (e.responseJSON.human_errors) {
@@ -2043,9 +2053,9 @@ $(document).ready(function () {
         if (!showMySchedules) {
           return true
         }
-        
+
         var id = event.appointment && event.appointment.instructor_user && event.appointment.instructor_user.id
-        
+
         if (!id) {
           id = event?.appointment?.mechanic_user?.id
         }
@@ -2057,7 +2067,7 @@ $(document).ready(function () {
         return current_user && current_user.id === id
       },
       select: function (start, end, notSure, notSure2, resource) {
-        
+
         const canProceed = checkRole();
         if ( !canProceed ) return;
         var instructorId = null;
@@ -2124,9 +2134,9 @@ $(document).ready(function () {
           disableEditAppointment()
           return;
         }
-        
+
         if (calEvent.unavailability) {
-          
+
           var instructor_user_id = null;
           if (calEvent.unavailability.instructor_user) {
             instructor_user_id = calEvent.unavailability.instructor_user.id
@@ -2156,7 +2166,7 @@ $(document).ready(function () {
           })
           return;
         }
-        
+
         if (calEvent.appointment.demo) {
           var appointment = calEvent.appointment
 
@@ -2192,7 +2202,7 @@ $(document).ready(function () {
 
           return;
         }
-        
+
         if (calEvent.appointment) {
           var appointment = calEvent.appointment
           var instructor_user_id = null;
@@ -2266,7 +2276,7 @@ $(document).ready(function () {
         Promise.all([appointmentsPromise, unavailabilityPromise]).then(function (resp) {
           var appointments = resp[0].data.reduce(function(appointments, appointment) {
             var resourceIds = []
-            
+
             if (appointment.instructor_user) {
                 let instructorResourceId = "instructor:" + appointment.instructor_user.id
                 let start_at = appointment.inst_start_at || appointment.start_at
@@ -2289,7 +2299,7 @@ $(document).ready(function () {
             if (appointment.room) {
               resourceIds.push("room:" + appointment.room.id)
             }
-            
+
             if (resourceIds.length > 0) {
               appointments.push(modelFromAppointment(appointment, resourceIds, appointment.start_at, appointment.end_at, false))
             }
@@ -2337,7 +2347,7 @@ $(document).ready(function () {
 
           return appointments;
           }, [])
-          
+
           var unavailabilities = resp[1].data.map(function (unavailability) {
             var resourceIds = []
 
@@ -2371,7 +2381,7 @@ $(document).ready(function () {
               className: 'event-default'
             }
           })
-          
+
           $('#loader').hide();
           callback(appointments.concat(unavailabilities))
         })
@@ -2451,7 +2461,7 @@ $(document).ready(function () {
       },
       format: 'L'
     });
-   
+
     $('.repeatdatepickerend').datetimepicker({
       //debug: true,
       format: 'YYYY-MM-DD',
