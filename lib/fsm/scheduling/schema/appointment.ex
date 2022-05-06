@@ -192,7 +192,7 @@ defmodule Fsm.Scheduling.Appointment do
       get_field(changeset, :type) != "meeting" && (get_field(changeset, :simulator_id) || get_field(changeset, :room_id)) ->
         changeset
 
-      get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :instructor_user_id) == nil->
+      get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :instructor_user_id) == nil and get_field(changeset, :simulator_id) == nil->
         add_error(changeset, :instructor, "is required.")
 
       get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :aircraft_id) == nil->
@@ -216,7 +216,7 @@ defmodule Fsm.Scheduling.Appointment do
         add_error(changeset, :aircraft, "or instructor is required.")
     end
   end
-  
+
   defp validate_demo_aircraft_set(changeset) do
     cond do
       !(get_field(changeset, :type) == "demo_flight") -> changeset
