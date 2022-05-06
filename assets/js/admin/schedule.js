@@ -790,7 +790,8 @@ $(document).ready(function () {
           $('#loader').hide();
           return;
         }
-        if ( !$('#apptInstructor').val() ) {
+
+        if ( !$('#apptInstructor').val() && aptFor != 'Simulator' ) {
           showAlert('Instructor is required.', 'danger')
           $('#loader').hide();
           return;
