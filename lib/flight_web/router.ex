@@ -163,6 +163,11 @@ defmodule FlightWeb.Router do
     get("/home", HomeController, :index)
   end
 
+  scope "/dispatcher", FlightWeb.Dispatcher do
+    pipe_through([:browser, :admin_layout, :admin_authenticate, :admin_metrics_namespace])
+    get("/home", HomeController, :index)
+  end
+
   scope("/course", FlightWeb.Course, as: :course) do
     pipe_through([ :browser,
       :admin_layout,

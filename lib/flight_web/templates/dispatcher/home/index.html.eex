@@ -1,0 +1,135 @@
+<script>
+  function getLocalUserAppointmentDate(dt) {
+    if (dt) {
+      var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+      var date = new Date(date_time);
+      date = date.toLocaleString('default', { weekday: 'long' })+' '+date.toLocaleString('default', { month: 'long' })+ date_time.format(' DD, YYYY')
+      return date;
+    }
+    else {
+      return "";
+    }
+  }
+  function getLocalUserAppointmentDateTime(dt) {
+    if (dt) {
+      var date_time = moment.utc(dt).add(+(moment().utcOffset()), 'm');
+      var date = new Date(date_time);
+      var d_time = date_time.format('D ')+date.toLocaleString('default', { month: 'long' })+date_time.format(' h:mmA')
+      return d_time;
+    }
+    else {
+      return "";
+    }
+  }
+</script>
+<div class="panel-header panel-header-sm">
+  <div class="header text-center">
+
+  </div>
+</div>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons education_hat"></i>
+                  </div>
+                  <h3 class="info-title"><%= @student_count %></h3>
+                  <h6 class="stats-title">Students</h6>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons users_single-02"></i>
+                  </div>
+                  <h3 class="info-title"><%= @instructor_count %></h3>
+                  <h6 class="stats-title">Instructors</h6>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons business_badge"></i>
+                  </div>
+                  <h3 class="info-title"><%= @renter_count %></h3>
+                  <h6 class="stats-title">Renters</h6>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="statistics">
+                <div class="info">
+                  <div class="icon icon-primary">
+                    <i class="now-ui-icons objects_spaceship"></i>
+                  </div>
+                  <h3 class="info-title"><%= @aircraft_count %></h3>
+                  <h6 class="stats-title">Aircraft</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- end row -->
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Squawks</h5>
+          <h1 class="card-title"><%= Enum.count(@squawks) %></h1>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="text-primary">
+                <tr>
+                  <th>Aircraft</th>
+                  <th>Title</th>
+                  <th>Severity</th>
+                  <th >System Affected</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                <%= for squawk <- @squawks do %>
+                  <%
+                    squawk_class = case squawk.severity do
+                      :monitor -> ""
+                      :warning -> "text-expiring"
+                      :grounded -> "text-expired"
+                    end
+                  %>
+                  <tr>
+                    <td class="text-nowrap text-primary"><span class="photo"><img src="/images/archer.jpg"></span><a href="/admin/aircrafts/<%= squawk.aircraft.id %>"><%= aircraft_display_name(squawk.aircraft) %></a></td>
+                    <td class="text-primary"><a href="/admin/squawks/<%= squawk.id %>/edit"><%= squawk.title %></a></td>
+                    <td class="<%= squawk_class %>"><%= squawk.severity %></td>
+                    <td><%= squawk.system_affected %></td>
+                  </tr>
+                <% end %>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- end row -->
+</div>
+<!-- end content -->
