@@ -1,0 +1,92 @@
+<div class="panel-header panel-header-sm">
+</div>
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header d-flex flex-column">
+          <div class="text-left">
+            <h3 class="card-title">Aircrafts</h3>
+          </div>
+          <div>
+            <%= form_for @conn, "/admin/aircrafts", [method: "get"], fn f -> %>
+              <div class="row mb-4">
+                 <div class="col-md-4 pr-1">
+                  <div class="form-group">
+                    <%= text_input f, :search, value: @data.search_term, class: "form-control", placeholder: "Type here to search by 'Tail #'" %>
+                    <span class="text-danger"><%= @message %></span>
+                  </div>
+                </div>
+                <div class="col-xs-3 pl-3">
+                  <input type="submit" class="btn btn-primary m-0 pull-right" value="Search" />
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <%= if Enum.any?(@data.table_data.rows) do %>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <th>Aircraft<br>
+                    <small>Tail #</small>
+                  </th>
+                  <th>Equipment</th>
+                  <th data-toggle="tooltip" data-placement="top" title="IFR Certified">IFR</th>
+                  <th data-toggle="tooltip" data-placement="top" title="Rate Per Hour">RPH</th>
+                  <th data-toggle="tooltip" data-placement="top" title="Block Rate Per Hour">BRPH</th>
+                  <th data-toggle="tooltip" data-placement="top" title="Last Recorded Tach Time">Tach Time</th>
+                  <th data-toggle="tooltip" data-placement="top" title="Last Recorded Hobbs Time">Hobbs Time</th>
+                </thead>
+                <tbody>
+                  <%= for aircraft <- @data.table_data.rows do %>
+                    <tr>
+                      <td><span class="text-nowrap"><b><%= aircraft.make %> <%= aircraft.model %></b></span></br>
+                        <small><%= aircraft.tail_number %></small>
+                      </td>
+                      <td><%= aircraft.equipment %></td>
+                      <td><%= display_boolean(aircraft.ifr_certified) %></td>
+                      <td><%= currency aircraft.rate_per_hour %></td>
+                      <td><%= currency aircraft.block_rate_per_hour %></td>
+                      <td><%= display_hour_tenths(aircraft.last_tach_time) %></td>
+                      <td><%= display_hour_tenths(aircraft.last_hobbs_time) %></td>
+                      <td class="text-right">
+                        <div id="button-wrapper" class="d-flex justify-content-end">
+                          <a href="/aircrafts/<%= aircraft.id %>" class="btn btn-primary btn-sm ml-1">view</a>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% else %>
+          <div class="card-body">No result found</div>
+        <% end %>
+        <%= if @data.table_data.page.total_pages > 1 do %>
+          <div class="row">
+            <div class="col-md-10">
+              <%= pagination_links @conn,
+                          @data.table_data.page,
+                          search: @data.search_term,
+                          page_size: @data.table_data.page.page_size
+                        %>
+            </div>
+            <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+          </div>
+        <% else %>
+          <div class="row justify-content-end">
+            <%= render(FlightWeb.SharedView, "pagination_size.html", conn: @conn) %>
+          </div>
+        <% end %>
+      </div>
+      <!--  end card  -->
+    </div>
+    <!-- end col-md-12 -->
+  </div>
+  <!-- end row -->
+</div>
+<!-- end content -->
+<%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>

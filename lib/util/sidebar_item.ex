@@ -123,6 +123,12 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
+        path: "/aircrafts/list",
+        label: "Resources",
+        icon_class: "objects_spaceship",
+        active: false
+      },
+      %SidebarItem{
         path: "/course/list",
         label: "Courses",
         icon_class: "education_hat",
@@ -156,6 +162,12 @@ defmodule FlightWeb.SidebarItem do
         path: "/student/schedule",
         label: "Schedule",
         icon_class: "ui-1_calendar-60",
+        active: false
+      },
+      %SidebarItem{
+        path: "/aircrafts/list",
+        label: "Resources",
+        icon_class: "objects_spaceship",
         active: false
       },
       %SidebarItem{
