@@ -185,6 +185,26 @@ defmodule Flight.Email do
     # |> put_attachment(attachment)
   end
 
+  def squawk_resolved_email_notification(destination_user, resolving_user, squawk) do
+    # attachment = Bamboo.Attachment.new(path, filename: "invoice-#{invoice_no}.pdf", content_type: "application/pdf")
+    # IO.inspect("attachment: #{inspect attachment}")
+    new_email()
+    |> to(destination_user.email)
+    |> put_layout({FlightWeb.EmailView, "invitation"})
+    |> from({"Flight School Manager", "noreply@flightschoolmanager.co"})
+    |> subject("Squawk Resolved")
+    |> render(
+      "_squawk.html",
+      operation: "resolved",
+      by_user_name: resolving_user.first_name <> " " <> resolving_user.last_name,
+      destination_user_first_name: destination_user.first_name,
+      squawk_aircraft_make: squawk.aircraft.make,
+      squawk_aircraft_model: squawk.aircraft.model,
+      squawk_aircraft_tail_number: squawk.aircraft.tail_number
+    )
+    # |> put_attachment(attachment)
+  end
+
   def squawk_deleted_email_notification(destination_user, deleting_user, squawk) do
     # attachment = Bamboo.Attachment.new(path, filename: "invoice-#{invoice_no}.pdf", content_type: "application/pdf")
     # IO.inspect("attachment: #{inspect attachment}")

@@ -105,11 +105,24 @@ defmodule Flight.PushNotifications do
     }
   end
 
+  def squawk_resolved_notification(destination_user, resolving_user, squawk) do
+    %PushNotification{
+      title: "Squawk Resolved",
+      body:
+      "A squawk for plane #{squawk.aircraft.make} #{squawk.aircraft.model} - #{squawk.aircraft.tail_number} has been resolved by #{resolving_user.first_name} #{resolving_user.last_name}.",
+      sound: true,
+      user_id: destination_user.id,
+      data: %{
+        destination: "aircrafts/#{squawk.aircraft_id}"
+      }
+    }
+  end
+
   def squawk_deleted_notification(destination_user, deleting_user, squawk) do
     %PushNotification{
       title: "Squawk Deleted",
       body:
-      "A squawk for plane #{squawk.aircraft.make} #{squawk.aircraft.model} - #{squawk.aircraft.tail_number} has been updated by #{deleting_user.first_name} #{deleting_user.last_name}.",
+      "A squawk for plane #{squawk.aircraft.make} #{squawk.aircraft.model} - #{squawk.aircraft.tail_number} has been deleted by #{deleting_user.first_name} #{deleting_user.last_name}.",
       sound: true,
       user_id: destination_user.id
     }

@@ -99,7 +99,7 @@ defmodule Fsm.Squawks do
         creating_user = Accounts.get_user_by_user_id(old_squawk.user_id)
         old_squawk = Map.put(old_squawk, :aircraft, Aircrafts.get_aircraft_record_by_id(old_squawk.aircraft_id))
         users_to_notify =
-          fetch_role_slug_user_ids(squawk_input.school_id, ["admin", "dispatcher", "mechanic"])
+          fetch_role_slug_user_ids(old_squawk.school_id, ["admin", "dispatcher", "mechanic"])
           |> Enum.uniq()
           |> Accounts.get_users_by_user_ids
 
@@ -118,6 +118,31 @@ defmodule Fsm.Squawks do
       end)
     end
 
+    def notify_squawk(:resolve, old_squawk, squawk_input)do
+      Mondo.Task.start(fn ->
+        Logger.info("Job:squawk_resolved_notification -- Sending...")
+
+        creating_user = Accounts.get_user_by_user_id(old_squawk.user_id)
+        old_squawk = Map.put(old_squawk, :aircraft, Aircrafts.get_aircraft_record_by_id(old_squawk.aircraft_id))
+        users_to_notify =
+          fetch_role_slug_user_ids(old_squawk.school_id, ["admin", "dispatcher", "mechanic"])
+          |> Enum.uniq()
+          |> Accounts.get_users_by_user_ids
+
+        users_count = Enum.count(users_to_notify)
+        Enum.map(users_to_notify, fn destination_user ->
+          Flight.PushNotifications.squawk_resolved_notification(destination_user, creating_user, old_squawk)
+          |> Mondo.PushService.publish()
+
+          Flight.Email.squawk_resolved_email_notification(destination_user, creating_user, old_squawk)
+          |> Flight.Mailer.deliver_later()
+        end)
+
+        Logger.info(
+          "Job:squawk_resolved_notification -- Sent notifications to #{users_count} users."
+        )
+      end)
+    end
 
     def notify_squawk(:delete, squawk_input)do
       Mondo.Task.start(fn ->
@@ -236,6 +261,16 @@ defmodule Fsm.Squawks do
       preload: [attachments: at, aircraft: a]
 
       Repo.all(query)
+    end
+
+    def update_squawk(squawk, %{ resolved: true } = attrs) do
+      resp =
+        squawk
+        |> Squawk.changeset(attrs)
+        |> Repo.update()
+
+      notify_squawk(:resolve, squawk, attrs)
+      resp
     end
 
     def update_squawk(squawk, attrs) do

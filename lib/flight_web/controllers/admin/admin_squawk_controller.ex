@@ -149,7 +149,7 @@ defmodule FlightWeb.Admin.SquawkController do
     Squawks.delete_squawk(squawk)
 
     conn
-    |> put_flash(:success, "Squawk resolved successfully")
+    |> put_flash(:success, "Squawk deleted successfully")
     |> redirect(to: "/admin/aircrafts/#{squawk.aircraft_id}")
   end
 
