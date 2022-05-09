@@ -214,6 +214,9 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field(:simulator_id, :integer)
     field(:room_id, :integer)
     field :parent_id, :integer
+
+    field :inserted_at, :naive_datetime
+    field :updated_at, :naive_datetime
 #    field :user, :user
 #    field :instructor, :user
 #    field :aircraft, :aircraft
