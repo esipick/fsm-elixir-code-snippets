@@ -158,7 +158,9 @@ defmodule FlightWeb.API.AppointmentView do
         Optional.map(
           appointment.aircraft,
           &render(FlightWeb.API.AircraftView, "aircraft.json", aircraft: &1)
-        )
+        ),
+      updated_at: appointment.updated_at,
+      inserted_at: appointment.inserted_at
     }
   end
 

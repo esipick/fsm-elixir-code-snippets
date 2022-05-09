@@ -52,6 +52,7 @@
         <h5 class="modal-title" id="apptTitle">Create New</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
+      <p id="appCreatedAt" style="color: #c5c5cc; margin-left: 25px;font-size: 11px;"></p>
 
       <div class="modal-body">
         <%# <ul id="apptTabs" class="nav nav-pills nav-pills-primary" role="tablist">

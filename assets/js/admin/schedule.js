@@ -1384,6 +1384,12 @@ $(document).ready(function () {
   });
 
   var openAppointmentModal = function (initialData) {
+    if(initialData.inserted_at){
+      $('#appCreatedAt').text(initialData.inserted_at.format(displayFormat))
+    }else{
+      $('#appCreatedAt').text("")
+    }
+
     appointmentOrUnavailabilityId = initialData.id;
     appointmentData = initialData
     const isStudent = userInfo.roles.includes("student")
@@ -2198,7 +2204,9 @@ $(document).ready(function () {
             type: appointment.type,
             payer_name: payerTitle(appointment),
             id: appointment.id,
-            parent_id: appointment.parent_id
+            parent_id: appointment.parent_id,
+            updated_at: moment.utc(appointment.updated_at).add(+(moment(appointment.updated_at).utcOffset()), 'm'),
+            inserted_at: moment.utc(appointment.inserted_at).add(+(moment(appointment.inserted_at).utcOffset()), 'm'),
           })
 
           return;
@@ -2249,6 +2257,8 @@ $(document).ready(function () {
             id: appointment.id,
             parent_id: appointment.parent_id,
             type: appointment.type,
+            updated_at: moment.utc(appointment.updated_at).add(+(moment(appointment.updated_at).utcOffset()), 'm'),
+            inserted_at: moment.utc(appointment.inserted_at).add(+(moment(appointment.inserted_at).utcOffset()), 'm'),
             mechanic_user_id
           })
         }
