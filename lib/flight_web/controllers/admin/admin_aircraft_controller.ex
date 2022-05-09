@@ -4,13 +4,14 @@ defmodule FlightWeb.Admin.AircraftController do
   alias Flight.Scheduling
   alias Flight.Scheduling.Aircraft
   alias Flight.Repo
+  alias Flight.Accounts
   alias Fsm.Inspections
   alias Fsm.Aircrafts.InspectionData
   alias Fsm.Aircrafts.ExpiredInspection
 
   import FlightWeb.Admin.AssetsHelper
 
-  plug(:get_aircraft when action in [:logs, :show, :edit, :update, :delete])
+  plug(:get_aircraft when action in [:logs, :show, :view, :edit, :update, :delete])
 
   def create(conn, %{"data" => aircraft_data}) do
     redirect_to = get_redirect_param(aircraft_data)
@@ -69,6 +70,15 @@ defmodule FlightWeb.Admin.AircraftController do
     |> render("show.html", aircraft: aircraft, squawks: squawks, inspections: inspections, skip_shool_select: true)
   end
 
+  def view(conn, _params) do
+    aircraft = conn.assigns.aircraft
+    user = conn.assigns.current_user
+    squawks = Fsm.Squawks.get_squawks({aircraft.id, user.id})
+
+    conn
+    |> render("view.html", aircraft: aircraft, squawks: squawks, skip_shool_select: true)
+  end
+
   def logs(conn, params) do
     search_term = Map.get(params, "search", "")
     page_params = FlightWeb.Pagination.params(params)
@@ -124,7 +134,7 @@ defmodule FlightWeb.Admin.AircraftController do
     |> redirect(to: params["redirect_to"] || "/admin/aircrafts")
   end
 
-  defp get_aircraft(conn, _) do
+  defp get_aircraft(%{assigns: %{current_user: current_user}} = conn, _) do
     aircraft = Scheduling.get_aircraft(conn.params["id"] || conn.params["aircraft_id"], conn)
 
     cond do
@@ -136,7 +146,11 @@ defmodule FlightWeb.Admin.AircraftController do
         |> put_flash(:error, "Aircraft already removed.")
         |> redirect(to: "/admin/aircrafts")
         |> halt()
-
+      Accounts.has_role?(current_user, "instructor") || Accounts.has_role?(current_user, "student") ->
+        conn
+        |> put_flash(:error, "Unknown aircraft.")
+        |> redirect(to: "/aircrafts/list")
+        |> halt()
       true ->
         conn
         |> put_flash(:error, "Unknown aircraft.")
@@ -149,5 +163,15 @@ defmodule FlightWeb.Admin.AircraftController do
     if String.trim(search_param) == "" do
       "Please fill out search field"
     end
+  end
+
+  def list(conn, params) do
+    search_term = Map.get(params, "search", "")
+    page_params = FlightWeb.Pagination.params(params)
+    data = FlightWeb.Admin.AircraftListData.build(conn, page_params, search_term)
+    message = params["search"] && set_message(params["search"])
+
+    conn
+    |> render("list.html", data: data, message: message, tab: :aircraft)
   end
 end
