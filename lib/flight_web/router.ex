@@ -241,6 +241,12 @@ defmodule FlightWeb.Router do
     end
   end
 
+  scope "/aircrafts", FlightWeb.Admin do
+    pipe_through([:browser, :admin_layout, :web_user_authenticate])
+    get("/list", AircraftController, :list)
+    get("/:id", AircraftController, :view)
+  end
+
   # Onboarding admin pages
   scope "/admin", FlightWeb.Admin do
     pipe_through([:browser, :admin_layout, :admin_authenticate, :admin_metrics_namespace])
