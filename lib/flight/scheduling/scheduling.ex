@@ -540,8 +540,20 @@ defmodule Flight.Scheduling do
       IO.inspect("end_at #{inspect get_field(changeset, :end_at)}")
       IO.inspect("inst_end_at #{inspect get_field(changeset, :inst_end_at)}")
 
-      start_at = get_field(changeset, :inst_start_at) # |> utc_to_walltime(school.timezone)
-      end_at = get_field(changeset, :inst_end_at) # |> utc_to_walltime(school.timezone)
+      start_at = case get_field(changeset, :inst_start_at) do
+        nil->
+          get_field(changeset, :start_at)
+        _->
+          get_field(changeset, :inst_start_at)
+      end
+
+      end_at = case get_field(changeset, :inst_end_at) do
+        nil->
+          get_field(changeset, :end_at)
+        _->
+          get_field(changeset, :inst_end_at)
+      end
+
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
       mechanic_user_id = get_field(changeset, :mechanic_user_id)
