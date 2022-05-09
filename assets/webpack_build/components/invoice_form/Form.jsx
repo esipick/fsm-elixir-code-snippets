@@ -40,7 +40,7 @@ class Form extends Component {
     super(props);
 
     this.formRef = null;
-    console.log(props)
+    
     const { creator, staff_member, appointment } = props;
     const demo = appointment && appointment.demo
     const appointments = appointment ? [appointment] : [];
@@ -344,7 +344,8 @@ class Form extends Component {
   setPaymentMethod = (option) => { this.setState({ payment_method: option }); }
 
   onLineItemsTableChange = (values) => {
-    if(isMaintenanceInvoice({}, values.line_items)) {
+    if(
+      isMaintenanceInvoice({}, values.line_items)) {
        this.setState({
          ...(values ?? {}),
          hobb_tach_warning_accepted: false,
@@ -891,7 +892,9 @@ class Form extends Component {
                       current_user_id={this.state.current_user_id}
                       user_roles = {this.state.user_roles}
                       is_admin_invoice = {is_admin_invoice}
-                      course={this.props.course} />
+                      course={this.props.course} 
+                      is_maintenance_invoice = {maintenanceInvoice}
+                      />
                   }
               </div>
 

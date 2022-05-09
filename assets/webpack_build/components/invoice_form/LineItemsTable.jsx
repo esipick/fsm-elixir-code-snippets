@@ -75,7 +75,7 @@ class LineItemsTable extends Component {
 
   render() {
     var { total, total_tax, total_amount_due } = this.state;
-    const { aircrafts, simulators, custom_line_items, errors, instructors, rooms, sales_tax,is_admin_invoice, appointment } = this.props;
+    const { aircrafts, simulators, custom_line_items, errors, instructors, rooms, sales_tax,is_admin_invoice, appointment, is_maintenance_invoice } = this.props;
     const line_items = this.lineItems();
     const line_items_errors = errors.line_items || [];
     
@@ -102,8 +102,7 @@ class LineItemsTable extends Component {
           </tr>
         </thead>
         <tbody>
-          {
-            line_items.map((line_item, i) => (
+          { line_items.map((line_item, i) => (
               <LineItem aircrafts={aircrafts}
                 simulators={simulators}
                 canRemove={line_items.length > 1}
@@ -123,7 +122,8 @@ class LineItemsTable extends Component {
                 current_user_id={this.state.current_user_id}
                 user_roles = {this.state.user_roles}
                 is_admin_invoice = {this.props.is_admin_invoice}
-                course={this.props.course} />
+                course={this.props.course} 
+                is_maintenance_invoice = {is_maintenance_invoice}/>
             ))
           }
 
