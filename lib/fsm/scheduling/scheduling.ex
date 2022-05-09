@@ -241,9 +241,8 @@ defmodule Fsm.Scheduling do
       {:ok, _} = apply_action(changeset, :insert)
 
       # |> utc_to_walltime(school.timezone)
-      start_at = get_field(changeset, :start_at)
-      # |> utc_to_walltime(school.timezone)
-      end_at = get_field(changeset, :end_at)
+      start_at = get_field(changeset, :inst_start_at) # |> utc_to_walltime(school.timezone)
+      end_at = get_field(changeset, :inst_end_at) # |> utc_to_walltime(school.timezone)
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
       mechanic_user_id = get_field(changeset, :mechanic_user_id)

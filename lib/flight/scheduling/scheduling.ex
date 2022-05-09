@@ -534,9 +534,14 @@ defmodule Flight.Scheduling do
        |> Appointment.changeset(%{}, school.timezone)
 
       {:ok, _} = apply_action(changeset, :insert)
+      IO.inspect("start_at #{inspect get_field(changeset, :start_at)}")
+      IO.inspect("inst_start_at #{inspect get_field(changeset, :inst_start_at)}")
 
-      start_at = get_field(changeset, :start_at) # |> utc_to_walltime(school.timezone)
-      end_at = get_field(changeset, :end_at) # |> utc_to_walltime(school.timezone)
+      IO.inspect("end_at #{inspect get_field(changeset, :end_at)}")
+      IO.inspect("inst_end_at #{inspect get_field(changeset, :inst_end_at)}")
+
+      start_at = get_field(changeset, :inst_start_at) # |> utc_to_walltime(school.timezone)
+      end_at = get_field(changeset, :inst_end_at) # |> utc_to_walltime(school.timezone)
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
       mechanic_user_id = get_field(changeset, :mechanic_user_id)
