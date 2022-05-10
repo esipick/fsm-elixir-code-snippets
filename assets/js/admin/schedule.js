@@ -869,11 +869,11 @@ $(document).ready(function () {
       var eventApptType = $('#apptType').val();
       if ( eventApptType == 'flight_lesson' ) {
         const aptFor = $('#apptFor').val();
-        if ( aptFor == 'Aircraft' && !eventAircraft ) {
-          showAlert('Aircraft is required.', 'danger')
-          $('#loader').hide();
-          return;
-        }
+        // if ( aptFor == 'Aircraft' && !eventAircraft ) {
+        //   showAlert('Aircraft is required.', 'danger')
+        //   $('#loader').hide();
+        //   return;
+        // }
         if ( aptFor == 'Simulator' && !eventSimulator ) {
           showAlert('Simulator is required.', 'danger')
           $('#loader').hide();
