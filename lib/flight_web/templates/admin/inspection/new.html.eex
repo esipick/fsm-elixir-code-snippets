@@ -40,7 +40,7 @@
             </div>
 
             <%= case @form_type do
-              :tach -> render("_tach_inputs.html", f: f, changeset: @changeset, aircraft: @aircraft)
+              :tach -> render("_tach_inputs.html", f: f, changeset: @changeset, last_tach_time: @aircraft.last_tach_time)
               :date -> render("_date_inputs.html", f: f, changeset: @changeset)
             end %>
 
