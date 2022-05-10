@@ -491,10 +491,11 @@ defmodule FlightWeb.Admin.InspectionController do
   defp validate_tach_value(last, next, last_type, next_type, aircraft_id) do
     aircraft = Repo.get_by(Aircraft, id: aircraft_id)
     last_tach_time = aircraft.last_tach_time
+    convertedLastValue = Flight.Format.tenths_from_hours(last)
     cond do
       last_type == :string or next_type == :string ->
         "Last or next inspection tach value should be a number"
-      last > last_tach_time ->
+      convertedLastValue < last_tach_time ->
         "Last inspection tach value should be greater than current inspection tach value"
       last > next or last == next ->
         "Next inspection tach value should be greater than last inspection tach value"
