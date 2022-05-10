@@ -149,8 +149,8 @@ defmodule Flight.Scheduling.Appointment do
       get_field(changeset, :type) == "flight_lesson" and
       ( get_field(changeset, :aircraft_id) == nil and
         get_field(changeset, :simulator_id) == nil and get_field(changeset, :room_id) == nil) ->
-
-        add_error(changeset, :resource, "(aircraft or simulator or room) is required.")
+        changeset
+        #add_error(changeset, :resource, "(aircraft or simulator or room) is required.")
 
       (get_field(changeset, :instructor_user_id) && get_field(changeset, :aircraft_id)) ||
       get_field(changeset, :type) != "meeting" && (get_field(changeset, :simulator_id) || get_field(changeset, :room_id)) ->
@@ -159,8 +159,8 @@ defmodule Flight.Scheduling.Appointment do
       get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :instructor_user_id) == nil and get_field(changeset, :simulator_id) == nil->
         add_error(changeset, :instructor, "is required.")
 
-      get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :aircraft_id) == nil->
-        add_error(changeset, :aircraft, "is required.")
+      # get_field(changeset, :type) == "flight_lesson" and get_field(changeset, :aircraft_id) == nil->
+      #   add_error(changeset, :aircraft, "is required.")
 
       (get_field(changeset, :type) == "airplane_rental" or get_field(changeset, :type) == "check_ride") ->
         if get_field(changeset, :aircraft_id) == nil do
