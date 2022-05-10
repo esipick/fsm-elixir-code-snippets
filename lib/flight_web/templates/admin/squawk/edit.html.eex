@@ -49,7 +49,7 @@
               <button class="btn btn-fill btn-primary" id="browseBtn">Browse Files</button>
               <%= file_input f, :attachments, id: "file_upload", class: "input-file", accept: "application/pdf, image/*", multiple: true, hidden: true %>
               <%= full_error_tag f, :attachments %>
-              <ul class="fileList">                 
+              <ul class="fileList">
               </ul>
             </div>
             <div class="row">
@@ -67,26 +67,25 @@
                       </div>
                     <% else %>
                     <div class="d-flex justify-content-start mr-div">
-                      <div class="img-container">                    
+                      <div class="img-container">
                         <img src="<%= attachment.url%>"/>
                       </div>
                       <i class="now-ui-icons ui-1_simple-remove deleteFile" onclick="deleteSquawkImage(<%= attachment.id%>)" data-toggle="tooltip" data-placement="top" title="Delete file: <%= attachment.file_name%>"></i>
                     </div>
-                    <% end %>                  
+                    <% end %>
                   <% end %>
                 </div>
               </div>
             </div>
-          <div class="card-footer text-right">
+          <div>
             <div class="pull-left">
               <button type="button" onclick="history.back()" class="btn btn-fill btn-default mr-2">Cancel</button>
               <input type="submit" class="btn btn-fill btn-primary" value="Save">
             </div>
-            <button
-              style="margin-left: 4px;"
-              type="button"
-              class="btn btn-danger btn-fill _delete_button"
-                data-squawk-id="<%= @squawk.id %>">Resolve squawk</button>
+            <div class="pull-right">
+                <button type="button" class="btn btn-danger btn-fill" onclick="resolveSquawk(<%= @squawk.id %>, <%= @squawk.aircraft_id %>)">Resolve squawk</button>
+                <button type="button" class="btn btn-danger btn-fill _delete_button" data-squawk-id="<%= @squawk.id %>">Delete squawk</button>
+            </div>
           </div>
         <% end %>
       </div>
@@ -97,7 +96,7 @@
 <!-- end content -->
 <%= render FlightWeb.Admin.PartialView,
           "_shared_delete_form.html",
-          %{message: "We are resolving the squawk.",
+          %{message: "We are deleting the squawk. Are you sure?",
             path: "/admin/squawks/",
             attribute: "squawk"} %>
 <style>
@@ -167,7 +166,7 @@
   }
 
   function deleteSquawkImage(id) {
-    
+
     var AUTH_HEADERS = { "Authorization": "Bearer "+window.graphql_token };
     const mutation = {
       "query": "mutation deleteSquawkAttachment($id: ID) {deleteSquawkImage(id: $id) {id}}",
@@ -189,7 +188,7 @@
         });
         return;
       }
-      
+
       window.location.reload();
       $.notify({
           message: 'File deleted successfully.'
@@ -206,6 +205,52 @@
           placement: { align: "center" }
         });
     })
+  }
+
+  function resolveSquawk(id, aircraft_id) {
+    if (window.confirm("We are resolving the squawk. Are you sure?")) {
+      var AUTH_HEADERS = { "Authorization": "Bearer "+window.graphql_token };
+      const mutation = {
+        "query": "mutation resolveSquawkItem($id: ID) {resolveSquawk(id: $id) {id}}",
+        "operationName": "resolveSquawkItem",
+        "variables": {"id": id}
+      }
+      $.ajax({
+            method: "POST",
+            url: "/api/graphql",
+            data: mutation,
+            headers: AUTH_HEADERS
+      }).then(response => {
+        if ( response.errors && response.errors.length > 0 ) {
+          $.notify({
+            message: 'Unable to resolve squawk.'
+          }, {
+            type: "danger",
+            placement: { align: "center" }
+          });
+          return;
+        }
+
+        window.location.href = `/admin/aircrafts/${aircraft_id}`
+        $.notify({
+            message: 'Squawk resolved successfully.'
+          }, {
+            type: "success",
+            placement: { align: "center" }
+          });
+      })
+      .catch(error => {
+        $.notify({
+            message: 'Unable to resolve squawk.'
+          }, {
+            type: "danger",
+            placement: { align: "center" }
+          });
+      })
+    }
+    else {
+      return;
+    }
   }
 
   button.onclick = (event)=>{
@@ -226,7 +271,7 @@
   //If user drop File on DropArea
   dropArea.addEventListener("drop", (event)=>{
     event.preventDefault(); //preventing from default behaviour
-    input.files = event.dataTransfer.files;   
+    input.files = event.dataTransfer.files;
     showFiles();
   });
 
