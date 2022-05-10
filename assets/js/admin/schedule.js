@@ -737,6 +737,100 @@ $(document).ready(function () {
     }
   }
 
+  var deleteEvent = function(appointmentOrUnavailabilityId, eventType, event) {
+    
+    let promise = null;
+    if (eventType == "appt") {
+      promise = $.ajax({
+        method: "delete",
+        url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+        headers: AUTH_HEADERS
+      })
+    } else if (eventType == "demoAppt") {
+      promise = $.ajax({
+        method: "delete",
+        url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+        headers: AUTH_HEADERS
+      })
+    } else if(eventType === "maintenance") {
+      promise = $.ajax({
+        method: "delete",
+        url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+        headers: AUTH_HEADERS
+      })
+    } else {
+      promise = $.ajax({
+        method: "delete",
+        url: "/api/unavailabilities/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+        headers: AUTH_HEADERS
+      })
+    }
+
+    promise.then(function () {
+      $('#calendarNewModal').modal('hide')
+      $calendar.fullCalendar('refetchEvents')
+
+      $.notify({
+        message: "Successfully deleted " + event
+      }, {
+        type: "success",
+        placement: { align: "center" }
+      })
+
+    }).catch(function (e) {
+      if (e.responseJSON.human_errors) {
+        showError(e.responseJSON.human_errors, event)
+      } else {
+        $.notify({
+          message: "There was an error deleting the event"
+        }, {
+          type: "danger",
+          placement: { align: "center" }
+        })
+      }
+      $('#loader').hide();
+    })
+  }
+
+  var askDeleteReason = function(appointmentOrUnavailabilityId, eventType, event) {
+    $.confirm({
+      title: '',
+      content: '<p>Please enter reason to delete this event.</p>' +
+      '<form action="" class="deleteReasonForm">' +
+      '<div class="form-group">' +
+      '<textarea class="deleteReasonFormField form-control"></textarea>' +
+      '</div>' +
+      '</form>',
+      buttons: {
+          formSubmit: {
+              text: 'Delete',
+              btnClass: 'btn btn-danger ml-0',
+              action: function () {
+                  var name = this.$content.find('.deleteReasonFormField').val();
+                  if(!name){
+                      $.alert('Reason cannot be empty!');
+                      return false;
+                  }
+                  deleteEvent(appointmentOrUnavailabilityId, eventType, event);
+              }
+          },
+          cancel:  {
+              text: 'Cancel',
+              btnClass: 'btn btn-primary ml-0'
+          },
+      },
+      onContentReady: function () {
+          // bind to events
+          var jc = this;
+          this.$content.find('.deleteReasonForm').on('submit', function (e) {
+              // if the user submits the form by pressing enter in the field.
+              e.preventDefault();
+              jc.$$formSubmit.trigger('click'); // reference the button and click it
+          });
+      }
+  });
+  }
+
   // collect event data on save and send to server
   $('#btnSave').click(function () {
     console.log("save Button Clicked")
@@ -1125,9 +1219,8 @@ $(document).ready(function () {
       return;
     }
     if (appointmentOrUnavailabilityId) {
-      var promise = null;
       var buttonPos = $(this).offset();
-
+      
       var event;
       if (eventType == "appt") {
         event = "appointment"
@@ -1138,63 +1231,20 @@ $(document).ready(function () {
       } else {
         event = "unavailability"
       }
+      const isInstructor = userInfo.roles.includes("instructor")
+      const start_at = moment(appointmentData.start_at)
+      const now = moment();
+      if ( isInstructor && (now > start_at)) {
+        askDeleteReason(appointmentOrUnavailabilityId, eventType, event);
+        return;
+      }
 
       if(!window.confirm("You cannot undo this action, Are you sure you want to delete this " + event + " ?")){
         return;
       }
-
       $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
-
-      if (eventType == "appt") {
-        promise = $.ajax({
-          method: "delete",
-          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
-          headers: AUTH_HEADERS
-        })
-      } else if (eventType == "demoAppt") {
-        promise = $.ajax({
-          method: "delete",
-          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
-          headers: AUTH_HEADERS
-        })
-      } else if(eventType === "maintenance") {
-        promise = $.ajax({
-          method: "delete",
-          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
-          headers: AUTH_HEADERS
-        })
-      } else {
-        promise = $.ajax({
-          method: "delete",
-          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
-          headers: AUTH_HEADERS
-        })
-      }
-
-      promise.then(function () {
-        $('#calendarNewModal').modal('hide')
-        $calendar.fullCalendar('refetchEvents')
-
-        $.notify({
-          message: "Successfully deleted " + event
-        }, {
-          type: "success",
-          placement: { align: "center" }
-        })
-
-      }).catch(function (e) {
-        if (e.responseJSON.human_errors) {
-          showError(e.responseJSON.human_errors, event)
-        } else {
-          $.notify({
-            message: "There was an error deleting the event"
-          }, {
-            type: "danger",
-            placement: { align: "center" }
-          })
-        }
-        $('#loader').hide();
-      })
+      deleteEvent(appointmentOrUnavailabilityId, eventType, event);
+      
     }
   });
 
@@ -1313,8 +1363,8 @@ $(document).ready(function () {
 
   $('#btnDeleteThis').click(function () {
     if (appointmentOrUnavailabilityId) {
-      var promise = null;
       var buttonPos = $(this).offset();
+      
 
       var event;
       if (eventType == "appt") {
@@ -1327,59 +1377,16 @@ $(document).ready(function () {
         event = "unavailability"
       }
 
-      $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
-
-      if (eventType == "appt") {
-        promise = $.ajax({
-          method: "delete",
-          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
-          headers: AUTH_HEADERS
-        })
-      } else if (eventType == "demoAppt") {
-        promise = $.ajax({
-          method: "delete",
-          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
-          headers: AUTH_HEADERS
-        })
-      } else if(eventType === "maintenance") {
-        promise = $.ajax({
-          method: "delete",
-          url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
-          headers: AUTH_HEADERS
-        })
-      } else {
-        promise = $.ajax({
-          method: "delete",
-          url: "/api/unavailabilities/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
-          headers: AUTH_HEADERS
-        })
+      const isInstructor = userInfo.roles.includes("instructor")
+      const start_at = moment(appointmentData.start_at)
+      const now = moment();
+      if ( isInstructor && (now > start_at)) {
+        askDeleteReason(appointmentOrUnavailabilityId, eventType, event);
+        return;
       }
-
-      promise.then(function () {
-        $('#calendarNewModal').modal('hide')
-        $('#deleteRecurringEvent').modal('hide')
-        $calendar.fullCalendar('refetchEvents')
-
-        $.notify({
-          message: "Successfully deleted " + event
-        }, {
-          type: "success",
-          placement: { align: "center" }
-        })
-
-      }).catch(function (e) {
-        if (e.responseJSON.human_errors) {
-          showError(e.responseJSON.human_errors, event)
-        } else {
-          $.notify({
-            message: "There was an error deleting the event"
-          }, {
-            type: "danger",
-            placement: { align: "center" }
-          })
-        }
-        $('#loader').hide();
-      })
+      
+      $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
+      deleteEvent(appointmentOrUnavailabilityId, eventType, event);
     }
   });
 

@@ -36,6 +36,7 @@ exports.config = {
           "js/admin/vendor/chartjs.min.js",
           "js/admin/vendor/bootstrap-notify.js",
           "js/admin/vendor/now-ui-dashboard.js",
+          "js/admin/vendor/jquery-confirm.min.js",
           "js/admin/schedule.js",
           "js/admin/school-select.js"
         ]
