@@ -12,7 +12,7 @@ defmodule Flight.Email do
     |> from({"Flight School Manager", "noreply@flightschoolmanager.co"})
     |> with_template(Application.get_env(:flight, :appointment_unavailability_template_id))
     |> add_dynamic_field("FIRST_NAME", user.first_name)
-    |> IO.inspect()
+    |> Flight.Mailer.deliver_later
   end
 
   def unavailability_email(user) when user == nil do
