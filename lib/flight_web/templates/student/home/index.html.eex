@@ -146,26 +146,75 @@
       </div>
     </div> %>
     <div class="col-md-6">
-      <%# <div class="card card-chart">
+      <%= render(FlightWeb.Notification.NotificationView, "widget.html", conn: @conn) %>
+      <div class="card card-chart">
         <div class="card-header">
           <h5 class="card-category">Asset Alerts</h5>
         </div>
         <div class="card-body">
-          <div class="table-responsive">
-              <table class="table">
-                <tbody>
-                
-                </tbody>
-              </table>
-            </div>
+          <%= if Enum.any?(@assets) do %>
+            <%= for aircraft <- @assets do %>
+                    <a href="/aircrafts/<%= aircraft.id %>"><%= aircraft_display_name(aircraft) %></a>
+                    <h5>Inspections</h5>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Name</th>
+                          <th scope="col">Type</th>
+                          <th scope="col">Date/Tach</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <%= for inspection <- aircraft.inspections do %>
+                          <tr>
+                              <td class="text-nowrap"><%= inspection.name %> &nbsp;&nbsp;</td>
+                              <td class="text-nowrap"><%= inspection.type %> &nbsp;&nbsp;</td>
+                              <td>
+                                <%= if inspection.date_tach do %>
+                                  <%= inspection.date_tach %>
+                                <% else %>
+                                  <%= inspection.tach_hours %>
+                                <% end %>
+                              </td>
+                            </tr>
+                          <%# <%= if ExpiredInspection.inspection_is_due(inspection) do %>
+                            
+                          <%# <% end %> 
+                        <% end %>
+                      </tbody>
+                    </table>
+                    <h5>Squawks</h5>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Title</th>
+                          <th scope="col">System Affected</th>
+                          <th scope="col">Severity</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <%= for squawk <- aircraft.squawks do %>
+                          <tr>
+                            <td class="text-nowrap"><%= squawk.title %> </td>
+                            <td class="text-nowrap"><%= squawk.system_affected %> </td>
+                            <td class="text-nowrap"><%= squawk.severity %> </td>
+                          </tr>
+                        <% end %>
+                      </tbody>
+                    </table>
+            <% end %>
+            
+          <% else %>
+            <h5>No Assets User assigned to.</h5>
+          <% end %>
         </div>
         <div class="card-footer">
           <div class="stats">
             <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
           </div>
         </div>
-      </div> %>
-       <%= render(FlightWeb.Notification.NotificationView, "widget.html", conn: @conn) %> 
+      </div>
+        
       <div class="card card-chart">
         <div class="card-header">
           <h5 class="card-category">Billing Alerts</h5>
