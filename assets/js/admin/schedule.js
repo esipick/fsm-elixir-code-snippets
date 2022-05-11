@@ -791,13 +791,18 @@ $(document).ready(function () {
       $('#loader').hide();
     })
   }
-
+  
   var askDeleteReason = function(appointmentOrUnavailabilityId, eventType, event) {
     $.confirm({
       title: '',
       content: '<p>Please enter reason to delete this event.</p>' +
       '<form action="" class="deleteReasonForm">' +
       '<div class="form-group">' +
+      '<input type="checkbox" /><label>&nbsp;&nbsp;Weather</label><br/>'+
+      '<input type="checkbox" /><label>&nbsp;&nbsp;Plane not available</label><br/>'+
+      '<input type="checkbox" /><label>&nbsp;&nbsp;Instructor not available</label><br/>'+
+      '<input type="checkbox" /><label>&nbsp;&nbsp;Student not available</label><br/>'+
+      '<input type="checkbox" /><label>&nbsp;&nbsp;Other:</label>'+
       '<textarea class="deleteReasonFormField form-control"></textarea>' +
       '</div>' +
       '</form>',
