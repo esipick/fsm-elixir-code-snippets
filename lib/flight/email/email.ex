@@ -146,81 +146,76 @@ defmodule Flight.Email do
   end
 
   def squawk_created_email_notification(destination_user, creating_user, squawk) do
+    title = "Squawk Created"
+    description = "A squawk for plane "<>squawk.aircraft.make<>" "<>squawk.aircraft.model<>" - "<>squawk.aircraft.tail_number<>" has been created by "<>creating_user.first_name<>" "<>creating_user.last_name<>"."
+
     # attachment = Bamboo.Attachment.new(path, filename: "invoice-#{invoice_no}.pdf", content_type: "application/pdf")
     # IO.inspect("attachment: #{inspect attachment}")
     new_email()
     |> to(destination_user.email)
     |> put_layout({FlightWeb.EmailView, "invitation"})
     |> from({"Flight School Manager", "noreply@flightschoolmanager.co"})
-    |> subject("Squawk Created")
+    |> subject(title)
     |> render(
       "_squawk.html",
-      operation: "created",
-      by_user_name: creating_user.first_name <> " " <> creating_user.last_name,
       destination_user_first_name: destination_user.first_name,
-      squawk_aircraft_make: squawk.aircraft.make,
-      squawk_aircraft_model: squawk.aircraft.model,
-      squawk_aircraft_tail_number: squawk.aircraft.tail_number
+      description: description
     )
     # |> put_attachment(attachment)
   end
 
   def squawk_updated_email_notification(destination_user, updating_user, squawk) do
+    title = "Squawk Updated"
+    description = "A squawk for plane "<>squawk.aircraft.make<>" "<>squawk.aircraft.model<>" - "<>squawk.aircraft.tail_number<>" has been updated by "<>updating_user.first_name<>" "<>updating_user.last_name<>"."
+
     # attachment = Bamboo.Attachment.new(path, filename: "invoice-#{invoice_no}.pdf", content_type: "application/pdf")
     # IO.inspect("attachment: #{inspect attachment}")
     new_email()
     |> to(destination_user.email)
     |> put_layout({FlightWeb.EmailView, "invitation"})
     |> from({"Flight School Manager", "noreply@flightschoolmanager.co"})
-    |> subject("Squawk Updated")
+    |> subject(title)
     |> render(
       "_squawk.html",
-      operation: "updated",
-      by_user_name: updating_user.first_name <> " " <> updating_user.last_name,
       destination_user_first_name: destination_user.first_name,
-      squawk_aircraft_make: squawk.aircraft.make,
-      squawk_aircraft_model: squawk.aircraft.model,
-      squawk_aircraft_tail_number: squawk.aircraft.tail_number
+      description: description
     )
     # |> put_attachment(attachment)
   end
 
   def squawk_resolved_email_notification(destination_user, resolving_user, squawk) do
+    title = "Squawk Resolved"
+    description = "A squawk for plane "<>squawk.aircraft.make<>" "<>squawk.aircraft.model<>" - "<>squawk.aircraft.tail_number<>" has been resolved by "<>resolving_user.first_name<>" "<>resolving_user.last_name<>"."
+
     # attachment = Bamboo.Attachment.new(path, filename: "invoice-#{invoice_no}.pdf", content_type: "application/pdf")
     # IO.inspect("attachment: #{inspect attachment}")
     new_email()
     |> to(destination_user.email)
     |> put_layout({FlightWeb.EmailView, "invitation"})
     |> from({"Flight School Manager", "noreply@flightschoolmanager.co"})
-    |> subject("Squawk Resolved")
+    |> subject(title)
     |> render(
       "_squawk.html",
-      operation: "resolved",
-      by_user_name: resolving_user.first_name <> " " <> resolving_user.last_name,
       destination_user_first_name: destination_user.first_name,
-      squawk_aircraft_make: squawk.aircraft.make,
-      squawk_aircraft_model: squawk.aircraft.model,
-      squawk_aircraft_tail_number: squawk.aircraft.tail_number
+      description: description
     )
     # |> put_attachment(attachment)
   end
 
   def squawk_deleted_email_notification(destination_user, deleting_user, squawk) do
+    title = "Squawk Deleted"
+    description = "A squawk for plane "<>squawk.aircraft.make<>" "<>squawk.aircraft.model<>" - "<>squawk.aircraft.tail_number<>" has been deleted by "<>deleting_user.first_name<>" "<>deleting_user.last_name<>"."
     # attachment = Bamboo.Attachment.new(path, filename: "invoice-#{invoice_no}.pdf", content_type: "application/pdf")
     # IO.inspect("attachment: #{inspect attachment}")
     new_email()
     |> to(destination_user.email)
     |> put_layout({FlightWeb.EmailView, "invitation"})
     |> from({"Flight School Manager", "noreply@flightschoolmanager.co"})
-    |> subject("Squawk Deleted")
+    |> subject(title)
     |> render(
       "_squawk.html",
-      operation: "deleted",
-      by_user_name: deleting_user.first_name <> " " <> deleting_user.last_name,
       destination_user_first_name: destination_user.first_name,
-      squawk_aircraft_make: squawk.aircraft.make,
-      squawk_aircraft_model: squawk.aircraft.model,
-      squawk_aircraft_tail_number: squawk.aircraft.tail_number
+      description: description
     )
     # |> put_attachment(attachment)
   end

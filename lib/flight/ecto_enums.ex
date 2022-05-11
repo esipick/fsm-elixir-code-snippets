@@ -56,5 +56,9 @@ defenum(
 
 defenum(
   AlertCodeEnum,
-  squawk_issue: "SQK-001"
+  squawk: "sqk",
+  appointment: "appt",
+  unavailability: "unavail",
+  aircraft: "aircraft",
+  payment: "pmt"
 )

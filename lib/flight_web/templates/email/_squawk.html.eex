@@ -9,7 +9,7 @@
 
               Hey <%= @destination_user_first_name %>!<br />
 <br />
-A squawk for plane <%= @squawk_aircraft_make %> <%= @squawk_aircraft_model %> - <%= @squawk_aircraft_tail_number %> has been <%= @operation %> by <%= @by_user_name %>.</div>
+<%= @description %>.</div>
 
 <div style="text-align: center;">&nbsp;</div>
 
