@@ -165,7 +165,7 @@
           </div>
         </div>
       </div> %>
-       <%# <%= render(FlightWeb.Shared.NotificationWidgetView, "index.html", conn: @conn) %> 
+       <%= render(FlightWeb.Notification.NotificationView, "widget.html", conn: @conn) %> 
       <div class="card card-chart">
         <div class="card-header">
           <h5 class="card-category">Billing Alerts</h5>

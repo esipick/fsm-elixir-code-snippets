@@ -1,0 +1,215 @@
+<div class="panel-header panel-header-sm">
+  <div class="header text-center"></div>
+</div>
+
+<div class="content">
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel">
+        <div class="header">
+            <div class="menu-icon">
+            <div class="dash-top"></div>
+            <div class="dash-bottom"></div>
+            <div class="circle"></div>
+            </div><span class="title">Notifications</span>
+        </div>        
+        <div class="notifications clearfix">
+            <div class="d-flex justify-content-between noti-filter">
+                <ul class="nav nav-pills nav-pills-primary" role="tablist">
+                    <li class="nav-item">
+                    <a class="nav-link active" href="/notifications?all=true" role="tablist" aria-expanded="false">
+                        All
+                    </a>
+                    </li>
+
+                    <li class="nav-item">
+                    <a class="nav-link" href="/notifications?unread=true" role="tablist" aria-expanded="true">
+                        Unread
+                    </a>
+                    </li>
+                </ul>
+            </div>
+            <%= if Enum.any?(@notifications) do %>
+                    <%= for noti <- @notifications do %>
+                        <div class="notification">
+                            <div class="circle active"></div>                         
+                            <span class="time"><%= noti.time %></span>
+                            <p><%= noti.title %></p>
+                        </div>
+                    <%end%>
+                </div>
+            </div>
+            <% else %>
+                <div class="card-body">No notifications found</div>
+            <% end %>            
+        </div>
+    </div>   
+  </div>
+</div>
+<style>
+.panel {
+  background: #fff;
+  border-radius: 3px;
+  overflow: hidden;
+  -webkit-box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+          box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+  -webkit-transition: all .5s ease-in-out;
+  transition: all .5s ease-in-out;
+}
+.panel .header {
+  height: 60px;
+  width: 100%;
+  background: #1B95E0;
+}
+.panel .header .menu-icon {
+  position: absolute;
+  width: 29px;
+  height: 15px;
+  top: 23px;
+  left: 20px;
+  cursor: pointer;
+}
+.panel .header .menu-icon:hover .dash-top, .panel .header .menu-icon:hover .dash-bottom,
+.panel .header .menu-icon:hover .dash-bottom,
+.panel .header .menu-icon:hover .circle {
+  background: #fff;
+}
+.panel .header .menu-icon .dash-top, .panel .header .menu-icon .dash-bottom {
+  position: absolute;
+  width: 20px;
+  height: 3px;
+  top: 0;
+  left: 0;
+  background: #B2DAFF;
+  border-radius: 3px;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+.panel .header .menu-icon .dash-bottom {
+  width: 29px;
+  top: auto;
+  bottom: 0;
+}
+.panel .header .menu-icon .circle {
+  position: absolute;
+  height: 7px;
+  width: 7px;
+  border-radius: 4px;
+  top: -2px;
+  right: 0;
+  background: #B2DAFF;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+.panel .header .title {
+  display: block;
+  text-align: center;
+  line-height: 60px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+}
+.panel .noti-filter {
+   margin: 0px 0px 40px 20px;
+}
+.panel .notifications {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+.panel .notifications .line {
+  position: absolute;
+  top: 0;
+  left: 27px;
+  bottom: 0;
+  width: 3px;
+  background: #EBEBEB;
+}
+.panel .notifications .notification {
+  position: relative;
+  z-index: 2;
+  margin: 25px 20px 25px 43px;
+}
+.panel .notifications .notification:nth-child(2) {
+  -webkit-animation: here-am-i 0.5s ease-out 0.4s;
+          animation: here-am-i 0.5s ease-out 0.4s;
+  -webkit-animation-fill-mode: both;
+          animation-fill-mode: both;
+}
+.panel .notifications .notification:nth-child(3) {
+  -webkit-animation: here-am-i 0.5s ease-out 0.6s;
+          animation: here-am-i 0.5s ease-out 0.6s;
+  -webkit-animation-fill-mode: both;
+          animation-fill-mode: both;
+}
+.panel .notifications .notification:nth-child(4) {
+  -webkit-animation: here-am-i 0.5s ease-out 0.8s;
+          animation: here-am-i 0.5s ease-out 0.8s;
+  -webkit-animation-fill-mode: both;
+          animation-fill-mode: both;
+}
+.panel .notifications .notification:hover {
+  color: #1B95E0;
+  cursor: pointer;
+}
+.panel .notifications .notification .circle {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  position: absolute;
+  height: 11px;
+  width: 11px;
+  background: #fff;
+  border: 2px solid #1B95E0;
+  -webkit-box-shadow: 0 0 0 3px #fff;
+          box-shadow: 0 0 0 3px #fff;
+  border-radius: 6px;
+  top: 0;
+  left: -20px;
+}
+
+.panel .notifications .notification .circle.active {
+  background: #1B95E0;
+}
+
+.panel .notifications .notification .time {
+  display: block;
+  font-size: 11px;
+  line-height: 11px;
+  margin-bottom: 2px;
+}
+.panel .notifications .notification p {
+  font-size: 15px;
+  line-height: 20px;
+  margin: 0;
+}
+.panel .notifications .notification p b {
+  font-weight: 600;
+}
+@-webkit-keyframes here-am-i {
+  from {
+    -webkit-transform: translate3d(0, 50px, 0);
+            transform: translate3d(0, 50px, 0);
+    opacity: 0;
+  }
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes here-am-i {
+  from {
+    -webkit-transform: translate3d(0, 50px, 0);
+            transform: translate3d(0, 50px, 0);
+    opacity: 0;
+  }
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+</style>
