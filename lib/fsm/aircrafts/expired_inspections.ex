@@ -1,13 +1,13 @@
 defmodule Fsm.Aircrafts.ExpiredInspection do
     use Timex
-    
+
     alias Fsm.Aircrafts.Inspection
     alias Fsm.Aircrafts.InspectionData
     alias Fsm.Aircrafts.InspectionQueries
     alias Flight.Repo
-    
+
     defstruct [:aircraft, :inspection, :description, :status]
-  
+
     def inspections_for_aircrafts(aircrafts) do
 
     inspections_query = InspectionQueries.get_not_completed_inspections_query()
@@ -22,7 +22,7 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
                 |> Enum.reduce(%{}, fn (item, agg) ->
                     value = InspectionData.value_from_t_field(item)
                     case item.class_name do
-                       "last_inspection" -> 
+                       "last_inspection" ->
                             Map.put(agg, :last_inspection, value)
                         "next_inspection" ->
                             Map.put(agg, :next_inspection, value)
@@ -30,7 +30,7 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
                 end)
             Map.merge(inspection, inspection_data)
         end)
-    
+
       Enum.reduce(inspections, [], fn inspection, expired_inspections ->
         case inspection_status(inspection) do
           status when status in [:expiring, :expired] ->
@@ -43,13 +43,13 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
               }
               | expired_inspections
             ]
-  
+
           _ ->
             expired_inspections
         end
       end)
     end
-  
+
     def inspection_description(inspection) do
       case inspection.date_tach do
         :date ->
@@ -60,14 +60,14 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
             FlightWeb.ViewHelpers.display_hour_tenths(tach_time)
       end
     end
-  
+
     def inspection_status(inspection, today \\ nil) do
       now =
         case today do
           nil ->
             %{school: school} = Flight.Repo.preload(inspection.aircraft, :school)
             Timex.now(school.timezone)
-  
+
           today ->
             today
         end
@@ -77,11 +77,11 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
                 case Timex.Interval.new(from: now, until: inspection.next_inspection) do
                     {:error, :invalid_until} ->
                       :expired
-            
+
                     interval ->
                       duration = Timex.Interval.duration(interval, :hours)
 
-                      case duration <= 20 && duration > 0 do
+                      case duration <= 72 && duration > 0 do
                         true -> :expiring
                         false -> :good
                       end
@@ -97,5 +97,12 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
             _ ->
                 :good
         end
+    end
+
+    def inspection_is_due(inspection) do
+      case inspection_status(inspection) do
+        :expiring -> true
+        _ -> false
+      end
     end
 end
