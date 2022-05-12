@@ -29,7 +29,7 @@ defmodule FlightWeb.Student.HomeController do
                               |> Enum.uniq_by(fn aircraft -> aircraft.id end)
                               |> Repo.preload([:squawks])
                               |> Repo.preload([inspections: [:inspection_data, :aircraft]])
-    IO.inspect(assets, label: "Asss")
+
     params = %{"status" => "0"} #get pending invoices for current user
     result = Queries.Invoice.own_invoices(conn, params)
     {page, invoices} = {nil, Repo.all(result)}
