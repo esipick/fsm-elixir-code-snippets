@@ -19,7 +19,7 @@ defmodule FlightWeb.Dispatcher.HomeController do
       student_count: student_count,
       instructor_count: instructor_count,
       renter_count: renter_count,
-      aircraft_count: Enum.count(aircrafts),
+      aircraft_count: Enum.count(aircrafts)
     )
   end
 end

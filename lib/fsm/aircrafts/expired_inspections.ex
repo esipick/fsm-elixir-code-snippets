@@ -81,7 +81,7 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
                     interval ->
                       duration = Timex.Interval.duration(interval, :hours)
 
-                      case duration <= 72 && duration > 0 do
+                      case duration <= 20 && duration > 0 do
                         true -> :expiring
                         false -> :good
                       end
@@ -100,8 +100,21 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
     end
 
     def inspection_is_due(inspection) do
+      inspection_data = inspection.inspection_data
+                |> Enum.reduce(%{}, fn (item, agg) ->
+                    value = InspectionData.value_from_t_field(item)
+                    case item.class_name do
+                       "last_inspection" ->
+                            Map.put(agg, :last_inspection, value)
+                        "next_inspection" ->
+                            Map.put(agg, :next_inspection, value)
+                    end
+                end)
+      inspection =  %{inspection | last_inspection: inspection_data.last_inspection}
+      inspection =  %{inspection | next_inspection: inspection_data.next_inspection}
+
       case inspection_status(inspection) do
-        :expiring -> true
+        :expiring -> inspection.next_inspection
         _ -> false
       end
     end
