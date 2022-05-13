@@ -190,7 +190,9 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingResolvers do
   def delete_appointment(parent, args, %{context: %{current_user: %{school_id: school_id}}}=context) do
     Log.request(args, __ENV__.function)
     appointment_id = Map.get(args, :appointment_id)
-    Scheduling.delete_appointment(context, appointment_id)
+    delete_reason = Map.get(args, :delete_reason)
+    delete_reason_options = Map.get(args, :delete_reason_options)
+    Scheduling.delete_appointment(context, appointment_id, delete_reason, delete_reason_options)
   end
 
   def delete_recurring_appointment(parent, %{id: id, parent_id: parent_id} = args, %{context: %{current_user: %{school_id: school_id}=school_context}}=context) do
