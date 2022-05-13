@@ -1,0 +1,413 @@
+<div class="panel-header panel-header-sm">
+  <div class="header text-center"></div>
+</div>
+
+<div class="content">
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel">
+        <div class="header">
+            <div class="menu-icon">
+            <div class="dash-top"></div>
+            <div class="dash-bottom"></div>
+            <div class="circle"></div>
+            </div><span class="title">Notifications</span>
+        </div>        
+        <div class="notifications clearfix">
+            <div class="d-flex justify-content-between noti-filter">
+                <ul class="nav nav-pills nav-pills-primary" role="tablist">
+                    <li class="nav-item" style="margin-right:2rem;">
+                      <button class="btn btn-primary" id="read" onclick="getAllNotifications()" role="tablist" aria-expanded="false">
+                          All
+                      </button>
+                    </li>
+                    <li class="nav-item" style="margin-right:20rem;">
+                      <button class="btn btn-default" id="unread" onclick="getUnreadNotifications()" role="tablist" aria-expanded="true">
+                          Unread
+                      </button>
+                    </li>
+                    <li class="nav-item" style="margin-right:2rem;">
+                      <button class="btn btn-default" id="read" onclick="getAllNotifications()" role="tablist" aria-expanded="false">
+                          Mark Read
+                      </button>
+                    </li>
+                    <li class="nav-item">
+                      <button class="btn btn-default" id="unread" onclick="getUnreadNotifications()" role="tablist" aria-expanded="true">
+                          Mark Unread
+                      </button>
+                    </li>
+                </ul>
+            </div>
+          
+            <div id="noti-list">
+            </div>     
+            <div class="d-flex justify-content-end">
+                <ul class="nav nav-pills nav-pills-primary" role="tablist">
+                    <li class="nav-item">
+                      <button class="btn btn-default" onclick="getPrevNotifications()" role="tablist" aria-expanded="false">
+                          Prev
+                      </button>
+                    </li>
+
+                    <li class="nav-item">
+                      <button class="btn btn-default" onclick="getNextNotifications()" role="tablist" aria-expanded="true">
+                          Next
+                      </button>
+                    </li>
+                </ul>
+            </div>       
+        </div>
+    </div>   
+  </div>
+</div>
+<style>
+.panel {
+  background: #fff;
+  border-radius: 3px;
+  overflow: hidden;
+  -webkit-box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+          box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+  -webkit-transition: all .5s ease-in-out;
+  transition: all .5s ease-in-out;
+}
+.panel .header {
+  height: 60px;
+  width: 100%;
+  background: #1B95E0;
+}
+.panel .header .menu-icon {
+  position: absolute;
+  width: 29px;
+  height: 15px;
+  top: 23px;
+  left: 20px;
+  cursor: pointer;
+}
+.panel .header .menu-icon:hover .dash-top, .panel .header .menu-icon:hover .dash-bottom,
+.panel .header .menu-icon:hover .dash-bottom,
+.panel .header .menu-icon:hover .circle {
+  background: #fff;
+}
+.panel .header .menu-icon .dash-top, .panel .header .menu-icon .dash-bottom {
+  position: absolute;
+  width: 20px;
+  height: 3px;
+  top: 0;
+  left: 0;
+  background: #B2DAFF;
+  border-radius: 3px;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+.panel .header .menu-icon .dash-bottom {
+  width: 29px;
+  top: auto;
+  bottom: 0;
+}
+.panel .header .menu-icon .circle {
+  position: absolute;
+  height: 7px;
+  width: 7px;
+  border-radius: 4px;
+  top: -2px;
+  right: 0;
+  background: #B2DAFF;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+.panel .header .title {
+  display: block;
+  text-align: center;
+  line-height: 60px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+}
+.panel .noti-filter {
+   margin: 0px 0px 40px 20px;
+}
+.panel .notifications {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+.panel .notifications .line {
+  position: absolute;
+  top: 0;
+  left: 27px;
+  bottom: 0;
+  width: 3px;
+  background: #EBEBEB;
+}
+.panel .notifications .select-all {
+  margin: 25px 20px 25px 43px;
+}
+.panel .notifications .notification {
+  display: flex;
+  position: relative;
+  z-index: 2;
+  margin: 25px 20px 25px 43px;
+}
+.panel .notifications .notification:nth-child(2) {
+  -webkit-animation: here-am-i 0.5s ease-out 0.4s;
+          animation: here-am-i 0.5s ease-out 0.4s;
+  -webkit-animation-fill-mode: both;
+          animation-fill-mode: both;
+}
+.panel .notifications .notification:nth-child(3) {
+  -webkit-animation: here-am-i 0.5s ease-out 0.6s;
+          animation: here-am-i 0.5s ease-out 0.6s;
+  -webkit-animation-fill-mode: both;
+          animation-fill-mode: both;
+}
+.panel .notifications .notification:nth-child(4) {
+  -webkit-animation: here-am-i 0.5s ease-out 0.8s;
+          animation: here-am-i 0.5s ease-out 0.8s;
+  -webkit-animation-fill-mode: both;
+          animation-fill-mode: both;
+}
+.panel .notifications .notification:hover {
+  color: #1B95E0;
+  cursor: pointer;
+}
+.panel .notifications .notification .circle {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  position: absolute;
+  height: 11px;
+  width: 11px;
+  background: #fff;
+  border: 2px solid #1B95E0;
+  -webkit-box-shadow: 0 0 0 3px #fff;
+          box-shadow: 0 0 0 3px #fff;
+  border-radius: 6px;
+  top: 0;
+  left: -20px;
+}
+
+.panel .notifications .notification .circle.active {
+  background: #1B95E0;
+}
+
+.panel .notifications .notification .time {
+  display: block;
+  font-size: 11px;
+  line-height: 11px;
+  margin-bottom: 2px;
+}
+.panel .notifications .notification .text-box {
+  margin-left:0.5rem;
+}
+.panel .notifications .notification p {
+  font-size: 15px;
+  line-height: 20px;
+  margin: 0;
+}
+.panel .notifications .notification p b {
+  font-weight: 600;
+}
+@-webkit-keyframes here-am-i {
+  from {
+    -webkit-transform: translate3d(0, 50px, 0);
+            transform: translate3d(0, 50px, 0);
+    opacity: 0;
+  }
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes here-am-i {
+  from {
+    -webkit-transform: translate3d(0, 50px, 0);
+            transform: translate3d(0, 50px, 0);
+    opacity: 0;
+  }
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+</style>
+<script>
+    var AUTH_HEADERS_BEARER = {"authorization": 'Bearer ' + window.fsm_token}
+    const perPage = 10;
+    let page = 1;
+    let notiType =  'all';
+    let noNext = false;
+    function getUnreadNotifications(pageNumber) {
+         
+        if ( !pageNumber ) {
+          noNext = false;
+          pageNumber = page;
+        }
+        notiType = 'unread';
+        $('#read').removeClass('btn-primary');
+        $('#read').addClass('btn-default');
+        $('#unread').removeClass('btn-default');
+        $('#unread').addClass('btn-primary');
+        const query = `
+            query {
+                listNotificationAlerts(page:${pageNumber}, perPage:${perPage},
+                    filter:{
+                        isRead: false
+                    },
+                    sortField: UPDATED_AT, sortOrder: DESC
+                ){
+                    page
+                    alerts {
+                        id
+                        title
+                        description
+                        isRead
+                        createdAt
+                    }
+                }
+            }`;
+        $.ajax({
+        method: "post",
+        url: "/api/graphiql/",
+        headers: AUTH_HEADERS_BEARER,
+        data: {
+            query: query,
+            variable: null
+        }
+        }).then(function (response) {
+            if ( !response.errors ) {
+                let notiList = '';
+                const alerts = response.data.listNotificationAlerts.alerts;
+                alerts.forEach(noti => {
+                    notiList += `
+                        <div class="notification">
+                            <div class="circle active"></div> 
+                            <input type="checkbox" name="mark-noti"/>                        
+                            <div class="text-box">
+                              <span class="time">${noti.title}</span>
+                              <p>${noti.description}</p>
+                            </div>
+                        </div>
+                    `;
+                }) 
+                if ( notiList !== '' ) {
+                  notiList = `
+                    <div class="select-all">
+                      <label>Select All</label>
+                      <input id="select-all" type="checkbox" onclick="checkAll()" />
+                    </div>
+                  ` + notiList;
+                }
+                $('#noti-list').html(notiList);
+                if ( alerts.length < perPage ) {
+                  noNext = true;
+                }
+            }
+        }).catch(function (e) {
+            console.log('Error  in retrieving notifications.', e);
+        })
+    }
+    function getAllNotifications(pageNumber) {
+        if ( !pageNumber ) {
+          noNext = false;
+          pageNumber = page;
+        }
+        notiType = 'all';
+        $('#unread').removeClass('btn-primary');
+        $('#unread').addClass('btn-default');
+        $('#read').removeClass('btn-default');
+        $('#read').addClass('btn-primary');
+        const query = `
+            query {
+                listNotificationAlerts(page:${pageNumber}, perPage:${perPage},
+                    sortField: UPDATED_AT, sortOrder: DESC
+                ){
+                    page
+                    alerts {
+                        id
+                        title
+                        description
+                        isRead
+                        createdAt
+                    }
+                }
+            }`;
+        $.ajax({
+        method: "post",
+        url: "/api/graphiql/",
+        headers: AUTH_HEADERS_BEARER,
+        data: {
+            query: query,
+            variable: null
+        }
+        }).then(function (response) {
+            if ( !response.errors ) {
+                let notiList = '';
+                const alerts = response.data.listNotificationAlerts.alerts;
+                alerts.forEach(noti => {
+                    notiList += `
+                        <div class="notification">
+                            <div class="circle active"></div> 
+                            <input type="checkbox" name="mark-noti"/>                        
+                            <div class="text-box">
+                              <span class="time">${noti.title}</span>
+                              <p>${noti.description}</p>
+                            </div>
+                        </div>
+                    `;
+                }) 
+               
+                if ( notiList !== '' ) {
+                  notiList = `
+                    <div class="select-all">                      
+                      <input id="select-all" type="checkbox" onclick="checkAll()" />
+                      <label>Select All</label>
+                    </div>
+                  ` + notiList;
+                }
+                $('#noti-list').html(notiList);
+                if ( alerts.length < perPage ) {
+                  noNext = true;
+                }
+            }
+        }).catch(function (e) {
+            console.log('Error  in retrieving notifications.', e);
+        })
+
+    }
+
+    function getPrevNotifications() {
+      if ( page == 1 ) return;
+      noNext = false;
+      page = page - 1;
+      if ( notiType === 'unread' ) {
+        getUnreadNotifications(page);
+        return;
+      }
+      getAllNotifications(page)
+    }
+
+    function getNextNotifications() {
+      if ( noNext ) return;
+      page = page + 1;
+      if ( notiType === 'unread' ) {
+        getUnreadNotifications(page);
+        return;
+      }
+      getAllNotifications(page)
+    }
+
+    function checkAll(e) {
+      const isChecked = $('#select-all').is(":checked");
+      $('input[name="mark-noti"]').map((i, el) => {
+        $(el).prop('checked', isChecked);
+      });
+    }
+    
+    $(document).ready(() => {
+      getAllNotifications();
+    });
+</script>

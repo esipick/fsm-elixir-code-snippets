@@ -1,0 +1,75 @@
+<div class="notifications-container">
+    <div class="card">
+        <div class="card-header">
+            <h4>Notifications <i class="now-ui-icons ui-1_bell-53"></i></h4>
+        </div>
+        <div class="card-body">
+            <ul id="noti-list">
+            </ul>
+            <a href="/notifications" class="btn btn-primary">View All</a>
+        </div>
+    </div>
+</div>
+<style>
+ .noti-item p {
+     margin: unset;
+ }
+ .noti-item li :hover {
+     background-color: teal;
+ }
+</style>
+<script>
+ function goToNotificationDetailView() {
+     window.href = '/notifications';
+ }
+
+ $(document).ready(() => {
+    var AUTH_HEADERS_BEARER = {"authorization": 'Bearer ' + window.fsm_token}
+    function getUnreadNotifications() {
+        const query = `
+            query {
+                listNotificationAlerts(page:1, perPage:5,
+                    filter:{
+                        isRead: false
+                    },
+                    sortField: UPDATED_AT, sortOrder: DESC
+                ){
+                    page
+                    alerts {
+                        id
+                        title
+                        description
+                        isRead
+                        createdAt
+                    }
+                }
+            }`;
+        $.ajax({
+        method: "post",
+        url: "/api/graphiql/",
+        headers: AUTH_HEADERS_BEARER,
+        data: {
+            query: query,
+            variable: null
+        }
+        }).then(function (response) {
+            if ( !response.errors ) {
+                let notiList = '';
+                response.data.listNotificationAlerts.alerts.forEach(noti => {
+                    notiList += `
+                        <li class="noti-item">
+                            <p class="noti-item-title">${noti.title}</p>
+                            <p class="noti-item-desc">${noti.description}</p>
+                        </li>
+                    `;
+                }) 
+                $('#noti-list').html(notiList);
+            }
+        }).catch(function (e) {
+            console.log('Error  in retrieving notifications.', e);
+        })
+
+    }
+    getUnreadNotifications();
+ });
+</script>

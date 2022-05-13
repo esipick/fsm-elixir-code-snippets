@@ -9,7 +9,7 @@ defmodule Flight.Alerts.Alert do
     }
 
     schema "alerts" do
-        field(:code, AlertCodeEnum, null: true)
+        field(:code, AlertCodeEnum, default: :appointment)
         field(:title, :string, null: true)
         field(:description, :string, null: true)
 
@@ -17,6 +17,8 @@ defmodule Flight.Alerts.Alert do
 
         field(:receiver_id, :id, null: true) # if receiver_id is null this is a broadcast alert. The school id should be non nil for broadcast alert.
         field(:sender_id, :id, null: true)
+
+        field(:is_read, :boolean, default: false)
 
         field(:additional_info, :map, null: true)
 
