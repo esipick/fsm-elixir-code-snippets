@@ -450,6 +450,11 @@ defmodule FlightWeb.Router do
 
   end
 
+  scope "/api", FlightWeb.API do
+    pipe_through([:api, :api_authenticate])
+    post("/inspections/inspect_now", InspectionController, :create)
+  end
+
   scope "/api" do
     pipe_through :api
 
