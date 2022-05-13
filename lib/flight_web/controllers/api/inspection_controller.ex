@@ -36,7 +36,7 @@ defmodule FlightWeb.API.InspectionController do
     }
     inspection = Repo.get_by(Inspection, id: inspection_id)
     IO.inspect(inspection, label: "inspection----")
-   can_update_inspection =  case inspection.date_tach == :tach do
+   can_update_inspection =  case inspection.date_tach == :tach and next_inspection_tach_time != "" do
       true->
         aircraft = Repo.get_by(Aircraft, id: inspection.aircraft_id)
         last_tach_time = aircraft.last_tach_time

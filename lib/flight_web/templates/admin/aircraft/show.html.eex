@@ -358,8 +358,9 @@
       .then(response => {
           $('#inspection-now-form-submit').removeAttr('disabled')
           console.log('response----',response)
-          showAlert("Inspection has been successfully updated.", 'success');
+
           window.location = `/admin/aircrafts/${$('#aircraft_id').val()}`;
+          showAlert("Inspection has been successfully updated.", 'success');
       })
       .catch(error => {
           $('#inspection-now-form-submit').removeAttr('disabled')
