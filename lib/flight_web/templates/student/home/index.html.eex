@@ -156,6 +156,14 @@
             <%= for aircraft <- @assets do %>
               <div class="aircraft-item">
                 <a href="/aircrafts/<%= aircraft.id %>"><%= aircraft_display_name(aircraft) %></a>
+                <h5>Airworthiness</h5>
+                <div class="airworthiness">
+                  <% airworthiness = Flight.Aircrafts.airworthiness(aircraft) %>
+                  <table class="table">
+                    <tr><td>Registration Certificate Expiration </td> <td class='<%= if airworthiness.registration_cert_status == "Expired", do: "text-expired" %>'> <%= airworthiness.registration_cert_status %> </td></tr>
+                    <tr><td>Insurance Expiration </td><td class='<%= if airworthiness.insurance_status == "Expired", do: "text-expired" %>'><%= airworthiness.insurance_status %> </td></tr>
+                  </table>
+                </div>
                 <h5>Due Inspections</h5>
                 <table class="table">
                   <thead>

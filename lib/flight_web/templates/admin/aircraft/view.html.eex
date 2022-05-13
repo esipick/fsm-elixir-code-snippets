@@ -37,6 +37,18 @@
                 <dd><%= display_boolean(@aircraft.ifr_certified) %></dd>
               </dl>
               <dl class="d-flex justify-content-between">
+                <dt>Airworthiness Certificate</dt>
+                <dd><%= display_boolean(@aircraft.airworthiness_certificate) %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Registration Certificate Expires at</dt>
+                <dd><%= standard_date_format(@aircraft.registration_certificate_expires_at) || "N/A" %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
+                <dt>Insurance Expires at</dt>
+                <dd><%= standard_date_format(@aircraft.insurance_expires_at) || "N/A" %></dd>
+              </dl>
+              <dl class="d-flex justify-content-between">
                 <dt>Simulator</dt>
                 <dd><%= display_boolean(@aircraft.simulator) %></dd>
               </dl>

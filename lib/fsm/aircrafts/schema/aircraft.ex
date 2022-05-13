@@ -8,7 +8,7 @@ defmodule Fsm.Aircrafts.Aircraft do
     AircraftMaintenance
   }
 
-  
+
   schema "aircrafts" do
     field(:ifr_certified, :boolean, default: false)
     field(:last_tach_time, Flight.HourTenth, default: 0)
@@ -24,6 +24,9 @@ defmodule Fsm.Aircrafts.Aircraft do
     field(:tail_number, :string)
     field(:archived, :boolean, default: false)
     field(:blocked, :boolean, default: false)
+    field(:airworthiness_certificate, :boolean, default: false)
+    field(:registration_certificate_expires_at, Flight.Date)
+    field(:insurance_expires_at, Flight.Date)
     belongs_to(:school, Flight.Accounts.School)
     has_many(:squawks, Fsm.Squawks.Squawk)
     has_many(:inspections, Fsm.Aircrafts.Inspection)
@@ -35,11 +38,13 @@ defmodule Fsm.Aircrafts.Aircraft do
     timestamps()
   end
 
-  def fields_to_cast, do: ~w(make model tail_number serial_number ifr_certified simulator equipment last_tach_time 
-  last_hobbs_time rate_per_hour block_rate_per_hour name blocked)a
+  def fields_to_cast, do: ~w(make model tail_number serial_number ifr_certified simulator equipment last_tach_time
+  last_hobbs_time rate_per_hour block_rate_per_hour name blocked airworthiness_certificate
+  registration_certificate_expires_at insurance_expires_at)a
 
   @doc false
   def changeset(aircraft, attrs) do
+    IO.inspect(attrs, label: "Aircraft Attrs:")
     aircraft
     |> cast(attrs, fields_to_cast())
     |> validate_required([
