@@ -17,32 +17,46 @@
         <div class="notifications clearfix">
             <div class="d-flex justify-content-between noti-filter">
                 <ul class="nav nav-pills nav-pills-primary" role="tablist">
-                    <li class="nav-item">
-                    <a class="nav-link active" href="/notifications?all=true" role="tablist" aria-expanded="false">
-                        All
-                    </a>
+                    <li class="nav-item" style="margin-right:2rem;">
+                      <button class="btn btn-primary" id="read" onclick="getAllNotifications()" role="tablist" aria-expanded="false">
+                          All
+                      </button>
                     </li>
-
+                    <li class="nav-item" style="margin-right:20rem;">
+                      <button class="btn btn-default" id="unread" onclick="getUnreadNotifications()" role="tablist" aria-expanded="true">
+                          Unread
+                      </button>
+                    </li>
+                    <li class="nav-item" style="margin-right:2rem;">
+                      <button class="btn btn-default" id="read" onclick="getAllNotifications()" role="tablist" aria-expanded="false">
+                          Mark Read
+                      </button>
+                    </li>
                     <li class="nav-item">
-                    <a class="nav-link" href="/notifications?unread=true" role="tablist" aria-expanded="true">
-                        Unread
-                    </a>
+                      <button class="btn btn-default" id="unread" onclick="getUnreadNotifications()" role="tablist" aria-expanded="true">
+                          Mark Unread
+                      </button>
                     </li>
                 </ul>
             </div>
-            <%= if Enum.any?(@notifications) do %>
-                    <%= for noti <- @notifications do %>
-                        <div class="notification">
-                            <div class="circle active"></div>                         
-                            <span class="time"><%= noti.time %></span>
-                            <p><%= noti.title %></p>
-                        </div>
-                    <%end%>
-                </div>
-            </div>
-            <% else %>
-                <div class="card-body">No notifications found</div>
-            <% end %>            
+          
+            <div id="noti-list">
+            </div>     
+            <div class="d-flex justify-content-end">
+                <ul class="nav nav-pills nav-pills-primary" role="tablist">
+                    <li class="nav-item">
+                      <button class="btn btn-default" onclick="getPrevNotifications()" role="tablist" aria-expanded="false">
+                          Prev
+                      </button>
+                    </li>
+
+                    <li class="nav-item">
+                      <button class="btn btn-default" onclick="getNextNotifications()" role="tablist" aria-expanded="true">
+                          Next
+                      </button>
+                    </li>
+                </ul>
+            </div>       
         </div>
     </div>   
   </div>
@@ -126,7 +140,11 @@
   width: 3px;
   background: #EBEBEB;
 }
+.panel .notifications .select-all {
+  margin: 25px 20px 25px 43px;
+}
 .panel .notifications .notification {
+  display: flex;
   position: relative;
   z-index: 2;
   margin: 25px 20px 25px 43px;
@@ -178,6 +196,9 @@
   line-height: 11px;
   margin-bottom: 2px;
 }
+.panel .notifications .notification .text-box {
+  margin-left:0.5rem;
+}
 .panel .notifications .notification p {
   font-size: 15px;
   line-height: 20px;
@@ -213,3 +234,180 @@
 }
 
 </style>
+<script>
+    var AUTH_HEADERS_BEARER = {"authorization": 'Bearer ' + window.fsm_token}
+    const perPage = 10;
+    let page = 1;
+    let notiType =  'all';
+    let noNext = false;
+    function getUnreadNotifications(pageNumber) {
+         
+        if ( !pageNumber ) {
+          noNext = false;
+          pageNumber = page;
+        }
+        notiType = 'unread';
+        $('#read').removeClass('btn-primary');
+        $('#read').addClass('btn-default');
+        $('#unread').removeClass('btn-default');
+        $('#unread').addClass('btn-primary');
+        const query = `
+            query {
+                listNotificationAlerts(page:${pageNumber}, perPage:${perPage},
+                    filter:{
+                        isRead: false
+                    },
+                    sortField: UPDATED_AT, sortOrder: DESC
+                ){
+                    page
+                    alerts {
+                        id
+                        title
+                        description
+                        isRead
+                        createdAt
+                    }
+                }
+            }`;
+        $.ajax({
+        method: "post",
+        url: "/api/graphiql/",
+        headers: AUTH_HEADERS_BEARER,
+        data: {
+            query: query,
+            variable: null
+        }
+        }).then(function (response) {
+            if ( !response.errors ) {
+                let notiList = '';
+                const alerts = response.data.listNotificationAlerts.alerts;
+                alerts.forEach(noti => {
+                    notiList += `
+                        <div class="notification">
+                            <div class="circle active"></div> 
+                            <input type="checkbox" name="mark-noti"/>                        
+                            <div class="text-box">
+                              <span class="time">${noti.title}</span>
+                              <p>${noti.description}</p>
+                            </div>
+                        </div>
+                    `;
+                }) 
+                if ( notiList !== '' ) {
+                  notiList = `
+                    <div class="select-all">
+                      <label>Select All</label>
+                      <input id="select-all" type="checkbox" onclick="checkAll()" />
+                    </div>
+                  ` + notiList;
+                }
+                $('#noti-list').html(notiList);
+                if ( alerts.length < perPage ) {
+                  noNext = true;
+                }
+            }
+        }).catch(function (e) {
+            console.log('Error  in retrieving notifications.', e);
+        })
+    }
+    function getAllNotifications(pageNumber) {
+        if ( !pageNumber ) {
+          noNext = false;
+          pageNumber = page;
+        }
+        notiType = 'all';
+        $('#unread').removeClass('btn-primary');
+        $('#unread').addClass('btn-default');
+        $('#read').removeClass('btn-default');
+        $('#read').addClass('btn-primary');
+        const query = `
+            query {
+                listNotificationAlerts(page:${pageNumber}, perPage:${perPage},
+                    sortField: UPDATED_AT, sortOrder: DESC
+                ){
+                    page
+                    alerts {
+                        id
+                        title
+                        description
+                        isRead
+                        createdAt
+                    }
+                }
+            }`;
+        $.ajax({
+        method: "post",
+        url: "/api/graphiql/",
+        headers: AUTH_HEADERS_BEARER,
+        data: {
+            query: query,
+            variable: null
+        }
+        }).then(function (response) {
+            if ( !response.errors ) {
+                let notiList = '';
+                const alerts = response.data.listNotificationAlerts.alerts;
+                alerts.forEach(noti => {
+                    notiList += `
+                        <div class="notification">
+                            <div class="circle active"></div> 
+                            <input type="checkbox" name="mark-noti"/>                        
+                            <div class="text-box">
+                              <span class="time">${noti.title}</span>
+                              <p>${noti.description}</p>
+                            </div>
+                        </div>
+                    `;
+                }) 
+               
+                if ( notiList !== '' ) {
+                  notiList = `
+                    <div class="select-all">                      
+                      <input id="select-all" type="checkbox" onclick="checkAll()" />
+                      <label>Select All</label>
+                    </div>
+                  ` + notiList;
+                }
+                $('#noti-list').html(notiList);
+                if ( alerts.length < perPage ) {
+                  noNext = true;
+                }
+            }
+        }).catch(function (e) {
+            console.log('Error  in retrieving notifications.', e);
+        })
+
+    }
+
+    function getPrevNotifications() {
+      if ( page == 1 ) return;
+      noNext = false;
+      page = page - 1;
+      if ( notiType === 'unread' ) {
+        getUnreadNotifications(page);
+        return;
+      }
+      getAllNotifications(page)
+    }
+
+    function getNextNotifications() {
+      if ( noNext ) return;
+      page = page + 1;
+      if ( notiType === 'unread' ) {
+        getUnreadNotifications(page);
+        return;
+      }
+      getAllNotifications(page)
+    }
+
+    function checkAll(e) {
+      const isChecked = $('#select-all').is(":checked");
+      $('input[name="mark-noti"]').map((i, el) => {
+        $(el).prop('checked', isChecked);
+      });
+    }
+    
+    $(document).ready(() => {
+      getAllNotifications();
+    });
+</script>
