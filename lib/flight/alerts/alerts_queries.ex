@@ -5,13 +5,21 @@ defmodule Flight.Alerts.AlertsQueries do
     alias Flight.SchoolScope
     require Logger
 
-    def get_all_alerts_query do
+    def get_all_alerts_query(receiver_id) do
         from ar in Alert,
-          select: ar
+          where: ar.archived == false and ar.receiver_id == ^receiver_id
     end
 
-    def list_alerts_query(page, per_page, sort_field, sort_order, filter, school_context) do
-        get_all_alerts_query()
+    def mark_delete_notification_alerts_query(ids, %{id: receiver_id, school_id: school_id}) do
+        from(a in Alert, where: a.id in ^ids and a.receiver_id == ^receiver_id)
+    end
+
+    def mark_delete_all_notification_alerts_query(%{id: receiver_id, school_id: school_id}) do
+        from(a in Alert, where: a.receiver_id == ^receiver_id and a.school_id == ^school_id)
+    end
+
+    def list_alerts_query(page, per_page, sort_field, sort_order, filter, %{id: receiver_id} = school_context) do
+        get_all_alerts_query(receiver_id)
         |> SchoolScope.scope_query(school_context)
         |> sort_by(sort_field, sort_order)
         |> sort_by(:updated_at, sort_order)
