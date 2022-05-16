@@ -2233,7 +2233,7 @@ $(document).ready(function () {
       editable: editable,
       eventClick: function (calEvent, jsEvent, view) {
         const canProceed = checkRole();
-        console.log(canProceed)
+        
         if ( !canProceed ){
           disableEditAppointment()
           return;
@@ -2271,9 +2271,19 @@ $(document).ready(function () {
           return;
         }
 
+        $('#btnDelete').prop('disabled', false);
+        $('#btnSave').prop('disabled', false);
+
         if (calEvent.appointment.demo) {
           var appointment = calEvent.appointment
+          
 
+          if( appointment.status == "paid") {
+            $('#btnDelete').prop('disabled', true);
+            $('#btnSave').prop('disabled', true);
+            alert("This appointment has been successfully paid!");
+          }
+          
           var instructor_user_id = null;
           if (appointment.instructor_user) {
             instructor_user_id = appointment.instructor_user.id
@@ -2284,10 +2294,7 @@ $(document).ready(function () {
           if (appointment.aircraft) {
             aircraft_id = appointment.aircraft.id
           }
-
-          if( appointment.status == "paid") {
-            alert("This appointment has been successfully paid!");
-          }
+          
           openAppointmentModal({
             type: "demoAppointment",
             start_at: moment.utc(appointment.start_at).add(+(moment(appointment.start_at).utcOffset()), 'm'),
@@ -2336,6 +2343,8 @@ $(document).ready(function () {
           }
 
           if( appointment.status == "paid") {
+            $('#btnDelete').prop('disabled', true);
+            $('#btnSave').prop('disabled', true);
             alert("This appointment has been successfully paid!");
           }
 
