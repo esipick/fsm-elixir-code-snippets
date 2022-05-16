@@ -13,7 +13,7 @@ defmodule FlightWeb.RoleUtil do
 
   def profile_path(user) do
     case access_level(user) do
-      "admin" -> "/admin/profile"
+      "admin" -> "/admin/home"
       "instructor" -> "/instructor/profile"
       "student" -> "/student/profile"
       "renter" -> "/renter/profile"
