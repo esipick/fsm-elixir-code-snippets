@@ -264,6 +264,9 @@
     $('#repeatInspection').prop('checked', false)
     $('#nextInspectionField').hide()
     $('#nextInspectionTachTime').val("")
+    $('#file_upload').val("")
+    $('.fileList').html("")
+    $('#note').val("")
 
     $('#inspectNow').modal({
       backdrop: 'static',   // This disable for click outside event
