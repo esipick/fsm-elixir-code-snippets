@@ -61,6 +61,7 @@
   </div> <!-- end row -->
   <div class="row">
     <div class="col-md-6">
+      <%= render(FlightWeb.Notification.NotificationView, "widget.html", conn: @conn) %>
       <div class="card card-chart">
         <div class="card-header">
           <h5 class="card-category">Upcoming Inspections</h5>
