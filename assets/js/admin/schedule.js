@@ -738,7 +738,7 @@ $(document).ready(function () {
   }
 
   var deleteEvent = function(appointmentOrUnavailabilityId, eventType, event) {
-    
+
     let promise = null;
     if (eventType == "appt") {
       promise = $.ajax({
@@ -793,7 +793,7 @@ $(document).ready(function () {
   }
 
   var deleteEventTrigger = function(appointmentOrUnavailabilityId, eventType, event, delete_reason, delete_reason_options) {
-    
+
     let promise = null;
     if (eventType == "appt") {
       promise = $.ajax({
@@ -847,7 +847,7 @@ $(document).ready(function () {
       $('#loader').hide();
     })
   }
-  
+
   var askDeleteReason = function(appointmentOrUnavailabilityId, eventType, event) {
     $.confirm({
       title: '',
@@ -959,10 +959,26 @@ $(document).ready(function () {
       }
       var eventStart = (moment.utc($('#apptStart').val()).add(-(moment($('#apptStart').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
       var eventEnd = (moment.utc($('#apptEnd').val()).add(-(moment($('#apptEnd').val()).utcOffset()), 'm')).set({second:0,millisecond:0}).format()
+      var instructorPreTime =  $('#apptInstructorPreTime').val()
+      var instructorPostTime =  $('#apptInstructorPostTime').val()
+      var eventInstructorPreTime = null
+      var eventInstructorPostTime = null
+      if(instructorPreTime != 0){
+        eventInstructorPreTime = moment.utc($('#apptStart').val())
+            .add(-(moment($('#apptStart').val()).utcOffset()), 'm')
+            .set({second:0,millisecond:0})
+            .add(-(safeParseInt(instructorPreTime)), 'seconds')
+            .format()
+      }
 
+      if(instructorPostTime != 0){
+         eventInstructorPostTime = moment.utc($('#apptEnd').val())
+             .add(-(moment($('#apptEnd').val()).utcOffset()), 'm')
+             .set({second:0,millisecond:0})
+             .add(safeParseInt(instructorPostTime), 'seconds')
+             .format()
 
-      var eventInstructorPreTime = moment.utc($('#apptStart').val()).add(-(moment($('#apptStart').val()).utcOffset()), 'm').set({second:0,millisecond:0}).add(-(safeParseInt($('#apptInstructorPreTime').val())), 'seconds').format()
-      var eventInstructorPostTime = moment.utc($('#apptEnd').val()).add(-(moment($('#apptEnd').val()).utcOffset()), 'm').set({second:0,millisecond:0}).add(safeParseInt($('#apptInstructorPostTime').val()), 'seconds').format()
+      }
 
       var eventNote = $('#apptNote').val()
 
@@ -1286,7 +1302,7 @@ $(document).ready(function () {
     }
     if (appointmentOrUnavailabilityId) {
       var buttonPos = $(this).offset();
-      
+
       var event;
       if (eventType == "appt") {
         event = "appointment"
@@ -1310,7 +1326,7 @@ $(document).ready(function () {
       }
       $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
       deleteEvent(appointmentOrUnavailabilityId, eventType, event);
-      
+
     }
   });
 
@@ -1430,7 +1446,7 @@ $(document).ready(function () {
   $('#btnDeleteThis').click(function () {
     if (appointmentOrUnavailabilityId) {
       var buttonPos = $(this).offset();
-      
+
 
       var event;
       if (eventType == "appt") {
@@ -1450,7 +1466,7 @@ $(document).ready(function () {
         askDeleteReason(appointmentOrUnavailabilityId, eventType, event);
         return;
       }
-      
+
       $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
       deleteEvent(appointmentOrUnavailabilityId, eventType, event);
     }

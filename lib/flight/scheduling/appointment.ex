@@ -209,8 +209,8 @@ defmodule Flight.Scheduling.Appointment do
       # inst_start_at should be non nil otherwise it should be nil.
       {inst_started_at, inst_ended_at} =
         if !is_nil(inst_id) do
-          inst_started_at = inst_started_at || start_at
-          inst_ended_at = inst_ended_at || end_at
+          inst_started_at = inst_started_at || nil
+          inst_ended_at = inst_ended_at || nil
           {inst_started_at, inst_ended_at}
         else
           {nil, nil}
