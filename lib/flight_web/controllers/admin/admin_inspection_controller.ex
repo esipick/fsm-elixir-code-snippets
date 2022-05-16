@@ -395,7 +395,7 @@ defmodule FlightWeb.Admin.InspectionController do
         :error  ->
           :string
         {int_val, int_rest} ->
-          case int_rest == "" do
+          case int_rest == "" or int_rest == ".0" do
             true -> :int
             false ->
               case Float.parse(val) do

@@ -1,10 +1,11 @@
 <div class="panel-header">
-  <div class="header text-center">
-    <h6 class="title back-link"><a href="/admin/aircrafts">< Back to Aircraft</a></h6>
-    <h2 class="title mb-3"><%= @aircraft.make %> <%= @aircraft.model %></h2>
-    <h5 class="title"><%= @aircraft.tail_number %></h5>
-    <p class="category"><a href="/admin/aircrafts/<%= @aircraft.id %>/edit" class="btn btn-primary">Edit Aircraft</a></p>
-  </div>
+    <div class="header text-center">
+        <h6 class="title back-link"><a href="/admin/aircrafts">< Back to Aircraft</a></h6>
+        <h2 class="title mb-3"><%= @aircraft.make %> <%= @aircraft.model %></h2>
+        <h5 class="title"><%= @aircraft.tail_number %></h5>
+        <p class="category"><a href="/admin/aircrafts/<%= @aircraft.id %>/edit" class="btn btn-primary">Edit
+            Aircraft</a></p>
+    </div>
 </div>
 
 <div class="content">
@@ -13,228 +14,277 @@
       <div class="card ">
         <div class="card-body">
             <div class="detail-list">
-              <dl class="d-flex justify-content-between">
-                <dt>Make</dt>
-                <dd><%= @aircraft.make %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Model</dt>
-                <dd><%= @aircraft.model %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Tail #</dt>
-                <dd><%= @aircraft.tail_number %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Serial #</dt>
-                <dd><%= @aircraft.serial_number %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Equipment</dt>
-                <dd><%= @aircraft.equipment %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>IFR Certified</dt>
-                <dd><%= display_boolean(@aircraft.ifr_certified) %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Airworthiness Certificate</dt>
-                <dd><%= display_boolean(@aircraft.airworthiness_certificate) %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Registration Certificate Expires at</dt>
-                <dd><%= standard_date_format(@aircraft.registration_certificate_expires_at) || "N/A" %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Insurance Expires at</dt>
-                <dd><%= standard_date_format(@aircraft.insurance_expires_at) || "N/A" %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Simulator</dt>
-                <dd><%= display_boolean(@aircraft.simulator) %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Last Recorded Tach Time</dt>
-                <dd><%= display_hour_tenths(@aircraft.last_tach_time) %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Last Recorded Hobbs Time</dt>
-                <dd><%= display_hour_tenths(@aircraft.last_hobbs_time) %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Rate Per Hour</dt>
-                <dd><%= currency @aircraft.rate_per_hour %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Block Rate Per Hour</dt>
-                <dd><%= currency @aircraft.block_rate_per_hour %></dd>
-              </dl>
-              
-              <dl class="d-flex justify-content-between border-none">
-                <dt>Inspections</dt>
-                <dd></dd>
-              </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Make</dt>
+                  <dd><%= @aircraft.make %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Model</dt>
+                  <dd><%= @aircraft.model %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Tail #</dt>
+                  <dd><%= @aircraft.tail_number %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Serial #</dt>
+                  <dd><%= @aircraft.serial_number %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Equipment</dt>
+                  <dd><%= @aircraft.equipment %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>IFR Certified</dt>
+                  <dd><%= display_boolean(@aircraft.ifr_certified) %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Airworthiness Certificate</dt>
+                  <dd><%= display_boolean(@aircraft.airworthiness_certificate) %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Registration Certificate Expires at</dt>
+                  <dd><%= standard_date_format(@aircraft.registration_certificate_expires_at) || "N/A" %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Insurance Expires at</dt>
+                  <dd><%= standard_date_format(@aircraft.insurance_expires_at) || "N/A" %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Simulator</dt>
+                  <dd><%= display_boolean(@aircraft.simulator) %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Last Recorded Tach Time</dt>
+                  <dd><%= display_hour_tenths(@aircraft.last_tach_time) %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Last Recorded Hobbs Time</dt>
+                  <dd><%= display_hour_tenths(@aircraft.last_hobbs_time) %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Rate Per Hour</dt>
+                  <dd><%= currency @aircraft.rate_per_hour %></dd>
+                </dl>
+                <dl class="d-flex justify-content-between">
+                  <dt>Block Rate Per Hour</dt>
+                  <dd><%= currency @aircraft.block_rate_per_hour %></dd>
+                </dl>        
+                          
+                <dl class="d-flex justify-content-between border-none">
+                    <dt>Inspections</dt>
+                    <dd></dd>
+                </dl>
 
-              <div class="table-responsive">
-                <table class="table text-left">
-                  <thead class="text-primary">
-                    <tr>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th class="text-center">Date/Tach</th>
-                      <th>Due</th>
-                      <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new" class="btn btn-primary btn-sm">Add New</a></th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <div class="table-responsive">
+                    <table class="table text-left">
+                        <thead class="text-primary">
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th class="text-center">Date/Tach</th>
+                            <th>Due date/tach time</th>
+                            <th class="text-right"><a
+                                    href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new"
+                                    class="btn btn-primary btn-sm">Add New</a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
 
-                    <%= for inspection <- @inspections do %>
-                      <tr>
-                        <td><%= inspection.name %></td>
-                        <td><%= inspection.type %></td>
-                        <td class="text-center text-capitalize"><%= inspection.date_tach %></td>
-                        <td><%= inspection.expiration %></td>
-                        <td class="text-right d-none"><a onclick="inspectnow(<%= inspection.id %>)" class="btn btn-primary btn-sm text-white">Inspect Now</a></td>
-                        <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
-                      </tr>
-                    <% end %>
+                        <%= for inspection <- @inspections do %>
+                        <tr>
+                            <td><%= inspection.name %></td>
+                            <td><%= inspection.type %></td>
+                            <td class="text-center text-capitalize"><%= inspection.date_tach %></td>
+                            <td><%= inspection.expiration %></td>
+                            <%= if !inspection.is_completed do%>
+                            <td class="text-right "><a onclick="inspectnow(<%= Poison.encode!(inspection) %>)"
+                                                        class="btn btn-primary btn-sm text-white">Inspect Now</a>
+                            </td>
+                            <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit"
+                                                      class="btn btn-primary btn-sm">Edit</a></td>
+                            <% end %>
 
-                  </tbody>
-                </table>
+                            <%= if inspection.is_completed do%>
+                            <td class="text-right ">completed
+                            </td>
+                            <% end %>
+                        </tr>
+                        <% end %>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <dl class="d-flex justify-content-between border-none">
+                    <dt>Squawks</dt>
+                    <dd></dd>
+                </dl>
+
+                <div class="table-responsive">
+                    <table class="table text-left">
+                        <thead class="text-primary">
+                        <tr>
+                            <th>Title</th>
+                            <th>Severity</th>
+                            <th>System Affected</th>
+                            <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/squawks/new"
+                                                      class="btn btn-primary btn-sm">Add New</a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        <%= for squawk <- @squawks do %>
+                        <tr>
+                            <td><%= squawk.title %></td>
+                            <td><%= squawk.severity %></td>
+                            <td><%= squawk.system_affected %></td>
+                            <td class="text-right"><a href="/admin/squawks/<%= squawk.id %>/edit"
+                                                      class="btn btn-primary btn-sm">Edit</a></td>
+                        </tr>
+                        <% end %>
+
+                        </tbody>
+                    </table>
+                </div>                    
               </div>
-
-              <dl class="d-flex justify-content-between border-none">
-                <dt>Squawks</dt>
-                <dd></dd>
-              </dl>
-
-              <div class="table-responsive">
-                <table class="table text-left">
-                  <thead class="text-primary">
-                    <tr>
-                      <th>Title</th>
-                      <th>Severity</th>
-                      <th >System Affected</th>
-                      <th class="text-right"><a href="/admin/aircrafts/<%= @aircraft.id %>/squawks/new" class="btn btn-primary btn-sm">Add New</a></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-
-                    <%= for squawk <- @squawks do %>
-                      <tr>
-                        <td><%= squawk.title %></td>
-                        <td><%= squawk.severity %></td>
-                        <td><%= squawk.system_affected %></td>
-                        <td class="text-right"><a href="/admin/squawks/<%= squawk.id %>/edit" class="btn btn-primary btn-sm">Edit</a></td>
-                      </tr>
-                    <% end %>
-
-                  </tbody>
-                </table>
-              </div>              
-            </div>
+            </div> <!-- end card -->
         </div>
-      </div> <!-- end card -->
     </div>
-  </div>
 </div> <!-- end content -->
 <div id="inspectNow" class="modal fade" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-centered" role="document" >
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Inspect Now</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <label class="col-md-3 col-form-label">Note</label>
-          <div class="col-md-9">
-            <div class="form-group">
-              <textarea id="note" class="form-control"></textarea>
+    <div class="modal-dialog modal-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Inspect Now</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
             </div>
-          </div>
-        </div>
-        <div class="row">
-          <label class="col-md-3">Repeat inspection?</label>
-          <div class="col-md-9">
-            <label class="switch">
-              <input type="checkbox" id="repeatInspection" >
-              <span class="slider round"></span>
-            </label>
-          </div>
-        </div>
-        <div class="row" id="nextInspectionField">
-          <label class="col-md-3">Next Inspection</label>
-          <div class="col-md-9">
-            <div class="form-group end-date">
-              <input id="nextInspection" type="text" class="form-control" value="">
+            <div class="modal-body">
+                <form enctype="multipart/form-data" id="form">
+                    <input type="hidden"  id="inspection_id">
+                    <input type="hidden"  id="aircraft_id">
+                    <div class="row">
+                        <label class="col-md-4 col-form-label">Note</label>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <textarea required id="note" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-md-4">Repeat inspection?</label>
+                        <div class="col-md-8">
+                            <label class="switch">
+                                <input type="checkbox" id="repeatInspection" name="is-repeated">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row" id="nextInspectionField">
+                        <label id="nextInspectionLabel" class="col-md-4">Next Inspection</label>
+                        <div class="col-md-8">
+                            <div class="form-group end-date">
+                                <input id="nextInspectionDate" name="nextInspectionDate" type="text" class="form-control" value="">
+                                <input id="nextInspectionTachTime"  name="nextInspectionTachTime" type="number" step="0.1" class="form-control"
+                                       value="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="drag-area">
+                        <header>Drag and Drop a file to upload it.</header>
+                        <span>Allowed file types: jpeg, .jpg, .png, .pdf</span>
+                        <span>Max size: 5MB.</span>
+                        <button class="btn btn-fill btn-primary" id="browseBtn">Browse Files</button>
+                        <input type="file" id="file_upload" class="input-file" multiple hidden/>
+                        <ul class="fileList">
+                        </ul>
+                    </div>
+                    <div class="">
+                        <button data-dismiss="modal" class="btn btn-fill btn-default mr-2">Cancel</button>
+                        <input id="inspection-now-form-submit" type="submit" class="btn btn-fill btn-primary"
+                               value="Save">
+                    </div>
+                </form>
             </div>
-          </div>
         </div>
-        <div class="drag-area">
-              <header>Drag and Drop a file to upload it.</header>
-              <span>Allowed file types: jpeg, .jpg, .png, .pdf</span>
-              <span>Max size: 5MB.</span>
-              <button class="btn btn-fill btn-primary" id="browseBtn">Browse Files</button>
-              <input id= "file_upload" class= "input-file" multiple hidden />
-              <ul class="fileList">
-              </ul>
-            </div>
-      </div>
     </div>
-  </div>
 </div>
 <%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
 <style>
-    .drag-area{
-      border: 1px dashed #92b0b3;
-      border-radius: 5px;
-      background: #ffffff;
-      height: 250px;
-      width: 100%;
-      border-radius: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
+    .drag-area {
+        border: 1px dashed #92b0b3;
+        border-radius: 5px;
+        background: #ffffff;
+        height: 250px;
+        width: 100%;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
     }
 
-    .drag-area .icon{
-      font-size: 100px;
-      color: #fff;
+    .drag-area .icon {
+        font-size: 100px;
+        color: #fff;
     }
-    .drag-area header, .drag-area span{
-      font-size: 20px;
-      color: #3f8188;
-      text-align: center;
-      font-weight: 200;
+
+    .drag-area header, .drag-area span {
+        font-size: 20px;
+        color: #3f8188;
+        text-align: center;
+        font-weight: 200;
     }
-    .drag-area span{
-      font-size: 15px;
+
+    .drag-area span {
+        font-size: 15px;
     }
-    .drag-area button{
-      border-radius: 30px;
+
+    .drag-area button {
+        border-radius: 30px;
     }
-    .drag-area img{
-      height: 100%;
-      width: 100%;
-      object-fit: cover;
-      border-radius: 5px;
+
+    .drag-area img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        border-radius: 5px;
     }
 </style>
 <script>
-  function inspectnow(id) {
+  const AUTH_HEADERS = {"authorization": window.fsm_token};
+
+  function inspectnow(inspection) {
+    console.log('inspection--', inspection)
+    console.log('inspection.date_tach--', inspection.date_tach)
+    $('#repeatInspection').prop('checked', false)
+    $('#nextInspectionField').hide()
+
     $('#inspectNow').modal({
       backdrop: 'static',   // This disable for click outside event
       keyboard: true        // This for keyboard event
-    });    
+    });
+    if (inspection.date_tach == 'date') {
+      $('#nextInspectionDate').show()
+      $('#nextInspectionTachTime').hide()
+      $('#nextInspectionLabel').text("Next inspection date")
+    } else {
+      $('#nextInspectionTachTime').show()
+      $('#nextInspectionDate').hide()
+      $('#nextInspectionLabel').text("Next inspection tach time")
+    }
+    onLoadFileupload()
+      $('#inspection_id').val(inspection.id)
+      $('#aircraft_id').val(inspection.aircraft_id)
   }
-  function initDateTimePicker() {   
-    $('#nextInspection').datetimepicker({
+
+  function initDateTimePicker() {
+    $('#nextInspectionDate').datetimepicker({
       //debug: true,
       format: 'YYYY-MM-DD',
       defaultDate: moment(new Date()).add(2, 'M'),
-      minDate : new Date(),
+      minDate: new Date(),
       icons: {
         date: "now-ui-icons ui-1_calendar-60",
         up: "fa fa-chevron-up",
@@ -247,14 +297,116 @@
       }
     });
   }
-  $('#nextInspectionField').hide()
-  $('#repeatInspection').click(function () {
-    if ( this.checked ) {
-      $('#nextInspectionField').show()
+
+  function onLoadFileupload() {
+    //selecting all required elements
+    const dropArea = document.querySelector(".drag-area");
+    const button = dropArea.querySelector("#browseBtn");
+    const input = dropArea.querySelector("#file_upload");
+    const fileList = dropArea.querySelector(".fileList");
+
+
+    function showFiles() {
+      let list = '';
+      for (let i = 0; i < input.files.length; i++) {
+        list += '<li>' + input.files[i].name + '</li>';
+      }
+      fileList.innerHTML = list;
     }
-    else {
+
+    button.onclick = (event) => {
+      event.preventDefault();
+      input.click(); //if user click on the button then the input also clicked
+    }
+
+    input.addEventListener("change", function () {
+      showFiles();
+    });
+
+
+    //If user Drag File Over DropArea
+    dropArea.addEventListener("dragover", (event) => {
+      event.preventDefault(); //preventing from default behaviour
+    });
+
+    //If user drop File on DropArea
+    dropArea.addEventListener("drop", (event) => {
+      event.preventDefault(); //preventing from default behaviour
+      input.files = event.dataTransfer.files;
+      showFiles();
+    });
+  }
+  function showAlert(message, type) {
+      $.notify({
+          message: message
+      }, {
+          type: type,
+          placement: { align: "center" }
+      })
+  }
+  function submitInspectNowForm(form) {
+
+      $('#inspection-now-form-submit').attr('disabled','disabled')
+      console.log('form---',form)
+      var data = new FormData();
+      $.each($('#file_upload')[0].files, function (i, file) {
+          data.append('document[attachments][]', file);
+      });
+      //data.append('note', "ssss")
+      data.append("document[note]", $('#note').val())
+      data.append("document[is_repeated]", $('#repeatInspection').is(':checked'))
+      data.append("document[inspection_id]", $('#inspection_id').val())
+      data.append("document[next_inspection_date]", $('#nextInspectionDate').val())
+      data.append("document[next_inspection_tach_time]", $('#nextInspectionTachTime').val())
+    console.log('data----',data)
+      $.ajax({
+        method: "post",
+        url: "/api/inspections/inspect_now",
+        processData: false,
+        contentType: false,
+        data: data,
+        headers: AUTH_HEADERS
+      })
+      .then(response => {
+          $('#inspection-now-form-submit').removeAttr('disabled')
+          console.log('response----',response)
+
+          window.location = `/admin/aircrafts/${$('#aircraft_id').val()}`;
+          showAlert("Inspection has been successfully updated.", 'success');
+      })
+      .catch(error => {
+          $('#inspection-now-form-submit').removeAttr('disabled')
+        const message = JSON.parse(error.responseText).error
+          console.log("error",error)
+          showAlert(message, 'danger');
+      })
+  }
+
+  $('#repeatInspection').click(function () {
+    if (this.checked) {
+      $('#nextInspectionField').show()
+    } else {
       $('#nextInspectionField').hide()
     }
   })
   initDateTimePicker();
+  $('#form').validate({
+      rules: {
+          note: {
+              required: true,
+          },
+          nextInspectionTachTime: {
+              required: true,
+          },
+          nextInspectionDate: {
+              required: true,
+          }
+      },
+      submitHandler: function (form) {
+          submitInspectNowForm(form)
+      }
+  });
+
+
+
 </script>

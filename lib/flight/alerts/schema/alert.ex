@@ -20,6 +20,8 @@ defmodule Flight.Alerts.Alert do
 
         field(:is_read, :boolean, default: false)
 
+        field(:archived, :boolean, default: false)
+
         field(:additional_info, :map, null: true)
 
         belongs_to(:school, School)
