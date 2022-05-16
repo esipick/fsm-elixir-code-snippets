@@ -146,7 +146,7 @@ defmodule FlightWeb.SidebarItem do
   def student_sidebar do
     [
       %SidebarItem{
-        path: "/student/profile",
+        path: "/student/home",
         label: "Home",
         icon_class: "users_single-02",
         active: false
@@ -188,7 +188,7 @@ defmodule FlightWeb.SidebarItem do
   def renter_sidebar do
     [
       %SidebarItem{
-        path: "/renter/profile",
+        path: "/renter/home",
         label: "Home",
         icon_class: "users_single-02",
         active: false
@@ -224,7 +224,7 @@ defmodule FlightWeb.SidebarItem do
   def mechanic_sidebar do
     [
       %SidebarItem{
-        path: "/mechanic/profile",
+        path: "/mechanic/home",
         label: "Home",
         icon_class: "users_single-02",
         active: false

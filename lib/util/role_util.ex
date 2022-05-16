@@ -11,6 +11,18 @@ defmodule FlightWeb.RoleUtil do
     end
   end
 
+  def profile_path(user) do
+    case access_level(user) do
+      "admin" -> "/admin/profile"
+      "instructor" -> "/instructor/profile"
+      "student" -> "/student/profile"
+      "renter" -> "/renter/profile"
+      "mechanic" -> "/mechanic/profile"
+      "dispatcher" -> "/dispatcher/profile"
+      _ -> nil
+    end
+  end
+
   def access_level(user) do
     user = Flight.Repo.preload(user, :roles)
     roles = Enum.map(user.roles, fn r -> r.slug end)
