@@ -287,11 +287,16 @@ defmodule FsmWeb.ViewHelpers do
   end
 
   def appointment_type(type) do
-    type
-    |> String.replace("_", " ")
-    |> String.split
-    |> Enum.map(&String.capitalize/1)
-    |> Enum.join(" ")
+    if type === "meeting" do
+      "Meeting/Ground"
+    else
+      type
+      |> String.replace("_", " ")
+      |> String.split
+      |> Enum.map(&String.capitalize/1)
+      |> Enum.join(" ")
+    end
+
   end
 
   def display_phone_number(number) do
