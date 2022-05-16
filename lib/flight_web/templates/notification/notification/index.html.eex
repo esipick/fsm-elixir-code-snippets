@@ -9,9 +9,6 @@
     <div class="panel">
         <div class="header">
             <div class="menu-icon">
-            <div class="dash-top"></div>
-            <div class="dash-bottom"></div>
-            <div class="circle"></div>
             </div><span class="title">Notifications</span>
         </div>        
         <div class="notifications clearfix">
@@ -87,7 +84,6 @@
   height: 15px;
   top: 23px;
   left: 20px;
-  cursor: pointer;
 }
 .panel .header .menu-icon:hover .dash-top, .panel .header .menu-icon:hover .dash-bottom,
 .panel .header .menu-icon:hover .dash-bottom,
@@ -361,6 +357,11 @@
       }).then(function (response) {
           if ( !response.errors ) {
               showAlert(`Notification/s marked ${type} successfully.`, 'success')
+              if ( notiType == 'all' ) {
+                getAllNotifications();
+                return;
+              }
+              getUnreadNotifications();
           }
       }).catch(function (e) {
           console.log(`Error  in marking notifications as ${type}.`, e);
@@ -659,9 +660,9 @@
                 }) 
                 if ( notiList !== '' ) {
                   notiList = `
-                    <div class="select-all">
-                      <label>Select All</label>
+                    <div class="select-all">                      
                       <input id="select-all" type="checkbox" onclick="checkAll()" />
+                      <label>Select All</label>
                     </div>
                   ` + notiList;
                 }

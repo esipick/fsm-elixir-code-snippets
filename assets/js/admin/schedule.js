@@ -2226,7 +2226,8 @@ $(document).ready(function () {
           params.user_name = fullName(resource.current_user)
           params.mechanic_user_id = resource.current_user.id
         }
-
+        $('#btnDelete').prop('disabled', false);
+        $('#btnSave').prop('disabled', false);
         openAppointmentModal(params)
 
       },
@@ -2238,6 +2239,9 @@ $(document).ready(function () {
           disableEditAppointment()
           return;
         }
+        console.log('testt')
+        $('#btnDelete').prop('disabled', false);
+        $('#btnSave').prop('disabled', false);
 
         if (calEvent.unavailability) {
 
@@ -2269,10 +2273,7 @@ $(document).ready(function () {
             type: "unavailable"
           })
           return;
-        }
-
-        $('#btnDelete').prop('disabled', false);
-        $('#btnSave').prop('disabled', false);
+        }        
 
         if (calEvent.appointment.demo) {
           var appointment = calEvent.appointment

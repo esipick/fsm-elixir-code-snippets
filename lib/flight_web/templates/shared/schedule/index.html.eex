@@ -146,7 +146,7 @@
             </div>
 
             <div id="apptFieldRoom" class="row">
-              <label class="col-md-3 col-form-label">Room *</label>
+              <label class="col-md-3 col-form-label">Room </label>
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="apptRoom" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Room">

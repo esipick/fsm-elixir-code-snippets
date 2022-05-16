@@ -337,28 +337,28 @@
                   <td>
                     <%= if appointment.aircraft_id do %>
                       <dl class="d-flex justify-content-between">
-                        <dt>Aircraft</dt>
+                        <dt>Aircraft&nbsp;&nbsp;</dt>
                         <dd><%= aircraft_display_name appointment.aircraft %></dd>
                       </dl>
                     <% end %>
 
                     <%= if appointment.simulator_id do %>
                       <dl class="d-flex justify-content-between">
-                        <dt>Simulator</dt>
+                        <dt>Simulator&nbsp;&nbsp;</dt>
                         <dd><%= aircraft_display_name appointment.simulator %></dd>
                       </dl>
                     <% end %>
 
                     <%= if appointment.room_id do %>
                       <dl class="d-flex justify-content-between">
-                        <dt>Room</dt>
+                        <dt>Room&nbsp;&nbsp;</dt>
                         <dd><%= appointment.room.location %></dd>
                       </dl>
                     <% end %>
 
                     <%= if appointment.instructor_user_id do %>
                       <dl class="d-flex justify-content-between">
-                        <dt>Instructor</dt>
+                        <dt>Instructor&nbsp;&nbsp;</dt>
                         <dd><%= display_name appointment.instructor_user %></dd>
                       </dl>
                     <% end %>
