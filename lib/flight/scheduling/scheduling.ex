@@ -1038,6 +1038,43 @@ defmodule Flight.Scheduling do
     {:ok, true}
   end
 
+  def delete_appointment(id, deleting_user, school_context, delete_reason, delete_reason_options) do
+    appointment =
+      get_appointment(id, school_context)
+      |> Repo.preload([:user, :instructor_user])
+
+    deleting_user = Repo.preload(deleting_user, :school)
+    Appointment.archive(appointment, delete_reason, delete_reason_options)
+
+    Flight.Bills.archive_appointment_invoices(appointment.id)
+
+    Mondo.Task.start(fn ->
+      if deleting_user.id != appointment.user_id do
+        Flight.PushNotifications.appointment_deleted_notification(
+          appointment.user,
+          deleting_user,
+          appointment
+        )
+        |> Mondo.PushService.publish()
+      end
+
+      if appointment.instructor_user && appointment.instructor_user.id != deleting_user.id do
+        Flight.PushNotifications.appointment_deleted_notification(
+          appointment.instructor_user,
+          deleting_user,
+          appointment
+        )
+        |> Mondo.PushService.publish()
+      end
+    end)
+
+    # send email to appointment.user
+    if(appointment.user) do
+      Flight.Email.unavailability_email(appointment.user)
+    end
+    {:ok, true}
+  end
+
   def send_unavailibility_notification(attrs, school_context) do
 
     aircraft_id = Map.get(attrs, "aircraft_id")

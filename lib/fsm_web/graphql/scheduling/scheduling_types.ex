@@ -126,6 +126,8 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
     field :delete_appointment, :string do
       arg :appointment_id, :integer
+      arg :delete_reason, :string
+      arg :delete_reason_options, list_of(:string)
       middleware Middleware.Authorize
       resolve &SchedulingResolvers.delete_appointment/3
     end

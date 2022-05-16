@@ -791,6 +791,62 @@ $(document).ready(function () {
       $('#loader').hide();
     })
   }
+
+  var deleteEventTrigger = function(appointmentOrUnavailabilityId, eventType, event, delete_reason, delete_reason_options) {
+    
+    let promise = null;
+    if (eventType == "appt") {
+      promise = $.ajax({
+        method: "delete",
+        data: { data: {delete_reason: delete_reason, delete_reason_options: delete_reason_options}} ,
+        url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+        headers: AUTH_HEADERS
+      })
+    } else if (eventType == "demoAppt") {
+      promise = $.ajax({
+        method: "delete",
+        url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+        headers: AUTH_HEADERS
+      })
+    } else if(eventType === "maintenance") {
+      promise = $.ajax({
+        method: "delete",
+        url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+        headers: AUTH_HEADERS
+      })
+    } else {
+      promise = $.ajax({
+        method: "delete",
+        url: "/api/unavailabilities/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
+        headers: AUTH_HEADERS
+      })
+    }
+
+    promise.then(function () {
+      $('#calendarNewModal').modal('hide')
+      $calendar.fullCalendar('refetchEvents')
+
+      $.notify({
+        message: "Successfully deleted " + event
+      }, {
+        type: "success",
+        placement: { align: "center" }
+      })
+
+    }).catch(function (e) {
+      if (e.responseJSON.human_errors) {
+        showError(e.responseJSON.human_errors, event)
+      } else {
+        $.notify({
+          message: "There was an error deleting the event"
+        }, {
+          type: "danger",
+          placement: { align: "center" }
+        })
+      }
+      $('#loader').hide();
+    })
+  }
   
   var askDeleteReason = function(appointmentOrUnavailabilityId, eventType, event) {
     $.confirm({
@@ -798,11 +854,11 @@ $(document).ready(function () {
       content: '<p>Please enter reason to delete this event.</p>' +
       '<form action="" class="deleteReasonForm">' +
       '<div class="form-group">' +
-      '<input type="checkbox" /><label>&nbsp;&nbsp;Weather</label><br/>'+
-      '<input type="checkbox" /><label>&nbsp;&nbsp;Plane not available</label><br/>'+
-      '<input type="checkbox" /><label>&nbsp;&nbsp;Instructor not available</label><br/>'+
-      '<input type="checkbox" /><label>&nbsp;&nbsp;Student not available</label><br/>'+
-      '<input type="checkbox" /><label>&nbsp;&nbsp;Other:</label>'+
+      '<input type="checkbox" name="deleteReasonOptions" value="weather"/><label>&nbsp;&nbsp;Weather</label><br/>'+
+      '<input type="checkbox" name="deleteReasonOptions" value="plane_unavailable"/><label>&nbsp;&nbsp;Plane not available</label><br/>'+
+      '<input type="checkbox" name="deleteReasonOptions" value="instructor_unavailable"/><label>&nbsp;&nbsp;Instructor not available</label><br/>'+
+      '<input type="checkbox" name="deleteReasonOptions" value="student_unavailable"/><label>&nbsp;&nbsp;Student not available</label><br/>'+
+      '<input type="checkbox" name="deleteReasonOptions" value="other"/><label>&nbsp;&nbsp;Other:</label>'+
       '<textarea class="deleteReasonFormField form-control"></textarea>' +
       '</div>' +
       '</form>',
@@ -811,12 +867,17 @@ $(document).ready(function () {
               text: 'Delete',
               btnClass: 'btn btn-danger ml-0',
               action: function () {
-                  var name = this.$content.find('.deleteReasonFormField').val();
-                  if(!name){
+                  var delete_reason = this.$content.find('.deleteReasonFormField').val();
+
+                  var delete_reason_options = [];
+                  $("input:checkbox[name=deleteReasonOptions]:checked").each(function() {
+                    delete_reason_options.push($(this).val());
+                  });
+                  if(!delete_reason){
                       $.alert('Reason cannot be empty!');
                       return false;
                   }
-                  deleteEvent(appointmentOrUnavailabilityId, eventType, event);
+                  deleteEventTrigger(appointmentOrUnavailabilityId, eventType, event, delete_reason, delete_reason_options);
               }
           },
           cancel:  {

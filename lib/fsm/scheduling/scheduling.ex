@@ -54,6 +54,16 @@ defmodule Fsm.Scheduling do
     end
   end
 
+  defp delete_appointment(appointment, user, context, delete_reason, delete_reason_options) do
+    Flight.Scheduling.delete_appointment(appointment.id, user, context, delete_reason, delete_reason_options)
+    |> case do
+      {:ok, _} ->
+        {:ok, true}
+      _->
+        {:error, :failed}
+    end
+  end
+
   def delete_appointment(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, appointment_id) do
     appointment = get_appointment(appointment_id)
     %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
@@ -96,6 +106,55 @@ defmodule Fsm.Scheduling do
                              )
                            ] ++ owner_instructor_permission) do
           delete_appointment(appointment, current_user, context)
+        else
+          {:error, "Can't delete appointment associated with other user."}
+        end
+      end
+    end
+  end
+
+  def delete_appointment(%{context: %{current_user: %{school_id: school_id, id: user_id}}}=context, appointment_id, delete_reason, delete_reason_options) do
+    appointment = get_appointment(appointment_id)
+    %{roles: _roles, user: current_user} = Accounts.get_user(user_id)
+    context = %{assigns: %{current_user: current_user}, school_id: school_id, params: %{"school_id" => to_string(school_id)}, request_path: "/api/appointments"}
+
+    if Flight.Auth.Authorization.user_can?(current_user, [Permission.new(:appointment, :modify, :all)]) do
+      delete_appointment(appointment, current_user, context)
+    else
+      if Scheduling.Appointment.is_paid?(appointment) or current_user.archived do
+        {:error, "Can't delete paid appointment. Please contact administrator to re-schedule or delete the content."}
+      else
+        instructor_user_id = Map.get(appointment, :instructor_user_id)
+        owner_user_id = Map.get(appointment, :owner_user_id)
+
+        owner_instructor_permission =
+          if owner_user_id == current_user.id do
+            [
+              Permission.new(
+                :appointment_instructor,
+                :modify,
+                {:personal, owner_user_id})
+            ]
+          else
+            []
+          end
+
+        instructor_user_id =
+          if instructor_user_id == "" do
+            nil
+          else
+            instructor_user_id
+          end
+
+        if Flight.Auth.Authorization.user_can?(current_user, [
+                             Permission.new(:appointment_user, :modify, {:personal, appointment.user_id}),
+                             Permission.new(
+                               :appointment_instructor,
+                               :modify,
+                               {:personal, instructor_user_id}
+                             )
+                           ] ++ owner_instructor_permission) do
+          delete_appointment(appointment, current_user, context, delete_reason, delete_reason_options)
         else
           {:error, "Can't delete appointment associated with other user."}
         end

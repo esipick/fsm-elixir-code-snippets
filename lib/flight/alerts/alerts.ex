@@ -17,6 +17,26 @@ defmodule Flight.Alerts do
         |> Repo.one()
     end
 
+    def mark_notification_alerts(ids, is_read, context) do
+        AlertsQueries.mark_delete_notification_alerts_query(ids, context)
+        |> Repo.update_all(set: [is_read: is_read])
+    end
+
+    def delete_notification_alerts(ids, context) do
+        AlertsQueries.mark_delete_notification_alerts_query(ids, context)
+        |> Repo.update_all(set: [archived: true])
+    end
+
+    def mark_all_notification_alerts(is_read, context) do
+        AlertsQueries.mark_delete_all_notification_alerts_query(context)
+        |> Repo.update_all(set: [is_read: is_read])
+    end
+
+    def delete_all_notification_alerts(context) do
+        AlertsQueries.mark_delete_all_notification_alerts_query(context)
+        |> Repo.update_all(set: [archived: true])
+    end
+
     def create_notification_alert(alert) do
         %Alert{}
         |> Alert.changeset(alert)

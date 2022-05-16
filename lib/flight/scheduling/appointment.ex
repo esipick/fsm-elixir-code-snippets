@@ -29,6 +29,9 @@ defmodule Flight.Scheduling.Appointment do
     field(:appt_status, CheckRideStatus, default: :none)
     field(:parent_id, :integer)
 
+    field(:delete_reason, :string, null: true)
+    field(:delete_reason_options, {:array, :string}, null: true)
+
     belongs_to(:school, Flight.Accounts.School)
     belongs_to(:instructor_user, Flight.Accounts.User)
     belongs_to(:mechanic_user, Flight.Accounts.User)
@@ -106,6 +109,9 @@ defmodule Flight.Scheduling.Appointment do
 
   def archive(%Flight.Scheduling.Appointment{} = appointment),
     do: change(appointment, archived: true) |> Flight.Repo.update()
+
+  def archive(%Flight.Scheduling.Appointment{} = appointment, delete_reason, delete_reason_options),
+    do: change(appointment, [archived: true, delete_reason: delete_reason, delete_reason_options: delete_reason_options]) |> Flight.Repo.update()
 
   def is_paid?(appointment), do: appointment.status == :paid
 

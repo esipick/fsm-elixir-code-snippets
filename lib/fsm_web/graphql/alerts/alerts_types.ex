@@ -20,7 +20,7 @@ defmodule FsmWeb.GraphQL.Alerts.AlertsTypes do
         resolve &AlertsResolvers.get_alert/3
       end
 
-      @desc "List all alerts ('all')"
+      @desc "List notification alerts ('all')"
       field :list_notification_alerts, :alert_data do
         arg :page, :integer, default_value: 1
         arg :per_page, :integer, default_value: 100
@@ -35,6 +35,33 @@ defmodule FsmWeb.GraphQL.Alerts.AlertsTypes do
 
     # MUTATIONS
     object :alerts_mutations do
+      @desc "Mark notification alerts as read/unread"
+      field :mark_notification_alerts, :boolean do
+        arg :alert_ids, list_of(non_null(:id))
+        arg :is_read, non_null(:boolean)
+        middleware(Middleware.Authorize, ["admin", "instructor", "student", "renter", "dispatcher", "mechanic"])
+        resolve(&AlertsResolvers.mark_notification_alerts/3)
+      end
+
+      @desc "Delete notification alerts"
+      field :delete_notification_alerts, :boolean do
+        arg :alert_ids, list_of(non_null(:id))
+        middleware(Middleware.Authorize, ["admin", "instructor", "student", "renter", "dispatcher", "mechanic"])
+        resolve(&AlertsResolvers.delete_notification_alerts/3)
+      end
+
+      @desc "Mark all notification alerts as read/unread"
+      field :mark_all_notification_alerts, :boolean do
+        arg :is_read, non_null(:boolean)
+        middleware(Middleware.Authorize, ["admin", "instructor", "student", "renter", "dispatcher", "mechanic"])
+        resolve(&AlertsResolvers.mark_all_notification_alerts/3)
+      end
+
+      @desc "Delete all notification alerts"
+      field :delete_all_notification_alerts, :boolean do
+        middleware(Middleware.Authorize, ["admin", "instructor", "student", "renter", "dispatcher", "mechanic"])
+        resolve(&AlertsResolvers.delete_all_notification_alerts/3)
+      end
     end
 
     # TYPES
@@ -53,10 +80,16 @@ defmodule FsmWeb.GraphQL.Alerts.AlertsTypes do
       field :receiver_id, :integer
       field :sender_id, :integer
       field :is_read, :boolean
+      field :archived, :boolean
       field :additional_info, :json
       field :school_id, :integer
       field :created_at, :naive_datetime
       field :updated_at, :naive_datetime
+    end
+
+    object :alert_input do
+      field :id, non_null(:id)
+      field :is_read, :boolean
     end
 
     input_object :alert_filters do

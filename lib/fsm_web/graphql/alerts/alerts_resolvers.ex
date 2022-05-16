@@ -10,6 +10,26 @@ defmodule FsmWeb.GraphQL.Alerts.AlertsResolvers do
     Log.response(resp, __ENV__.function)
   end
 
+  def mark_notification_alerts(parent, %{alert_ids: alert_ids, is_read: is_read}=args, %{context: %{current_user: school_context}}=context) do
+    Alerts.mark_notification_alerts(alert_ids, is_read, school_context)
+    {:ok, true}
+  end
+
+  def delete_notification_alerts(parent, %{alert_ids: alert_ids}=args, %{context: %{current_user: school_context}}=context) do
+    Alerts.delete_notification_alerts(alert_ids, school_context)
+    {:ok, true}
+  end
+
+  def mark_all_notification_alerts(parent, %{is_read: is_read}=args, %{context: %{current_user: school_context}}=context) do
+    Alerts.mark_all_notification_alerts(is_read, school_context)
+    {:ok, true}
+  end
+
+  def delete_all_notification_alerts(parent, _args, %{context: %{current_user: school_context}}=context) do
+    Alerts.delete_all_notification_alerts(school_context)
+    {:ok, true}
+  end
+
   def list_alerts(parent, args, %{context: %{current_user: school_context}}=context) do
     page = Map.get(args, :page)
     per_page = Map.get(args, :per_page)
