@@ -6,7 +6,9 @@
         <div class="card-body">
             <ul id="noti-list">
             </ul>
+            <p id="no-noti"></p>
             <a href="/notifications" class="btn btn-primary">View All</a>
+            
         </div>
     </div>
 </div>
@@ -63,7 +65,13 @@
                         </li>
                     `;
                 }) 
+                if ( notiList === '' ) {
+                    $('#no-noti').text('No notifications.')
+                    $('#noti-list').html('');
+                    return;
+                }
                 $('#noti-list').html(notiList);
+                $('#no-noti').text('')
             }
         }).catch(function (e) {
             console.log('Error  in retrieving notifications.', e);

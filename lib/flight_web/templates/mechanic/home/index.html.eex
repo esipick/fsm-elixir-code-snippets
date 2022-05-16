@@ -92,6 +92,7 @@
           </div>
         </div>
       </div> %>
+      <%= render(FlightWeb.Notification.NotificationView, "widget.html", conn: @conn) %>
       <div class="card card-chart">
         <div class="card-header">
           <h5 class="card-category">Squawks</h5>

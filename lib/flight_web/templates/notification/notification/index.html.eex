@@ -648,7 +648,7 @@
                 alerts.forEach(noti => {
                     notiList += `
                         <div class="notification" data-id="${noti.id}">
-                            <div class="circle"></div> 
+                            <div class="circle active"></div> 
                             <input type="checkbox" name="mark-noti" value="${noti.id}"/>                        
                             <div class="text-box">
                               <span class="time">${noti.title}</span>
@@ -666,7 +666,7 @@
                   ` + notiList;
                 }
                 else {
-                  notiList = '<p>No notifications</p>';
+                  notiList = '<p style="margin-left:25px;">No notifications.</p>';
                 }
                 $('#noti-list').html(notiList);
                 if ( alerts.length < perPage ) {
@@ -736,6 +736,9 @@
                       <label>Select All</label>
                     </div>
                   ` + notiList;
+                }
+                else {
+                  notiList = '<p style="margin-left:25px;">No notifications.</p>';
                 }
                 $('#noti-list').html(notiList);
                 if ( alerts.length < perPage ) {
