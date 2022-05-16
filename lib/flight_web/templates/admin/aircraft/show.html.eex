@@ -263,6 +263,7 @@
     console.log('inspection.date_tach--', inspection.date_tach)
     $('#repeatInspection').prop('checked', false)
     $('#nextInspectionField').hide()
+    $('#nextInspectionTachTime').val("")
 
     $('#inspectNow').modal({
       backdrop: 'static',   // This disable for click outside event
