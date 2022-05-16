@@ -93,6 +93,7 @@ defmodule Fsm.Inspections do
         query =
           from i in Inspection,
             where: i.aircraft_id == ^aircraft_id,
+            order_by: [desc: i.inserted_at],
             select: i
 
         inspections = query

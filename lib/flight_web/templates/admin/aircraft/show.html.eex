@@ -85,7 +85,7 @@
                                     <td class="text-center text-capitalize"><%= inspection.date_tach %></td>
                                     <td><%= inspection.expiration %></td>
                                     <%= if !inspection.is_completed do%>
-                                    <td class="text-right "><a onclick="inspectnow(<%= Poison.encode!(inspection) %>)"
+                                    <td class="text-right "><a onclick="inspectnow(<%= Poison.encode!(inspection) %>, <%= display_hour_tenths(@aircraft.last_tach_time) %>)"
                                                                class="btn btn-primary btn-sm text-white">Inspect Now</a>
                                     </td>
                                     <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit"
@@ -150,8 +150,10 @@
             </div>
             <div class="modal-body">
                 <form enctype="multipart/form-data" id="form">
-                    <input type="hidden"  id="inspection_id">
-                    <input type="hidden"  id="aircraft_id">
+                    <input type="hidden" id="inspection_id">
+                    <input type="hidden" id="aircraft_id">
+                    <input type="hidden" id="tach_date">
+                    <input type="hidden" id="last_tach_time" value="<%= display_hour_tenths(@aircraft.last_tach_time) %>">
                     <div class="row">
                         <label class="col-md-4 col-form-label">Note</label>
                         <div class="col-md-8">
@@ -175,7 +177,7 @@
                             <div class="form-group end-date">
                                 <input id="nextInspectionDate" name="nextInspectionDate" type="text" class="form-control" value="">
                                 <input id="nextInspectionTachTime"  name="nextInspectionTachTime" type="number" step="0.1" class="form-control"
-                                       value="">
+                                       value="<%= display_hour_tenths(@aircraft.last_tach_time) %>">
                             </div>
                         </div>
                     </div>
@@ -191,7 +193,7 @@
                     <div class="">
                         <button data-dismiss="modal" class="btn btn-fill btn-default mr-2">Cancel</button>
                         <input id="inspection-now-form-submit" type="submit" class="btn btn-fill btn-primary"
-                               value="Save">
+                               value="Complete">
                     </div>
                 </form>
             </div>
@@ -243,7 +245,8 @@
 <script>
   const AUTH_HEADERS = {"authorization": window.fsm_token};
 
-  function inspectnow(inspection) {
+  function inspectnow(inspection, last_tach_time) {
+    console.log('last_tach_time--', last_tach_time)
     console.log('inspection--', inspection)
     console.log('inspection.date_tach--', inspection.date_tach)
     $('#repeatInspection').prop('checked', false)
@@ -253,6 +256,8 @@
       backdrop: 'static',   // This disable for click outside event
       keyboard: true        // This for keyboard event
     });
+
+      $('#tach_date').val(inspection.date_tach)
     if (inspection.date_tach == 'date') {
       $('#nextInspectionDate').show()
       $('#nextInspectionTachTime').hide()
@@ -373,8 +378,17 @@
   $('#repeatInspection').click(function () {
     if (this.checked) {
       $('#nextInspectionField').show()
+        if($('#tach_date').val() == "tach" ){
+            $('#nextInspectionDate').val()
+            $('#nextInspectionTachTime').val( $('#last_tach_time').val())
+        }else{
+            $('#nextInspectionDate').val()
+            $('#nextInspectionTachTime').val()
+        }
     } else {
       $('#nextInspectionField').hide()
+        $('#nextInspectionDate').val("")
+        $('#nextInspectionTachTime').val("")
     }
   })
   initDateTimePicker();
