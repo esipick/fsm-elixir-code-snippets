@@ -805,12 +805,14 @@ $(document).ready(function () {
     } else if (eventType == "demoAppt") {
       promise = $.ajax({
         method: "delete",
+        data: { data: {delete_reason: delete_reason, delete_reason_options: delete_reason_options}} ,
         url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
         headers: AUTH_HEADERS
       })
     } else if(eventType === "maintenance") {
       promise = $.ajax({
         method: "delete",
+        data: { data: {delete_reason: delete_reason, delete_reason_options: delete_reason_options}} ,
         url: "/api/appointments/" + appointmentOrUnavailabilityId + addSchoolIdParam('?'),
         headers: AUTH_HEADERS
       })
@@ -870,10 +872,14 @@ $(document).ready(function () {
                   var delete_reason = this.$content.find('.deleteReasonFormField').val();
 
                   var delete_reason_options = [];
+                  let isOther = false;
                   $("input:checkbox[name=deleteReasonOptions]:checked").each(function() {
+                    if ($(this).val() === 'other') {
+                      isOther = true;
+                    }
                     delete_reason_options.push($(this).val());
                   });
-                  if(!delete_reason){
+                  if(isOther && !delete_reason){
                       $.alert('Reason cannot be empty!');
                       return false;
                   }
@@ -1313,19 +1319,20 @@ $(document).ready(function () {
       } else {
         event = "unavailability"
       }
-      const isInstructor = userInfo.roles.includes("instructor")
-      const start_at = moment(appointmentData.start_at)
-      const now = moment();
-      if ( isInstructor && (now > start_at)) {
-        askDeleteReason(appointmentOrUnavailabilityId, eventType, event);
-        return;
-      }
+      askDeleteReason(appointmentOrUnavailabilityId, eventType, event);
+      // const isInstructor = userInfo.roles.includes("instructor")
+      // const start_at = moment(appointmentData.start_at)
+      // const now = moment();
+      // if ( isInstructor && (now > start_at)) {
+      //   askDeleteReason(appointmentOrUnavailabilityId, eventType, event);
+      //   return;
+      // }
 
-      if(!window.confirm("You cannot undo this action, Are you sure you want to delete this " + event + " ?")){
-        return;
-      }
-      $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
-      deleteEvent(appointmentOrUnavailabilityId, eventType, event);
+      // if(!window.confirm("You cannot undo this action, Are you sure you want to delete this " + event + " ?")){
+      //   return;
+      // }
+      // $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
+      // deleteEvent(appointmentOrUnavailabilityId, eventType, event);
 
     }
   });
@@ -1462,13 +1469,14 @@ $(document).ready(function () {
       const isInstructor = userInfo.roles.includes("instructor")
       const start_at = moment(appointmentData.start_at)
       const now = moment();
-      if ( isInstructor && (now > start_at)) {
-        askDeleteReason(appointmentOrUnavailabilityId, eventType, event);
-        return;
-      }
+      askDeleteReason(appointmentOrUnavailabilityId, eventType, event);
+      // if ( isInstructor && (now > start_at)) {
+      //   askDeleteReason(appointmentOrUnavailabilityId, eventType, event);
+      //   return;
+      // }
 
-      $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
-      deleteEvent(appointmentOrUnavailabilityId, eventType, event);
+      // $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
+      // deleteEvent(appointmentOrUnavailabilityId, eventType, event);
     }
   });
 
