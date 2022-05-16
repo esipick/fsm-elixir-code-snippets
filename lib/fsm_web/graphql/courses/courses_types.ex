@@ -41,12 +41,6 @@ defmodule FsmWeb.GraphQL.Courses.CoursesTypes do
             arg :fsm_user_id, non_null(:id)
             resolve &CoursesResolvers.get_student_course_lessons/3
         end
-        @desc "Get Participant Course lesson"
-        field :get_participant_course_lessons, :participant do
-            arg :course_id, non_null(:id)
-            arg :lms_user_id, non_null(:id)
-            resolve &CoursesResolvers.get_participant_course_lessons/3
-        end
         @desc "Get Participant Course Sub lesson"
         field :get_participant_course_sub_lessons, list_of(:sub_lesson) do
             arg :course_id, non_null(:id)

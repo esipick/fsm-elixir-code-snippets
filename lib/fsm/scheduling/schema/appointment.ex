@@ -206,7 +206,7 @@ defmodule Fsm.Scheduling.Appointment do
         end
 
       get_field(changeset, :type) == "meeting" ->
-        if get_field(changeset, :room_id) == nil or get_field(changeset, :instructor_user_id) == nil do
+        if get_field(changeset, :instructor_user_id) == nil or get_field(changeset, :instructor_user_id) == nil do
           add_error(changeset, :room, "and instructor is required.")
         else
           changeset

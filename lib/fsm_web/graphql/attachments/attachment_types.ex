@@ -13,16 +13,16 @@ defmodule FsmWeb.GraphQL.Attachments.AttachmentsTypes do
       resolve(&AttachmentsResolvers.get_attachment/3)
     end
 
-    @desc "Get Attachments by user"
-    field :get_attachments, :attachment_data do
-      resolve(&AttachmentsResolvers.get_attachments/3)
-    end
+    # @desc "Get Attachments by user"
+    # field :get_attachments, :attachment_data do
+    #   resolve(&AttachmentsResolvers.get_attachments/3)
+    # end
 
-    @desc "Get Attachments by inspection id"
-    field :get_attachments, :attachment_data do
-      arg(:inspection_id, non_null(:id))
-      resolve(&AttachmentsResolvers.get_attachments_by_inspection_id/3)
-    end
+    # @desc "Get Attachments by inspection id"
+    # field :get_attachments, :attachment_data do
+    #   arg(:inspection_id, non_null(:id))
+    #   resolve(&AttachmentsResolvers.get_attachments_by_inspection_id/3)
+    # end
 
     @desc "Get Attachments by squawk id"
     field :get_attachments, :attachment_data do
@@ -65,7 +65,6 @@ defmodule FsmWeb.GraphQL.Attachments.AttachmentsTypes do
     field(:url, :string)
     field(:file_name, :string)
     field(:file_extension, :string)
-    field(:size_in_bytes, :integer)
     field(:size_in_bytes, :integer)
     field(:document_type, :document_type)
     field(:attachment_type, :attachment_type)
