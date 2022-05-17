@@ -1001,7 +1001,8 @@ $(document).ready(function () {
         simulator_id: eventSimulator,
         room_id: eventRoom,
         note: eventNote,
-        type: eventApptType
+        type: eventApptType,
+        demo: false
       };
       if (appointmentOrUnavailabilityId) {
         promise = $.ajax({
