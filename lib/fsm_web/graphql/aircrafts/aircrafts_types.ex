@@ -1,6 +1,6 @@
 defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
     use Absinthe.Schema.Notation
-  
+
     alias FsmWeb.GraphQL.Middleware
     alias FsmWeb.GraphQL.Aircrafts.AircraftsResolvers
 
@@ -30,11 +30,11 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
         resolve &AircraftsResolvers.list_aircrafts/3
       end
     end
-  
+
     # MUTATIONS
     object :aircrafts_mutations do
     end
-  
+
     # TYPES
 
     object :aircraft_data do
@@ -59,6 +59,8 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
       field :archived, :boolean
       field :blocked, :boolean
       field :school_id, :integer
+      field :days_before, :integer
+      field :tach_hours_before, :integer
       field :squawks, list_of(non_null(:squawk))
       field :inspections, list_of(non_null(:inspection))
     end
@@ -80,6 +82,8 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
       field :archived, :boolean
       field :blocked, :boolean
       field :school_id, :integer
+      field :days_before, :integer
+      field :tach_hours_before, :integer
       field :inspections, list_of(non_null(:inspection))
     end
 
@@ -94,4 +98,3 @@ defmodule FsmWeb.GraphQL.Aircrafts.AircraftsTypes do
       field :search_term, :string
     end
 end
-  

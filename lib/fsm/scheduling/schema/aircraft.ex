@@ -23,6 +23,8 @@ defmodule Fsm.Scheduling.Aircraft do
     field(:tail_number, :string)
     field(:archived, :boolean, default: false)
     field(:blocked, :boolean, default: false)
+    field(:days_before, :integer, default: 30)
+    field(:tach_hours_before, :integer, default: 200)
     belongs_to(:school, Flight.Accounts.School)
     has_many(:squawks, Fsm.Squawks.Squawk)
     has_many(:inspections, Fsm.Aircrafts.Inspection)
@@ -34,8 +36,8 @@ defmodule Fsm.Scheduling.Aircraft do
     timestamps()
   end
 
-  def fields_to_cast, do: ~w(make model tail_number serial_number ifr_certified simulator equipment last_tach_time 
-  last_hobbs_time rate_per_hour block_rate_per_hour name blocked)a
+  def fields_to_cast, do: ~w(make model tail_number serial_number ifr_certified simulator equipment last_tach_time
+  last_hobbs_time rate_per_hour block_rate_per_hour name blocked days_before tach_hours_before )a
 
   @doc false
   def changeset(aircraft, attrs) do

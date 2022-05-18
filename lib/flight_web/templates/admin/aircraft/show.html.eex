@@ -42,18 +42,18 @@
                 <dt>Airworthiness Certificate</dt>
                 <dd><%= display_boolean(@aircraft.airworthiness_certificate) %></dd>
               </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Registration Certificate Expires at</dt>
-                <dd><%= standard_date_format(@aircraft.registration_certificate_expires_at) || "N/A" %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                <dt>Insurance Expires at</dt>
-                <dd><%= standard_date_format(@aircraft.insurance_expires_at) || "N/A" %></dd>
-              </dl>
-              <dl class="d-flex justify-content-between">
-                            <dt>Simulator</dt>
-                            <dd><%= display_boolean(@aircraft.simulator) %></dd>
-                        </dl>
+                        <dl class="d-flex justify-content-between">
+                        <dt>Registration Certificate Expires at</dt>
+                        <dd><%= standard_date_format(@aircraft.registration_certificate_expires_at) || "N/A" %></dd>
+                      </dl>
+                        <dl class="d-flex justify-content-between">
+                        <dt>Insurance Expires at</dt>
+                        <dd><%= standard_date_format(@aircraft.insurance_expires_at) || "N/A" %></dd>
+                      </dl>
+                        <dl class="d-flex justify-content-between">
+                                    <dt>Simulator</dt>
+                                    <dd><%= display_boolean(@aircraft.simulator) %></dd>
+                                </dl>
                         <dl class="d-flex justify-content-between">
                             <dt>Last Recorded Tach Time</dt>
                             <dd><%= display_hour_tenths(@aircraft.last_tach_time) %></dd>
@@ -74,7 +74,6 @@
                             <dt>Inspections</dt>
                             <dd></dd>
                         </dl>
-
                         <div class="table-responsive">
                             <table class="table text-left">
                                 <thead class="text-primary">
@@ -114,12 +113,10 @@
                                 </tbody>
                             </table>
                         </div>
-
                         <dl class="d-flex justify-content-between border-none">
                             <dt>Squawks</dt>
                             <dd></dd>
                         </dl>
-
                         <div class="table-responsive">
                             <table class="table text-left">
                                 <thead class="text-primary">
