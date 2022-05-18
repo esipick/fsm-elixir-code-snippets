@@ -307,7 +307,7 @@ require Logger
                           res = %{
                             appointment: appointment,
                             delete: false,
-                            reason: "You are not authorized to change an appointment after 24 hours of its end time. Please talk to your assigned Instructor, Dispatcher or school's Admin."
+                            reason: "You are not authorized to delete a past appointment. Please talk to your assigned Instructor, Dispatcher or school's Admin."
                           }
                           res
                         end
@@ -458,7 +458,7 @@ require Logger
 
   defp render_bad_time_request(
          conn,
-         message \\ "You are not authorized to change an appointment after 24 hours of its end time. Please talk to your assigned Instructor, Dispatcher or school's Admin."
+         message \\ "You are not authorized to delete a past appointment. Please talk to your assigned Instructor, Dispatcher or school's Admin."
        ) do
     conn
     |> put_status(401)

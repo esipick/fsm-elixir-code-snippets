@@ -66,7 +66,7 @@
     <div class="col-md-6">
       <%# <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Squawks</h5>
+          <h4>Squawks</h5>
         </div>
         <div class="card-body">
           <div class="table-responsive">
@@ -95,7 +95,7 @@
       <%= render(FlightWeb.Notification.NotificationView, "widget.html", conn: @conn) %>
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Squawks</h5>
+          <h4>Squawks</h5>
           <h1 class="card-title"><%= Enum.count(@squawks) %></h1>
         </div>
         <div class="card-body">
@@ -139,7 +139,7 @@
       </div>
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Upcoming Inspections</h5>
+          <h4>Upcoming Inspections</h5>
           <h1 class="card-title"><%= Enum.count(@expired_inspections) %></h1>
         </div>
         <div class="card-body">
@@ -177,7 +177,7 @@
     <div class="col-md-6">
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Appointments (Maintenance)</h5>
+          <h4>Appointments (Maintenance)</h5>
         </div>
         <div class="card-body">
           <%= if Enum.any?(@appointments) do %>
