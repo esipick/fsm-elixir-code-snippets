@@ -1,7 +1,7 @@
 <div class="notifications-container">
     <div class="card">
         <div class="card-header">
-            <h4>Notifications <i class="now-ui-icons ui-1_bell-53"></i></h4>
+            <h4>Notifications (<span id="noti-count"></span>) <i class="now-ui-icons ui-1_bell-53"></i></h4>
         </div>
         <div class="card-body">
             <ul id="noti-list">
@@ -57,7 +57,9 @@
         }).then(function (response) {
             if ( !response.errors ) {
                 let notiList = '';
-                response.data.listNotificationAlerts.alerts.forEach(noti => {
+                const alerts = response.data.listNotificationAlerts.alerts;
+                $('#noti-count').text(alerts.length)
+                alerts.forEach(noti => {
                     notiList += `
                         <li class="noti-item">
                             <p class="noti-item-title">${noti.title}</p>
