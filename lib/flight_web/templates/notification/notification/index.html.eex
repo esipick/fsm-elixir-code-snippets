@@ -381,10 +381,6 @@
   }
 </script>
 <script>
-  (function() {
-  
-  "use strict";
-
   /**
    * Function to check if we clicked inside an element with a particular class
    * name.
@@ -497,7 +493,7 @@
     document.addEventListener( "click", function(e) {
       var clickeElIsLink = clickInsideElement( e, contextMenuLinkClassName );
 
-      if ( clickeElIsLink ) {
+      if ( clickeElIsLink || e.target.classList.contains("more_menu") ) {
         e.preventDefault();
         menuItemListener( clickeElIsLink );
       } else {
@@ -581,6 +577,20 @@
     */
   }
 
+  function notificationOnClick(e) {
+    e.preventDefault();
+    taskItemInContext = e.target;
+
+    if ( taskItemInContext ) {
+      e.preventDefault();
+      toggleMenuOn();
+      positionMenu(e);
+    } else {
+      taskItemInContext = null;
+      toggleMenuOff();
+    }
+  }
+
   /**
    * action function that logs an action when a menu item link is clicked
    * 
@@ -603,8 +613,6 @@
    * Run the app.
    */
   init();
-
-})();
 </script>
 <script>
     var AUTH_HEADERS_BEARER = {"authorization": 'Bearer ' + window.fsm_token}
@@ -744,9 +752,7 @@
                               <span class="time">${noti.title}</span>
                               <p>${noti.description}</p>
                             </div>
-                            <div class="more_menu" data-id="${noti.id}">
-                                <img height="30" src="<%= static_path(@conn, "/images/icons/more-vert.webp")%>" "/>
-                            </div>
+                            <img class="more_menu" data-id="${noti.id}" onclick="notificationOnClick(event)" height="30" src="<%= static_path(@conn, "/images/icons/more-vert.webp")%>" "/>
                         </div>
                     `;
                 }) 
@@ -820,7 +826,7 @@
         $(el).prop('checked', isChecked);
       });
     }
-    
+
     $(document).ready(() => {
       getAllNotifications();
     });
