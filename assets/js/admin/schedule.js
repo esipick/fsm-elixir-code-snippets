@@ -868,7 +868,8 @@ $(document).ready(function () {
       buttons: {
           formSubmit: {
               text: 'Delete',
-              btnClass: 'btn btn-danger ml-0',
+              btnClass: 'btn btn-danger ml-0 btn-del',
+              isDisabled: true,
               action: function () {
                   var delete_reason = this.$content.find('.deleteReasonFormField').val();
 
@@ -899,6 +900,16 @@ $(document).ready(function () {
               // if the user submits the form by pressing enter in the field.
               e.preventDefault();
               jc.$$formSubmit.trigger('click'); // reference the button and click it
+          });
+
+          $("input:checkbox[name=deleteReasonOptions]").on('click',function() {
+            var checkedElems = $("input:checkbox[name=deleteReasonOptions]:checked");
+            if ( checkedElems.length > 0 ) {
+              $('.btn-del').prop('disabled', false);
+            } 
+            else {
+              $('.btn-del').prop('disabled', true);
+            }
           });
       }
   });
@@ -1481,7 +1492,7 @@ $(document).ready(function () {
       // $('#loader').css({ top: buttonPos.top + 16.5, left: buttonPos.left - 90 }).show();
       // deleteEvent(appointmentOrUnavailabilityId, eventType, event);
     }
-  });
+  });  
 
   var openAppointmentModal = function (initialData) {
     if(initialData.inserted_at){

@@ -1,7 +1,7 @@
 <div class="notifications-container">
     <div class="card">
         <div class="card-header">
-            <h4>Notifications (<span id="noti-count"></span>) <i class="now-ui-icons ui-1_bell-53"></i></h4>
+            <h4 style="display: flex;align-items: center;">Notifications (<span id="noti-count"></span>)&nbsp;&nbsp; <i class="now-ui-icons ui-1_bell-53"></i></h4>
         </div>
         <div class="card-body">
             <ul id="noti-list">
