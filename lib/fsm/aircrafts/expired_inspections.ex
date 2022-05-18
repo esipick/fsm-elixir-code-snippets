@@ -57,7 +57,7 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
         :tach ->
             # aircraft last_tach_time is store in db with factor 10
             tach_time = (inspection.next_inspection * 10) - (inspection.aircraft.last_tach_time)
-            case tach_time < 0 do
+            tach_time = case tach_time < 0 do
               true->
                 0
               false->
