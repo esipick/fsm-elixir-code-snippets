@@ -57,6 +57,12 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
         :tach ->
             # aircraft last_tach_time is store in db with factor 10
             tach_time = (inspection.next_inspection * 10) - (inspection.aircraft.last_tach_time)
+            case tach_time < 0 do
+              true->
+                0
+              false->
+                tach_time
+            end
             IO.inspect(tach_time, label: "tach_time++++")
             FlightWeb.ViewHelpers.display_hour_tenths(tach_time) <>  " hrs"
       end
