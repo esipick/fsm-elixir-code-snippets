@@ -67,7 +67,7 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
             {:error, :invalid_until} ->
               "0 day(s) left"
             interval ->
-              duration = Timex.Interval.duration(interval, :hours)
+              duration = Timex.Interval.duration(interval, :days)
               IO.inspect(duration, label: "duration++++")
               Integer.to_string(duration) <> " day(s) left"
           end
