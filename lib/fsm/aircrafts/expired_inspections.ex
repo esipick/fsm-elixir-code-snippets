@@ -57,10 +57,28 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
         :tach ->
             # aircraft last_tach_time is store in db with factor 10
             tach_time = (inspection.next_inspection * 10) - (inspection.aircraft.last_tach_time)
-            FlightWeb.ViewHelpers.display_hour_tenths(tach_time)
+            IO.inspect(tach_time, label: "tach_time++++")
+            FlightWeb.ViewHelpers.display_hour_tenths(tach_time) <>  " hrs"
       end
     end
-
+    def last_inspection_description(inspection) do
+      case inspection.date_tach do
+        :date ->
+          Flight.Date.format(inspection.last_inspection)
+        :tach ->
+          tach_time = (inspection.last_inspection * 10)
+          FlightWeb.ViewHelpers.display_hour_tenths(tach_time)
+      end
+    end
+    def next_inspection_description(inspection) do
+      case inspection.date_tach do
+        :date ->
+          Flight.Date.format(inspection.next_inspection)
+        :tach ->
+          tach_time = (inspection.next_inspection * 10)
+          FlightWeb.ViewHelpers.display_hour_tenths(tach_time)
+      end
+    end
     def inspection_status(inspection, today \\ nil) do
       now =
         case today do
@@ -81,7 +99,7 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
                     interval ->
                       duration = Timex.Interval.duration(interval, :hours)
 
-                      case duration <= 20 && duration > 0 do
+                      case duration <= inspection.aircraft.days_before && duration > 0 do
                         true -> :expiring
                         false -> :good
                       end
@@ -89,8 +107,9 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
             :tach ->
               # aircraft last_tach_time is store in db with factor 10
                 interval = (inspection.next_inspection * 10) - inspection.aircraft.last_tach_time
+                IO.inspect(interval, label: "interval++++")
                 cond do
-                    interval < 20 && interval > 0 -> :expiring
+                    interval < inspection.aircraft.tach_hours_before && interval > 0 -> :expiring
                     interval <= 0 -> :expired
                     true -> :good
                 end

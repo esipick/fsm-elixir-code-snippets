@@ -61,7 +61,23 @@ defmodule FlightWeb.Admin.AircraftController do
         inspection = Map.put(inspection, :aircraft, aircraft)
         # For due inspection column
         expiration = ExpiredInspection.inspection_description(inspection)
-        Map.put(inspection, :expiration, expiration)
+        last_inspection = ExpiredInspection.last_inspection_description(inspection)
+        next_inspection = ExpiredInspection.next_inspection_description(inspection)
+        inspection_status = ExpiredInspection.inspection_status(inspection)
+        icon_url = case inspection_status do
+          :expired->
+            "https://production-flight-boss.s3.amazonaws.com/pastDue.png"
+          :good->
+            "https://production-flight-boss.s3.amazonaws.com/plane.png"
+          :expiring->
+            "https://production-flight-boss.s3.amazonaws.com/attention.png"
+        end
+        inspection = inspection
+                     |> Map.put(:last_inspection, last_inspection)
+                     |> Map.put(:next_inspection, next_inspection)
+                     |> Map.put(:inspection_status, inspection_status)
+                     |> Map.put(:expiration, expiration)
+                     |> Map.put(:icon_url, icon_url)
       end)
 
     squawks = Fsm.Squawks.get_squawks({aircraft.id, user.id})

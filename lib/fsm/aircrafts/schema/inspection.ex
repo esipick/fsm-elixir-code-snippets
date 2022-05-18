@@ -21,6 +21,8 @@ defmodule Fsm.Aircrafts.Inspection do
       field :tach_hours, :float, virtual: true
       field :last_inspection, InspectionDataType, virtual: true
       field :next_inspection, InspectionDataType, virtual: true
+      field :inspection_status, InspectionStatusDataType, virtual: true
+      field :expiration, InspectionDataType, virtual: true
 
 
       belongs_to :aircraft, Fsm.Scheduling.Aircraft

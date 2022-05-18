@@ -57,7 +57,8 @@ defmodule Fsm.Inspections do
         inspection_data_query = from(t in InspectionData, order_by: [asc: t.sort])
         query =
           from i in Inspection,
-            where: i.aircraft_id == ^aircraft_id,
+            where: i.aircraft_id == ^aircraft_id and i.is_completed == false,
+            order_by: [desc: i.inserted_at],
             select: i
         inspections = query
         #Logger.info fn -> "filter: #{inspect filter}" end
@@ -92,7 +93,7 @@ defmodule Fsm.Inspections do
         inspection_data_query = from(t in InspectionData, order_by: [asc: t.sort])
         query =
           from i in Inspection,
-            where: i.aircraft_id == ^aircraft_id,
+            where: i.aircraft_id == ^aircraft_id and i.is_completed == false,
             order_by: [desc: i.inserted_at],
             select: i
 

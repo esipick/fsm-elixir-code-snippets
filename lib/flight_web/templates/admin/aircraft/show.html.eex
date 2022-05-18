@@ -70,6 +70,16 @@
                             <dt>Block Rate Per Hour</dt>
                             <dd><%= currency @aircraft.block_rate_per_hour %></dd>
                         </dl>
+                    </div>
+                </div>
+            </div> <!-- end card -->
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-lg-10">
+            <div class="card ">
+                <div class="card-body">
+                    <div class="detail-list">
                         <dl class="d-flex justify-content-between border-none">
                             <dt>Inspections</dt>
                             <dd></dd>
@@ -81,7 +91,9 @@
                                     <th>Name</th>
                                     <th>Type</th>
                                     <th class="text-center">Date/Tach</th>
-                                    <th>Due date/tach time</th>
+                                    <th class="text-center">Next Insp</th>
+                                    <th>Due Date/Tach</th>
+                                    <th>Status</th>
                                     <th class="text-right"><a
                                             href="/admin/aircrafts/<%= @aircraft.id %>/inspections/new"
                                             class="btn btn-primary btn-sm">Add New</a></th>
@@ -94,7 +106,9 @@
                                     <td><%= inspection.name %></td>
                                     <td><%= inspection.type %></td>
                                     <td class="text-center text-capitalize"><%= inspection.date_tach %></td>
+                                    <td><%= inspection.next_inspection %></td>
                                     <td><%= inspection.expiration %></td>
+                                    <td><img src="<%= inspection.icon_url %>" alt="<%= inspection.inspection_status %>"></td>
                                     <%= if !inspection.is_completed do%>
                                     <td class="text-right "><a onclick="inspectnow(<%= Poison.encode!(inspection) %>, <%= display_hour_tenths(@aircraft.last_tach_time) %>)"
                                                                class="btn btn-primary btn-sm text-white">Inspect Now</a>
@@ -102,7 +116,6 @@
                                     <td class="text-right"><a href="/admin/inspections/<%= inspection.id %>/edit"
                                                               class="btn btn-primary btn-sm">Edit</a></td>
                                     <% end %>
-
                                     <%= if inspection.is_completed do%>
                                     <td class="text-right ">completed
                                     </td>
@@ -113,6 +126,14 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+            </div> <!-- end card -->
+        </div>
+        <div class="col-md-12 col-lg-10">
+            <div class="card ">
+                <div class="card-body">
+                    <div class="detail-list">
                         <dl class="d-flex justify-content-between border-none">
                             <dt>Squawks</dt>
                             <dd></dd>
