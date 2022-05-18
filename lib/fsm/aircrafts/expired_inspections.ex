@@ -50,10 +50,28 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
       end)
     end
 
-    def inspection_description(inspection) do
+    def inspection_description(inspection, today \\ nil) do
       case inspection.date_tach do
         :date ->
-            Flight.Date.format(inspection.next_inspection)
+
+          now =
+            case today do
+              nil ->
+                %{school: school} = Flight.Repo.preload(inspection.aircraft, :school)
+                Timex.now(school.timezone)
+
+              today ->
+                today
+            end
+          duration = case Timex.Interval.new(from: now, until: inspection.next_inspection) do
+            {:error, :invalid_until} ->
+              "0 day(s) left"
+            interval ->
+              duration = Timex.Interval.duration(interval, :hours)
+              IO.inspect(duration, label: "duration++++")
+              Integer.to_string(duration) <> " day(s) left"
+          end
+          duration
         :tach ->
             # aircraft last_tach_time is store in db with factor 10
             tach_time = (inspection.next_inspection * 10) - (inspection.aircraft.last_tach_time)
