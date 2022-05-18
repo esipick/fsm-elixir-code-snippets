@@ -106,7 +106,7 @@
     <%# <div class="col-md-6">
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Airworthiness Status</h5>
+          <h4>Airworthiness Status</h5>
         </div>
         <div class="card-body">
           <ul>
@@ -126,7 +126,7 @@
       </div>
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Airworthiness Status</h5>
+          <h4>Airworthiness Status</h5>
         </div>
         <div class="card-body">
           <ul>
@@ -149,7 +149,7 @@
       <%= render(FlightWeb.Notification.NotificationView, "widget.html", conn: @conn) %>
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Asset Alerts</h5>
+          <h4>Asset Alerts</h5>
         </div>
         <div class="card-body">
           <%= if Enum.any?(@assets) do %>
@@ -226,7 +226,7 @@
         
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Billing Alerts</h5>
+          <h4>Billing Alerts</h5>
         </div>
         <div class="card-body">
           <%= if @card_expired do %>
@@ -272,7 +272,7 @@
       </div>
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">LMS Status</h5>
+          <h4>LMS Status</h5>
         </div>
         <div class="card-body">
           <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
@@ -303,7 +303,7 @@
     <div class="col-md-6">
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Appointments</h5>
+          <h4>Appointments</h5>
         </div>
         <div class="card-body">
           <%= if Enum.any?(@appointments) do %>

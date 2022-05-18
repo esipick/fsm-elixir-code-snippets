@@ -87,7 +87,7 @@
     <div class="col-md-6">
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Squawks</h5>
+          <h4>Squawks</h5>
           <h1 class="card-title"><%= Enum.count(@squawks) %></h1>
         </div>
         <div class="card-body">

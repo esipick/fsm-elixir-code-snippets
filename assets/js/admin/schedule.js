@@ -854,7 +854,7 @@ $(document).ready(function () {
   var askDeleteReason = function(appointmentOrUnavailabilityId, eventType, event) {
     $.confirm({
       title: '',
-      content: '<p>Please enter reason to delete this event.</p>' +
+      content: '<p>Please explain why you are deleting this appointment.</p>' +
       '<form action="" class="deleteReasonForm">' +
       '<div class="form-group">' +
       '<input type="checkbox" name="deleteReasonOptions" value="weather"/><label>&nbsp;&nbsp;Weather</label><br/>'+

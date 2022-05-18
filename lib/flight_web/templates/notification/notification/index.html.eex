@@ -35,7 +35,7 @@
             <div id="noti-list">
             </div>     
             <div class="d-flex justify-content-end">
-                <ul class="nav nav-pills nav-pills-primary" role="tablist">
+                <ul class="nav nav-pills nav-pills-primary pagination" role="tablist">
                     <li class="nav-item">
                       <button class="btn btn-default" onclick="getPrevNotifications()" role="tablist" aria-expanded="false">
                           Prev
@@ -170,7 +170,6 @@
 }
 .panel .notifications .notification:hover {
   color: #1B95E0;
-  cursor: pointer;
 }
 .panel .notifications .notification .circle {
   -webkit-box-sizing: border-box;
@@ -198,13 +197,19 @@
   margin-bottom: 2px;
 }
 .panel .notifications .notification .text-box {
-  margin-left:0.5rem;
+  margin-left:1rem;
+  width: 500px;
 }
 .panel .notifications .notification p {
   font-size: 15px;
   line-height: 20px;
   margin: 0;
 }
+
+.panel .notifications .notification .more_menu {
+  cursor: pointer;
+}
+
 .panel .notifications .notification p b {
   font-weight: 600;
 }
@@ -234,6 +239,13 @@
   }
 }
 
+.pagination {
+  padding: 20px !important;
+}
+
+.pagination li {
+  margin-left: 10px !important;
+}
 
 .container {
   margin: 0 auto;
@@ -431,7 +443,7 @@
   var contextMenuLinkClassName = "context-menu__link";
   var contextMenuActive = "context-menu--active";
 
-  var taskItemClassName = "notification";
+  var taskItemClassName = "more_menu";
   var taskItemInContext;
 
   var clickCoords;
@@ -546,7 +558,9 @@
     clickCoords = getPosition(e);
     clickCoordsX = clickCoords.x;
     clickCoordsY = clickCoords.y;
-
+    menu.style.left = (clickCoordsX - 240) + "px";
+    menu.style.top = (clickCoordsY - 10) + "px";
+    /*
     menuWidth = menu.offsetWidth + 4;
     menuHeight = menu.offsetHeight + 4;
 
@@ -564,6 +578,7 @@
     } else {
       menu.style.top = clickCoordsY + "px";
     }
+    */
   }
 
   /**
@@ -648,12 +663,15 @@
                 const alerts = response.data.listNotificationAlerts.alerts;
                 alerts.forEach(noti => {
                     notiList += `
-                        <div class="notification" data-id="${noti.id}">
+                        <div class="notification">
                             <div class="circle active"></div> 
                             <input type="checkbox" name="mark-noti" value="${noti.id}"/>                        
                             <div class="text-box">
                               <span class="time">${noti.title}</span>
                               <p>${noti.description}</p>
+                            </div>
+                            <div class="more_menu" data-id="${noti.id}">
+                                <img height="30" src="<%= static_path(@conn, "/images/icons/more-vert.webp")%>" "/>
                             </div>
                         </div>
                     `;
@@ -725,6 +743,9 @@
                             <div class="text-box">
                               <span class="time">${noti.title}</span>
                               <p>${noti.description}</p>
+                            </div>
+                            <div class="more_menu" data-id="${noti.id}">
+                                <img height="30" src="<%= static_path(@conn, "/images/icons/more-vert.webp")%>" "/>
                             </div>
                         </div>
                     `;
