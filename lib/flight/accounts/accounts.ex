@@ -71,16 +71,16 @@ defmodule Flight.Accounts do
   def get_student_instructor_ids(nil), do: []
   def get_student_instructor_ids(student_id) do
     UserInstructor
-    |> where([ui], ui.instructor_id == ^student_id and ui.user_id != ^student_id)
-    |> select([ui], ui.user_id)
+    |> where([ui], ui.user_id == ^student_id)
+    |> select([ui], ui.instructor_id)
     |> Repo.all
   end
 
   def get_instructor_student_ids(nil), do: []
   def get_instructor_student_ids(instructor_id) do
     UserInstructor
-    |> where([ui], ui.user_id == ^instructor_id and ui.instructor_id != ^instructor_id)
-    |> select([ui], ui.instructor_id)
+    |> where([ui], ui.instructor_id == ^instructor_id)
+    |> select([ui], ui.user_id)
     |> Repo.all
   end
 
@@ -92,7 +92,6 @@ defmodule Flight.Accounts do
 
   def insert_user_instructor(user_id, instructor_id) when is_nil(user_id) or is_nil(instructor_id), do: {:error, "Invalid User or Instructor."}
   def insert_user_instructor(user_id, instructor_id) do
-
     with nil <- Repo.get_by(UserInstructor, instructor_id: user_id, user_id: instructor_id) do
       %UserInstructor{}
       |> UserInstructor.changeset(%{user_id: instructor_id, instructor_id: user_id})

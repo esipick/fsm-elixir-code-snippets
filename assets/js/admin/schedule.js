@@ -542,7 +542,8 @@ $(document).ready(function () {
     $('#apptInstructor').val(null).selectpicker("refresh");
     $('#apptInstructorPreTime').val(0).selectpicker("refresh");
     $('#apptInstructorPostTime').val(0).selectpicker("refresh");
-    setDefaultAircraft()
+    //setDefaultAircraft()
+    $('#apptAircraft').val(null).selectpicker("refresh");
     $('#apptSimulator').val(null).selectpicker("refresh");
     $('#apptRoom').val(null).selectpicker("refresh");
     $('#apptNote').val(null);
@@ -558,14 +559,14 @@ $(document).ready(function () {
       $('#apptFieldSimulator').show();
       $('#apptFieldRoom').hide();
 
-      setDefaultAircraft()
+      //setDefaultAircraft()
       $('#apptRoom').val(null).selectpicker("refresh");
     } else if (type == "Room") {
       $('#apptFieldAircraft').hide();
       $('#apptFieldSimulator').hide();
       $('#apptFieldRoom').show();
 
-      setDefaultAircraft()
+      //setDefaultAircraft()
       $('#apptSimulator').val(null).selectpicker("refresh");
 
     } else {
@@ -936,6 +937,7 @@ $(document).ready(function () {
 
 
       var eventAircraft = safeParseInt($('#apptAircraft').val());
+      console.log(eventAircraft);
       var eventSimulator = safeParseInt($('#apptSimulator').val());
       var eventRoom = safeParseInt($('#apptRoom').val());
       var eventApptType = $('#apptType').val();
@@ -999,7 +1001,8 @@ $(document).ready(function () {
         simulator_id: eventSimulator,
         room_id: eventRoom,
         note: eventNote,
-        type: eventApptType
+        type: eventApptType,
+        demo: false
       };
       if (appointmentOrUnavailabilityId) {
         promise = $.ajax({

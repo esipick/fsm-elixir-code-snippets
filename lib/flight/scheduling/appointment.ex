@@ -177,7 +177,7 @@ defmodule Flight.Scheduling.Appointment do
 
       get_field(changeset, :type) == "meeting" ->
         if get_field(changeset, :instructor_user_id) == nil or get_field(changeset, :instructor_user_id) == nil do
-          add_error(changeset, :room, "and instructor is required.")
+          add_error(changeset, :instructor, "is required.")
         else
           changeset
         end
