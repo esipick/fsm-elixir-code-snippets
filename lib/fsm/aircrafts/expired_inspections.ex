@@ -58,11 +58,13 @@ defmodule Fsm.Aircrafts.ExpiredInspection do
             case today do
               nil ->
                 %{school: school} = Flight.Repo.preload(inspection.aircraft, :school)
-                Timex.now(school.timezone)
+                Timex.today()
 
               today ->
-                today
+                Timex.today()
             end
+          IO.inspect(now, label: "now++++")
+          IO.inspect(inspection.next_inspection, label: "inspection.next_inspection++++")
           duration = case Timex.Interval.new(from: now, until: inspection.next_inspection) do
             {:error, :invalid_until} ->
               "0 day(s) left"
