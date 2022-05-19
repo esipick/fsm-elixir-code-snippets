@@ -202,7 +202,7 @@
             </div>
 
             <div class="row" id="instructorPostTime">
-              <label class="col-md-3 col-form-label">Instructor Postflight Time </label>
+              <label class="col-md-3 col-form-label" style="padding-right: 10px;">Instructor Postflight Time </label>
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="apptInstructorPostTime" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Post-Time">
