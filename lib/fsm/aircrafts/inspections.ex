@@ -15,6 +15,7 @@ defmodule Fsm.Inspections do
     alias Fsm.Aircrafts.InspectionData
     alias Fsm.Attachments.Attachment
     alias Fsm.Aircrafts.InspectionNotesAuditTrail
+    alias Ecto.Multi
 
     def get_inspection(id) do
         Inspection
@@ -56,7 +57,8 @@ defmodule Fsm.Inspections do
         inspection_data_query = from(t in InspectionData, order_by: [asc: t.sort])
         query =
           from i in Inspection,
-            where: i.aircraft_id == ^aircraft_id,
+            where: i.aircraft_id == ^aircraft_id and i.is_completed == false,
+            order_by: [desc: i.inserted_at],
             select: i
         inspections = query
         #Logger.info fn -> "filter: #{inspect filter}" end
@@ -91,7 +93,8 @@ defmodule Fsm.Inspections do
         inspection_data_query = from(t in InspectionData, order_by: [asc: t.sort])
         query =
           from i in Inspection,
-            where: i.aircraft_id == ^aircraft_id,
+            where: i.aircraft_id == ^aircraft_id and i.is_completed == false,
+            order_by: [desc: i.inserted_at],
             select: i
 
         inspections = query
@@ -259,6 +262,43 @@ defmodule Fsm.Inspections do
         end
     end
 
+    def add_multiple_inspection_images(inspection_images_input) do
+        Multi.new
+        |> Multi.run(:add_inspection_image, &(add_multiple_inspection_images(inspection_images_input, &1, &2)))
+        |> Repo.transaction
+        |> case do
+               {:ok, result} -> {:ok, result.add_inspection_image}
+               {:error, _error, error, %{}} ->
+                   {:error, error}
+           end
+    end
+
+    def add_multiple_inspection_images(inspection_images_input, _opt1, _opt2) do
+        Enum.reduce_while(inspection_images_input, {:ok, []}, fn inspection_image, acc ->
+            user_id = Map.get(inspection_image, :user_id)
+            inspection_id = Map.get(inspection_image, :inspection_id)
+
+            add_inspection_image(inspection_image, %{user_id: user_id}, nil, %{add_inspection: %{id: inspection_id}})
+            |> case do
+                   {:ok, inspection_image_changeset} ->
+                       {:ok, acc} = acc
+                       {:cont, {:ok, [inspection_image_changeset | acc]}}
+
+                   {:error, changeset} ->
+                       {:halt, {:error, changeset}}
+               end
+
+        end)
+    end
+
+    def add_inspection_image(inspection_image_input,inspection_input, _opt1, %{add_inspection: %{id: inspection_id}}) do
+        inspection_image_input = Map.put(inspection_image_input, :inspection_id, inspection_id)
+                             |> Map.put(:user_id, inspection_input.user_id)
+        %Attachment{}
+        |> Attachment.changeset(inspection_image_input)
+        |> Repo.insert()
+    end
+
     defp update_inspection_data_row(list = [hd | _], new_value) do
 
         case hd.type do
@@ -312,20 +352,21 @@ defmodule Fsm.Inspections do
     def complete_inspection(input) do
         inspection = Repo.get(Inspection, input.inspection_id)
         |> Repo.preload([:inspection_data])
-
+        is_repeated = input.is_repeated
         Logger.debug "input: #{inspect input}"
         completed_at = NaiveDateTime.utc_now()|> NaiveDateTime.truncate(:second)
 
         updateInspectionData = input
             |> Map.merge(%{is_completed: true})
+            |> Map.merge(%{is_repeated: is_repeated})
             |> Map.merge(%{completed_at: completed_at})
             |> Map.delete(:inspection_id)
 
-        Logger.debug "updateInspectionData: #{inspect updateInspectionData}"
+
 
         Ecto.Changeset.change(inspection, updateInspectionData)
         |> Repo.update()
-
+        Logger.debug "updateInspectionData: #{inspect updateInspectionData}"
         create_from_inspection(inspection, updateInspectionData)
     end
 
@@ -338,19 +379,15 @@ defmodule Fsm.Inspections do
             false->
                false
         end
+        Logger.debug "should_repeat_inspection---: #{inspect should_repeat_inspection}"
         case should_repeat_inspection do
             true ->
                 last_inspection_date = DateTime.utc_now()
-                engine_tach_start  =  AircraftsQueries.get_tach_engine_query(inspection.aircraft_id)
-                |> Repo.one()
-                |> case do
-                       nil ->
-                           0
-                       engine ->
-                           engine.engine_tach_start
-                   end
-                Logger.debug "engine_tach_start: #{inspect engine_tach_start}"
-
+                #engine_tach_start  =  AircraftsQueries.get_tach_engine_query(inspection.aircraft_id)
+                aircraft = Repo.get_by(Aircraft, id: inspection.aircraft_id)
+                engine_tach_start = aircraft.last_tach_time
+                engine_tach_start = Flight.Format.hours_from_tenths(engine_tach_start) |> Decimal.cast()  |> Decimal.round(1)
+                engine_tach_start_string = engine_tach_start |> Decimal.to_string()
 
                 insp_data =  Enum.map(inspection.inspection_data, fn(d) ->
                     case d.class_name do
@@ -360,11 +397,24 @@ defmodule Fsm.Inspections do
                                     Map.from_struct(d)
                                     |> Map.delete(:id)
                                     |> Map.put(:t_date, last_inspection_date)
-
-                                :float ->
-                                    Map.from_struct(d)
-                                    |> Map.delete(:id)
-                                    |> Map.put(:t_float, engine_tach_start)
+                                _ ->
+                                    case Integer.parse(engine_tach_start_string) do
+                                        {int_val, int_rest} ->
+                                            case int_rest == "" or int_rest == ".0" do
+                                                true ->
+                                                    Map.from_struct(d)
+                                                    |> Map.delete(:id)
+                                                    |> Map.put(:t_float, nil)
+                                                    |> Map.put(:type, :int)
+                                                    |> Map.put(:t_int, int_val)
+                                                false ->
+                                                    Map.from_struct(d)
+                                                    |> Map.delete(:id)
+                                                    |> Map.put(:t_int, nil)
+                                                    |> Map.put(:type, :float)
+                                                    |> Map.put(:t_float, engine_tach_start)
+                                            end
+                                    end
                             end
                         "next_inspection" ->
                             case d.type do
@@ -379,17 +429,31 @@ defmodule Fsm.Inspections do
                                             |> Map.delete(:id)
                                             |> Map.put(:value, "")
                                     end
-
-                                :float ->
+                                _ ->
                                     case Map.has_key?(updateInspectionData, :tach_hours) do
                                         true->
-                                            Map.from_struct(d)
-                                            |> Map.delete(:id)
-                                            |> Map.put(:t_float, updateInspectionData.tach_hours)
+                                            case Integer.parse(updateInspectionData.tach_hours) do
+                                                {int_val, int_rest} ->
+                                                    case int_rest == "" or int_rest == ".0" do
+                                                        true ->
+                                                            Map.from_struct(d)
+                                                            |> Map.delete(:id)
+                                                            |> Map.put(:type, :int)
+                                                            |> Map.put(:t_int, int_val)
+                                                            |> Map.put(:t_float, nil)
+                                                        false ->
+                                                            Map.from_struct(d)
+                                                            |> Map.delete(:id)
+                                                            |> Map.put(:type, :float)
+                                                            |> Map.put(:t_int, nil)
+                                                            |> Map.put(:t_float, updateInspectionData.tach_hours)
+                                                    end
+                                            end
                                         _->
                                             Map.from_struct(d)
                                             |> Map.delete(:id)
-                                            |> Map.put(:t_float, nil)
+                                            |> Map.put(:type, :float)
+                                            |> Map.put(:t_int, nil)
                                     end
                             end
                         _ ->
@@ -402,6 +466,7 @@ defmodule Fsm.Inspections do
                                 :float ->
                                     Map.from_struct(d)
                                     |> Map.delete(:id)
+
                             end
 
                     end
@@ -410,10 +475,11 @@ defmodule Fsm.Inspections do
                 copy = Map.from_struct(inspection)
                        |> Map.drop([:id, :note, :is_completed,:completed_at, :is_repeated, :repeat_every_days])
                        |> Map.merge(%{inspection_data: insp_data})
-
+                Logger.debug "copy: #{inspect copy}"
                 %Inspection{}
                 |> Inspection.changeset(copy)
                 |> Repo.insert
+                |> IO.inspect()
             false ->
                 {:ok, inspection}
             end

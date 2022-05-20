@@ -106,7 +106,7 @@
     <%# <div class="col-md-6">
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Airworthiness Status</h5>
+          <h4>Airworthiness Status</h5>
         </div>
         <div class="card-body">
           <ul>
@@ -126,7 +126,7 @@
       </div>
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Airworthiness Status</h5>
+          <h4>Airworthiness Status</h5>
         </div>
         <div class="card-body">
           <ul>
@@ -146,29 +146,87 @@
       </div>
     </div> %>
     <div class="col-md-6">
-      <%# <div class="card card-chart">
+      <%= render(FlightWeb.Notification.NotificationView, "widget.html", conn: @conn) %>
+      <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Asset Alerts</h5>
+          <h4>Asset Alerts</h5>
         </div>
         <div class="card-body">
-          <div class="table-responsive">
-              <table class="table">
-                <tbody>
-                
-                </tbody>
-              </table>
-            </div>
+          <%= if Enum.any?(@assets) do %>
+            <%= for aircraft <- @assets do %>
+              <div class="aircraft-item">
+                <a href="/aircrafts/<%= aircraft.id %>"><%= aircraft_display_name(aircraft) %></a>
+                <h5>Airworthiness</h5>
+                <div class="airworthiness">
+                  <% airworthiness = Flight.Aircrafts.airworthiness(aircraft) %>
+                  <table class="table">
+                    <tr><td>Registration Certificate Expiration </td> <td class='<%= if airworthiness.registration_cert_status == "Expired", do: "text-expired" %>'> <%= airworthiness.registration_cert_status %> </td></tr>
+                    <tr><td>Insurance Expiration </td><td class='<%= if airworthiness.insurance_status == "Expired", do: "text-expired" %>'><%= airworthiness.insurance_status %> </td></tr>
+                  </table>
+                </div>
+                <h5>Due Inspections</h5>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Name</th>
+                      <th scope="col">Type</th>
+                      <th scope="col">Date/Tach</th>
+                      <th scope="col">Next Inspection</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <%= for inspection <- aircraft.inspections do %> 
+                      <% next_inspection = ExpiredInspection.inspection_is_due(inspection) %>                         
+                      <%= if next_inspection do %>
+                        <tr>
+                          <td class="text-nowrap"><%= inspection.name %></td>
+                          <td class="text-nowrap"><%= inspection.type %></td>
+                          <td class="text-nowrap text-capitalize">
+                            <%= inspection.date_tach %>
+                          </td>
+                          <td class="text-nowrap text-expiring">
+                            <%= next_inspection %>
+                          </td>
+                        </tr>
+                      <% end %> 
+                    <% end %>
+                  </tbody>
+                </table>
+                <h5>Squawks</h5>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Title</th>
+                      <th scope="col">System Affected</th>
+                      <th scope="col">Severity</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <%= for squawk <- aircraft.squawks do %>
+                      <tr>
+                        <td class="text-nowrap"><%= squawk.title %> </td>
+                        <td class="text-nowrap text-capitalize"><%= squawk.system_affected %> </td>
+                        <td class="text-nowrap text-capitalize"><%= squawk.severity %> </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% end %>            
+          <% else %>
+            <h5>No Assets User assigned to.</h5>
+          <% end %>
         </div>
         <div class="card-footer">
           <div class="stats">
             <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
           </div>
         </div>
-      </div> %>
-       <%# <%= render(FlightWeb.Shared.NotificationWidgetView, "index.html", conn: @conn) %> 
+      </div>
+        
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Billing Alerts</h5>
+          <h4>Billing Alerts</h5>
         </div>
         <div class="card-body">
           <%= if @card_expired do %>
@@ -214,7 +272,7 @@
       </div>
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">LMS Status</h5>
+          <h4>LMS Status</h5>
         </div>
         <div class="card-body">
           <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
@@ -245,7 +303,7 @@
     <div class="col-md-6">
       <div class="card card-chart">
         <div class="card-header">
-          <h5 class="card-category">Appointments</h5>
+          <h4>Appointments</h5>
         </div>
         <div class="card-body">
           <%= if Enum.any?(@appointments) do %>
@@ -279,28 +337,28 @@
                   <td>
                     <%= if appointment.aircraft_id do %>
                       <dl class="d-flex justify-content-between">
-                        <dt>Aircraft</dt>
+                        <dt>Aircraft&nbsp;&nbsp;</dt>
                         <dd><%= aircraft_display_name appointment.aircraft %></dd>
                       </dl>
                     <% end %>
 
                     <%= if appointment.simulator_id do %>
                       <dl class="d-flex justify-content-between">
-                        <dt>Simulator</dt>
+                        <dt>Simulator&nbsp;&nbsp;</dt>
                         <dd><%= aircraft_display_name appointment.simulator %></dd>
                       </dl>
                     <% end %>
 
                     <%= if appointment.room_id do %>
                       <dl class="d-flex justify-content-between">
-                        <dt>Room</dt>
+                        <dt>Room&nbsp;&nbsp;</dt>
                         <dd><%= appointment.room.location %></dd>
                       </dl>
                     <% end %>
 
                     <%= if appointment.instructor_user_id do %>
                       <dl class="d-flex justify-content-between">
-                        <dt>Instructor</dt>
+                        <dt>Instructor&nbsp;&nbsp;</dt>
                         <dd><%= display_name appointment.instructor_user %></dd>
                       </dl>
                     <% end %>
@@ -324,3 +382,8 @@
 </div>
 <!-- end content -->
 <%= render(FlightWeb.SharedView, "flash_view.html", conn: @conn) %>
+<style>
+  .aircraft-item {
+    margin-bottom: 3rem;
+  }
+</style>

@@ -37,6 +37,12 @@ export const MAINTENANCE_DESCRIPTION_OPTIONS = [
   {label: LABOR, value: LABOR, taxable: false, deductible: false},
 ]
 
+export const MAINTENANCE_ONLY_OPTIONS = [
+  {label: FLIGHT_HOURS, value: FLIGHT_HOURS, taxable: true, deductible: false},
+  {label: PARTS, value: PARTS, taxable: false, deductible: false},
+  {label: LABOR, value: LABOR, taxable: false, deductible: false},
+]
+
 export const DEFAULT_RATE = 0;
 
 export const NUMBER_INPUT_OPTS = {

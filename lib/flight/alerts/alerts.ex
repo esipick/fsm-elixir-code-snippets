@@ -1,8 +1,52 @@
 defmodule Flight.Alerts do
     alias Flight.Alerts.Alert
+    alias Flight.Alerts.AlertsQueries
     alias Flight.Accounts
     alias Flight.Repo
+    alias Flight.SchoolScope
+    import Ecto.Query, warn: false
 
+    # def create_notification_alerts(alerts) do
+    #     Repo.insert_all(Alert, alerts)
+    # end
+
+    def get_alert(id, school_context) do
+        Alert
+        |> SchoolScope.scope_query(school_context)
+        |> where([a], a.id == ^id)
+        |> Repo.one()
+    end
+
+    def mark_notification_alerts(ids, is_read, context) do
+        AlertsQueries.mark_delete_notification_alerts_query(ids, context)
+        |> Repo.update_all(set: [is_read: is_read])
+    end
+
+    def delete_notification_alerts(ids, context) do
+        AlertsQueries.mark_delete_notification_alerts_query(ids, context)
+        |> Repo.update_all(set: [archived: true])
+    end
+
+    def mark_all_notification_alerts(is_read, context) do
+        AlertsQueries.mark_delete_all_notification_alerts_query(context)
+        |> Repo.update_all(set: [is_read: is_read])
+    end
+
+    def delete_all_notification_alerts(context) do
+        AlertsQueries.mark_delete_all_notification_alerts_query(context)
+        |> Repo.update_all(set: [archived: true])
+    end
+
+    def create_notification_alert(alert) do
+        %Alert{}
+        |> Alert.changeset(alert)
+        |> Repo.insert
+    end
+
+    def list_alerts(page, per_page, sort_field, sort_order, filter, context) do
+        AlertsQueries.list_alerts_query(page, per_page, sort_field, sort_order, filter, context)
+        |> Repo.all()
+    end
 
     def create_squawk_alert_and_notify_roles(_squawk_id, _school_id, _sender_id, nil), do: {:ok, []}
     def create_squawk_alert_and_notify_roles(_squawk_id, _school_id, _sender_id, []), do: {:ok, []}
@@ -37,10 +81,4 @@ defmodule Flight.Alerts do
             {:error, "Couldn't create squawk alerts, Please try again."}
         end
     end
-
-    # defp create_alert(attrs) do
-    #     %Alert{}
-    #     |> Alert.changeset(attrs)
-    #     |> Repo.insert
-    # end
 end

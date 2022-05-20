@@ -123,6 +123,12 @@ defmodule FlightWeb.SidebarItem do
         active: false
       },
       %SidebarItem{
+        path: "/aircrafts/list",
+        label: "Resources",
+        icon_class: "objects_spaceship",
+        active: false
+      },
+      %SidebarItem{
         path: "/course/list",
         label: "Courses",
         icon_class: "education_hat",
@@ -140,7 +146,7 @@ defmodule FlightWeb.SidebarItem do
   def student_sidebar do
     [
       %SidebarItem{
-        path: "/student/profile",
+        path: "/student/home",
         label: "Home",
         icon_class: "users_single-02",
         active: false
@@ -156,6 +162,12 @@ defmodule FlightWeb.SidebarItem do
         path: "/student/schedule",
         label: "Schedule",
         icon_class: "ui-1_calendar-60",
+        active: false
+      },
+      %SidebarItem{
+        path: "/aircrafts/list",
+        label: "Resources",
+        icon_class: "objects_spaceship",
         active: false
       },
       %SidebarItem{
@@ -176,7 +188,7 @@ defmodule FlightWeb.SidebarItem do
   def renter_sidebar do
     [
       %SidebarItem{
-        path: "/renter/profile",
+        path: "/renter/home",
         label: "Home",
         icon_class: "users_single-02",
         active: false
@@ -212,7 +224,7 @@ defmodule FlightWeb.SidebarItem do
   def mechanic_sidebar do
     [
       %SidebarItem{
-        path: "/mechanic/profile",
+        path: "/mechanic/home",
         label: "Home",
         icon_class: "users_single-02",
         active: false
@@ -258,6 +270,7 @@ defmodule FlightWeb.SidebarItem do
     items =
       case FlightWeb.RoleUtil.access_level(user) do
         "admin" -> admin_sidebar(user)
+        "dispatcher" -> admin_sidebar(user)
         "instructor" -> instructor_sidebar()
         "student" -> student_sidebar()
         "renter" -> renter_sidebar()

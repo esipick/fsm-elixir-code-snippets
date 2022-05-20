@@ -18,7 +18,7 @@
   </div>
 </div> <!-- end content -->
 
-<div id="dateSelectModal" class="modal fade" tabindex="-1" role="dialog">
+<div id="dateSelectModal" class="modal fade"  role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -45,13 +45,14 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<div id="calendarNewModal" class="modal fade" tabindex="-1" role="dialog">
+<div id="calendarNewModal" class="modal fade"  role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="apptTitle">Create New</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
+      <p id="appCreatedAt" style="color: #c5c5cc; margin-left: 25px;font-size: 11px;"></p>
 
       <div class="modal-body">
         <%# <ul id="apptTabs" class="nav nav-pills nav-pills-primary" role="tablist">
@@ -112,7 +113,7 @@
 
 
             <div id="apptFieldAircraft" class="row">
-              <label class="col-md-3 col-form-label">Aircraft *</label>
+              <label class="col-md-3 col-form-label">Aircraft </label>
               <div class="col-md-9">
                 <div class="form-group">
                   <div id= "apptAssignedAircraft">
@@ -145,7 +146,7 @@
             </div>
 
             <div id="apptFieldRoom" class="row">
-              <label class="col-md-3 col-form-label">Room *</label>
+              <label class="col-md-3 col-form-label">Room </label>
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="apptRoom" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Room">
@@ -188,7 +189,7 @@
             </div>
 
             <div class="row" id="instructorPreTime">
-              <label class="col-md-3 col-form-label">Instructor Pre Time </label>
+              <label class="col-md-3 col-form-label">Instructor Preflight Time </label>
                <div class="col-md-9">
                 <div class="form-group">
                   <select id="apptInstructorPreTime" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Pre-Time">
@@ -201,7 +202,7 @@
             </div>
 
             <div class="row" id="instructorPostTime">
-              <label class="col-md-3 col-form-label">Instructor Post Time </label>
+              <label class="col-md-3 col-form-label" style="padding-right: 10px;">Instructor Postflight Time </label>
               <div class="col-md-9">
                 <div class="form-group">
                   <select id="apptInstructorPostTime" class="selectpicker" data-size="7" data-live-search="true" data-style="btn btn-default btn-round btn-simple" title="Post-Time">
@@ -587,7 +588,7 @@
   <!-- /.modal-dialog -->
 </div>
 
-<div id="deleteRecurringEvent" class="modal fade" tabindex="-1" role="dialog">
+<div id="deleteRecurringEvent" class="modal fade"  role="dialog">
   <div class="modal-dialog modal-centered modal-sm" role="document" >
     <div class="modal-content">
       <div class="modal-header">

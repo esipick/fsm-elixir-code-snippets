@@ -74,6 +74,20 @@
     </div>
     <div class="row">
       <div class="col-md-6">
+        <div class="form-group">
+          <label>Notification days before</label>
+          <%= number_input f, :days_before, class: "form-control", value: @changeset.data.days_before %>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Notification tach hours before</label>
+          <%= number_input f, :tach_hours_before, class: "form-control", value: @changeset.data.tach_hours_before %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
         <div class="form-check">
           <label class="form-check-label">
             <%= checkbox f, :ifr_certified %>
@@ -83,6 +97,41 @@
         </div>
       </div>
       <div class="col-md-6">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-check">
+          <label class="form-check-label">
+            <%= checkbox f, :airworthiness_certificate %>
+            <span class="form-check-sign"></span>
+            Airworthness Certificate
+          </label>
+        </div>
+      </div>
+      <div class="col-md-6">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Registration Certificate Expiration</label>
+          <%= date_input f, :registration_certificate_expires_at,
+            class: "form-control",
+            value: format_html5_date(input_value(f, :registration_certificate_expires_at)),
+            placeholder: "MM/DD/YYYY" %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Insurance Expiration</label>
+          <%= date_input f, :insurance_expires_at,
+            class: "form-control",
+            value: format_html5_date(input_value(f, :insurance_expires_at)),
+            placeholder: "MM/DD/YYYY" %>
+        </div>
       </div>
     </div>
 

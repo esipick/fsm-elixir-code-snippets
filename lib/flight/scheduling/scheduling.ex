@@ -534,9 +534,26 @@ defmodule Flight.Scheduling do
        |> Appointment.changeset(%{}, school.timezone)
 
       {:ok, _} = apply_action(changeset, :insert)
+      IO.inspect("start_at #{inspect get_field(changeset, :start_at)}")
+      IO.inspect("inst_start_at #{inspect get_field(changeset, :inst_start_at)}")
 
-      start_at = get_field(changeset, :start_at) # |> utc_to_walltime(school.timezone)
-      end_at = get_field(changeset, :end_at) # |> utc_to_walltime(school.timezone)
+      IO.inspect("end_at #{inspect get_field(changeset, :end_at)}")
+      IO.inspect("inst_end_at #{inspect get_field(changeset, :inst_end_at)}")
+
+      start_at = case get_field(changeset, :inst_start_at) do
+        nil->
+          get_field(changeset, :start_at)
+        _->
+          get_field(changeset, :inst_start_at)
+      end
+
+      end_at = case get_field(changeset, :inst_end_at) do
+        nil->
+          get_field(changeset, :end_at)
+        _->
+          get_field(changeset, :inst_end_at)
+      end
+
       user_id = get_field(changeset, :user_id)
       instructor_user_id = get_field(changeset, :instructor_user_id)
       mechanic_user_id = get_field(changeset, :mechanic_user_id)
@@ -991,6 +1008,43 @@ defmodule Flight.Scheduling do
 
     deleting_user = Repo.preload(deleting_user, :school)
     Appointment.archive(appointment)
+
+    Flight.Bills.archive_appointment_invoices(appointment.id)
+
+    Mondo.Task.start(fn ->
+      if deleting_user.id != appointment.user_id do
+        Flight.PushNotifications.appointment_deleted_notification(
+          appointment.user,
+          deleting_user,
+          appointment
+        )
+        |> Mondo.PushService.publish()
+      end
+
+      if appointment.instructor_user && appointment.instructor_user.id != deleting_user.id do
+        Flight.PushNotifications.appointment_deleted_notification(
+          appointment.instructor_user,
+          deleting_user,
+          appointment
+        )
+        |> Mondo.PushService.publish()
+      end
+    end)
+
+    # send email to appointment.user
+    if(appointment.user) do
+      Flight.Email.unavailability_email(appointment.user)
+    end
+    {:ok, true}
+  end
+
+  def delete_appointment(id, deleting_user, school_context, delete_reason, delete_reason_options) do
+    appointment =
+      get_appointment(id, school_context)
+      |> Repo.preload([:user, :instructor_user])
+
+    deleting_user = Repo.preload(deleting_user, :school)
+    Appointment.archive(appointment, delete_reason, delete_reason_options)
 
     Flight.Bills.archive_appointment_invoices(appointment.id)
 

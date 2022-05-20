@@ -163,6 +163,11 @@ defmodule FlightWeb.Router do
     get("/home", HomeController, :index)
   end
 
+  scope "/dispatcher", FlightWeb.Dispatcher do
+    pipe_through([:browser, :admin_layout, :admin_authenticate, :admin_metrics_namespace])
+    get("/home", HomeController, :index)
+  end
+
   scope("/course", FlightWeb.Course, as: :course) do
     pipe_through([ :browser,
       :admin_layout,
@@ -236,6 +241,12 @@ defmodule FlightWeb.Router do
     end
   end
 
+  scope "/aircrafts", FlightWeb.Admin do
+    pipe_through([:browser, :admin_layout, :web_user_authenticate])
+    get("/list", AircraftController, :list)
+    get("/:id", AircraftController, :view)
+  end
+
   # Onboarding admin pages
   scope "/admin", FlightWeb.Admin do
     pipe_through([:browser, :admin_layout, :admin_authenticate, :admin_metrics_namespace])
@@ -273,6 +284,14 @@ defmodule FlightWeb.Router do
 
     post("/maintenance", MaintenanceController, :create)
     get("/maintenance", MaintenanceController, :index)
+  end
+
+  scope("/notifications", FlightWeb.Notification) do
+    pipe_through([ :browser,
+      :admin_layout,
+      :web_user_authenticate
+      ])
+    get("/", NotificationController, :index)
   end
 
   ###
@@ -437,6 +456,11 @@ defmodule FlightWeb.Router do
       post("/sublesson/modules", CourseController, :get_sub_lesson_modules)
     end
 
+  end
+
+  scope "/api", FlightWeb.API do
+    pipe_through([:api, :api_authenticate])
+    post("/inspections/inspect_now", InspectionController, :create)
   end
 
   scope "/api" do

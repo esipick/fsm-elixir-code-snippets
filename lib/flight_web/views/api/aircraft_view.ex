@@ -31,6 +31,9 @@ defmodule FlightWeb.API.AircraftView do
       rate_per_hour: aircraft.rate_per_hour,
       block_rate_per_hour: aircraft.block_rate_per_hour,
       blocked: aircraft.blocked,
+      airworthiness_certificate: aircraft.airworthiness_certificate,
+      registration_certificate_expires_at: aircraft.registration_certificate_expires_at,
+      insurance_expires_at: aircraft.insurance_expires_at,
       inspections:
         render_many(aircraft.inspections, AircraftView, "inspection.json", as: :inspection)
     }

@@ -7,6 +7,7 @@ defmodule FsmWeb.GraphQL.Schema do
     import_types FsmWeb.GraphQL.Scheduling.SchedulingTypes
     import_types FsmWeb.GraphQL.Dashboard.DashboardTypes
     import_types FsmWeb.GraphQL.Aircrafts.AircraftsTypes
+    import_types FsmWeb.GraphQL.Alerts.AlertsTypes
     import_types FsmWeb.GraphQL.Billing.InvoicesTypes
     import_types FsmWeb.GraphQL.SchoolAssets.SchoolAssetsTypes
     import_types FsmWeb.GraphQL.School.SchoolTypes
@@ -19,7 +20,7 @@ defmodule FsmWeb.GraphQL.Schema do
     import_types Absinthe.Plug.Types
     import_types Absinthe.Type.Custom
     import_types FsmWeb.Schema.Types.Custom.JSON
-    
+
     query do
       @desc "say hello"
       field :say_hello, :string do
@@ -32,6 +33,7 @@ defmodule FsmWeb.GraphQL.Schema do
       import_fields :scheduling_queries
       import_fields :dashboard_queries
       import_fields :aircrafts_queries
+      import_fields :alerts_queries
       import_fields :invoices_queries
       import_fields :school_assets_queries
       import_fields :school_queries
@@ -50,6 +52,7 @@ defmodule FsmWeb.GraphQL.Schema do
       import_fields :scheduling_mutations
       import_fields :dashboard_mutations
       import_fields :aircrafts_mutations
+      import_fields :alerts_mutations
       import_fields :invoices_mutations
       import_fields :school_assets_mutations
       import_fields :common_mutations

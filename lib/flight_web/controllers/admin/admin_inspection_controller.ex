@@ -117,8 +117,8 @@ defmodule FlightWeb.Admin.InspectionController do
       {next_value, _} = if next_value_type == :int, do: Integer.parse(next_value), else: Float.parse(next_value)
       next_value
     end
+    message = validate_tach_value(last_value, next_value, last_value_type, next_value_type, conn.assigns.aircraft.id)
 
-    message = validate_tach_value(last_value, next_value, last_value_type, next_value_type)
 
     if message != nil do
       render_inspection_error(conn, tach_inspection_data, message, :tach)
@@ -283,7 +283,8 @@ defmodule FlightWeb.Admin.InspectionController do
         next_value
       end
 
-      validate_tach_value(last_value, next_value, last_value_type, next_value_type)
+      validate_tach_value(last_value, next_value, last_value_type, next_value_type, inspection.aircraft_id)
+
     end
 
     if message != nil do
@@ -394,7 +395,7 @@ defmodule FlightWeb.Admin.InspectionController do
         :error  ->
           :string
         {int_val, int_rest} ->
-          case int_rest == "" do
+          case int_rest == "" or int_rest == ".0" do
             true -> :int
             false ->
               case Float.parse(val) do
@@ -487,15 +488,19 @@ defmodule FlightWeb.Admin.InspectionController do
     end
   end
 
-  defp validate_tach_value(last, next, last_type, next_type) do
+  defp validate_tach_value(last, next, last_type, next_type, aircraft_id) do
+    aircraft = Repo.get_by(Aircraft, id: aircraft_id)
+    last_tach_time = aircraft.last_tach_time
+    convertedLastValue = Flight.Format.tenths_from_hours(last)
     cond do
       last_type == :string or next_type == :string ->
         "Last or next inspection tach value should be a number"
+      convertedLastValue < last_tach_time ->
+        "Last inspection tach value should be greater than current inspection tach value"
       last > next or last == next ->
         "Next inspection tach value should be greater than last inspection tach value"
       true ->
         nil
     end
   end
-
 end

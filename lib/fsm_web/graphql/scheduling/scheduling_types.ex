@@ -126,6 +126,8 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
 
     field :delete_appointment, :string do
       arg :appointment_id, :integer
+      arg :delete_reason, :string
+      arg :delete_reason_options, list_of(:string)
       middleware Middleware.Authorize
       resolve &SchedulingResolvers.delete_appointment/3
     end
@@ -167,9 +169,6 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :inst_start_at, :naive_datetime
     field :inst_end_at, :naive_datetime
 
-    field :simulator_id, :integer
-    field :room_id, :integer
-
     field :school_id, :integer
     field :instructor_user_id, :integer
     field :mechanic_user_id, :integer
@@ -186,6 +185,8 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :room, :room
     field :simulator, :simulator
     field :parent_id, :integer
+    field :inserted_at, :naive_datetime
+    field :updated_at, :naive_datetime
 
   end
 
@@ -208,10 +209,9 @@ defmodule FsmWeb.GraphQL.Scheduling.SchedulingTypes do
     field :end_at, :string
     field :start_at, :string
     field :belongs, :string
-
-    field(:simulator_id, :integer)
-    field(:room_id, :integer)
     field :parent_id, :integer
+    field :inserted_at, :naive_datetime
+    field :updated_at, :naive_datetime
 #    field :user, :user
 #    field :instructor, :user
 #    field :aircraft, :aircraft

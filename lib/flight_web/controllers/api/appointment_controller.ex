@@ -128,9 +128,9 @@ defmodule FlightWeb.API.AppointmentController do
       end
     end
   end
-
-  def delete(%{assigns: %{appointment: appointment, current_user: user}} = conn, _) do
-
+require Logger
+  def delete(%{assigns: %{appointment: appointment, current_user: user}} = conn, meta_data) do
+    Logger.info fn -> "aa: #{inspect meta_data}" end
     if user_can?(user, [Permission.new(:appointment, :modify, :all)]) do
       delete_appointment(appointment, user, conn)
     else
@@ -143,6 +143,9 @@ defmodule FlightWeb.API.AppointmentController do
         owner_user_id = Map.get(appointment, :owner_user_id)
 
         mechanic_user_id = Map.get(appointment, :mechanic_user_id)
+
+        delete_reason = Map.get((Map.get(meta_data, "data") || %{}), "delete_reason")
+        delete_reason_options = Map.get((Map.get(meta_data, "data") || %{}), "delete_reason_options")
 
         owner_permission =
           if owner_user_id == user.id do
@@ -195,7 +198,7 @@ defmodule FlightWeb.API.AppointmentController do
                                {:personal, mechanic_user_id}
                              )
                            ] ++ owner_permission) do
-          delete_appointment(appointment, user, conn)
+          delete_appointment(appointment, user, conn, delete_reason, delete_reason_options)
         else
           conn
           |> put_status(401)
@@ -304,7 +307,7 @@ defmodule FlightWeb.API.AppointmentController do
                           res = %{
                             appointment: appointment,
                             delete: false,
-                            reason: "You are not authorized to change an appointment after 24 hours of its end time. Please talk to your assigned Instructor, Dispatcher or school's Admin."
+                            reason: "You are not authorized to delete a past appointment. Please talk to your assigned Instructor, Dispatcher or school's Admin."
                           }
                           res
                         end
@@ -393,12 +396,12 @@ defmodule FlightWeb.API.AppointmentController do
       end
 
     instructor_permissions =
-      if restrict_modify do
-        Permission.new(:appointment_instructor, :view, {:personal, instructor_user_id})
+      # if restrict_modify do
+      #   Permission.new(:appointment_instructor, :view, {:personal, instructor_user_id})
 
-      else
+      # else
         Permission.new(:appointment_instructor, :modify, {:personal, instructor_user_id})
-      end
+      # end
 
     owner_mechanic_permissions =
       if conn.assigns[:appointment] && (end_at == nil or NaiveDateTime.compare(end_at, now) == :gt) && !restrict_modify do
@@ -455,7 +458,7 @@ defmodule FlightWeb.API.AppointmentController do
 
   defp render_bad_time_request(
          conn,
-         message \\ "You are not authorized to change an appointment after 24 hours of its end time. Please talk to your assigned Instructor, Dispatcher or school's Admin."
+         message \\ "You are not authorized to delete a past appointment. Please talk to your assigned Instructor, Dispatcher or school's Admin."
        ) do
     conn
     |> put_status(401)
@@ -501,6 +504,13 @@ defmodule FlightWeb.API.AppointmentController do
 
   defp delete_appointment(appointment, user, conn) do
     Scheduling.delete_appointment(appointment.id, user, conn)
+
+    conn
+    |> resp(204, "")
+  end
+
+  defp delete_appointment(appointment, user, conn, delete_reason, delete_reason_options) do
+    Scheduling.delete_appointment(appointment.id, user, conn, delete_reason, delete_reason_options)
 
     conn
     |> resp(204, "")

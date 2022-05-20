@@ -23,7 +23,7 @@
               <%= full_error_tag f, :name %>
             </div>
             <%= case @form_type do
-              :tach -> render("_tach_inputs.html", f: f, changeset: @changeset)
+              :tach -> render("_tach_inputs.html", f: f, changeset: @changeset,  last_tach_time: nil)
               :date -> render("_date_inputs.html", f: f, changeset: @changeset)
             end %>
 

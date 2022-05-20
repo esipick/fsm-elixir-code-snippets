@@ -204,13 +204,13 @@ class AircraftLineItem extends Component {
     const hobbsErr = (this.props.line_item.errors || {}).aircraft_details || {};
     const hobbsWrapperClass = (hobbsErr.hobbs_start || hobbsErr.hobbs_end) ? 'lc-row-with-error' : '';
     const tachWrapperClass = (hobbsErr.tach_start || hobbsErr.tach_end) ? 'lc-row-with-error' : '';
-
+    
     return (
       <React.Fragment>
         <tr key={id} className={wrapperClass}>
           <td>{number}.</td>
           <td className="lc-desc-column">
-            <Select defaultValue={descriptionOpt.label ? descriptionOpt : null}
+            <Select defaultValue={descriptionOpt && descriptionOpt.label ? descriptionOpt : null}
               onChange={this.setDesc}
               isDisabled={!editable}
               options={lineItemTypeOptions}

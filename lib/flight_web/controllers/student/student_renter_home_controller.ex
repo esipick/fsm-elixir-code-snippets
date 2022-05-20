@@ -2,7 +2,6 @@ defmodule FlightWeb.Student.HomeController do
   use FlightWeb, :controller
 
   alias Flight.{Accounts, Repo, Scheduling, Queries}
-  alias Fsm.Aircrafts
   alias FlightWeb.{Billing.InvoiceStruct, SharedView, Course}
   alias FlightWeb.Course.CourseController, as: Course
 
@@ -23,7 +22,13 @@ defmodule FlightWeb.Student.HomeController do
 
     flight_hrs_billed = Scheduling.calculate_appointments_billing_duration(appointments)
 
-    inspections = Fsm.Aircrafts.ExpiredInspection.inspections_for_aircrafts(aircrafts)
+    assets = Enum.filter(appointments, fn appt
+                                            -> appt.aircraft_id
+                                      end)
+                              |> Enum.map(fn appt -> appt.aircraft end)
+                              |> Enum.uniq_by(fn aircraft -> aircraft.id end)
+                              |> Repo.preload([:squawks])
+                              |> Repo.preload([inspections: [:inspection_data, :aircraft]])
 
     params = %{"status" => "0"} #get pending invoices for current user
     result = Queries.Invoice.own_invoices(conn, params)
@@ -49,7 +54,7 @@ defmodule FlightWeb.Student.HomeController do
       show_student_flight_hours: current_user.school.show_student_flight_hours,
       show_student_accounts_summary: current_user.school.show_student_accounts_summary,
       appointments: appointments,
-      inspections: inspections,
+      assets: assets,
       invoices: invoices,
       card_expired: card_expired,
       courses_info: courses_info
